@@ -109,6 +109,14 @@ All file edits must be made in the canonical project root:
 /Users/berndloffeld/Projects/sks-lotse
 ```
 
+### Security Scanning (Aikido)
+Aikido Security is connected to this GitHub repo.
+
+- A PR must not be merged while Aikido reports open findings, unless the finding is explicitly triaged/accepted first.
+- **Not yet technically enforced**: the repo is private on GitHub's free plan, which does not support branch protection / required status checks. This is a manual check for now — verify Aikido is green before merging a PR.
+- Revisit once on GitHub Pro (or equivalent): add Aikido's check as a required status check in branch protection on `main`.
+- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
+
 Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Code is invoked from a worktree, edits must still target the real project root above.
 
 ---
