@@ -18,7 +18,7 @@ Options considered for environments:
 
 - **One Render web service** for the backend (`sks-lotse-backend`, Python runtime, Frankfurt region, free plan) plus **one managed Postgres** (`sks-lotse-db`, free plan, Frankfurt) — no separate services yet, consistent with [ADR-0002](0002-modulith-over-microservices.md). No frontend service yet — added when the frontend exists.
 - Provisioned via **`render.yaml` Blueprint** (repo root), not manual dashboard clicks — connecting the repo and clicking "Deploy from Blueprint" in Render is a one-time manual step (requires the account owner's login), everything after that is code.
-- Migrations run via `preDeployCommand: alembic upgrade head` — runs after build, before the new version serves traffic.
+- Migrations run inline as part of `startCommand` (`alembic upgrade head && uvicorn ...`) — `preDeployCommand` would be the cleaner mechanism (runs after build, before the new version serves traffic) but isn't available on Render's free plan. `alembic upgrade head` is idempotent, so running it on every start is safe, just not as clean as a dedicated pre-deploy step. Revisit if upgrading off the free plan.
 - Secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`) are declared with `sync: false` in the Blueprint — present as keys so their existence is documented, but values are set once in the Render dashboard, never committed. `DATABASE_URL` is wired automatically via `fromDatabase`.
 - Auto-deploy on every commit to `main` (`autoDeployTrigger: commit`) — matches the trunk-based branch strategy in `CLAUDE.md`.
 - **Production only, no staging environment** for now.
