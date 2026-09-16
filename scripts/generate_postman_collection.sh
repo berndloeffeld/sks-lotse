@@ -18,6 +18,15 @@ DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}" \
   PYTHONPATH=backend "$PYTHON_BIN" backend/scripts/generate_openapi.py "$OPENAPI_TMP"
 
 mkdir -p postman
-npx --yes openapi-to-postmanv2 -s "$OPENAPI_TMP" -o postman/sks-lotse.postman_collection.json -p
+POSTMAN_TMP=$(mktemp)
+trap 'rm -f "$OPENAPI_TMP" "$POSTMAN_TMP"' EXIT
+npx --yes openapi-to-postmanv2 -s "$OPENAPI_TMP" -o "$POSTMAN_TMP" -p
+
+# openapi-to-postmanv2 assigns random UUIDs (id, _postman_id) on every run,
+# which would make the output un-diffable across regenerations even when
+# nothing about the API changed. Strip them — Postman assigns its own on
+# import, so this doesn't affect usability.
+jq 'walk(if type == "object" then del(.id, ._postman_id) else . end)' "$POSTMAN_TMP" \
+  > postman/sks-lotse.postman_collection.json
 
 echo "Wrote postman/sks-lotse.postman_collection.json"
