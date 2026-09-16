@@ -162,7 +162,7 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`) in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
@@ -172,7 +172,7 @@ Every `/api/v1/*` route requires a valid JWT (`Authorization: Bearer ...`) excep
 
 There used to be a temporary `X-Access-Key` header gate in front of the whole API (`backend/app/core/security.py`) as a stopgap before real auth existed — it's been removed now that JWT auth covers the API; `ACCESS_GATE_KEY` is no longer a valid env var.
 
-`backend/app/core/rate_limit.py` adds a per-IP request cap on top of auth: a generous blanket limit across all of `/api/v1` (guards against basic scraping/bots without affecting normal use), plus a much tighter override specifically on `/auth/otp/request` (bounds cost/spam on the email-sending path). In-memory, not Redis — see that file's docstring for why that's fine given the current single-instance Render topology.
+`backend/app/core/rate_limit.py` adds a per-IP request cap on top of auth: a generous blanket limit across all of `/api/v1` (guards against basic scraping/bots without affecting normal use), plus a much tighter override specifically on `/auth/otp/request` (bounds cost/spam on the email-sending path). In-memory, not Redis, no reverse proxy in front — see [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) for why.
 
 ---
 
@@ -184,6 +184,7 @@ JWT_SECRET=
 JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
 RESEND_API_KEY=
 EMAIL_FROM_ADDRESS=
+ALLOWED_EMAILS=
 OPENAI_API_KEY=
 ADSENSE_CLIENT_ID=
 GOOGLE_OAUTH_CLIENT_ID=
@@ -194,7 +195,7 @@ X_OAUTH_CLIENT_ID=
 X_OAUTH_CLIENT_SECRET=
 ```
 
-Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 43200 (30 days) — there's no refresh-token flow yet, so sessions are long-lived on purpose; re-authenticating is just requesting a new OTP. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
+Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 43200 (30 days) — there's no refresh-token flow yet, so sessions are long-lived on purpose; re-authenticating is just requesting a new OTP. `ALLOWED_EMAILS` is a comma-separated allowlist for a pre-launch/private beta (case-insensitive) — leave it unset in local dev and until you actually want to restrict who can log in; `POST /auth/otp/request` silently no-ops (same generic response, no code created, no email sent) for any address not on the list. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
 
 ---
 

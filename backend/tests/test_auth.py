@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
+from app.core.config import settings
 from app.models import OtpCode, User
 
 
@@ -29,6 +30,26 @@ def test_request_otp_returns_202_and_calls_email_service(client, monkeypatch):
     assert response.status_code == 202
     assert len(sent) == 1
     assert sent[0][0] == "learner@example.com"
+
+
+def test_request_otp_skips_non_whitelisted_email(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    monkeypatch.setattr(settings, "allowed_emails", "vip@example.com")
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 0
+
+
+def test_request_otp_allows_whitelisted_email_case_insensitively(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    monkeypatch.setattr(settings, "allowed_emails", "Learner@Example.com, vip@example.com")
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 1
 
 
 def test_request_otp_within_cooldown_skips_second_send(client, monkeypatch):

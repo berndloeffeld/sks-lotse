@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import create_access_token, get_current_user
 from app.core.otp import (
@@ -44,6 +45,12 @@ def _as_utc(dt: datetime) -> datetime:
 
 @router.post("/otp/request", response_model=OtpRequestAccepted, status_code=status.HTTP_202_ACCEPTED)
 def request_otp(payload: OtpRequestCreate, db: Session = Depends(get_db)):
+    allowed_emails = settings.allowed_emails_set
+    if allowed_emails is not None and payload.email.lower() not in allowed_emails:
+        # Same generic response as every other throttled/rejected case below —
+        # doesn't leak whether this email is on the allowlist.
+        return OtpRequestAccepted()
+
     now = datetime.now(UTC)
 
     window_start = now - timedelta(minutes=OTP_REQUEST_WINDOW_MINUTES)

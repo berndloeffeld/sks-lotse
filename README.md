@@ -4,7 +4,7 @@
 
 A web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text, not multiple choice — the learner writes an answer and has to judge for themselves whether it's close enough to the model answer. SKS Lotse uses an LLM to grade the learner's free-text answer against the official model answer and explain what was missing or wrong.
 
-**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): single-tier, ad-financed (no feature gating — paying only removes ads), web-only (no app store), and speech-to-text as an alternative to typing an answer.
+**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), and speech-to-text as an alternative to typing an answer. Monetization is freemium — two independent paid add-ons (remove ads, unlock AI-based grading) — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) for the reasoning.
 
 ## Status
 

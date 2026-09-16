@@ -39,3 +39,7 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      # Comma-separated email allowlist for a pre-launch/private beta.
+      # Unset/empty = no whitelist (see backend/app/core/config.py).
+      - key: ALLOWED_EMAILS
+        sync: false
