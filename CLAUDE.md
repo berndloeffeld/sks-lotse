@@ -3,7 +3,7 @@
 ## What is SKS Lotse?
 SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text (not multiple choice): the learner writes an answer and must judge for themselves whether it's close enough to the official model answer. SKS Lotse uses an LLM to grade the learner's free-text answer against the official answer and explain what was missing or wrong.
 
-**Differentiation vs. existing apps** (SKS-Buddy, official SKS App both already offer AI-graded free text): single-tier, ad-financed model with no feature gating (paid removes ads only, nothing else), web-only (no app store), and speech-to-text as an alternative to typing an answer.
+**Differentiation vs. existing apps** (SKS-Buddy, official SKS App both already offer AI-graded free text): web-only (no app store) and speech-to-text as an alternative to typing an answer. Monetization is a freemium model — see [Monetization](#monetization) — a reversal of the original single-tier, ad-only concept; worth revisiting given competitors already include AI grading without gating it.
 
 ---
 
@@ -14,7 +14,7 @@ SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sp
 | Frontend | React (Vite) + TypeScript |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
-| Auth | Optional — anonymous by default, JWT-based login only for cross-device progress sync |
+| Auth | Required — no anonymous access. SSO (Google/Facebook/X) or email + OTP, JWT-based session |
 | Answer grading (LLM) | OpenAI API (GPT model) — grades free text against official answer, returns score + explanation |
 | Speech-to-text | Web Speech API (browser-native, Chromium-based browsers) — no backend/cloud STT |
 | Ads | Google AdSense |
@@ -58,11 +58,11 @@ sks-lotse/
 
 ## Core Flow
 
-1. Learner is shown a question from the official SKS catalog.
-2. Learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit).
-3. Answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer.
-4. LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
-5. Result is shown to the learner; anonymous users keep progress in the browser only, logged-in users get it synced server-side.
+1. Learner logs in (SSO via Google/Facebook/X, or email + OTP) — required before using the app.
+2. Learner is shown a question from the official SKS catalog.
+3. **If the account has AI-based grading unlocked**: learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit); the answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer; the LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
+4. **If not**: the official model answer is shown directly for the learner to self-compare against — no writing step, no LLM call.
+5. Progress is synced server-side against the logged-in account. If the account hasn't paid to remove ads, ads (Google AdSense) are shown.
 
 ---
 
@@ -76,16 +76,23 @@ sks-lotse/
 
 ## Monetization
 
-- Single tier, all features available to everyone.
-- Free = ad-supported (Google AdSense).
-- Paid = removes ads only. No feature gating, no separate paid feature set.
+Freemium, with two independent paid add-ons (not bundled — a learner can buy either, both, or neither):
+
+- **Remove ads** (Google AdSense) — default (free) accounts see ads.
+- **Unlock AI-based grading** — default (free) accounts don't get LLM scoring; they write (or just read) the question and are shown the official model answer directly for self-assessment instead (see Core Flow).
+
+All four combinations are valid: ads+no AI grading, ads+AI grading, no ads+no AI grading, no ads+AI grading. Pricing model (one-time vs. subscription) and price points: TBD.
+
+See [docs/adr/0006-mandatory-login-and-feature-gated-monetization.md](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) for the reasoning behind this and the reversal of the original single-tier model.
 
 ---
 
 ## Accounts
 
-- No login required to use the app (anonymous, progress kept in browser storage).
-- Optional login (JWT) only for learners who want progress synced across devices.
+- Login is required to use the app at all — no anonymous access.
+- Sign-in via SSO (Google, Facebook, or X) or email + OTP (passwordless).
+- JWT-based session after sign-in. Progress is always synced server-side against the account (no browser-only anonymous progress).
+- Entitlements (ads removed? AI grading unlocked?) are attached to the account — see [Monetization](#monetization).
 
 ---
 
@@ -176,7 +183,15 @@ DATABASE_URL=
 JWT_SECRET=
 OPENAI_API_KEY=
 ADSENSE_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_SECRET=
+FACEBOOK_OAUTH_CLIENT_ID=
+FACEBOOK_OAUTH_CLIENT_SECRET=
+X_OAUTH_CLIENT_ID=
+X_OAUTH_CLIENT_SECRET=
 ```
+
+Email/OTP delivery provider (for the passwordless email login path) is TBD — not yet a settled env var, decide when that login path is actually built.
 
 ---
 
