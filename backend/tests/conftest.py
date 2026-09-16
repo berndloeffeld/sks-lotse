@@ -51,5 +51,5 @@ def auth_headers(db_session):
     db_session.commit()
     db_session.refresh(user)
 
-    token = create_access_token(user.id)
+    token = create_access_token(user.id, user.token_version)
     return {"Authorization": f"Bearer {token}"}
