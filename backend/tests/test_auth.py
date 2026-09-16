@@ -57,6 +57,18 @@ def test_request_otp_throttled_after_max_requests_per_window(client, db_session,
     assert len(sent) == 5
 
 
+def test_request_otp_ip_rate_limited_across_different_emails(client, monkeypatch):
+    _capture_otp(monkeypatch)
+
+    for i in range(20):
+        response = client.post("/api/v1/auth/otp/request", json={"email": f"flood{i}@example.com"})
+        assert response.status_code == 202
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "flood20@example.com"})
+
+    assert response.status_code == 429
+
+
 def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 

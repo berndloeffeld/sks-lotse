@@ -1,3 +1,5 @@
+from collections import defaultdict, deque
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -6,6 +8,14 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    # RateLimitMiddleware's counters live on the shared `app.state` for the
+    # whole test process — without this, requests across unrelated test
+    # functions would accumulate toward the same limit.
+    app.state.rate_limit_hits = defaultdict(deque)
 
 
 @pytest.fixture()

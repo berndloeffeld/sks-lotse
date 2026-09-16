@@ -37,6 +37,8 @@ FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-on
 ### Auth (`backend/app/api/v1/auth.py`)
 Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 30-day expiry, no refresh token yet). `GET /api/v1/auth/me` is the first JWT-protected route. This coexists with, rather than replaces, the temporary `X-Access-Key` gate below — the gate still restricts the whole API from outside access, while the JWT identifies *which* logged-in user is calling.
 
+Abuse protection on `/auth/otp/request` is two-layered: a per-email cooldown + hourly cap (`backend/app/core/otp.py`) stops one inbox from being spammed, and a generic in-memory per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `main.py`) stops one caller from spraying requests across many different emails. The IP limiter is intentionally in-process, not Redis-backed — see its module docstring for why, given the current single-instance Render topology ([ADR-0005](adr/0005-render-deployment-topology.md)).
+
 ### Database
 PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
 
