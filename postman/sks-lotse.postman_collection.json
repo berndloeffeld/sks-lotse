@@ -1,0 +1,550 @@
+{
+    "item": [
+        {
+            "name": "api",
+            "description": "",
+            "item": [
+                {
+                    "name": "v1",
+                    "description": "",
+                    "item": [
+                        {
+                            "name": "questions",
+                            "description": "",
+                            "item": [
+                                {
+                                    "id": "4a8c7f0b-8336-4609-b39f-10832cf3a044",
+                                    "name": "List Questions",
+                                    "request": {
+                                        "name": "List Questions",
+                                        "description": {},
+                                        "url": {
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "questions"
+                                            ],
+                                            "host": [
+                                                "{{baseUrl}}"
+                                            ],
+                                            "query": [
+                                                {
+                                                    "disabled": false,
+                                                    "description": {
+                                                        "content": "",
+                                                        "type": "text/plain"
+                                                    },
+                                                    "key": "subject",
+                                                    "value": "<string>"
+                                                }
+                                            ],
+                                            "variable": []
+                                        },
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "method": "GET",
+                                        "body": {},
+                                        "auth": null
+                                    },
+                                    "response": [
+                                        {
+                                            "id": "62ad5b18-aa8a-48a1-b6de-d1c4e88f20f8",
+                                            "name": "Successful Response",
+                                            "originalRequest": {
+                                                "url": {
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "questions"
+                                                    ],
+                                                    "host": [
+                                                        "{{baseUrl}}"
+                                                    ],
+                                                    "query": [
+                                                        {
+                                                            "disabled": false,
+                                                            "description": {
+                                                                "content": "",
+                                                                "type": "text/plain"
+                                                            },
+                                                            "key": "subject",
+                                                            "value": "<string>"
+                                                        }
+                                                    ],
+                                                    "variable": []
+                                                },
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "method": "GET",
+                                                "body": {}
+                                            },
+                                            "status": "OK",
+                                            "code": 200,
+                                            "header": [
+                                                {
+                                                    "key": "Content-Type",
+                                                    "value": "application/json"
+                                                }
+                                            ],
+                                            "body": "[\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\"\n  }\n]",
+                                            "cookie": [],
+                                            "_postman_previewlanguage": "json"
+                                        },
+                                        {
+                                            "id": "2e67e49b-eab2-484a-9c9f-ad66f8d552ad",
+                                            "name": "Validation Error",
+                                            "originalRequest": {
+                                                "url": {
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "questions"
+                                                    ],
+                                                    "host": [
+                                                        "{{baseUrl}}"
+                                                    ],
+                                                    "query": [
+                                                        {
+                                                            "disabled": false,
+                                                            "description": {
+                                                                "content": "",
+                                                                "type": "text/plain"
+                                                            },
+                                                            "key": "subject",
+                                                            "value": "<string>"
+                                                        }
+                                                    ],
+                                                    "variable": []
+                                                },
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "method": "GET",
+                                                "body": {}
+                                            },
+                                            "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                            "code": 422,
+                                            "header": [
+                                                {
+                                                    "key": "Content-Type",
+                                                    "value": "application/json"
+                                                }
+                                            ],
+                                            "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                            "cookie": [],
+                                            "_postman_previewlanguage": "json"
+                                        }
+                                    ],
+                                    "event": [],
+                                    "protocolProfileBehavior": {
+                                        "disableBodyPruning": true
+                                    }
+                                },
+                                {
+                                    "name": "random",
+                                    "description": "",
+                                    "item": [
+                                        {
+                                            "id": "ba71b2fa-a996-41e2-9a71-924a75582bcb",
+                                            "name": "Random Question",
+                                            "request": {
+                                                "name": "Random Question",
+                                                "description": {},
+                                                "url": {
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "questions",
+                                                        "random"
+                                                    ],
+                                                    "host": [
+                                                        "{{baseUrl}}"
+                                                    ],
+                                                    "query": [
+                                                        {
+                                                            "disabled": false,
+                                                            "description": {
+                                                                "content": "",
+                                                                "type": "text/plain"
+                                                            },
+                                                            "key": "subject",
+                                                            "value": "<string>"
+                                                        }
+                                                    ],
+                                                    "variable": []
+                                                },
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "method": "GET",
+                                                "body": {},
+                                                "auth": null
+                                            },
+                                            "response": [
+                                                {
+                                                    "id": "cd77ce00-db3a-4aa8-a13c-673af8906dba",
+                                                    "name": "Successful Response",
+                                                    "originalRequest": {
+                                                        "url": {
+                                                            "path": [
+                                                                "api",
+                                                                "v1",
+                                                                "questions",
+                                                                "random"
+                                                            ],
+                                                            "host": [
+                                                                "{{baseUrl}}"
+                                                            ],
+                                                            "query": [
+                                                                {
+                                                                    "disabled": false,
+                                                                    "description": {
+                                                                        "content": "",
+                                                                        "type": "text/plain"
+                                                                    },
+                                                                    "key": "subject",
+                                                                    "value": "<string>"
+                                                                }
+                                                            ],
+                                                            "variable": []
+                                                        },
+                                                        "header": [
+                                                            {
+                                                                "key": "Accept",
+                                                                "value": "application/json"
+                                                            }
+                                                        ],
+                                                        "method": "GET",
+                                                        "body": {}
+                                                    },
+                                                    "status": "OK",
+                                                    "code": 200,
+                                                    "header": [
+                                                        {
+                                                            "key": "Content-Type",
+                                                            "value": "application/json"
+                                                        }
+                                                    ],
+                                                    "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\"\n}",
+                                                    "cookie": [],
+                                                    "_postman_previewlanguage": "json"
+                                                },
+                                                {
+                                                    "id": "3ce0b5b0-cf08-4d52-925a-b8c955720e5a",
+                                                    "name": "Validation Error",
+                                                    "originalRequest": {
+                                                        "url": {
+                                                            "path": [
+                                                                "api",
+                                                                "v1",
+                                                                "questions",
+                                                                "random"
+                                                            ],
+                                                            "host": [
+                                                                "{{baseUrl}}"
+                                                            ],
+                                                            "query": [
+                                                                {
+                                                                    "disabled": false,
+                                                                    "description": {
+                                                                        "content": "",
+                                                                        "type": "text/plain"
+                                                                    },
+                                                                    "key": "subject",
+                                                                    "value": "<string>"
+                                                                }
+                                                            ],
+                                                            "variable": []
+                                                        },
+                                                        "header": [
+                                                            {
+                                                                "key": "Accept",
+                                                                "value": "application/json"
+                                                            }
+                                                        ],
+                                                        "method": "GET",
+                                                        "body": {}
+                                                    },
+                                                    "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                                    "code": 422,
+                                                    "header": [
+                                                        {
+                                                            "key": "Content-Type",
+                                                            "value": "application/json"
+                                                        }
+                                                    ],
+                                                    "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                                    "cookie": [],
+                                                    "_postman_previewlanguage": "json"
+                                                }
+                                            ],
+                                            "event": [],
+                                            "protocolProfileBehavior": {
+                                                "disableBodyPruning": true
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "{question_id}",
+                                    "description": "",
+                                    "item": [
+                                        {
+                                            "id": "17705e04-6baf-4067-83bf-288df4113ac6",
+                                            "name": "Get Question",
+                                            "request": {
+                                                "name": "Get Question",
+                                                "description": {},
+                                                "url": {
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "questions",
+                                                        ":question_id"
+                                                    ],
+                                                    "host": [
+                                                        "{{baseUrl}}"
+                                                    ],
+                                                    "query": [],
+                                                    "variable": [
+                                                        {
+                                                            "type": "any",
+                                                            "value": "<integer>",
+                                                            "key": "question_id",
+                                                            "disabled": false,
+                                                            "description": {
+                                                                "content": "(Required) ",
+                                                                "type": "text/plain"
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "method": "GET",
+                                                "body": {},
+                                                "auth": null
+                                            },
+                                            "response": [
+                                                {
+                                                    "id": "a53f711c-85f0-4c9f-936a-46a0a5cfec6f",
+                                                    "name": "Successful Response",
+                                                    "originalRequest": {
+                                                        "url": {
+                                                            "path": [
+                                                                "api",
+                                                                "v1",
+                                                                "questions",
+                                                                ":question_id"
+                                                            ],
+                                                            "host": [
+                                                                "{{baseUrl}}"
+                                                            ],
+                                                            "query": [],
+                                                            "variable": [
+                                                                {
+                                                                    "disabled": false,
+                                                                    "description": {
+                                                                        "content": "(Required) ",
+                                                                        "type": "text/plain"
+                                                                    },
+                                                                    "type": "any",
+                                                                    "value": "<integer>",
+                                                                    "key": "question_id"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "header": [
+                                                            {
+                                                                "key": "Accept",
+                                                                "value": "application/json"
+                                                            }
+                                                        ],
+                                                        "method": "GET",
+                                                        "body": {}
+                                                    },
+                                                    "status": "OK",
+                                                    "code": 200,
+                                                    "header": [
+                                                        {
+                                                            "key": "Content-Type",
+                                                            "value": "application/json"
+                                                        }
+                                                    ],
+                                                    "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\"\n}",
+                                                    "cookie": [],
+                                                    "_postman_previewlanguage": "json"
+                                                },
+                                                {
+                                                    "id": "b203bae2-d21e-4289-af2e-ae7e5a6f9099",
+                                                    "name": "Validation Error",
+                                                    "originalRequest": {
+                                                        "url": {
+                                                            "path": [
+                                                                "api",
+                                                                "v1",
+                                                                "questions",
+                                                                ":question_id"
+                                                            ],
+                                                            "host": [
+                                                                "{{baseUrl}}"
+                                                            ],
+                                                            "query": [],
+                                                            "variable": [
+                                                                {
+                                                                    "disabled": false,
+                                                                    "description": {
+                                                                        "content": "(Required) ",
+                                                                        "type": "text/plain"
+                                                                    },
+                                                                    "type": "any",
+                                                                    "value": "<integer>",
+                                                                    "key": "question_id"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "header": [
+                                                            {
+                                                                "key": "Accept",
+                                                                "value": "application/json"
+                                                            }
+                                                        ],
+                                                        "method": "GET",
+                                                        "body": {}
+                                                    },
+                                                    "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                                    "code": 422,
+                                                    "header": [
+                                                        {
+                                                            "key": "Content-Type",
+                                                            "value": "application/json"
+                                                        }
+                                                    ],
+                                                    "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                                    "cookie": [],
+                                                    "_postman_previewlanguage": "json"
+                                                }
+                                            ],
+                                            "event": [],
+                                            "protocolProfileBehavior": {
+                                                "disableBodyPruning": true
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "health",
+            "description": "",
+            "item": [
+                {
+                    "id": "aa480ed1-e212-4051-900f-6507fa922269",
+                    "name": "Health",
+                    "request": {
+                        "name": "Health",
+                        "description": {},
+                        "url": {
+                            "path": [
+                                "health"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": null
+                    },
+                    "response": [
+                        {
+                            "id": "6218aab5-67dd-41bb-958f-600ba7bf6786",
+                            "name": "Successful Response",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "health"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "",
+                            "cookie": [],
+                            "_postman_previewlanguage": "json"
+                        }
+                    ],
+                    "event": [],
+                    "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "/"
+        }
+    ],
+    "info": {
+        "_postman_id": "37f4c220-73b6-4488-9b72-817138c2e900",
+        "name": "SKS Lotse API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": {
+            "content": "",
+            "type": "text/plain"
+        }
+    }
+}
