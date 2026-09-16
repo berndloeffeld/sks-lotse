@@ -146,8 +146,8 @@ This project doubles as a reference sample (incl. for job applications), so arch
 
 - Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
 - `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
-- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json` (`http://localhost:8000`) and `postman/production.postman_environment.json` (`https://sks-lotse-backend.onrender.com`) are static, hand-maintained Postman Environments — import both, then switch between them via Postman's environment dropdown instead of editing the collection variable directly. Update the production URL here if a custom domain is wired up later.
-- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects.
+- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json.example` and `postman/production.postman_environment.json.example` are static, hand-maintained templates. **Copy each to the same name without `.example`** (gitignored — see Temporary Access Gate below for why) and import *those*, then switch between them via Postman's environment dropdown. Update the production URL in the copy if a custom domain is wired up later.
+- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode (a) wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects, and (b) writes whatever you enter in the app back to disk, which is exactly how a real secret ended up in a tracked file once already (see Temporary Access Gate below).
 
 ### Deployment (Render)
 Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the reasoning. One web service (backend) + one managed Postgres, Frankfurt region, production only (no staging yet).
@@ -164,7 +164,7 @@ After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
 `backend/app/core/security.py` gates every `/api/v1/*` route behind an `X-Access-Key` header (checked against `ACCESS_GATE_KEY`). `/health` stays open for Render's own reachability checks. This is **not** the planned JWT auth system — it's a stopgap so the deployed-but-unlaunched API isn't wide open to anyone who finds the URL.
 
 - Empty `ACCESS_GATE_KEY` (the local-dev default) disables the gate entirely — no effect on local development.
-- In Postman: the `apiKey` variable in both environments (`postman/local.postman_environment.json`, `postman/production.postman_environment.json`) feeds the auto-detected `X-Access-Key` auth on gated requests — set it to the real value yourself, it's left empty in the committed files.
+- In Postman: the `apiKey` variable feeds the auto-detected `X-Access-Key` auth on gated requests. **Only set it in your local, gitignored copy of the environment file** (`postman/production.postman_environment.json`, copied from the `.example` template) — never in the committed `.example` file. This split exists because Postman's Git-sync "Local Mode" once wrote a real key value straight back into the tracked file; renaming the committed files to `.example` and gitignoring the real ones makes that impossible now.
 - **Remove this once**: real auth (JWT) exists, or the app is meant to be publicly reachable.
 
 ---
