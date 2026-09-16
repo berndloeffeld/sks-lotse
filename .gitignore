@@ -17,3 +17,8 @@ dist/
 .env
 .env.local
 .env.aikido
+
+# Postman desktop app local workspace state (created by "Work locally with
+# Git" mode) — not part of the generated/hand-maintained collection+envs
+postman/.postman/
+postman/postman/

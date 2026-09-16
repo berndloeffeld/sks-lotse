@@ -146,6 +146,8 @@ This project doubles as a reference sample (incl. for job applications), so arch
 
 - Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
 - `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
+- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json` (`http://localhost:8000`) and `postman/production.postman_environment.json` (`https://sks-lotse-backend.onrender.com`) are static, hand-maintained Postman Environments — import both, then switch between them via Postman's environment dropdown instead of editing the collection variable directly. Update the production URL here if a custom domain is wired up later.
+- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects.
 
 ### Deployment (Render)
 Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the reasoning. One web service (backend) + one managed Postgres, Frankfurt region, production only (no staging yet).
