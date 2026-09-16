@@ -9,19 +9,7 @@ from app.core import cache
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import create_access_token, get_current_user
-from app.core.otp import (
-    OTP_CLEANUP_MIN_INTERVAL_SECONDS,
-    OTP_CODE_RETENTION_HOURS,
-    OTP_MAX_ATTEMPTS,
-    OTP_MAX_REQUESTS_PER_WINDOW,
-    OTP_REQUEST_WINDOW_MINUTES,
-    OTP_RESEND_COOLDOWN_SECONDS,
-    OTP_TTL_MINUTES,
-    generate_code,
-    hash_code,
-    is_disposable_email,
-    verify_code,
-)
+from app.core.otp import generate_code, hash_code, is_disposable_email, verify_code
 from app.models import OtpCode, User
 from app.schemas.auth import (
     OtpDevPeekRead,
@@ -76,7 +64,7 @@ def _cleanup_expired_otp_codes(db: Session, now: datetime) -> None:
     # since it no longer shares a transaction with the request that
     # scheduled it — that request has already returned its response by the
     # time this runs.
-    cutoff = now - timedelta(hours=OTP_CODE_RETENTION_HOURS)
+    cutoff = now - timedelta(hours=settings.otp_code_retention_hours)
     # synchronize_session=False: nothing holds a reference to an
     # about-to-be-deleted row, so there's no session-local ORM state that
     # needs to stay in sync — and evaluating the WHERE clause against the
@@ -105,29 +93,29 @@ def request_otp(
 
     now = datetime.now(UTC)
 
-    window_start = now - timedelta(minutes=OTP_REQUEST_WINDOW_MINUTES)
+    window_start = now - timedelta(minutes=settings.otp_request_window_minutes)
     recent_requests = db.execute(
         select(func.count())
         .select_from(OtpCode)
         .where(OtpCode.email == payload.email, OtpCode.created_at >= window_start)
     ).scalar_one()
-    if recent_requests >= OTP_MAX_REQUESTS_PER_WINDOW:
+    if recent_requests >= settings.otp_max_requests_per_window:
         return OtpRequestAccepted()
 
     latest = _latest_otp_code(db, payload.email)
     if latest is not None and (now - _as_utc(latest.created_at)) < timedelta(
-        seconds=OTP_RESEND_COOLDOWN_SECONDS
+        seconds=settings.otp_resend_cooldown_seconds
     ):
         return OtpRequestAccepted()
 
-    if cache.throttle(request.app, "otp_cleanup:sweep", OTP_CLEANUP_MIN_INTERVAL_SECONDS):
+    if cache.throttle(request.app, "otp_cleanup:sweep", settings.otp_cleanup_min_interval_seconds):
         background_tasks.add_task(_cleanup_expired_otp_codes, db, now)
 
     code = generate_code()
     otp = OtpCode(
         email=payload.email,
         code_hash=hash_code(code),
-        expires_at=now + timedelta(minutes=OTP_TTL_MINUTES),
+        expires_at=now + timedelta(minutes=settings.otp_ttl_minutes),
     )
     db.add(otp)
     db.commit()
@@ -150,7 +138,8 @@ def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
         raise _INVALID_CODE
 
     now = datetime.now(UTC)
-    valid = otp.consumed_at is None and _as_utc(otp.expires_at) > now and otp.attempts < OTP_MAX_ATTEMPTS
+    not_consumed_or_expired = otp.consumed_at is None and _as_utc(otp.expires_at) > now
+    valid = not_consumed_or_expired and otp.attempts < settings.otp_max_attempts
     if valid:
         valid = verify_code(payload.code, otp.code_hash)
 

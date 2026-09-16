@@ -6,28 +6,9 @@ from disposable_email_domains import blocklist as disposable_email_domains
 
 from app.core.config import settings
 
-OTP_LENGTH = 6
-OTP_TTL_MINUTES = 10
-OTP_MAX_ATTEMPTS = 5
-OTP_RESEND_COOLDOWN_SECONDS = 60
-# Bounds sustained abuse (spamming one inbox, running up the Resend bill)
-# that a per-request cooldown alone doesn't catch.
-OTP_REQUEST_WINDOW_MINUTES = 60
-OTP_MAX_REQUESTS_PER_WINDOW = 5
-# How long an expired code is kept around before cleanup deletes it — long
-# enough to be useful if abuse ever needs investigating, short enough that
-# otp_codes (pure transient data once a code has expired) doesn't grow
-# unbounded. Not the same as OTP_TTL_MINUTES, which governs how long a code
-# is *usable*.
-OTP_CODE_RETENTION_HOURS = 24
-# The cleanup sweep is triggered by request traffic (see docs/adr/0010), not
-# a scheduler — this bounds how often it actually runs (via cache.throttle)
-# so its cost doesn't scale with request volume under heavy use.
-OTP_CLEANUP_MIN_INTERVAL_SECONDS = 300
-
 
 def generate_code() -> str:
-    return "".join(str(secrets.randbelow(10)) for _ in range(OTP_LENGTH))
+    return "".join(str(secrets.randbelow(10)) for _ in range(settings.otp_length))
 
 
 def hash_code(code: str) -> str:

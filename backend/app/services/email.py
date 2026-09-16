@@ -1,7 +1,6 @@
 import resend
 
 from app.core.config import settings
-from app.core.otp import OTP_TTL_MINUTES
 
 
 def send_otp_email(to_email: str, code: str) -> None:
@@ -12,7 +11,8 @@ def send_otp_email(to_email: str, code: str) -> None:
             "to": to_email,
             "subject": "Your SKS Lotse login code",
             "html": (
-                f"<p>Your login code is <strong>{code}</strong>. It expires in {OTP_TTL_MINUTES} minutes.</p>"
+                f"<p>Your login code is <strong>{code}</strong>. "
+                f"It expires in {settings.otp_ttl_minutes} minutes.</p>"
             ),
         }
     )

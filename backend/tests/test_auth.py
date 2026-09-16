@@ -2,7 +2,6 @@ from datetime import UTC, datetime, timedelta
 
 from app.core.config import settings
 from app.core.jwt import create_access_token
-from app.core.otp import OTP_CODE_RETENTION_HOURS
 from app.models import OtpCode, User
 
 
@@ -76,7 +75,7 @@ def test_request_otp_within_cooldown_skips_second_send(client, monkeypatch):
 
 def test_request_otp_throttled_after_max_requests_per_window(client, db_session, monkeypatch):
     sent = _capture_otp(monkeypatch)
-    monkeypatch.setattr("app.api.v1.auth.OTP_RESEND_COOLDOWN_SECONDS", 0)
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
 
     for _ in range(5):
         response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
@@ -108,7 +107,7 @@ def test_request_otp_cleans_up_codes_past_retention(client, db_session, monkeypa
     stale = OtpCode(
         email="old@example.com",
         code_hash="irrelevant",
-        expires_at=now - timedelta(hours=OTP_CODE_RETENTION_HOURS, minutes=1),
+        expires_at=now - timedelta(hours=settings.otp_code_retention_hours, minutes=1),
     )
     recent = OtpCode(
         email="old@example.com",
@@ -138,7 +137,7 @@ def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, mo
     stale = OtpCode(
         email="old@example.com",
         code_hash="irrelevant",
-        expires_at=now - timedelta(hours=OTP_CODE_RETENTION_HOURS, minutes=1),
+        expires_at=now - timedelta(hours=settings.otp_code_retention_hours, minutes=1),
     )
     db_session.add(stale)
     db_session.commit()
@@ -146,7 +145,7 @@ def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, mo
 
     # A different email, so nothing about this second request is blocked by
     # the per-email cooldown/window checks — it's cleanup's own throttle
-    # that should skip the sweep here, within OTP_CLEANUP_MIN_INTERVAL_SECONDS
+    # that should skip the sweep here, within settings.otp_cleanup_min_interval_seconds
     # of the first request.
     response = client.post("/api/v1/auth/otp/request", json={"email": "second@example.com"})
 
@@ -230,7 +229,7 @@ def test_verify_otp_reuses_existing_user(client, db_session, monkeypatch):
     response1 = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code1})
     assert response1.status_code == 200
 
-    monkeypatch.setattr("app.api.v1.auth.OTP_RESEND_COOLDOWN_SECONDS", 0)
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
     code2 = _request_and_get_code(client, db_session, monkeypatch)
     response2 = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code2})
     assert response2.status_code == 200

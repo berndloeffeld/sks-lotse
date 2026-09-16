@@ -205,6 +205,19 @@ JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
 RESEND_API_KEY=
 EMAIL_FROM_ADDRESS=
 ALLOWED_EMAILS=
+OTP_LENGTH=
+OTP_TTL_MINUTES=
+OTP_MAX_ATTEMPTS=
+OTP_RESEND_COOLDOWN_SECONDS=
+OTP_REQUEST_WINDOW_MINUTES=
+OTP_MAX_REQUESTS_PER_WINDOW=
+OTP_CODE_RETENTION_HOURS=
+OTP_CLEANUP_MIN_INTERVAL_SECONDS=
+RATE_LIMIT_OTP_MAX_REQUESTS=
+RATE_LIMIT_OTP_WINDOW_SECONDS=
+RATE_LIMIT_DEFAULT_MAX_REQUESTS=
+RATE_LIMIT_DEFAULT_WINDOW_SECONDS=
+CATALOG_CACHE_TTL_SECONDS=
 OPENAI_API_KEY=
 ADSENSE_CLIENT_ID=
 GOOGLE_OAUTH_CLIENT_ID=
@@ -220,6 +233,8 @@ X_OAUTH_CLIENT_SECRET=
 `JWT_SECRET` is a **required** env var with no insecure fallback — signs JWTs and hashes OTP codes (`backend/app/core/otp.py`). `Settings()` fails at import if it's unset at all; if it's under 32 characters while `ENVIRONMENT=production`, the app raises at startup too — a length floor rather than an exact-string blocklist, so it isn't limited to catching specific placeholder values someone thought to enumerate (`backend/app/core/config.py`). Generate a real value with `openssl rand -hex 32` (64 characters).
 
 Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 10080 (7 days) — there's no refresh-token flow yet, so re-authenticating is just requesting a new OTP; 7 days was chosen to bound the exposure window of a leaked token, though logout (see Auth & rate limiting above) can now revoke one immediately instead of only relying on that TTL. `ALLOWED_EMAILS` is a comma-separated allowlist for a pre-launch/private beta (case-insensitive) — leave it unset in local dev and until you actually want to restrict who can log in; `POST /auth/otp/request` silently no-ops (same generic response, no code created, no email sent) for any address not on the list. Separately and unconditionally, `otp/request` also rejects known disposable/throwaway email domains (the `disposable-email-domains` package, `backend/app/core/otp.py`) — no env var, just bundled data; bump the pinned version in `requirements.txt` occasionally since the point of the package is a current list. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
+
+The OTP flow's tuning knobs (`backend/app/core/otp.py`, `backend/app/api/v1/auth.py`) are all optional env vars, defaulting to the values the code originally hardcoded: `OTP_LENGTH` (6-digit codes), `OTP_TTL_MINUTES` (10), `OTP_MAX_ATTEMPTS` (5 verify attempts before a code is rejected), `OTP_RESEND_COOLDOWN_SECONDS` (60, per-email resend cooldown), `OTP_REQUEST_WINDOW_MINUTES`/`OTP_MAX_REQUESTS_PER_WINDOW` (60/5, bounds sustained per-email abuse beyond the cooldown), `OTP_CODE_RETENTION_HOURS` (24, how long an expired code stays before cleanup deletes it — see [ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)) and `OTP_CLEANUP_MIN_INTERVAL_SECONDS` (300, throttles that cleanup sweep). The per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `backend/app/main.py`, see [ADR-0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md)) is similarly tunable: `RATE_LIMIT_OTP_MAX_REQUESTS`/`RATE_LIMIT_OTP_WINDOW_SECONDS` (20/3600) for `/auth/otp/request`, `RATE_LIMIT_DEFAULT_MAX_REQUESTS`/`RATE_LIMIT_DEFAULT_WINDOW_SECONDS` (300/300) as the blanket cap on the rest of `/api/v1`. `CATALOG_CACHE_TTL_SECONDS` (3600) controls how long `backend/app/api/v1/questions.py` caches the question catalog in-process before a re-import becomes visible. All of these exist so local dev/CI can loosen them (avoiding slow or flaky test runs) without touching production's stricter defaults.
 
 ---
 
