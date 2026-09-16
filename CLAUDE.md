@@ -126,6 +126,13 @@ Backend enforces a minimum of **80% line coverage** via `pytest-cov` (`backend/p
 - **Not yet a hard merge gate**: same GitHub free-plan limitation as Aikido above — no required status checks on a private repo. Verify the workflow is green before merging a PR.
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 
+### Linting & Formatting
+Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
+
+- `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-tests.yml` on every push to `main` and on every PR — same not-yet-a-hard-gate caveat as above.
+- Before committing backend changes: `ruff check --fix .` then `ruff format .`.
+- `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
+
 ---
 
 ## Environment Variables (backend)
