@@ -20,6 +20,26 @@ class Settings(BaseSettings):
     # (the default) means no whitelist — anyone can request/verify a login.
     allowed_emails: str = ""
 
+    otp_length: int = 6
+    otp_ttl_minutes: int = 10
+    otp_max_attempts: int = 5
+    otp_resend_cooldown_seconds: int = 60
+    # Bounds sustained abuse (spamming one inbox, running up the Resend bill)
+    # that the per-request cooldown alone doesn't catch.
+    otp_request_window_minutes: int = 60
+    otp_max_requests_per_window: int = 5
+    # How long an expired code is kept around before cleanup deletes it — not
+    # the same as otp_ttl_minutes, which governs how long a code is *usable*.
+    otp_code_retention_hours: int = 24
+    otp_cleanup_min_interval_seconds: int = 300  # 5 minutes
+
+    rate_limit_otp_max_requests: int = 20
+    rate_limit_otp_window_seconds: int = 3600  # 1 hour
+    rate_limit_default_max_requests: int = 300
+    rate_limit_default_window_seconds: int = 300  # 5 minutes
+
+    catalog_cache_ttl_seconds: int = 3600  # 1 hour
+
     @property
     def allowed_emails_set(self) -> set[str] | None:
         if not self.allowed_emails.strip():

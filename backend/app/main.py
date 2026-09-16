@@ -22,11 +22,16 @@ app.add_middleware(
     RateLimitMiddleware,
     # OTP requests get their own tighter cap (bounds cost/spam per IP,
     # independent of the general cap below).
-    rules={"/api/v1/auth/otp/request": (20, 3600)},
+    rules={
+        "/api/v1/auth/otp/request": (
+            settings.rate_limit_otp_max_requests,
+            settings.rate_limit_otp_window_seconds,
+        )
+    },
     # Generous blanket cap for the rest of /api/v1, so new endpoints are
     # covered without touching this file again. /health is deliberately
     # excluded — Render's own reachability checks hit it directly.
-    default_rule=(300, 300),
+    default_rule=(settings.rate_limit_default_max_requests, settings.rate_limit_default_window_seconds),
     scope_prefix="/api/v1",
 )
 app.add_middleware(SecurityHeadersMiddleware)
