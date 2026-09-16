@@ -7,19 +7,21 @@ Current-state overview. For the reasoning behind a given decision, see [docs/adr
 ```mermaid
 graph TB
     subgraph "Not yet built"
-        Learner((Learner))
         Frontend[Frontend<br/>React + Vite<br/>not yet built]
         OpenAI[OpenAI API<br/>not yet integrated]
     end
 
+    Learner((Learner))
     Backend[Backend<br/>FastAPI]
     DB[(PostgreSQL 16)]
+    Resend[Resend<br/>transactional email]
     Aikido[Aikido Security<br/>SAST / SCA scanning]
     GHA[GitHub Actions<br/>lint + test CI]
 
     Learner -.-> Frontend
     Frontend -.-> Backend
     Backend --> DB
+    Backend --> Resend
     Backend -.-> OpenAI
     GHA --> Backend
     Aikido -.-> Backend
@@ -30,7 +32,10 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 ## Components
 
 ### Backend (`backend/`)
-FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Currently exposes read-only endpoints for the question catalog (`/api/v1/questions`) and a health check (`/health`). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
+FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions`), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
+
+### Auth (`backend/app/api/v1/auth.py`)
+Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 30-day expiry, no refresh token yet). `GET /api/v1/auth/me` is the first JWT-protected route. This coexists with, rather than replaces, the temporary `X-Access-Key` gate below — the gate still restricts the whole API from outside access, while the JWT identifies *which* logged-in user is calling.
 
 ### Database
 PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
@@ -55,7 +60,8 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 
 - Frontend (React + Vite, per `CLAUDE.md` tech stack)
 - LLM grading flow (OpenAI integration)
-- Auth (mandatory login — SSO via Google/Facebook/X, or email + OTP — JWT session; see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
+- SSO login (Google/Facebook/X) — email+OTP login exists, see Auth above
+- Entitlements (ads-removed / AI-grading-unlocked flags on the account — see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text integration
 - Ads (AdSense)
 

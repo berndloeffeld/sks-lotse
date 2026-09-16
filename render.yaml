@@ -37,6 +37,8 @@ services:
         sync: false
       - key: ADSENSE_CLIENT_ID
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
       # Temporary pre-launch access gate (backend/app/core/security.py) —
       # restricts the API to whoever holds this key while the app is
       # deployed but not yet publicly launched. Remove once real auth

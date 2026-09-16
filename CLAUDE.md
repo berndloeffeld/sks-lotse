@@ -162,7 +162,7 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `ACCESS_GATE_KEY`) in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `ACCESS_GATE_KEY`, `RESEND_API_KEY`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
@@ -181,6 +181,9 @@ After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
 ```
 DATABASE_URL=
 JWT_SECRET=
+JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
+RESEND_API_KEY=
+EMAIL_FROM_ADDRESS=
 OPENAI_API_KEY=
 ADSENSE_CLIENT_ID=
 GOOGLE_OAUTH_CLIENT_ID=
@@ -191,7 +194,7 @@ X_OAUTH_CLIENT_ID=
 X_OAUTH_CLIENT_SECRET=
 ```
 
-Email/OTP delivery provider (for the passwordless email login path) is TBD — not yet a settled env var, decide when that login path is actually built.
+Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 43200 (30 days) — there's no refresh-token flow yet, so sessions are long-lived on purpose; re-authenticating is just requesting a new OTP. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
 
 ---
 
