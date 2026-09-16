@@ -133,6 +133,14 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 - Before committing backend changes: `ruff check --fix .` then `ruff format .`.
 - `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
 
+### Architecture Documentation
+This project doubles as a reference sample (incl. for job applications), so architectural reasoning is recorded, not just the resulting code.
+
+- **`docs/ARCHITECTURE.md`**: living current-state overview (components, diagram). Describes *what exists*. Keep it accurate to the actual state of the repo — shrink the "Not yet built" list as things land, don't write aspirationally.
+- **`docs/adr/`**: Architecture Decision Records, one file per decision, numbered sequentially (`NNNN-title.md`), using `docs/adr/template.md` (Context / Decision / Consequences). Describes *why*. See [docs/adr/0001-use-architecture-decision-records.md](docs/adr/0001-use-architecture-decision-records.md) for the full rationale.
+- Write an ADR when a decision would be genuinely costly to reverse or non-obvious to a future reader (e.g. auth flow, grading-request architecture, deployment topology) — not for routine implementation choices already covered elsewhere in this file.
+- Superseding a decision: add a new ADR referencing the old one, mark the old one "Superseded by ADR-NNNN". Don't edit history away.
+
 ---
 
 ## Environment Variables (backend)
