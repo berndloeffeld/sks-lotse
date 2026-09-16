@@ -45,6 +45,11 @@ Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandato
 
 Abuse protection on `/auth/otp/request` is layered: a per-email cooldown + hourly cap (`backend/app/core/otp.py`) stops one inbox from being spammed, on top of a generic in-memory per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `main.py`) that also applies a generous blanket cap to the rest of `/api/v1`. The IP limiter is intentionally in-process, not Redis-backed, and there's no reverse proxy in front doing this instead — see [ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md) for why.
 
+`otp_codes` rows are transient: `request_otp` deletes anything past its retention window as a side effect of issuing a new code, so the table doesn't grow unbounded — no scheduled job. See [ADR-0009](adr/0009-in-process-cache-and-opportunistic-otp-cleanup.md).
+
+### Caching (`backend/app/core/cache.py`)
+A minimal in-process TTL cache (`get_or_set`/`invalidate`, state on `app.state`, same pattern as the rate limiter above). `backend/app/api/v1/questions.py` caches the whole question catalog for an hour, since it's read on every practice session but only ever changes via the offline import script. Local by design, behind an interface a Redis-backed implementation could later replace without touching callers — see [ADR-0009](adr/0009-in-process-cache-and-opportunistic-otp-cleanup.md).
+
 ### Database
 PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
 

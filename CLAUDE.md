@@ -176,6 +176,13 @@ There used to be a temporary `X-Access-Key` header gate in front of the whole AP
 
 `backend/app/core/rate_limit.py` adds a per-IP request cap on top of auth: a generous blanket limit across all of `/api/v1` (guards against basic scraping/bots without affecting normal use), plus a much tighter override specifically on `/auth/otp/request` (bounds cost/spam on the email-sending path). In-memory, not Redis, no reverse proxy in front — see [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) for why.
 
+### Data Layer Conventions
+Apply these three checks whenever adding or changing a database table — going forward, not just at initial design time:
+
+- **Temporary/transient data needs cleanup.** If a table accumulates rows that are only useful for a bounded time (codes, tokens, sessions, request logs), decide how they get deleted before shipping the feature, not after the table grows unbounded. Doesn't have to be a scheduled job — piggybacking cleanup on an existing write path (delete-on-insert) is a legitimate, infrastructure-free answer for an MVP at this scale. Example: `otp_codes` cleanup in `request_otp` ([docs/adr/0009](docs/adr/0009-in-process-cache-and-opportunistic-otp-cleanup.md)).
+- **Index for the read pattern, not just uniqueness.** When a table will see meaningful read volume, check the actual query shape (equality vs. range, which columns together) and index accordingly — a composite index in filter/sort order usually beats several single-column indexes, and a redundant single-column index left in place after adding a composite one just costs writes for nothing. Example: `otp_codes(email, created_at)` replacing a plain `email` index, once both queries against that table were filtering on both columns together.
+- **Consider caching for read-heavy, rarely-written data**, local (in-process) first — no new infrastructure until there's a concrete reason for it (multiple instances, restarts frequent enough to matter) — but behind an interface that could swap to a shared store like Redis later without callers changing. `backend/app/core/cache.py` is that interface; see [docs/adr/0009](docs/adr/0009-in-process-cache-and-opportunistic-otp-cleanup.md) and [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) (the rate limiter established the same local-first-but-swappable pattern for a different kind of state).
+
 ---
 
 ## Environment Variables (backend)
