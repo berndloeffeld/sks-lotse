@@ -1,6 +1,6 @@
 # 0004. Anonymous device-ID rate limiting for grading requests
 
-Status: Accepted
+Status: Superseded by [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md)
 
 ## Context
 

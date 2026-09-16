@@ -55,7 +55,7 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 
 - Frontend (React + Vite, per `CLAUDE.md` tech stack)
 - LLM grading flow (OpenAI integration)
-- Auth (JWT, optional cross-device sync)
+- Auth (mandatory login — SSO via Google/Facebook/X, or email + OTP — JWT session; see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text integration
 - Ads (AdSense)
 
