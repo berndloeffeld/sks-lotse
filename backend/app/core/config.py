@@ -11,9 +11,6 @@ class Settings(BaseSettings):
     adsense_client_id: str = ""
     resend_api_key: str = ""
     email_from_address: str = "noreply@sks-lotse.de"
-    # Temporary pre-launch access gate for the API (see app/core/security.py).
-    # Empty by default (local dev unaffected); set in prod to restrict access.
-    access_gate_key: str = ""
 
 
 settings = Settings()

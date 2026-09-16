@@ -60,23 +60,7 @@
                                 }
                               }
                             },
-                            "auth": {
-                              "type": "apikey",
-                              "apikey": [
-                                {
-                                  "key": "key",
-                                  "value": "X-Access-Key"
-                                },
-                                {
-                                  "key": "value",
-                                  "value": "{{apiKey}}"
-                                },
-                                {
-                                  "key": "in",
-                                  "value": "header"
-                                }
-                              ]
-                            }
+                            "auth": null
                           },
                           "response": [
                             {
@@ -104,14 +88,6 @@
                                   {
                                     "key": "Accept",
                                     "value": "application/json"
-                                  },
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: apikey",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "X-Access-Key",
-                                    "value": "<API Key>"
                                   }
                                 ],
                                 "method": "POST",
@@ -163,14 +139,6 @@
                                   {
                                     "key": "Accept",
                                     "value": "application/json"
-                                  },
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: apikey",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "X-Access-Key",
-                                    "value": "<API Key>"
                                   }
                                 ],
                                 "method": "POST",
@@ -249,23 +217,7 @@
                                 }
                               }
                             },
-                            "auth": {
-                              "type": "apikey",
-                              "apikey": [
-                                {
-                                  "key": "key",
-                                  "value": "X-Access-Key"
-                                },
-                                {
-                                  "key": "value",
-                                  "value": "{{apiKey}}"
-                                },
-                                {
-                                  "key": "in",
-                                  "value": "header"
-                                }
-                              ]
-                            }
+                            "auth": null
                           },
                           "response": [
                             {
@@ -293,14 +245,6 @@
                                   {
                                     "key": "Accept",
                                     "value": "application/json"
-                                  },
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: apikey",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "X-Access-Key",
-                                    "value": "<API Key>"
                                   }
                                 ],
                                 "method": "POST",
@@ -352,14 +296,6 @@
                                   {
                                     "key": "Accept",
                                     "value": "application/json"
-                                  },
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: apikey",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "X-Access-Key",
-                                    "value": "<API Key>"
                                   }
                                 ],
                                 "method": "POST",
@@ -427,19 +363,11 @@
                         "method": "GET",
                         "body": {},
                         "auth": {
-                          "type": "apikey",
-                          "apikey": [
+                          "type": "bearer",
+                          "bearer": [
                             {
-                              "key": "key",
-                              "value": "X-Access-Key"
-                            },
-                            {
-                              "key": "value",
-                              "value": "{{apiKey}}"
-                            },
-                            {
-                              "key": "in",
-                              "value": "header"
+                              "key": "token",
+                              "value": "{{bearerToken}}"
                             }
                           ]
                         }
@@ -468,11 +396,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -540,19 +468,11 @@
                     "method": "GET",
                     "body": {},
                     "auth": {
-                      "type": "apikey",
-                      "apikey": [
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "key",
-                          "value": "X-Access-Key"
-                        },
-                        {
-                          "key": "value",
-                          "value": "{{apiKey}}"
-                        },
-                        {
-                          "key": "in",
-                          "value": "header"
+                          "key": "token",
+                          "value": "{{bearerToken}}"
                         }
                       ]
                     }
@@ -590,11 +510,11 @@
                           },
                           {
                             "description": {
-                              "content": "Added as a part of security scheme: apikey",
+                              "content": "Added as a part of security scheme: bearer",
                               "type": "text/plain"
                             },
-                            "key": "X-Access-Key",
-                            "value": "<API Key>"
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
                           }
                         ],
                         "method": "GET",
@@ -644,11 +564,11 @@
                           },
                           {
                             "description": {
-                              "content": "Added as a part of security scheme: apikey",
+                              "content": "Added as a part of security scheme: bearer",
                               "type": "text/plain"
                             },
-                            "key": "X-Access-Key",
-                            "value": "<API Key>"
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
                           }
                         ],
                         "method": "GET",
@@ -713,19 +633,11 @@
                         "method": "GET",
                         "body": {},
                         "auth": {
-                          "type": "apikey",
-                          "apikey": [
+                          "type": "bearer",
+                          "bearer": [
                             {
-                              "key": "key",
-                              "value": "X-Access-Key"
-                            },
-                            {
-                              "key": "value",
-                              "value": "{{apiKey}}"
-                            },
-                            {
-                              "key": "in",
-                              "value": "header"
+                              "key": "token",
+                              "value": "{{bearerToken}}"
                             }
                           ]
                         }
@@ -764,11 +676,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -819,11 +731,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -891,19 +803,11 @@
                         "method": "GET",
                         "body": {},
                         "auth": {
-                          "type": "apikey",
-                          "apikey": [
+                          "type": "bearer",
+                          "bearer": [
                             {
-                              "key": "key",
-                              "value": "X-Access-Key"
-                            },
-                            {
-                              "key": "value",
-                              "value": "{{apiKey}}"
-                            },
-                            {
-                              "key": "in",
-                              "value": "header"
+                              "key": "token",
+                              "value": "{{bearerToken}}"
                             }
                           ]
                         }
@@ -943,11 +847,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -999,11 +903,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",

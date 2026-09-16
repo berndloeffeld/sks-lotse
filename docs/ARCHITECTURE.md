@@ -32,20 +32,18 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 ## Components
 
 ### Backend (`backend/`)
-FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions`), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
+FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions`, login required), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`, unauthenticated). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
 
 ### Auth (`backend/app/api/v1/auth.py`)
-Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 30-day expiry, no refresh token yet). `GET /api/v1/auth/me` is the first JWT-protected route. This coexists with, rather than replaces, the temporary `X-Access-Key` gate below — the gate still restricts the whole API from outside access, while the JWT identifies *which* logged-in user is calling.
+Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 30-day expiry, no refresh token yet). Every other `/api/v1/*` route requires that JWT (`Depends(get_current_user)`, e.g. `GET /api/v1/auth/me` and all of `/api/v1/questions`) — `otp/request` and `otp/verify` are the only two routes that stay open, since that's how a caller gets a token in the first place. This replaced a temporary `X-Access-Key` gate that used to sit in front of the whole API before real auth existed.
 
-Abuse protection on `/auth/otp/request` is two-layered: a per-email cooldown + hourly cap (`backend/app/core/otp.py`) stops one inbox from being spammed, and a generic in-memory per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `main.py`) stops one caller from spraying requests across many different emails. The IP limiter is intentionally in-process, not Redis-backed — see its module docstring for why, given the current single-instance Render topology ([ADR-0005](adr/0005-render-deployment-topology.md)).
+Abuse protection on `/auth/otp/request` is layered: a per-email cooldown + hourly cap (`backend/app/core/otp.py`) stops one inbox from being spammed, on top of a generic in-memory per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `main.py`) that also applies a generous blanket cap to the rest of `/api/v1`. The IP limiter is intentionally in-process, not Redis-backed — see its module docstring for why, given the current single-instance Render topology ([ADR-0005](adr/0005-render-deployment-topology.md)).
 
 ### Database
 PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
 
 ### Deployment
 Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one managed Postgres. No frontend service yet. No staging environment — production only. See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
-
-The deployed API currently sits behind a temporary `X-Access-Key` gate (`backend/app/core/security.py`) — not the planned JWT auth, just a stopgap while the app is live but not launched. See `CLAUDE.md` → Temporary Access Gate.
 
 `sks-lotse.de` is the canonical domain. `sks-lotse.com` is also wired to Render (free SSL) and 301-redirected to `sks-lotse.de` by `backend/app/core/canonical_domain.py`, instead of paying IONOS for SSL-enabled domain forwarding. `sks-lotse.global` and `sks-lotse.store` are purchased but not currently wired up. See `CLAUDE.md` → Naming / Domain.
 
