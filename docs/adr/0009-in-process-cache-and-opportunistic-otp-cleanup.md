@@ -15,10 +15,15 @@ Options considered for *cleaning up `otp_codes`*:
 1. A scheduled job (cron/worker) that periodically deletes expired rows.
 2. Delete opportunistically as a side effect of the code that already writes to the table.
 
+Options considered for *when the delete in option 2 runs*:
+1. Inline, in the same request/transaction as issuing the new code — simplest, but the DELETE adds latency to every successful `/auth/otp/request` call, worse the more traffic that endpoint sees.
+2. Deferred to a FastAPI `BackgroundTasks` callback, so it runs after the response is already sent to the caller.
+
 ## Decision
 
 - **`backend/app/core/cache.py`**: a minimal `get_or_set(app, key, ttl_seconds, factory)` / `invalidate(app, key)` cache, state on `app.state.cache_entries` (same reasoning and same shape as `rate_limit.py`'s `app.state.rate_limit_hits`: single Render instance, no multi-instance correctness problem to solve, and tests can reset it the same way `_reset_rate_limits` already does). `backend/app/api/v1/questions.py` caches the whole catalog (as validated `QuestionRead` schemas, not live ORM objects — see Consequences) for 1 hour and filters/picks in Python instead of hitting the DB on every request.
-- **Option 2** for OTP cleanup: `request_otp` deletes `otp_codes` rows past `OTP_CODE_RETENTION_HOURS` (24h) right before inserting the new one, in the same commit (`backend/app/api/v1/auth.py`, `_cleanup_expired_otp_codes`). No new scheduled job, no new service.
+- **Option 2** for OTP cleanup, **run as a background task** (option 2 of the second choice): `request_otp` schedules `_cleanup_expired_otp_codes` via `BackgroundTasks.add_task` instead of calling it inline — it deletes `otp_codes` rows past `OTP_CODE_RETENTION_HOURS` (24h), committing on its own since the request has already returned its response by the time it runs. FastAPI closes a `yield`-based dependency (here, the DB session from `get_db`) only after background tasks finish, so reusing the request's `db` session here is safe. No new scheduled job, no new service.
+- Added `ix_otp_codes_expires_at` (`backend/app/models/otp_code.py`) so that cleanup's `WHERE expires_at < cutoff` isn't a sequential scan — the existing `(email, created_at)` composite doesn't cover it, since that query has no `email` predicate.
 
 ## Consequences
 
@@ -26,4 +31,5 @@ Options considered for *cleaning up `otp_codes`*:
 - The cache stores `QuestionRead` Pydantic instances, not `Question` ORM rows: caching live ORM objects across requests would mean serving instances bound to a `Session` from a since-closed request, which is a well-known SQLAlchemy foot-gun (`DetachedInstanceError` on any attribute that wasn't eagerly loaded). Caching the already-validated response schema sidesteps that entirely and is exactly the data being served anyway.
 - Same ceiling as ADR-0007: the cache and the cleanup both reset on restart/redeploy, and a second instance wouldn't share either — both fine under the current single-instance topology, both worth revisiting if that changes.
 - OTP cleanup is opportunistic, not exact: rows only get swept when *someone, anywhere* requests a new code. A quiet period leaves stale rows sitting past their retention window a little longer than 24h — acceptable, since the goal is bounding long-run growth, not enforcing a precise deletion SLA. If the app ever gains a real scheduler (a Render Cron Job, a worker), this is the first candidate to move there instead.
+- Running cleanup as a background task means the caller of `/auth/otp/request` never waits on it — the DELETE's cost no longer scales with that endpoint's request latency. It doesn't reduce total DB load (still one DELETE per successful request that finds the retention window worth sweeping); if that ever matters, the next lever is running it probabilistically (e.g. on 1 in N requests) rather than every time.
 - The cache interface (`get_or_set`/`invalidate`) is the only thing callers touch, so swapping the backing store for Redis later — if the app ever runs more than one instance — is additive, not a rewrite, exactly like ADR-0007's rate-limit counters.
