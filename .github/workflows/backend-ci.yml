@@ -31,6 +31,9 @@ jobs:
       # Tests override get_db (in-memory SQLite), so this never needs to be a
       # real, reachable database — it only has to satisfy Settings() on import.
       DATABASE_URL: postgresql://test:test@localhost:5432/test
+      # JWT_SECRET has no default (see backend/app/core/config.py) — any
+      # fixed value is fine here since ENVIRONMENT stays "development".
+      JWT_SECRET: test-secret-not-for-production
     steps:
       - uses: actions/checkout@v4
         with:
