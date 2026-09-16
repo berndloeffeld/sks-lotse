@@ -29,6 +29,10 @@ services:
         fromDatabase:
           name: sks-lotse-db
           property: connectionString
+      # Not a secret — committed directly. Disables Swagger UI/ReDoc/the
+      # raw OpenAPI schema (see backend/app/main.py, backend/app/core/config.py).
+      - key: ENVIRONMENT
+        value: production
       # Set manually in the Render dashboard after the first deploy —
       # not stored in this file or in git (see CLAUDE.md, Environment Variables).
       - key: JWT_SECRET

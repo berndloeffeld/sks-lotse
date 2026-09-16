@@ -5,6 +5,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
+    # "development" (default, matches local/CI) or "production" (set on
+    # Render). Not a secret — a plain env var is fine.
+    environment: str = "development"
     jwt_secret: str = "change-me"
     jwt_access_token_expires_minutes: int = 43200  # 30 days
     openai_api_key: str = ""
@@ -20,6 +23,10 @@ class Settings(BaseSettings):
         if not self.allowed_emails.strip():
             return None
         return {email.strip().lower() for email in self.allowed_emails.split(",") if email.strip()}
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == "production"
 
 
 settings = Settings()
