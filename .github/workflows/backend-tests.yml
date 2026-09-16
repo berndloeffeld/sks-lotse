@@ -11,6 +11,10 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      # Tests override get_db (in-memory SQLite), so this never needs to be a
+      # real, reachable database — it only has to satisfy Settings() on import.
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
