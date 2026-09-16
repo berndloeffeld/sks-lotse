@@ -9,6 +9,426 @@
           "description": "",
           "item": [
             {
+              "name": "auth",
+              "description": "",
+              "item": [
+                {
+                  "name": "otp",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "request",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Request Otp",
+                          "request": {
+                            "name": "Request Otp",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "otp",
+                                "request"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "auth": null
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "otp",
+                                    "request"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "Accepted",
+                              "code": 202,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": \"A login code has been sent if delivery was possible.\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "otp",
+                                    "request"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "verify",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Verify Otp",
+                          "request": {
+                            "name": "Verify Otp",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "otp",
+                                "verify"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "auth": null
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "otp",
+                                    "verify"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"access_token\": \"<string>\",\n  \"token_type\": \"bearer\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "otp",
+                                    "verify"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "me",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Read Current User",
+                      "request": {
+                        "name": "Read Current User",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "auth",
+                            "me"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "me"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\"\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
               "name": "questions",
               "description": "",
               "item": [
@@ -48,19 +468,11 @@
                     "method": "GET",
                     "body": {},
                     "auth": {
-                      "type": "apikey",
-                      "apikey": [
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "key",
-                          "value": "X-Access-Key"
-                        },
-                        {
-                          "key": "value",
-                          "value": "{{apiKey}}"
-                        },
-                        {
-                          "key": "in",
-                          "value": "header"
+                          "key": "token",
+                          "value": "{{bearerToken}}"
                         }
                       ]
                     }
@@ -98,11 +510,11 @@
                           },
                           {
                             "description": {
-                              "content": "Added as a part of security scheme: apikey",
+                              "content": "Added as a part of security scheme: bearer",
                               "type": "text/plain"
                             },
-                            "key": "X-Access-Key",
-                            "value": "<API Key>"
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
                           }
                         ],
                         "method": "GET",
@@ -152,11 +564,11 @@
                           },
                           {
                             "description": {
-                              "content": "Added as a part of security scheme: apikey",
+                              "content": "Added as a part of security scheme: bearer",
                               "type": "text/plain"
                             },
-                            "key": "X-Access-Key",
-                            "value": "<API Key>"
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
                           }
                         ],
                         "method": "GET",
@@ -221,19 +633,11 @@
                         "method": "GET",
                         "body": {},
                         "auth": {
-                          "type": "apikey",
-                          "apikey": [
+                          "type": "bearer",
+                          "bearer": [
                             {
-                              "key": "key",
-                              "value": "X-Access-Key"
-                            },
-                            {
-                              "key": "value",
-                              "value": "{{apiKey}}"
-                            },
-                            {
-                              "key": "in",
-                              "value": "header"
+                              "key": "token",
+                              "value": "{{bearerToken}}"
                             }
                           ]
                         }
@@ -272,11 +676,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -327,11 +731,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -399,19 +803,11 @@
                         "method": "GET",
                         "body": {},
                         "auth": {
-                          "type": "apikey",
-                          "apikey": [
+                          "type": "bearer",
+                          "bearer": [
                             {
-                              "key": "key",
-                              "value": "X-Access-Key"
-                            },
-                            {
-                              "key": "value",
-                              "value": "{{apiKey}}"
-                            },
-                            {
-                              "key": "in",
-                              "value": "header"
+                              "key": "token",
+                              "value": "{{bearerToken}}"
                             }
                           ]
                         }
@@ -451,11 +847,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",
@@ -507,11 +903,11 @@
                               },
                               {
                                 "description": {
-                                  "content": "Added as a part of security scheme: apikey",
+                                  "content": "Added as a part of security scheme: bearer",
                                   "type": "text/plain"
                                 },
-                                "key": "X-Access-Key",
-                                "value": "<API Key>"
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
                               }
                             ],
                             "method": "GET",

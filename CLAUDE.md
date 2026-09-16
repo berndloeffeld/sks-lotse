@@ -153,8 +153,8 @@ This project doubles as a reference sample (incl. for job applications), so arch
 
 - Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
 - `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
-- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json.example` and `postman/production.postman_environment.json.example` are static, hand-maintained templates. **Copy each to the same name without `.example`** (gitignored — see Temporary Access Gate below for why) and import *those*, then switch between them via Postman's environment dropdown. Update the production URL in the copy if a custom domain is wired up later.
-- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode (a) wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects, and (b) writes whatever you enter in the app back to disk, which is exactly how a real secret ended up in a tracked file once already (see Temporary Access Gate below).
+- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json.example` and `postman/production.postman_environment.json.example` are static, hand-maintained templates. **Copy each to the same name without `.example`** (gitignored — real copies hold live secrets, e.g. a JWT for testing protected endpoints) and import *those*, then switch between them via Postman's environment dropdown. Update the production URL in the copy if a custom domain is wired up later.
+- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode (a) wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects, and (b) writes whatever you enter in the app back to disk, which is exactly how a real secret ended up in a tracked file once already (the `X-Access-Key` this project used before real JWT auth landed — renaming the committed files to `.example` and gitignoring the real ones makes that impossible now).
 
 ### Deployment (Render)
 Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the reasoning. One web service (backend) + one managed Postgres, Frankfurt region, production only (no staging yet).
@@ -162,17 +162,17 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `ACCESS_GATE_KEY`) in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
 
-### Temporary Access Gate
-`backend/app/core/security.py` gates every `/api/v1/*` route behind an `X-Access-Key` header (checked against `ACCESS_GATE_KEY`). `/health` stays open for Render's own reachability checks. This is **not** the planned JWT auth system — it's a stopgap so the deployed-but-unlaunched API isn't wide open to anyone who finds the URL.
+### Auth & rate limiting
+Every `/api/v1/*` route requires a valid JWT (`Authorization: Bearer ...`) except `POST /auth/otp/request` and `POST /auth/otp/verify` (which can't require one — that's how a caller gets one) — see `backend/app/core/jwt.py` (`get_current_user`) and `backend/app/api/v1/questions.py` for how a router opts in via `dependencies=[Depends(get_current_user)]`. `/health` has no auth at all, for Render's own reachability checks.
 
-- Empty `ACCESS_GATE_KEY` (the local-dev default) disables the gate entirely — no effect on local development.
-- In Postman: the `apiKey` variable feeds the auto-detected `X-Access-Key` auth on gated requests. **Only set it in your local, gitignored copy of the environment file** (`postman/production.postman_environment.json`, copied from the `.example` template) — never in the committed `.example` file. This split exists because Postman's Git-sync "Local Mode" once wrote a real key value straight back into the tracked file; renaming the committed files to `.example` and gitignoring the real ones makes that impossible now.
-- **Remove this once**: real auth (JWT) exists, or the app is meant to be publicly reachable.
+There used to be a temporary `X-Access-Key` header gate in front of the whole API (`backend/app/core/security.py`) as a stopgap before real auth existed — it's been removed now that JWT auth covers the API; `ACCESS_GATE_KEY` is no longer a valid env var.
+
+`backend/app/core/rate_limit.py` adds a per-IP request cap on top of auth: a generous blanket limit across all of `/api/v1` (guards against basic scraping/bots without affecting normal use), plus a much tighter override specifically on `/auth/otp/request` (bounds cost/spam on the email-sending path). In-memory, not Redis, no reverse proxy in front — see [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) for why.
 
 ---
 
@@ -181,6 +181,10 @@ After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
 ```
 DATABASE_URL=
 JWT_SECRET=
+JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
+RESEND_API_KEY=
+EMAIL_FROM_ADDRESS=
+ALLOWED_EMAILS=
 OPENAI_API_KEY=
 ADSENSE_CLIENT_ID=
 GOOGLE_OAUTH_CLIENT_ID=
@@ -191,7 +195,7 @@ X_OAUTH_CLIENT_ID=
 X_OAUTH_CLIENT_SECRET=
 ```
 
-Email/OTP delivery provider (for the passwordless email login path) is TBD — not yet a settled env var, decide when that login path is actually built.
+Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 43200 (30 days) — there's no refresh-token flow yet, so sessions are long-lived on purpose; re-authenticating is just requesting a new OTP. `ALLOWED_EMAILS` is a comma-separated allowlist for a pre-launch/private beta (case-insensitive) — leave it unset in local dev and until you actually want to restrict who can log in; `POST /auth/otp/request` silently no-ops (same generic response, no code created, no email sent) for any address not on the list. Separately and unconditionally, `otp/request` also rejects known disposable/throwaway email domains (the `disposable-email-domains` package, `backend/app/core/otp.py`) — no env var, just bundled data; bump the pinned version in `requirements.txt` occasionally since the point of the package is a current list. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
 
 ---
 

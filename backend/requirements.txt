@@ -5,3 +5,9 @@ alembic==1.14.0
 psycopg2-binary==2.9.10
 pydantic-settings==2.7.0
 pypdf==5.1.0
+pyjwt==2.14.0
+resend==2.46.0
+email-validator==2.3.0
+# Releases every time its upstream domain list changes (very often) — bump
+# periodically, this pin will go stale fast.
+disposable-email-domains==0.0.261

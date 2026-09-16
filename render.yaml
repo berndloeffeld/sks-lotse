@@ -37,9 +37,9 @@ services:
         sync: false
       - key: ADSENSE_CLIENT_ID
         sync: false
-      # Temporary pre-launch access gate (backend/app/core/security.py) —
-      # restricts the API to whoever holds this key while the app is
-      # deployed but not yet publicly launched. Remove once real auth
-      # exists or the app is meant to be public.
-      - key: ACCESS_GATE_KEY
+      - key: RESEND_API_KEY
+        sync: false
+      # Comma-separated email allowlist for a pre-launch/private beta.
+      # Unset/empty = no whitelist (see backend/app/core/config.py).
+      - key: ALLOWED_EMAILS
         sync: false

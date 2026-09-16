@@ -1,3 +1,5 @@
+from collections import defaultdict, deque
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -5,7 +7,17 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
+from app.core.jwt import create_access_token
 from app.main import app
+from app.models import User
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    # RateLimitMiddleware's counters live on the shared `app.state` for the
+    # whole test process — without this, requests across unrelated test
+    # functions would accumulate toward the same limit.
+    app.state.rate_limit_hits = defaultdict(deque)
 
 
 @pytest.fixture()
@@ -30,3 +42,14 @@ def db_session():
 @pytest.fixture()
 def client(db_session):
     return TestClient(app)
+
+
+@pytest.fixture()
+def auth_headers(db_session):
+    user = User(email="fixture-user@example.com")
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    token = create_access_token(user.id)
+    return {"Authorization": f"Bearer {token}"}

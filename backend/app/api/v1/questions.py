@@ -3,10 +3,11 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.jwt import get_current_user
 from app.models.question import Question
 from app.schemas.question import QuestionRead
 
-router = APIRouter(prefix="/questions", tags=["questions"])
+router = APIRouter(prefix="/questions", tags=["questions"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("", response_model=list[QuestionRead])

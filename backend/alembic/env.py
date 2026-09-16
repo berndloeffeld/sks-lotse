@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base
-from app.models import Question  # noqa: F401 — registers model with Base.metadata
+from app.models import OtpCode, Question, User  # noqa: F401 — registers models with Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
