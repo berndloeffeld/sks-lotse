@@ -42,6 +42,21 @@ def test_request_otp_within_cooldown_skips_second_send(client, monkeypatch):
     assert len(sent) == 1
 
 
+def test_request_otp_throttled_after_max_requests_per_window(client, db_session, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    monkeypatch.setattr("app.api.v1.auth.OTP_RESEND_COOLDOWN_SECONDS", 0)
+
+    for _ in range(5):
+        response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+        assert response.status_code == 202
+    assert len(sent) == 5
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 5
+
+
 def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 

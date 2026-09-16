@@ -2,13 +2,15 @@ import logging
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.jwt import create_access_token, get_current_user
 from app.core.otp import (
     OTP_MAX_ATTEMPTS,
+    OTP_MAX_REQUESTS_PER_WINDOW,
+    OTP_REQUEST_WINDOW_MINUTES,
     OTP_RESEND_COOLDOWN_SECONDS,
     OTP_TTL_MINUTES,
     generate_code,
@@ -43,6 +45,16 @@ def _as_utc(dt: datetime) -> datetime:
 @router.post("/otp/request", response_model=OtpRequestAccepted, status_code=status.HTTP_202_ACCEPTED)
 def request_otp(payload: OtpRequestCreate, db: Session = Depends(get_db)):
     now = datetime.now(UTC)
+
+    window_start = now - timedelta(minutes=OTP_REQUEST_WINDOW_MINUTES)
+    recent_requests = db.execute(
+        select(func.count())
+        .select_from(OtpCode)
+        .where(OtpCode.email == payload.email, OtpCode.created_at >= window_start)
+    ).scalar_one()
+    if recent_requests >= OTP_MAX_REQUESTS_PER_WINDOW:
+        return OtpRequestAccepted()
+
     latest = _latest_otp_code(db, payload.email)
     if latest is not None and (now - _as_utc(latest.created_at)) < timedelta(
         seconds=OTP_RESEND_COOLDOWN_SECONDS

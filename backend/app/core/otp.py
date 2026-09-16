@@ -8,6 +8,10 @@ OTP_LENGTH = 6
 OTP_TTL_MINUTES = 10
 OTP_MAX_ATTEMPTS = 5
 OTP_RESEND_COOLDOWN_SECONDS = 60
+# Bounds sustained abuse (spamming one inbox, running up the Resend bill)
+# that a per-request cooldown alone doesn't catch.
+OTP_REQUEST_WINDOW_MINUTES = 60
+OTP_MAX_REQUESTS_PER_WINDOW = 5
 
 
 def generate_code() -> str:
