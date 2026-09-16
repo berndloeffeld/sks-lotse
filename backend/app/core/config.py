@@ -31,18 +31,23 @@ class Settings(BaseSettings):
         return self.environment == "production"
 
 
-_INSECURE_JWT_SECRETS = {"", "change-me"}
+# A real secret (e.g. `openssl rand -hex 32`) is 64 characters. This is a
+# floor, not a target — it exists to reject short, human-typable/guessable
+# values (a required field alone only catches JWT_SECRET being unset
+# entirely, not a weak placeholder making it into the dashboard by mistake).
+# Deliberately length-based rather than an exact-string blocklist: a
+# blocklist only catches values someone thought to enumerate — it wouldn't
+# have caught the "test-secret-not-for-production" placeholder this project
+# uses in CI, for example.
+_MIN_PRODUCTION_JWT_SECRET_LENGTH = 32
 
 
 def _reject_insecure_production_secret(s: Settings) -> None:
-    # A required field only catches JWT_SECRET being unset entirely — it
-    # doesn't catch a placeholder value making it into the real Render
-    # dashboard by mistake. Fail loudly at startup for that case too, rather
-    # than serving traffic with a forgeable secret.
-    if s.is_production and s.jwt_secret in _INSECURE_JWT_SECRETS:
+    if s.is_production and len(s.jwt_secret) < _MIN_PRODUCTION_JWT_SECRET_LENGTH:
         raise RuntimeError(
-            "JWT_SECRET is unset or a known placeholder value in production. "
-            "Set a real random secret in the Render dashboard (see CLAUDE.md)."
+            f"JWT_SECRET is missing or too short ({len(s.jwt_secret)} chars) for production "
+            f"(minimum {_MIN_PRODUCTION_JWT_SECRET_LENGTH}). Set a real random secret in the "
+            "Render dashboard, e.g. via `openssl rand -hex 32` (see CLAUDE.md)."
         )
 
 
