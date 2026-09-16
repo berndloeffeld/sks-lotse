@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: sks-lotse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sks_lotse
+      POSTGRES_USER: sks_lotse
+      POSTGRES_PASSWORD: sks_lotse
+    ports:
+      - "5432:5432"
+    volumes:
+      - sks-lotse-db-data:/var/lib/postgresql/data
+
+volumes:
+  sks-lotse-db-data:
