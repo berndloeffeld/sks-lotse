@@ -20,6 +20,14 @@ def _reset_rate_limits():
     app.state.rate_limit_hits = defaultdict(deque)
 
 
+@pytest.fixture(autouse=True)
+def _reset_cache():
+    # Same reasoning as _reset_rate_limits: app.core.cache stores entries on
+    # the shared `app.state`, so a cached catalog from one test's (in-memory,
+    # per-test) database would otherwise leak into the next test.
+    app.state.cache_entries = {}
+
+
 @pytest.fixture()
 def db_session():
     engine = create_engine(
