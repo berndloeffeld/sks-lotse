@@ -141,6 +141,12 @@ This project doubles as a reference sample (incl. for job applications), so arch
 - Write an ADR when a decision would be genuinely costly to reverse or non-obvious to a future reader (e.g. auth flow, grading-request architecture, deployment topology) — not for routine implementation choices already covered elsewhere in this file.
 - Superseding a decision: add a new ADR referencing the old one, mark the old one "Superseded by ADR-NNNN". Don't edit history away.
 
+### Postman Collection
+`postman/sks-lotse.postman_collection.json` is generated from the FastAPI app's live OpenAPI schema — never edit it by hand, it will just get overwritten.
+
+- Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
+- `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
+
 ---
 
 ## Environment Variables (backend)
