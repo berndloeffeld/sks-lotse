@@ -115,10 +115,19 @@ def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.token_version)
     return TokenRead(access_token=access_token)
 
 
 @router.get("/me", response_model=UserRead)
 def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # No token blacklist: bumping the version invalidates every access token
+    # issued for this user in one step (see get_current_user in
+    # app/core/jwt.py), including the one used to call this endpoint.
+    current_user.token_version += 1
+    db.commit()
