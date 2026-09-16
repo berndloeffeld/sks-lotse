@@ -77,7 +77,8 @@ def split_question_answer(body: str) -> tuple[str, str]:
 def extract_sections(text: str) -> list[tuple[str, str]]:
     starts = [m.start() for m in BREADCRUMB_RE.finditer(text)][1:]  # skip title-page breadcrumb
     starts.append(len(text))
-    assert len(starts) - 1 == len(SUBJECTS), f"expected {len(SUBJECTS)} sections, found {len(starts) - 1}"
+    if len(starts) - 1 != len(SUBJECTS):
+        raise ValueError(f"expected {len(SUBJECTS)} sections, found {len(starts) - 1}")
     return [(SUBJECTS[i][0], text[starts[i] : starts[i + 1]]) for i in range(len(SUBJECTS))]
 
 
