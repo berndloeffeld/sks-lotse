@@ -127,6 +127,34 @@ def test_request_otp_cleans_up_codes_past_retention(client, db_session, monkeypa
     assert recent_id in remaining_ids
 
 
+def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, monkeypatch):
+    _capture_otp(monkeypatch)
+    now = datetime.now(UTC)
+
+    # First request runs cleanup (nothing to sweep yet) and starts the
+    # throttle window.
+    client.post("/api/v1/auth/otp/request", json={"email": "first@example.com"})
+
+    stale = OtpCode(
+        email="old@example.com",
+        code_hash="irrelevant",
+        expires_at=now - timedelta(hours=OTP_CODE_RETENTION_HOURS, minutes=1),
+    )
+    db_session.add(stale)
+    db_session.commit()
+    stale_id = stale.id
+
+    # A different email, so nothing about this second request is blocked by
+    # the per-email cooldown/window checks — it's cleanup's own throttle
+    # that should skip the sweep here, within OTP_CLEANUP_MIN_INTERVAL_SECONDS
+    # of the first request.
+    response = client.post("/api/v1/auth/otp/request", json={"email": "second@example.com"})
+
+    assert response.status_code == 202
+    remaining_ids = {row.id for row in db_session.query(OtpCode).all()}
+    assert stale_id in remaining_ids
+
+
 def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 

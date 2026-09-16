@@ -20,6 +20,10 @@ OTP_MAX_REQUESTS_PER_WINDOW = 5
 # unbounded. Not the same as OTP_TTL_MINUTES, which governs how long a code
 # is *usable*.
 OTP_CODE_RETENTION_HOURS = 24
+# The cleanup sweep is triggered by request traffic (see docs/adr/0010), not
+# a scheduler — this bounds how often it actually runs (via cache.throttle)
+# so its cost doesn't scale with request volume under heavy use.
+OTP_CLEANUP_MIN_INTERVAL_SECONDS = 300
 
 
 def generate_code() -> str:
