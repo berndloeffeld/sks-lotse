@@ -46,12 +46,12 @@ def _as_utc(dt: datetime) -> datetime:
 
 
 def _cleanup_expired_otp_codes(db: Session, now: datetime) -> None:
-    # otp_codes is pure transient data (see docs/adr/0009) — nothing outside
+    # otp_codes is pure transient data (see docs/adr/0010) — nothing outside
     # the OTP flow itself reads a code once it's past its retention window.
     # Runs as a FastAPI background task (scheduled from request_otp) rather
     # than a separate job/schedule, so the table stays bounded without new
     # infrastructure, and without the DELETE adding latency to the response
-    # the caller is waiting on; see ADR-0009 for why that's an acceptable
+    # the caller is waiting on; see ADR-0010 for why that's an acceptable
     # tradeoff here. Commits on its own since it no longer shares a
     # transaction with the request that scheduled it — that request has
     # already returned its response by the time this runs.
