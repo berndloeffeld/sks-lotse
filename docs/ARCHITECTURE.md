@@ -47,6 +47,8 @@ Abuse protection on `/auth/otp/request` is layered: a per-email cooldown + hourl
 
 `otp_codes` rows are transient: `request_otp` deletes anything past its retention window as a side effect of issuing a new code, so the table doesn't grow unbounded — no scheduled job. The delete itself is throttled to run at most once every `OTP_CLEANUP_MIN_INTERVAL_SECONDS`, so its cost doesn't scale with request volume under heavy traffic. See [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md).
 
+`GET /api/v1/auth/otp/_dev-peek` returns the plaintext code last generated for an email — dev/test-only (404s in production, never populated in production, excluded from the OpenAPI schema), so an external Postman/Newman run can complete the OTP round-trip without a real inbox. See [ADR-0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md).
+
 ### Caching (`backend/app/core/cache.py`)
 A minimal in-process TTL cache (`get_or_set`/`invalidate`, state on `app.state`, same pattern as the rate limiter above). `backend/app/api/v1/questions.py` caches the whole question catalog for an hour, since it's read on every practice session but only ever changes via the offline import script. Local by design, behind an interface a Redis-backed implementation could later replace without touching callers — see [ADR-0009](adr/0009-in-process-cache-for-question-catalog.md).
 
@@ -64,7 +66,10 @@ Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one we
 `backend/scripts/import_catalog.py` — one-off script, parses `docs/Fragenkatalog-SKS.pdf` into the `questions` table. Not a service; run manually when the catalog changes.
 
 ### CI/CD
-GitHub Actions (`.github/workflows/backend-ci.yml`): separate `lint` (ruff) and `test` (pytest, 80% coverage gate) jobs on every push to `main` and every PR.
+GitHub Actions (`.github/workflows/backend-ci.yml`): separate `lint` (ruff), `test` (pytest, 80% coverage gate), and `postman-collection` (regenerates the API-reference Postman collection from the live OpenAPI schema, fails if the committed one is stale) jobs on every push to `main` and every PR.
+
+### External integration tests
+`postman/integration-tests.postman_collection.json` (see `CLAUDE.md` → Integration Tests) — a separate, hand-written Postman collection that black-box tests a real, locally running backend over HTTP: auth guards, CORS, security headers, the full OTP login round-trip via `GET /api/v1/auth/otp/_dev-peek` (dev/test-only, see [ADR-0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md)), and rate limiting. Runnable without a Python environment via `./scripts/run_integration_tests.sh` (Newman, over `npx`). Not wired into CI yet — manual/on-demand. Unlike the API-reference collection above, it isn't generated from the OpenAPI schema, so nothing keeps it in sync automatically — it has to be updated by hand alongside `backend/tests/` whenever the behavior it covers changes.
 
 ### Security scanning
 Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development Conventions → Security Scanning for the current process and `scripts/check_aikido.sh` for querying findings directly.

@@ -155,6 +155,62 @@ def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, mo
     assert stale_id in remaining_ids
 
 
+def test_dev_peek_returns_the_code_from_the_matching_request(client, monkeypatch):
+    _capture_otp(monkeypatch)
+    client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "learner@example.com"})
+
+    assert response.status_code == 200
+    code = response.json()["code"]
+    assert len(code) == 6
+
+    verify_response = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+    )
+    assert verify_response.status_code == 200
+
+
+def test_dev_peek_is_case_insensitive_on_email(client, monkeypatch):
+    _capture_otp(monkeypatch)
+    client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "Learner@Example.com"})
+
+    assert response.status_code == 200
+
+
+def test_dev_peek_returns_404_for_unknown_email(client):
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "nobody@example.com"})
+    assert response.status_code == 404
+
+
+def test_dev_peek_returns_404_in_production(client, monkeypatch):
+    monkeypatch.setattr(settings, "environment", "production")
+
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "learner@example.com"})
+
+    assert response.status_code == 404
+
+
+def test_dev_peek_not_populated_when_environment_is_production(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    monkeypatch.setattr(settings, "environment", "production")
+
+    request_response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+    assert request_response.status_code == 202
+    assert len(sent) == 1
+
+    monkeypatch.setattr(settings, "environment", "development")
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "learner@example.com"})
+    assert response.status_code == 404
+
+
+def test_dev_peek_excluded_from_openapi_schema(client):
+    schema = client.get("/openapi.json").json()
+    assert "/api/v1/auth/otp/_dev-peek" not in schema["paths"]
+
+
 def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 

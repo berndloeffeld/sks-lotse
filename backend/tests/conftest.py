@@ -28,6 +28,14 @@ def _reset_cache():
     app.state.cache_entries = {}
 
 
+@pytest.fixture(autouse=True)
+def _reset_dev_otp_codes():
+    # Same reasoning as _reset_rate_limits: the dev-only OTP peek store (see
+    # _dev_otp_codes in app/api/v1/auth.py) also lives on the shared
+    # `app.state`.
+    app.state.dev_otp_codes = {}
+
+
 @pytest.fixture()
 def db_session():
     engine = create_engine(

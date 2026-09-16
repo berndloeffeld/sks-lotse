@@ -23,7 +23,14 @@ from app.core.otp import (
     verify_code,
 )
 from app.models import OtpCode, User
-from app.schemas.auth import OtpRequestAccepted, OtpRequestCreate, OtpVerifyRequest, TokenRead, UserRead
+from app.schemas.auth import (
+    OtpDevPeekRead,
+    OtpRequestAccepted,
+    OtpRequestCreate,
+    OtpVerifyRequest,
+    TokenRead,
+    UserRead,
+)
 from app.services import email as email_service
 
 logger = logging.getLogger(__name__)
@@ -31,6 +38,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 _INVALID_CODE = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired code")
+_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+
+def _dev_otp_codes(app) -> dict[str, str]:
+    # Plaintext codes only ever exist here — otp_codes.code_hash (see
+    # hash_code) is one-way, by design. Gated to non-production and never
+    # populated at all in production (see request_otp), so this doesn't add
+    # a standing plaintext-code store to the deployed app.
+    if not hasattr(app.state, "dev_otp_codes"):
+        app.state.dev_otp_codes = {}
+    return app.state.dev_otp_codes
 
 
 def _latest_otp_code(db: Session, email: str) -> OtpCode | None:
@@ -114,6 +132,9 @@ def request_otp(
     db.add(otp)
     db.commit()
 
+    if not settings.is_production:
+        _dev_otp_codes(request.app)[payload.email.lower()] = code
+
     try:
         email_service.send_otp_email(payload.email, code)
     except Exception:
@@ -150,6 +171,23 @@ def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
 
     access_token = create_access_token(user.id, user.token_version)
     return TokenRead(access_token=access_token)
+
+
+@router.get("/otp/_dev-peek", response_model=OtpDevPeekRead, include_in_schema=False)
+def dev_peek_otp_code(email: str, request: Request):
+    # Lets an external integration-test run (Postman/Newman against a real
+    # local server) complete the OTP round-trip without a real inbox — pytest
+    # gets this for free by monkeypatching send_otp_email in-process, which
+    # an external HTTP client can't do. Excluded from the OpenAPI schema (so
+    # it never lands in the generated API-reference Postman collection) and
+    # 404s outright in production, same treatment as the docs endpoints (see
+    # _docs_kwargs in app/main.py). See ADR-0011.
+    if settings.is_production:
+        raise _NOT_FOUND
+    code = _dev_otp_codes(request.app).get(email.lower())
+    if code is None:
+        raise _NOT_FOUND
+    return OtpDevPeekRead(code=code)
 
 
 @router.get("/me", response_model=UserRead)
