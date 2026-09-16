@@ -12,9 +12,13 @@ if [ ! -x "$PYTHON_BIN" ]; then
   PYTHON_BIN="python3"
 fi
 
-# Settings() only needs DATABASE_URL to satisfy validation at import time;
-# generating the schema never connects to it.
+# Settings() only needs DATABASE_URL and JWT_SECRET to satisfy validation at
+# import time; generating the schema never connects to the DB or signs a JWT.
+# Not a real secret — same fixed `openssl rand -hex 32` output CI uses,
+# long enough not to trip the production min-length check (config.py) if
+# it ever ended up somewhere it shouldn't.
 DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}" \
+  JWT_SECRET="${JWT_SECRET:-45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac}" \
   PYTHONPATH=backend "$PYTHON_BIN" backend/scripts/generate_openapi.py "$OPENAPI_TMP"
 
 mkdir -p postman

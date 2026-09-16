@@ -31,6 +31,12 @@ jobs:
       # Tests override get_db (in-memory SQLite), so this never needs to be a
       # real, reachable database — it only has to satisfy Settings() on import.
       DATABASE_URL: postgresql://test:test@localhost:5432/test
+      # JWT_SECRET has no default (see backend/app/core/config.py) — any
+      # fixed value is fine here since ENVIRONMENT stays "development". Not a
+      # real secret, just `openssl rand -hex 32` output — long enough that it
+      # wouldn't itself trip the production min-length check if ever copied
+      # somewhere it shouldn't be, unlike an obviously-named placeholder.
+      JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
     steps:
       - uses: actions/checkout@v4
         with:
