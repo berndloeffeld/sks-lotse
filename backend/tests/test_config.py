@@ -30,3 +30,13 @@ def test_allows_long_enough_secret_in_production():
 def test_allows_short_secret_outside_production():
     s = Settings(database_url="x", jwt_secret="change-me", environment="development")
     _reject_insecure_production_secret(s)
+
+
+def test_cors_allowed_origins_in_production():
+    s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="production")
+    assert s.cors_allowed_origins == ["https://sks-lotse.de", "https://www.sks-lotse.de"]
+
+
+def test_cors_allowed_origins_outside_production():
+    s = Settings(database_url="x", jwt_secret="change-me", environment="development")
+    assert s.cors_allowed_origins == ["http://localhost:5173", "http://127.0.0.1:5173"]
