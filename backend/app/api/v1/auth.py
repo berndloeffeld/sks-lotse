@@ -1,7 +1,7 @@
 import logging
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
@@ -48,21 +48,26 @@ def _as_utc(dt: datetime) -> datetime:
 def _cleanup_expired_otp_codes(db: Session, now: datetime) -> None:
     # otp_codes is pure transient data (see docs/adr/0009) — nothing outside
     # the OTP flow itself reads a code once it's past its retention window.
-    # Piggybacks on the same commit as issuing a new code rather than a
-    # separate job/schedule, so the table stays bounded without new
-    # infrastructure; see ADR-0009 for why that's an acceptable tradeoff here.
+    # Runs as a FastAPI background task (scheduled from request_otp) rather
+    # than a separate job/schedule, so the table stays bounded without new
+    # infrastructure, and without the DELETE adding latency to the response
+    # the caller is waiting on; see ADR-0009 for why that's an acceptable
+    # tradeoff here. Commits on its own since it no longer shares a
+    # transaction with the request that scheduled it — that request has
+    # already returned its response by the time this runs.
     cutoff = now - timedelta(hours=OTP_CODE_RETENTION_HOURS)
-    # synchronize_session=False: nothing in this request holds a reference to
-    # an about-to-be-deleted row, so there's no session-local ORM state that
+    # synchronize_session=False: nothing holds a reference to an
+    # about-to-be-deleted row, so there's no session-local ORM state that
     # needs to stay in sync — and evaluating the WHERE clause against the
     # session's identity map (the default "evaluate" strategy) chokes on
     # SQLite's naive datetimes (see `_as_utc` above) vs this tz-aware cutoff.
     stmt = delete(OtpCode).where(OtpCode.expires_at < cutoff).execution_options(synchronize_session=False)
     db.execute(stmt)
+    db.commit()
 
 
 @router.post("/otp/request", response_model=OtpRequestAccepted, status_code=status.HTTP_202_ACCEPTED)
-def request_otp(payload: OtpRequestCreate, db: Session = Depends(get_db)):
+def request_otp(payload: OtpRequestCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     allowed_emails = settings.allowed_emails_set
     if allowed_emails is not None and payload.email.lower() not in allowed_emails:
         # Same generic response as every other throttled/rejected case below —
@@ -89,7 +94,7 @@ def request_otp(payload: OtpRequestCreate, db: Session = Depends(get_db)):
     ):
         return OtpRequestAccepted()
 
-    _cleanup_expired_otp_codes(db, now)
+    background_tasks.add_task(_cleanup_expired_otp_codes, db, now)
 
     code = generate_code()
     otp = OtpCode(
