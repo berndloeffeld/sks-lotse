@@ -163,9 +163,10 @@ ADSENSE_CLIENT_ID=
 ## Naming / Domain
 
 - Name: SKS Lotse
-- Domains checked 2026-09-16, available: sks-lotse.de, sks-lotse.com, skslotse.de, skslotse.com
+- Domains purchased 2026-09-16 via IONOS: `sks-lotse.de` (primary — target market/language is German), `sks-lotse.com`, `sks-lotse.global`, `sks-lotse.store`
 - No conflicting product name found in search (existing competitors: SKS-Buddy, official SKS App, SBF-Fragen by Delius Klasing)
-- **Open**: no formal trademark search done (DPMA/EUIPO) — recommended before committing to branding/domain purchase
+- **Open**: no formal trademark search done (DPMA/EUIPO) — recommended before committing further to branding
+- **Open**: DNS/hosting wiring not yet done — domains point nowhere until the Render deployment exists and DNS records are configured
 
 ---
 
