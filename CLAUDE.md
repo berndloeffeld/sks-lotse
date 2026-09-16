@@ -155,10 +155,17 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`) in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `ACCESS_GATE_KEY`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
+
+### Temporary Access Gate
+`backend/app/core/security.py` gates every `/api/v1/*` route behind an `X-Access-Key` header (checked against `ACCESS_GATE_KEY`). `/health` stays open for Render's own reachability checks. This is **not** the planned JWT auth system — it's a stopgap so the deployed-but-unlaunched API isn't wide open to anyone who finds the URL.
+
+- Empty `ACCESS_GATE_KEY` (the local-dev default) disables the gate entirely — no effect on local development.
+- In Postman: the `apiKey` variable in both environments (`postman/local.postman_environment.json`, `postman/production.postman_environment.json`) feeds the auto-detected `X-Access-Key` auth on gated requests — set it to the real value yourself, it's left empty in the committed files.
+- **Remove this once**: real auth (JWT) exists, or the app is meant to be publicly reachable.
 
 ---
 
