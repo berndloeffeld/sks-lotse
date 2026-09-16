@@ -16,6 +16,7 @@ from app.core.otp import (
     OTP_TTL_MINUTES,
     generate_code,
     hash_code,
+    is_disposable_email,
     verify_code,
 )
 from app.models import OtpCode, User
@@ -49,6 +50,9 @@ def request_otp(payload: OtpRequestCreate, db: Session = Depends(get_db)):
     if allowed_emails is not None and payload.email.lower() not in allowed_emails:
         # Same generic response as every other throttled/rejected case below —
         # doesn't leak whether this email is on the allowlist.
+        return OtpRequestAccepted()
+
+    if is_disposable_email(payload.email):
         return OtpRequestAccepted()
 
     now = datetime.now(UTC)

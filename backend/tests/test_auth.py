@@ -52,6 +52,15 @@ def test_request_otp_allows_whitelisted_email_case_insensitively(client, monkeyp
     assert len(sent) == 1
 
 
+def test_request_otp_skips_disposable_domain(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "someone@mailinator.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 0
+
+
 def test_request_otp_within_cooldown_skips_second_send(client, monkeypatch):
     sent = _capture_otp(monkeypatch)
 

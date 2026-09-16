@@ -2,6 +2,8 @@ import hashlib
 import hmac
 import secrets
 
+from disposable_email_domains import blocklist as disposable_email_domains
+
 from app.core.config import settings
 
 OTP_LENGTH = 6
@@ -24,3 +26,8 @@ def hash_code(code: str) -> str:
 
 def verify_code(code: str, code_hash: str) -> bool:
     return hmac.compare_digest(hash_code(code), code_hash)
+
+
+def is_disposable_email(email: str) -> bool:
+    _, _, domain = email.rpartition("@")
+    return domain.lower() in disposable_email_domains
