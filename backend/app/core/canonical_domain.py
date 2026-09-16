@@ -15,10 +15,8 @@ CANONICAL_DOMAIN = "sks-lotse.de"
 SECONDARY_HOSTS = {
     "sks-lotse.com",
     "www.sks-lotse.com",
-    "sks-lotse.global",
-    "www.sks-lotse.global",
-    "sks-lotse.store",
-    "www.sks-lotse.store",
+    # sks-lotse.global and sks-lotse.store are purchased but not wired up
+    # (no DNS/Render Custom Domain) — not used for now, add here once they are.
 }
 
 

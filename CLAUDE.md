@@ -187,8 +187,8 @@ ADSENSE_CLIENT_ID=
 - No conflicting product name found in search (existing competitors: SKS-Buddy, official SKS App, SBF-Fragen by Delius Klasing)
 - **Open**: no formal trademark search done (DPMA/EUIPO) — recommended before committing further to branding
 - `sks-lotse.de` is wired to Render (Custom Domain + IONOS DNS: `A @ → 216.24.57.1`, `CNAME www → sks-lotse-backend.onrender.com`) and live.
-- `sks-lotse.com` / `.global` / `.store` are meant to redirect to `sks-lotse.de`, **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect) — instead: same free DNS records as `.de` pointing at Render, added as Render Custom Domains (free automatic Let's Encrypt certs), and `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) 301-redirects them at the app level. Costs nothing beyond the domains themselves.
-  - One-time manual steps per secondary domain (account-level, project owner): add the same `A`/`CNAME` DNS records at IONOS as `sks-lotse.de` got, then add the domain as a Render Custom Domain.
+- `sks-lotse.com` is wired the same way and 301-redirects to `sks-lotse.de` via `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) — **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect). Costs nothing beyond the domain itself.
+- `sks-lotse.global` and `sks-lotse.store` are purchased but **not currently used** — no DNS, no Render Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` (DNS at IONOS, Render Custom Domain, add to `SECONDARY_HOSTS`) if/when needed.
 
 ---
 
