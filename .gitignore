@@ -22,3 +22,8 @@ dist/
 # Git" mode) — not part of the generated/hand-maintained collection+envs
 postman/.postman/
 postman/postman/
+
+# Postman environments hold real secret values (apiKey) once filled in —
+# copy the committed *.example templates locally, never commit the real files
+postman/local.postman_environment.json
+postman/production.postman_environment.json
