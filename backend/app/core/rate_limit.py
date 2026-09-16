@@ -51,8 +51,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         limit, window_seconds = rule
-        ip = request.client.host if request.client else "unknown"
-        hits = _hits_for(request.app, (request.url.path, ip))
+        hits = _hits_for(request.app, (request.url.path, _client_ip(request)))
 
         now = time.monotonic()
         while hits and now - hits[0] > window_seconds:
@@ -62,6 +61,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         hits.append(now)
         return await call_next(request)
+
+
+def _client_ip(request: Request) -> str:
+    # Render sits in front of the app as the sole reverse-proxy hop and
+    # appends the connecting IP to X-Forwarded-For itself (rather than
+    # trusting whatever a client already sent), so the *last* entry is the
+    # one hop we don't control and can trust — never the first, which a
+    # client can freely set to spoof its way into a fresh rate-limit bucket.
+    # request.client.host would otherwise be Render's proxy IP, collapsing
+    # every caller into one bucket. Falls back to it when the header is
+    # absent (local dev, tests).
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",")[-1].strip()
+    return request.client.host if request.client else "unknown"
 
 
 def _hits_for(app, key: tuple[str, str]) -> deque:

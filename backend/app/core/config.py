@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.environment == "production"
 
+    @property
+    def cors_allowed_origins(self) -> list[str]:
+        # No separate frontend deployment exists yet, so this is forward-looking:
+        # the canonical/secondary domains in production (see CLAUDE.md, Naming /
+        # Domain), the Vite dev server's default origin locally.
+        if self.is_production:
+            return ["https://sks-lotse.de", "https://www.sks-lotse.de"]
+        return ["http://localhost:5173", "http://127.0.0.1:5173"]
+
 
 # A real secret (e.g. `openssl rand -hex 32`) is 64 characters. This is a
 # floor, not a target — it exists to reject short, human-typable/guessable

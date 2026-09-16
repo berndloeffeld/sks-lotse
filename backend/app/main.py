@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import router as api_v1_router
 from app.core.canonical_domain import RedirectSecondaryDomainsMiddleware
 from app.core.config import settings
 from app.core.rate_limit import RateLimitMiddleware
+from app.core.security_headers import SecurityHeadersMiddleware
 
 
 def _docs_kwargs() -> dict:
@@ -26,6 +28,13 @@ app.add_middleware(
     # excluded — Render's own reachability checks hit it directly.
     default_rule=(300, 300),
     scope_prefix="/api/v1",
+)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allowed_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 app.include_router(api_v1_router)
 
