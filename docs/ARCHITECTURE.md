@@ -38,6 +38,8 @@ PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Rende
 ### Deployment
 Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one managed Postgres. No frontend service yet. No staging environment — production only. See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
 
+The deployed API currently sits behind a temporary `X-Access-Key` gate (`backend/app/core/security.py`) — not the planned JWT auth, just a stopgap while the app is live but not launched. See `CLAUDE.md` → Temporary Access Gate.
+
 ### Catalog import
 `backend/scripts/import_catalog.py` — one-off script, parses `docs/Fragenkatalog-SKS.pdf` into the `questions` table. Not a service; run manually when the catalog changes.
 
