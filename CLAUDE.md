@@ -180,6 +180,7 @@ There used to be a temporary `X-Access-Key` header gate in front of the whole AP
 
 ```
 DATABASE_URL=
+ENVIRONMENT=
 JWT_SECRET=
 JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
 RESEND_API_KEY=
@@ -194,6 +195,8 @@ FACEBOOK_OAUTH_CLIENT_SECRET=
 X_OAUTH_CLIENT_ID=
 X_OAUTH_CLIENT_SECRET=
 ```
+
+`ENVIRONMENT` defaults to `development` (matches local/CI); set to `production` on Render (see `render.yaml` — not a secret, committed directly) to disable Swagger UI/ReDoc/the raw OpenAPI schema (`backend/app/main.py`).
 
 Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 43200 (30 days) — there's no refresh-token flow yet, so sessions are long-lived on purpose; re-authenticating is just requesting a new OTP. `ALLOWED_EMAILS` is a comma-separated allowlist for a pre-launch/private beta (case-insensitive) — leave it unset in local dev and until you actually want to restrict who can log in; `POST /auth/otp/request` silently no-ops (same generic response, no code created, no email sent) for any address not on the list. Separately and unconditionally, `otp/request` also rejects known disposable/throwaway email domains (the `disposable-email-domains` package, `backend/app/core/otp.py`) — no env var, just bundled data; bump the pinned version in `requirements.txt` occasionally since the point of the package is a current list. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
 
