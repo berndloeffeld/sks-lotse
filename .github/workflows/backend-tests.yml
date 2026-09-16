@@ -1,0 +1,24 @@
+name: Backend tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Tests override get_db (in-memory SQLite), so this never needs to be a
+      # real, reachable database — it only has to satisfy Settings() on import.
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: PYTHONPATH=. pytest

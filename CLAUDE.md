@@ -109,6 +109,8 @@ All file edits must be made in the canonical project root:
 /Users/berndloffeld/Projects/sks-lotse
 ```
 
+Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Code is invoked from a worktree, edits must still target the real project root above.
+
 ### Security Scanning (Aikido)
 Aikido Security is connected to this GitHub repo.
 
@@ -117,7 +119,12 @@ Aikido Security is connected to this GitHub repo.
 - Revisit once on GitHub Pro (or equivalent): add Aikido's check as a required status check in branch protection on `main`.
 - `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
-Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Code is invoked from a worktree, edits must still target the real project root above.
+### Test Coverage
+Backend enforces a minimum of **80% line coverage** via `pytest-cov` (`backend/pyproject.toml`, `--cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
+
+- `.github/workflows/backend-tests.yml` runs the backend test suite (incl. the coverage gate) on every push to `main` and on every PR.
+- **Not yet a hard merge gate**: same GitHub free-plan limitation as Aikido above — no required status checks on a private repo. Verify the workflow is green before merging a PR.
+- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 
 ---
 
