@@ -147,6 +147,17 @@ This project doubles as a reference sample (incl. for job applications), so arch
 - Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
 - `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
 
+### Deployment (Render)
+Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the reasoning. One web service (backend) + one managed Postgres, Frankfurt region, production only (no staging yet).
+
+One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
+1. Connect the GitHub repo to a Render account.
+2. "Deploy from Blueprint" using `render.yaml`.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`) in the Render dashboard — never commit their values.
+4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
+
+After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
+
 ---
 
 ## Environment Variables (backend)

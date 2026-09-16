@@ -33,7 +33,10 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Currently exposes read-only endpoints for the question catalog (`/api/v1/questions`) and a health check (`/health`). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
 
 ### Database
-PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
+PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU) — see `CLAUDE.md` for connection details and env vars.
+
+### Deployment
+Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one managed Postgres. No frontend service yet. No staging environment — production only. See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
 
 ### Catalog import
 `backend/scripts/import_catalog.py` — one-off script, parses `docs/Fragenkatalog-SKS.pdf` into the `questions` table. Not a service; run manually when the catalog changes.
