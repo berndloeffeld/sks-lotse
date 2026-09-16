@@ -15,8 +15,9 @@ services:
     branch: main
     autoDeployTrigger: commit
     buildCommand: pip install -r requirements.txt
-    preDeployCommand: alembic upgrade head
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # preDeployCommand isn't available on the free plan — run the
+    # (idempotent) migration inline before starting the server instead.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
