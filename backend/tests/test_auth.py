@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from app.core.config import settings
+from app.core.jwt import create_access_token
 from app.models import OtpCode, User
 
 
@@ -188,3 +189,41 @@ def test_me_with_valid_token_returns_current_user(client, db_session, monkeypatc
 
     assert response.status_code == 200
     assert response.json()["email"] == "learner@example.com"
+
+
+def test_logout_without_token_returns_401(client):
+    response = client.post("/api/v1/auth/logout")
+    assert response.status_code == 401
+
+
+def test_logout_revokes_the_token_used_to_call_it(client, auth_headers):
+    logout_response = client.post("/api/v1/auth/logout", headers=auth_headers)
+    assert logout_response.status_code == 204
+
+    response = client.get("/api/v1/auth/me", headers=auth_headers)
+    assert response.status_code == 401
+
+
+def test_logout_revokes_tokens_issued_earlier_for_the_same_user(client, db_session, auth_headers):
+    # A second, independently minted token for the same user — logging out
+    # with the fixture's token must invalidate this one too, since it's the
+    # user's token_version that's revoked, not just the one token presented
+    # at logout.
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    other_headers = {"Authorization": f"Bearer {create_access_token(user.id, user.token_version)}"}
+
+    logout_response = client.post("/api/v1/auth/logout", headers=auth_headers)
+    assert logout_response.status_code == 204
+
+    response = client.get("/api/v1/auth/me", headers=other_headers)
+    assert response.status_code == 401
+
+
+def test_token_issued_after_logout_still_works(client, db_session, auth_headers):
+    assert client.post("/api/v1/auth/logout", headers=auth_headers).status_code == 204
+
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    new_token = create_access_token(user.id, user.token_version)
+
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {new_token}"})
+    assert response.status_code == 200
