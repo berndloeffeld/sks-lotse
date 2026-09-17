@@ -13,7 +13,9 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 
 | Layer | Technology |
 |---|---|
-| Frontend | React (Vite) + TypeScript |
+| Frontend | React (Vite) + TypeScript, Zustand |
+| Frontend styling | Tailwind CSS ([ADR-0012](docs/adr/0012-frontend-architecture-and-tooling.md)) — visual design system (palette, typography) TBD separately |
+| Frontend testing | Vitest + React Testing Library ([ADR-0012](docs/adr/0012-frontend-architecture-and-tooling.md)) |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
 | Auth | Required — no anonymous access. SSO (Google/Facebook/X) or email + OTP, JWT-based session |
