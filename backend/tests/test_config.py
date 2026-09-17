@@ -1,3 +1,6 @@
+import re
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -46,3 +49,20 @@ def test_cors_allowed_origins_in_production():
 def test_cors_allowed_origins_outside_production():
     s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="development")
     assert s.cors_allowed_origins == ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+
+def test_env_example_lists_every_setting():
+    # CLAUDE.md points to .env.example as the complete list of backend env
+    # vars instead of repeating it — this keeps that claim true.
+    env_example = (Path(__file__).resolve().parent.parent / ".env.example").read_text()
+    listed = set(re.findall(r"^#?\s*([A-Z0-9_]+)=", env_example, re.MULTILINE))
+    assert {name.upper() for name in Settings.model_fields} <= listed
+
+
+def test_render_flag_read_from_render_env_var(monkeypatch):
+    # Render sets RENDER=true on every service; that's what enables trusting
+    # its proxy's client-IP headers (app/main.py).
+    monkeypatch.setenv("RENDER", "true")
+    assert Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET).render is True
+    monkeypatch.delenv("RENDER")
+    assert Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET).render is False

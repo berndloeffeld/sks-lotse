@@ -16,10 +16,10 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
       - run: pip install -r requirements-dev.txt
@@ -42,10 +42,10 @@ jobs:
       # somewhere it shouldn't be, unlike an obviously-named placeholder.
       JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
       - run: pip install -r requirements-dev.txt
@@ -78,10 +78,10 @@ jobs:
       DATABASE_URL: postgresql://test:test@localhost:5432/test
       JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
       - run: pip install -r requirements.txt
@@ -93,13 +93,13 @@ jobs:
   postman-collection:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - run: pip install -r backend/requirements.txt
