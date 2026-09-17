@@ -15,11 +15,13 @@ graph TB
     Backend[Backend<br/>FastAPI]
     DB[(PostgreSQL 16)]
     Resend[Resend<br/>transactional email]
+    Umami[Umami Cloud<br/>analytics]
     Aikido[Aikido Security<br/>SAST / SCA scanning]
     GHA[GitHub Actions<br/>lint + test CI]
 
     Learner --> Frontend
     Frontend --> Backend
+    Frontend --> Umami
     Backend --> DB
     Backend --> Resend
     Backend -.-> OpenAI
@@ -36,6 +38,11 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 React (Vite) + TypeScript, per [ADR-0013](adr/0013-frontend-architecture-and-tooling.md); visual design tokens per [ADR-0014](adr/0014-visual-design-system.md). Three routes only so far: `/` (landing page), `/login` (two-step email+OTP form), and `/start` (protected — greets the logged-in learner, shows non-interactive placeholder nav tiles for the question flow, which doesn't exist yet). Zustand (`src/store/authStore.ts`) holds the current user and derives "logged in" from a `GET /auth/me` call, never from inspecting a token — the frontend never reads the session cookie directly (ADR-0012). `src/api/client.ts` is the thin typed `fetch` wrapper named in ADR-0013: always `credentials: "include"`, and a uniform 401 handler that clears the auth store. `src/routes/ProtectedRoute.tsx` redirects to `/login` when not authenticated.
 
 Question list/answering, grading, learning-progress UI, and ads are not built — they depend on backend pieces that don't exist yet (see Not yet built).
+
+Also serves `/impressum` and `/datenschutz` — static legal pages, reachable logged-out, linked from a `LegalFooter` on every page.
+
+### Analytics
+Umami Cloud (Hobby plan), loaded by `frontend/src/analytics.ts` (`initAnalytics()`, called once from `main.tsx`), gated on `VITE_UMAMI_WEBSITE_ID` being set — unset in local dev/CI, so no dev/test traffic is tracked. Cookieless (no persistent identifier, no cross-session tracking), so no consent banner is needed — see [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md).
 
 ### Backend (`backend/`)
 FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions`, login required), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`, unauthenticated). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
@@ -90,7 +97,6 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 - Ads (AdSense)
 - Frontend deployment (Render still serves the backend only — see Deployment above)
 - Learning progress tracking (per-account, server-side — no table for it yet)
-- Analytics (Countly)
 - Question images (charts/diagrams from the catalog PDF — see Catalog import)
 
 This section should shrink as each piece lands — keep it accurate rather than aspirational.

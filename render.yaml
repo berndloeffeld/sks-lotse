@@ -79,6 +79,14 @@ services:
       # different subdomain from the frontend itself (see ADR-0015).
       - key: VITE_API_BASE_URL
         value: https://api.sks-lotse.de
+      # Umami Cloud website id (see ADR-0016). Not a security secret — it's
+      # visible to any visitor via view-source on the deployed site anyway
+      # — but kept out of this committed file rather than made a
+      # zero-effort grep, since the repo may go open-source. Set manually
+      # in the Render dashboard (CLAUDE.md, Deployment, One-time manual
+      # steps).
+      - key: VITE_UMAMI_WEBSITE_ID
+        sync: false
     routes:
       # SPA fallback: routes like /login and /start have no matching static
       # file, so a direct load/refresh still needs to serve index.html and

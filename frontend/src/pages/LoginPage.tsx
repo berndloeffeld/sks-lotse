@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
+import { LegalFooter } from '../components/LegalFooter'
 import { useAuthStore } from '../store/authStore'
 
 type Step = 'email' | 'code'
@@ -122,6 +123,7 @@ export function LoginPage() {
           </button>
         </form>
       )}
+      <LegalFooter />
     </main>
   )
 }

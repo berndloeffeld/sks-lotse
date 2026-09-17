@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import { ChartTile } from '../components/ChartTile'
+import { LegalFooter } from '../components/LegalFooter'
 import { useAuthStore } from '../store/authStore'
 
 export function StartPage() {
@@ -35,6 +36,7 @@ export function StartPage() {
         <ChartTile title="Lernen" description="Demnächst verfügbar" />
         <ChartTile title="Prüfungssimulation" description="Demnächst verfügbar" />
       </div>
+      <LegalFooter />
     </main>
   )
 }

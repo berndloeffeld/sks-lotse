@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
+import { DatenschutzPage } from './pages/DatenschutzPage'
+import { ImpressumPage } from './pages/ImpressumPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { StartPage } from './pages/StartPage'
@@ -19,6 +21,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/impressum" element={<ImpressumPage />} />
+        <Route path="/datenschutz" element={<DatenschutzPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<StartPage />} />
         </Route>
