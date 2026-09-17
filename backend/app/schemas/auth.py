@@ -10,6 +10,18 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 NormalizedEmail = Annotated[EmailStr, AfterValidator(str.lower)]
 
 
+def _require_digits(value: str) -> str:
+    if not value.isascii() or not value.isdigit():
+        raise ValueError("code must contain only digits")
+    return value
+
+
+# Digits-only is checked in a validator rather than via `pattern=`: a pattern
+# lands in the OpenAPI schema, and openapi-to-postmanv2 then generates a random
+# matching example on every run, breaking the committed-collection check in CI.
+DigitsCode = Annotated[str, Field(min_length=4, max_length=10), AfterValidator(_require_digits)]
+
+
 class OtpRequestCreate(BaseModel):
     email: NormalizedEmail
 
@@ -21,7 +33,7 @@ class OtpRequestAccepted(BaseModel):
 class OtpVerifyRequest(BaseModel):
     email: NormalizedEmail
     # Bounded shape, so arbitrary-length input never reaches hashing/the DB.
-    code: str = Field(pattern=r"^\d{4,10}$")
+    code: DigitsCode
 
 
 class TokenRead(BaseModel):

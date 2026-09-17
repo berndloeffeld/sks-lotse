@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import OtpCode, User
@@ -272,10 +274,9 @@ def test_verify_otp_is_case_insensitive_and_creates_one_user(client, db_session,
     assert [u.email for u in db_session.query(User).all()] == ["learner@example.com"]
 
 
-def test_verify_otp_rejects_malformed_code(client):
-    response = client.post(
-        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": "x" * 1000}
-    )
+@pytest.mark.parametrize("code", ["1" * 1000, "abcdef", "12 456", "１２３４５６"])
+def test_verify_otp_rejects_malformed_code(client, code):
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
 
     assert response.status_code == 422
 
