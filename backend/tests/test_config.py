@@ -57,3 +57,12 @@ def test_env_example_lists_every_setting():
     env_example = (Path(__file__).resolve().parent.parent / ".env.example").read_text()
     listed = set(re.findall(r"^#?\s*([A-Z0-9_]+)=", env_example, re.MULTILINE))
     assert {name.upper() for name in Settings.model_fields} <= listed
+
+
+def test_render_flag_read_from_render_env_var(monkeypatch):
+    # Render sets RENDER=true on every service; that's what enables trusting
+    # its proxy's client-IP headers (app/main.py).
+    monkeypatch.setenv("RENDER", "true")
+    assert Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET).render is True
+    monkeypatch.delenv("RENDER")
+    assert Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET).render is False

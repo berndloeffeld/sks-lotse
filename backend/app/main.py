@@ -34,6 +34,9 @@ app.add_middleware(
     # excluded — Render's own reachability checks hit it directly.
     default_rule=(settings.rate_limit_default_max_requests, settings.rate_limit_default_window_seconds),
     scope_prefix="/api/v1",
+    # Only trusted when actually running on Render — elsewhere nothing in
+    # front of the app overwrites these headers, so a client could set them.
+    trusted_client_ip_headers=("cf-connecting-ip", "true-client-ip") if settings.render else (),
 )
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(

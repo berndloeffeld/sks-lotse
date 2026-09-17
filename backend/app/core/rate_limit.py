@@ -42,11 +42,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         rules: dict[str, Rule] | None = None,
         default_rule: Rule | None = None,
         scope_prefix: str = "",
+        trusted_client_ip_headers: tuple[str, ...] = (),
     ):
         super().__init__(app)
         self.rules = rules or {}
         self.default_rule = default_rule
         self.scope_prefix = scope_prefix
+        self.trusted_client_ip_headers = trusted_client_ip_headers
 
         windows = [window for _, window in self.rules.values()]
         if default_rule is not None:
@@ -72,7 +74,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         now = time.monotonic()
         if cache.throttle(request.app, "rate_limit:sweep", _SWEEP_INTERVAL_SECONDS):
             _sweep_idle(request.app, now, self._max_window_seconds)
-        hits = _hits_for(request.app, (bucket, _client_ip(request)))
+        hits = _hits_for(request.app, (bucket, _client_ip(request, self.trusted_client_ip_headers)))
 
         while hits and now - hits[0] > window_seconds:
             hits.popleft()
@@ -83,18 +85,26 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-def _client_ip(request: Request) -> str:
-    # Render sits in front of the app as the sole reverse-proxy hop and
-    # appends the connecting IP to X-Forwarded-For itself (rather than
-    # trusting whatever a client already sent), so the *last* entry is the
-    # one hop we don't control and can trust — never the first, which a
-    # client can freely set to spoof its way into a fresh rate-limit bucket.
-    # request.client.host would otherwise be Render's proxy IP, collapsing
-    # every caller into one bucket. Falls back to it when the header is
-    # absent (local dev, tests).
-    forwarded_for = request.headers.get("x-forwarded-for")
-    if forwarded_for:
-        return forwarded_for.split(",")[-1].strip()
+def _client_ip(request: Request, trusted_headers: tuple[str, ...]) -> str:
+    # Behind a proxy, request.client.host is the proxy, which would collapse
+    # every caller into one bucket. The client IP has to come from a header
+    # that proxy sets — but only a header it *overwrites*, never one a client
+    # can pre-fill. Which headers qualify depends on the deployment, so they
+    # are passed in (see app/main.py) rather than guessed here: on Render,
+    # Cloudflare sits in front and sets CF-Connecting-IP/True-Client-IP.
+    #
+    # X-Forwarded-For is deliberately not used. The last entry is a proxy hop
+    # shared by many clients (verified in production: every caller landed in
+    # one bucket), and the first entry is only trustworthy if the proxy
+    # replaces client-sent values — see docs/adr/0007's addendum.
+    #
+    # With no trusted headers configured (local dev, tests, any non-Render
+    # host) this falls back to the socket peer, so a client can never dodge
+    # the limit by sending one of these headers itself.
+    for header in trusted_headers:
+        value = request.headers.get(header, "").strip()
+        if value:
+            return value
     return request.client.host if request.client else "unknown"
 
 
