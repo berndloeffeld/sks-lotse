@@ -33,3 +33,5 @@ Options considered for environments:
 ## Addendum (2026-09-17)
 
 Current state, for readers comparing this record with `render.yaml`: the `sync: false` secrets now also include `RESEND_API_KEY` and `ALLOWED_EMAILS` (added with email+OTP login), the service declares `healthCheckPath: /health`, and `PYTHON_VERSION` is pinned explicitly in the Blueprint (Render ignored `backend/runtime.txt`, which has since been removed in favor of `/.python-version`). The topology decision itself is unchanged.
+
+A frontend service (`sks-lotse-frontend`, Static Site) has since been added to `render.yaml` — see [ADR-0015](0015-frontend-deployment-topology.md) for that decision; this ADR's "no frontend service yet" line is superseded by it.

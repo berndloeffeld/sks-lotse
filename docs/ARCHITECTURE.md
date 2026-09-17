@@ -7,23 +7,24 @@ Current-state overview. For the reasoning behind a given decision, see [docs/adr
 ```mermaid
 graph TB
     subgraph "Not yet built"
-        Frontend[Frontend<br/>React + Vite<br/>not yet built]
         OpenAI[OpenAI API<br/>not yet integrated]
     end
 
     Learner((Learner))
+    Frontend[Frontend<br/>React + Vite<br/>landing/login/start only]
     Backend[Backend<br/>FastAPI]
     DB[(PostgreSQL 16)]
     Resend[Resend<br/>transactional email]
     Aikido[Aikido Security<br/>SAST / SCA scanning]
     GHA[GitHub Actions<br/>lint + test CI]
 
-    Learner -.-> Frontend
-    Frontend -.-> Backend
+    Learner --> Frontend
+    Frontend --> Backend
     Backend --> DB
     Backend --> Resend
     Backend -.-> OpenAI
     GHA --> Backend
+    GHA --> Frontend
     Aikido -.-> Backend
 ```
 
@@ -31,13 +32,18 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 
 ## Components
 
+### Frontend (`frontend/`)
+React (Vite) + TypeScript, per [ADR-0013](adr/0013-frontend-architecture-and-tooling.md); visual design tokens per [ADR-0014](adr/0014-visual-design-system.md). Three routes only so far: `/` (landing page), `/login` (two-step email+OTP form), and `/start` (protected — greets the logged-in learner, shows non-interactive placeholder nav tiles for the question flow, which doesn't exist yet). Zustand (`src/store/authStore.ts`) holds the current user and derives "logged in" from a `GET /auth/me` call, never from inspecting a token — the frontend never reads the session cookie directly (ADR-0012). `src/api/client.ts` is the thin typed `fetch` wrapper named in ADR-0013: always `credentials: "include"`, and a uniform 401 handler that clears the auth store. `src/routes/ProtectedRoute.tsx` redirects to `/login` when not authenticated.
+
+Question list/answering, grading, learning-progress UI, and ads are not built — they depend on backend pieces that don't exist yet (see Not yet built).
+
 ### Backend (`backend/`)
 FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions`, login required), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`, unauthenticated). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
 
 Swagger UI, ReDoc, and the raw `/openapi.json` schema are only served when `ENVIRONMENT` (`backend/app/core/config.py`, one of `development`/`test`/`production` — anything else fails at startup) is `development` or `test` (`Settings.exposes_dev_tooling`) — enabled by default (local dev, CI, the Postman-regeneration script), disabled on Render via `render.yaml`.
 
 ### Auth (`backend/app/api/v1/auth.py`)
-Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 7-day expiry, no refresh token yet), returned in the response body as a Bearer token. Once a frontend exists, it's meant to receive that token via an httpOnly cookie instead — see [ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md) for the backend changes that requires and why `Authorization: Bearer` stays supported alongside it. Every other `/api/v1/*` route requires that JWT (`Depends(get_current_user)`, e.g. `GET /api/v1/auth/me` and all of `/api/v1/questions`) — `otp/request` and `otp/verify` are the only two routes that stay open, since that's how a caller gets a token in the first place. This replaced a temporary `X-Access-Key` gate that used to sit in front of the whole API before real auth existed.
+Email+OTP login, implementing the login half of [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md) (SSO providers not built yet). `POST /api/v1/auth/otp/request` emails a 6-digit code via Resend (`backend/app/services/email.py`); `POST /api/v1/auth/otp/verify` checks it against the hashed, short-lived code stored in `otp_codes`, gets-or-creates the matching `users` row, and issues a JWT (`backend/app/core/jwt.py`, HS256, 7-day expiry, no refresh token yet). The token is set as an httpOnly, `SameSite=Lax` cookie (`Secure` in production only — see [ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md)), which is what the frontend uses; it's also still returned in the response body as a Bearer token for Postman/the integration-test suite/any future non-browser client, and `get_current_user` accepts either, cookie first. Every other `/api/v1/*` route requires that JWT (`Depends(get_current_user)`, e.g. `GET /api/v1/auth/me` and all of `/api/v1/questions`) — `otp/request` and `otp/verify` are the only two routes that stay open, since that's how a caller gets a token in the first place. This replaced a temporary `X-Access-Key` gate that used to sit in front of the whole API before real auth existed.
 
 `POST /api/v1/auth/logout` (authenticated) ends a session early instead of waiting out the full 7-day TTL: each `User` carries a `token_version` counter, every issued token embeds the version it was minted with, and `get_current_user` rejects a token whose embedded version no longer matches — logout just increments the counter. See [ADR-0008](adr/0008-token-version-based-logout.md) for why this beat a blacklist table or a refresh-token flow.
 
@@ -66,7 +72,7 @@ Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one we
 `backend/scripts/import_catalog.py` — one-off script, parses `docs/Fragenkatalog-SKS.pdf` into the `questions` table (replacing its contents). Not a service; run manually when the catalog changes. Chart/diagram images referenced by a few questions aren't extracted (`image_ref` is always null).
 
 ### CI/CD
-GitHub Actions (`.github/workflows/backend-ci.yml`): separate `lint` (ruff), `test` (pytest on SQLite, 80% line+branch coverage gate), `migrations` (Alembic upgrade/check/downgrade against a Postgres 16 service), and `postman-collection` (regenerates the API-reference Postman collection from the live OpenAPI schema, fails if the committed one is stale) jobs on every push to `main` and every PR.
+GitHub Actions. `.github/workflows/backend-ci.yml`: separate `lint` (ruff), `test` (pytest on SQLite, 80% line+branch coverage gate), `migrations` (Alembic upgrade/check/downgrade against a Postgres 16 service), and `postman-collection` (regenerates the API-reference Postman collection from the live OpenAPI schema, fails if the committed one is stale) jobs. `.github/workflows/frontend-ci.yml`: `lint` (ESLint + Prettier check) and `test` (`tsc -b` + Vitest, same 80% line+branch coverage gate). Both run on every push to `main` and every PR.
 
 ### External integration tests
 `postman/integration-tests.postman_collection.json` (see `CLAUDE.md` → Integration Tests) — a separate, hand-written Postman collection that black-box tests a real, locally running backend over HTTP: auth guards, CORS, security headers, the full OTP login round-trip via `GET /api/v1/auth/otp/_dev-peek` (dev/test-only, see [ADR-0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md)), and rate limiting. Runnable without a Python environment via `./scripts/run_integration_tests.sh` (Newman, over `npx`). Not wired into CI yet — manual/on-demand. Unlike the API-reference collection above, it isn't generated from the OpenAPI schema, so nothing keeps it in sync automatically — it has to be updated by hand alongside `backend/tests/` whenever the behavior it covers changes.
@@ -76,13 +82,13 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 
 ## Not yet built
 
-- Frontend (React + Vite, per `CLAUDE.md` tech stack)
+- Frontend question list/answering, grading, and progress UI (the `/start` page has placeholder nav tiles only — see Frontend above)
 - LLM grading flow (OpenAI integration)
 - SSO login (Google/Facebook/X) — email+OTP login exists, see Auth above
 - Entitlements (ads-removed / AI-grading-unlocked flags on the account — see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text integration
 - Ads (AdSense)
-- Cookie-based session auth for the frontend (currently Bearer-token-only; see [ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md))
+- Frontend deployment (Render still serves the backend only — see Deployment above)
 - Learning progress tracking (per-account, server-side — no table for it yet)
 - Analytics (Countly)
 - Question images (charts/diagrams from the catalog PDF — see Catalog import)

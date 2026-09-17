@@ -44,6 +44,10 @@ app.add_middleware(
     allow_origins=settings.cors_allowed_origins,
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
+    # The frontend's session cookie (ADR-0012) needs this to ride along on
+    # cross-origin fetches (e.g. the Vite dev server on :5173 calling the
+    # API on :8000); safe alongside an explicit origin allowlist, never `*`.
+    allow_credentials=True,
 )
 app.include_router(api_v1_router)
 

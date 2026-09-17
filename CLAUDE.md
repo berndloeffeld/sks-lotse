@@ -46,7 +46,15 @@ sks-lotse/
 │   ├── tests/
 │   ├── .env.example    # All backend env vars, with defaults
 │   └── requirements*.txt
-├── frontend/           # Not yet built — planned: React (Vite) + TypeScript, Zustand
+├── frontend/           # React (Vite) + TypeScript, Zustand — landing/login/start only so far
+│   ├── src/
+│   │   ├── api/        # Thin typed fetch wrapper + shared response types
+│   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
+│   │   ├── pages/      # LandingPage, LoginPage, StartPage
+│   │   ├── routes/     # ProtectedRoute
+│   │   └── store/      # Zustand auth store
+│   ├── .env.example
+│   └── package.json
 ├── docs/               # ARCHITECTURE.md, adr/, question catalog source PDF
 ├── postman/            # Generated API-reference collection + hand-written integration tests
 ├── scripts/            # Repo tooling (Postman generation, integration tests, Aikido check)
@@ -138,6 +146,8 @@ Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-co
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 - Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
+Frontend mirrors the same 80% (lines + branches) bar via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — same not-yet-a-hard-gate caveat as the backend.
+
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
@@ -145,6 +155,11 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 - Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (a local stand-in for the branch protection the free plan lacks). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
 
 - `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
+
+Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
+
+- `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — same not-yet-a-hard-gate caveat as the backend.
+- Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to `pre-commit install`).
 
 ### Python version
 `.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
@@ -175,15 +190,16 @@ This project doubles as a reference sample (incl. for job applications), so arch
 - **Keep it up to date.** Unlike `sks-lotse.postman_collection.json`, this one is hand-written, not generated from the OpenAPI schema — nothing regenerates or freshness-checks it automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its `pm.test` assertions here by hand, in the same PR as the code change, the same way `backend/tests/` gets updated alongside it.
 
 ### Deployment (Render)
-Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the reasoning. One web service (backend) + one managed Postgres, Frankfurt region, production only (no staging yet).
+Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the backend/DB reasoning and [ADR-0015](docs/adr/0015-frontend-deployment-topology.md) for the frontend. Two web services (backend, Python; frontend, static site) + one managed Postgres, Frankfurt region, production only (no staging yet). Subdomain split: `sks-lotse.de`/`www.sks-lotse.de` → frontend, `api.sks-lotse.de` → backend (the frontend's `VITE_API_BASE_URL`), `sks-lotse.com`/`www.sks-lotse.com` → backend, unchanged, still 301s to `.de`.
 
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
 3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
+5. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, **remove** them from the backend service (a domain can only be attached to one service), then add `api.sks-lotse.de` to the backend. Update IONOS DNS to match what Render's dashboard shows for each, plus a new `CNAME api → sks-lotse-backend.onrender.com`.
 
-After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
+After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`) on both services.
 
 ### Auth & rate limiting
 How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/0011); the rules to follow when adding code:
@@ -192,7 +208,7 @@ How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/
 - **Rate limiting is automatic** for everything under `/api/v1` (shared per-IP bucket, `backend/app/core/rate_limit.py`). An expensive or abusable new endpoint (e.g. the LLM grading call) gets its own tighter exact-path rule in `backend/app/main.py`.
 - **Accept email addresses via `NormalizedEmail`** (`backend/app/schemas/auth.py`), never plain `EmailStr` — every per-email lookup and quota relies on the lowercased form.
 - **Dev/test-only endpoints are gated on `settings.exposes_dev_tooling`** (an allowlist that fails closed), never on `not settings.is_production`, and declared with `include_in_schema=False`.
-- **When building the frontend's auth integration**, read [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md) first: the session token is meant to move to an httpOnly cookie, not `localStorage`.
+- **The session token lives in an httpOnly cookie, not `localStorage`** ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)) — set/cleared by `verify_otp`/`logout` in `backend/app/api/v1/auth.py`, read by `get_current_user` in `backend/app/core/jwt.py` (cookie first, falling back to `Authorization: Bearer` for Postman/the integration-test suite). The frontend never reads or stores it directly; a new frontend auth call just needs `credentials: "include"` (already the default in `frontend/src/api/client.ts`).
 
 ### Data Layer Conventions
 Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
@@ -224,8 +240,9 @@ Apply these four checks whenever adding or changing a database table — going f
 - Domains purchased 2026-09-16 via IONOS: `sks-lotse.de` (primary — target market/language is German), `sks-lotse.com`, `sks-lotse.global`, `sks-lotse.store`
 - No conflicting product name found in search (existing competitors: SKS-Buddy, official SKS App, SBF-Fragen by Delius Klasing)
 - **Open**: no formal trademark search done (DPMA/EUIPO) — recommended before committing further to branding
-- `sks-lotse.de` is wired to Render (Custom Domain + IONOS DNS: `A @ → 216.24.57.1`, `CNAME www → sks-lotse-backend.onrender.com`) and live.
-- `sks-lotse.com` is wired the same way and 301-redirects to `sks-lotse.de` via `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) — **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect). Costs nothing beyond the domain itself.
+- `sks-lotse.de`/`www.sks-lotse.de` are wired to Render as Custom Domains on the **frontend** service (`sks-lotse-frontend`), per [ADR-0015](docs/adr/0015-frontend-deployment-topology.md) — moved there from the backend directly; see CLAUDE.md → Deployment (Render), step 5, for the one-time manual switch this needed (domain attachment + matching IONOS DNS records).
+- `api.sks-lotse.de` is a Custom Domain on the **backend** service — what the frontend's `VITE_API_BASE_URL` points at. Not itself meant to be browsed directly (no UI there, just the JSON API).
+- `sks-lotse.com`/`www.sks-lotse.com` stay wired to the **backend** service and 301-redirect to `sks-lotse.de` via `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) — **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect). Costs nothing beyond the domain itself.
 - `sks-lotse.global` and `sks-lotse.store` are purchased but **not currently used** — no DNS, no Render Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` (DNS at IONOS, Render Custom Domain, add to `SECONDARY_HOSTS`) if/when needed.
 
 ---
@@ -233,4 +250,4 @@ Apply these four checks whenever adding or changing a database table — going f
 ## Project Management
 
 - Linear: TBD (not yet set up)
-- Current phase: Phase 1 — backend foundation. Done: catalog import, email+OTP login with JWT sessions, deployment to Render with CI/security tooling, and the frontend visual design system ([ADR-0014](docs/adr/0014-visual-design-system.md)). Next: core grading flow (OpenAI) and frontend scaffolding (Tailwind config + components, per ADR-0013/0014).
+- Current phase: Phase 1 — backend foundation, wrapping up. Done: catalog import, email+OTP login with JWT sessions (now cookie-based for the frontend, [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)), deployment to Render with CI/security tooling, and a frontend scaffold (landing/login/start, per ADR-0013/0014) — not yet deployed. Next: core grading flow (OpenAI), a learning-progress data model, and the question list/answering UI those unblock.

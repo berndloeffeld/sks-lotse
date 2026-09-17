@@ -1,0 +1,40 @@
+import { useNavigate } from 'react-router-dom'
+
+import { ChartTile } from '../components/ChartTile'
+import { useAuthStore } from '../store/authStore'
+
+export function StartPage() {
+  const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+
+  async function handleLogout() {
+    await logout()
+    navigate('/')
+  }
+
+  return (
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
+      <header className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-ink-soft">Angemeldet als</p>
+          <p className="font-mono text-ink">{user?.email}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
+        >
+          Abmelden
+        </button>
+      </header>
+
+      {/* Non-interactive for now — the question list and exam simulation
+          don't exist yet (no grading/progress backend, see CLAUDE.md). */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ChartTile title="Lernen" description="Demnächst verfügbar" />
+        <ChartTile title="Prüfungssimulation" description="Demnächst verfügbar" />
+      </div>
+    </main>
+  )
+}

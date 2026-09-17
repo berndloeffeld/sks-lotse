@@ -14,6 +14,13 @@ def test_disallowed_origin_gets_no_cors_header(client):
     assert "access-control-allow-origin" not in response.headers
 
 
+def test_allowed_origin_gets_credentials_header(client):
+    # Required for the browser to send/receive the session cookie
+    # (ADR-0012) on a cross-origin request, e.g. the Vite dev server.
+    response = client.get("/health", headers={"Origin": "http://localhost:5173"})
+    assert response.headers["access-control-allow-credentials"] == "true"
+
+
 def test_preflight_allows_configured_origin(client):
     response = client.options(
         "/api/v1/questions",

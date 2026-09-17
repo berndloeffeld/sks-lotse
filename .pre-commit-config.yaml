@@ -1,6 +1,6 @@
 # Local guardrails for what GitHub's free plan can't enforce on a private
 # repo (no branch protection) — see CLAUDE.md → Development Conventions.
-# One-time setup: `pip install -r backend/requirements-dev.txt && pre-commit install`
+# One-time setup: `pip install -r backend/requirements-dev.txt && (cd frontend && npm install) && pre-commit install`
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -17,3 +17,21 @@ repos:
         files: ^backend/
       - id: ruff-format
         files: ^backend/
+
+  # Local hooks (not a separate eslint-mirror repo) so this stays in sync
+  # with frontend/package.json's own eslint/prettier versions with no extra
+  # pinning to maintain here.
+  - repo: local
+    hooks:
+      - id: frontend-eslint
+        name: eslint (frontend)
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+      - id: frontend-prettier
+        name: prettier --check (frontend)
+        entry: bash -c 'cd frontend && npm run format:check'
+        language: system
+        files: ^frontend/
+        pass_filenames: false
