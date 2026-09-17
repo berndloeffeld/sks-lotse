@@ -14,7 +14,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 | Layer | Technology |
 |---|---|
 | Frontend | React (Vite) + TypeScript, Zustand |
-| Frontend styling | Tailwind CSS ([ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md)) — visual design system (palette, typography) TBD separately |
+| Frontend styling | Tailwind CSS ([ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md)); palette, typography & core UI patterns decided in [ADR-0014](docs/adr/0014-visual-design-system.md) |
 | Frontend testing | Vitest + React Testing Library ([ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md)) |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
@@ -233,4 +233,4 @@ Apply these four checks whenever adding or changing a database table — going f
 ## Project Management
 
 - Linear: TBD (not yet set up)
-- Current phase: Phase 1 — backend foundation. Done: catalog import, email+OTP login with JWT sessions, deployment to Render with CI/security tooling. Next: core grading flow (OpenAI) and the frontend.
+- Current phase: Phase 1 — backend foundation. Done: catalog import, email+OTP login with JWT sessions, deployment to Render with CI/security tooling, and the frontend visual design system ([ADR-0014](docs/adr/0014-visual-design-system.md)). Next: core grading flow (OpenAI) and frontend scaffolding (Tailwind config + components, per ADR-0013/0014).
