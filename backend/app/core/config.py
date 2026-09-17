@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # silently run production with dev-only tooling enabled (see
     # exposes_dev_tooling below).
     environment: Literal["development", "test", "production"] = "development"
+    # Set to "true" by Render itself on every service (not configured by us).
+    # Means Cloudflare/Render's proxy is in front of the app, so its
+    # client-IP headers can be trusted for rate limiting (app/main.py).
+    render: bool = False
     # No insecure fallback: this signs JWTs and (via a derived key, see
     # app/core/otp.py) hashes OTP codes, so an unset or weak value must fail
     # loudly, not silently run with a known secret.
