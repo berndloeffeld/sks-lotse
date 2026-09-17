@@ -1,0 +1,28 @@
+{
+  "name": "SKS Lotse",
+  "short_name": "SKS Lotse",
+  "description": "Online für die theoretische SKS-Prüfung (Sportküstenschifferschein) lernen.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "de",
+  "background_color": "#E9F0F3",
+  "theme_color": "#E9F0F3",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

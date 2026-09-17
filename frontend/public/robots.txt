@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /start
+
+Sitemap: https://sks-lotse.de/sitemap.xml
