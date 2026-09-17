@@ -62,7 +62,9 @@ ruff check .         # lint
 ruff format --check . # formatting
 ```
 
-All three run in CI (`.github/workflows/backend-ci.yml`) on every push to `main` and every PR, alongside a check that the committed Postman collection is still in sync with the API (`scripts/generate_postman_collection.sh`).
+All three run in CI (`.github/workflows/backend-ci.yml`) on every push to `main` and every PR, alongside an Alembic migration check against a real Postgres and a check that the committed Postman collection is still in sync with the API (`scripts/generate_postman_collection.sh`).
+
+Optional but recommended: `pre-commit install` (from the venv) — runs ruff on commit and blocks commits directly on `main`.
 
 The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido`, see `CLAUDE.md`).
 

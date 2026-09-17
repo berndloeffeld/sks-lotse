@@ -1,0 +1,19 @@
+# Local guardrails for what GitHub's free plan can't enforce on a private
+# repo (no branch protection) — see CLAUDE.md → Development Conventions.
+# One-time setup: `pip install -r backend/requirements-dev.txt && pre-commit install`
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Trunk-based: every change goes through a feature branch + PR.
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.2  # keep in sync with ruff in backend/requirements-dev.txt
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/

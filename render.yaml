@@ -18,9 +18,14 @@ services:
     # preDeployCommand isn't available on the free plan — run the
     # (idempotent) migration inline before starting the server instead.
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Unauthenticated, not rate-limited (see backend/app/main.py) — Render
+    # only routes traffic to a new deploy once this returns 2xx.
+    healthCheckPath: /health
     envVars:
-      # Render doesn't honor backend/runtime.txt (that's a Heroku
-      # convention, not a Render one) — without this it defaulted to
+      # Must match /.python-version (the single source for CI and local dev).
+      # Kept explicit here rather than relying on Render picking up that file:
+      # its docs only promise the repo root, and this service uses
+      # rootDir: backend. Without a pinned version Render defaulted to
       # Python 3.14, which breaks SQLAlchemy 2.0.36's `X | None` type
       # introspection at import time.
       - key: PYTHON_VERSION
