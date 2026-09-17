@@ -1,16 +1,32 @@
+from typing import Literal
+
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# A real secret (e.g. `openssl rand -hex 32`) is 64 characters. This is a
+# floor, not a target — it rejects empty, short, human-typable/guessable
+# values in every environment (a required field alone only catches
+# JWT_SECRET being absent entirely, not `JWT_SECRET=` copied verbatim from
+# .env.example or a weak placeholder making it into the Render dashboard).
+# Deliberately length-based rather than an exact-string blocklist: a
+# blocklist only catches values someone thought to enumerate.
+MIN_JWT_SECRET_LENGTH = 32
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
-    # "development" (default, matches local/CI) or "production" (set on
-    # Render). Not a secret — a plain env var is fine.
-    environment: str = "development"
-    # No insecure fallback: this signs JWTs and hashes OTP codes, so an
-    # unset value must fail loudly, not silently run with a known secret.
-    jwt_secret: str
+    # "development" (default, matches local/CI), "test", or "production" (set
+    # on Render). Not a secret — a plain env var is fine. A closed set rather
+    # than a free string: a typo like "prod" must fail at startup, not
+    # silently run production with dev-only tooling enabled (see
+    # exposes_dev_tooling below).
+    environment: Literal["development", "test", "production"] = "development"
+    # No insecure fallback: this signs JWTs and (via a derived key, see
+    # app/core/otp.py) hashes OTP codes, so an unset or weak value must fail
+    # loudly, not silently run with a known secret.
+    jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
     openai_api_key: str = ""
     adsense_client_id: str = ""
@@ -51,6 +67,14 @@ class Settings(BaseSettings):
         return self.environment == "production"
 
     @property
+    def exposes_dev_tooling(self) -> bool:
+        # Opt-in allowlist, not `not is_production`: dev-only endpoints (e.g.
+        # the OTP peek, see docs/adr/0011) must fail closed if this set ever
+        # grows, rather than turning on for any environment that isn't
+        # literally "production".
+        return self.environment in ("development", "test")
+
+    @property
     def cors_allowed_origins(self) -> list[str]:
         # No separate frontend deployment exists yet, so this is forward-looking:
         # the canonical/secondary domains in production (see CLAUDE.md, Naming /
@@ -60,25 +84,4 @@ class Settings(BaseSettings):
         return ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
-# A real secret (e.g. `openssl rand -hex 32`) is 64 characters. This is a
-# floor, not a target — it exists to reject short, human-typable/guessable
-# values (a required field alone only catches JWT_SECRET being unset
-# entirely, not a weak placeholder making it into the dashboard by mistake).
-# Deliberately length-based rather than an exact-string blocklist: a
-# blocklist only catches values someone thought to enumerate — it wouldn't
-# have caught the "test-secret-not-for-production" placeholder this project
-# uses in CI, for example.
-_MIN_PRODUCTION_JWT_SECRET_LENGTH = 32
-
-
-def _reject_insecure_production_secret(s: Settings) -> None:
-    if s.is_production and len(s.jwt_secret) < _MIN_PRODUCTION_JWT_SECRET_LENGTH:
-        raise RuntimeError(
-            f"JWT_SECRET is missing or too short ({len(s.jwt_secret)} chars) for production "
-            f"(minimum {_MIN_PRODUCTION_JWT_SECRET_LENGTH}). Set a real random secret in the "
-            "Render dashboard, e.g. via `openssl rand -hex 32` (see CLAUDE.md)."
-        )
-
-
 settings = Settings()
-_reject_insecure_production_secret(settings)

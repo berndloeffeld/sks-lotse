@@ -8,7 +8,9 @@ services:
       POSTGRES_USER: sks_lotse
       POSTGRES_PASSWORD: sks_lotse
     ports:
-      - "5432:5432"
+      # Loopback only — the default credentials above must not be reachable
+      # from the local network.
+      - "127.0.0.1:5432:5432"
     volumes:
       - sks-lotse-db-data:/var/lib/postgresql/data
 

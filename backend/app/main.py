@@ -10,8 +10,9 @@ from app.core.security_headers import SecurityHeadersMiddleware
 
 def _docs_kwargs() -> dict:
     # Swagger UI/ReDoc/the raw OpenAPI schema are dev/staging conveniences,
-    # not something to expose on the public production API.
-    if settings.is_production:
+    # not something to expose on the public production API. Gated on the same
+    # opt-in allowlist as the dev-only OTP peek endpoint, so both fail closed.
+    if not settings.exposes_dev_tooling:
         return {"docs_url": None, "redoc_url": None, "openapi_url": None}
     return {}
 

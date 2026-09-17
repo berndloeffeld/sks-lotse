@@ -29,6 +29,12 @@
                   "});",
                   "pm.test('X-Frame-Options header present', function () {",
                   "    pm.response.to.have.header('X-Frame-Options', 'DENY');",
+                  "});",
+                  "pm.test('Referrer-Policy header present', function () {",
+                  "    pm.response.to.have.header('Referrer-Policy', 'no-referrer');",
+                  "});",
+                  "pm.test('non-API response carries no forced Cache-Control', function () {",
+                  "    pm.response.to.not.have.header('Cache-Control');",
                   "});"
                 ]
               }
@@ -338,6 +344,18 @@
           "name": "Verify OTP",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Verify with an upper-cased email on purpose: addresses are normalized to",
+                  "// lowercase server-side, so this must still match the code requested with",
+                  "// the lowercase testEmail (and /me must report the lowercase form).",
+                  "pm.collectionVariables.set('testEmailUpper', pm.collectionVariables.get('testEmail').toUpperCase());"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -348,7 +366,10 @@
                   "    pm.expect(body.token_type).to.eql('bearer');",
                   "    pm.expect(body.access_token).to.be.a('string').and.not.empty;",
                   "});",
-                  "pm.collectionVariables.set('accessToken', body.access_token);"
+                  "pm.collectionVariables.set('accessToken', body.access_token);",
+                  "pm.test('token response is not cacheable', function () {",
+                  "    pm.response.to.have.header('Cache-Control', 'no-store');",
+                  "});"
                 ]
               }
             }
@@ -376,7 +397,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"email\": \"{{testEmail}}\", \"code\": \"{{otpCode}}\"}",
+              "raw": "{\"email\": \"{{testEmailUpper}}\", \"code\": \"{{otpCode}}\"}",
               "options": {
                 "raw": {
                   "language": "json"

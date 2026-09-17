@@ -27,3 +27,7 @@ Options considered for *how limits are declared*:
 - No new third-party account, no new secret, no new cost — consistent with keeping the infrastructure surface small for a solo-maintained MVP.
 - The middleware is intentionally reusable: a future endpoint (e.g. the LLM grading call) can add its own tighter `rules` entry, or just rely on the shared `default_rule`, without touching this file's structure again.
 - If the topology assumptions above change (multiple instances, or restarts frequent enough to matter), the fix is additive — swap the in-memory `_hits_for` store for a Redis-backed one behind the same `RateLimitMiddleware` interface — not a rewrite.
+
+## Addendum (2026-09-17)
+
+The first implementation keyed counters by `(request path, client IP)`, so the "shared" default cap was actually per path: `/questions/1`, `/questions/2`, ... each got their own 300 requests, and every distinct path under `/api/v1` (404s included) minted a new in-memory key that was never removed. Counters are now keyed by `(rule, client IP)` — the exact path for an override, `scope_prefix` for the default rule — which is what this ADR's decision describes, and idle keys are swept on a bounded cadence via `cache.throttle` ([ADR-0010](0010-opportunistic-otp-code-cleanup.md)'s pattern). Still open: confirming in production that the last `X-Forwarded-For` entry really is the client IP behind Render's proxy (if it were a proxy IP, every caller would share one bucket).

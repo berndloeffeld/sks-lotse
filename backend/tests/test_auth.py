@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import OtpCode, User
@@ -51,6 +53,31 @@ def test_request_otp_allows_whitelisted_email_case_insensitively(client, monkeyp
 
     assert response.status_code == 202
     assert len(sent) == 1
+
+
+def test_request_otp_email_case_variants_share_one_cooldown(client, monkeypatch):
+    # Upper-casing the local part must not mint a fresh per-email quota.
+    sent = _capture_otp(monkeypatch)
+
+    client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+    client.post("/api/v1/auth/otp/request", json={"email": "Learner@Example.com"})
+    client.post("/api/v1/auth/otp/request", json={"email": "LEARNER@example.com"})
+
+    assert len(sent) == 1
+    assert sent[0][0] == "learner@example.com"
+
+
+def test_request_otp_email_send_failure_still_returns_202(client, monkeypatch, caplog):
+    def failing_send(to_email, code):
+        raise RuntimeError("resend down")
+
+    monkeypatch.setattr("app.services.email.send_otp_email", failing_send)
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    assert response.status_code == 202
+    assert "l***@example.com" in caplog.text
+    assert "learner@example.com" not in caplog.text
 
 
 def test_request_otp_skips_disposable_domain(client, monkeypatch):
@@ -236,6 +263,22 @@ def test_verify_otp_reuses_existing_user(client, db_session, monkeypatch):
 
     users = db_session.query(User).filter_by(email="learner@example.com").all()
     assert len(users) == 1
+
+
+def test_verify_otp_is_case_insensitive_and_creates_one_user(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch, email="Learner@Example.com")
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "LEARNER@example.com", "code": code})
+
+    assert response.status_code == 200
+    assert [u.email for u in db_session.query(User).all()] == ["learner@example.com"]
+
+
+@pytest.mark.parametrize("code", ["1" * 1000, "abcdef", "12 456", "１２３４５６"])
+def test_verify_otp_rejects_malformed_code(client, code):
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    assert response.status_code == 422
 
 
 def test_verify_otp_wrong_code_returns_401(client, db_session, monkeypatch):

@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy import delete, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import cache
@@ -31,20 +32,42 @@ _NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 def _dev_otp_codes(app) -> dict[str, str]:
     # Plaintext codes only ever exist here — otp_codes.code_hash (see
-    # hash_code) is one-way, by design. Gated to non-production and never
-    # populated at all in production (see request_otp), so this doesn't add
+    # hash_code) is one-way, by design. Gated to settings.exposes_dev_tooling
+    # and never populated at all outside it (see request_otp), so this doesn't add
     # a standing plaintext-code store to the deployed app.
     if not hasattr(app.state, "dev_otp_codes"):
         app.state.dev_otp_codes = {}
     return app.state.dev_otp_codes
 
 
-def _latest_otp_code(db: Session, email: str) -> OtpCode | None:
+def _latest_otp_code(db: Session, email: str, for_update: bool = False) -> OtpCode | None:
     # Order by id, not created_at: created_at's DB-side timestamp resolution
     # (e.g. 1s on SQLite) can tie for two requests issued in quick succession,
     # while id is always monotonically increasing.
     stmt = select(OtpCode).where(OtpCode.email == email).order_by(OtpCode.id.desc()).limit(1)
+    if for_update:
+        # Row lock until the caller commits, so concurrent verify attempts
+        # serialize on the attempts counter instead of each reading the same
+        # value and collectively exceeding otp_max_attempts. No-op on SQLite.
+        stmt = stmt.with_for_update()
     return db.execute(stmt).scalars().first()
+
+
+def _mask_email(email: str) -> str:
+    # Enough to correlate a delivery failure in the logs, without writing a
+    # full address (personal data) into them.
+    local, _, domain = email.partition("@")
+    return f"{local[:1]}***@{domain}"
+
+
+def _send_otp_email(email: str, code: str) -> None:
+    # Runs as a background task: keeps Resend's latency out of the response,
+    # which also narrows the timing difference between a real send and the
+    # silent no-op paths in request_otp (allowlist, cooldown, ...).
+    try:
+        email_service.send_otp_email(email, code)
+    except Exception:
+        logger.exception("Failed to send OTP email to %s", _mask_email(email))
 
 
 def _as_utc(dt: datetime) -> datetime:
@@ -83,7 +106,7 @@ def request_otp(
     db: Session = Depends(get_db),
 ):
     allowed_emails = settings.allowed_emails_set
-    if allowed_emails is not None and payload.email.lower() not in allowed_emails:
+    if allowed_emails is not None and payload.email not in allowed_emails:
         # Same generic response as every other throttled/rejected case below —
         # doesn't leak whether this email is on the allowlist.
         return OtpRequestAccepted()
@@ -120,20 +143,17 @@ def request_otp(
     db.add(otp)
     db.commit()
 
-    if not settings.is_production:
-        _dev_otp_codes(request.app)[payload.email.lower()] = code
+    if settings.exposes_dev_tooling:
+        _dev_otp_codes(request.app)[payload.email] = code
 
-    try:
-        email_service.send_otp_email(payload.email, code)
-    except Exception:
-        logger.exception("Failed to send OTP email to %s", payload.email)
+    background_tasks.add_task(_send_otp_email, payload.email, code)
 
     return OtpRequestAccepted()
 
 
 @router.post("/otp/verify", response_model=TokenRead)
 def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
-    otp = _latest_otp_code(db, payload.email)
+    otp = _latest_otp_code(db, payload.email, for_update=True)
     if otp is None:
         raise _INVALID_CODE
 
@@ -155,8 +175,15 @@ def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
     if user is None:
         user = User(email=payload.email)
         db.add(user)
-        db.commit()
-        db.refresh(user)
+        try:
+            db.commit()
+        except IntegrityError:
+            # A concurrent first login for the same email created the row
+            # between our lookup and this insert — use that one.
+            db.rollback()
+            user = db.execute(select(User).where(User.email == payload.email)).scalar_one()
+        else:
+            db.refresh(user)
 
     access_token = create_access_token(user.id, user.token_version)
     return TokenRead(access_token=access_token)
@@ -169,9 +196,9 @@ def dev_peek_otp_code(email: str, request: Request):
     # gets this for free by monkeypatching send_otp_email in-process, which
     # an external HTTP client can't do. Excluded from the OpenAPI schema (so
     # it never lands in the generated API-reference Postman collection) and
-    # 404s outright in production, same treatment as the docs endpoints (see
-    # _docs_kwargs in app/main.py). See ADR-0011.
-    if settings.is_production:
+    # 404s outright unless settings.exposes_dev_tooling, same gate as the docs
+    # endpoints (see _docs_kwargs in app/main.py). See ADR-0011.
+    if not settings.exposes_dev_tooling:
         raise _NOT_FOUND
     code = _dev_otp_codes(request.app).get(email.lower())
     if code is None:
