@@ -197,7 +197,7 @@ One-time manual steps (account-level actions, done by the project owner, not by 
 2. "Deploy from Blueprint" using `render.yaml`.
 3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`) in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
-5. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, **remove** them from the backend service (a domain can only be attached to one service), then add `api.sks-lotse.de` to the backend. Update IONOS DNS to match what Render's dashboard shows for each, plus a new `CNAME api → sks-lotse-backend.onrender.com`.
+5. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, then **remove** them from the backend service (a domain can only be attached to one service). Add `api.sks-lotse.de` to the backend, and add a matching `CNAME api → sks-lotse-backend.onrender.com` in IONOS DNS.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`) on both services.
 
@@ -240,9 +240,9 @@ Apply these four checks whenever adding or changing a database table — going f
 - Domains purchased 2026-09-16 via IONOS: `sks-lotse.de` (primary — target market/language is German), `sks-lotse.com`, `sks-lotse.global`, `sks-lotse.store`
 - No conflicting product name found in search (existing competitors: SKS-Buddy, official SKS App, SBF-Fragen by Delius Klasing)
 - **Open**: no formal trademark search done (DPMA/EUIPO) — recommended before committing further to branding
-- `sks-lotse.de`/`www.sks-lotse.de` are wired to Render as Custom Domains on the **frontend** service (`sks-lotse-frontend`), per [ADR-0015](docs/adr/0015-frontend-deployment-topology.md) — moved there from the backend directly; see CLAUDE.md → Deployment (Render), step 5, for the one-time manual switch this needed (domain attachment + matching IONOS DNS records).
-- `api.sks-lotse.de` is a Custom Domain on the **backend** service — what the frontend's `VITE_API_BASE_URL` points at. Not itself meant to be browsed directly (no UI there, just the JSON API).
+- `sks-lotse.de`/`www.sks-lotse.de` are wired to Render as Custom Domains on the **frontend** service (`sks-lotse-frontend`) — moved there from the backend directly; see CLAUDE.md → Deployment (Render), step 5, for the one-time manual switch this needed.
 - `sks-lotse.com`/`www.sks-lotse.com` stay wired to the **backend** service and 301-redirect to `sks-lotse.de` via `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) — **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect). Costs nothing beyond the domain itself.
+- `api.sks-lotse.de` is a Custom Domain on the **backend** service — what the frontend's `VITE_API_BASE_URL` points at. Not itself meant to be browsed directly (no UI there, just the JSON API).
 - `sks-lotse.global` and `sks-lotse.store` are purchased but **not currently used** — no DNS, no Render Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` (DNS at IONOS, Render Custom Domain, add to `SECONDARY_HOSTS`) if/when needed.
 
 ---
