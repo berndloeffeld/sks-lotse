@@ -1,7 +1,7 @@
 """replace otp_codes email index with composite email created_at index
 
 Revision ID: 0bc9cd2fcf0a
-Revises: 703803d66760
+Revises: f25ff8b2868f
 Create Date: 2026-09-17 00:04:30.350549
 
 """

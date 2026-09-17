@@ -9,12 +9,15 @@ SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sp
 
 ## Tech Stack
 
+Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet built" is the source of truth for what's actually implemented.
+
 | Layer | Technology |
 |---|---|
 | Frontend | React (Vite) + TypeScript |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
 | Auth | Required — no anonymous access. SSO (Google/Facebook/X) or email + OTP, JWT-based session |
+| Transactional email | Resend (OTP login codes) |
 | Answer grading (LLM) | OpenAI API (GPT model) — grades free text against official answer, returns score + explanation |
 | Speech-to-text | Web Speech API (browser-native, Chromium-based browsers) — no backend/cloud STT |
 | Ads | Google AdSense |
@@ -30,27 +33,27 @@ SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sp
 sks-lotse/
 ├── backend/
 │   ├── app/
-│   │   ├── api/        # Route handlers (/api/v1/...)
-│   │   ├── core/       # Config, security, JWT, dependencies
+│   │   ├── api/v1/     # Route handlers (/api/v1/auth, /api/v1/questions)
+│   │   ├── core/       # Config, JWT, OTP, cache, middlewares (rate limit, security headers, canonical domain)
 │   │   ├── models/     # SQLAlchemy ORM models
 │   │   ├── schemas/    # Pydantic request/response schemas
-│   │   ├── services/   # Business logic (grading, catalog import)
+│   │   ├── services/   # Business logic / external integrations (email today; grading later)
 │   │   └── main.py     # FastAPI app entry point
 │   ├── alembic/        # Database migrations
+│   ├── scripts/        # One-off/dev scripts (catalog import, OpenAPI dump)
 │   ├── tests/
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── pages/      # Route-level components
-│   │   ├── components/ # Reusable UI components
-│   │   ├── hooks/      # Custom React hooks
-│   │   ├── store/      # Zustand state management
-│   │   ├── api/        # API client + TypeScript types
-│   │   └── main.tsx
-│   └── package.json
-├── docs/               # Markdown documentation, question catalog source PDFs
-├── CLAUDE.md           # This file
-└── .github/workflows/  # GitHub Actions CI/CD
+│   ├── .env.example    # All backend env vars, with defaults
+│   └── requirements*.txt
+├── frontend/           # Not yet built — planned: React (Vite) + TypeScript, Zustand
+├── docs/               # ARCHITECTURE.md, adr/, question catalog source PDF
+├── postman/            # Generated API-reference collection + hand-written integration tests
+├── scripts/            # Repo tooling (Postman generation, integration tests, Aikido check)
+├── .github/            # CI workflow, Dependabot
+├── .python-version     # Python version for local dev + CI
+├── .pre-commit-config.yaml
+├── docker-compose.yml  # Local Postgres
+├── render.yaml         # Render Blueprint (deployment as code)
+└── CLAUDE.md           # This file
 ```
 
 ---
@@ -67,9 +70,9 @@ sks-lotse/
 
 ## Question Catalog
 
-- Source: official SKS question catalog, provided as PDF (questions + official model answers).
-- Needs a one-off (or repeatable) import pipeline: PDF → structured question/answer records in the database.
-- Some questions reference nautical charts/images — these need to be extracted and stored (Cloudflare R2, TBD — not yet decided whether needed for MVP).
+- Source: official SKS question catalog, provided as PDF (`docs/Fragenkatalog-SKS.pdf`, questions + official model answers).
+- Imported by a plain, re-runnable script — `backend/scripts/import_catalog.py` (PDF → `questions` table, replaces the table's contents). Known parsing limitations are listed in its docstring.
+- Some questions reference nautical charts/images — not extracted yet (`image_ref` is always null). Where to store them (Cloudflare R2, TBD) and whether they're needed for MVP is still open.
 
 ---
 
@@ -139,9 +142,10 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 - `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml` on every push to `main` and on every PR — same not-yet-a-hard-gate caveat as above.
 - Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (a local stand-in for the branch protection the free plan lacks). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
 
+- `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
+
 ### Python version
 `.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
-- `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
 
 ### Architecture Documentation
 This project doubles as a reference sample (incl. for job applications), so architectural reasoning is recorded, not just the resulting code.
@@ -180,13 +184,12 @@ One-time manual steps (account-level actions, done by the project owner, not by 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`).
 
 ### Auth & rate limiting
-Every `/api/v1/*` route requires a valid JWT (`Authorization: Bearer ...`) except `POST /auth/otp/request` and `POST /auth/otp/verify` (which can't require one — that's how a caller gets one) — see `backend/app/core/jwt.py` (`get_current_user`) and `backend/app/api/v1/questions.py` for how a router opts in via `dependencies=[Depends(get_current_user)]`. `/health` has no auth at all, for Render's own reachability checks.
+How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/0011); the rules to follow when adding code:
 
-Each user has a `token_version` counter (`backend/app/models/user.py`); every issued access token embeds the version it was minted with, and `get_current_user` rejects a token whose embedded version doesn't match the user's current one. `POST /auth/logout` (authenticated) increments it, which invalidates every access token issued for that user up to that point in one step — no separate token blacklist table. There's still no refresh-token flow (re-authenticating means requesting a new OTP), but a leaked/compromised token can now be revoked without waiting out its full TTL.
-
-There used to be a temporary `X-Access-Key` header gate in front of the whole API (`backend/app/core/security.py`) as a stopgap before real auth existed — it's been removed now that JWT auth covers the API; `ACCESS_GATE_KEY` is no longer a valid env var.
-
-`backend/app/core/rate_limit.py` adds a per-IP request cap on top of auth: a generous blanket limit across all of `/api/v1` — one shared bucket per IP, not per path (guards against basic scraping/bots without affecting normal use), plus a much tighter override specifically on `/auth/otp/request` (bounds cost/spam on the email-sending path). In-memory, not Redis, no reverse proxy in front — see [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) for why.
+- **New `/api/v1` routes require a JWT.** Opt a router in via `dependencies=[Depends(get_current_user)]` (see `backend/app/api/v1/questions.py`), or take `current_user: User = Depends(get_current_user)` per route. The only intentionally open routes are `POST /auth/otp/request` and `POST /auth/otp/verify` (that's how a caller gets a token) and `/health` (Render's health check).
+- **Rate limiting is automatic** for everything under `/api/v1` (shared per-IP bucket, `backend/app/core/rate_limit.py`). An expensive or abusable new endpoint (e.g. the LLM grading call) gets its own tighter exact-path rule in `backend/app/main.py`.
+- **Accept email addresses via `NormalizedEmail`** (`backend/app/schemas/auth.py`), never plain `EmailStr` — every per-email lookup and quota relies on the lowercased form.
+- **Dev/test-only endpoints are gated on `settings.exposes_dev_tooling`** (an allowlist that fails closed), never on `not settings.is_production`, and declared with `include_in_schema=False`.
 
 ### Data Layer Conventions
 Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
@@ -200,44 +203,15 @@ Apply these four checks whenever adding or changing a database table — going f
 
 ## Environment Variables (backend)
 
-```
-DATABASE_URL=
-ENVIRONMENT=
-JWT_SECRET=
-JWT_ACCESS_TOKEN_EXPIRES_MINUTES=
-RESEND_API_KEY=
-EMAIL_FROM_ADDRESS=
-ALLOWED_EMAILS=
-OTP_LENGTH=
-OTP_TTL_MINUTES=
-OTP_MAX_ATTEMPTS=
-OTP_RESEND_COOLDOWN_SECONDS=
-OTP_REQUEST_WINDOW_MINUTES=
-OTP_MAX_REQUESTS_PER_WINDOW=
-OTP_CODE_RETENTION_HOURS=
-OTP_CLEANUP_MIN_INTERVAL_SECONDS=
-RATE_LIMIT_OTP_MAX_REQUESTS=
-RATE_LIMIT_OTP_WINDOW_SECONDS=
-RATE_LIMIT_DEFAULT_MAX_REQUESTS=
-RATE_LIMIT_DEFAULT_WINDOW_SECONDS=
-CATALOG_CACHE_TTL_SECONDS=
-OPENAI_API_KEY=
-ADSENSE_CLIENT_ID=
-GOOGLE_OAUTH_CLIENT_ID=
-GOOGLE_OAUTH_CLIENT_SECRET=
-FACEBOOK_OAUTH_CLIENT_ID=
-FACEBOOK_OAUTH_CLIENT_SECRET=
-X_OAUTH_CLIENT_ID=
-X_OAUTH_CLIENT_SECRET=
-```
+`backend/.env.example` lists every backend env var with its default, and `backend/app/core/config.py` (`Settings`) is the authoritative definition — keep both in sync when adding one, rather than listing them again here. `render.yaml` declares which ones production sets. What's not obvious from those files:
 
-`ENVIRONMENT` defaults to `development` (matches local/CI); must be one of `development`, `test`, `production` — anything else (e.g. a `prod` typo) fails at startup. Set to `production` on Render (see `render.yaml` — not a secret, committed directly). Dev-only tooling — Swagger UI/ReDoc/the raw OpenAPI schema (`backend/app/main.py`) and the OTP `_dev-peek` endpoint — is enabled only for `development`/`test` (`Settings.exposes_dev_tooling`), so it fails closed.
-
-`JWT_SECRET` is a **required** env var with no insecure fallback — signs JWTs, and a key derived from it hashes OTP codes (`backend/app/core/otp.py`). `Settings()` fails at import if it's unset, empty, or under 32 characters, in every environment (so `JWT_SECRET=` copied verbatim from `.env.example` fails too) — a length floor rather than an exact-string blocklist, so it isn't limited to catching specific placeholder values someone thought to enumerate (`backend/app/core/config.py`). Generate a real value with `openssl rand -hex 32` (64 characters).
-
-Email/OTP delivery is via [Resend](https://resend.com) (`RESEND_API_KEY`) — the sending domain must be verified there via IONOS DNS records before OTP emails can go out. `EMAIL_FROM_ADDRESS` defaults to `noreply@sks-lotse.de`, so it only needs to be set explicitly if that changes. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES` defaults to 10080 (7 days) — there's no refresh-token flow yet, so re-authenticating is just requesting a new OTP; 7 days was chosen to bound the exposure window of a leaked token, though logout (see Auth & rate limiting above) can now revoke one immediately instead of only relying on that TTL. `ALLOWED_EMAILS` is a comma-separated allowlist for a pre-launch/private beta (case-insensitive) — leave it unset in local dev and until you actually want to restrict who can log in; `POST /auth/otp/request` silently no-ops (same generic response, no code created, no email sent) for any address not on the list. Separately and unconditionally, `otp/request` also rejects known disposable/throwaway email domains (the `disposable-email-domains` package, `backend/app/core/otp.py`) — no env var, just bundled data; bump the pinned version in `requirements.txt` occasionally since the point of the package is a current list. The OAuth client id/secret pairs above are still unused placeholders — SSO login hasn't been built yet, only email+OTP.
-
-The OTP flow's tuning knobs (`backend/app/core/otp.py`, `backend/app/api/v1/auth.py`) are all optional env vars, defaulting to the values the code originally hardcoded: `OTP_LENGTH` (6-digit codes), `OTP_TTL_MINUTES` (10), `OTP_MAX_ATTEMPTS` (5 verify attempts before a code is rejected), `OTP_RESEND_COOLDOWN_SECONDS` (60, per-email resend cooldown), `OTP_REQUEST_WINDOW_MINUTES`/`OTP_MAX_REQUESTS_PER_WINDOW` (60/5, bounds sustained per-email abuse beyond the cooldown), `OTP_CODE_RETENTION_HOURS` (24, how long an expired code stays before cleanup deletes it — see [ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)) and `OTP_CLEANUP_MIN_INTERVAL_SECONDS` (300, throttles that cleanup sweep). The per-IP rate limiter (`backend/app/core/rate_limit.py`, wired in `backend/app/main.py`, see [ADR-0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md)) is similarly tunable: `RATE_LIMIT_OTP_MAX_REQUESTS`/`RATE_LIMIT_OTP_WINDOW_SECONDS` (20/3600) for `/auth/otp/request`, `RATE_LIMIT_DEFAULT_MAX_REQUESTS`/`RATE_LIMIT_DEFAULT_WINDOW_SECONDS` (300/300) as the blanket cap on the rest of `/api/v1`. `CATALOG_CACHE_TTL_SECONDS` (3600) controls how long `backend/app/api/v1/questions.py` caches the question catalog in-process before a re-import becomes visible. All of these exist so local dev/CI can loosen them (avoiding slow or flaky test runs) without touching production's stricter defaults.
+- **`ENVIRONMENT`** — one of `development` (default), `test`, `production`; anything else (e.g. a `prod` typo) fails at startup. Render sets `production`. Dev-only tooling (Swagger UI/ReDoc/OpenAPI schema, the OTP `_dev-peek` endpoint) is enabled only for `development`/`test` (`Settings.exposes_dev_tooling`).
+- **`JWT_SECRET`** — required, at least 32 characters in every environment, no fallback. Signs JWTs; a key derived from it hashes OTP codes (`backend/app/core/otp.py`). Generate with `openssl rand -hex 32`. Rotating it invalidates all sessions and pending OTP codes.
+- **`RESEND_API_KEY`** — the sending domain must be verified at Resend via IONOS DNS records before OTP emails go out. Locally it can stay empty: the API still returns 202 and logs the failed send.
+- **`ALLOWED_EMAILS`** — comma-separated allowlist for the private beta; unset = open to everyone. Non-listed addresses get the same generic 202 with no code and no email.
+- **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
+- **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
+- **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `OPENAI_API_KEY` and `ADSENSE_CLIENT_ID` are already in `Settings`/`render.yaml` but unused until grading/ads land.
 
 ---
 
@@ -256,5 +230,4 @@ The OTP flow's tuning knobs (`backend/app/core/otp.py`, `backend/app/api/v1/auth
 ## Project Management
 
 - Linear: TBD (not yet set up)
-- Current phase: Phase 0 — concept & functional basics (this file)
-- Next phase: Phase 1 — question catalog import pipeline + core grading flow
+- Current phase: Phase 1 — backend foundation. Done: catalog import, email+OTP login with JWT sessions, deployment to Render with CI/security tooling. Next: core grading flow (OpenAI) and the frontend.
