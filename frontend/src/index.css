@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+/* Design tokens from ADR-0014 (visual design system) — palette, type, and
+   corner/border chrome. Kept here rather than scattered across components so
+   swapping the palette later only touches this block. */
+@theme {
+  --color-bg: #e9f0f3;
+  --color-surface: #ffffff;
+  --color-surface-alt: #d8e4e9;
+  --color-border: #b9c9d0;
+  --color-ink: #1e2a32;
+  --color-ink-soft: #5b6670;
+  --color-primary: #1f6f78;
+  --color-primary-dark: #164f56;
+  --color-accent: #b8763c;
+  --color-success: #3d7a5c;
+  --color-danger: #b24632;
+
+  --font-serif: 'Fraunces', ui-serif, serif;
+  --font-sans: 'Public Sans', ui-sans-serif, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Flat, mostly square-cornered chrome (0-2px radius) per ADR-0014 — not
+     Tailwind's default rounded-card idiom. */
+  --radius-tile: 2px;
+}
+
+body {
+  @apply bg-bg text-ink font-sans;
+}

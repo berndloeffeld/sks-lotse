@@ -321,6 +321,45 @@ def test_verify_otp_unknown_email_returns_401(client):
     assert response.status_code == 401
 
 
+def test_verify_otp_sets_httponly_session_cookie(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    assert response.status_code == 200
+    cookie = next(c for c in response.cookies.jar if c.name == "access_token")
+    assert cookie.value == response.json()["access_token"]
+    assert cookie.path == "/"
+    assert cookie.has_nonstandard_attr("HttpOnly")
+    assert cookie.get_nonstandard_attr("SameSite") == "lax"
+    # Not Secure here: ENVIRONMENT is "development" in tests, and a Secure
+    # cookie would be silently dropped over the plain http:// local dev uses.
+    assert not cookie.secure
+
+
+def test_me_authenticates_via_cookie_alone(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    response = client.get("/api/v1/auth/me")
+
+    assert response.status_code == 200
+    assert response.json()["email"] == "learner@example.com"
+
+
+def test_logout_clears_the_session_cookie(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    response = client.post("/api/v1/auth/logout")
+
+    assert response.status_code == 204
+    cookie = next((c for c in response.cookies.jar if c.name == "access_token"), None)
+    assert cookie is None or cookie.value == ""
+
+    assert client.get("/api/v1/auth/me").status_code == 401
+
+
 def test_me_without_token_returns_401(client):
     response = client.get("/api/v1/auth/me")
     assert response.status_code == 401

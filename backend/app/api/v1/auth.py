@@ -1,7 +1,7 @@
 import logging
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core import cache
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.jwt import create_access_token, get_current_user
+from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
 from app.core.otp import generate_code, hash_code, is_disposable_email, verify_code
 from app.models import OtpCode, User
 from app.schemas.auth import (
@@ -152,7 +152,7 @@ def request_otp(
 
 
 @router.post("/otp/verify", response_model=TokenRead)
-def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
+def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depends(get_db)):
     otp = _latest_otp_code(db, payload.email, for_update=True)
     if otp is None:
         raise _INVALID_CODE
@@ -186,6 +186,21 @@ def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
             db.refresh(user)
 
     access_token = create_access_token(user.id, user.token_version)
+    # The browser frontend never reads this token directly (see ADR-0012) —
+    # it's set as an httpOnly cookie here, in addition to the response body,
+    # which stays populated for Postman/the integration-test suite/any
+    # future non-browser client (Bearer fallback, see get_current_user).
+    response.set_cookie(
+        SESSION_COOKIE_NAME,
+        access_token,
+        max_age=settings.jwt_access_token_expires_minutes * 60,
+        httponly=True,
+        # Secure cookies are dropped by browsers over plain http://, which
+        # local dev uses — only require it once actually deployed.
+        secure=settings.is_production,
+        samesite="lax",
+        path="/",
+    )
     return TokenRead(access_token=access_token)
 
 
@@ -212,9 +227,10 @@ def read_current_user(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def logout(response: Response, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # No token blacklist: bumping the version invalidates every access token
     # issued for this user in one step (see get_current_user in
     # app/core/jwt.py), including the one used to call this endpoint.
     current_user.token_version += 1
     db.commit()
+    response.delete_cookie(SESSION_COOKIE_NAME, path="/")

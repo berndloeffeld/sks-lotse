@@ -9,6 +9,12 @@
         "cd backend && source .venv/bin/activate && PYTHONPATH=. uvicorn app.main:app --port 8000"
       ],
       "port": 8000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd frontend && npm run dev -- --port 5173"],
+      "port": 5173
     }
   ]
 }

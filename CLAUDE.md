@@ -46,7 +46,15 @@ sks-lotse/
 │   ├── tests/
 │   ├── .env.example    # All backend env vars, with defaults
 │   └── requirements*.txt
-├── frontend/           # Not yet built — planned: React (Vite) + TypeScript, Zustand
+├── frontend/           # React (Vite) + TypeScript, Zustand — landing/login/start only so far
+│   ├── src/
+│   │   ├── api/        # Thin typed fetch wrapper + shared response types
+│   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
+│   │   ├── pages/      # LandingPage, LoginPage, StartPage
+│   │   ├── routes/     # ProtectedRoute
+│   │   └── store/      # Zustand auth store
+│   ├── .env.example
+│   └── package.json
 ├── docs/               # ARCHITECTURE.md, adr/, question catalog source PDF
 ├── postman/            # Generated API-reference collection + hand-written integration tests
 ├── scripts/            # Repo tooling (Postman generation, integration tests, Aikido check)
@@ -138,6 +146,8 @@ Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-co
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 - Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
+Frontend mirrors the same 80% (lines + branches) bar via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — same not-yet-a-hard-gate caveat as the backend.
+
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
@@ -145,6 +155,11 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 - Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (a local stand-in for the branch protection the free plan lacks). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
 
 - `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
+
+Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
+
+- `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — same not-yet-a-hard-gate caveat as the backend.
+- Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to `pre-commit install`).
 
 ### Python version
 `.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
@@ -192,7 +207,7 @@ How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/
 - **Rate limiting is automatic** for everything under `/api/v1` (shared per-IP bucket, `backend/app/core/rate_limit.py`). An expensive or abusable new endpoint (e.g. the LLM grading call) gets its own tighter exact-path rule in `backend/app/main.py`.
 - **Accept email addresses via `NormalizedEmail`** (`backend/app/schemas/auth.py`), never plain `EmailStr` — every per-email lookup and quota relies on the lowercased form.
 - **Dev/test-only endpoints are gated on `settings.exposes_dev_tooling`** (an allowlist that fails closed), never on `not settings.is_production`, and declared with `include_in_schema=False`.
-- **When building the frontend's auth integration**, read [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md) first: the session token is meant to move to an httpOnly cookie, not `localStorage`.
+- **The session token lives in an httpOnly cookie, not `localStorage`** ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)) — set/cleared by `verify_otp`/`logout` in `backend/app/api/v1/auth.py`, read by `get_current_user` in `backend/app/core/jwt.py` (cookie first, falling back to `Authorization: Bearer` for Postman/the integration-test suite). The frontend never reads or stores it directly; a new frontend auth call just needs `credentials: "include"` (already the default in `frontend/src/api/client.ts`).
 
 ### Data Layer Conventions
 Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
@@ -233,4 +248,4 @@ Apply these four checks whenever adding or changing a database table — going f
 ## Project Management
 
 - Linear: TBD (not yet set up)
-- Current phase: Phase 1 — backend foundation. Done: catalog import, email+OTP login with JWT sessions, deployment to Render with CI/security tooling, and the frontend visual design system ([ADR-0014](docs/adr/0014-visual-design-system.md)). Next: core grading flow (OpenAI) and frontend scaffolding (Tailwind config + components, per ADR-0013/0014).
+- Current phase: Phase 1 — backend foundation, wrapping up. Done: catalog import, email+OTP login with JWT sessions (now cookie-based for the frontend, [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)), deployment to Render with CI/security tooling, and a frontend scaffold (landing/login/start, per ADR-0013/0014) — not yet deployed. Next: core grading flow (OpenAI), a learning-progress data model, and the question list/answering UI those unblock.

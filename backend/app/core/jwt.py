@@ -1,13 +1,18 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.models import User
+
+# Shared with app/api/v1/auth.py, which sets/clears this cookie on
+# verify/logout (see ADR-0012) — kept here since this module is where the
+# corresponding read side lives.
+SESSION_COOKIE_NAME = "access_token"
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -19,14 +24,19 @@ def create_access_token(user_id: int, token_version: int) -> str:
 
 
 def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Security(_bearer_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     unauthorized = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    if credentials is None:
+    # Cookie first (the browser frontend, per ADR-0012), falling back to
+    # Authorization: Bearer (Postman, the integration-test suite, any future
+    # non-browser client).
+    token = request.cookies.get(SESSION_COOKIE_NAME) or (credentials.credentials if credentials else None)
+    if token is None:
         raise unauthorized
     try:
-        payload = jwt.decode(credentials.credentials, settings.jwt_secret, algorithms=["HS256"])
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
         user_id = int(payload["sub"])
         token_version = int(payload["tv"])
     except (jwt.PyJWTError, KeyError, ValueError) as exc:
