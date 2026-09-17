@@ -59,8 +59,8 @@ services:
   # sks-lotse.de/www.sks-lotse.de once its Custom Domains are set in the
   # Render dashboard (a manual, account-owner step — see CLAUDE.md,
   # Deployment (Render)); sks-lotse.com stays on the backend above. See
-  # ADR-0016 for the subdomain-split topology (api.sks-lotse.de as a third,
-  # paid Custom Domain on the backend) and why it's worth the $0.25/month.
+  # ADR-0015 for why this is a separate subdomain-split service rather than
+  # one origin shared with the backend.
   - name: sks-lotse-frontend
     type: web
     runtime: static
@@ -76,7 +76,7 @@ services:
         value: "22"
       # Build-time only (Vite inlines it into the bundle) — the frontend
       # calls the API at this origin, not a relative path, since it's a
-      # different subdomain from the frontend itself (see ADR-0016).
+      # different subdomain from the frontend itself (see ADR-0015).
       - key: VITE_API_BASE_URL
         value: https://api.sks-lotse.de
     routes:
