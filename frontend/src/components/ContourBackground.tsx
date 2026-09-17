@@ -1,13 +1,21 @@
+interface ContourBackgroundProps {
+  className?: string
+}
+
 // The "faint bathymetric contour-line texture" from ADR-0014's concept
-// section — decorative only, sits behind the hero content.
-export function ContourBackground() {
+// section — decorative only, sits behind a page's top/header area. The
+// element it sits behind must itself be a positioned element (e.g. a
+// `relative` wrapper) to paint above this absolutely-positioned svg,
+// since CSS otherwise paints positioned elements above static ones
+// regardless of DOM order.
+export function ContourBackground({ className }: ContourBackgroundProps) {
   return (
     <svg
       viewBox="0 0 1200 420"
       preserveAspectRatio="none"
       aria-hidden="true"
       focusable="false"
-      className="pointer-events-none absolute inset-x-0 top-0 h-full w-full"
+      className={`pointer-events-none absolute inset-x-0 top-0 w-full ${className ?? 'h-56'}`}
     >
       <path
         d="M-50,60 C150,10 350,100 600,55 C850,10 1000,90 1250,45"

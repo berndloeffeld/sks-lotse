@@ -14,7 +14,7 @@ export function LandingPage() {
 
       <main className="flex-1">
         <section className="relative px-4 py-16 text-center">
-          <ContourBackground />
+          <ContourBackground className="h-72" />
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
             <h1 className="font-serif text-4xl text-ink">Sicher durch die SKS-Theorieprüfung</h1>
             <p className="text-ink-soft">

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import { ChartTile } from '../components/ChartTile'
+import { ContourBackground } from '../components/ContourBackground'
 import { LegalFooter } from '../components/LegalFooter'
 import { useAuthStore } from '../store/authStore'
 
@@ -16,18 +17,21 @@ export function StartPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-ink-soft">Angemeldet als</p>
-          <p className="font-mono text-ink">{user?.email}</p>
+      <header className="relative overflow-hidden py-4">
+        <ContourBackground className="h-24" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <p className="text-sm text-ink-soft">Angemeldet als</p>
+            <p className="font-mono text-ink">{user?.email}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
+          >
+            Abmelden
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
-        >
-          Abmelden
-        </button>
       </header>
 
       {/* Non-interactive for now — the question list and exam simulation
