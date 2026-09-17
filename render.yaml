@@ -53,16 +53,17 @@ services:
       - key: ALLOWED_EMAILS
         sync: false
 
-  # Static site — no plan/startCommand/scaling fields (unsupported for this
-  # service type). Serves sks-lotse.de/www.sks-lotse.de once its Custom
-  # Domains are set in the Render dashboard (a manual, account-owner step —
-  # see CLAUDE.md, Deployment (Render)); sks-lotse.com stays on the backend
-  # above. See ADR-0015 for why this is a separate subdomain-split service
-  # rather than one origin shared with the backend.
+  # Static site — no region/plan/startCommand/scaling fields (unsupported for
+  # this service type; Render's static sites are edge-served globally, not
+  # region-pinned like the compute services above). Serves
+  # sks-lotse.de/www.sks-lotse.de once its Custom Domains are set in the
+  # Render dashboard (a manual, account-owner step — see CLAUDE.md,
+  # Deployment (Render)); sks-lotse.com stays on the backend above. See
+  # ADR-0015 for why this is a separate subdomain-split service rather than
+  # one origin shared with the backend.
   - name: sks-lotse-frontend
     type: web
     runtime: static
-    region: frankfurt
     rootDir: frontend
     branch: main
     autoDeployTrigger: commit
