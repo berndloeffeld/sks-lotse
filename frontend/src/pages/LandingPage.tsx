@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+import { LegalFooter } from '../components/LegalFooter'
+
 export function LandingPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 px-4 text-center">
@@ -13,6 +15,7 @@ export function LandingPage() {
       >
         Anmelden
       </Link>
+      <LegalFooter />
     </main>
   )
 }
