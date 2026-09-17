@@ -38,7 +38,6 @@ sks-lotse/
 │   │   └── main.py     # FastAPI app entry point
 │   ├── alembic/        # Database migrations
 │   ├── tests/
-│   ├── runtime.txt     # Python 3.12.x
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
@@ -127,17 +126,21 @@ Aikido Security is connected to this GitHub repo.
 - `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
 ### Test Coverage
-Backend enforces a minimum of **80% line coverage** via `pytest-cov` (`backend/pyproject.toml`, `--cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
+Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
 
 - `.github/workflows/backend-ci.yml` runs the backend test suite (incl. the coverage gate) on every push to `main` and on every PR.
 - **Not yet a hard merge gate**: same GitHub free-plan limitation as Aikido above — no required status checks on a private repo. Verify the workflow is green before merging a PR.
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
+- Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
 - `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml` on every push to `main` and on every PR — same not-yet-a-hard-gate caveat as above.
-- Before committing backend changes: `ruff check --fix .` then `ruff format .`.
+- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (a local stand-in for the branch protection the free plan lacks). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
+
+### Python version
+`.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
 - `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
 
 ### Architecture Documentation
