@@ -16,4 +16,10 @@ describe('ChartTile', () => {
 
     expect(screen.getByRole('heading', { name: 'Lernen' })).toBeInTheDocument()
   })
+
+  it('renders an icon when given one', () => {
+    render(<ChartTile title="Lernen" icon={<svg data-testid="icon" />} />)
+
+    expect(screen.getByTestId('icon')).toBeInTheDocument()
+  })
 })
