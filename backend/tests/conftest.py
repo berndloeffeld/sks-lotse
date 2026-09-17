@@ -57,7 +57,11 @@ def db_session():
 
 @pytest.fixture()
 def client(db_session):
-    return TestClient(app)
+    # https base_url, not the default http://testserver: the session cookie
+    # is Secure unconditionally (SameSite=None requires it, see ADR-0016),
+    # and httpx's cookie jar — like a real browser — won't retain/resend a
+    # Secure cookie against a plain http:// base.
+    return TestClient(app, base_url="https://testserver")
 
 
 @pytest.fixture()

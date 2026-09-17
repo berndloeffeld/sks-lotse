@@ -195,10 +195,17 @@ def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depe
         access_token,
         max_age=settings.jwt_access_token_expires_minutes * 60,
         httponly=True,
-        # Secure cookies are dropped by browsers over plain http://, which
-        # local dev uses — only require it once actually deployed.
-        secure=settings.is_production,
-        samesite="lax",
+        # SameSite=None because the frontend (sks-lotse.de) and this API
+        # (sks-lotse-backend.onrender.com) ended up on genuinely different
+        # registrable domains, not the same-site subdomain split ADR-0012
+        # originally assumed — see ADR-0016 for why (a Render account-wide
+        # custom-domain cap made the subdomain split impractical) and for the
+        # CSRF reasoning this requires re-examining. Secure is mandatory
+        # here, not just in production: browsers reject SameSite=None
+        # cookies outright without it — and modern browsers treat
+        # http://localhost as a secure context, so local dev still works.
+        secure=True,
+        samesite="none",
         path="/",
     )
     return TokenRead(access_token=access_token)

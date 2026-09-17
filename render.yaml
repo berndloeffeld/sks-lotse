@@ -59,8 +59,10 @@ services:
   # sks-lotse.de/www.sks-lotse.de once its Custom Domains are set in the
   # Render dashboard (a manual, account-owner step — see CLAUDE.md,
   # Deployment (Render)); sks-lotse.com stays on the backend above. See
-  # ADR-0015 for why this is a separate subdomain-split service rather than
-  # one origin shared with the backend.
+  # ADR-0016 for why this calls the backend at its default onrender.com URL
+  # rather than a dedicated api.sks-lotse.de subdomain (ADR-0015's original,
+  # now-superseded plan) — the account's Render plan caps custom domains at
+  # 2 total, already spent on sks-lotse.de and sks-lotse.com.
   - name: sks-lotse-frontend
     type: web
     runtime: static
@@ -74,11 +76,12 @@ services:
       # Render defaulting to a Node version newer than what CI/local dev use.
       - key: NODE_VERSION
         value: "22"
-      # Build-time only (Vite inlines it into the bundle) — the frontend
-      # calls the API at this origin, not a relative path, since it's a
-      # different subdomain from the frontend itself (see ADR-0015).
+      # Build-time only (Vite inlines it into the bundle). Points at the
+      # backend's default Render subdomain, not a custom api.sks-lotse.de
+      # domain (see ADR-0016) — genuinely cross-origin from the frontend,
+      # which is why the session cookie is SameSite=None (backend/app/api/v1/auth.py).
       - key: VITE_API_BASE_URL
-        value: https://api.sks-lotse.de
+        value: https://sks-lotse-backend.onrender.com
     routes:
       # SPA fallback: routes like /login and /start have no matching static
       # file, so a direct load/refresh still needs to serve index.html and

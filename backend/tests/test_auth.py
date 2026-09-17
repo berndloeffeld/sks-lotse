@@ -331,10 +331,11 @@ def test_verify_otp_sets_httponly_session_cookie(client, db_session, monkeypatch
     assert cookie.value == response.json()["access_token"]
     assert cookie.path == "/"
     assert cookie.has_nonstandard_attr("HttpOnly")
-    assert cookie.get_nonstandard_attr("SameSite") == "lax"
-    # Not Secure here: ENVIRONMENT is "development" in tests, and a Secure
-    # cookie would be silently dropped over the plain http:// local dev uses.
-    assert not cookie.secure
+    # SameSite=None (cross-site frontend/backend, see ADR-0016) requires
+    # Secure unconditionally, not just in production — browsers reject the
+    # cookie outright otherwise.
+    assert cookie.get_nonstandard_attr("SameSite") == "none"
+    assert cookie.secure
 
 
 def test_me_authenticates_via_cookie_alone(client, db_session, monkeypatch):

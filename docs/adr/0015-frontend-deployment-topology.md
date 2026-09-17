@@ -1,6 +1,6 @@
 # 0015. Frontend deployment topology: subdomain split on Render
 
-Status: Accepted
+Status: Superseded by [ADR-0016](0016-cross-origin-session-cookie.md)
 
 ## Context
 
@@ -31,3 +31,9 @@ Custom Domain attachment and the IONOS DNS changes are manual, account-owner ste
 - Rejected: single service serving both (option 2) — revisit only if the two-service split becomes a real operational burden; not the case at this scale.
 - Rejected: different, non-same-site origins (option 3) — would have required reopening ADR-0012's `SameSite=Lax` decision and its CSRF reasoning for no real benefit here, since the subdomain split avoids that entirely.
 - If `sks-lotse.global` or `sks-lotse.store` are ever wired up (currently unused, see `CLAUDE.md` → Naming/Domain), each needs its own decision about which service it points to — not addressed here.
+
+## Addendum (2026-09-17)
+
+Rolling this out surfaced a constraint this ADR didn't anticipate: Render's plan caps custom domains at 2. The initial read was that the cap was *per service* — the backend already had both slots taken (`sks-lotse.com`, `www.sks-lotse.com`), leaving no room for the new `api.sks-lotse.de`, so `www.sks-lotse.com` was dropped to free one.
+
+**Correction, same day**: the cap turned out to be 2 **per account**, not per service, with a domain's `www` variant bundled into its one slot rather than counted separately — `sks-lotse.de` (frontend) and `sks-lotse.com` (backend) already spend both. Dropping `www.sks-lotse.com` alone wouldn't have freed anything, and it was never actually removed in Render. See [ADR-0016](0016-cross-origin-session-cookie.md) for what was decided once the real constraint was understood — it replaces this ADR's `api.sks-lotse.de` subdomain plan entirely, rather than needing a domain trade-off within it.
