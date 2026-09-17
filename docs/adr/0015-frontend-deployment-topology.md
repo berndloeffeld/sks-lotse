@@ -1,6 +1,6 @@
 # 0015. Frontend deployment topology: subdomain split on Render
 
-Status: Superseded by [ADR-0016](0016-cross-origin-session-cookie.md)
+Status: Accepted
 
 ## Context
 
@@ -34,6 +34,4 @@ Custom Domain attachment and the IONOS DNS changes are manual, account-owner ste
 
 ## Addendum (2026-09-17)
 
-Rolling this out surfaced a constraint this ADR didn't anticipate: Render's plan caps custom domains at 2. The initial read was that the cap was *per service* — the backend already had both slots taken (`sks-lotse.com`, `www.sks-lotse.com`), leaving no room for the new `api.sks-lotse.de`, so `www.sks-lotse.com` was dropped to free one.
-
-**Correction, same day**: the cap turned out to be 2 **per account**, not per service, with a domain's `www` variant bundled into its one slot rather than counted separately — `sks-lotse.de` (frontend) and `sks-lotse.com` (backend) already spend both. Dropping `www.sks-lotse.com` alone wouldn't have freed anything, and it was never actually removed in Render. See [ADR-0016](0016-cross-origin-session-cookie.md) for what was decided once the real constraint was understood — it replaces this ADR's `api.sks-lotse.de` subdomain plan entirely, rather than needing a domain trade-off within it.
+Rolling this out surfaced a constraint this ADR didn't anticipate: Render's free plan caps custom domains at 2 **per account** (not per service, and a domain's `www` variant is bundled into its one slot, not counted separately) — `sks-lotse.de` (frontend) and `sks-lotse.com` (backend) already spent both, leaving no room for `api.sks-lotse.de`. Two intermediate attempts to work around it (dropping `www.sks-lotse.com`, then routing the frontend to the backend's default `onrender.com` URL with a cross-site `SameSite=None` cookie) were each reverted — the first didn't free a slot as expected, the second reopened CSRF-surface and Safari/WebKit third-party-cookie-blocking risk for no ongoing benefit. See [ADR-0016](0016-third-paid-custom-domain.md): the account paid for a third Custom Domain instead, so this ADR's original decision — `api.sks-lotse.de`, same-site, `SameSite=Lax` — stands as actually implemented.
