@@ -17,6 +17,8 @@ Early stage — backend foundation, catalog import, and dev tooling are in place
 | Frontend | React (Vite) + TypeScript *(not yet built)* |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 |
+| Auth | Email + one-time code (OTP), JWT sessions *(SSO not yet built)* |
+| Transactional email | Resend |
 | Answer grading (LLM) | OpenAI API *(not yet integrated)* |
 | Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
 | Hosting | Render (Frankfurt EU) |
@@ -40,7 +42,7 @@ cd backend
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
-cp .env.example .env
+sed "s/^JWT_SECRET=$/JWT_SECRET=$(openssl rand -hex 32)/" .env.example > .env  # .env with a fresh JWT secret
 alembic upgrade head
 
 # 3. (Optional) Import the official question catalog
@@ -57,7 +59,7 @@ API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](post
 Run from `backend/`, with the venv active:
 
 ```bash
-pytest              # tests + 80% coverage gate (backend/pyproject.toml)
+pytest              # tests + 80% line/branch coverage gate (backend/pyproject.toml)
 ruff check .         # lint
 ruff format --check . # formatting
 ```
@@ -66,8 +68,10 @@ All three run in CI (`.github/workflows/backend-ci.yml`) on every push to `main`
 
 Optional but recommended: `pre-commit install` (from the venv) — runs ruff on commit and blocks commits directly on `main`.
 
+A separate, hand-written Postman collection black-box tests a running local server (auth flow, CORS, security headers, rate limiting) without needing Python: start the API as above, then run `./scripts/run_integration_tests.sh` from the repo root.
+
 The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido`, see `CLAUDE.md`).
 
 ## Development conventions
 
-Trunk-based: `main` is the single source of truth, every change goes on a `feature/*` (or `docs/*`, `fix/*`) branch merged back via PR — see `CLAUDE.md` for the full set of conventions (branch strategy, working directory, security scanning, coverage, linting, ADRs).
+Trunk-based: `main` is the single source of truth, every change, however small, goes on a `feature/*` branch merged back via PR — see `CLAUDE.md` for the full set of conventions (branch strategy, working directory, security scanning, coverage, linting, ADRs).

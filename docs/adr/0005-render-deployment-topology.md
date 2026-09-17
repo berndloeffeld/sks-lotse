@@ -29,3 +29,7 @@ Options considered for environments:
 - No staging means every merge to `main` goes straight to what users would see — acceptable pre-launch with no real users yet, but means CI (tests, lint, Aikido) is the only safety net before something goes live. Revisit once there are actual users who'd be affected by a bad deploy.
 - Free-plan Postgres and web service both have real limits (the DB free plan in particular is time-limited/small) — fine for MVP validation, but this ADR doesn't cover the upgrade path; revisit when free-plan limits are actually hit rather than pre-optimizing now.
 - The Blueprint's `sync: false` secrets still require a manual one-time step per environment (entering them in the dashboard) — this ADR doesn't eliminate that, only avoids committing the values.
+
+## Addendum (2026-09-17)
+
+Current state, for readers comparing this record with `render.yaml`: the `sync: false` secrets now also include `RESEND_API_KEY` and `ALLOWED_EMAILS` (added with email+OTP login), the service declares `healthCheckPath: /health`, and `PYTHON_VERSION` is pinned explicitly in the Blueprint (Render ignored `backend/runtime.txt`, which has since been removed in favor of `/.python-version`). The topology decision itself is unchanged.
