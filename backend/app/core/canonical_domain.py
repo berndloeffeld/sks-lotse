@@ -22,6 +22,11 @@ SECONDARY_HOSTS = {
 
 class RedirectSecondaryDomainsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # /health is Render's own reachability check (see app/main.py) — it must
+        # always answer directly no matter which hostname the check arrives on,
+        # or a domain redirect here can make Render treat a healthy deploy as down.
+        if request.url.path == "/health":
+            return await call_next(request)
         host = request.headers.get("host", "").split(":")[0]
         if host in SECONDARY_HOSTS:
             target = f"https://{CANONICAL_DOMAIN}{request.url.path}"
