@@ -1,11 +1,21 @@
 def test_secondary_domain_redirects_to_canonical(client):
     response = client.get(
-        "/health",
+        "/api/v1/questions",
         headers={"host": "sks-lotse.com"},
         follow_redirects=False,
     )
     assert response.status_code == 301
-    assert response.headers["location"] == "https://sks-lotse.de/health"
+    assert response.headers["location"] == "https://sks-lotse.de/api/v1/questions"
+
+
+def test_health_never_redirected(client):
+    for host in ("sks-lotse.com", "www.sks-lotse.com"):
+        response = client.get(
+            "/health",
+            headers={"host": host},
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
 
 
 def test_secondary_domain_with_query_preserves_it(client):
