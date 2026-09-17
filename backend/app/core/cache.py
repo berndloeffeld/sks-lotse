@@ -19,12 +19,9 @@ triggering it gets called. See CLAUDE.md → Data Layer Conventions.
 
 import time
 from collections.abc import Callable
-from typing import TypeVar
-
-T = TypeVar("T")
 
 
-def get_or_set(app, key: str, ttl_seconds: float, factory: Callable[[], T]) -> T:
+def get_or_set[T](app, key: str, ttl_seconds: float, factory: Callable[[], T]) -> T:
     entries = _entries_for(app)
     now = time.monotonic()
     cached = entries.get(key)
