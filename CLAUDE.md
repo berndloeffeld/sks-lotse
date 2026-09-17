@@ -190,6 +190,7 @@ How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/
 - **Rate limiting is automatic** for everything under `/api/v1` (shared per-IP bucket, `backend/app/core/rate_limit.py`). An expensive or abusable new endpoint (e.g. the LLM grading call) gets its own tighter exact-path rule in `backend/app/main.py`.
 - **Accept email addresses via `NormalizedEmail`** (`backend/app/schemas/auth.py`), never plain `EmailStr` — every per-email lookup and quota relies on the lowercased form.
 - **Dev/test-only endpoints are gated on `settings.exposes_dev_tooling`** (an allowlist that fails closed), never on `not settings.is_production`, and declared with `include_in_schema=False`.
+- **When building the frontend's auth integration**, read [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md) first: the session token is meant to move to an httpOnly cookie, not `localStorage`.
 
 ### Data Layer Conventions
 Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
