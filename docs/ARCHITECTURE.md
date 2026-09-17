@@ -41,6 +41,8 @@ Question list/answering, grading, learning-progress UI, and ads are not built �
 
 Also serves `/impressum` and `/datenschutz` — static legal pages, reachable logged-out, linked from a `LegalFooter` on every page.
 
+Brand identity (`src/components/Logo.tsx`, `Header.tsx`): a logomark built from the ADR-0014 chart-tile/dog-ear motif plus a plotted course line and position-fix dot, first wired into the landing page's new `Header` and into `LegalFooter`. `frontend/public/` carries the matching favicon (`favicon.svg`, `.ico`, sized PNGs), `apple-touch-icon.png`, `site.webmanifest`, `og-image.png`, `robots.txt`, and `sitemap.xml`; `index.html` carries the matching meta description, canonical link, Open Graph/Twitter tags, and `WebApplication` JSON-LD — landing page only so far, not yet the other routes.
+
 ### Analytics
 Umami Cloud (Hobby plan), loaded by `frontend/src/analytics.ts` (`initAnalytics()`, called once from `main.tsx`), gated on `VITE_UMAMI_WEBSITE_ID` being set — unset in local dev/CI, so no dev/test traffic is tracked. Cookieless (no persistent identifier, no cross-session tracking), so no consent banner is needed — see [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md).
 
