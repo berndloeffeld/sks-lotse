@@ -209,7 +209,7 @@
                             "method": "POST",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"3468208\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
@@ -250,7 +250,7 @@
                                 "method": "POST",
                                 "body": {
                                   "mode": "raw",
-                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"3468208\"\n}",
                                   "options": {
                                     "raw": {
                                       "headerFamily": "json",
@@ -301,7 +301,7 @@
                                 "method": "POST",
                                 "body": {
                                   "mode": "raw",
-                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"<string>\"\n}",
+                                  "raw": "{\n  \"email\": \"<email>\",\n  \"code\": \"3468208\"\n}",
                                   "options": {
                                     "raw": {
                                       "headerFamily": "json",

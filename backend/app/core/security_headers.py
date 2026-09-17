@@ -20,4 +20,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         # This API serves no HTML for anything to frame; deny embedding outright.
         response.headers["X-Frame-Options"] = "DENY"
+        # An API response has no reason to leak its URL to a third party.
+        response.headers["Referrer-Policy"] = "no-referrer"
+        # API responses carry per-user data (tokens from otp/verify, /me) —
+        # never let a browser or intermediary cache them. Routes that want
+        # caching can still set their own Cache-Control.
+        if request.url.path.startswith("/api/") and "cache-control" not in response.headers:
+            response.headers["Cache-Control"] = "no-store"
         return response

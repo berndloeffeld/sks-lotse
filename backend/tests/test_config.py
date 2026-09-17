@@ -1,35 +1,41 @@
 import pytest
+from pydantic import ValidationError
 
-from app.core.config import _MIN_PRODUCTION_JWT_SECRET_LENGTH, Settings, _reject_insecure_production_secret
+from app.core.config import MIN_JWT_SECRET_LENGTH, Settings
 
-_LONG_ENOUGH_SECRET = "a" * _MIN_PRODUCTION_JWT_SECRET_LENGTH
-
-
-def test_rejects_empty_secret_in_production():
-    s = Settings(database_url="x", jwt_secret="", environment="production")
-    with pytest.raises(RuntimeError):
-        _reject_insecure_production_secret(s)
+_LONG_ENOUGH_SECRET = "a" * MIN_JWT_SECRET_LENGTH
 
 
-@pytest.mark.parametrize("secret", ["change-me", "test-secret-not-for-production"])
-def test_rejects_short_placeholder_secrets_in_production(secret):
-    # Length-based, not an exact-string blocklist — this is deliberately not
-    # a string this project happens to use elsewhere (e.g. in CI), to prove
-    # the check generalizes rather than only catching known values.
-    assert len(secret) < _MIN_PRODUCTION_JWT_SECRET_LENGTH
-    s = Settings(database_url="x", jwt_secret=secret, environment="production")
-    with pytest.raises(RuntimeError):
-        _reject_insecure_production_secret(s)
+@pytest.mark.parametrize("environment", ["development", "test", "production"])
+@pytest.mark.parametrize("secret", ["", "change-me", "test-secret-not-for-production"])
+def test_rejects_empty_or_short_secret_in_every_environment(environment, secret):
+    # Length-based, not an exact-string blocklist — these deliberately aren't
+    # strings this project happens to use elsewhere, to prove the check
+    # generalizes rather than only catching known values. Enforced outside
+    # production too, so `JWT_SECRET=` copied from .env.example fails loudly.
+    assert len(secret) < MIN_JWT_SECRET_LENGTH
+    with pytest.raises(ValidationError):
+        Settings(database_url="x", jwt_secret=secret, environment=environment)
 
 
-def test_allows_long_enough_secret_in_production():
-    s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="production")
-    _reject_insecure_production_secret(s)
+def test_allows_long_enough_secret():
+    Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="production")
 
 
-def test_allows_short_secret_outside_production():
-    s = Settings(database_url="x", jwt_secret="change-me", environment="development")
-    _reject_insecure_production_secret(s)
+@pytest.mark.parametrize("environment", ["prod", "Production", "staging", ""])
+def test_rejects_unknown_environment(environment):
+    # A typo must fail at startup rather than run production with dev-only
+    # tooling (docs, the OTP peek endpoint) switched on.
+    with pytest.raises(ValidationError):
+        Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment=environment)
+
+
+@pytest.mark.parametrize(
+    ("environment", "expected"), [("development", True), ("test", True), ("production", False)]
+)
+def test_exposes_dev_tooling_only_in_dev_and_test(environment, expected):
+    s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment=environment)
+    assert s.exposes_dev_tooling is expected
 
 
 def test_cors_allowed_origins_in_production():
@@ -38,5 +44,5 @@ def test_cors_allowed_origins_in_production():
 
 
 def test_cors_allowed_origins_outside_production():
-    s = Settings(database_url="x", jwt_secret="change-me", environment="development")
+    s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="development")
     assert s.cors_allowed_origins == ["http://localhost:5173", "http://127.0.0.1:5173"]

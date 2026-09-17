@@ -28,4 +28,4 @@ if ! curl -s -o /dev/null -f "$BASE_URL/health"; then
   exit 1
 fi
 
-npx --yes newman run "$COLLECTION" -e "$ENV_FILE"
+npx --yes newman@6.2.2 run "$COLLECTION" -e "$ENV_FILE"

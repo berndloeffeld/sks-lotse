@@ -24,7 +24,7 @@ DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}" \
 mkdir -p postman
 POSTMAN_TMP=$(mktemp)
 trap 'rm -f "$OPENAPI_TMP" "$POSTMAN_TMP"' EXIT
-npx --yes openapi-to-postmanv2 -s "$OPENAPI_TMP" -o "$POSTMAN_TMP" -p
+npx --yes openapi-to-postmanv2@6.3.3 -s "$OPENAPI_TMP" -o "$POSTMAN_TMP" -p
 
 # openapi-to-postmanv2 assigns random UUIDs (id, _postman_id) on every run,
 # which would make the output un-diffable across regenerations even when
