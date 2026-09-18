@@ -40,7 +40,13 @@ describe('LernenPage', () => {
 
   it('shows the current exam variant, overall progress, and the Lernstand grouped by subject', async () => {
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: 'motor' },
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: 'motor',
+        is_admin: false,
+      },
       isAuthenticated: true,
       isLoading: false,
     })
@@ -64,7 +70,13 @@ describe('LernenPage', () => {
 
   it('shows an empty state when no topics are scoped in yet', async () => {
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        is_admin: false,
+      },
       isAuthenticated: true,
       isLoading: false,
     })
@@ -78,7 +90,13 @@ describe('LernenPage', () => {
   it('saves a picked exam variant and reloads the Lernstand', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        is_admin: false,
+      },
       isAuthenticated: true,
       isLoading: false,
     })
@@ -111,7 +129,13 @@ describe('LernenPage', () => {
   it('shows an error message when the exam-variant update fails', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        is_admin: false,
+      },
       isAuthenticated: true,
       isLoading: false,
     })
@@ -133,7 +157,13 @@ describe('LernenPage', () => {
 
   it('links back to /start', async () => {
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        is_admin: false,
+      },
       isAuthenticated: true,
       isLoading: false,
     })

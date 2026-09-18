@@ -4,6 +4,7 @@ export interface User {
   email: string
   created_at: string
   exam_variant: string | null
+  is_admin: boolean
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.
@@ -14,4 +15,30 @@ export interface TopicProgress {
   display_order: number
   total_questions: number
   learned_questions: number
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminUserRead.
+export interface AdminUserSearchResult {
+  id: number
+  email: string
+  created_at: string
+  exam_variant: string | null
+  question_progress_count: number
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminQuestionProgressExport.
+export interface AdminQuestionProgressExport {
+  question_id: number
+  subject: string
+  question_number: number
+  correct_streak: number
+  created_at: string
+  updated_at: string
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminUserExport.
+export interface AdminUserExport {
+  user: AdminUserSearchResult
+  question_progress: AdminQuestionProgressExport[]
+  exported_at: string
 }

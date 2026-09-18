@@ -114,6 +114,7 @@ See [docs/adr/0006-mandatory-login-and-feature-gated-monetization.md](docs/adr/0
 - Sign-in via SSO (Google, Facebook, or X) or email + OTP (passwordless).
 - JWT-based session after sign-in. Progress is always synced server-side against the account (no browser-only anonymous progress).
 - Entitlements (ads removed? AI grading unlocked?) are attached to the account — see [Monetization](#monetization).
+- **GDPR admin tools** (`/admin` in the frontend): a learner exercises their Art. 15/16/17/18/20/21 DSGVO rights by emailing the operator (per the Datenschutzerklärung), who fulfills Auskunft/Löschung requests by hand via this page — look a user up by email, export their data as JSON, or delete their account. Gated by the `ADMIN_EMAILS` allowlist (see Environment Variables below), not a DB role — see [ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md).
 
 ---
 
@@ -204,7 +205,7 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`) on the backend service, and `VITE_UMAMI_WEBSITE_ID` (from the Umami Cloud dashboard's tracking-code snippet — not a secret, just kept out of the repo, see [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) on the `sks-lotse-frontend` service, in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS`) on the backend service, and `VITE_UMAMI_WEBSITE_ID` (from the Umami Cloud dashboard's tracking-code snippet — not a secret, just kept out of the repo, see [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) on the `sks-lotse-frontend` service, in the Render dashboard — never commit their values.
 4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 5. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, then **remove** them from the backend service (a domain can only be attached to one service). Add `api.sks-lotse.de` to the backend, and add a matching `CNAME api → sks-lotse-backend.onrender.com` in IONOS DNS.
 
@@ -237,6 +238,7 @@ Apply these four checks whenever adding or changing a database table — going f
 - **`JWT_SECRET`** — required, at least 32 characters in every environment, no fallback. Signs JWTs; a key derived from it hashes OTP codes (`backend/app/core/otp.py`). Generate with `openssl rand -hex 32`. Rotating it invalidates all sessions and pending OTP codes.
 - **`RESEND_API_KEY`** — the sending domain must be verified at Resend via IONOS DNS records before OTP emails go out. Locally it can stay empty: the API still returns 202 and logs the failed send.
 - **`ALLOWED_EMAILS`** — comma-separated allowlist for the private beta; unset = open to everyone. Non-listed addresses get the same generic 202 with no code and no email.
+- **`ADMIN_EMAILS`** — comma-separated allowlist gating the GDPR admin tools (`/admin`, see Accounts below). Unlike `ALLOWED_EMAILS`, unset/empty = **no admins** (fails closed) — the inverse default, since an unset var here must never grant access.
 - **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
 - **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
 - **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused until ads/grading land.

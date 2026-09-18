@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     # Comma-separated email allowlist for a pre-launch/private beta. Empty
     # (the default) means no whitelist — anyone can request/verify a login.
     allowed_emails: str = ""
+    # Comma-separated email allowlist for the GDPR admin tools (app/core/jwt.py
+    # require_admin). Deliberately the OPPOSITE default semantics of
+    # allowed_emails above: empty/unset means NO ONE is an admin (fail
+    # closed), not "open to everyone" — an unset env var must never grant
+    # admin access.
+    admin_emails: str = ""
 
     otp_length: int = 6
     otp_ttl_minutes: int = 10
@@ -68,6 +74,13 @@ class Settings(BaseSettings):
         if not self.allowed_emails.strip():
             return None
         return {email.strip().lower() for email in self.allowed_emails.split(",") if email.strip()}
+
+    @property
+    def admin_emails_set(self) -> set[str]:
+        # Unlike allowed_emails_set, never returns None: an empty/unset value
+        # must mean "no admins", not "unrestricted", so every caller can
+        # write `email in settings.admin_emails_set` without a None guard.
+        return {email.strip().lower() for email in self.admin_emails.split(",") if email.strip()}
 
     @property
     def is_production(self) -> bool:
