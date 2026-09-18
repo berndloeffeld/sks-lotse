@@ -1,4 +1,4 @@
-from sqlalchemy import delete
+from sqlalchemy import delete, or_
 from sqlalchemy.orm import Session
 
 from app.models.otp_code import OtpCode
@@ -14,9 +14,12 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # doesn't do — an ORM-level session.delete(user) alone can't be trusted to
     # cascade under both engines.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
-    # Pending/recent codes for the address are personal data too. The regular
-    # cleanup (ADR-0010) only runs opportunistically on later OTP requests, so
-    # it can't be relied on to remove them promptly after an erasure request.
-    db.execute(delete(OtpCode).where(OtpCode.email == user.email))
+    # Pending/recent codes are personal data too — both those for the
+    # account's own address and email-change codes it requested for another
+    # one. The regular cleanup (ADR-0010) only runs opportunistically on later
+    # OTP requests, so it can't be relied on to remove them promptly after an
+    # erasure request. (user_id's FK cascade would cover the latter on
+    # Postgres, but not on SQLite — same reasoning as above.)
+    db.execute(delete(OtpCode).where(or_(OtpCode.email == user.email, OtpCode.user_id == user.id)))
     db.delete(user)
     db.commit()

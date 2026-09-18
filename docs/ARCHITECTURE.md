@@ -89,7 +89,7 @@ PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
 
 | Table | Kind | Written by |
 |---|---|---|
-| `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migration |
+| `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
 | `users` | Account and profile | Auth and admin flows |
 | `question_progress` | Per-user, per-question answer streak | Nothing yet (grading not built), so all progress reads are zero |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |

@@ -811,3 +811,42 @@ def test_delete_me_removes_pending_otp_codes_for_the_address(client, db_session,
     assert response.status_code == 204
     db_session.expire_all()
     assert db_session.query(OtpCode).filter_by(email="fixture-user@example.com").count() == 0
+
+
+def test_delete_me_removes_pending_email_change_codes_for_another_address(
+    client, db_session, monkeypatch, auth_headers
+):
+    _request_email_change_and_get_code(client, monkeypatch, auth_headers, new_email="new@example.com")
+    assert db_session.query(OtpCode).filter_by(email="new@example.com").count() == 1
+
+    response = client.delete("/api/v1/auth/me", headers=auth_headers)
+
+    assert response.status_code == 204
+    db_session.expire_all()
+    assert db_session.query(OtpCode).filter_by(email="new@example.com").count() == 0
+
+
+def test_email_change_code_is_bound_to_the_requesting_account(client, db_session, monkeypatch, auth_headers):
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers, new_email="new@example.com")
+
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    other_headers = {"Authorization": f"Bearer {create_access_token(other.id, other.token_version)}"}
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=other_headers,
+    )
+    assert response.status_code == 400
+
+    # The other account's attempt didn't touch the requester's code — it
+    # still works for the account that asked for it.
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    assert db_session.query(OtpCode).filter_by(email="new@example.com").one().attempts == 0

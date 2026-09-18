@@ -5,11 +5,11 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core import cache
 from app.core.config import settings
-from app.core.database import get_db
+from app.core.database import get_db, get_session_factory
 from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
@@ -62,16 +62,16 @@ def _dev_otp_codes(app) -> dict[str, str]:
     return app.state.dev_otp_codes
 
 
-def _latest_otp_code(db: Session, email: str, purpose: str, for_update: bool = False) -> OtpCode | None:
+def _latest_otp_code(
+    db: Session, email: str, purpose: str, user_id: int | None = None, for_update: bool = False
+) -> OtpCode | None:
     # Order by id, not created_at: created_at's DB-side timestamp resolution
     # (e.g. 1s on SQLite) can tie for two requests issued in quick succession,
     # while id is always monotonically increasing.
-    stmt = (
-        select(OtpCode)
-        .where(OtpCode.email == email, OtpCode.purpose == purpose)
-        .order_by(OtpCode.id.desc())
-        .limit(1)
-    )
+    stmt = select(OtpCode).where(OtpCode.email == email, OtpCode.purpose == purpose)
+    if user_id is not None:
+        stmt = stmt.where(OtpCode.user_id == user_id)
+    stmt = stmt.order_by(OtpCode.id.desc()).limit(1)
     if for_update:
         # Row lock until the caller commits, so concurrent verify attempts
         # serialize on the attempts counter instead of each reading the same
@@ -110,17 +110,17 @@ def _as_utc(dt: datetime) -> datetime:
     return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
 
 
-def _cleanup_expired_otp_codes(db: Session, now: datetime) -> None:
+def _cleanup_expired_otp_codes(session_factory: sessionmaker[Session], now: datetime) -> None:
     # otp_codes is pure transient data (see docs/adr/0010) — nothing outside
     # the OTP flow itself reads a code once it's past its retention window.
     # Runs as a FastAPI background task, gated by cache.throttle (see
     # request_otp) so it fires on a bounded cadence rather than once per
     # request — a separate job/schedule would work too, but this needs no
     # new infrastructure, and the DELETE doesn't add latency to the response
-    # the caller is waiting on either way; see ADR-0010. Commits on its own
-    # since it no longer shares a transaction with the request that
-    # scheduled it — that request has already returned its response by the
-    # time this runs.
+    # the caller is waiting on either way; see ADR-0010. Opens its own
+    # session rather than borrowing the request's: that request has already
+    # returned its response by the time this runs, and its get_db session is
+    # scoped to it.
     cutoff = now - timedelta(hours=settings.otp_code_retention_hours)
     # synchronize_session=False: nothing holds a reference to an
     # about-to-be-deleted row, so there's no session-local ORM state that
@@ -128,24 +128,28 @@ def _cleanup_expired_otp_codes(db: Session, now: datetime) -> None:
     # session's identity map (the default "evaluate" strategy) chokes on
     # SQLite's naive datetimes (see `_as_utc` above) vs this tz-aware cutoff.
     stmt = delete(OtpCode).where(OtpCode.expires_at < cutoff).execution_options(synchronize_session=False)
-    db.execute(stmt)
-    db.commit()
+    with session_factory() as db:
+        db.execute(stmt)
+        db.commit()
 
 
 def _issue_otp_code(
     db: Session,
     request: Request,
     background_tasks: BackgroundTasks,
+    session_factory: sessionmaker[Session],
     email: str,
     purpose: str,
     send: Callable[[str, str], None],
+    user_id: int | None = None,
 ) -> None:
     """Store a fresh code for (email, purpose) and email it — unless throttled.
 
     Throttling is silent: both callers answer the same generic 202 either way,
     so a caller can't tell a sent code from a suppressed one. The hourly cap and
     the resend cooldown are both scoped to (email, purpose) — see
-    OTP_PURPOSE_LOGIN in app/core/otp.py for why.
+    OTP_PURPOSE_LOGIN in app/core/otp.py for why. They deliberately ignore
+    user_id: they protect the target inbox, whoever is asking.
     """
     now = datetime.now(UTC)
 
@@ -165,12 +169,13 @@ def _issue_otp_code(
         return
 
     if cache.throttle(request.app, "otp_cleanup:sweep", settings.otp_cleanup_min_interval_seconds):
-        background_tasks.add_task(_cleanup_expired_otp_codes, db, now)
+        background_tasks.add_task(_cleanup_expired_otp_codes, session_factory, now)
 
     code = generate_code()
     otp = OtpCode(
         email=email,
         purpose=purpose,
+        user_id=user_id,
         code_hash=hash_code(code),
         expires_at=now + timedelta(minutes=settings.otp_ttl_minutes),
     )
@@ -183,15 +188,16 @@ def _issue_otp_code(
     background_tasks.add_task(send, email, code)
 
 
-def _consume_otp_code(db: Session, email: str, purpose: str, code: str) -> bool:
-    """True (and marks it used) if `code` is the live latest code for (email, purpose).
+def _consume_otp_code(db: Session, email: str, purpose: str, code: str, user_id: int | None = None) -> bool:
+    """True (and marks it used) if `code` is the live latest code for (email, purpose[, user_id]).
 
     Only the most recent code counts, a wrong guess uses up one of its
-    otp_max_attempts, and a code issued for another purpose never matches.
+    otp_max_attempts, and a code issued for another purpose (or, for an
+    email change, requested by another account) never matches.
     Callers raise their own error on False (401 for login, 400 for an
     email change — see _INVALID_EMAIL_CHANGE_CODE).
     """
-    otp = _latest_otp_code(db, email, purpose, for_update=True)
+    otp = _latest_otp_code(db, email, purpose, user_id=user_id, for_update=True)
     if otp is None:
         return False
 
@@ -215,6 +221,7 @@ def request_otp(
     request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
+    session_factory: sessionmaker[Session] = Depends(get_session_factory),
 ):
     allowed_emails = settings.allowed_emails_set
     if allowed_emails is not None and payload.email not in allowed_emails:
@@ -225,7 +232,9 @@ def request_otp(
     if is_disposable_email(payload.email):
         return OtpRequestAccepted()
 
-    _issue_otp_code(db, request, background_tasks, payload.email, OTP_PURPOSE_LOGIN, _send_otp_email)
+    _issue_otp_code(
+        db, request, background_tasks, session_factory, payload.email, OTP_PURPOSE_LOGIN, _send_otp_email
+    )
     return OtpRequestAccepted()
 
 
@@ -325,6 +334,7 @@ def request_email_change(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    session_factory: sessionmaker[Session] = Depends(get_session_factory),
 ):
     new_email = payload.new_email
     if new_email == current_user.email:
@@ -375,7 +385,14 @@ def request_email_change(
         )
 
     _issue_otp_code(
-        db, request, background_tasks, new_email, OTP_PURPOSE_EMAIL_CHANGE, _send_email_change_otp_email
+        db,
+        request,
+        background_tasks,
+        session_factory,
+        new_email,
+        OTP_PURPOSE_EMAIL_CHANGE,
+        _send_email_change_otp_email,
+        user_id=current_user.id,
     )
     return OtpRequestAccepted()
 
@@ -386,7 +403,9 @@ def verify_email_change(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if not _consume_otp_code(db, payload.new_email, OTP_PURPOSE_EMAIL_CHANGE, payload.code):
+    if not _consume_otp_code(
+        db, payload.new_email, OTP_PURPOSE_EMAIL_CHANGE, payload.code, user_id=current_user.id
+    ):
         raise _INVALID_EMAIL_CHANGE_CODE
 
     current_user.email = payload.new_email

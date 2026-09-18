@@ -15,12 +15,8 @@ classification step already ran locally and its output is committed.
 
 from collections.abc import Sequence
 
-from sqlalchemy.orm import Session
-
 from alembic import op
-from app.models.question import Question
-from app.models.topic import Topic
-from app.services.catalog_seed import seed_catalog
+from app.services.catalog_seed import build_catalog, sync_catalog
 
 # revision identifiers, used by Alembic.
 revision: str = "16af6f481bf6"
@@ -30,14 +26,11 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    session = Session(bind=op.get_bind())
-    seed_catalog(session)
-    session.close()
+    # Core statements on the migration's own connection/transaction, never
+    # the ORM models — see the catalog_seed module docstring.
+    sync_catalog(op.get_bind(), build_catalog())
 
 
 def downgrade() -> None:
-    session = Session(bind=op.get_bind())
-    session.query(Question).delete()
-    session.query(Topic).delete()
-    session.commit()
-    session.close()
+    op.execute("DELETE FROM questions")
+    op.execute("DELETE FROM topics")

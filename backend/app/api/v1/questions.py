@@ -32,10 +32,9 @@ def _catalog(request: Request, db: Session) -> list[QuestionRead]:
         )
         return [QuestionRead.model_validate(q) for q in questions]
 
-    # The catalog only ever changes via the one-off import/classification scripts
-    # (backend/scripts/import_catalog.py, merge_seemannschaft.py, manage_topics.py), never through
-    # the API — this TTL just bounds how long those changes take to show up without restarting the
-    # app, not a correctness requirement.
+    # The catalog only ever changes via the catalog-seed data migrations (app/services/catalog_seed.py,
+    # or backend/scripts/import_catalog.py locally), never through the API — this TTL just bounds how
+    # long those changes take to show up without restarting the app, not a correctness requirement.
     return cache.get_or_set(request.app, _CATALOG_CACHE_KEY, settings.catalog_cache_ttl_seconds, load)
 
 
