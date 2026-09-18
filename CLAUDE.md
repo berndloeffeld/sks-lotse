@@ -132,6 +132,14 @@ Trunk-based development:
 - No long-lived branches
 - Never commit directly to `main`
 - Every change, however small, goes on a dedicated `feature/*` branch cut from `main`; open a PR to merge back
+- Merge with **squash** (the repo's convention — `main` has one commit per PR, titled `... (#NN)`); the head branch is deleted automatically.
+
+**Branch protection on `main`** (enforced by GitHub, admins included — this is the actual merge gate):
+- PR required; no approving review required; force-push and branch deletion blocked.
+- **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`, `aikido`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` runs on every PR too but is **not** required — check it's green before merging anyway.
+- **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
+- GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
+- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs.
 
 ---
 
@@ -151,31 +159,30 @@ Aikido Security is connected to this GitHub repo.
 
 - A PR must not be merged while Aikido reports open findings, unless the finding is explicitly triaged/accepted first.
 - `scripts/check_aikido.sh` also runs as the `aikido` job in `.github/workflows/backend-ci.yml`, using `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET` GitHub Actions repository secrets (Settings → Secrets and variables → Actions on GitHub — separate from the local `.env.aikido` below). The job fails the build if there are open findings; if those secrets aren't set yet, it emits a warning and no-ops instead of failing.
-- **Not yet a hard merge gate**: the repo is public and branch protection exists on `main` (PR required, admins included, force-push/deletion blocked), but no CI job is wired in as a *required* status check yet, so the `aikido` job (like backend-ci/frontend-ci below) stays informational until merge. Verify it's green before merging a PR.
-- Add `aikido`, plus the backend-ci/frontend-ci jobs, as required status checks in branch protection on `main` — technically possible now that the repo is public, just not configured yet.
+- `aikido` is a required status check on `main` (see Branch Strategy) — a PR with open findings can't merge. If the secrets are unset the job no-ops green, so that gate only holds while they're configured.
 - `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
 ### Test Coverage
 Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
 
 - `.github/workflows/backend-ci.yml` runs the backend test suite (incl. the coverage gate) on every push to `main` and on every PR.
-- **Not yet a hard merge gate**: same reason as Aikido above — branch protection exists on `main` but doesn't require this job to pass yet. Verify the workflow is green before merging a PR.
+- The `test` job is a required status check on `main` (see Branch Strategy), so a coverage drop blocks the merge.
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 - Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
-Frontend mirrors the same 80% (lines + branches) bar via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — same not-yet-a-hard-gate caveat as the backend.
+Frontend mirrors the same 80% (lines + branches) bar via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — a required check, like the backend's `test`.
 
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
-- `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml` on every push to `main` and on every PR — same not-yet-a-hard-gate caveat as above.
-- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (a local stand-in for the branch protection the free plan lacks). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
+- `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml`'s `lint` job on every push to `main` and on every PR — a required check.
+- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
 
 - `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
 
 Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
 
-- `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — same not-yet-a-hard-gate caveat as the backend.
+- `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — a required check, like the backend's.
 - Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to `pre-commit install`).
 
 ### Python version
@@ -193,14 +200,14 @@ This project doubles as a reference sample (incl. for job applications), so arch
 `postman/sks-lotse.postman_collection.json` is generated from the FastAPI app's live OpenAPI schema — never edit it by hand, it will just get overwritten.
 
 - Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
-- `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — same not-yet-a-hard-gate caveat as the other CI checks above.
+- `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — a required check, so a stale collection blocks the merge.
 - Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json.example` and `postman/production.postman_environment.json.example` are static, hand-maintained templates. **Copy each to the same name without `.example`** (gitignored — real copies hold live secrets, e.g. a JWT for testing protected endpoints) and import *those*, then switch between them via Postman's environment dropdown. Update the production URL in the copy if a custom domain is wired up later.
 - When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode (a) wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects, and (b) writes whatever you enter in the app back to disk, which is exactly how a real secret ended up in a tracked file once already (the `X-Access-Key` this project used before real JWT auth landed — renaming the committed files to `.example` and gitignoring the real ones makes that impossible now).
 
 ### Integration Tests (external / non-pytest)
 `postman/integration-tests.postman_collection.json` is a separate, hand-written Postman collection — not the OpenAPI-generated API reference above. It black-box tests a real, running local backend over HTTP: auth guards, CORS, security headers, the full OTP login round-trip (request → verify → `/me` → `/logout`), the question catalog/topics/progress endpoints incl. exam-variant filtering, profile updates (`PATCH /auth/me`), the email-change and self-delete flows (purpose-bound codes, per-user cap), the admin GDPR tools (incl. the non-admin 403s), and both OTP rate limits actually tripping. Point of it: runnable without a Python environment, e.g. in CI or by hand.
 
-- Run it with `./scripts/run_integration_tests.sh` (wraps `newman run ... -e postman/local.postman_environment.json`, via `npx`) against an already-running local server (`cd backend && uvicorn app.main:app --reload`). Server requirements: `ADMIN_EMAILS` must include the collection's `adminEmail` (default `integration-admin@example.com`); if `ALLOWED_EMAILS` is set it must include all five `integration-*@example.com` test addresses; use a freshly started server (rate-limit counters, dev-peek codes) on a scratch DB with the catalog seeded, and leave `RESEND_API_KEY` empty so the test addresses never get mail. It creates and deletes throwaway users. CI runs it in `backend-ci.yml`'s `integration-tests` job (real uvicorn + Postgres, `alembic upgrade head` first) — same not-yet-a-hard-gate situation as the other checks in this file.
+- Run it with `./scripts/run_integration_tests.sh` (wraps `newman run ... -e postman/local.postman_environment.json`, via `npx`) against an already-running local server (`cd backend && uvicorn app.main:app --reload`). Server requirements: `ADMIN_EMAILS` must include the collection's `adminEmail` (default `integration-admin@example.com`); if `ALLOWED_EMAILS` is set it must include all five `integration-*@example.com` test addresses; use a freshly started server (rate-limit counters, dev-peek codes) on a scratch DB with the catalog seeded, and leave `RESEND_API_KEY` empty so the test addresses never get mail. It creates and deletes throwaway users. CI runs it in `backend-ci.yml`'s `integration-tests` job (real uvicorn + Postgres, `alembic upgrade head` first) — the one CI job that is **not** a required status check (see Branch Strategy), so verify it's green before merging.
 - The OTP round-trip needs the real, one-time plaintext code — pytest gets this for free by monkeypatching the email service in-process; an external HTTP client can't. `GET /api/v1/auth/otp/_dev-peek` (`backend/app/api/v1/auth.py`) exists to bridge that gap: it returns the last code generated for an email, 404s outright unless `ENVIRONMENT` is `development` or `test` (an opt-in allowlist, so it fails closed), is never populated at all otherwise either, and is excluded from the OpenAPI schema so it never surfaces in the API reference collection above. See [docs/adr/0011](docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md).
 - Not covered: `RedirectSecondaryDomainsMiddleware` (the canonical-domain redirect) — it keys off the `Host` header, which Postman/Newman silently drop rather than send as given (a restricted header, same idea as a browser's `fetch()`). Verify that one manually: `curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health`.
 - Run order matters within the collection (documented in its own description too): Auth Flow's token is reused by Questions and Logout, Logout must come after both since it deliberately invalidates that token, and Rate Limiting must run last since it deliberately exhausts the OTP-endpoint quota for the caller's IP for the next hour.

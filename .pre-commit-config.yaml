@@ -1,5 +1,6 @@
-# Local guardrails for what GitHub's free plan can't enforce on a private
-# repo (no branch protection) — see CLAUDE.md → Development Conventions.
+# Local guardrails that catch problems before a push — GitHub's branch
+# protection on main enforces the same rules server-side (see CLAUDE.md →
+# Branch Strategy / Development Conventions).
 # One-time setup: `pip install -r backend/requirements-dev.txt && (cd frontend && npm install) && pre-commit install`
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
