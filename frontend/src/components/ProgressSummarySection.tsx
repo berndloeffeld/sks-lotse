@@ -18,6 +18,7 @@ export function ProgressSummarySection() {
   const [progress, setProgress] = useState<TopicProgress[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
 
   // No setState before the first `await` here — the initial "loading" state
   // is covered by useState(true) above, not by a synchronous call in the
@@ -69,23 +70,38 @@ export function ProgressSummarySection() {
       ) : (
         <>
           <ProgressSummaryTile learned={totals.learned} total={totals.total} />
-          {Array.from(bySubject.entries()).map(([subject, topics]) => (
-            <div key={subject}>
-              <h3 className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
-                {SUBJECT_LABELS[subject] ?? subject}
-              </h3>
-              <div>
-                {topics.map((topic) => (
-                  <LedgerRow
-                    key={topic.topic_slug}
-                    title={topic.topic_name}
-                    learned={topic.learned_questions}
-                    total={topic.total_questions}
-                  />
+          <div className="border border-border">
+            <button
+              type="button"
+              onClick={() => setShowDetails((prev) => !prev)}
+              aria-expanded={showDetails}
+              className="flex w-full items-center justify-between px-4 py-3 font-mono text-xs tracking-wide text-ink-soft uppercase hover:bg-surface-alt"
+            >
+              Details {showDetails ? 'ausblenden' : 'anzeigen'}
+              <span aria-hidden="true">{showDetails ? '−' : '+'}</span>
+            </button>
+            {showDetails ? (
+              <div className="flex flex-col gap-4 border-t border-border p-4">
+                {Array.from(bySubject.entries()).map(([subject, topics]) => (
+                  <div key={subject}>
+                    <h3 className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
+                      {SUBJECT_LABELS[subject] ?? subject}
+                    </h3>
+                    <div>
+                      {topics.map((topic) => (
+                        <LedgerRow
+                          key={topic.topic_slug}
+                          title={topic.topic_name}
+                          learned={topic.learned_questions}
+                          total={topic.total_questions}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
-          ))}
+            ) : null}
+          </div>
         </>
       )}
     </section>

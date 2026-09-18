@@ -62,7 +62,7 @@ describe('LearnPage', () => {
 
     renderLearnPage()
 
-    expect(await screen.findByText('Ankern')).toBeInTheDocument()
+    expect(await screen.findByText('Gesamtfortschritt')).toBeInTheDocument()
     expect(screen.getByRole('combobox')).toHaveValue('motor')
   })
 
@@ -84,7 +84,7 @@ describe('LearnPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderLearnPage()
-    await screen.findByText('Ankern')
+    await screen.findByText('Gesamtfortschritt')
 
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
@@ -110,7 +110,7 @@ describe('LearnPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderLearnPage()
-    await screen.findByText('Ankern')
+    await screen.findByText('Gesamtfortschritt')
 
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
