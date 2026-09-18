@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
-from app.core.exam_variant import ExamVariant
+from app.core.exam_variant import EXAM_VARIANTS
 
 # EmailStr only lowercases the domain, not the local part. Lowercase the
 # whole address once, here, so every per-email check (cooldown, hourly cap,
@@ -22,6 +22,18 @@ def _require_digits(value: str) -> str:
 # lands in the OpenAPI schema, and openapi-to-postmanv2 then generates a random
 # matching example on every run, breaking the committed-collection check in CI.
 DigitsCode = Annotated[str, Field(min_length=4, max_length=10), AfterValidator(_require_digits)]
+
+
+def _require_known_exam_variant(value: str) -> str:
+    if value not in EXAM_VARIANTS:
+        raise ValueError(f"exam_variant must be one of: {', '.join(sorted(EXAM_VARIANTS))}")
+    return value
+
+
+# Same reasoning as DigitsCode above: a `Literal["motor", "segeln_und_motor"]` renders as an
+# `enum` in the OpenAPI schema, and openapi-to-postmanv2 picks a random member of it as the
+# example on every generation — non-reproducible, breaks the committed-collection CI check.
+ExamVariantField = Annotated[str, AfterValidator(_require_known_exam_variant)]
 
 
 class OtpRequestCreate(BaseModel):
@@ -53,8 +65,8 @@ class UserRead(BaseModel):
     id: int
     email: str
     created_at: datetime
-    exam_variant: ExamVariant | None
+    exam_variant: str | None
 
 
 class UserUpdate(BaseModel):
-    exam_variant: ExamVariant
+    exam_variant: ExamVariantField

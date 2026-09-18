@@ -414,7 +414,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"motor\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }
@@ -455,7 +455,7 @@
                         "method": "PATCH",
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                          "raw": "{\n  \"exam_variant\": \"<string>\"\n}",
                           "options": {
                             "raw": {
                               "headerFamily": "json",
@@ -511,7 +511,7 @@
                             "method": "PATCH",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                              "raw": "{\n  \"exam_variant\": \"<string>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
@@ -528,7 +528,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"motor\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -569,7 +569,7 @@
                             "method": "PATCH",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                              "raw": "{\n  \"exam_variant\": \"<string>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
