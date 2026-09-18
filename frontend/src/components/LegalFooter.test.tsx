@@ -15,4 +15,15 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
   })
+
+  it('attributes the question catalog to the WSV via ELWIS', () => {
+    render(
+      <MemoryRouter>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText(/Wasserstraßen- und Schifffahrtsverwaltung des Bundes/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'ELWIS' })).toHaveAttribute('href', 'https://www.elwis.de')
+  })
 })

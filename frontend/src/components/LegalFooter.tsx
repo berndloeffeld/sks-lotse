@@ -13,6 +13,14 @@ export function LegalFooter() {
         <span className="font-mono text-xs tracking-wide uppercase">SKS Lotse</span>
       </Link>
       <p className="font-mono text-[11px] text-ink-soft">© {new Date().getFullYear()} SKS Lotse</p>
+      <p className="max-w-md text-xs text-ink-soft">
+        Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS, Wasserstraßen- und
+        Schifffahrtsverwaltung des Bundes (WSV), bereitgestellt über{' '}
+        <a href="https://www.elwis.de" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
+          ELWIS
+        </a>
+        .
+      </p>
       <nav className="flex gap-4 font-mono text-xs text-ink-soft uppercase">
         <Link to="/imprint" className="hover:text-ink">
           Impressum
