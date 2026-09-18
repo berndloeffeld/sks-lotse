@@ -6,6 +6,14 @@ from disposable_email_domains import blocklist as disposable_email_domains
 
 from app.core.config import settings
 
+# What an otp_codes row can be redeemed for. A code is only ever accepted by
+# the flow it was issued for: an email-change confirmation code must not work
+# as a login code (that would mint a login for an address ALLOWED_EMAILS never
+# let through /otp/request), and each purpose keeps its own per-address
+# cooldown/hourly quota, so one flow can't starve the other.
+OTP_PURPOSE_LOGIN = "login"
+OTP_PURPOSE_EMAIL_CHANGE = "email_change"
+
 
 def generate_code() -> str:
     return "".join(str(secrets.randbelow(10)) for _ in range(settings.otp_length))

@@ -4,6 +4,7 @@ import pytest
 
 from app.core.config import settings
 from app.core.jwt import create_access_token
+from app.core.otp import OTP_PURPOSE_LOGIN
 from app.models import OtpCode, Question, QuestionProgress, User
 
 
@@ -133,11 +134,13 @@ def test_request_otp_cleans_up_codes_past_retention(client, db_session, monkeypa
 
     stale = OtpCode(
         email="old@example.com",
+        purpose=OTP_PURPOSE_LOGIN,
         code_hash="irrelevant",
         expires_at=now - timedelta(hours=settings.otp_code_retention_hours, minutes=1),
     )
     recent = OtpCode(
         email="old@example.com",
+        purpose=OTP_PURPOSE_LOGIN,
         code_hash="irrelevant",
         expires_at=now - timedelta(minutes=1),
     )
@@ -163,6 +166,7 @@ def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, mo
 
     stale = OtpCode(
         email="old@example.com",
+        purpose=OTP_PURPOSE_LOGIN,
         code_hash="irrelevant",
         expires_at=now - timedelta(hours=settings.otp_code_retention_hours, minutes=1),
     )
@@ -677,3 +681,108 @@ def test_verify_email_change_requires_auth(client):
         "/api/v1/auth/me/email/verify", json={"new_email": "new@example.com", "code": "123456"}
     )
     assert response.status_code == 401
+
+
+def test_request_email_change_taken_addresses_count_toward_per_user_limit(
+    client, db_session, monkeypatch, auth_headers
+):
+    # The per-user cap exists to stop one account probing which addresses
+    # are taken — so a probe that *finds* a taken address (409) must consume
+    # quota too, not just the ones that go on to send a code.
+    monkeypatch.setattr(settings, "email_change_max_requests_per_window", 2)
+    for i in range(3):
+        db_session.add(User(email=f"taken{i}@example.com"))
+    db_session.commit()
+
+    for i in range(2):
+        response = client.post(
+            "/api/v1/auth/me/email/request", json={"new_email": f"taken{i}@example.com"}, headers=auth_headers
+        )
+        assert response.status_code == 409
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "taken2@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 429
+
+
+def test_request_email_change_rejects_address_outside_the_allowlist(client, monkeypatch, auth_headers):
+    # Otherwise a beta user could move their account to an address that
+    # /otp/request silently ignores — and never be able to log in again once
+    # the current session expires.
+    sent = _capture_email_change_otp(monkeypatch)
+    monkeypatch.setattr(settings, "allowed_emails", "fixture-user@example.com, Allowed@Example.com")
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "outsider@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 403
+    assert sent == []
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "allowed@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 202
+    assert len(sent) == 1
+
+
+def test_email_change_code_cannot_be_used_to_log_in(client, db_session, monkeypatch, auth_headers):
+    # Otherwise an allowlisted user could mint a login (and a brand-new
+    # account) for any address they control, bypassing ALLOWED_EMAILS.
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "new@example.com", "code": code})
+
+    assert response.status_code == 401
+    assert db_session.query(User).filter_by(email="new@example.com").count() == 0
+
+
+def test_login_code_cannot_be_used_for_an_email_change(client, db_session, monkeypatch, auth_headers):
+    code = _request_and_get_code(client, db_session, monkeypatch, email="new@example.com")
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 400
+    assert db_session.query(User).filter_by(email="fixture-user@example.com").count() == 1
+
+
+def test_email_change_requests_do_not_block_login_codes_for_that_address(
+    client, db_session, monkeypatch, auth_headers
+):
+    # Separate quotas per purpose: someone else's email-change request to an
+    # address must neither trip that address's login cooldown nor use up its
+    # hourly login-code cap.
+    monkeypatch.setattr(settings, "otp_max_requests_per_window", 1)
+    _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+
+    login_sent = _capture_otp(monkeypatch)
+    response = client.post("/api/v1/auth/otp/request", json={"email": "new@example.com"})
+
+    assert response.status_code == 202
+    assert len(login_sent) == 1
+
+
+def test_update_me_rejects_overlong_names(client, auth_headers):
+    # users.first_name/last_name are VARCHAR(128) — Postgres would raise on
+    # anything longer (SQLite, used here, wouldn't), so it must be a 422.
+    for field in ("first_name", "last_name"):
+        response = client.patch("/api/v1/auth/me", json={field: "a" * 129}, headers=auth_headers)
+        assert response.status_code == 422
+
+    response = client.patch("/api/v1/auth/me", json={"first_name": "a" * 128}, headers=auth_headers)
+    assert response.status_code == 200
+
+
+def test_delete_me_removes_pending_otp_codes_for_the_address(client, db_session, monkeypatch, auth_headers):
+    _request_and_get_code(client, db_session, monkeypatch, email="fixture-user@example.com")
+    assert db_session.query(OtpCode).filter_by(email="fixture-user@example.com").count() == 1
+
+    response = client.delete("/api/v1/auth/me", headers=auth_headers)
+
+    assert response.status_code == 204
+    db_session.expire_all()
+    assert db_session.query(OtpCode).filter_by(email="fixture-user@example.com").count() == 0

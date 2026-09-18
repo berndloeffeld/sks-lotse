@@ -183,6 +183,26 @@ describe('ProfilePage', () => {
     expect(await screen.findByText('Diese E-Mail-Adresse wird bereits verwendet.')).toBeInTheDocument()
   })
 
+  it('explains when the new email address is not allowed to sign in', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'not allowed' }, 403)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderProfilePage()
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'outsider@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(
+      await screen.findByText('Mit dieser E-Mail-Adresse ist derzeit keine Anmeldung möglich.'),
+    ).toBeInTheDocument()
+  })
+
   it('verifies an email change, updates the store and keeps the success message', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
