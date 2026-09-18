@@ -1377,6 +1377,106 @@
                   }
                 }
               ]
+            },
+            {
+              "name": "progress",
+              "description": "",
+              "item": [
+                {
+                  "name": "summary",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Progress Summary",
+                      "request": {
+                        "name": "Progress Summary",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "progress",
+                            "summary"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "progress",
+                                "summary"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "[\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\"\n  },\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\"\n  }\n]",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

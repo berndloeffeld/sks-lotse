@@ -35,9 +35,9 @@ Dotted lines: not yet implemented, or scans the repo rather than calling it at r
 ## Components
 
 ### Frontend (`frontend/`)
-React (Vite) + TypeScript, per [ADR-0013](adr/0013-frontend-architecture-and-tooling.md); visual design tokens per [ADR-0014](adr/0014-visual-design-system.md). Three routes only so far: `/` (landing page), `/login` (two-step email+OTP form), and `/start` (protected — greets the logged-in learner, shows non-interactive placeholder nav tiles for the question flow, which doesn't exist yet). Zustand (`src/store/authStore.ts`) holds the current user and derives "logged in" from a `GET /auth/me` call, never from inspecting a token — the frontend never reads the session cookie directly (ADR-0012). `src/api/client.ts` is the thin typed `fetch` wrapper named in ADR-0013: always `credentials: "include"`, and a uniform 401 handler that clears the auth store. `src/routes/ProtectedRoute.tsx` redirects to `/login` when not authenticated.
+React (Vite) + TypeScript, per [ADR-0013](adr/0013-frontend-architecture-and-tooling.md); visual design tokens per [ADR-0014](adr/0014-visual-design-system.md). Routes so far: `/` (landing page), `/login` (two-step email+OTP form), `/start` (protected — greets the logged-in learner, links to `/lernen`; a second placeholder nav tile for Prüfungssimulation still isn't interactive), and `/lernen` (protected — exam-variant selector plus a read-only per-topic "Lernstand" overview, see [ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md); picking a topic doesn't lead anywhere yet). Zustand (`src/store/authStore.ts`) holds the current user and derives "logged in" from a `GET /auth/me` call, never from inspecting a token — the frontend never reads the session cookie directly (ADR-0012). `src/api/client.ts` is the thin typed `fetch` wrapper named in ADR-0013: always `credentials: "include"`, and a uniform 401 handler that clears the auth store. `src/routes/ProtectedRoute.tsx` redirects to `/login` when not authenticated.
 
-Question list/answering, grading, learning-progress UI, and ads are not built — they depend on backend pieces that don't exist yet (see Not yet built).
+Question list/answering, grading, and ads are not built — they depend on backend pieces that don't exist yet (see Not yet built). A learning-progress data model and a read-only Lernstand overview now exist (see `/lernen` above and ADR-0018); actually answering a question and having it graded does not.
 
 Also serves `/impressum` and `/datenschutz` — static legal pages, reachable logged-out, linked from a `LegalFooter` on every page.
 
@@ -49,7 +49,7 @@ The landing page also carries the first real build of two more ADR-0014 patterns
 Umami Cloud (Hobby plan), loaded by `frontend/src/analytics.ts` (`initAnalytics()`, called once from `main.tsx`), gated on `VITE_UMAMI_WEBSITE_ID` being set — unset in local dev/CI, so no dev/test traffic is tracked. Cookieless (no persistent identifier, no cross-session tracking), so no consent banner is needed — see [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md).
 
 ### Backend (`backend/`)
-FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions` and `/api/v1/topics`, login required), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`, unauthenticated). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
+FastAPI app, Python 3.12. SQLAlchemy models, Alembic migrations. Exposes read-only endpoints for the question catalog (`/api/v1/questions` and `/api/v1/topics`, login required), a per-topic learning-progress summary (`/api/v1/progress/summary`, see below and [ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md)), auth endpoints (`/api/v1/auth`, see below), and a health check (`/health`, unauthenticated). See [docs/adr/0001-use-architecture-decision-records.md](adr/0001-use-architecture-decision-records.md) onward for specific decisions as they're made.
 
 Swagger UI, ReDoc, and the raw `/openapi.json` schema are only served when `ENVIRONMENT` (`backend/app/core/config.py`, one of `development`/`test`/`production` — anything else fails at startup) is `development` or `test` (`Settings.exposes_dev_tooling`) — enabled by default (local dev, CI, the Postman-regeneration script), disabled on Render via `render.yaml`.
 
@@ -68,13 +68,16 @@ Abuse protection on `/auth/otp/request` is layered: a per-email cooldown + hourl
 
 `GET /api/v1/auth/otp/_dev-peek` returns the plaintext code last generated for an email — dev/test-only (404s and is never populated unless `ENVIRONMENT` is `development`/`test`, excluded from the OpenAPI schema), so an external Postman/Newman run can complete the OTP round-trip without a real inbox. See [ADR-0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md).
 
+### Learning progress (`backend/app/api/v1/progress.py`)
+`GET /api/v1/progress/summary` returns, per topic and scoped to the caller's `exam_variant` the same way `GET /questions` already is, a total question count and a learned-question count (`correct_streak >= 3`, computed via `backend/app/core/progress.py`'s `is_learned()`, not stored). Backs the `/lernen` page's read-only Lernstand overview. The `question_progress` table it reads from (one row per user+question, `correct_streak`) has no write path yet — nothing grades an answer yet — so every count is currently a genuine zero, not a UI placeholder; it'll reflect real progress once the grading feature starts writing to it. See [ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md).
+
 ### Caching (`backend/app/core/cache.py`)
 A minimal in-process TTL cache (`get_or_set`/`invalidate`, state on `app.state`, same pattern as the rate limiter above). `backend/app/api/v1/questions.py` caches the whole question catalog for an hour, since it's read on every practice session but only ever changes via the offline catalog-import pipeline (see Catalog import below). Local by design, behind an interface a Redis-backed implementation could later replace without touching callers — see [ADR-0009](adr/0009-in-process-cache-for-question-catalog.md).
 
 The same module also exposes `throttle`, built on the same `get_or_set` primitive but for gating opportunistic maintenance work (like the `otp_codes` cleanup above) to a bounded cadence instead of running it on every triggering request — see ADR-0010.
 
 ### Database
-PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU), wired to the backend via `DATABASE_URL` in `render.yaml`. Tables: `questions`, `topics`, `users`, `otp_codes` (schema history in `backend/alembic/versions/`).
+PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU), wired to the backend via `DATABASE_URL` in `render.yaml`. Tables: `questions`, `topics`, `question_progress`, `users`, `otp_codes` (schema history in `backend/alembic/versions/`).
 
 ### Deployment
 Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one managed Postgres. No frontend service yet. No staging environment — production only. Migrations run in the `startCommand` before uvicorn starts; Render routes traffic to a new deploy once `/health` returns 2xx (`healthCheckPath`). See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
@@ -95,14 +98,13 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 
 ## Not yet built
 
-- Frontend question list/answering, grading, and progress UI (the `/start` page has placeholder nav tiles only — see Frontend above)
-- LLM grading flow (OpenAI integration)
+- Frontend question list/answering and grading UI (the "Lernen starten" button per topic on `/lernen` is still inert — see Frontend above)
+- LLM grading flow (OpenAI integration) — and with it, anything actually writing to `question_progress` (see Learning progress above)
 - SSO login (Google/Facebook/X) — email+OTP login exists, see Auth above
 - Entitlements (ads-removed / AI-grading-unlocked flags on the account — see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text integration
 - Ads (AdSense)
 - Frontend deployment (Render still serves the backend only — see Deployment above)
-- Learning progress tracking (per-account, server-side — no table for it yet)
 - Question images (charts/diagrams from the catalog PDF — see Catalog import)
 
 This section should shrink as each piece lands — keep it accurate rather than aspirational.

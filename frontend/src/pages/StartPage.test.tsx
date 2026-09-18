@@ -22,9 +22,9 @@ describe('StartPage', () => {
     vi.unstubAllGlobals()
   })
 
-  it("shows the logged-in learner's email and the placeholder nav tiles", () => {
+  it("shows the logged-in learner's email and the nav tiles", () => {
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z' },
+      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
       isAuthenticated: true,
       isLoading: false,
     })
@@ -33,13 +33,14 @@ describe('StartPage', () => {
 
     expect(screen.getByText('learner@example.com')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Lernen' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Lernen/ })).toHaveAttribute('href', '/lernen')
     expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
   })
 
   it('logs out and returns to the landing page', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z' },
+      user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: null },
       isAuthenticated: true,
       isLoading: false,
     })

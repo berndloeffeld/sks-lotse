@@ -42,7 +42,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_allowed_origins,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PATCH"],
     allow_headers=["Authorization", "Content-Type"],
     # The frontend's session cookie (ADR-0012) needs this to ride along on
     # cross-origin fetches (e.g. the Vite dev server on :5173 calling the

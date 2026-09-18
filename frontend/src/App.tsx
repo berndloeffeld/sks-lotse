@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { DatenschutzPage } from './pages/DatenschutzPage'
 import { ImpressumPage } from './pages/ImpressumPage'
 import { LandingPage } from './pages/LandingPage'
+import { LernenPage } from './pages/LernenPage'
 import { LoginPage } from './pages/LoginPage'
 import { StartPage } from './pages/StartPage'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -25,6 +26,7 @@ function App() {
         <Route path="/datenschutz" element={<DatenschutzPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<StartPage />} />
+          <Route path="/lernen" element={<LernenPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

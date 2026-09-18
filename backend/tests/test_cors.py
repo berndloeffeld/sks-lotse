@@ -31,3 +31,17 @@ def test_preflight_allows_configured_origin(client):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_preflight_allows_patch(client):
+    # PATCH /auth/me (exam_variant selector) needs this — see app/main.py's
+    # CORSMiddleware allow_methods.
+    response = client.options(
+        "/api/v1/auth/me",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "PATCH",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"

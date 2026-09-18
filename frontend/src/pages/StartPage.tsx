@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { ChartTile } from '../components/ChartTile'
 import { ContourBackground } from '../components/ContourBackground'
@@ -34,10 +34,12 @@ export function StartPage() {
         </div>
       </header>
 
-      {/* Non-interactive for now — the question list and exam simulation
-          don't exist yet (no grading/progress backend, see CLAUDE.md). */}
+      {/* Prüfungssimulation stays non-interactive for now — exam simulation
+          doesn't exist yet (no grading backend, see CLAUDE.md). */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <ChartTile title="Lernen" description="Demnächst verfügbar" />
+        <Link to="/lernen" className="block">
+          <ChartTile title="Lernen" description="Themen wählen & Lernstand ansehen" />
+        </Link>
         <ChartTile title="Prüfungssimulation" description="Demnächst verfügbar" />
       </div>
       <LegalFooter />
