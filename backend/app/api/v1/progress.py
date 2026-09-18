@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.exam_variant import EXAM_VARIANTS
+from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.progress import LEARNED_STREAK_THRESHOLD
 from app.models.question import Question
@@ -21,10 +21,8 @@ def progress_summary(
     current_user: User = Depends(get_current_user),
 ) -> list[TopicProgressRead]:
     topics_stmt = select(Topic).order_by(Topic.subject, Topic.display_order)
-    if current_user.exam_variant is not None:
-        allowed = EXAM_VARIANTS.get(current_user.exam_variant)
-        if allowed is not None:
-            topics_stmt = topics_stmt.where(Topic.subject.in_(allowed))
+    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        topics_stmt = topics_stmt.where(Topic.subject.in_(allowed))
     topics = db.execute(topics_stmt).scalars().all()
 
     totals_stmt = (
