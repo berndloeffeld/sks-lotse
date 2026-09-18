@@ -1,11 +1,12 @@
-"""Assign each catalog question to one of the official topics in data/topics.yaml.
+"""Assign each catalog question to one of the topics in data/topics.yaml.
 
-The topic *names* in data/topics.yaml are transcribed verbatim from the
-official catalog's own table of contents (see that file's header) — this
-script never invents or renames topics. Its only job is classifying each
-question into one of the given topics, which is why it works from a fixed
-allow-list of slugs per subject rather than asking the model to come up
-with categories itself.
+The topic *names* in data/topics.yaml are either transcribed verbatim from the
+official catalog's own table of contents, or a short collective name grouping
+several such headings together (see that file's header, and ADR-0020) — either
+way, this script never invents or renames topics itself. Its only job is
+classifying each question into one of the given topics, which is why it works
+from a fixed allow-list of slugs per subject rather than asking the model to
+come up with categories itself.
 
 Usage (must run after merge_seemannschaft.py apply, since seemannschaft
 topics are keyed on the merged subjects — seemannschaft_allgemein/_motor/
