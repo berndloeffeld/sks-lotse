@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { ProgressPie } from './ProgressPie'
@@ -38,7 +38,7 @@ describe('ProgressPie', () => {
     )
 
     const offsets = stopOffsets(container)
-    expect(offsets[0][1]).toBe('0')
+    expect(offsets[0]).toEqual(['0', '1']) // nothing learned: faint only
     expect(offsets[1][1]).toBe('0.5')
     expect(offsets[2][1]).toBe('1')
   })
@@ -53,5 +53,30 @@ describe('ProgressPie', () => {
     const { container } = render(<ProgressPie slices={[{ key: 'a', label: 'A', learned: 0, total: 0 }]} />)
 
     expect(container).toBeEmptyDOMElement()
+  })
+
+  it('has no strong core for a slice with nothing learned', () => {
+    const { container } = render(<ProgressPie slices={[{ key: 'a', label: 'A', learned: 0, total: 10 }]} />)
+
+    expect(container.querySelectorAll('radialGradient stop')).toHaveLength(2)
+  })
+
+  it('dims the other slices while one is hovered', () => {
+    const { container } = render(
+      <ProgressPie
+        slices={[
+          { key: 'a', label: 'Navigation', learned: 1, total: 10 },
+          { key: 'b', label: 'Wetterkunde', learned: 1, total: 10 },
+        ]}
+      />,
+    )
+    const [first, second] = Array.from(container.querySelectorAll('path'))
+
+    fireEvent.mouseEnter(screen.getByText('Navigation'))
+    expect(first).toHaveAttribute('opacity', '1')
+    expect(second).toHaveAttribute('opacity', '0.35')
+
+    fireEvent.mouseLeave(screen.getByText('Navigation'))
+    expect(second).toHaveAttribute('opacity', '1')
   })
 })
