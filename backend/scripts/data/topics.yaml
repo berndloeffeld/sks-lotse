@@ -1,228 +1,109 @@
-# Official SKS catalog sub-topics, transcribed verbatim from the table of contents on pages 1-3
-# of docs/Fragenkatalog-SKS.pdf (issued by the Bundesministerium für Verkehr, Bau und
-# Stadtentwicklung together with the WSV, DMYV and DSV) — not invented, not LLM-generated.
+# SKS catalog sub-topics. Originally transcribed verbatim from the table of contents on pages
+# 1-3 of docs/Fragenkatalog-SKS.pdf (issued by the Bundesministerium für Verkehr, Bau und
+# Stadtentwicklung together with the WSV, DMYV and DSV). Several of the official TOC entries have
+# since been merged or split into new, short collective names — done deliberately to keep every
+# topic's question count between 10 and 35 for a usable per-topic learning UI (many official
+# entries had far fewer questions, some far more); see ADR-0020. This is the one place in the
+# catalog pipeline where a name is *not* a verbatim TOC heading — everything else in this file's
+# header comment below (Seemannschaft I/II merge, "never invents topics" for manage_topics.py)
+# still holds.
 #
 # The official Seemannschaft I (18 topics) and Seemannschaft II (16 topics) lists are identical
 # except for 3 entries; those 3 are what separates the two exam variants (see
-# backend/scripts/merge_seemannschaft.py). seemannschaft_segeln below is I's own 18-topic list
-# verbatim (its rows are a genuine subset of I's 163 original questions); seemannschaft_motor is
-# II's own 16-topic list verbatim (same reasoning); seemannschaft_allgemein gets only the 15
+# backend/scripts/merge_seemannschaft.py). seemannschaft_segeln below is I's own list (now
+# merged/grouped, see ADR-0020) verbatim as a subset of I's 163 original questions;
+# seemannschaft_motor is II's own list (same reasoning); seemannschaft_allgemein covers the
 # topics common to both lists (Takelung/Segel/Segelstellung and Stabilität-Trimm never apply to a
-# question proven word-for-word identical across both variants). A shared topic name therefore
-# exists as a separate row (own id) per subject, same as every other subject in this file — not a
-# single row reused across subjects.
+# question proven word-for-word identical across both variants). A shared slug therefore exists as
+# a separate row (own id) per subject, same as every other subject in this file — not a single row
+# reused across subjects.
 #
-# manage_topics.py reads this file; it never invents or renames topics itself.
+# manage_topics.py reads this file; it never invents or renames topics on its own — only this
+# file (human-edited) does.
 
 navigation:
-  - slug: seekarten-publikationen
-    name: Seekarten und weitere nautische Publikationen
+  - slug: seekarten
+    name: Seekarten
     display_order: 1
+  - slug: nautische-publikationen
+    name: Nautische Publikationen
+    display_order: 2
   - slug: ortsbestimmung-navigieren
     name: Ortsbestimmung, Navigieren
-    display_order: 2
+    display_order: 3
   - slug: gezeiten
     name: Gezeiten
-    display_order: 3
-  - slug: elektronische-navigation
-    name: Elektronische Navigation
     display_order: 4
-  - slug: ausruestung-geraetekunde
-    name: Allgemeines (Ausrüstung, Gerätekunde)
+  - slug: elektronische-navigation
+    name: Elektronische Navigation & Gerätekunde
     display_order: 5
 
 schifffahrtsrecht:
-  - slug: kvr
-    name: KVR
+  - slug: kvr-ausweich-fahrregeln
+    name: KVR – Ausweich- und Fahrregeln
     display_order: 1
-  - slug: seeschstro
-    name: SeeSchStrO
+  - slug: kvr-lichter-signale
+    name: KVR – Lichter, Signalkörper & Schallsignale
     display_order: 2
+  - slug: seeschstro-verkehrsregeln
+    name: SeeSchStrO – Verkehrs- und Vorfahrtsregeln
+    display_order: 3
+  - slug: seeschstro-kennzeichnung
+    name: SeeSchStrO – Kennzeichnung, Signale & Reviervorschriften
+    display_order: 4
   - slug: schiffspapiere-sug-flaggenrecht
     name: Allgemeines (Schiffspapiere, SUG, Flaggen-/Hoheitsrecht)
-    display_order: 3
+    display_order: 5
   - slug: marpol-verkehrsregeln
     name: MARPOL, besondere Verkehrs- und Befahrensregeln
-    display_order: 4
+    display_order: 6
 
 wetterkunde:
   - slug: allgemeine-begriffe
-    name: Allgemeine Begriffe aus der Wetterkunde
+    name: Allgemeine Begriffe & Messinstrumente
     display_order: 1
-  - slug: wolken
-    name: Wolken
-    display_order: 2
   - slug: druckgebilde
-    name: Druckgebilde
-    display_order: 3
-  - slug: land-seewind
-    name: Land- und Seewind
-    display_order: 4
+    name: Druckgebilde, Wolken & lokale Winde
+    display_order: 2
   - slug: seewetterberichte
     name: Anwenden von Seewetterberichten
-    display_order: 5
+    display_order: 3
   - slug: wetterregeln
-    name: Wichtige Wetterregeln
-    display_order: 6
-  - slug: nebel
-    name: Nebel
-    display_order: 7
+    name: Wetterregeln & Nebel
+    display_order: 4
   - slug: seegang
     name: Seegang
-    display_order: 8
-  - slug: messinstrumente
-    name: Meteorologische Messinstrumente
-    display_order: 9
+    display_order: 5
 
 seemannschaft_allgemein:
-  - slug: yacht-bootsbau
-    name: Yacht- und Bootsbau
-    display_order: 1
   - slug: ausruestung-allgemein
-    name: Ausrüstung (allgemein)
-    display_order: 2
-  - slug: antriebsmaschine-betrieb-wartung
-    name: Antriebsmaschine (Betrieb und Wartung)
-    display_order: 3
-  - slug: umgang-mit-tauwerk
-    name: Umgang mit Tauwerk
-    display_order: 4
-  - slug: bootspflege-instandhaltung
-    name: Bootspflege, Instandhaltung
-    display_order: 5
+    name: Boot, Ausrüstung, Antrieb & Pflege
+    display_order: 1
   - slug: fuehren-einer-yacht
-    name: Führen einer Yacht, Vorbereitung, Allgemeines
-    display_order: 6
-  - slug: manoever-hafen-see
-    name: Manöver im Hafen und auf See
-    display_order: 7
-  - slug: manoever-schwerem-wetter
-    name: Manöver bei schwerem Wetter
-    display_order: 8
-  - slug: manoever-stroemenden-gewaessern
-    name: Manöver in strömenden Gewässern
-    display_order: 9
-  - slug: mensch-ueber-bord
-    name: Mensch-über-Bord-Manöver
-    display_order: 10
+    name: Fahrtvorbereitung & Manöver
+    display_order: 2
   - slug: sicherheitsausruestung
-    name: Sicherheitsausrüstung
-    display_order: 11
-  - slug: seetuechtigkeit
-    name: Seetüchtigkeit
-    display_order: 12
-  - slug: massnahmen-bei-notfaellen
-    name: Maßnahmen bei Notfällen
-    display_order: 13
+    name: Sicherheit, Seetüchtigkeit & Notfälle
+    display_order: 3
   - slug: ankern
-    name: Ankern
-    display_order: 14
-  - slug: seeschiffe-manoevrierverhalten
-    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
-    display_order: 15
+    name: Ankern & Manövrierverhalten
+    display_order: 4
 
 seemannschaft_segeln:
-  - slug: yacht-bootsbau
-    name: Yacht- und Bootsbau
-    display_order: 1
-  - slug: takelung-stehendes-laufendes-gut
-    name: Takelung, stehendes und laufendes Gut
-    display_order: 2
-  - slug: segel
-    name: Segel
-    display_order: 3
-  - slug: ausruestung-allgemein
-    name: Ausrüstung (allgemein)
-    display_order: 4
   - slug: segelstellung-stabilitaet-rumpfgeschwindigkeit
-    name: Kenntnisse über Segelstellung, Stabilität und Rumpfgeschwindigkeit
-    display_order: 5
+    name: Rigg, Segel & Ausrüstung
+    display_order: 1
   - slug: antriebsmaschine-betrieb-wartung
-    name: Antriebsmaschine (Betrieb und Wartung)
-    display_order: 6
-  - slug: umgang-mit-tauwerk
-    name: Umgang mit Tauwerk
-    display_order: 7
-  - slug: bootspflege-instandhaltung
-    name: Bootspflege, Instandhaltung
-    display_order: 8
-  - slug: fuehren-einer-segelyacht
-    name: Führen einer Segelyacht, Vorbereitung, Allgemeines
-    display_order: 9
-  - slug: manoever-hafen-see
-    name: Manöver im Hafen und auf See
-    display_order: 10
+    name: Antrieb, Tauwerk & Bootspflege
+    display_order: 2
   - slug: manoever-schwerem-wetter
-    name: Manöver bei schwerem Wetter
-    display_order: 11
-  - slug: manoever-stroemenden-gewaessern
-    name: Manöver in strömenden Gewässern
-    display_order: 12
-  - slug: mensch-ueber-bord
-    name: Mensch-über-Bord-Manöver
-    display_order: 13
-  - slug: sicherheitsausruestung
-    name: Sicherheitsausrüstung
-    display_order: 14
-  - slug: seetuechtigkeit
-    name: Seetüchtigkeit
-    display_order: 15
-  - slug: massnahmen-bei-notfaellen
-    name: Maßnahmen bei Notfällen
-    display_order: 16
-  - slug: ankern
-    name: Ankern
-    display_order: 17
-  - slug: seeschiffe-manoevrierverhalten
-    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
-    display_order: 18
+    name: Fahrt, Manöver & Sicherheit
+    display_order: 3
 
 seemannschaft_motor:
-  - slug: yacht-bootsbau
-    name: Yacht- und Bootsbau
-    display_order: 1
-  - slug: ausruestung-allgemein
-    name: Ausrüstung (allgemein)
-    display_order: 2
-  - slug: stabilitaet-trimm-rumpfgeschwindigkeit
-    name: Kenntnisse über Stabilität, Trimm und Rumpfgeschwindigkeit
-    display_order: 3
   - slug: antriebsmaschine-betrieb-wartung
-    name: Antriebsmaschine (Betrieb und Wartung)
-    display_order: 4
-  - slug: umgang-mit-tauwerk
-    name: Umgang mit Tauwerk
-    display_order: 5
-  - slug: bootspflege-instandhaltung
-    name: Bootspflege, Instandhaltung
-    display_order: 6
-  - slug: fuehren-einer-motoryacht
-    name: Führen einer Motoryacht, Vorbereitung, Allgemeines
-    display_order: 7
+    name: Boot, Stabilität & Antrieb
+    display_order: 1
   - slug: manoever-hafen-see
-    name: Manöver im Hafen und auf See
-    display_order: 8
-  - slug: manoever-schwerem-wetter
-    name: Manöver bei schwerem Wetter
-    display_order: 9
-  - slug: manoever-stroemenden-gewaessern
-    name: Manöver in strömenden Gewässern
-    display_order: 10
-  - slug: mensch-ueber-bord
-    name: Mensch-über-Bord-Manöver
-    display_order: 11
-  - slug: sicherheitsausruestung
-    name: Sicherheitsausrüstung
-    display_order: 12
-  - slug: seetuechtigkeit
-    name: Seetüchtigkeit
-    display_order: 13
-  - slug: massnahmen-bei-notfaellen
-    name: Maßnahmen bei Notfällen
-    display_order: 14
-  - slug: ankern
-    name: Ankern
-    display_order: 15
-  - slug: seeschiffe-manoevrierverhalten
-    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
-    display_order: 16
+    name: Tauwerk, Fahrt & Manöver
+    display_order: 2

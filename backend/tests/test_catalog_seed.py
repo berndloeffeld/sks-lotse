@@ -70,20 +70,20 @@ def test_apply_topics_assigns_every_question_and_is_idempotent(db_session):
 
     unassigned = apply_topics(db_session)
     assert unassigned == []
-    assert db_session.query(Topic).count() == 67
+    assert db_session.query(Topic).count() == 25
     assert db_session.query(Question).filter(Question.topic_id.is_(None)).count() == 0
 
     # Re-running updates existing Topic rows in place rather than duplicating them.
     unassigned_again = apply_topics(db_session)
     assert unassigned_again == []
-    assert db_session.query(Topic).count() == 67
+    assert db_session.query(Topic).count() == 25
 
 
 def test_seed_catalog_end_to_end(db_session):
     seed_catalog(db_session)
 
     assert db_session.query(Question).count() == 532
-    assert db_session.query(Topic).count() == 67
+    assert db_session.query(Topic).count() == 25
     assert db_session.query(Question).filter(Question.topic_id.is_(None)).count() == 0
     subjects = {s for (s,) in db_session.query(Question.subject).distinct().all()}
     assert subjects == {

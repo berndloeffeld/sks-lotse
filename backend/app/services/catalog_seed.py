@@ -179,6 +179,11 @@ def apply_topics(db: Session) -> list[tuple[str, int]]:
     LLM — both inputs are already committed, reviewed data. Must run
     after merge_seemannschaft() for seemannschaft_* subjects.
 
+    Also deletes any existing Topic row whose (subject, slug) no longer
+    appears in TOPICS_PATH — e.g. after a topic gets merged/renamed away in
+    topics.yaml (see ADR-0020). Safe because every question referencing the
+    stale topic was already repointed to its new slug above.
+
     Returns the (subject, number) pairs that got no assignment.
     """
     topics_by_subject = load_topics()
@@ -212,6 +217,12 @@ def apply_topics(db: Session) -> list[tuple[str, int]]:
         for number in questions:
             if number not in assignments:
                 unassigned.append((subject, number))
+
+    for subject, topics in topics_by_subject.items():
+        current_slugs = {t["slug"] for t in topics}
+        stale = db.query(Topic).filter(Topic.subject == subject, Topic.slug.notin_(current_slugs)).all()
+        for topic in stale:
+            db.delete(topic)
 
     db.commit()
     return unassigned
