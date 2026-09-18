@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '../api/types'
 import { useAuthStore } from './authStore'
 
-const mockUser: User = { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z' }
+const mockUser: User = {
+  id: 1,
+  email: 'learner@example.com',
+  created_at: '2026-01-01T00:00:00Z',
+  exam_variant: null,
+}
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })

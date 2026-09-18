@@ -35,6 +35,18 @@ describe('apiClient', () => {
     expect(init.body).toBe(JSON.stringify({ email: 'learner@example.com' }))
   })
 
+  it('PATCH serializes the body as JSON', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ exam_variant: 'motor' }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiClient.patch('/auth/me', { exam_variant: 'motor' })
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toContain('/api/v1/auth/me')
+    expect(init.method).toBe('PATCH')
+    expect(init.body).toBe(JSON.stringify({ exam_variant: 'motor' }))
+  })
+
   it('returns undefined for a 204 response', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
 

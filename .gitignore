@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Personal scratch todo list — not part of the repo's tracked docs
+TODO.md
+
 # Python
 __pycache__/
 *.pyc

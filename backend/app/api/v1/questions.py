@@ -94,8 +94,17 @@ topics_router = APIRouter(prefix="/topics", tags=["questions"], dependencies=[De
 
 
 @topics_router.get("", response_model=list[TopicRead])
-def list_topics(subject: str | None = None, db: Session = Depends(get_db)):
+def list_topics(
+    subject: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     stmt = select(Topic).order_by(Topic.subject, Topic.display_order)
     if subject is not None:
+        # An explicit subject always wins over the learner's exam variant.
         stmt = stmt.where(Topic.subject == subject)
+    elif current_user.exam_variant is not None:
+        allowed = EXAM_VARIANTS.get(current_user.exam_variant)
+        if allowed is not None:
+            stmt = stmt.where(Topic.subject.in_(allowed))
     return db.execute(stmt).scalars().all()

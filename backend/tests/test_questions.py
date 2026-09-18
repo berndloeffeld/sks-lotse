@@ -195,6 +195,35 @@ def test_list_questions_filters_by_exam_variant_when_no_subject_given(client, db
     assert subjects == {"navigation", "seemannschaft_motor"}
 
 
+def test_list_topics_filters_by_exam_variant_when_no_subject_given(client, db_session, auth_headers):
+    db_session.add_all(
+        [
+            Topic(subject="navigation", slug="nav", name="Navigation", display_order=1),
+            Topic(subject="seemannschaft_motor", slug="motor", name="Motor", display_order=1),
+            Topic(subject="seemannschaft_segeln", slug="segeln", name="Segeln", display_order=1),
+        ]
+    )
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    user.exam_variant = "motor"
+    db_session.commit()
+
+    response = client.get("/api/v1/topics", headers=auth_headers)
+    assert response.status_code == 200
+    slugs = {t["slug"] for t in response.json()}
+    assert slugs == {"nav", "motor"}
+
+
+def test_list_topics_explicit_subject_overrides_exam_variant(client, db_session, auth_headers):
+    db_session.add(Topic(subject="seemannschaft_segeln", slug="segeln", name="Segeln", display_order=1))
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    user.exam_variant = "motor"
+    db_session.commit()
+
+    response = client.get("/api/v1/topics", params={"subject": "seemannschaft_segeln"}, headers=auth_headers)
+    assert response.status_code == 200
+    assert [t["slug"] for t in response.json()] == ["segeln"]
+
+
 def test_explicit_subject_overrides_exam_variant(client, db_session, auth_headers):
     db_session.add(Question(subject="seemannschaft_segeln", number=1, question_text="Q1?", answer_text="A1"))
     user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
