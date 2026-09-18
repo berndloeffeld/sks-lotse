@@ -8,7 +8,7 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 ## Status
 
-Early stage — backend foundation, catalog import, and dev tooling are in place; the frontend and the LLM grading flow haven't been built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
+Pre-launch — email+OTP login, the question catalog, account/profile pages, a read-only learning-progress overview, and GDPR admin tooling are live; answering questions and the LLM grading flow haven't been built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
 
 ## Tech stack
 
