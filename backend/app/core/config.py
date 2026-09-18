@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     adsense_client_id: str = ""
     resend_api_key: str = ""
-    email_from_address: str = "noreply@sks-lotse.de"
+    # Display name + address, so inboxes show "SKS Lotse" rather than a bare
+    # noreply address.
+    email_from_address: str = "SKS Lotse <noreply@sks-lotse.de>"
     # Comma-separated email allowlist for a pre-launch/private beta. Empty
     # (the default) means no whitelist — anyone can request/verify a login.
     allowed_emails: str = ""
@@ -103,9 +105,9 @@ class Settings(BaseSettings):
 
     @property
     def cors_allowed_origins(self) -> list[str]:
-        # No separate frontend deployment exists yet, so this is forward-looking:
-        # the canonical/secondary domains in production (see CLAUDE.md, Naming /
-        # Domain), the Vite dev server's default origin locally.
+        # The origins the frontend is served from: the sks-lotse-frontend static
+        # site in production (see render.yaml, ADR-0015), the Vite dev server's
+        # default origin locally.
         if self.is_production:
             return ["https://sks-lotse.de", "https://www.sks-lotse.de"]
         return ["http://localhost:5173", "http://127.0.0.1:5173"]

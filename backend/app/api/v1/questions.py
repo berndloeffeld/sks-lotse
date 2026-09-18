@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core import cache
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.exam_variant import EXAM_VARIANTS
+from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.models.question import Question
 from app.models.topic import Topic
@@ -49,10 +49,8 @@ def _filtered_catalog(
     if subject is not None:
         # An explicit subject always wins over the learner's exam variant.
         questions = [q for q in questions if q.subject == subject]
-    elif current_user.exam_variant is not None:
-        allowed = EXAM_VARIANTS.get(current_user.exam_variant)
-        if allowed is not None:
-            questions = [q for q in questions if q.subject in allowed]
+    elif (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        questions = [q for q in questions if q.subject in allowed]
     if topic is not None:
         questions = [q for q in questions if q.topic == topic]
     return questions
@@ -103,8 +101,6 @@ def list_topics(
     if subject is not None:
         # An explicit subject always wins over the learner's exam variant.
         stmt = stmt.where(Topic.subject == subject)
-    elif current_user.exam_variant is not None:
-        allowed = EXAM_VARIANTS.get(current_user.exam_variant)
-        if allowed is not None:
-            stmt = stmt.where(Topic.subject.in_(allowed))
+    elif (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        stmt = stmt.where(Topic.subject.in_(allowed))
     return db.execute(stmt).scalars().all()
