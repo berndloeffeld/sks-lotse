@@ -59,6 +59,20 @@ def test_env_example_lists_every_setting():
     assert {name.upper() for name in Settings.model_fields} <= listed
 
 
+def test_admin_emails_set_defaults_to_empty_set_not_none():
+    # Fail-closed: unlike allowed_emails_set, an unset ADMIN_EMAILS must
+    # never be read as "open to everyone" — it must deny every caller.
+    s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET)
+    assert s.admin_emails_set == set()
+
+
+def test_admin_emails_set_parses_comma_separated_list_case_insensitively():
+    s = Settings(
+        database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, admin_emails="Admin@Example.com, other@example.com"
+    )
+    assert s.admin_emails_set == {"admin@example.com", "other@example.com"}
+
+
 def test_render_flag_read_from_render_env_var(monkeypatch):
     # Render sets RENDER=true on every service; that's what enables trusting
     # its proxy's client-IP headers (app/main.py).

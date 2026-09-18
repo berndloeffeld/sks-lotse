@@ -24,13 +24,23 @@ export function StartPage() {
             <p className="text-sm text-ink-soft">Angemeldet als</p>
             <p className="font-mono text-ink">{user?.email}</p>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
-          >
-            Abmelden
-          </button>
+          <div className="flex items-center gap-2">
+            {user?.is_admin ? (
+              <Link
+                to="/admin"
+                className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
+              >
+                Admin
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
+            >
+              Abmelden
+            </button>
+          </div>
         </div>
       </header>
 

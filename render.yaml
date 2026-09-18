@@ -52,6 +52,11 @@ services:
       # Unset/empty = no whitelist (see backend/app/core/config.py).
       - key: ALLOWED_EMAILS
         sync: false
+      # Comma-separated email allowlist for the GDPR admin tools.
+      # Unset/empty = NO admins — opposite default of ALLOWED_EMAILS above
+      # (see backend/app/core/config.py).
+      - key: ADMIN_EMAILS
+        sync: false
 
   # Static site — no region/plan/startCommand/scaling fields (unsupported for
   # this service type; Render's static sites are edge-served globally, not

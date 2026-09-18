@@ -45,3 +45,17 @@ def test_preflight_allows_patch(client):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_preflight_allows_delete(client):
+    # DELETE /admin/users/{id} (GDPR account deletion) needs this — see
+    # app/main.py's CORSMiddleware allow_methods.
+    response = client.options(
+        "/api/v1/admin/users/1",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "DELETE",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"

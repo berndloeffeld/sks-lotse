@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, computed_field
 
+from app.core.config import settings
 from app.core.exam_variant import EXAM_VARIANTS
 
 # EmailStr only lowercases the domain, not the local part. Lowercase the
@@ -66,6 +67,11 @@ class UserRead(BaseModel):
     email: str
     created_at: datetime
     exam_variant: str | None
+
+    @computed_field
+    @property
+    def is_admin(self) -> bool:
+        return self.email in settings.admin_emails_set
 
 
 class UserUpdate(BaseModel):

@@ -8,6 +8,7 @@ const mockUser: User = {
   email: 'learner@example.com',
   created_at: '2026-01-01T00:00:00Z',
   exam_variant: null,
+  is_admin: false,
 }
 
 function jsonResponse(body: unknown, status = 200) {
