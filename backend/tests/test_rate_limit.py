@@ -162,3 +162,22 @@ def test_idle_keys_are_swept(monkeypatch):
 
     assert ("/api/v1", "1.1.1.1") not in app.state.rate_limit_hits
     assert ("/api/v1", "2.2.2.2") in app.state.rate_limit_hits
+
+
+def test_sweep_keeps_route_level_keys_with_a_longer_window_than_the_middleware(monkeypatch):
+    # check_and_record is also called from route handlers (e.g. the per-user
+    # email-change cap) with windows the middleware's own rules don't know
+    # about — the sweep must honor each key's own window.
+    clock = [1000.0]
+    monkeypatch.setattr(rate_limit.time, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(rate_limit.cache.time, "monotonic", lambda: clock[0])
+    app = _make_app(default_rule=(5, 60), scope_prefix="/api/v1", trusted_client_ip_headers=_CF)
+    client = TestClient(app)
+
+    assert rate_limit.check_and_record(app, "per-user", "42", 1, 3600) is True
+
+    clock[0] += 61 + rate_limit._SWEEP_INTERVAL_SECONDS
+    client.get("/api/v1/other", headers={"cf-connecting-ip": "1.1.1.1"})
+
+    assert ("per-user", "42") in app.state.rate_limit_hits
+    assert rate_limit.check_and_record(app, "per-user", "42", 1, 3600) is False

@@ -2,10 +2,10 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
+import app.models  # noqa: F401 — registers every model with Base.metadata
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base
-from app.models import OtpCode, Question, Topic, User  # noqa: F401 — registers models with Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

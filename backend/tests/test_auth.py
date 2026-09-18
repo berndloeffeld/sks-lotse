@@ -464,6 +464,19 @@ def test_update_me_sets_first_and_last_name(client, db_session, auth_headers):
     assert user.last_name == "Beispiel"
 
 
+def test_update_me_strips_names_and_stores_blank_as_null(client, db_session, auth_headers):
+    response = client.patch(
+        "/api/v1/auth/me", json={"first_name": "  Anna  ", "last_name": "   "}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["first_name"] == "Anna"
+    assert response.json()["last_name"] is None
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    assert user.first_name == "Anna"
+    assert user.last_name is None
+
+
 def test_update_me_sets_gender(client, auth_headers):
     response = client.patch("/api/v1/auth/me", json={"gender": "weiblich"}, headers=auth_headers)
     assert response.status_code == 200
@@ -575,6 +588,18 @@ def test_request_email_change_rejects_a_no_op(client, auth_headers):
         "/api/v1/auth/me/email/request", json={"new_email": "fixture-user@example.com"}, headers=auth_headers
     )
     assert response.status_code == 400
+
+
+def test_request_email_change_rejects_a_disposable_address(client, db_session, monkeypatch, auth_headers):
+    sent = _capture_email_change_otp(monkeypatch)
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "someone@mailinator.com"}, headers=auth_headers
+    )
+
+    assert response.status_code == 400
+    assert sent == []
+    assert db_session.query(OtpCode).count() == 0
 
 
 def test_request_email_change_rejects_email_already_taken_by_another_user(client, db_session, auth_headers):

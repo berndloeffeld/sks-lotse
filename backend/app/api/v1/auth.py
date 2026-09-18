@@ -359,14 +359,20 @@ def request_email_change(
     # authenticated — telling them a target address is taken isn't the same
     # enumeration surface as anonymous login OTP, and the product requirement
     # is a clear "already taken" error rather than a silent generic 202.
+    # Unlike login, where a disposable address gets the same silent 202 as
+    # every other rejection (no enumeration signal for anonymous callers),
+    # this caller is authenticated and would otherwise wait for a code that
+    # never comes — say so instead.
+    if is_disposable_email(new_email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Disposable email addresses are not supported"
+        )
+
     existing = db.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
     if existing is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="This email address is already in use"
         )
-
-    if is_disposable_email(new_email):
-        return OtpRequestAccepted()
 
     _issue_otp_code(
         db, request, background_tasks, new_email, OTP_PURPOSE_EMAIL_CHANGE, _send_email_change_otp_email
