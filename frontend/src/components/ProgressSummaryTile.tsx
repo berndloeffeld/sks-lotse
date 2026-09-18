@@ -21,19 +21,19 @@ export function ProgressSummaryTile({ learned, total, slices }: ProgressSummaryT
         className="absolute top-0 right-0 h-5 w-5 border-b border-l border-ink bg-bg"
         style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
       />
-      <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">Gesamtfortschritt</p>
-      <p className="mt-2 font-serif text-4xl text-ink">{percent}%</p>
-      <p className="mt-1 font-mono text-sm text-ink-soft">
-        {learned} von {total} Fragen gelernt
-      </p>
-      <div className="mt-4 h-2 w-full bg-surface-alt">
+      <div className="flex flex-wrap items-center justify-between gap-6">
+        <div>
+          <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">Gesamtfortschritt</p>
+          <p className="mt-2 font-serif text-4xl text-ink">{percent}%</p>
+          <p className="mt-1 font-mono text-sm text-ink-soft">
+            {learned} von {total} Fragen gelernt
+          </p>
+        </div>
+        {slices && slices.length > 0 ? <ProgressPie slices={slices} /> : null}
+      </div>
+      <div className="mt-5 h-2 w-full bg-surface-alt">
         <div className="h-full bg-success" style={{ width: `${percent}%` }} />
       </div>
-      {slices && slices.length > 0 ? (
-        <div className="mt-6 border-t border-border pt-6">
-          <ProgressPie slices={slices} />
-        </div>
-      ) : null}
     </div>
   )
 }

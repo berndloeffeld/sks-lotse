@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { useId, useState } from 'react'
 
 export interface ProgressSlice {
   key: string
@@ -19,7 +19,8 @@ const SIZE = 220
 const CENTER = SIZE / 2
 const RADIUS = 104
 const FADE_EDGE = 0.15
-const FADED_OPACITY = 0.16
+const FADED_OPACITY = 0.3
+const DIMMED_OPACITY = 0.35
 
 function pointAt(angle: number): [number, number] {
   return [CENTER + RADIUS * Math.sin(angle), CENTER - RADIUS * Math.cos(angle)]
@@ -27,9 +28,12 @@ function pointAt(angle: number): [number, number] {
 
 // Pie whose slice size is the category's share of all questions and whose
 // fill runs strong-to-faint from the center outward: the strong region reaches
-// out to learned/total of the radius, so a fully learned slice is solid.
+// out to learned/total of the radius, so a fully learned slice is solid, and
+// a slice with nothing learned has no strong core at all. Hovering a slice or
+// its legend row highlights it and dims the rest.
 export function ProgressPie({ slices }: ProgressPieProps) {
   const idPrefix = useId()
+  const [activeKey, setActiveKey] = useState<string | null>(null)
   const visible = slices.filter((slice) => slice.total > 0)
   const grandTotal = visible.reduce((sum, slice) => sum + slice.total, 0)
   if (grandTotal === 0) return null
@@ -58,12 +62,12 @@ export function ProgressPie({ slices }: ProgressPieProps) {
   })
 
   return (
-    <div className="flex flex-wrap items-center gap-6">
+    <div className="flex items-center gap-4">
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
         aria-label="Lernstand nach Kategorie"
-        className="h-[220px] w-[220px] shrink-0"
+        className="h-[130px] w-[130px] shrink-0"
       >
         <defs>
           {rendered.map(({ color, fraction, gradientId }) => (
@@ -75,26 +79,50 @@ export function ProgressPie({ slices }: ProgressPieProps) {
               cy={CENTER}
               r={RADIUS}
             >
-              <stop offset={0} stopColor={color} stopOpacity={1} />
-              <stop offset={fraction} stopColor={color} stopOpacity={1} />
-              <stop offset={Math.min(1, fraction + FADE_EDGE)} stopColor={color} stopOpacity={FADED_OPACITY} />
+              {fraction > 0 ? (
+                <>
+                  <stop offset={0} stopColor={color} stopOpacity={1} />
+                  <stop offset={fraction} stopColor={color} stopOpacity={1} />
+                </>
+              ) : null}
+              <stop
+                offset={fraction > 0 ? Math.min(1, fraction + FADE_EDGE) : 0}
+                stopColor={color}
+                stopOpacity={FADED_OPACITY}
+              />
               <stop offset={1} stopColor={color} stopOpacity={FADED_OPACITY} />
             </radialGradient>
           ))}
         </defs>
-        {rendered.map(({ gradientId, path, summary }) => (
-          <path key={gradientId} d={path} fill={`url(#${gradientId})`} stroke="var(--color-surface)" strokeWidth={2}>
+        {rendered.map(({ slice, gradientId, path, summary }) => (
+          <path
+            key={gradientId}
+            d={path}
+            fill={`url(#${gradientId})`}
+            stroke="var(--color-surface)"
+            strokeWidth={3}
+            opacity={activeKey !== null && activeKey !== slice.key ? DIMMED_OPACITY : 1}
+            onMouseEnter={() => setActiveKey(slice.key)}
+            onMouseLeave={() => setActiveKey(null)}
+          >
             <title>{summary}</title>
           </path>
         ))}
-        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke="var(--color-ink)" strokeWidth={1} />
+        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke="var(--color-ink)" strokeWidth={2} />
       </svg>
-      <ul className="flex min-w-[220px] flex-1 flex-col gap-2">
+      <ul className="flex flex-col gap-1">
         {rendered.map(({ slice, color }) => (
-          <li key={slice.key} className="flex items-center gap-3 text-sm text-ink">
-            <span aria-hidden className="h-3.5 w-3.5 shrink-0" style={{ background: color }} />
-            <span className="flex-1">{slice.label}</span>
-            <span className="font-mono text-xs text-ink-soft">
+          <li
+            key={slice.key}
+            onMouseEnter={() => setActiveKey(slice.key)}
+            onMouseLeave={() => setActiveKey(null)}
+            className={`flex items-center gap-2 border-l-[3px] px-1.5 py-0.5 text-sm text-ink ${
+              activeKey === slice.key ? 'border-ink bg-bg' : 'border-transparent'
+            }`}
+          >
+            <span aria-hidden className="h-3 w-3 shrink-0" style={{ background: color }} />
+            <span>{slice.label}</span>
+            <span className="ml-3 font-mono text-xs whitespace-nowrap text-ink-soft">
               {slice.learned} / {slice.total} · {Math.round((slice.learned / slice.total) * 100)}%
             </span>
           </li>
