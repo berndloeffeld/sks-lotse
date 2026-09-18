@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7053e3be-d47c-4971-af87-ea2ad1579f99",
     "name": "SKS Lotse Integration Tests",
-    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those three. Rate Limiting must run last overall - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.",
+    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those three.\n\nCookies: 'Verify OTP' also sets the httpOnly access_token session cookie (ADR-0012), which get_current_user reads before any Authorization header - and Newman keeps a cookie jar across requests. So every request that authenticates via Bearer, or deliberately sends no credentials (the '... is rejected' auth guards), sets protocolProfileBehavior.disableCookies; without that, the jar would silently authenticate them. Only the requests with 'session cookie' in their name leave cookies on, to test the cookie path itself. Keep it that way when adding requests. Rate Limiting must run last overall - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -369,6 +369,12 @@
                   "pm.collectionVariables.set('accessToken', body.access_token);",
                   "pm.test('token response is not cacheable', function () {",
                   "    pm.response.to.have.header('Cache-Control', 'no-store');",
+                  "});",
+                  "pm.test('sets the httpOnly session cookie the browser frontend uses (ADR-0012)', function () {",
+                  "    var setCookie = pm.response.headers.get('Set-Cookie') || '';",
+                  "    pm.expect(setCookie).to.match(/^access_token=[^;]+/);",
+                  "    pm.expect(setCookie).to.match(/;\\s*HttpOnly/i);",
+                  "    pm.expect(setCookie).to.match(/;\\s*SameSite=lax/i);",
                   "});"
                 ]
               }
@@ -438,7 +444,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Me - with a garbage token is rejected",
@@ -475,7 +484,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Me - with the issued token",
@@ -515,10 +527,48 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - with the session cookie only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns the logged-in user', function () {",
+                  "    pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "No Authorization header, cookies enabled: authenticates purely via the access_token cookie Newman's cookie jar kept from 'Verify OTP' - the path the browser frontend uses (ADR-0012). Every other authenticated request here disables cookies and sends the Bearer token instead, so the two paths are each tested on their own.",
           "response": []
         }
       ],
-      "description": "Mirrors the HTTP-observable parts of backend/tests/test_auth.py. Full round-trip through a real OTP code, made possible locally by the dev-peek endpoint (ADR-0011) - requires the server under test to be running with ENVIRONMENT unset or 'development', and testEmail to pass ALLOWED_EMAILS if that's set locally."
+      "description": "Mirrors the HTTP-observable parts of backend/tests/test_auth.py. Full round-trip through a real OTP code, made possible locally by the dev-peek endpoint (ADR-0011) - requires the server under test to be running with ENVIRONMENT unset or 'development', and testEmail to pass ALLOWED_EMAILS if that's set locally. Covers both ways to authenticate: the Bearer token from the verify response (cookies disabled on those requests) and the httpOnly session cookie it also sets (see 'Me - with the session cookie only')."
     },
     {
       "name": "Questions (authenticated)",
@@ -555,7 +605,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "List questions",
@@ -594,7 +647,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Get a non-existent question",
@@ -631,7 +687,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Random question",
@@ -670,7 +729,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         }
       ],
       "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
@@ -708,7 +770,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Logout",
@@ -745,7 +810,10 @@
             }
           },
           "description": "",
-          "response": []
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Me - token rejected after logout",
@@ -784,6 +852,43 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - session cookie rejected after logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401 - the stale session cookie is revoked server-side too', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "Cookies enabled, no Authorization header. 'Logout' ran with cookies disabled, so its cookie-clearing Set-Cookie never reached Newman's jar - the jar still sends the old access_token cookie here. It must be rejected anyway: logout bumps token_version (ADR-0008), it doesn't just rely on the client dropping the cookie.",
           "response": []
         }
       ],
