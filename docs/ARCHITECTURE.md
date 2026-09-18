@@ -11,7 +11,7 @@ graph TB
     end
 
     Learner((Learner))
-    Frontend[Frontend<br/>React + Vite<br/>landing/login/start only]
+    Frontend[Frontend<br/>React + Vite]
     Backend[Backend<br/>FastAPI]
     DB[(PostgreSQL 16)]
     Resend[Resend<br/>transactional email]
@@ -83,7 +83,7 @@ The same module also exposes `throttle`, built on the same `get_or_set` primitiv
 PostgreSQL 16. Local dev via `docker-compose.yml` (repo root). Production: Render managed Postgres (Frankfurt EU), wired to the backend via `DATABASE_URL` in `render.yaml`. Tables: `questions`, `topics`, `question_progress`, `users`, `otp_codes` (schema history in `backend/alembic/versions/`).
 
 ### Deployment
-Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one managed Postgres. No frontend service yet. No staging environment — production only. Migrations run in the `startCommand` before uvicorn starts; Render routes traffic to a new deploy once `/health` returns 2xx (`healthCheckPath`). See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
+Render (Frankfurt EU), provisioned as code via `render.yaml` (repo root): one web service for the backend, one static-site web service for the frontend, one managed Postgres. No staging environment — production only. Migrations run in the `startCommand` before uvicorn starts; Render routes traffic to a new deploy once `/health` returns 2xx (`healthCheckPath`). See [docs/adr/0005-render-deployment-topology.md](adr/0005-render-deployment-topology.md) for the reasoning.
 
 `sks-lotse.de` is the canonical domain. `sks-lotse.com` is also wired to Render (free SSL) and 301-redirected to `sks-lotse.de` by `backend/app/core/canonical_domain.py`, instead of paying IONOS for SSL-enabled domain forwarding. `sks-lotse.global` and `sks-lotse.store` are purchased but not currently wired up. See `CLAUDE.md` → Naming / Domain.
 
@@ -107,7 +107,6 @@ Aikido Security, connected to the GitHub repo. See `CLAUDE.md` → Development C
 - Entitlements (ads-removed / AI-grading-unlocked flags on the account — see [docs/adr/0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text integration
 - Ads (AdSense)
-- Frontend deployment (Render still serves the backend only — see Deployment above)
 - Question images (charts/diagrams from the catalog PDF — see Catalog import)
 
 This section should shrink as each piece lands — keep it accurate rather than aspirational.

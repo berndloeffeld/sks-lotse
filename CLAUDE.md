@@ -35,7 +35,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 sks-lotse/
 ├── backend/
 │   ├── app/
-│   │   ├── api/v1/     # Route handlers (/api/v1/auth, /api/v1/questions)
+│   │   ├── api/v1/     # Route handlers (/api/v1/auth, /api/v1/questions, /api/v1/progress, /api/v1/admin)
 │   │   ├── core/       # Config, JWT, OTP, cache, middlewares (rate limit, security headers, canonical domain)
 │   │   ├── models/     # SQLAlchemy ORM models
 │   │   ├── schemas/    # Pydantic request/response schemas
@@ -46,11 +46,11 @@ sks-lotse/
 │   ├── tests/
 │   ├── .env.example    # All backend env vars, with defaults
 │   └── requirements*.txt
-├── frontend/           # React (Vite) + TypeScript, Zustand — landing/login/start only so far
+├── frontend/           # React (Vite) + TypeScript, Zustand
 │   ├── src/
 │   │   ├── api/        # Thin typed fetch wrapper + shared response types
 │   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
-│   │   ├── pages/      # LandingPage, LoginPage, StartPage
+│   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, AdminPage, ImprintPage, PrivacyPage
 │   │   ├── routes/     # ProtectedRoute
 │   │   └── store/      # Zustand auth store
 │   ├── .env.example
@@ -144,15 +144,16 @@ Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Cod
 Aikido Security is connected to this GitHub repo.
 
 - A PR must not be merged while Aikido reports open findings, unless the finding is explicitly triaged/accepted first.
-- **Not yet technically enforced**: the repo is private on GitHub's free plan, which does not support branch protection / required status checks. This is a manual check for now — verify Aikido is green before merging a PR.
-- Revisit once on GitHub Pro (or equivalent): add Aikido's check as a required status check in branch protection on `main`.
-- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
+- `scripts/check_aikido.sh` also runs as the `aikido` job in `.github/workflows/backend-ci.yml`, using `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET` GitHub Actions repository secrets (Settings → Secrets and variables → Actions on GitHub — separate from the local `.env.aikido` below). The job fails the build if there are open findings; if those secrets aren't set yet, it emits a warning and no-ops instead of failing.
+- **Not yet a hard merge gate**: the repo is public and branch protection exists on `main` (PR required, admins included, force-push/deletion blocked), but no CI job is wired in as a *required* status check yet, so the `aikido` job (like backend-ci/frontend-ci below) stays informational until merge. Verify it's green before merging a PR.
+- Add `aikido`, plus the backend-ci/frontend-ci jobs, as required status checks in branch protection on `main` — technically possible now that the repo is public, just not configured yet.
+- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
 ### Test Coverage
 Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
 
 - `.github/workflows/backend-ci.yml` runs the backend test suite (incl. the coverage gate) on every push to `main` and on every PR.
-- **Not yet a hard merge gate**: same GitHub free-plan limitation as Aikido above — no required status checks on a private repo. Verify the workflow is green before merging a PR.
+- **Not yet a hard merge gate**: same reason as Aikido above — branch protection exists on `main` but doesn't require this job to pass yet. Verify the workflow is green before merging a PR.
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 - Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
@@ -256,10 +257,3 @@ Apply these four checks whenever adding or changing a database table — going f
 - `sks-lotse.com`/`www.sks-lotse.com` stay wired to the **backend** service and 301-redirect to `sks-lotse.de` via `backend/app/core/canonical_domain.py` (`RedirectSecondaryDomainsMiddleware`) — **not** via IONOS's paid domain forwarding (~8 EUR/month, 12-month minimum, just for SSL on the redirect). Costs nothing beyond the domain itself.
 - `api.sks-lotse.de` is a Custom Domain on the **backend** service — what the frontend's `VITE_API_BASE_URL` points at. Not itself meant to be browsed directly (no UI there, just the JSON API).
 - `sks-lotse.global` and `sks-lotse.store` are purchased but **not currently used** — no DNS, no Render Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` (DNS at IONOS, Render Custom Domain, add to `SECONDARY_HOSTS`) if/when needed.
-
----
-
-## Project Management
-
-- Linear: TBD (not yet set up)
-- Current phase: Phase 1 — backend foundation, wrapping up. Done: catalog import (incl. the official topic taxonomy and Seemannschaft I/II merge, [ADR-0017](docs/adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)), email+OTP login with JWT sessions (now cookie-based for the frontend, [ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)), deployment to Render with CI/security tooling, and a frontend scaffold (landing/login/start, per ADR-0013/0014) — not yet deployed. Next: core grading flow (OpenAI), a learning-progress data model, and the question list/answering UI those unblock.

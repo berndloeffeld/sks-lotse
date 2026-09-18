@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-`frontend/src/pages/DatenschutzPage.tsx` already promises learners their DSGVO rights — Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20), Widerspruch (Art. 21) — exercised by emailing the operator. Until now there was no way to actually act on such a request except a manual DB query. We need a real mechanism for the two rights that matter most in practice: Auskunft/Datenübertragbarkeit (export what's stored) and Löschung (delete the account).
+`frontend/src/pages/PrivacyPage.tsx` already promises learners their DSGVO rights — Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20), Widerspruch (Art. 21) — exercised by emailing the operator. Until now there was no way to actually act on such a request except a manual DB query. We need a real mechanism for the two rights that matter most in practice: Auskunft/Datenübertragbarkeit (export what's stored) and Löschung (delete the account).
 
 This is a solo-developed project (see ADR-0001, ADR-0002) with a single operator and, for the foreseeable future, a single admin. Two design questions needed an answer:
 
