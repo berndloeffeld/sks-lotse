@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7053e3be-d47c-4971-af87-ea2ad1579f99",
     "name": "SKS Lotse Integration Tests",
-    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those three.\n\nCookies: 'Verify OTP' also sets the httpOnly access_token session cookie (ADR-0012), which get_current_user reads before any Authorization header - and Newman keeps a cookie jar across requests. So every request that authenticates via Bearer, or deliberately sends no credentials (the '... is rejected' auth guards), sets protocolProfileBehavior.disableCookies; without that, the jar would silently authenticate them. Only the requests with 'session cookie' in their name leave cookies on, to test the cookie path itself. Keep it that way when adding requests. Rate Limiting must run last overall - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.",
+    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions, Profile and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those. Account and Admin then log in as further throwaway users (each with its own token variable); Admin also reads the main test account and the account the Account folder deleted.\n\nCookies: 'Verify OTP' also sets the httpOnly access_token session cookie (ADR-0012), which get_current_user reads before any Authorization header - and Newman keeps a cookie jar across requests. So every request that authenticates via Bearer, or deliberately sends no credentials (the '... is rejected' auth guards), sets protocolProfileBehavior.disableCookies; without that, the jar would silently authenticate them. Only the requests with 'session cookie' in their name leave cookies on, to test the cookie path itself. Keep it that way when adding requests. Rate Limiting must run last overall (the 'Change email - per-user request cap' probe loop likewise exhausts that user's cap, but it belongs to a user deleted right after) - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.\n\nSERVER REQUIREMENTS: besides ENVIRONMENT=development, (1) ADMIN_EMAILS must include the adminEmail variable (default integration-admin@example.com), or the Admin folder fails on its 'is an admin' assertion; (2) if ALLOWED_EMAILS is set it must include testEmail, profileEmail, profileNewEmail, adminEmail and victimEmail; (3) the question catalog should be seeded (alembic upgrade head) - against an empty catalog the catalog-content assertions degrade to shape checks; (4) run it against a freshly started server: the per-IP OTP quota (20/hour) and default quota (300 per 5 minutes) are in-process, and re-running within a minute hits the per-address OTP resend cooldown (stale dev-peek code).\n\nCOVERAGE GUARD: backend/tests/test_integration_collection.py fails when an /api/v1 route or /health has no request in this collection, when a request points at a route that no longer exists, or when a request neither disables cookies nor is a 'session cookie' request. Adding an endpoint therefore forces adding its requests here; and CI's 'integration-tests' job (backend-ci.yml) runs this whole collection against a real server.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -621,7 +621,14 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('returns an array', function () {",
                   "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
+                  "});",
+                  "// Feed the follow-up requests (single question, topic filter) with real values from the catalog,",
+                  "// and remember whether it is seeded at all - an unseeded local DB has nothing to assert against.",
+                  "var qs = pm.response.json();",
+                  "pm.collectionVariables.set('catalogSeeded', qs.length > 0 ? 'true' : 'false');",
+                  "pm.collectionVariables.set('firstQuestionId', qs.length > 0 ? String(qs[0].id) : '999999999');",
+                  "var withTopic = qs.find(function (q) { return q.topic; });",
+                  "pm.collectionVariables.set('firstTopicSlug', withTopic ? withTopic.topic : 'no-such-topic');"
                 ]
               }
             }
@@ -693,6 +700,514 @@
           }
         },
         {
+          "name": "Get an existing question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "    pm.test('has the documented shape', function () {",
+                  "        var q = pm.response.json();",
+                  "        pm.expect(String(q.id)).to.eql(pm.collectionVariables.get('firstQuestionId'));",
+                  "        pm.expect(q).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'image_ref', 'topic');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/{{firstQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "{{firstQuestionId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List questions filtered by subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('only navigation questions', function () {",
+                  "    pm.response.json().forEach(function (q) { pm.expect(q.subject).to.eql('navigation'); });",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') { pm.expect(pm.response.json()).to.not.be.empty; }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions?subject=navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "navigation"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List questions filtered by an unknown subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('empty list', function () { pm.expect(pm.response.json()).to.eql([]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions?subject=no-such-subject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "no-such-subject"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List questions filtered by topic",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('only questions of that topic', function () {",
+                  "    pm.response.json().forEach(function (q) { pm.expect(q.topic).to.eql(pm.collectionVariables.get('firstTopicSlug')); });",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true' && pm.collectionVariables.get('firstTopicSlug') !== 'no-such-topic') { pm.expect(pm.response.json()).to.not.be.empty; }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions?topic={{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "topic",
+                  "value": "{{firstTopicSlug}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Random question with a subject filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "    pm.test('is a navigation question', function () { pm.expect(pm.response.json().subject).to.eql('navigation'); });",
+                  "} else {",
+                  "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/random?subject=navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "random"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "navigation"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Random question with an unknown subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/random?subject=no-such-subject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "random"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "no-such-subject"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List topics - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List topics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var topics = pm.response.json();",
+                  "pm.test('array of topics with the documented shape', function () {",
+                  "    pm.expect(topics).to.be.an('array');",
+                  "    topics.forEach(function (t) { pm.expect(t).to.have.all.keys('subject', 'slug', 'name', 'display_order'); });",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') { pm.expect(topics).to.not.be.empty; }",
+                  "});",
+                  "pm.test('ordered by subject, then display_order', function () {",
+                  "    for (var i = 1; i < topics.length; i++) {",
+                  "        var a = topics[i - 1], b = topics[i];",
+                  "        pm.expect(a.subject <= b.subject).to.be.true;",
+                  "        if (a.subject === b.subject) { pm.expect(a.display_order <= b.display_order).to.be.true; }",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List topics filtered by subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('only navigation topics', function () {",
+                  "    pm.response.json().forEach(function (t) { pm.expect(t.subject).to.eql('navigation'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topics?subject=navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "navigation"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Progress summary - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "summary"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Progress summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('one row per topic, learned never exceeds total', function () {",
+                  "    var rows = pm.response.json();",
+                  "    pm.expect(rows).to.be.an('array');",
+                  "    rows.forEach(function (r) {",
+                  "        pm.expect(r).to.have.all.keys('subject', 'topic_slug', 'topic_name', 'display_order', 'total_questions', 'learned_questions');",
+                  "        pm.expect(r.learned_questions).to.be.within(0, r.total_questions);",
+                  "    });",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') { pm.expect(rows).to.not.be.empty; }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "summary"
+              ]
+            }
+          },
+          "description": "Progress is only ever written by the (not yet built) grading flow, so a fresh account has nothing learned - this checks shape and invariants, not specific counts.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Random question",
           "event": [
             {
@@ -736,6 +1251,864 @@
         }
       ],
       "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
+    },
+    {
+      "name": "Profile & exam variant (authenticated)",
+      "item": [
+        {
+          "name": "Update profile - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"first_name\": \"Nobody\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var me = pm.response.json();",
+                  "pm.test('stores the fields', function () {",
+                  "    pm.expect(me.first_name).to.eql('Integra');",
+                  "    pm.expect(me.last_name).to.eql('Test');",
+                  "    pm.expect(me.gender).to.eql('divers');",
+                  "});",
+                  "pm.test('does not touch the email', function () { pm.expect(me.email).to.eql(pm.collectionVariables.get('testEmail')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"first_name\": \"Integra\", \"last_name\": \"Test\", \"gender\": \"divers\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update profile - a field left out stays untouched",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('first_name changed, last_name and gender kept', function () {",
+                  "    var me = pm.response.json();",
+                  "    pm.expect(me.first_name).to.eql('Changed');",
+                  "    pm.expect(me.last_name).to.eql('Test');",
+                  "    pm.expect(me.gender).to.eql('divers');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"first_name\": \"Changed\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update profile - unknown gender is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gender\": \"no-such-gender\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update profile - unknown exam variant is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_variant\": \"no-such-variant\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update profile - over-long name is rejected",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('longName', 'x'.repeat(129));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"first_name\": \"{{longName}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "129 characters vs the 128-char column: caught as a 422 here, not a Postgres DataError (500).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - reflects the profile update",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('persisted', function () {",
+                  "    var me = pm.response.json();",
+                  "    pm.expect(me.first_name).to.eql('Changed');",
+                  "    pm.expect(me.gender).to.eql('divers');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Set exam variant: motor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('stored', function () { pm.expect(pm.response.json().exam_variant).to.eql('motor'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_variant\": \"motor\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Motor variant: questions exclude the sailing-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_segeln (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_segeln'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Motor variant: an explicit subject overrides the variant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns the requested subject anyway', function () {",
+                  "    pm.response.json().forEach(function (q) { pm.expect(q.subject).to.eql('seemannschaft_segeln'); });",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') { pm.expect(pm.response.json()).to.not.be.empty; }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions?subject=seemannschaft_segeln",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "seemannschaft_segeln"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Motor variant: topics exclude the sailing-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_segeln (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_segeln'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Motor variant: progress summary excludes the sailing-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_segeln (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_segeln'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "summary"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Set exam variant: segeln_und_motor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('stored', function () { pm.expect(pm.response.json().exam_variant).to.eql('segeln_und_motor'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_variant\": \"segeln_und_motor\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Sailing variant: questions exclude the motor-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_motor (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_motor'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Sailing variant: topics exclude the motor-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_motor (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_motor'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Sailing variant: progress summary excludes the motor-only subject",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('no seemannschaft_motor (variant-specific to the other exam)', function () {",
+                  "    pm.response.json().forEach(function (x) { pm.expect(x.subject).to.not.eql('seemannschaft_motor'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "summary"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Clear the profile again (explicit null clears a field)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('all cleared', function () {",
+                  "    var me = pm.response.json();",
+                  "    pm.expect(me.first_name).to.be.null;",
+                  "    pm.expect(me.last_name).to.be.null;",
+                  "    pm.expect(me.gender).to.be.null;",
+                  "    pm.expect(me.exam_variant).to.be.null;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"first_name\": null, \"last_name\": null, \"gender\": null, \"exam_variant\": null}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Leaves the shared test account as it found it, so a re-run starts from the same state.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        }
+      ],
+      "description": "Runs on the main test account (accessToken) before Logout. Exercises PATCH /auth/me and how exam_variant narrows /questions, /topics and /progress/summary (an explicit ?subject= always wins)."
     },
     {
       "name": "Logout",
@@ -895,6 +2268,2105 @@
       "description": "Mirrors the logout half of backend/tests/test_auth.py (ADR-0008). Must run after every other folder that needs {{accessToken}} - it deliberately burns the token."
     },
     {
+      "name": "Account: email change & deletion",
+      "item": [
+        {
+          "name": "Request OTP (account user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 202', function () { pm.response.to.have.status(202); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{profileEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dev-peek the OTP code (account user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a 6-digit code', function () { pm.expect(pm.response.json().code).to.match(/^[0-9]{6}$/); });",
+                  "pm.collectionVariables.set('profileTokenOtpCode', pm.response.json().code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/_dev-peek?email={{profileEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "_dev-peek"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{profileEmail}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify OTP (account user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('profileToken', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{profileEmail}}\", \"code\": \"{{profileTokenOtpCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me (account user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var me = pm.response.json();",
+                  "pm.test('is the user we just logged in as', function () { pm.expect(me.email).to.eql(pm.collectionVariables.get('profileEmail')); });",
+                  "pm.collectionVariables.set('profileId', me.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Change email - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Change email - to the current address is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Change email - to an address of another account is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{testEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "The main test account exists (created in Auth Flow), so this is 'already in use'. If ALLOWED_EMAILS is set on the server and doesn't include every test address, this and the next requests come back 403 instead.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Request a login OTP for the new address (to prove purpose binding)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 202', function () { pm.response.to.have.status(202); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{profileNewEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dev-peek the login code for the new address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('loginPurposeCode', pm.response.json().code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/_dev-peek?email={{profileNewEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "_dev-peek"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{profileNewEmail}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Change email - request the confirmation code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 202', function () { pm.response.to.have.status(202); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dev-peek the confirmation code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('emailChangeCode', pm.response.json().code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/_dev-peek?email={{profileNewEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "_dev-peek"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{profileNewEmail}}"
+                }
+              ]
+            }
+          },
+          "description": "_dev-peek keeps only the latest plaintext code per address, so this overwrites the login code peeked above (which is why that one was saved to a separate variable first).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Confirm email change - a login code does not work (purpose-bound)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400 - and deliberately not 401, which would log the frontend out', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\", \"code\": \"{{loginPurposeCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Skipped implicitly in the (1-in-a-million) case both random codes happen to be equal.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Confirm email change - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\", \"code\": \"{{emailChangeCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Confirm email change",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('email is now the new address', function () {",
+                  "    pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('profileNewEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\", \"code\": \"{{emailChangeCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - session survives the email change",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('reports the new address', function () {",
+                  "    pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('profileNewEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Confirm email change - the code is single-use",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"{{profileNewEmail}}\", \"code\": \"{{emailChangeCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - a non-admin is rejected (search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{profileNewEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - a non-admin is rejected (export)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{profileId}}/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{profileId}}",
+                "export"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - a non-admin is rejected (delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{profileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{profileId}}"
+              ]
+            }
+          },
+          "description": "Must stay a 403 even against the caller's own id - and the account must survive it (the next request would 401 otherwise).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Change email - per-user request cap trips",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('emailChangeProbeCount')) {",
+                  "    pm.collectionVariables.set('emailChangeProbeCount', '0');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Self-looping like the OTP burst below: the per-user cap (EMAIL_CHANGE_MAX_REQUESTS_PER_WINDOW, default 5)",
+                  "// is shared with the earlier requests of this folder, so detect the 202->429 transition rather than",
+                  "// hardcoding where it happens.",
+                  "var MAX_ATTEMPTS = 12;",
+                  "var count = parseInt(pm.collectionVariables.get('emailChangeProbeCount'), 10) + 1;",
+                  "pm.collectionVariables.set('emailChangeProbeCount', count.toString());",
+                  "if (pm.response.code === 429) {",
+                  "    pm.test('cap exceeded after ' + count + ' probe(s): 429 Too Many Requests', function () {",
+                  "        pm.response.to.have.status(429);",
+                  "    });",
+                  "    pm.collectionVariables.unset('emailChangeProbeCount');",
+                  "} else if (count < MAX_ATTEMPTS) {",
+                  "    pm.test('probe ' + count + ' within the cap: 202 Accepted', function () {",
+                  "        pm.response.to.have.status(202);",
+                  "    });",
+                  "    postman.setNextRequest('Change email - per-user request cap trips');",
+                  "} else {",
+                  "    pm.collectionVariables.unset('emailChangeProbeCount');",
+                  "    pm.test('cap trips within ' + MAX_ATTEMPTS + ' probes', function () {",
+                  "        throw new Error('never got a 429 - is the per-user email-change cap still configured (auth.py, EMAIL_CHANGE_*)?');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/email/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "email",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"new_email\": \"probe-{{emailChangeProbeCount}}@example.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "A probe that gets a 403/409 uses quota too, so the cap can't be bypassed by guessing taken addresses.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Delete own account - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Delete own account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });",
+                  "pm.test('clears the session cookie', function () {",
+                  "    var setCookie = pm.response.headers.get('Set-Cookie') || '';",
+                  "    pm.expect(setCookie).to.match(/^access_token=/);",
+                  "    pm.expect(setCookie).to.match(/Max-Age=0|expires=/i);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - token rejected after account deletion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        }
+      ],
+      "description": "A second, throwaway user: change the email (verify-before-commit, purpose-bound codes, 409 on a taken address, per-user rate limit), prove a non-admin is locked out of /admin, then delete the account. Deleted at the end so a re-run starts clean."
+    },
+    {
+      "name": "Admin (GDPR tools)",
+      "item": [
+        {
+          "name": "Admin API - without a token is rejected (search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - without a token is rejected (export)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/1/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "1",
+                "export"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - without a token is rejected (delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "1"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Request OTP (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 202', function () { pm.response.to.have.status(202); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{adminEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dev-peek the OTP code (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a 6-digit code', function () { pm.expect(pm.response.json().code).to.match(/^[0-9]{6}$/); });",
+                  "pm.collectionVariables.set('adminTokenOtpCode', pm.response.json().code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/_dev-peek?email={{adminEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "_dev-peek"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{adminEmail}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify OTP (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('adminToken', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{adminEmail}}\", \"code\": \"{{adminTokenOtpCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var me = pm.response.json();",
+                  "pm.test('is the user we just logged in as', function () { pm.expect(me.email).to.eql(pm.collectionVariables.get('adminEmail')); });",
+                  "pm.collectionVariables.set('adminId', me.id);",
+                  "pm.test('the admin test account is an admin - add ' + pm.collectionVariables.get('adminEmail') + ' to ADMIN_EMAILS on the server under test', function () { pm.expect(pm.response.json().is_admin).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search a user by email (case-insensitive)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var u = pm.response.json();",
+                  "pm.test('finds the main test account with the documented shape', function () {",
+                  "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'question_progress_count');",
+                  "    pm.expect(u.question_progress_count).to.be.a('number');",
+                  "});",
+                  "pm.collectionVariables.set('testUserId', u.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmailUpper}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "testEmailUpper is set by the Auth Flow's 'Verify OTP' pre-request script.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search a user - unknown email is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"no-such-user@example.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Export a user's data (Art. 15/20)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var e = pm.response.json();",
+                  "pm.test('user, progress rows and export timestamp', function () {",
+                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'exported_at');",
+                  "    pm.expect(e.user.email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "    pm.expect(e.question_progress).to.be.an('array');",
+                  "    pm.expect(e.question_progress.length).to.eql(e.user.question_progress_count);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{testUserId}}/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{testUserId}}",
+                "export"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Export a user - unknown id is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/999999999/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "999999999",
+                "export"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search finds nothing for an account the user deleted themselves",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{profileNewEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Cross-checks 'Delete own account' from the previous folder.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Request OTP (user to be deleted by the admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 202', function () { pm.response.to.have.status(202); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{victimEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dev-peek the OTP code (user to be deleted by the admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a 6-digit code', function () { pm.expect(pm.response.json().code).to.match(/^[0-9]{6}$/); });",
+                  "pm.collectionVariables.set('victimTokenOtpCode', pm.response.json().code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/_dev-peek?email={{victimEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "_dev-peek"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{victimEmail}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify OTP (user to be deleted by the admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('victimToken', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{victimEmail}}\", \"code\": \"{{victimTokenOtpCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me (user to be deleted by the admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var me = pm.response.json();",
+                  "pm.test('is the user we just logged in as', function () { pm.expect(me.email).to.eql(pm.collectionVariables.get('victimEmail')); });",
+                  "pm.collectionVariables.set('victimId', me.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{victimToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Delete a user (Art. 17)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{victimId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - the deleted user's token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{victimToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search finds nothing for the deleted user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{victimEmail}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Delete a user - unknown id is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "999999999"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        }
+      ],
+      "description": "Needs the server started with ADMIN_EMAILS including the adminEmail collection variable (default integration-admin@example.com) - the second half of this folder checks the admin can search, export and delete; the non-admin 403 checks live in the previous folder."
+    },
+    {
       "name": "Rate Limiting",
       "item": [
         {
@@ -1005,6 +4477,111 @@
     },
     {
       "key": "otpBurstCount",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "profileEmail",
+      "value": "integration-profile@example.com",
+      "type": "default"
+    },
+    {
+      "key": "profileNewEmail",
+      "value": "integration-profile-changed@example.com",
+      "type": "default"
+    },
+    {
+      "key": "adminEmail",
+      "value": "integration-admin@example.com",
+      "type": "default"
+    },
+    {
+      "key": "victimEmail",
+      "value": "integration-victim@example.com",
+      "type": "default"
+    },
+    {
+      "key": "catalogSeeded",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "firstQuestionId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "firstTopicSlug",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "longName",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "profileToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "profileTokenOtpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "profileId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminTokenOtpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "victimToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "victimTokenOtpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "victimId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "testUserId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "loginPurposeCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "emailChangeCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "emailChangeProbeCount",
       "value": "",
       "type": "default"
     }
