@@ -19,21 +19,23 @@ which assigns topics keyed on the post-merge subjects):
 
 `propose` only ever suggests candidates for a human to check — matching is
 plain text-similarity (no LLM needed, the duplicates are near word-for-word
-identical). `apply` is the only step that touches the database, and only
-ever reads from the reviewed YAML file, never re-computes similarity itself.
+identical). `apply`'s actual logic lives in app/services/catalog_seed.py,
+which also runs automatically as an Alembic data migration — that's what
+seeds production. `apply` here reads only the reviewed YAML file, never
+recomputes similarity itself.
 """
 
 import argparse
 import difflib
 import re
-from pathlib import Path
 
 import yaml
 
 from app.core.database import SessionLocal
 from app.models.question import Question
+from app.services.catalog_seed import SEEMANNSCHAFT_DUPLICATES_PATH, merge_seemannschaft
 
-DATA_PATH = Path(__file__).resolve().parent / "data" / "seemannschaft_duplicates.yaml"
+DATA_PATH = SEEMANNSCHAFT_DUPLICATES_PATH
 SIMILARITY_THRESHOLD = 0.75
 
 WHITESPACE_RE = re.compile(r"\s+")
@@ -87,50 +89,13 @@ def propose(force: bool) -> None:
 
 
 def apply_() -> None:
-    pairs = yaml.safe_load(DATA_PATH.read_text()) or []
-    pair_map: dict[int, int] = {p["seemannschaft_1"]: p["seemannschaft_2"] for p in pairs}
-    matched_motor_numbers = set(pair_map.values())
-
     db = SessionLocal()
     try:
-        segeln_rows = {q.number: q for q in db.query(Question).filter(Question.subject == "seemannschaft_1")}
-        motor_rows = {q.number: q for q in db.query(Question).filter(Question.subject == "seemannschaft_2")}
-
-        next_number = 1
-        for num1, num2 in sorted(pair_map.items()):
-            row1 = segeln_rows[num1]
-            row2 = motor_rows[num2]
-            row1.subject = "seemannschaft_allgemein"
-            row1.number = next_number
-            row1.seemannschaft_1_number = num1
-            row1.seemannschaft_2_number = num2
-            next_number += 1
-            db.delete(row2)
-
-        for num1, row in segeln_rows.items():
-            if num1 in pair_map:
-                continue
-            row.subject = "seemannschaft_segeln"
-            row.seemannschaft_1_number = num1
-            row.seemannschaft_2_number = None
-
-        for num2, row in motor_rows.items():
-            if num2 in matched_motor_numbers:
-                continue
-            row.subject = "seemannschaft_motor"
-            row.seemannschaft_1_number = None
-            row.seemannschaft_2_number = num2
-
-        db.commit()
-
-        counts = {
-            subject: db.query(Question).filter(Question.subject == subject).count()
-            for subject in ("seemannschaft_allgemein", "seemannschaft_segeln", "seemannschaft_motor")
-        }
+        counts = merge_seemannschaft(db)
     finally:
         db.close()
 
-    print(f"Merged {len(pair_map)} duplicate pairs into seemannschaft_allgemein.")
+    print("Merged duplicate pairs into seemannschaft_allgemein.")
     print(f"Resulting counts: {counts}")
 
 
