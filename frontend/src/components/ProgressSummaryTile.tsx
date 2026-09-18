@@ -1,6 +1,9 @@
+import { ProgressPie, type ProgressSlice } from './ProgressPie'
+
 interface ProgressSummaryTileProps {
   learned: number
   total: number
+  slices?: ProgressSlice[]
 }
 
 // Aggregate "wie weit bin ich insgesamt" stat, across every topic — sits
@@ -8,7 +11,7 @@ interface ProgressSummaryTileProps {
 // chart-tile motif from ADR-0014 for visual consistency, but stays a
 // separate component: ChartTile's contract is a nav tile (title/description
 // linking somewhere), this is a stat display with nowhere to link to.
-export function ProgressSummaryTile({ learned, total }: ProgressSummaryTileProps) {
+export function ProgressSummaryTile({ learned, total, slices }: ProgressSummaryTileProps) {
   const percent = total > 0 ? Math.round((learned / total) * 100) : 0
 
   return (
@@ -26,6 +29,11 @@ export function ProgressSummaryTile({ learned, total }: ProgressSummaryTileProps
       <div className="mt-4 h-2 w-full bg-surface-alt">
         <div className="h-full bg-success" style={{ width: `${percent}%` }} />
       </div>
+      {slices && slices.length > 0 ? (
+        <div className="mt-6 border-t border-border pt-6">
+          <ProgressPie slices={slices} />
+        </div>
+      ) : null}
     </div>
   )
 }

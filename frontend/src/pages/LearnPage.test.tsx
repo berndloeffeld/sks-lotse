@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -48,6 +48,11 @@ function baseUser(overrides: Partial<{ exam_variant: string | null }> = {}) {
 
 describe('LearnPage', () => {
   afterEach(() => {
+    // Unmount first: resetting the store below changes the user, which keys
+    // (and so remounts) ProgressSummarySection — with fetch already unstubbed,
+    // that remount would hit the real network and its late 401 would clear the
+    // next test's user via the unauthorized handler.
+    cleanup()
     vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })

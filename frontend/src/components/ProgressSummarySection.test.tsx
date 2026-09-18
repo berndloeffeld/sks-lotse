@@ -50,13 +50,52 @@ describe('ProgressSummarySection', () => {
     // Appears twice: once in the aggregate tile, once in Ankern's own row
     // (the only topic in this fixture, so both read the same numbers).
     expect(screen.getAllByText('2 von 7 Fragen gelernt')).toHaveLength(2)
-    expect(screen.getByText('Navigation')).toBeInTheDocument()
+    // Subject heading in the details, plus the pie legend entry.
+    expect(screen.getAllByText('Navigation')).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Lernen starten' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Details ausblenden' })).toHaveAttribute('aria-expanded', 'true')
 
     await user.click(screen.getByRole('button', { name: 'Details ausblenden' }))
 
     expect(screen.queryByText('Ankern')).not.toBeInTheDocument()
+  })
+
+  it('merges the Seemannschaft subjects into one pie slice', async () => {
+    const topic = (subject: string, slug: string, total: number, learned: number) => ({
+      subject,
+      topic_slug: slug,
+      topic_name: slug,
+      display_order: 1,
+      total_questions: total,
+      learned_questions: learned,
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse([
+            topic('navigation', 'a', 10, 5),
+            topic('seemannschaft_allgemein', 'b', 20, 4),
+            topic('seemannschaft_segeln', 'c', 10, 1),
+          ]),
+        ),
+    )
+
+    render(<ProgressSummarySection />)
+
+    expect(await screen.findByText('Seemannschaft')).toBeInTheDocument()
+    expect(screen.getByText('5 / 30 · 17%')).toBeInTheDocument()
+    expect(screen.getByText('5 / 10 · 50%')).toBeInTheDocument()
+  })
+
+  it('always shows the details, without a toggle, when not collapsible', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
+
+    render(<ProgressSummarySection collapsible={false} />)
+
+    expect(await screen.findByText('Ankern')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Details/ })).not.toBeInTheDocument()
   })
 
   it('shows an empty state when no topics are scoped in yet', async () => {
