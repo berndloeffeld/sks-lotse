@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
 import { ContourBackground } from '../components/ContourBackground'
 import { ExamVariantDropdown, type ExamVariant } from '../components/ExamVariantDropdown'
 import { LegalFooter } from '../components/LegalFooter'
@@ -10,7 +9,7 @@ import { useAuthStore } from '../store/authStore'
 
 export function LearnPage() {
   const user = useAuthStore((state) => state.user)
-  const checkSession = useAuthStore((state) => state.checkSession)
+  const updateUser = useAuthStore((state) => state.updateUser)
 
   const [isSavingVariant, setIsSavingVariant] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,8 +18,7 @@ export function LearnPage() {
     setIsSavingVariant(true)
     setError(null)
     try {
-      await apiClient.patch('/auth/me', { exam_variant: variant })
-      await checkSession()
+      await updateUser({ exam_variant: variant })
     } catch {
       setError('Die Prüfungsvariante konnte nicht gespeichert werden.')
     } finally {

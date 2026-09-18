@@ -97,9 +97,10 @@ export function ProgressSummarySection({ collapsible = true }: ProgressSummarySe
   return (
     <section className="flex flex-col gap-6">
       <h2 className="font-serif text-lg text-ink">Lernstand</h2>
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
       {isLoading ? (
         <p className="text-sm text-ink-soft">Lernstand wird geladen…</p>
+      ) : error ? (
+        <p className="text-sm text-danger">{error}</p>
       ) : progress.length === 0 ? (
         <p className="text-sm text-ink-soft">Keine Themen gefunden.</p>
       ) : (

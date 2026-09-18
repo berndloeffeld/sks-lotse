@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
-import { getDisplayName } from '../api/types'
+import { getDisplayName, type User } from '../api/types'
 import { ContourBackground } from '../components/ContourBackground'
 import { ExamVariantDropdown, type ExamVariant } from '../components/ExamVariantDropdown'
 import { LegalFooter } from '../components/LegalFooter'
@@ -20,8 +20,9 @@ const GENDER_LABELS: Record<string, string> = {
 export function ProfilePage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const checkSession = useAuthStore((state) => state.checkSession)
-  const logout = useAuthStore((state) => state.logout)
+  const setUser = useAuthStore((state) => state.setUser)
+  const updateUser = useAuthStore((state) => state.updateUser)
+  const clearSession = useAuthStore((state) => state.clearSession)
 
   // Personal info (Vorname/Nachname/Geschlecht)
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
@@ -48,6 +49,17 @@ export function ProfilePage() {
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [isAccountDeleted, setIsAccountDeleted] = useState(false)
+
+  // Once the account is gone, clear the (already dead) session only when this
+  // page actually leaves the tree — i.e. after the navigation to "/" below has
+  // committed. Clearing it any earlier re-renders ProtectedRoute first (store
+  // updates render synchronously, React Router navigations as a transition),
+  // and its redirect to /login would win over the navigation to "/".
+  useEffect(() => {
+    if (!isAccountDeleted) return
+    return clearSession
+  }, [isAccountDeleted, clearSession])
 
   if (!user) {
     return null
@@ -59,12 +71,11 @@ export function ProfilePage() {
     setPersonalInfoSuccess(null)
     setIsSavingPersonalInfo(true)
     try {
-      await apiClient.patch('/auth/me', {
+      await updateUser({
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         gender: gender || null,
       })
-      await checkSession()
       setPersonalInfoSuccess('Gespeichert.')
     } catch {
       setPersonalInfoError('Die Angaben konnten nicht gespeichert werden.')
@@ -77,8 +88,7 @@ export function ProfilePage() {
     setIsSavingVariant(true)
     setVariantError(null)
     try {
-      await apiClient.patch('/auth/me', { exam_variant: variant })
-      await checkSession()
+      await updateUser({ exam_variant: variant })
     } catch {
       setVariantError('Die Prüfungsvariante konnte nicht gespeichert werden.')
     } finally {
@@ -110,8 +120,7 @@ export function ProfilePage() {
     setEmailError(null)
     setIsSubmittingEmail(true)
     try {
-      await apiClient.post('/auth/me/email/verify', { new_email: newEmail, code: emailCode })
-      await checkSession()
+      setUser(await apiClient.post<User>('/auth/me/email/verify', { new_email: newEmail, code: emailCode }))
       setEmailStep('email')
       setNewEmail('')
       setEmailCode('')
@@ -135,8 +144,11 @@ export function ProfilePage() {
     setIsDeleting(true)
     try {
       await apiClient.delete('/auth/me')
-      await logout()
-      navigate('/')
+      // Not logout(): the backend already dropped the account and cleared the
+      // cookie, so POST /auth/logout could only 401. The local session is
+      // cleared by the effect above once this navigation lands.
+      setIsAccountDeleted(true)
+      navigate('/', { replace: true })
     } catch {
       setDeleteError('Der Account konnte nicht gelöscht werden.')
       setIsDeleting(false)
@@ -167,6 +179,7 @@ export function ProfilePage() {
             <input
               id="first-name"
               type="text"
+              maxLength={128}
               value={firstName}
               onChange={(event) => setFirstName(event.target.value)}
               className="border border-border bg-surface px-3 py-2 text-ink"
@@ -177,6 +190,7 @@ export function ProfilePage() {
             <input
               id="last-name"
               type="text"
+              maxLength={128}
               value={lastName}
               onChange={(event) => setLastName(event.target.value)}
               className="border border-border bg-surface px-3 py-2 text-ink"

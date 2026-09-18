@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
+import { ProtectedRoute } from '../routes/ProtectedRoute'
 import { useAuthStore } from '../store/authStore'
 import { ProfilePage } from './ProfilePage'
 
@@ -10,11 +11,17 @@ function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
+// Same nesting as App.tsx — ProfilePage sits behind ProtectedRoute there, so a
+// session refresh that flips the store's isLoading would unmount it (and drop
+// its local success/error state). Rendering it bare would hide exactly that.
 function renderProfilePage() {
   return render(
     <MemoryRouter initialEntries={['/profile']}>
       <Routes>
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+        <Route path="/login" element={<p>Login page</p>} />
         <Route path="/start" element={<p>Start page</p>} />
         <Route path="/" element={<p>Landing page</p>} />
       </Routes>
@@ -37,6 +44,12 @@ function baseUser(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 const emptyProgress: unknown[] = []
+
+function calledSessionRefresh(fetchMock: ReturnType<typeof vi.fn>) {
+  return fetchMock.mock.calls.some(
+    ([u, i]) => String(u).endsWith('/auth/me') && (i as RequestInit | undefined)?.method === undefined,
+  )
+}
 
 describe('ProfilePage', () => {
   afterEach(() => {
@@ -63,7 +76,7 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Mitglied seit/)).toBeInTheDocument()
   })
 
-  it('saves personal info and refreshes the session', async () => {
+  it('saves personal info, keeps the success message and updates the store from the PATCH response', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
     const updatedUser = baseUser({ first_name: 'Anna', last_name: 'Beispiel', gender: 'weiblich' })
@@ -71,7 +84,6 @@ describe('ProfilePage', () => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
       if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
-      if (url.endsWith('/auth/me')) return jsonResponse(updatedUser)
       return jsonResponse({ detail: 'not found' }, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -83,6 +95,10 @@ describe('ProfilePage', () => {
     await user.click(screen.getByRole('button', { name: 'Speichern' }))
 
     expect(await screen.findByText('Gespeichert.')).toBeInTheDocument()
+    expect(useAuthStore.getState().user).toMatchObject({ first_name: 'Anna', last_name: 'Beispiel' })
+    expect(screen.getByText('Anna Beispiel')).toBeInTheDocument()
+    // The PATCH response is the fresh User — no extra GET /auth/me round trip.
+    expect(calledSessionRefresh(fetchMock)).toBe(false)
     await waitFor(() => {
       expect(
         fetchMock.mock.calls.some(([u, i]) => {
@@ -119,7 +135,6 @@ describe('ProfilePage', () => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
       if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
-      if (url.endsWith('/auth/me')) return jsonResponse(updatedUser)
       return jsonResponse({ detail: 'not found' }, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -168,7 +183,7 @@ describe('ProfilePage', () => {
     expect(await screen.findByText('Diese E-Mail-Adresse wird bereits verwendet.')).toBeInTheDocument()
   })
 
-  it('verifies an email change and refreshes the session', async () => {
+  it('verifies an email change, updates the store and keeps the success message', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
     const updatedUser = baseUser({ email: 'new@example.com' })
@@ -177,7 +192,6 @@ describe('ProfilePage', () => {
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
       if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'accepted' }, 202)
       if (url.endsWith('/auth/me/email/verify')) return jsonResponse(updatedUser)
-      if (url.endsWith('/auth/me')) return jsonResponse(updatedUser)
       return jsonResponse({ detail: 'not found' }, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -189,9 +203,9 @@ describe('ProfilePage', () => {
     await user.type(screen.getByLabelText('Bestätigungscode'), '123456')
     await user.click(screen.getByRole('button', { name: 'Bestätigen' }))
 
-    await waitFor(() => {
-      expect(useAuthStore.getState().user?.email).toBe('new@example.com')
-    })
+    expect(await screen.findByText('E-Mail-Adresse geändert.')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.email).toBe('new@example.com')
+    expect(calledSessionRefresh(fetchMock)).toBe(false)
   })
 
   it('shows an error when the verification code is invalid', async () => {
@@ -238,7 +252,6 @@ describe('ProfilePage', () => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
       if (url.endsWith('/auth/me') && init?.method === 'DELETE') return new Response(null, { status: 204 })
-      if (url.endsWith('/auth/logout')) return new Response(null, { status: 204 })
       return jsonResponse({ detail: 'not found' }, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -250,5 +263,7 @@ describe('ProfilePage', () => {
 
     expect(await screen.findByText('Landing page')).toBeInTheDocument()
     expect(useAuthStore.getState().isAuthenticated).toBe(false)
+    // The account is already gone server-side — no pointless POST /auth/logout.
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/logout'))).toBe(false)
   })
 })
