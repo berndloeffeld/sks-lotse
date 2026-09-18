@@ -203,6 +203,42 @@ describe('ProfilePage', () => {
     ).toBeInTheDocument()
   })
 
+  it('explains when the new email address is a disposable one', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'disposable' }, 400)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderProfilePage()
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'someone@mailinator.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Wegwerf-E-Mail-Adressen werden nicht unterstützt.')).toBeInTheDocument()
+  })
+
+  it('rejects the current address without asking the backend', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderProfilePage()
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'Learner@Example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Das ist bereits deine E-Mail-Adresse.')).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/me/email/request'))).toBe(false)
+  })
+
   it('verifies an email change, updates the store and keeps the success message', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })

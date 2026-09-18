@@ -4,18 +4,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import { getDisplayName, type User } from '../api/types'
 import { ContourBackground } from '../components/ContourBackground'
-import { ExamVariantDropdown, type ExamVariant } from '../components/ExamVariantDropdown'
+import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
 import { LegalFooter } from '../components/LegalFooter'
 import { ProgressSummarySection } from '../components/ProgressSummarySection'
+import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
+import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
 type EmailChangeStep = 'email' | 'code'
-
-const GENDER_LABELS: Record<string, string> = {
-  maennlich: 'Männlich',
-  weiblich: 'Weiblich',
-  divers: 'Divers',
-}
 
 export function ProfilePage() {
   const navigate = useNavigate()
@@ -33,8 +29,7 @@ export function ProfilePage() {
   const [personalInfoSuccess, setPersonalInfoSuccess] = useState<string | null>(null)
 
   // Prüfungsziel
-  const [isSavingVariant, setIsSavingVariant] = useState(false)
-  const [variantError, setVariantError] = useState<string | null>(null)
+  const { changeVariant, isSaving: isSavingVariant, error: variantError } = useExamVariantUpdate()
 
   // E-Mail-Adresse ändern
   const [emailStep, setEmailStep] = useState<EmailChangeStep>('email')
@@ -84,22 +79,16 @@ export function ProfilePage() {
     }
   }
 
-  async function handleExamVariantChange(variant: ExamVariant) {
-    setIsSavingVariant(true)
-    setVariantError(null)
-    try {
-      await updateUser({ exam_variant: variant })
-    } catch {
-      setVariantError('Die Prüfungsvariante konnte nicht gespeichert werden.')
-    } finally {
-      setIsSavingVariant(false)
-    }
-  }
-
   async function handleRequestEmailChange(event: FormEvent) {
     event.preventDefault()
     setEmailError(null)
     setEmailSuccess(null)
+    // Caught here rather than via the backend's 400, which this page can't
+    // tell apart from the disposable-address 400 below by status alone.
+    if (user && newEmail.trim().toLowerCase() === user.email.toLowerCase()) {
+      setEmailError('Das ist bereits deine E-Mail-Adresse.')
+      return
+    }
     setIsSubmittingEmail(true)
     try {
       await apiClient.post('/auth/me/email/request', { new_email: newEmail })
@@ -110,7 +99,9 @@ export function ProfilePage() {
           ? 'Diese E-Mail-Adresse wird bereits verwendet.'
           : err instanceof ApiError && err.status === 403
             ? 'Mit dieser E-Mail-Adresse ist derzeit keine Anmeldung möglich.'
-            : 'Der Code konnte nicht angefordert werden.',
+            : err instanceof ApiError && err.status === 400
+              ? 'Wegwerf-E-Mail-Adressen werden nicht unterstützt.'
+              : 'Der Code konnte nicht angefordert werden.',
       )
     } finally {
       setIsSubmittingEmail(false)
@@ -229,11 +220,7 @@ export function ProfilePage() {
       <section className="flex flex-col gap-4 border border-border p-4">
         <div className="flex items-center justify-between gap-4">
           <h2 className="font-serif text-lg text-ink">Prüfungsziel</h2>
-          <ExamVariantDropdown
-            value={user.exam_variant}
-            onChange={handleExamVariantChange}
-            disabled={isSavingVariant}
-          />
+          <ExamVariantDropdown value={user.exam_variant} onChange={changeVariant} disabled={isSavingVariant} />
         </div>
         {variantError ? <p className="text-sm text-danger">{variantError}</p> : null}
       </section>

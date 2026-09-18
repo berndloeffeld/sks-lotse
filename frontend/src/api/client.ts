@@ -29,8 +29,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
     ...init,
     credentials: 'include',
+    // Content-Type only when there's a body to describe: on a cross-origin
+    // call (the API is api.sks-lotse.de, ADR-0015) it makes a request
+    // "non-simple", so sending it on every GET would cost each one a CORS
+    // preflight round trip for nothing.
     headers: {
-      'Content-Type': 'application/json',
+      ...(init?.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...init?.headers,
     },
   })

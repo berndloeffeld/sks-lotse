@@ -1,14 +1,10 @@
-export type ExamVariant = 'motor' | 'segeln_und_motor'
+import type { ExamVariant } from '../api/types'
+import { VARIANT_LABELS } from '../labels'
 
 interface ExamVariantDropdownProps {
   value: string | null
   onChange: (variant: ExamVariant) => void
   disabled?: boolean
-}
-
-const VARIANT_LABELS: Record<ExamVariant, string> = {
-  segeln_und_motor: 'Motor und Segeln',
-  motor: 'Motor',
 }
 
 // Sets User.exam_variant (PATCH /auth/me) — kept as a small header-area

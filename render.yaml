@@ -26,8 +26,8 @@ services:
       # Kept explicit here rather than relying on Render picking up that file:
       # its docs only promise the repo root, and this service uses
       # rootDir: backend. Without a pinned version Render defaulted to
-      # Python 3.14, which breaks SQLAlchemy 2.0.36's `X | None` type
-      # introspection at import time.
+      # Python 3.14, which broke the SQLAlchemy pinned at the time (2.0.36):
+      # its `X | None` type introspection failed at import time.
       - key: PYTHON_VERSION
         value: 3.12.14
       - key: DATABASE_URL

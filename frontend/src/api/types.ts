@@ -1,3 +1,6 @@
+// Mirrors ExamVariant in backend/app/core/exam_variant.py.
+export type ExamVariant = 'motor' | 'segeln_und_motor'
+
 // Mirrors backend/app/schemas/auth.py::UserRead.
 export interface User {
   id: number
@@ -10,8 +13,15 @@ export interface User {
   is_admin: boolean
 }
 
-export function getDisplayName(user: User): string {
-  return `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email
+type Named = Pick<User, 'first_name' | 'last_name'>
+
+// "Vorname Nachname", or '' when neither is set.
+export function getFullName(person: Named): string {
+  return `${person.first_name ?? ''} ${person.last_name ?? ''}`.trim()
+}
+
+export function getDisplayName(user: Named & Pick<User, 'email'>): string {
+  return getFullName(user) || user.email
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.
