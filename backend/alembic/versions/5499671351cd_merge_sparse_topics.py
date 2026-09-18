@@ -12,19 +12,18 @@ others had far more than a single learning session's worth. Both are merged/spli
 into new, short collective topic names so every topic ends up with 10-35
 questions — see ADR-0020 for the rationale and the full before/after mapping.
 
-apply_topics() (app/services/catalog_seed.py) upserts Topic rows by (subject,
+sync_catalog() (app/services/catalog_seed.py) upserts Topic rows by (subject,
 slug), repoints every Question.topic_id from the updated assignments files, and
-(as of this change) deletes any Topic row whose (subject, slug) no longer
-appears in topics.yaml — cleaning up the old, now-merged-away rows. Calls no
-external API; this is a pure data migration over already-committed fixtures.
+deletes any Topic row whose (subject, slug) no longer appears in topics.yaml —
+cleaning up the old, now-merged-away rows. Question rows themselves are upserted
+in place, so their ids (and any progress pointing at them) are unaffected. Calls
+no external API; this is a pure data migration over already-committed fixtures.
 """
 
 from collections.abc import Sequence
 
-from sqlalchemy.orm import Session
-
 from alembic import op
-from app.services.catalog_seed import apply_topics
+from app.services.catalog_seed import build_catalog, sync_catalog
 
 # revision identifiers, used by Alembic.
 revision: str = "5499671351cd"
@@ -34,9 +33,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    session = Session(bind=op.get_bind())
-    apply_topics(session)
-    session.close()
+    sync_catalog(op.get_bind(), build_catalog())
 
 
 def downgrade() -> None:

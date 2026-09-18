@@ -1,6 +1,6 @@
 # 0017. Official topic taxonomy, LLM-assisted assignment only, and merging Seemannschaft I/II
 
-Status: Accepted
+Status: Accepted — seeding mechanics (delete + insert, per-stage `apply` scripts) superseded by [ADR-0022](0022-catalog-sync-by-upsert.md)
 
 ## Context
 
