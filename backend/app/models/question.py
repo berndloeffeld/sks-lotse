@@ -1,7 +1,8 @@
-from sqlalchemy import Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.models.topic import Topic
 
 
 class Question(Base):
@@ -14,3 +15,14 @@ class Question(Base):
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
     answer_text: Mapped[str] = mapped_column(Text, nullable=False)
     image_ref: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    topic_id: Mapped[int | None] = mapped_column(
+        ForeignKey("topics.id", ondelete="SET NULL", name="fk_questions_topic_id"), nullable=True
+    )
+    # Only set for subject in {seemannschaft_allgemein, seemannschaft_motor, seemannschaft_segeln} —
+    # the original "Nummer N" this question had in the official Seemannschaft I / II catalog before
+    # merge_seemannschaft.py collapsed the two into three subjects (see CLAUDE.md → Question Catalog).
+    # A seemannschaft_allgemein row (merged duplicate) has both set; segeln/motor rows have only one.
+    seemannschaft_1_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    seemannschaft_2_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    topic: Mapped[Topic | None] = relationship("Topic")

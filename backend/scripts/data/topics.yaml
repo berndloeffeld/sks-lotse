@@ -1,0 +1,136 @@
+# Official SKS catalog sub-topics, transcribed verbatim from the table of contents on pages 1-3
+# of docs/Fragenkatalog-SKS.pdf (issued by the Bundesministerium für Verkehr, Bau und
+# Stadtentwicklung together with the WSV, DMYV and DSV) — not invented, not LLM-generated.
+#
+# The official Seemannschaft I (18 topics) and Seemannschaft II (16 topics) lists are identical
+# except for 3 entries; those 3 are what separates the two exam variants (see
+# backend/scripts/merge_seemannschaft.py). This file already maps that split onto the merged
+# seemannschaft_allgemein / seemannschaft_motor / seemannschaft_segeln subjects:
+#   - seemannschaft_segeln: "Takelung...", "Segel", "Kenntnisse über Segelstellung..." (only in I)
+#   - seemannschaft_motor: "Kenntnisse über Stabilität, Trimm und Rumpfgeschwindigkeit" (only in II)
+#   - seemannschaft_allgemein: the other 15 topics, shared by both official lists
+#
+# manage_topics.py reads this file; it never invents or renames topics itself.
+
+navigation:
+  - slug: seekarten-publikationen
+    name: Seekarten und weitere nautische Publikationen
+    display_order: 1
+  - slug: ortsbestimmung-navigieren
+    name: Ortsbestimmung, Navigieren
+    display_order: 2
+  - slug: gezeiten
+    name: Gezeiten
+    display_order: 3
+  - slug: elektronische-navigation
+    name: Elektronische Navigation
+    display_order: 4
+  - slug: ausruestung-geraetekunde
+    name: Allgemeines (Ausrüstung, Gerätekunde)
+    display_order: 5
+
+schifffahrtsrecht:
+  - slug: kvr
+    name: KVR
+    display_order: 1
+  - slug: seeschstro
+    name: SeeSchStrO
+    display_order: 2
+  - slug: schiffspapiere-sug-flaggenrecht
+    name: Allgemeines (Schiffspapiere, SUG, Flaggen-/Hoheitsrecht)
+    display_order: 3
+  - slug: marpol-verkehrsregeln
+    name: MARPOL, besondere Verkehrs- und Befahrensregeln
+    display_order: 4
+
+wetterkunde:
+  - slug: allgemeine-begriffe
+    name: Allgemeine Begriffe aus der Wetterkunde
+    display_order: 1
+  - slug: wolken
+    name: Wolken
+    display_order: 2
+  - slug: druckgebilde
+    name: Druckgebilde
+    display_order: 3
+  - slug: land-seewind
+    name: Land- und Seewind
+    display_order: 4
+  - slug: seewetterberichte
+    name: Anwenden von Seewetterberichten
+    display_order: 5
+  - slug: wetterregeln
+    name: Wichtige Wetterregeln
+    display_order: 6
+  - slug: nebel
+    name: Nebel
+    display_order: 7
+  - slug: seegang
+    name: Seegang
+    display_order: 8
+  - slug: messinstrumente
+    name: Meteorologische Messinstrumente
+    display_order: 9
+
+seemannschaft_allgemein:
+  - slug: yacht-bootsbau
+    name: Yacht- und Bootsbau
+    display_order: 1
+  - slug: ausruestung-allgemein
+    name: Ausrüstung (allgemein)
+    display_order: 2
+  - slug: antriebsmaschine-betrieb-wartung
+    name: Antriebsmaschine (Betrieb und Wartung)
+    display_order: 3
+  - slug: umgang-mit-tauwerk
+    name: Umgang mit Tauwerk
+    display_order: 4
+  - slug: bootspflege-instandhaltung
+    name: Bootspflege, Instandhaltung
+    display_order: 5
+  - slug: fuehren-einer-yacht
+    name: Führen einer Yacht, Vorbereitung, Allgemeines
+    display_order: 6
+  - slug: manoever-hafen-see
+    name: Manöver im Hafen und auf See
+    display_order: 7
+  - slug: manoever-schwerem-wetter
+    name: Manöver bei schwerem Wetter
+    display_order: 8
+  - slug: manoever-stroemenden-gewaessern
+    name: Manöver in strömenden Gewässern
+    display_order: 9
+  - slug: mensch-ueber-bord
+    name: Mensch-über-Bord-Manöver
+    display_order: 10
+  - slug: sicherheitsausruestung
+    name: Sicherheitsausrüstung
+    display_order: 11
+  - slug: seetuechtigkeit
+    name: Seetüchtigkeit
+    display_order: 12
+  - slug: massnahmen-bei-notfaellen
+    name: Maßnahmen bei Notfällen
+    display_order: 13
+  - slug: ankern
+    name: Ankern
+    display_order: 14
+  - slug: seeschiffe-manoevrierverhalten
+    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
+    display_order: 15
+
+seemannschaft_segeln:
+  - slug: takelung-stehendes-laufendes-gut
+    name: Takelung, stehendes und laufendes Gut
+    display_order: 1
+  - slug: segel
+    name: Segel
+    display_order: 2
+  - slug: segelstellung-stabilitaet-rumpfgeschwindigkeit
+    name: Kenntnisse über Segelstellung, Stabilität und Rumpfgeschwindigkeit
+    display_order: 3
+
+seemannschaft_motor:
+  - slug: stabilitaet-trimm-rumpfgeschwindigkeit
+    name: Kenntnisse über Stabilität, Trimm und Rumpfgeschwindigkeit
+    display_order: 1

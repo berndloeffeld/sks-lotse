@@ -3,7 +3,10 @@
 Usage:
     PYTHONPATH=. .venv/bin/python scripts/import_catalog.py
 
-Re-running is safe: it replaces the full contents of the questions table.
+Re-running is safe: it replaces the full contents of the questions table —
+but that also means merge_seemannschaft.py and manage_topics.py (see those
+scripts) must be re-run afterwards, since both are keyed on the subjects and
+numbers this script produces and this script doesn't know about either.
 
 Known limitation: a handful of questions that ask two things in one
 sentence without numbering them ("Was ist X? Wovon hängt sie ab?") get
