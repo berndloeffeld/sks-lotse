@@ -1,3 +1,5 @@
+import { percentOf } from '../format'
+
 interface LedgerRowProps {
   title: string
   learned: number
@@ -9,7 +11,7 @@ interface LedgerRowProps {
 // per-topic Lernstand list on /learn. "Lernen starten" stays disabled —
 // actually answering questions isn't built yet (see ADR-0018).
 export function LedgerRow({ title, learned, total }: LedgerRowProps) {
-  const percent = total > 0 ? Math.round((learned / total) * 100) : 0
+  const percent = percentOf(learned, total)
 
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">

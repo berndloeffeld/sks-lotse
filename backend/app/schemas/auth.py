@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, computed_field
+from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, StringConstraints, computed_field
 
 from app.core.config import settings
 from app.core.exam_variant import EXAM_VARIANTS
@@ -38,10 +38,20 @@ ExamVariantField = Annotated[str, AfterValidator(_require_known_exam_variant)]
 
 GENDERS = {"maennlich", "weiblich", "divers"}
 
+
+def _blank_to_none(value: str) -> str | None:
+    return value or None
+
+
 # Matches the users.first_name/last_name column width. Postgres rejects a
 # longer value with a DataError (a 500) — SQLite, which the test suite runs
-# on, silently stores it — so it has to be caught here as a 422.
-NameField = Annotated[str, Field(max_length=128)]
+# on, silently stores it — so it has to be caught here as a 422. Surrounding
+# whitespace is stripped (before the length check) and a blank name is
+# stored as NULL, the same "keine Angabe" as leaving it out — so "" or "  "
+# never ends up in the DB or in getDisplayName on the frontend.
+NameField = Annotated[
+    str, StringConstraints(strip_whitespace=True, max_length=128), AfterValidator(_blank_to_none)
+]
 
 
 def _require_known_gender(value: str) -> str:

@@ -18,7 +18,10 @@ paths under the default rule share one bucket per IP, so `/questions/1`,
 `/questions/2`, ... can't each claim their own quota, and arbitrary (even
 404) paths can't mint unbounded new counter keys. Idle keys are swept on a
 bounded cadence (`cache.throttle`, see docs/adr/0010) so the store doesn't
-grow with the number of distinct IPs seen since the last restart.
+grow with the number of distinct IPs seen since the last restart. Each key
+remembers its own window for that sweep, since route handlers record into
+the same store with windows the middleware knows nothing about (see
+`check_and_record`).
 """
 
 import time
@@ -50,11 +53,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.scope_prefix = scope_prefix
         self.trusted_client_ip_headers = trusted_client_ip_headers
 
-        windows = [window for _, window in self.rules.values()]
-        if default_rule is not None:
-            windows.append(default_rule[1])
-        self._max_window_seconds = max(windows, default=0)
-
     def _rule_for(self, path: str) -> tuple[str, Rule] | None:
         # Returns the bucket name alongside the rule: the exact path for an
         # override, the shared scope prefix for the default rule.
@@ -72,7 +70,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         bucket, (limit, window_seconds) = matched
         if cache.throttle(request.app, "rate_limit:sweep", _SWEEP_INTERVAL_SECONDS):
-            _sweep_idle(request.app, time.monotonic(), self._max_window_seconds)
+            _sweep_idle(request.app, time.monotonic())
 
         client_ip = _client_ip(request, self.trusted_client_ip_headers)
         if not check_and_record(request.app, bucket, client_ip, limit, window_seconds):
@@ -115,6 +113,7 @@ def check_and_record(app, bucket: str, key: str, limit: int, window_seconds: int
     """
     now = time.monotonic()
     hits = _hits_for(app, (bucket, key))
+    _windows_for(app)[(bucket, key)] = window_seconds
     while hits and now - hits[0] > window_seconds:
         hits.popleft()
     if len(hits) >= limit:
@@ -123,17 +122,26 @@ def check_and_record(app, bucket: str, key: str, limit: int, window_seconds: int
     return True
 
 
-def _sweep_idle(app, now: float, max_window_seconds: float) -> None:
-    # A key whose newest hit is older than the longest window can't affect
-    # any future decision — drop it.
+def _sweep_idle(app, now: float) -> None:
+    # A key whose newest hit is older than its own window can't affect any
+    # future decision — drop it.
     store = getattr(app.state, "rate_limit_hits", None)
     if not store:
         return
-    for key in [k for k, hits in store.items() if not hits or now - hits[-1] > max_window_seconds]:
+    windows = _windows_for(app)
+    idle = [k for k, hits in store.items() if not hits or now - hits[-1] > windows.get(k, 0)]
+    for key in idle:
         del store[key]
+        windows.pop(key, None)
 
 
 def _hits_for(app, key: tuple[str, str]) -> deque:
     if not hasattr(app.state, "rate_limit_hits"):
         app.state.rate_limit_hits = defaultdict(deque)
     return app.state.rate_limit_hits[key]
+
+
+def _windows_for(app) -> dict[tuple[str, str], int]:
+    if not hasattr(app.state, "rate_limit_windows"):
+        app.state.rate_limit_windows = {}
+    return app.state.rate_limit_windows

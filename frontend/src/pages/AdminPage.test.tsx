@@ -95,7 +95,9 @@ describe('AdminPage', () => {
     expect(await screen.findByText('learner@example.com')).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
     expect(screen.getByText('Anna Beispiel')).toBeInTheDocument()
-    expect(screen.getByText('weiblich')).toBeInTheDocument()
+    // Stored keys are shown with the same labels the learner's own pages use.
+    expect(screen.getByText('Weiblich')).toBeInTheDocument()
+    expect(screen.getByText('Prüfungsvariante').nextElementSibling).toHaveTextContent('Motor')
   })
 
   it('shows a dash for profile fields the learner left blank', async () => {
@@ -125,6 +127,19 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('button', { name: 'Suchen' }))
 
     expect(await screen.findByText('Kein Nutzer mit dieser E-Mail-Adresse gefunden.')).toBeInTheDocument()
+  })
+
+  it('does not report "no user found" when the search itself failed', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Too many requests' }, 429)))
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+
+    expect(await screen.findByText('Die Suche ist fehlgeschlagen. Bitte erneut versuchen.')).toBeInTheDocument()
+    expect(screen.queryByText('Kein Nutzer mit dieser E-Mail-Adresse gefunden.')).not.toBeInTheDocument()
   })
 
   it('keeps the final delete button disabled until the exact email is retyped, then deletes', async () => {

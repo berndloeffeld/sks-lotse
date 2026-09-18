@@ -1,5 +1,7 @@
 import { useId, useState } from 'react'
 
+import { percentOf } from '../format'
+
 export interface ProgressSlice {
   key: string
   label: string
@@ -123,7 +125,7 @@ export function ProgressPie({ slices }: ProgressPieProps) {
             <span aria-hidden className="h-3 w-3 shrink-0" style={{ background: color }} />
             <span>{slice.label}</span>
             <span className="ml-3 font-mono text-xs whitespace-nowrap text-ink-soft">
-              {slice.learned} / {slice.total} · {Math.round((slice.learned / slice.total) * 100)}%
+              {slice.learned} / {slice.total} · {percentOf(slice.learned, slice.total)}%
             </span>
           </li>
         ))}

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Self-hosted web fonts (ADR-0020): bundled by Vite and served from our own
+// Self-hosted web fonts (ADR-0021): bundled by Vite and served from our own
 // origin — never fetched from Google Fonts, which would hand every visitor's
 // IP address to Google. Only the weights/styles the design system uses.
 import '@fontsource/fraunces/400.css'

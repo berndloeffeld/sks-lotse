@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
-import type { AdminUserExport, AdminUserSearchResult } from '../api/types'
+import { ApiError, apiClient } from '../api/client'
+import { getFullName, type AdminUserExport, type AdminUserSearchResult, type ExamVariant } from '../api/types'
 import { ContourBackground } from '../components/ContourBackground'
 import { LegalFooter } from '../components/LegalFooter'
+import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
 function downloadJson(data: unknown, filename: string) {
@@ -60,9 +61,13 @@ export function AdminPage() {
       const found = await apiClient.post<AdminUserSearchResult>('/admin/users/search', { email: searchEmail })
       resetResult()
       setResult(found)
-    } catch {
+    } catch (err) {
       setResult(null)
-      setSearchError('Kein Nutzer mit dieser E-Mail-Adresse gefunden.')
+      setSearchError(
+        err instanceof ApiError && err.status === 404
+          ? 'Kein Nutzer mit dieser E-Mail-Adresse gefunden.'
+          : 'Die Suche ist fehlgeschlagen. Bitte erneut versuchen.',
+      )
     } finally {
       setIsSearching(false)
     }
@@ -148,13 +153,15 @@ export function AdminPage() {
             <dt className="text-ink-soft">ID</dt>
             <dd className="font-mono text-ink">{result.id}</dd>
             <dt className="text-ink-soft">Name</dt>
-            <dd className="text-ink">{`${result.first_name ?? ''} ${result.last_name ?? ''}`.trim() || '—'}</dd>
+            <dd className="text-ink">{getFullName(result) || '—'}</dd>
             <dt className="text-ink-soft">Geschlecht</dt>
-            <dd className="text-ink">{result.gender ?? '—'}</dd>
+            <dd className="text-ink">{result.gender ? (GENDER_LABELS[result.gender] ?? result.gender) : '—'}</dd>
             <dt className="text-ink-soft">Angemeldet seit</dt>
             <dd className="text-ink">{new Date(result.created_at).toLocaleDateString('de-DE')}</dd>
             <dt className="text-ink-soft">Prüfungsvariante</dt>
-            <dd className="text-ink">{result.exam_variant ?? '—'}</dd>
+            <dd className="text-ink">
+              {result.exam_variant ? (VARIANT_LABELS[result.exam_variant as ExamVariant] ?? result.exam_variant) : '—'}
+            </dd>
             <dt className="text-ink-soft">Beantwortete Fragen</dt>
             <dd className="text-ink">{result.question_progress_count}</dd>
           </dl>

@@ -1,30 +1,15 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ContourBackground } from '../components/ContourBackground'
-import { ExamVariantDropdown, type ExamVariant } from '../components/ExamVariantDropdown'
+import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
 import { LegalFooter } from '../components/LegalFooter'
 import { ProgressSummarySection } from '../components/ProgressSummarySection'
+import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { useAuthStore } from '../store/authStore'
 
 export function LearnPage() {
   const user = useAuthStore((state) => state.user)
-  const updateUser = useAuthStore((state) => state.updateUser)
-
-  const [isSavingVariant, setIsSavingVariant] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  async function handleExamVariantChange(variant: ExamVariant) {
-    setIsSavingVariant(true)
-    setError(null)
-    try {
-      await updateUser({ exam_variant: variant })
-    } catch {
-      setError('Die Prüfungsvariante konnte nicht gespeichert werden.')
-    } finally {
-      setIsSavingVariant(false)
-    }
-  }
+  const { changeVariant, isSaving: isSavingVariant, error } = useExamVariantUpdate()
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
@@ -37,11 +22,7 @@ export function LearnPage() {
             </Link>
             <h1 className="mt-2 font-serif text-2xl text-ink">Lernen</h1>
           </div>
-          <ExamVariantDropdown
-            value={user?.exam_variant ?? null}
-            onChange={handleExamVariantChange}
-            disabled={isSavingVariant}
-          />
+          <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSavingVariant} />
         </div>
       </header>
 

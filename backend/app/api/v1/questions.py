@@ -17,6 +17,7 @@ from app.schemas.question import QuestionRead, TopicRead
 router = APIRouter(prefix="/questions", tags=["questions"], dependencies=[Depends(get_current_user)])
 
 _CATALOG_CACHE_KEY = "questions:catalog"
+_CATALOG_BY_ID_CACHE_KEY = "questions:catalog_by_id"
 # Subjects with no assigned topic (or not yet classified) sort after every topic within their subject.
 _NO_TOPIC_ORDER = 1_000_000
 
@@ -35,6 +36,15 @@ def _catalog(request: Request, db: Session) -> list[QuestionRead]:
     # or backend/scripts/import_catalog.py locally), never through the API — this TTL just bounds how
     # long those changes take to show up without restarting the app, not a correctness requirement.
     return cache.get_or_set(request.app, _CATALOG_CACHE_KEY, settings.catalog_cache_ttl_seconds, load)
+
+
+def _catalog_by_id(request: Request, db: Session) -> dict[int, QuestionRead]:
+    return cache.get_or_set(
+        request.app,
+        _CATALOG_BY_ID_CACHE_KEY,
+        settings.catalog_cache_ttl_seconds,
+        lambda: {q.id: q for q in _catalog(request, db)},
+    )
 
 
 def _filtered_catalog(
@@ -81,10 +91,10 @@ def random_question(
 
 @router.get("/{question_id}", response_model=QuestionRead)
 def get_question(request: Request, question_id: int, db: Session = Depends(get_db)):
-    for question in _catalog(request, db):
-        if question.id == question_id:
-            return question
-    raise HTTPException(status_code=404, detail="Question not found")
+    question = _catalog_by_id(request, db).get(question_id)
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return question
 
 
 topics_router = APIRouter(prefix="/topics", tags=["questions"], dependencies=[Depends(get_current_user)])

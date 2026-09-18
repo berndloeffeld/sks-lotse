@@ -1,3 +1,4 @@
+import { percentOf } from '../format'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'
 
 interface ProgressSummaryTileProps {
@@ -12,7 +13,7 @@ interface ProgressSummaryTileProps {
 // separate component: ChartTile's contract is a nav tile (title/description
 // linking somewhere), this is a stat display with nowhere to link to.
 export function ProgressSummaryTile({ learned, total, slices }: ProgressSummaryTileProps) {
-  const percent = total > 0 ? Math.round((learned / total) * 100) : 0
+  const percent = percentOf(learned, total)
 
   return (
     <div className="relative rounded-tile border border-ink bg-surface p-6">

@@ -18,6 +18,7 @@ def _reset_rate_limits():
     # whole test process — without this, requests across unrelated test
     # functions would accumulate toward the same limit.
     app.state.rate_limit_hits = defaultdict(deque)
+    app.state.rate_limit_windows = {}
 
 
 @pytest.fixture(autouse=True)

@@ -21,6 +21,9 @@ describe('apiClient', () => {
     expect(result).toEqual({ status: 'ok' })
     const [, init] = fetchMock.mock.calls[0]
     expect(init.credentials).toBe('include')
+    // No body, no Content-Type — keeps a cross-origin GET a "simple" request
+    // (no CORS preflight).
+    expect(init.headers).not.toHaveProperty('Content-Type')
   })
 
   it('POST serializes the body as JSON', async () => {
@@ -33,6 +36,7 @@ describe('apiClient', () => {
     expect(url).toContain('/api/v1/auth/otp/request')
     expect(init.method).toBe('POST')
     expect(init.body).toBe(JSON.stringify({ email: 'learner@example.com' }))
+    expect(init.headers).toHaveProperty('Content-Type', 'application/json')
   })
 
   it('PATCH serializes the body as JSON', async () => {
