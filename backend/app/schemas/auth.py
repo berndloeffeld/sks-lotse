@@ -38,6 +38,11 @@ ExamVariantField = Annotated[str, AfterValidator(_require_known_exam_variant)]
 
 GENDERS = {"maennlich", "weiblich", "divers"}
 
+# Matches the users.first_name/last_name column width. Postgres rejects a
+# longer value with a DataError (a 500) — SQLite, which the test suite runs
+# on, silently stores it — so it has to be caught here as a 422.
+NameField = Annotated[str, Field(max_length=128)]
+
 
 def _require_known_gender(value: str) -> str:
     if value not in GENDERS:
@@ -105,6 +110,6 @@ class UserUpdate(BaseModel):
     # model_dump(exclude_unset=True) — that's what distinguishes "omitted"
     # from "sent as null" here).
     exam_variant: ExamVariantField | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+    first_name: NameField | None = None
+    last_name: NameField | None = None
     gender: GenderField | None = None

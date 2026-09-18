@@ -108,7 +108,9 @@ export function ProfilePage() {
       setEmailError(
         err instanceof ApiError && err.status === 409
           ? 'Diese E-Mail-Adresse wird bereits verwendet.'
-          : 'Der Code konnte nicht angefordert werden.',
+          : err instanceof ApiError && err.status === 403
+            ? 'Mit dieser E-Mail-Adresse ist derzeit keine Anmeldung möglich.'
+            : 'Der Code konnte nicht angefordert werden.',
       )
     } finally {
       setIsSubmittingEmail(false)
