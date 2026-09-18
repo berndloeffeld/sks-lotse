@@ -70,11 +70,11 @@ def propose(force: bool) -> None:
             topic_list_text = "\n".join(f"- {t['slug']}: {t['name']}" for t in topics)
             questions_text = "\n".join(f"{q.number}: {q.question_text}" for q in questions)
             prompt = (
-                "Du ordnest Fragen aus dem amtlichen SKS-Fragenkatalog (Fach "
-                f"'{subject}') den folgenden amtlichen Unterthemen zu. Verwende "
-                "AUSSCHLIESSLICH die unten aufgeführten Slugs, erfinde keine neuen "
-                "Kategorien. Liefere genau einen Eintrag pro Fragennummer.\n\n"
-                f"Unterthemen:\n{topic_list_text}\n\nFragen:\n{questions_text}"
+                "You are classifying questions from the official SKS question catalog (subject "
+                f"'{subject}') into the following official sub-topics. Use "
+                "ONLY the slugs listed below, do not invent new "
+                "categories. Provide exactly one entry per question number.\n\n"
+                f"Sub-topics:\n{topic_list_text}\n\nQuestions:\n{questions_text}"
             )
 
             response = client.messages.parse(

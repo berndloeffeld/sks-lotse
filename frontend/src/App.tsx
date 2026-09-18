@@ -2,11 +2,11 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AdminPage } from './pages/AdminPage'
-import { DatenschutzPage } from './pages/DatenschutzPage'
-import { ImpressumPage } from './pages/ImpressumPage'
+import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
-import { LernenPage } from './pages/LernenPage'
+import { LearnPage } from './pages/LearnPage'
 import { LoginPage } from './pages/LoginPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 import { StartPage } from './pages/StartPage'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { useAuthStore } from './store/authStore'
@@ -23,11 +23,11 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/impressum" element={<ImpressumPage />} />
-        <Route path="/datenschutz" element={<DatenschutzPage />} />
+        <Route path="/imprint" element={<ImprintPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<StartPage />} />
-          <Route path="/lernen" element={<LernenPage />} />
+          <Route path="/learn" element={<LearnPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

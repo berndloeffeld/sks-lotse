@@ -39,7 +39,7 @@ describe('StartPage', () => {
 
     expect(screen.getByText('learner@example.com')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Lernen' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Lernen/ })).toHaveAttribute('href', '/lernen')
+    expect(screen.getByRole('link', { name: /Lernen/ })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
   })
 

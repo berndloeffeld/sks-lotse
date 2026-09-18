@@ -6,7 +6,7 @@ interface LedgerRowProps {
 
 // The "ledger list rows" pattern from ADR-0014: flat rows separated by
 // hairlines (not boxed cards), counts set in IBM Plex Mono. Used for the
-// per-topic Lernstand list on /lernen. "Lernen starten" stays disabled —
+// per-topic Lernstand list on /learn. "Lernen starten" stays disabled —
 // actually answering questions isn't built yet (see ADR-0018).
 export function LedgerRow({ title, learned, total }: LedgerRowProps) {
   const percent = total > 0 ? Math.round((learned / total) * 100) : 0

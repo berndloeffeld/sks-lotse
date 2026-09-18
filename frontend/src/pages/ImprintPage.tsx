@@ -1,7 +1,7 @@
 import { ContourBackground } from '../components/ContourBackground'
 import { LegalFooter } from '../components/LegalFooter'
 
-export function ImpressumPage() {
+export function ImprintPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
       <div className="relative overflow-hidden py-8">

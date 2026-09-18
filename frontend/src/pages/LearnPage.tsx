@@ -19,7 +19,7 @@ const SUBJECT_LABELS: Record<string, string> = {
   seemannschaft_segeln: 'Seemannschaft (Segeln)',
 }
 
-export function LernenPage() {
+export function LearnPage() {
   const user = useAuthStore((state) => state.user)
   const checkSession = useAuthStore((state) => state.checkSession)
 

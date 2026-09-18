@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
-import { ImpressumPage } from './ImpressumPage'
+import { ImprintPage } from './ImprintPage'
 
-describe('ImpressumPage', () => {
+describe('ImprintPage', () => {
   it('renders the Anbieter details required by § 5 DDG', () => {
     render(
       <MemoryRouter>
-        <ImpressumPage />
+        <ImprintPage />
       </MemoryRouter>,
     )
 

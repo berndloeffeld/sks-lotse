@@ -13,7 +13,7 @@ const VARIANT_LABELS: Record<ExamVariant, string> = {
 
 // Sets User.exam_variant (PATCH /auth/me) — kept as a small header-area
 // dropdown rather than a full explainer section, since it's a one-off
-// setting the learner picks once, not the point of the /lernen page.
+// setting the learner picks once, not the point of the /learn page.
 export function ExamVariantDropdown({ value, onChange, disabled }: ExamVariantDropdownProps) {
   return (
     <label className="flex items-center gap-2 font-mono text-xs tracking-wide text-ink-soft uppercase">
