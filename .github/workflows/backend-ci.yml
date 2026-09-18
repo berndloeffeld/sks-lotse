@@ -90,6 +90,61 @@ jobs:
       - run: alembic downgrade base
       - run: alembic upgrade head
 
+  integration-tests:
+    # Black-box run of postman/integration-tests.postman_collection.json (Newman) against a real
+    # uvicorn on a real, freshly migrated + seeded Postgres — the only place the collection gets
+    # executed automatically, which is what keeps its hand-written assertions honest. The pytest
+    # test backend/tests/test_integration_collection.py additionally fails when a route has no
+    # request in the collection.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+      JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
+      # The collection's admin test account (adminEmail variable); RESEND_API_KEY stays unset, so
+      # no OTP mail is ever sent — the collection reads codes via the dev-only _dev-peek endpoint.
+      ADMIN_EMAILS: integration-admin@example.com
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: pip install -r backend/requirements.txt
+      - run: alembic upgrade head
+        working-directory: backend
+      - name: Start the backend
+        working-directory: backend
+        run: |
+          nohup uvicorn app.main:app --port 8000 > "$RUNNER_TEMP/uvicorn.log" 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/uvicorn.log"
+          exit 1
+      - run: ./scripts/run_integration_tests.sh
+      - name: Backend log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/uvicorn.log"
+
   postman-collection:
     runs-on: ubuntu-latest
     steps:

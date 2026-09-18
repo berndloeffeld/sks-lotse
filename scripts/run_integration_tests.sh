@@ -9,8 +9,16 @@
 #   - The backend is already running locally with ENVIRONMENT unset or
 #     "development" (the dev-peek endpoint 404s otherwise) — e.g.:
 #       cd backend && uvicorn app.main:app --reload
-#   - If ALLOWED_EMAILS is set in that server's environment, it must include
-#     the testEmail collection variable (default: integration-test@example.com).
+#   - ADMIN_EMAILS on that server must include the adminEmail collection variable
+#     (default: integration-admin@example.com), or the Admin folder fails.
+#   - If ALLOWED_EMAILS is set, it must include every test address: the testEmail,
+#     profileEmail, profileNewEmail, adminEmail and victimEmail collection variables
+#     (defaults: integration-*@example.com).
+#   - Use a freshly started server (in-memory rate-limit counters + dev-peek codes)
+#     and, ideally, a scratch database with the catalog seeded (alembic upgrade head)
+#     - the run creates and deletes throwaway users. Leave RESEND_API_KEY empty
+#     so the test addresses never get real mail.
+# CI runs exactly this in backend-ci.yml's `integration-tests` job.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
