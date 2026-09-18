@@ -17,4 +17,16 @@ describe('ProgressSummaryTile', () => {
     expect(screen.getByText('0%')).toBeInTheDocument()
     expect(screen.getByText('0 von 0 Fragen gelernt')).toBeInTheDocument()
   })
+
+  it('embeds the category pie when slices are given', () => {
+    render(
+      <ProgressSummaryTile
+        learned={5}
+        total={10}
+        slices={[{ key: 'navigation', label: 'Navigation', learned: 5, total: 10 }]}
+      />,
+    )
+
+    expect(screen.getByRole('img', { name: 'Lernstand nach Kategorie' })).toBeInTheDocument()
+  })
 })

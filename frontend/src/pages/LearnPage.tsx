@@ -51,7 +51,7 @@ export function LearnPage() {
 
       {/* Keyed on exam_variant so a change remounts (and refetches) this
           section — it has no props, since it's shared as-is with ProfilePage. */}
-      <ProgressSummarySection key={user?.exam_variant ?? 'none'} />
+      <ProgressSummarySection key={user?.exam_variant ?? 'none'} collapsible={false} />
 
       <LegalFooter />
     </main>
