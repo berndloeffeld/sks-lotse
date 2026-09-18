@@ -122,7 +122,7 @@ GitHub Actions runs on every PR and every push to `main`:
 - **Frontend**: lint, type check, and tests with an 80% coverage gate.
 - **Security**: Aikido scans the repo.
 
-These checks aren't required status checks on `main` yet. See `CLAUDE.md` → Development Conventions for how each one works.
+All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
 
 ## Not yet built
 
