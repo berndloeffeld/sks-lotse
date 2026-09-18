@@ -9,13 +9,20 @@ interface LedgerRowProps {
 // per-topic Lernstand list on /lernen. "Lernen starten" stays disabled —
 // actually answering questions isn't built yet (see ADR-0018).
 export function LedgerRow({ title, learned, total }: LedgerRowProps) {
+  const percent = total > 0 ? Math.round((learned / total) * 100) : 0
+
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">
-      <div>
+      <div className="flex-1">
         <p className="text-ink">{title}</p>
-        <p className="font-mono text-xs text-ink-soft">
-          {learned} von {total} Fragen gelernt
-        </p>
+        <div className="mt-1.5 flex items-center gap-2">
+          <div className="h-1 w-20 bg-surface-alt">
+            <div className="h-full bg-success" style={{ width: `${percent}%` }} />
+          </div>
+          <p className="font-mono text-xs text-ink-soft">
+            {learned} von {total} Fragen gelernt
+          </p>
+        </div>
       </div>
       <button
         type="button"

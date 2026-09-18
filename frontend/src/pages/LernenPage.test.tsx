@@ -38,7 +38,7 @@ describe('LernenPage', () => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
-  it('shows the current exam variant and the Lernstand grouped by subject', async () => {
+  it('shows the current exam variant, overall progress, and the Lernstand grouped by subject', async () => {
     useAuthStore.setState({
       user: { id: 1, email: 'learner@example.com', created_at: '2026-01-01T00:00:00Z', exam_variant: 'motor' },
       isAuthenticated: true,
@@ -49,12 +49,17 @@ describe('LernenPage', () => {
     renderLernenPage()
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
-    expect(screen.getByText('2 von 7 Fragen gelernt')).toBeInTheDocument()
+    // Appears twice: once in the aggregate tile, once in Ankern's own row
+    // (the only topic in this fixture, so both read the same numbers).
+    expect(screen.getAllByText('2 von 7 Fragen gelernt')).toHaveLength(2)
     expect(screen.getByText('Navigation')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Lernen starten' })).toBeDisabled()
 
-    const radios = screen.getAllByRole('radio')
-    expect(radios[1]).toBeChecked() // "motor"
+    // Overall progress tile aggregates across every topic.
+    expect(screen.getByText('Gesamtfortschritt')).toBeInTheDocument()
+    expect(screen.getByText('29%')).toBeInTheDocument()
+
+    expect(screen.getByRole('combobox')).toHaveValue('motor')
   })
 
   it('shows an empty state when no topics are scoped in yet', async () => {
@@ -95,8 +100,7 @@ describe('LernenPage', () => {
     renderLernenPage()
     await screen.findByText('Ankern')
 
-    const [, motor] = screen.getAllByRole('radio')
-    await user.click(motor)
+    await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([u, i]) => String(u).endsWith('/auth/me') && i?.method === 'PATCH')).toBe(true)
@@ -122,8 +126,7 @@ describe('LernenPage', () => {
     renderLernenPage()
     await screen.findByText('Ankern')
 
-    const [, motor] = screen.getAllByRole('radio')
-    await user.click(motor)
+    await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
     expect(await screen.findByText('Die Prüfungsvariante konnte nicht gespeichert werden.')).toBeInTheDocument()
   })

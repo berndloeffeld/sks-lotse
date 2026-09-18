@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom'
 import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
 import { ContourBackground } from '../components/ContourBackground'
-import { ExamVariantSelector, type ExamVariant } from '../components/ExamVariantSelector'
+import { ExamVariantDropdown, type ExamVariant } from '../components/ExamVariantDropdown'
 import { LedgerRow } from '../components/LedgerRow'
 import { LegalFooter } from '../components/LegalFooter'
+import { ProgressSummaryTile } from '../components/ProgressSummaryTile'
 import { useAuthStore } from '../store/authStore'
 
 const SUBJECT_LABELS: Record<string, string> = {
@@ -72,25 +73,34 @@ export function LernenPage() {
     bySubject.set(topic.subject, topics)
   }
 
+  const totals = progress.reduce(
+    (acc, topic) => ({
+      learned: acc.learned + topic.learned_questions,
+      total: acc.total + topic.total_questions,
+    }),
+    { learned: 0, total: 0 },
+  )
+
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
       <header className="relative overflow-hidden py-4">
         <ContourBackground className="h-24" />
-        <div className="relative">
-          <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
-            ← Zurück
-          </Link>
-          <h1 className="mt-2 font-serif text-2xl text-ink">Lernen</h1>
+        <div className="relative flex items-start justify-between gap-4">
+          <div>
+            <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
+              ← Zurück
+            </Link>
+            <h1 className="mt-2 font-serif text-2xl text-ink">Lernen</h1>
+          </div>
+          <ExamVariantDropdown
+            value={user?.exam_variant ?? null}
+            onChange={handleExamVariantChange}
+            disabled={isSavingVariant}
+          />
         </div>
       </header>
 
       {error ? <p className="text-sm text-danger">{error}</p> : null}
-
-      <ExamVariantSelector
-        value={user?.exam_variant ?? null}
-        onChange={handleExamVariantChange}
-        disabled={isSavingVariant}
-      />
 
       <section className="flex flex-col gap-6">
         <h2 className="font-serif text-lg text-ink">Lernstand</h2>
@@ -99,23 +109,26 @@ export function LernenPage() {
         ) : progress.length === 0 ? (
           <p className="text-sm text-ink-soft">Keine Themen gefunden.</p>
         ) : (
-          Array.from(bySubject.entries()).map(([subject, topics]) => (
-            <div key={subject}>
-              <h3 className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
-                {SUBJECT_LABELS[subject] ?? subject}
-              </h3>
-              <div>
-                {topics.map((topic) => (
-                  <LedgerRow
-                    key={topic.topic_slug}
-                    title={topic.topic_name}
-                    learned={topic.learned_questions}
-                    total={topic.total_questions}
-                  />
-                ))}
+          <>
+            <ProgressSummaryTile learned={totals.learned} total={totals.total} />
+            {Array.from(bySubject.entries()).map(([subject, topics]) => (
+              <div key={subject}>
+                <h3 className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
+                  {SUBJECT_LABELS[subject] ?? subject}
+                </h3>
+                <div>
+                  {topics.map((topic) => (
+                    <LedgerRow
+                      key={topic.topic_slug}
+                      title={topic.topic_name}
+                      learned={topic.learned_questions}
+                      total={topic.total_questions}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </section>
 
