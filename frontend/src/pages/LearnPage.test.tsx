@@ -88,10 +88,16 @@ describe('LearnPage', () => {
 
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
+    // Wait on the actual end state (the store reflecting the saved variant),
+    // not just on the PATCH call having fired: fetchMock records a call the
+    // instant fetch() is invoked, before its response — and the component's
+    // own await chain — resolves. Asserting on mock.calls right after that
+    // is a race with handleExamVariantChange's subsequent checkSession()
+    // (a GET /auth/me) that actually updates the store; under load, that
+    // GET may not have completed yet when the assertion runs.
     await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([u, i]) => String(u).endsWith('/auth/me') && i?.method === 'PATCH')).toBe(true)
+      expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
     })
-    expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
   })
 
   it('shows an error message when the exam-variant update fails', async () => {
