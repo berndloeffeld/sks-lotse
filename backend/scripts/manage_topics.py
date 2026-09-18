@@ -32,12 +32,19 @@ from app.models.topic import Topic
 
 TOPICS_PATH = Path(__file__).resolve().parent / "data" / "topics.yaml"
 ASSIGNMENTS_DIR = Path(__file__).resolve().parent / "data" / "topic_assignments"
-MODEL = "claude-opus-5"
+MODEL = "claude-haiku-4-5"
+
+
+class Assignment(BaseModel):
+    number: int
+    slug: str
 
 
 class TopicAssignments(BaseModel):
-    # Fragennummer (as a string) -> topic slug.
-    assignments: dict[str, str]
+    # A flat list rather than a {number: slug} dict — Claude's structured-output
+    # schema requires additionalProperties: false, which rules out a dict with
+    # dynamic (per-question-number) keys.
+    assignments: list[Assignment]
 
 
 def load_topics() -> dict[str, list[dict]]:
@@ -78,19 +85,17 @@ def propose(force: bool) -> None:
                 messages=[{"role": "user", "content": prompt}],
                 output_format=TopicAssignments,
             )
-            assignments = response.parsed_output.assignments
+            assignments = {a.number: a.slug for a in response.parsed_output.assignments}
 
             invalid = {num: slug for num, slug in assignments.items() if slug not in allowed_slugs}
-            missing = [q.number for q in questions if str(q.number) not in assignments]
+            missing = [q.number for q in questions if q.number not in assignments]
             if invalid:
                 print(f"{subject}: {len(invalid)} assignments used an unknown slug: {invalid}")
             if missing:
                 print(f"{subject}: {len(missing)} questions got no assignment: {missing}")
 
             ASSIGNMENTS_DIR.mkdir(parents=True, exist_ok=True)
-            out_path.write_text(
-                yaml.dump({int(k): v for k, v in assignments.items()}, allow_unicode=True, sort_keys=True)
-            )
+            out_path.write_text(yaml.dump(assignments, allow_unicode=True, sort_keys=True))
             print(f"{subject}: wrote {len(assignments)} assignments to {out_path}")
     finally:
         db.close()

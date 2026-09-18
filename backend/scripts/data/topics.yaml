@@ -4,11 +4,13 @@
 #
 # The official Seemannschaft I (18 topics) and Seemannschaft II (16 topics) lists are identical
 # except for 3 entries; those 3 are what separates the two exam variants (see
-# backend/scripts/merge_seemannschaft.py). This file already maps that split onto the merged
-# seemannschaft_allgemein / seemannschaft_motor / seemannschaft_segeln subjects:
-#   - seemannschaft_segeln: "Takelung...", "Segel", "Kenntnisse über Segelstellung..." (only in I)
-#   - seemannschaft_motor: "Kenntnisse über Stabilität, Trimm und Rumpfgeschwindigkeit" (only in II)
-#   - seemannschaft_allgemein: the other 15 topics, shared by both official lists
+# backend/scripts/merge_seemannschaft.py). seemannschaft_segeln below is I's own 18-topic list
+# verbatim (its rows are a genuine subset of I's 163 original questions); seemannschaft_motor is
+# II's own 16-topic list verbatim (same reasoning); seemannschaft_allgemein gets only the 15
+# topics common to both lists (Takelung/Segel/Segelstellung and Stabilität-Trimm never apply to a
+# question proven word-for-word identical across both variants). A shared topic name therefore
+# exists as a separate row (own id) per subject, same as every other subject in this file — not a
+# single row reused across subjects.
 #
 # manage_topics.py reads this file; it never invents or renames topics itself.
 
@@ -120,17 +122,107 @@ seemannschaft_allgemein:
     display_order: 15
 
 seemannschaft_segeln:
+  - slug: yacht-bootsbau
+    name: Yacht- und Bootsbau
+    display_order: 1
   - slug: takelung-stehendes-laufendes-gut
     name: Takelung, stehendes und laufendes Gut
-    display_order: 1
+    display_order: 2
   - slug: segel
     name: Segel
-    display_order: 2
+    display_order: 3
+  - slug: ausruestung-allgemein
+    name: Ausrüstung (allgemein)
+    display_order: 4
   - slug: segelstellung-stabilitaet-rumpfgeschwindigkeit
     name: Kenntnisse über Segelstellung, Stabilität und Rumpfgeschwindigkeit
-    display_order: 3
+    display_order: 5
+  - slug: antriebsmaschine-betrieb-wartung
+    name: Antriebsmaschine (Betrieb und Wartung)
+    display_order: 6
+  - slug: umgang-mit-tauwerk
+    name: Umgang mit Tauwerk
+    display_order: 7
+  - slug: bootspflege-instandhaltung
+    name: Bootspflege, Instandhaltung
+    display_order: 8
+  - slug: fuehren-einer-segelyacht
+    name: Führen einer Segelyacht, Vorbereitung, Allgemeines
+    display_order: 9
+  - slug: manoever-hafen-see
+    name: Manöver im Hafen und auf See
+    display_order: 10
+  - slug: manoever-schwerem-wetter
+    name: Manöver bei schwerem Wetter
+    display_order: 11
+  - slug: manoever-stroemenden-gewaessern
+    name: Manöver in strömenden Gewässern
+    display_order: 12
+  - slug: mensch-ueber-bord
+    name: Mensch-über-Bord-Manöver
+    display_order: 13
+  - slug: sicherheitsausruestung
+    name: Sicherheitsausrüstung
+    display_order: 14
+  - slug: seetuechtigkeit
+    name: Seetüchtigkeit
+    display_order: 15
+  - slug: massnahmen-bei-notfaellen
+    name: Maßnahmen bei Notfällen
+    display_order: 16
+  - slug: ankern
+    name: Ankern
+    display_order: 17
+  - slug: seeschiffe-manoevrierverhalten
+    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
+    display_order: 18
 
 seemannschaft_motor:
+  - slug: yacht-bootsbau
+    name: Yacht- und Bootsbau
+    display_order: 1
+  - slug: ausruestung-allgemein
+    name: Ausrüstung (allgemein)
+    display_order: 2
   - slug: stabilitaet-trimm-rumpfgeschwindigkeit
     name: Kenntnisse über Stabilität, Trimm und Rumpfgeschwindigkeit
-    display_order: 1
+    display_order: 3
+  - slug: antriebsmaschine-betrieb-wartung
+    name: Antriebsmaschine (Betrieb und Wartung)
+    display_order: 4
+  - slug: umgang-mit-tauwerk
+    name: Umgang mit Tauwerk
+    display_order: 5
+  - slug: bootspflege-instandhaltung
+    name: Bootspflege, Instandhaltung
+    display_order: 6
+  - slug: fuehren-einer-motoryacht
+    name: Führen einer Motoryacht, Vorbereitung, Allgemeines
+    display_order: 7
+  - slug: manoever-hafen-see
+    name: Manöver im Hafen und auf See
+    display_order: 8
+  - slug: manoever-schwerem-wetter
+    name: Manöver bei schwerem Wetter
+    display_order: 9
+  - slug: manoever-stroemenden-gewaessern
+    name: Manöver in strömenden Gewässern
+    display_order: 10
+  - slug: mensch-ueber-bord
+    name: Mensch-über-Bord-Manöver
+    display_order: 11
+  - slug: sicherheitsausruestung
+    name: Sicherheitsausrüstung
+    display_order: 12
+  - slug: seetuechtigkeit
+    name: Seetüchtigkeit
+    display_order: 13
+  - slug: massnahmen-bei-notfaellen
+    name: Maßnahmen bei Notfällen
+    display_order: 14
+  - slug: ankern
+    name: Ankern
+    display_order: 15
+  - slug: seeschiffe-manoevrierverhalten
+    name: Seeschiffe, Manövrierverhalten/Eingeschränkte Sicht
+    display_order: 16
