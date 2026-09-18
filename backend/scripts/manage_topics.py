@@ -10,19 +10,20 @@ with categories itself.
 Usage (must run after merge_seemannschaft.py apply, since seemannschaft
 topics are keyed on the merged subjects — seemannschaft_allgemein/_motor/
 _segeln — not the raw seemannschaft_1/seemannschaft_2 import_catalog.py
-produces):
+produces). Needs ANTHROPIC_API_KEY set (backend/.env) — this is a local
+dev-only tool, not read by the running app:
 
-    OPENAI_API_KEY=... PYTHONPATH=. .venv/bin/python scripts/manage_topics.py propose
+    PYTHONPATH=. .venv/bin/python scripts/manage_topics.py propose
     # review/edit scripts/data/topic_assignments/<subject>.yaml by hand
     PYTHONPATH=. .venv/bin/python scripts/manage_topics.py apply
 """
 
 import argparse
-import json
 from pathlib import Path
 
 import yaml
-from openai import OpenAI
+from anthropic import Anthropic
+from pydantic import BaseModel
 
 from app.core.config import settings
 from app.core.database import SessionLocal
@@ -31,7 +32,12 @@ from app.models.topic import Topic
 
 TOPICS_PATH = Path(__file__).resolve().parent / "data" / "topics.yaml"
 ASSIGNMENTS_DIR = Path(__file__).resolve().parent / "data" / "topic_assignments"
-MODEL = "gpt-4.1-mini"
+MODEL = "claude-opus-5"
+
+
+class TopicAssignments(BaseModel):
+    # Fragennummer (as a string) -> topic slug.
+    assignments: dict[str, str]
 
 
 def load_topics() -> dict[str, list[dict]]:
@@ -40,7 +46,7 @@ def load_topics() -> dict[str, list[dict]]:
 
 def propose(force: bool) -> None:
     topics_by_subject = load_topics()
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = Anthropic(api_key=settings.anthropic_api_key)
 
     db = SessionLocal()
     try:
@@ -62,18 +68,17 @@ def propose(force: bool) -> None:
                 "Du ordnest Fragen aus dem amtlichen SKS-Fragenkatalog (Fach "
                 f"'{subject}') den folgenden amtlichen Unterthemen zu. Verwende "
                 "AUSSCHLIESSLICH die unten aufgeführten Slugs, erfinde keine neuen "
-                "Kategorien. Antworte als JSON-Objekt der Form "
-                '{"assignments": {"<Fragennummer>": "<slug>"}} mit genau einem '
-                "Eintrag pro Fragennummer.\n\n"
+                "Kategorien. Liefere genau einen Eintrag pro Fragennummer.\n\n"
                 f"Unterthemen:\n{topic_list_text}\n\nFragen:\n{questions_text}"
             )
 
-            response = client.chat.completions.create(
+            response = client.messages.parse(
                 model=MODEL,
+                max_tokens=16000,
                 messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"},
+                output_format=TopicAssignments,
             )
-            assignments = json.loads(response.choices[0].message.content).get("assignments", {})
+            assignments = response.parsed_output.assignments
 
             invalid = {num: slug for num, slug in assignments.items() if slug not in allowed_slugs}
             missing = [q.number for q in questions if str(q.number) not in assignments]
