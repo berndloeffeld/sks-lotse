@@ -19,6 +19,7 @@ from app.schemas.auth import (
     OtpVerifyRequest,
     TokenRead,
     UserRead,
+    UserUpdate,
 )
 from app.services import email as email_service
 
@@ -223,6 +224,18 @@ def dev_peek_otp_code(email: str, request: Request):
 
 @router.get("/me", response_model=UserRead)
 def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserRead)
+def update_current_user(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    current_user.exam_variant = payload.exam_variant
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 

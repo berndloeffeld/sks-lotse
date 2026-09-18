@@ -414,7 +414,179 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"motor\"\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    },
+                    {
+                      "name": "Update Current User",
+                      "request": {
+                        "name": "Update Current User",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "auth",
+                            "me"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "PATCH",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "me"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "PATCH",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"motor\"\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        },
+                        {
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "me"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "PATCH",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"exam_variant\": \"segeln_und_motor\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }
@@ -533,6 +705,15 @@
                           },
                           "key": "subject",
                           "value": "<string>"
+                        },
+                        {
+                          "disabled": false,
+                          "description": {
+                            "content": "",
+                            "type": "text/plain"
+                          },
+                          "key": "topic",
+                          "value": "<string>"
                         }
                       ],
                       "variable": []
@@ -577,6 +758,15 @@
                               },
                               "key": "subject",
                               "value": "<string>"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "topic",
+                              "value": "<string>"
                             }
                           ],
                           "variable": []
@@ -606,7 +796,7 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "[\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\"\n  }\n]",
+                      "body": "[\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\",\n    \"topic\": \"<string>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"image_ref\": \"<string>\",\n    \"topic\": \"<string>\"\n  }\n]",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     },
@@ -630,6 +820,15 @@
                                 "type": "text/plain"
                               },
                               "key": "subject",
+                              "value": "<string>"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "topic",
                               "value": "<string>"
                             }
                           ],
@@ -772,7 +971,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\",\n  \"topic\": \"<string>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -943,7 +1142,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"subject\": \"<string>\",\n  \"number\": \"<integer>\",\n  \"question_text\": \"<string>\",\n  \"answer_text\": \"<string>\",\n  \"image_ref\": \"<string>\",\n  \"topic\": \"<string>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -1010,6 +1209,172 @@
                       }
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "name": "topics",
+              "description": "",
+              "item": [
+                {
+                  "name": "List Topics",
+                  "request": {
+                    "name": "List Topics",
+                    "description": {},
+                    "url": {
+                      "path": [
+                        "api",
+                        "v1",
+                        "topics"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "disabled": false,
+                          "description": {
+                            "content": "",
+                            "type": "text/plain"
+                          },
+                          "key": "subject",
+                          "value": "<string>"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {},
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "topics"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "subject",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "[\n  {\n    \"subject\": \"<string>\",\n    \"slug\": \"<string>\",\n    \"name\": \"<string>\",\n    \"display_order\": \"<integer>\"\n  },\n  {\n    \"subject\": \"<string>\",\n    \"slug\": \"<string>\",\n    \"name\": \"<string>\",\n    \"display_order\": \"<integer>\"\n  }\n]",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    },
+                    {
+                      "name": "Validation Error",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "topics"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "subject",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
                 }
               ]
             }

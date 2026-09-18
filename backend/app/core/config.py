@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
     openai_api_key: str = ""
+    # Not read by the running app — only by backend/scripts/manage_topics.py,
+    # a local dev-only classification tool (see CLAUDE.md → Question Catalog).
+    anthropic_api_key: str = ""
     adsense_client_id: str = ""
     resend_api_key: str = ""
     email_from_address: str = "noreply@sks-lotse.de"

@@ -419,3 +419,28 @@ def test_token_issued_after_logout_still_works(client, db_session, auth_headers)
 
     response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {new_token}"})
     assert response.status_code == 200
+
+
+def test_me_without_exam_variant_returns_null(client, auth_headers):
+    response = client.get("/api/v1/auth/me", headers=auth_headers)
+    assert response.json()["exam_variant"] is None
+
+
+def test_update_me_sets_exam_variant(client, db_session, auth_headers):
+    response = client.patch("/api/v1/auth/me", json={"exam_variant": "motor"}, headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["exam_variant"] == "motor"
+
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    assert user.exam_variant == "motor"
+
+
+def test_update_me_rejects_unknown_exam_variant(client, auth_headers):
+    response = client.patch("/api/v1/auth/me", json={"exam_variant": "rudern"}, headers=auth_headers)
+    assert response.status_code == 422
+
+
+def test_update_me_requires_auth(client):
+    response = client.patch("/api/v1/auth/me", json={"exam_variant": "motor"})
+    assert response.status_code == 401

@@ -3,6 +3,8 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
+from app.core.exam_variant import ExamVariant
+
 # EmailStr only lowercases the domain, not the local part. Lowercase the
 # whole address once, here, so every per-email check (cooldown, hourly cap,
 # allowlist) and the users.email lookup see one canonical form — otherwise
@@ -51,3 +53,8 @@ class UserRead(BaseModel):
     id: int
     email: str
     created_at: datetime
+    exam_variant: ExamVariant | None
+
+
+class UserUpdate(BaseModel):
+    exam_variant: ExamVariant
