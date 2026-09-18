@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.core.database import Base, get_db
+from app.core.database import Base, get_db, get_session_factory
 from app.core.jwt import create_access_token
 from app.main import app
 from app.models import User
@@ -44,12 +44,16 @@ def db_session():
         poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
-    session = sessionmaker(bind=engine)()
+    session_factory = sessionmaker(bind=engine)
+    session = session_factory()
 
     def override_get_db():
         yield session
 
     app.dependency_overrides[get_db] = override_get_db
+    # StaticPool: every session from this factory shares the one in-memory
+    # connection, so background work sees (and changes) the same data.
+    app.dependency_overrides[get_session_factory] = lambda: session_factory
     yield session
     app.dependency_overrides.clear()
     session.close()
