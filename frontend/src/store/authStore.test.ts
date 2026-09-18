@@ -8,6 +8,9 @@ const mockUser: User = {
   email: 'learner@example.com',
   created_at: '2026-01-01T00:00:00Z',
   exam_variant: null,
+  first_name: null,
+  last_name: null,
+  gender: null,
   is_admin: false,
 }
 

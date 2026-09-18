@@ -125,6 +125,28 @@ def test_exact_rule_has_its_own_bucket_independent_of_default():
     assert client.get("/api/v1/another").status_code == 200
 
 
+def test_check_and_record_allows_up_to_the_limit_then_blocks():
+    # Used directly by request_email_change (see app/api/v1/auth.py) for a
+    # second, per-authenticated-user cap alongside the IP-based middleware
+    # above — same primitive, different key.
+    app = Starlette()
+    assert rate_limit.check_and_record(app, "bucket", "key", 2, 60) is True
+    assert rate_limit.check_and_record(app, "bucket", "key", 2, 60) is True
+    assert rate_limit.check_and_record(app, "bucket", "key", 2, 60) is False
+
+
+def test_check_and_record_window_slides(monkeypatch):
+    clock = [0.0]
+    monkeypatch.setattr(rate_limit.time, "monotonic", lambda: clock[0])
+    app = Starlette()
+
+    assert rate_limit.check_and_record(app, "bucket", "key", 1, 60) is True
+    assert rate_limit.check_and_record(app, "bucket", "key", 1, 60) is False
+
+    clock[0] += 61
+    assert rate_limit.check_and_record(app, "bucket", "key", 1, 60) is True
+
+
 def test_idle_keys_are_swept(monkeypatch):
     clock = [1000.0]
     monkeypatch.setattr(rate_limit.time, "monotonic", lambda: clock[0])

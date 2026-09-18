@@ -36,6 +36,19 @@ def _require_known_exam_variant(value: str) -> str:
 # example on every generation — non-reproducible, breaks the committed-collection CI check.
 ExamVariantField = Annotated[str, AfterValidator(_require_known_exam_variant)]
 
+GENDERS = {"maennlich", "weiblich", "divers"}
+
+
+def _require_known_gender(value: str) -> str:
+    if value not in GENDERS:
+        raise ValueError(f"gender must be one of: {', '.join(sorted(GENDERS))}")
+    return value
+
+
+# Same Literal-vs-AfterValidator reasoning as ExamVariantField above. Blank/"keine
+# Angabe" is represented by the field being null, not a stored member of GENDERS.
+GenderField = Annotated[str, AfterValidator(_require_known_gender)]
+
 
 class OtpRequestCreate(BaseModel):
     email: NormalizedEmail
@@ -48,6 +61,15 @@ class OtpRequestAccepted(BaseModel):
 class OtpVerifyRequest(BaseModel):
     email: NormalizedEmail
     # Bounded shape, so arbitrary-length input never reaches hashing/the DB.
+    code: DigitsCode
+
+
+class EmailChangeRequestCreate(BaseModel):
+    new_email: NormalizedEmail
+
+
+class EmailChangeVerifyRequest(BaseModel):
+    new_email: NormalizedEmail
     code: DigitsCode
 
 
@@ -67,6 +89,9 @@ class UserRead(BaseModel):
     email: str
     created_at: datetime
     exam_variant: str | None
+    first_name: str | None
+    last_name: str | None
+    gender: str | None
 
     @computed_field
     @property
@@ -75,4 +100,11 @@ class UserRead(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    exam_variant: ExamVariantField
+    # Partial update: a field left out of the request body is untouched; a
+    # field sent as explicit null clears it (see update_current_user's
+    # model_dump(exclude_unset=True) — that's what distinguishes "omitted"
+    # from "sent as null" here).
+    exam_variant: ExamVariantField | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    gender: GenderField | None = None

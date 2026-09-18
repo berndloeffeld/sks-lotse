@@ -29,6 +29,9 @@ describe('StartPage', () => {
         email: 'learner@example.com',
         created_at: '2026-01-01T00:00:00Z',
         exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
         is_admin: false,
       },
       isAuthenticated: true,
@@ -43,6 +46,29 @@ describe('StartPage', () => {
     expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
   })
 
+  it('shows the display name instead of the email once one is set, and links to /profile', () => {
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'learner@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: 'Anna',
+        last_name: 'Beispiel',
+        gender: null,
+        is_admin: false,
+      },
+      isAuthenticated: true,
+      isLoading: false,
+    })
+
+    renderStartPage()
+
+    expect(screen.getByText('Anna Beispiel')).toBeInTheDocument()
+    expect(screen.queryByText('learner@example.com')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/profile')
+  })
+
   it('logs out and returns to the landing page', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
@@ -51,6 +77,9 @@ describe('StartPage', () => {
         email: 'learner@example.com',
         created_at: '2026-01-01T00:00:00Z',
         exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
         is_admin: false,
       },
       isAuthenticated: true,

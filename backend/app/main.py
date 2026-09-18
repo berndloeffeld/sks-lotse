@@ -27,7 +27,15 @@ app.add_middleware(
         "/api/v1/auth/otp/request": (
             settings.rate_limit_otp_max_requests,
             settings.rate_limit_otp_window_seconds,
-        )
+        ),
+        # Same tightness as OTP login requests. A second, per-authenticated-user
+        # cap is applied inside request_email_change itself (see auth.py) —
+        # this per-IP rule alone doesn't stop one account probing many target
+        # addresses from multiple IPs.
+        "/api/v1/auth/me/email/request": (
+            settings.rate_limit_otp_max_requests,
+            settings.rate_limit_otp_window_seconds,
+        ),
     },
     # Generous blanket cap for the rest of /api/v1, so new endpoints are
     # covered without touching this file again. /health is deliberately
