@@ -16,10 +16,14 @@ dev-only tool, not read by the running app:
     PYTHONPATH=. .venv/bin/python scripts/manage_topics.py propose
     # review/edit scripts/data/topic_assignments/<subject>.yaml by hand
     PYTHONPATH=. .venv/bin/python scripts/manage_topics.py apply
+
+`apply`'s actual logic lives in app/services/catalog_seed.py, which also
+runs automatically as an Alembic data migration — that's what applies
+these assignments in production. It never calls an LLM; only `propose`
+above does, and only to produce the reviewed YAML files `apply` reads.
 """
 
 import argparse
-from pathlib import Path
 
 import yaml
 from anthropic import Anthropic
@@ -28,10 +32,8 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.core.database import SessionLocal
 from app.models.question import Question
-from app.models.topic import Topic
+from app.services.catalog_seed import ASSIGNMENTS_DIR, apply_topics, load_topics
 
-TOPICS_PATH = Path(__file__).resolve().parent / "data" / "topics.yaml"
-ASSIGNMENTS_DIR = Path(__file__).resolve().parent / "data" / "topic_assignments"
 MODEL = "claude-haiku-4-5"
 
 
@@ -45,10 +47,6 @@ class TopicAssignments(BaseModel):
     # schema requires additionalProperties: false, which rules out a dict with
     # dynamic (per-question-number) keys.
     assignments: list[Assignment]
-
-
-def load_topics() -> dict[str, list[dict]]:
-    return yaml.safe_load(TOPICS_PATH.read_text())
 
 
 def propose(force: bool) -> None:
@@ -102,44 +100,9 @@ def propose(force: bool) -> None:
 
 
 def apply_() -> None:
-    topics_by_subject = load_topics()
-
     db = SessionLocal()
     try:
-        topic_id_by_subject_slug: dict[tuple[str, str], int] = {}
-        for subject, topics in topics_by_subject.items():
-            for t in topics:
-                topic = (
-                    db.query(Topic).filter(Topic.subject == subject, Topic.slug == t["slug"]).one_or_none()
-                )
-                if topic is None:
-                    topic = Topic(
-                        subject=subject, slug=t["slug"], name=t["name"], display_order=t["display_order"]
-                    )
-                    db.add(topic)
-                else:
-                    topic.name = t["name"]
-                    topic.display_order = t["display_order"]
-                db.flush()
-                topic_id_by_subject_slug[(subject, t["slug"])] = topic.id
-
-        unassigned: list[tuple[str, int]] = []
-        for subject in topics_by_subject:
-            assignments_path = ASSIGNMENTS_DIR / f"{subject}.yaml"
-            if not assignments_path.exists():
-                print(f"Skipping {subject}: no {assignments_path}")
-                continue
-            assignments = yaml.safe_load(assignments_path.read_text()) or {}
-            questions = {q.number: q for q in db.query(Question).filter(Question.subject == subject)}
-            for number, slug in assignments.items():
-                question = questions.get(number)
-                if question is not None:
-                    question.topic_id = topic_id_by_subject_slug.get((subject, slug))
-            for number in questions:
-                if number not in assignments:
-                    unassigned.append((subject, number))
-
-        db.commit()
+        unassigned = apply_topics(db)
     finally:
         db.close()
 
