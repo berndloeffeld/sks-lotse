@@ -2042,7 +2042,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"question_progress_count\": \"<integer>\"\n}",
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"question_progress_count\": \"<integer>\"\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             },
@@ -2225,7 +2225,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },

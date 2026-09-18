@@ -147,6 +147,10 @@ export function AdminPage() {
             <dd className="font-mono text-ink">{result.email}</dd>
             <dt className="text-ink-soft">ID</dt>
             <dd className="font-mono text-ink">{result.id}</dd>
+            <dt className="text-ink-soft">Name</dt>
+            <dd className="text-ink">{`${result.first_name ?? ''} ${result.last_name ?? ''}`.trim() || '—'}</dd>
+            <dt className="text-ink-soft">Geschlecht</dt>
+            <dd className="text-ink">{result.gender ?? '—'}</dd>
             <dt className="text-ink-soft">Angemeldet seit</dt>
             <dd className="text-ink">{new Date(result.created_at).toLocaleDateString('de-DE')}</dd>
             <dt className="text-ink-soft">Prüfungsvariante</dt>

@@ -26,6 +26,9 @@ const foundUser = {
   email: 'learner@example.com',
   created_at: '2026-01-01T00:00:00Z',
   exam_variant: 'motor',
+  first_name: 'Anna',
+  last_name: 'Beispiel',
+  gender: 'weiblich',
   question_progress_count: 3,
 }
 
@@ -91,6 +94,25 @@ describe('AdminPage', () => {
 
     expect(await screen.findByText('learner@example.com')).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
+    expect(screen.getByText('Anna Beispiel')).toBeInTheDocument()
+    expect(screen.getByText('weiblich')).toBeInTheDocument()
+  })
+
+  it('shows a dash for profile fields the learner left blank', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(jsonResponse({ ...foundUser, first_name: null, last_name: null, gender: null })),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+
+    await screen.findByText('learner@example.com')
+    expect(screen.getByText('Name').nextElementSibling).toHaveTextContent('—')
+    expect(screen.getByText('Geschlecht').nextElementSibling).toHaveTextContent('—')
   })
 
   it('shows an inline error when no user is found', async () => {
