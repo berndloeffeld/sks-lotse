@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
+import { ProtectedRoute } from '../routes/ProtectedRoute'
 import { useAuthStore } from '../store/authStore'
 import { LearnPage } from './LearnPage'
 
@@ -14,7 +15,11 @@ function renderLearnPage() {
   return render(
     <MemoryRouter initialEntries={['/learn']}>
       <Routes>
-        <Route path="/learn" element={<LearnPage />} />
+        {/* Same nesting as App.tsx, so a page remount caused by the store's
+            isLoading flipping would show up here too. */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/learn" element={<LearnPage />} />
+        </Route>
         <Route path="/start" element={<p>Start page</p>} />
       </Routes>
     </MemoryRouter>,
@@ -83,7 +88,6 @@ describe('LearnPage', () => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(progressSummary)
       if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
-      if (url.endsWith('/auth/me')) return jsonResponse(updatedUser)
       return jsonResponse({ detail: 'not found' }, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -95,14 +99,14 @@ describe('LearnPage', () => {
 
     // Wait on the actual end state (the store reflecting the saved variant),
     // not just on the PATCH call having fired: fetchMock records a call the
-    // instant fetch() is invoked, before its response — and the component's
-    // own await chain — resolves. Asserting on mock.calls right after that
-    // is a race with handleExamVariantChange's subsequent checkSession()
-    // (a GET /auth/me) that actually updates the store; under load, that
-    // GET may not have completed yet when the assertion runs.
+    // instant fetch() is invoked, before its response resolves.
     await waitFor(() => {
       expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
     })
+    // Updated straight from the PATCH response: the page never dropped to
+    // ProtectedRoute's loading state, and no extra GET /auth/me went out.
+    expect(screen.queryByText('Lädt…')).not.toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([u, i]) => String(u).endsWith('/auth/me') && i?.method === undefined)).toBe(false)
   })
 
   it('shows an error message when the exam-variant update fails', async () => {

@@ -112,5 +112,7 @@ describe('ProgressSummarySection', () => {
     render(<ProgressSummarySection />)
 
     expect(await screen.findByText('Der Lernstand konnte nicht geladen werden.')).toBeInTheDocument()
+    // A failed fetch isn't the same as "no topics" — don't claim both.
+    expect(screen.queryByText('Keine Themen gefunden.')).not.toBeInTheDocument()
   })
 })
