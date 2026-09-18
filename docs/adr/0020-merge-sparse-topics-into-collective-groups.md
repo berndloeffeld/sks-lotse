@@ -1,6 +1,6 @@
 # 0020. Merge/split sparse topics into new collective names, sized 10-35 questions
 
-Status: Accepted
+Status: Accepted — seeding mechanics (delete + insert, per-stage `apply` scripts) superseded by [ADR-0022](0022-catalog-sync-by-upsert.md)
 
 ## Context
 

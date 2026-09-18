@@ -9,20 +9,18 @@ seemannschaft_allgemein (shared), seemannschaft_segeln (I-only) and
 seemannschaft_motor (II-only). See CLAUDE.md → Question Catalog and
 docs/adr/ for the reasoning.
 
-Usage (must run after import_catalog.py, which always recreates
-seemannschaft_1/seemannschaft_2 from scratch, and before manage_topics.py,
+Usage (reads the PDF directly, no DB needed; run before manage_topics.py,
 which assigns topics keyed on the post-merge subjects):
 
-    PYTHONPATH=. .venv/bin/python scripts/merge_seemannschaft.py propose
+    PYTHONPATH=. .venv/bin/python scripts/merge_seemannschaft.py [--force]
     # review/edit scripts/data/seemannschaft_duplicates.yaml by hand
-    PYTHONPATH=. .venv/bin/python scripts/merge_seemannschaft.py apply
+    PYTHONPATH=. .venv/bin/python scripts/import_catalog.py
 
-`propose` only ever suggests candidates for a human to check — matching is
-plain text-similarity (no LLM needed, the duplicates are near word-for-word
-identical). `apply`'s actual logic lives in app/services/catalog_seed.py,
-which also runs automatically as an Alembic data migration — that's what
-seeds production. `apply` here reads only the reviewed YAML file, never
-recomputes similarity itself.
+This only ever suggests candidates for a human to check — matching is plain
+text-similarity (no LLM needed, the duplicates are near word-for-word
+identical). Applying the reviewed file happens in
+app/services/catalog_seed.py (merge_seemannschaft), which also runs
+automatically as an Alembic data migration — that's what seeds production.
 """
 
 import argparse
@@ -31,9 +29,7 @@ import re
 
 import yaml
 
-from app.core.database import SessionLocal
-from app.models.question import Question
-from app.services.catalog_seed import SEEMANNSCHAFT_DUPLICATES_PATH, merge_seemannschaft
+from app.services.catalog_seed import SEEMANNSCHAFT_DUPLICATES_PATH, parse_catalog_pdf
 
 DATA_PATH = SEEMANNSCHAFT_DUPLICATES_PATH
 SIMILARITY_THRESHOLD = 0.75
@@ -49,16 +45,9 @@ def propose(force: bool) -> None:
     if DATA_PATH.exists() and not force:
         raise SystemExit(f"{DATA_PATH} already exists — pass --force to overwrite")
 
-    db = SessionLocal()
-    try:
-        segeln = (
-            db.query(Question).filter(Question.subject == "seemannschaft_1").order_by(Question.number).all()
-        )
-        motor = (
-            db.query(Question).filter(Question.subject == "seemannschaft_2").order_by(Question.number).all()
-        )
-    finally:
-        db.close()
+    raw = parse_catalog_pdf()
+    segeln = sorted((q for q in raw if q.subject == "seemannschaft_1"), key=lambda q: q.number)
+    motor = sorted((q for q in raw if q.subject == "seemannschaft_2"), key=lambda q: q.number)
 
     motor_norm = {m.number: normalize(m.question_text) for m in motor}
     used_motor_numbers: set[int] = set()
@@ -88,29 +77,10 @@ def propose(force: bool) -> None:
     print(f"Seemannschaft I: {len(segeln)} questions, Seemannschaft II: {len(motor)} questions")
 
 
-def apply_() -> None:
-    db = SessionLocal()
-    try:
-        counts = merge_seemannschaft(db)
-    finally:
-        db.close()
-
-    print("Merged duplicate pairs into seemannschaft_allgemein.")
-    print(f"Resulting counts: {counts}")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    subparsers = parser.add_subparsers(dest="command", required=True)
-    propose_parser = subparsers.add_parser("propose")
-    propose_parser.add_argument("--force", action="store_true")
-    subparsers.add_parser("apply")
-
-    args = parser.parse_args()
-    if args.command == "propose":
-        propose(args.force)
-    else:
-        apply_()
+    parser.add_argument("--force", action="store_true", help="overwrite an existing duplicates file")
+    propose(parser.parse_args().force)
 
 
 if __name__ == "__main__":

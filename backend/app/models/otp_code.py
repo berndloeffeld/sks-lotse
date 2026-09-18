@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Index, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -31,6 +31,15 @@ class OtpCode(Base):
     # OTP_PURPOSE_LOGIN or OTP_PURPOSE_EMAIL_CHANGE (app/core/otp.py). No
     # default: every insert has to say which flow the code belongs to.
     purpose: Mapped[str] = mapped_column(String(16), nullable=False)
+    # Only set for OTP_PURPOSE_EMAIL_CHANGE: the account that asked to move to
+    # `email`. Binds the code to that account (no one else can redeem it or
+    # burn its attempts) and lets an account deletion remove pending codes
+    # for addresses other than the account's own. Deliberately unindexed:
+    # nothing looks codes up by user_id alone except that rare deletion,
+    # and the table stays small (see the cleanup in ADR-0010).
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE", name="fk_otp_codes_user_id_users"), nullable=True
+    )
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

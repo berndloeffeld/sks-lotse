@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
 
@@ -20,3 +20,11 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def get_session_factory() -> sessionmaker[Session]:
+    # For work that outlives the request, e.g. a BackgroundTasks job: it must
+    # open (and close) its own session rather than borrow get_db's, whose
+    # lifetime is tied to the request. A dependency rather than a direct
+    # SessionLocal import so tests can point it at their own engine.
+    return SessionLocal
