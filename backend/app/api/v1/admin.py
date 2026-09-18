@@ -28,6 +28,19 @@ def _question_progress_count(db: Session, user_id: int) -> int:
     ).scalar_one()
 
 
+def _admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
+    return AdminUserRead(
+        id=user.id,
+        email=user.email,
+        created_at=user.created_at,
+        exam_variant=user.exam_variant,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        gender=user.gender,
+        question_progress_count=question_progress_count,
+    )
+
+
 def _get_user_or_404(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:
@@ -40,13 +53,7 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if user is None:
         raise _NOT_FOUND
-    return AdminUserRead(
-        id=user.id,
-        email=user.email,
-        created_at=user.created_at,
-        exam_variant=user.exam_variant,
-        question_progress_count=_question_progress_count(db, user.id),
-    )
+    return _admin_user_read(user, _question_progress_count(db, user.id))
 
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)
@@ -60,13 +67,7 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
     ).all()
 
     return AdminUserExport(
-        user=AdminUserRead(
-            id=user.id,
-            email=user.email,
-            created_at=user.created_at,
-            exam_variant=user.exam_variant,
-            question_progress_count=len(rows),
-        ),
+        user=_admin_user_read(user, len(rows)),
         question_progress=[
             AdminQuestionProgressExport(
                 question_id=progress.question_id,

@@ -30,6 +30,9 @@ export interface AdminUserSearchResult {
   email: string
   created_at: string
   exam_variant: string | null
+  first_name: string | null
+  last_name: string | null
+  gender: string | null
   question_progress_count: number
 }
 

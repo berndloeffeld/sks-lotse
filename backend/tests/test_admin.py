@@ -69,6 +69,25 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     assert row["correct_streak"] == 2
 
 
+def test_admin_search_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
+    # Art. 15/20 DSGVO: the export has to contain all personal data stored
+    # about the learner — including the optional, self-reported profile fields.
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    user.first_name = "Anna"
+    user.last_name = "Beispiel"
+    user.gender = "weiblich"
+    user.exam_variant = "motor"
+    db_session.commit()
+
+    search = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
+
+    expected = {"first_name": "Anna", "last_name": "Beispiel", "gender": "weiblich", "exam_variant": "motor"}
+    assert search.json().items() >= expected.items()
+    assert export.json()["user"].items() >= expected.items()
+
+
 def test_admin_export_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     response = client.get("/api/v1/admin/users/999999/export", headers=auth_headers)

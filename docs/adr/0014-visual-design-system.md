@@ -30,7 +30,7 @@ The mockups themselves live in a private, external design tool (interactive HTML
 | `success` | `#3D7A5C` | "gelernt" / correct state |
 | `danger` | `#B24632` | errors, "falsch" |
 
-**Typography**: `Fraunces` (serif, headings) + `Public Sans` (sans, body/UI) + `IBM Plex Mono` (question numbers, percentages, nav labels — anything that should read like a logbook entry). Deliberately not Inter/Roboto/Arial. All three load from Google Fonts.
+**Typography**: `Fraunces` (serif, headings) + `Public Sans` (sans, body/UI) + `IBM Plex Mono` (question numbers, percentages, nav labels — anything that should read like a logbook entry). Deliberately not Inter/Roboto/Arial. All three load from Google Fonts. *(Amended by [ADR-0021](0021-self-hosted-web-fonts.md): now self-hosted via `@fontsource/*`, no longer loaded from Google Fonts.)*
 
 **Corners & chrome**: flat, mostly square-cornered (0–2px radius), 1–1.5px hairline borders — not the rounded-card/colored-pill idiom common to competitor apps and generic mobile UI kits.
 
