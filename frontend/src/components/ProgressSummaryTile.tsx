@@ -21,8 +21,8 @@ export function ProgressSummaryTile({ learned, total, slices }: ProgressSummaryT
         className="absolute top-0 right-0 h-5 w-5 border-b border-l border-ink bg-bg"
         style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
       />
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        <div>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">Gesamtfortschritt</p>
           <p className="mt-2 font-serif text-4xl text-ink">{percent}%</p>
           <p className="mt-1 font-mono text-sm text-ink-soft">
