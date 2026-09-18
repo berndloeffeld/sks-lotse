@@ -47,7 +47,7 @@ export function StartPage() {
       {/* Prüfungssimulation stays non-interactive for now — exam simulation
           doesn't exist yet (no grading backend, see CLAUDE.md). */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Link to="/lernen" className="block">
+        <Link to="/learn" className="block">
           <ChartTile title="Lernen" description="Themen wählen & Lernstand ansehen" />
         </Link>
         <ChartTile title="Prüfungssimulation" description="Demnächst verfügbar" />

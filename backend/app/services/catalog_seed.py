@@ -41,7 +41,7 @@ SUBJECTS = [
 ]
 
 BREADCRUMB_RE = re.compile(r"Sie sind hier:")
-NUMMER_RE = re.compile(r"Nummer\s+(\d+):\s*\n")
+NUMBER_RE = re.compile(r"Nummer\s+(\d+):\s*\n")
 WHITESPACE_RE = re.compile(r"[ \t]+")
 BLANK_LINES_RE = re.compile(r"\n\s*\n+")
 
@@ -97,7 +97,7 @@ def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[Question]:
 
     questions = []
     for subject, section_text in extract_sections(text):
-        parts = NUMMER_RE.split(section_text)[1:]  # alternating: number, body, number, body, ...
+        parts = NUMBER_RE.split(section_text)[1:]  # alternating: number, body, number, body, ...
         for i in range(0, len(parts), 2):
             number = int(parts[i])
             question_text, answer_text = split_question_answer(parts[i + 1])

@@ -4,17 +4,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
-import { LernenPage } from './LernenPage'
+import { LearnPage } from './LearnPage'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
-function renderLernenPage() {
+function renderLearnPage() {
   return render(
-    <MemoryRouter initialEntries={['/lernen']}>
+    <MemoryRouter initialEntries={['/learn']}>
       <Routes>
-        <Route path="/lernen" element={<LernenPage />} />
+        <Route path="/learn" element={<LearnPage />} />
         <Route path="/start" element={<p>Start page</p>} />
       </Routes>
     </MemoryRouter>,
@@ -32,7 +32,7 @@ const progressSummary = [
   },
 ]
 
-describe('LernenPage', () => {
+describe('LearnPage', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
@@ -52,7 +52,7 @@ describe('LernenPage', () => {
     })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
 
-    renderLernenPage()
+    renderLearnPage()
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
     // Appears twice: once in the aggregate tile, once in Ankern's own row
@@ -82,7 +82,7 @@ describe('LernenPage', () => {
     })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
 
-    renderLernenPage()
+    renderLearnPage()
 
     expect(await screen.findByText('Keine Themen gefunden.')).toBeInTheDocument()
   })
@@ -115,7 +115,7 @@ describe('LernenPage', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    renderLernenPage()
+    renderLearnPage()
     await screen.findByText('Ankern')
 
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
@@ -147,7 +147,7 @@ describe('LernenPage', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    renderLernenPage()
+    renderLearnPage()
     await screen.findByText('Ankern')
 
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
@@ -169,7 +169,7 @@ describe('LernenPage', () => {
     })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
 
-    renderLernenPage()
+    renderLearnPage()
 
     expect(screen.getByRole('link', { name: /Zurück/ })).toHaveAttribute('href', '/start')
   })

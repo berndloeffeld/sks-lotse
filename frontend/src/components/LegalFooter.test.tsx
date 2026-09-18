@@ -12,7 +12,7 @@ describe('LegalFooter', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/impressum')
-    expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/datenschutz')
+    expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
+    expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
   })
 })

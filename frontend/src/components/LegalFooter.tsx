@@ -14,10 +14,10 @@ export function LegalFooter() {
       </Link>
       <p className="font-mono text-[11px] text-ink-soft">© {new Date().getFullYear()} SKS Lotse</p>
       <nav className="flex gap-4 font-mono text-xs text-ink-soft uppercase">
-        <Link to="/impressum" className="hover:text-ink">
+        <Link to="/imprint" className="hover:text-ink">
           Impressum
         </Link>
-        <Link to="/datenschutz" className="hover:text-ink">
+        <Link to="/privacy" className="hover:text-ink">
           Datenschutz
         </Link>
       </nav>
