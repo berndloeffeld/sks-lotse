@@ -22,7 +22,7 @@ The tracking script is loaded via a small `frontend/src/analytics.ts` helper (`i
 ## Consequences
 
 - No consent-banner infrastructure to build or maintain right now. If a future feature needs one (e.g. Google AdSense, which is cookie-based), that's its own decision at that point — not pre-built here.
-- The Datenschutzerklärung (`frontend/src/pages/DatenschutzPage.tsx`) must disclose Umami under legitimate interest, and note it's cookieless/no re-identification — done as part of this change, alongside the site's first Impressum/Datenschutzerklärung pages generally.
+- The Datenschutzerklärung (`frontend/src/pages/PrivacyPage.tsx`) must disclose Umami under legitimate interest, and note it's cookieless/no re-identification — done as part of this change, alongside the site's first Impressum/Datenschutzerklärung pages generally.
 - Capped at 100k events/month on the Hobby plan — fine at the ≤500 MAU scale the stack was already scoped for (previously via Countly's own free-tier cap), revisit if traffic outgrows it.
 - Rejected self-hosting (option 2): would add a Render service + DB to operate for a solo project, purely to gain data-residency control that isn't needed yet.
 - The website id is not committed to `render.yaml` (kept `sync: false`) purely for open-source-repo tidiness, not because it's sensitive — it ships to every visitor's browser regardless.

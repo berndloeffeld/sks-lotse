@@ -9,7 +9,7 @@ Status: Accepted
 1. A question counts as **"gelernt"** only after 3 **consecutive** "Richtig" gradings — a "Teilweise Richtig" or "Falsch" grading resets that question's streak to 0. It is not a cumulative correct-answer count.
 2. Revealing a question's optional tip disables "Richtig" as a possible outcome for that attempt, capping it at "Teilweise Richtig" — this prevents gaming rule 1 by peeking at a hint before answering.
 
-ADR-0014 said both "need an ADR of their own once the grading/progress backend work actually starts." That work is starting now — not with the grading endpoint itself (still not built; see "Not yet built" in [ARCHITECTURE.md](../ARCHITECTURE.md)), but with the data model underneath it and a read-only "Lernstand" (learning status) overview on a new `/lernen` page, so the "Lernen" tile on `/start` stops being an inert placeholder.
+ADR-0014 said both "need an ADR of their own once the grading/progress backend work actually starts." That work is starting now — not with the grading endpoint itself (still not built; see "Not yet built" in [ARCHITECTURE.md](../ARCHITECTURE.md)), but with the data model underneath it and a read-only "Lernstand" (learning status) overview on a new `/learn` page, so the "Lernen" tile on `/start` stops being an inert placeholder.
 
 ## Decision
 
@@ -21,7 +21,7 @@ ADR-0014 said both "need an ADR of their own once the grading/progress backend w
 
 ## Consequences
 
-- The "Lernen" tile on `/start` can become a real link to `/lernen`, showing a genuine (if currently all-zero) Lernstand per topic, without waiting for the LLM grading feature.
+- The "Lernen" tile on `/start` can become a real link to `/learn`, showing a genuine (if currently all-zero) Lernstand per topic, without waiting for the LLM grading feature.
 - The eventual grading endpoint has a clear, narrow contract to fill in: on "Richtig" (tip not revealed) increment `correct_streak`; on "Teilweise Richtig", "Falsch", or a tip-assisted "Richtig", reset it to 0. It should import `LEARNED_STREAK_THRESHOLD`/`is_learned()` from `app/core/progress.py` rather than re-deriving the threshold.
 - Rejected: a stored `learned: bool` column alongside `correct_streak`. Computing it from the streak removes an entire class of bug (the two fields disagreeing) at negligible query cost.
 - Rejected: building the grading endpoint and this data model in the same change. Splitting them let the "Lernen" tile ship (overview + exam-variant selector + topic list) without also committing to the LLM grading architecture in the same PR.
