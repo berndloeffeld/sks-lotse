@@ -4,7 +4,14 @@ export interface User {
   email: string
   created_at: string
   exam_variant: string | null
+  first_name: string | null
+  last_name: string | null
+  gender: string | null
   is_admin: boolean
+}
+
+export function getDisplayName(user: User): string {
+  return `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.

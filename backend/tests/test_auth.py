@@ -4,7 +4,7 @@ import pytest
 
 from app.core.config import settings
 from app.core.jwt import create_access_token
-from app.models import OtpCode, User
+from app.models import OtpCode, Question, QuestionProgress, User
 
 
 def _capture_otp(monkeypatch):
@@ -443,4 +443,237 @@ def test_update_me_rejects_unknown_exam_variant(client, auth_headers):
 
 def test_update_me_requires_auth(client):
     response = client.patch("/api/v1/auth/me", json={"exam_variant": "motor"})
+    assert response.status_code == 401
+
+
+def test_update_me_sets_first_and_last_name(client, db_session, auth_headers):
+    response = client.patch(
+        "/api/v1/auth/me", json={"first_name": "Anna", "last_name": "Beispiel"}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["first_name"] == "Anna"
+    assert response.json()["last_name"] == "Beispiel"
+
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    assert user.first_name == "Anna"
+    assert user.last_name == "Beispiel"
+
+
+def test_update_me_sets_gender(client, auth_headers):
+    response = client.patch("/api/v1/auth/me", json={"gender": "weiblich"}, headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["gender"] == "weiblich"
+
+
+def test_update_me_rejects_unknown_gender(client, auth_headers):
+    response = client.patch("/api/v1/auth/me", json={"gender": "unbekannt"}, headers=auth_headers)
+    assert response.status_code == 422
+
+
+def test_update_me_clears_a_field_with_explicit_null(client, db_session, auth_headers):
+    client.patch("/api/v1/auth/me", json={"first_name": "Anna"}, headers=auth_headers)
+
+    response = client.patch("/api/v1/auth/me", json={"first_name": None}, headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["first_name"] is None
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    assert user.first_name is None
+
+
+def test_update_me_partial_update_leaves_other_fields_untouched(client, auth_headers):
+    client.patch("/api/v1/auth/me", json={"first_name": "Anna"}, headers=auth_headers)
+
+    response = client.patch("/api/v1/auth/me", json={"last_name": "Beispiel"}, headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["first_name"] == "Anna"
+    assert response.json()["last_name"] == "Beispiel"
+
+
+def test_update_me_empty_body_is_a_noop(client, auth_headers):
+    client.patch("/api/v1/auth/me", json={"exam_variant": "motor"}, headers=auth_headers)
+
+    response = client.patch("/api/v1/auth/me", json={}, headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["exam_variant"] == "motor"
+
+
+def test_delete_me_removes_user_and_cascades_progress(client, db_session, auth_headers):
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    user_id = user.id
+    question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
+    db_session.add(question)
+    db_session.commit()
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=1))
+    db_session.commit()
+
+    response = client.delete("/api/v1/auth/me", headers=auth_headers)
+
+    assert response.status_code == 204
+    db_session.expire_all()
+    assert db_session.get(User, user_id) is None
+    assert db_session.query(QuestionProgress).filter_by(user_id=user_id).count() == 0
+
+
+def test_delete_me_clears_the_session_cookie(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    response = client.delete("/api/v1/auth/me")
+
+    assert response.status_code == 204
+    cookie = next((c for c in response.cookies.jar if c.name == "access_token"), None)
+    assert cookie is None or cookie.value == ""
+
+
+def test_delete_me_requires_auth(client):
+    response = client.delete("/api/v1/auth/me")
+    assert response.status_code == 401
+
+
+def _capture_email_change_otp(monkeypatch):
+    sent = []
+
+    def fake_send(to_email, code):
+        sent.append((to_email, code))
+
+    monkeypatch.setattr("app.services.email.send_email_change_otp_email", fake_send)
+    return sent
+
+
+def _request_email_change_and_get_code(client, monkeypatch, auth_headers, new_email="new@example.com"):
+    sent = _capture_email_change_otp(monkeypatch)
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": new_email}, headers=auth_headers
+    )
+    assert response.status_code == 202
+    assert len(sent) == 1
+    return sent[0][1]
+
+
+def test_request_email_change_sends_code_to_new_address(client, monkeypatch, auth_headers):
+    sent = _capture_email_change_otp(monkeypatch)
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "new@example.com"}, headers=auth_headers
+    )
+
+    assert response.status_code == 202
+    assert len(sent) == 1
+    assert sent[0][0] == "new@example.com"
+
+
+def test_request_email_change_rejects_a_no_op(client, auth_headers):
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "fixture-user@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 400
+
+
+def test_request_email_change_rejects_email_already_taken_by_another_user(client, db_session, auth_headers):
+    db_session.add(User(email="taken@example.com"))
+    db_session.commit()
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "taken@example.com"}, headers=auth_headers
+    )
+
+    assert response.status_code == 409
+
+
+def test_request_email_change_requires_auth(client):
+    response = client.post("/api/v1/auth/me/email/request", json={"new_email": "new@example.com"})
+    assert response.status_code == 401
+
+
+def test_request_email_change_per_user_rate_limit(client, monkeypatch, auth_headers):
+    monkeypatch.setattr(settings, "email_change_max_requests_per_window", 2)
+    _capture_email_change_otp(monkeypatch)
+
+    for i in range(2):
+        response = client.post(
+            "/api/v1/auth/me/email/request", json={"new_email": f"new{i}@example.com"}, headers=auth_headers
+        )
+        assert response.status_code == 202
+
+    # Third distinct target address from the same authenticated user, still
+    # within the window — this is exactly the enumeration path the per-user
+    # cap exists for, and a per-IP-only limit wouldn't catch it since all
+    # three requests share both the same IP and the same account.
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "new2@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 429
+
+
+def test_request_email_change_ip_rate_limited_across_different_target_emails(
+    client, monkeypatch, auth_headers
+):
+    # Isolates the per-IP cap (app/main.py's rules entry) from the per-user
+    # cap tested above, which would otherwise trip first.
+    monkeypatch.setattr(settings, "email_change_max_requests_per_window", 1000)
+    _capture_email_change_otp(monkeypatch)
+
+    for i in range(20):
+        response = client.post(
+            "/api/v1/auth/me/email/request", json={"new_email": f"flood{i}@example.com"}, headers=auth_headers
+        )
+        assert response.status_code == 202
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "flood20@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 429
+
+
+def test_verify_email_change_updates_user_email(client, db_session, monkeypatch, auth_headers):
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["email"] == "new@example.com"
+    user = db_session.query(User).filter_by(email="new@example.com").one()
+    assert user.email == "new@example.com"
+
+
+def test_verify_email_change_wrong_code_returns_400(client, monkeypatch, auth_headers):
+    _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": "000000"},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 400
+
+
+def test_verify_email_change_race_on_uniqueness_returns_409(client, db_session, monkeypatch, auth_headers):
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+    # Simulate another account claiming the exact same address between the
+    # request-time check and this verify call.
+    db_session.add(User(email="new@example.com"))
+    db_session.commit()
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 409
+
+
+def test_verify_email_change_requires_auth(client):
+    response = client.post(
+        "/api/v1/auth/me/email/verify", json={"new_email": "new@example.com", "code": "123456"}
+    )
     assert response.status_code == 401

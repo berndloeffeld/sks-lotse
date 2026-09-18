@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 
+import { getDisplayName } from '../api/types'
 import { ChartTile } from '../components/ChartTile'
 import { ContourBackground } from '../components/ContourBackground'
 import { LegalFooter } from '../components/LegalFooter'
@@ -20,11 +21,17 @@ export function StartPage() {
       <header className="relative overflow-hidden py-4">
         <ContourBackground className="h-24" />
         <div className="relative flex items-center justify-between">
-          <div>
+          <Link to="/profile" className="hover:underline">
             <p className="text-sm text-ink-soft">Angemeldet als</p>
-            <p className="font-mono text-ink">{user?.email}</p>
-          </div>
+            <p className="font-mono text-ink">{user ? getDisplayName(user) : ''}</p>
+          </Link>
           <div className="flex items-center gap-2">
+            <Link
+              to="/profile"
+              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
+            >
+              Profil
+            </Link>
             {user?.is_admin ? (
               <Link
                 to="/admin"

@@ -67,6 +67,13 @@ class Settings(BaseSettings):
     rate_limit_default_max_requests: int = 300
     rate_limit_default_window_seconds: int = 300  # 5 minutes
 
+    # Per-authenticated-user cap on /auth/me/email/request, independent of
+    # the per-IP rule above: that one alone doesn't stop a single account
+    # probing many target addresses (to learn which are already taken) from
+    # multiple IPs, or many accounts sharing one IP.
+    email_change_max_requests_per_window: int = 5
+    email_change_window_seconds: int = 3600  # 1 hour
+
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 
     @property

@@ -7,6 +7,7 @@ import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
 import { LoginPage } from './pages/LoginPage'
 import { PrivacyPage } from './pages/PrivacyPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { useAuthStore } from './store/authStore'
@@ -28,6 +29,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<StartPage />} />
           <Route path="/learn" element={<LearnPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

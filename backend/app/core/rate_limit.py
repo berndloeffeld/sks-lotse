@@ -71,17 +71,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         bucket, (limit, window_seconds) = matched
-        now = time.monotonic()
         if cache.throttle(request.app, "rate_limit:sweep", _SWEEP_INTERVAL_SECONDS):
-            _sweep_idle(request.app, now, self._max_window_seconds)
-        hits = _hits_for(request.app, (bucket, _client_ip(request, self.trusted_client_ip_headers)))
+            _sweep_idle(request.app, time.monotonic(), self._max_window_seconds)
 
-        while hits and now - hits[0] > window_seconds:
-            hits.popleft()
-        if len(hits) >= limit:
+        client_ip = _client_ip(request, self.trusted_client_ip_headers)
+        if not check_and_record(request.app, bucket, client_ip, limit, window_seconds):
             return JSONResponse({"detail": "Too many requests"}, status_code=429)
 
-        hits.append(now)
         return await call_next(request)
 
 
@@ -106,6 +102,25 @@ def _client_ip(request: Request, trusted_headers: tuple[str, ...]) -> str:
         if value:
             return value
     return request.client.host if request.client else "unknown"
+
+
+def check_and_record(app, bucket: str, key: str, limit: int, window_seconds: int) -> bool:
+    """Sliding-window rate check: True (and records a hit) if within limit.
+
+    Shared by the middleware above (keyed by client IP) and by route
+    handlers that need a second, differently-keyed cap on top of the IP-based
+    one — e.g. the email-change-request endpoint, which also limits by
+    authenticated user id, since the per-IP cap alone doesn't stop one
+    account probing many addresses from multiple IPs.
+    """
+    now = time.monotonic()
+    hits = _hits_for(app, (bucket, key))
+    while hits and now - hits[0] > window_seconds:
+        hits.popleft()
+    if len(hits) >= limit:
+        return False
+    hits.append(now)
+    return True
 
 
 def _sweep_idle(app, now: float, max_window_seconds: float) -> None:

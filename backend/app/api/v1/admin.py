@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -15,6 +15,7 @@ from app.schemas.admin import (
     AdminUserRead,
     AdminUserSearchRequest,
 )
+from app.services.user import delete_user_and_progress
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
@@ -84,12 +85,4 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
     user = _get_user_or_404(db, user_id)
-    # Deleted explicitly rather than relying on the question_progress.user_id
-    # FK's ondelete="CASCADE": that fires reliably on Postgres (production),
-    # but SQLite (used by the test suite) only enforces FK actions when
-    # PRAGMA foreign_keys=ON is set on the connection, which app/core/database.py
-    # doesn't do — an ORM-level session.delete(user) alone can't be trusted to
-    # cascade under both engines.
-    db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user_id))
-    db.delete(user)
-    db.commit()
+    delete_user_and_progress(db, user)

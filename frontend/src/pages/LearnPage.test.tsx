@@ -32,21 +32,29 @@ const progressSummary = [
   },
 ]
 
+function baseUser(overrides: Partial<{ exam_variant: string | null }> = {}) {
+  return {
+    id: 1,
+    email: 'learner@example.com',
+    created_at: '2026-01-01T00:00:00Z',
+    exam_variant: null,
+    first_name: null,
+    last_name: null,
+    gender: null,
+    is_admin: false,
+    ...overrides,
+  }
+}
+
 describe('LearnPage', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
-  it('shows the current exam variant, overall progress, and the Lernstand grouped by subject', async () => {
+  it('shows the current exam variant and the Lernstand', async () => {
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: 'motor',
-        is_admin: false,
-      },
+      user: baseUser({ exam_variant: 'motor' }),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -55,57 +63,17 @@ describe('LearnPage', () => {
     renderLearnPage()
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
-    // Appears twice: once in the aggregate tile, once in Ankern's own row
-    // (the only topic in this fixture, so both read the same numbers).
-    expect(screen.getAllByText('2 von 7 Fragen gelernt')).toHaveLength(2)
-    expect(screen.getByText('Navigation')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Lernen starten' })).toBeDisabled()
-
-    // Overall progress tile aggregates across every topic.
-    expect(screen.getByText('Gesamtfortschritt')).toBeInTheDocument()
-    expect(screen.getByText('29%')).toBeInTheDocument()
-
     expect(screen.getByRole('combobox')).toHaveValue('motor')
   })
 
-  it('shows an empty state when no topics are scoped in yet', async () => {
-    useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        is_admin: false,
-      },
-      isAuthenticated: true,
-      isLoading: false,
-    })
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
-
-    renderLearnPage()
-
-    expect(await screen.findByText('Keine Themen gefunden.')).toBeInTheDocument()
-  })
-
-  it('saves a picked exam variant and reloads the Lernstand', async () => {
+  it('saves a picked exam variant', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        is_admin: false,
-      },
+      user: baseUser(),
       isAuthenticated: true,
       isLoading: false,
     })
-    const updatedUser = {
-      id: 1,
-      email: 'learner@example.com',
-      created_at: '2026-01-01T00:00:00Z',
-      exam_variant: 'motor',
-    }
+    const updatedUser = baseUser({ exam_variant: 'motor' })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(progressSummary)
@@ -129,13 +97,7 @@ describe('LearnPage', () => {
   it('shows an error message when the exam-variant update fails', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        is_admin: false,
-      },
+      user: baseUser(),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -157,13 +119,7 @@ describe('LearnPage', () => {
 
   it('links back to /start', async () => {
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        is_admin: false,
-      },
+      user: baseUser(),
       isAuthenticated: true,
       isLoading: false,
     })

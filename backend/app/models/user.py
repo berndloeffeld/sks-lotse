@@ -23,3 +23,10 @@ class User(Base):
     # (see app/core/exam_variant.py). NULL until the learner picks one; questions.py falls back to
     # showing every subject when unset.
     exam_variant: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # All optional, self-reported, blank ("keine Angabe") by default. gender is
+    # validated against a fixed set at the Pydantic layer (see GenderField in
+    # app/schemas/auth.py) rather than a DB enum/CHECK constraint — same
+    # reasoning as exam_variant above.
+    first_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    gender: Mapped[str | None] = mapped_column(String(16), nullable=True)
