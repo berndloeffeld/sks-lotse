@@ -217,7 +217,16 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           ) : null}
           <section className="flex flex-col gap-1 rounded-tile border border-ink bg-surface p-4">
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
-            <p className="whitespace-pre-line text-ink">{question.answer_text}</p>
+            {question.answer_text ? (
+              <p className="whitespace-pre-line text-ink">{question.answer_text}</p>
+            ) : (
+              // A few official answers are only a sketch in the catalog PDF,
+              // with no text at all — and images aren't extracted yet.
+              <p className="text-ink-soft italic">
+                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse noch nicht anzeigen
+                kann.
+              </p>
+            )}
           </section>
 
           <fieldset className="flex flex-col gap-2" disabled={phase === 'graded' || isSaving}>

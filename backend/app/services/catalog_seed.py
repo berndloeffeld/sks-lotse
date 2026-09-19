@@ -59,6 +59,8 @@ BREADCRUMB_RE = re.compile(r"Sie sind hier:")
 NUMBER_RE = re.compile(r"Nummer\s+(\d+):\s*\n")
 WHITESPACE_RE = re.compile(r"[ \t]+")
 BLANK_LINES_RE = re.compile(r"\n\s*\n+")
+# Never occurs in the PDF's text: marks where a question's answer begins.
+ANSWER_START = "\x1e"
 
 # Frozen as of revision 16af6f481bf6 (the first data migration) — see the
 # module docstring for why these aren't the ORM models.
@@ -101,34 +103,51 @@ def clean(s: str) -> str:
 
 
 def split_question_answer(body: str) -> tuple[str, str]:
-    body = body.strip()
+    """Split one question's body at the ANSWER_START marker.
 
-    expected = 1
-    idx = 0
-    while True:
-        m = re.match(rf"{expected}\.\s.*?\?\s*(?:\([^)]*\)\s*)?", body[idx:], re.S)
-        if not m:
-            break
-        idx += m.end()
-        expected += 1
+    The marker comes from `extract_marked_text`: the catalog sets every
+    question in bold, every answer in regular type, so the first switch from
+    bold to regular is the boundary. A body can carry more than one marker
+    when an answer puts a single word in bold (e.g. Navigation 70) — only
+    the first one splits; the rest are dropped without touching the text.
+    """
+    question, _, answer = body.partition(ANSWER_START)
+    return clean(question), clean(answer.replace(ANSWER_START, ""))
 
-    if expected > 2:  # matched at least items 1 and 2 -> numbered multi-part question
-        return clean(body[:idx]), clean(body[idx:])
 
-    # Un-numbered question, possibly split over several "...?" sentences
-    # (e.g. "Was ist X? Wovon hängt sie ab?"). Keep consuming leading
-    # sentences that end in "?" with no "." before that "?" — a "." shows
-    # up before the next "?" once the declarative answer text starts.
-    idx = 0
-    while True:
-        m = re.match(r"[^.?]*\?\s*", body[idx:], re.S)
-        if not m:
-            break
-        idx += m.end()
+def _is_question_font(font_dict) -> bool:
+    return "Georgia-Bold" in ((font_dict or {}).get("/BaseFont") or "")
 
-    if idx > 0:
-        return clean(body[:idx]), clean(body[idx:])
-    return clean(body), ""
+
+def extract_marked_text(reader: pypdf.PdfReader) -> str:
+    """The PDF's text, with ANSWER_START before every bold -> regular switch.
+
+    Punctuation alone can't tell where a question ends: questions span
+    several sentences ("... ab? Nennen Sie Beispiele."), end in a "."
+    instead of a "?", or carry numbered sub-questions — and the answers
+    look just the same. The typesetting can: questions are set in
+    Georgia-Bold (or -BoldItalic), answers in Verdana (with the odd
+    abbreviation in regular Georgia). Whitespace-only fragments don't count
+    as a switch. Apart from the markers, the result is exactly
+    `page.extract_text()` — the text visitor sees the same fragments.
+    """
+    pages = []
+    in_bold = False
+    for page in reader.pages:
+        fragments: list[str] = []
+
+        def visit(text, _cm, _tm, font_dict, _font_size, fragments=fragments):
+            nonlocal in_bold
+            if text.strip():
+                bold = _is_question_font(font_dict)
+                if in_bold and not bold:
+                    fragments.append(ANSWER_START)
+                in_bold = bold
+            fragments.append(text)
+
+        page.extract_text(visitor_text=visit)
+        pages.append("".join(fragments))
+    return "\n".join(pages)
 
 
 def extract_sections(text: str) -> list[tuple[str, str]]:
@@ -141,8 +160,7 @@ def extract_sections(text: str) -> list[tuple[str, str]]:
 
 def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
     """The raw PDF parse — Seemannschaft still as seemannschaft_1/seemannschaft_2."""
-    reader = pypdf.PdfReader(str(pdf_path))
-    text = "\n".join(page.extract_text() for page in reader.pages)
+    text = extract_marked_text(pypdf.PdfReader(str(pdf_path)))
 
     questions = []
     for subject, section_text in extract_sections(text):
