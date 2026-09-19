@@ -1,3 +1,27 @@
+# Reviewed Seemannschaft I/II duplicate pairs, merged into seemannschaft_allgemein by
+# app/services/catalog_seed.py (merge_seemannschaft), in the Seemannschaft I wording for
+# both exam variants. Proposed by scripts/merge_seemannschaft.py, reviewed by hand.
+#
+# A pair whose question or answer isn't word-for-word identical (whitespace-normalized) must
+# carry `accepted_difference`, or the merge refuses to run: Motor learners would otherwise
+# see wording that isn't in their official catalog. List those pairs with
+# scripts/diff_seemannschaft_pairs.py. A difference is accepted only when it is editorial
+# (synonym, word order, punctuation, spelling), so that a learner who knows either version
+# answers the other correctly. See docs/adr/0026-merge-seemannschaft-only-on-matching-wording.md.
+#
+# Deliberately NOT merged (reviewed 2026-09-19, content differs, so each variant keeps its
+# own official text as seemannschaft_segeln/_motor):
+#   S I #22  / S II #14:  S II's answer lacks "und eine unter Deck" bedienbare Bilgenpumpe
+#   S I #25  / S II #17:  Yacht + "Fallen und Schoten" vs. Motoryacht
+#   S I #55  / S II #45:  Tanken von Diesel (3 measures) vs. Tanken und Umfüllen von
+#                         Brennstoffen (5 measures)
+#   S I #58  / S II #46:  eingebauter Motor vs. Dieselmotor, S II has a 4th measure
+#   S I #107 / S II #87:  "kreuzen ... auf" vs. "fahren"
+#   S I #109 / S II #90:  S I adds Großschot, Unterfangen mit Segel, Dingi
+#   S I #124 / S II #105: S I adds Zahl und Zustand der Segel, UKW-Seefunkanlage
+#   S I #157 / S II #140: S I adds a 5th item (Windabdeckung)
+# (#55/#58 were hand-paired in the original review: the greedy proposal matched #55 to
+# S II #46 and #58 to #47. S II #47, Benzinmotor, has no counterpart in S I.)
 - seemannschaft_1: 1
   seemannschaft_2: 5
   similarity: 1.0
@@ -13,6 +37,7 @@
 - seemannschaft_1: 5
   seemannschaft_2: 9
   similarity: 0.99
+  accepted_difference: S II typos (Betriff, Fahrgebit)
 - seemannschaft_1: 6
   seemannschaft_2: 10
   similarity: 1.0
@@ -25,27 +50,25 @@
 - seemannschaft_1: 21
   seemannschaft_2: 13
   similarity: 0.948
-- seemannschaft_1: 22
-  seemannschaft_2: 14
-  similarity: 1.0
+  accepted_difference: 'question wording: damit ihre / seine'
 - seemannschaft_1: 23
   seemannschaft_2: 15
   similarity: 1.0
 - seemannschaft_1: 24
   seemannschaft_2: 16
   similarity: 1.0
-- seemannschaft_1: 25
-  seemannschaft_2: 17
-  similarity: 0.859
 - seemannschaft_1: 31
   seemannschaft_2: 18
   similarity: 0.936
+  accepted_difference: 'question wording: Wo / In welchen Publikationen'
 - seemannschaft_1: 32
   seemannschaft_2: 19
   similarity: 1.0
+  accepted_difference: 'answer wording: Strom- oder / und Motorausfall'
 - seemannschaft_1: 33
   seemannschaft_2: 20
   similarity: 0.947
+  accepted_difference: 'question wording: an Bord einer / auf einer Yacht'
 - seemannschaft_1: 34
   seemannschaft_2: 21
   similarity: 1.0
@@ -67,23 +90,9 @@
 - seemannschaft_1: 40
   seemannschaft_2: 27
   similarity: 1.0
-# seemannschaft_1 #55 and #58 corrected by hand: the auto-proposal greedily matched #55
-# (Tanken/Umfüllen von Diesel) to seemannschaft_2 #46 (Anlassen eines Dieselmotors, wrong
-# topic) at only 0.764 similarity, which then bumped #58 (Anlassen eines eingebauten Motors)
-# to #47 (Anlassen eines Benzinmotors) instead of its real match, #46. Corrected pairing:
-# #55 -> seemannschaft_2 #45 (Vorsichtsmaßnahmen beim Tanken/Umfüllen von Brennstoffen),
-# #58 -> seemannschaft_2 #46. seemannschaft_2 #47 has no counterpart in seemannschaft_1
-# (it's Benzinmotor-specific; seemannschaft_1 only asks about a generic "eingebauten Motor")
-# and is correctly left unmatched, becoming a seemannschaft_motor-only question.
-- seemannschaft_1: 55
-  seemannschaft_2: 45
-  similarity: reviewed
 - seemannschaft_1: 57
   seemannschaft_2: 33
   similarity: 1.0
-- seemannschaft_1: 58
-  seemannschaft_2: 46
-  similarity: reviewed
 - seemannschaft_1: 59
   seemannschaft_2: 37
   similarity: 1.0
@@ -123,18 +132,22 @@
 - seemannschaft_1: 80
   seemannschaft_2: 66
   similarity: 0.957
+  accepted_difference: 'wording: an Land (question), leiten / lassen (answer)'
 - seemannschaft_1: 81
   seemannschaft_2: 67
   similarity: 1.0
 - seemannschaft_1: 82
   seemannschaft_2: 68
   similarity: 1.0
+  accepted_difference: 'answer wording: sonst'
 - seemannschaft_1: 83
   seemannschaft_2: 69
   similarity: 0.887
+  accepted_difference: 'question word order: mindestens'
 - seemannschaft_1: 95
   seemannschaft_2: 79
   similarity: 0.883
+  accepted_difference: 'answer wording: (z. B. Palstek), früh / fühzeitig (S II typo)'
 - seemannschaft_1: 96
   seemannschaft_2: 80
   similarity: 1.0
@@ -147,27 +160,25 @@
 - seemannschaft_1: 100
   seemannschaft_2: 83
   similarity: 0.999
+  accepted_difference: S II typo (Stuerbordseite)
 - seemannschaft_1: 102
   seemannschaft_2: 84
   similarity: 0.98
+  accepted_difference: 'answer wording: Querstrom / Querstromwirbeln'
 - seemannschaft_1: 106
   seemannschaft_2: 86
   similarity: 1.0
-- seemannschaft_1: 107
-  seemannschaft_2: 87
-  similarity: 0.971
 - seemannschaft_1: 108
   seemannschaft_2: 88
-  similarity: 1.0
-- seemannschaft_1: 109
-  seemannschaft_2: 90
   similarity: 1.0
 - seemannschaft_1: 110
   seemannschaft_2: 91
   similarity: 1.0
+  accepted_difference: 'answer wording: Mensch / Mann im Auge behalten, punctuation'
 - seemannschaft_1: 111
   seemannschaft_2: 92
   similarity: 1.0
+  accepted_difference: 'answer wording: "Streck-" / Strecktau, vom / von'
 - seemannschaft_1: 112
   seemannschaft_2: 93
   similarity: 1.0
@@ -177,6 +188,7 @@
 - seemannschaft_1: 114
   seemannschaft_2: 95
   similarity: 0.999
+  accepted_difference: 'answer wording: Werkzeuge / Werkzeug'
 - seemannschaft_1: 115
   seemannschaft_2: 96
   similarity: 1.0
@@ -189,33 +201,36 @@
 - seemannschaft_1: 118
   seemannschaft_2: 99
   similarity: 1.0
+  accepted_difference: 'answer wording: Lifebelt / Lifebelts'
 - seemannschaft_1: 119
   seemannschaft_2: 100
   similarity: 1.0
 - seemannschaft_1: 120
   seemannschaft_2: 101
   similarity: 0.912
+  accepted_difference: 'question wording: vorhanden'
 - seemannschaft_1: 121
   seemannschaft_2: 102
   similarity: 1.0
+  accepted_difference: 'answer wording: bzw. / sowie, punctuation'
 - seemannschaft_1: 122
   seemannschaft_2: 103
   similarity: 1.0
 - seemannschaft_1: 123
   seemannschaft_2: 104
   similarity: 1.0
-- seemannschaft_1: 124
-  seemannschaft_2: 105
-  similarity: 1.0
 - seemannschaft_1: 125
   seemannschaft_2: 106
   similarity: 1.0
+  accepted_difference: 'answer wording: Verhalten bei / entsprechendes Verhalten (Seekrankheit)'
 - seemannschaft_1: 126
   seemannschaft_2: 107
   similarity: 1.0
+  accepted_difference: 'answer wording: von / vom'
 - seemannschaft_1: 127
   seemannschaft_2: 108
   similarity: 1.0
+  accepted_difference: 'answer wording: Sicherheitseinrichtung / Sicherheitsausrüstung'
 - seemannschaft_1: 128
   seemannschaft_2: 109
   similarity: 1.0
@@ -234,6 +249,7 @@
 - seemannschaft_1: 133
   seemannschaft_2: 114
   similarity: 0.998
+  accepted_difference: question punctuation (comma)
 - seemannschaft_1: 134
   seemannschaft_2: 115
   similarity: 1.0
@@ -249,6 +265,7 @@
 - seemannschaft_1: 138
   seemannschaft_2: 119
   similarity: 1.0
+  accepted_difference: 'answer spelling: Notfalls / Notfalles'
 - seemannschaft_1: 139
   seemannschaft_2: 120
   similarity: 1.0
@@ -300,11 +317,9 @@
 - seemannschaft_1: 155
   seemannschaft_2: 136
   similarity: 0.998
+  accepted_difference: S I typo (Akerplatz)
 - seemannschaft_1: 156
   seemannschaft_2: 137
-  similarity: 1.0
-- seemannschaft_1: 157
-  seemannschaft_2: 140
   similarity: 1.0
 - seemannschaft_1: 158
   seemannschaft_2: 141
