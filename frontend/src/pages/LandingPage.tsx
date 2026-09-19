@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+
+import { AccountNav } from '../components/AccountNav'
 import { AdSlot } from '../components/AdSlot'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { ContourBackground } from '../components/ContourBackground'
@@ -6,6 +9,7 @@ import { HeroBand } from '../components/HeroBand'
 import { AnswerIcon, CatalogIcon, FeedbackIcon } from '../components/icons/FeatureIcons'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
+import { useAuthStore } from '../store/authStore'
 
 // Banded layout after a website template: full-width color bands (light
 // bg / primary / primary-dark) alternating down the page, a slanted hero
@@ -36,10 +40,17 @@ const PLANS = [
   },
 ]
 
+const HERO_CTA =
+  'mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide uppercase transition hover:bg-surface hover:text-primary-dark'
+
 export function LandingPage() {
+  // Logged-in visitors get the account nav and links into the app instead
+  // of the sign-up form.
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
-      <Header />
+      {isAuthenticated ? <Header homeTo="/start" nav={<AccountNav />} /> : <Header />}
 
       <main className="flex-1">
         <HeroBand className="pt-20 pb-36 text-center sm:pb-44">
@@ -50,12 +61,15 @@ export function LandingPage() {
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
               Mit den Originalfragen des amtlichen Katalogs
             </p>
-            <a
-              href="#anmelden"
-              className="mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide uppercase transition hover:bg-surface hover:text-primary-dark"
-            >
-              Jetzt kostenlos anmelden
-            </a>
+            {isAuthenticated ? (
+              <Link to="/start" className={HERO_CTA}>
+                Jetzt loslegen
+              </Link>
+            ) : (
+              <a href="#anmelden" className={HERO_CTA}>
+                Jetzt loslegen
+              </a>
+            )}
           </div>
         </HeroBand>
 
@@ -145,7 +159,19 @@ export function LandingPage() {
                 ))}
               </dl>
             </div>
-            <LoginForm tone="dark" />
+            {isAuthenticated ? (
+              <div className="flex flex-col justify-center gap-4">
+                <p className="text-sm text-surface-alt">Du bist bereits angemeldet.</p>
+                <Link
+                  to="/start"
+                  className="rounded-tile bg-accent px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
+                >
+                  Zur Übersicht
+                </Link>
+              </div>
+            ) : (
+              <LoginForm tone="dark" />
+            )}
           </div>
         </section>
       </main>
