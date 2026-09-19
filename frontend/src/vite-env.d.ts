@@ -13,7 +13,7 @@ interface ImportMetaEnv {
   readonly VITE_UMAMI_WEBSITE_ID?: string
 
   // Google AdSense publisher id (ca-pub-…, see ADR-0027). Unset in local dev/CI
-  // so src/ads.ts skips loading the ad script — only set in production.
+  // so vite.config.ts leaves the ad script out of the built HTML — only set in production.
   readonly VITE_ADSENSE_CLIENT_ID?: string
 }
 

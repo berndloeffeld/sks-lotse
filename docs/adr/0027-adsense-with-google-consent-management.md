@@ -13,7 +13,7 @@ Options considered:
 
 ## Decision
 
-**Option 1.** `frontend/src/ads.ts` (`initAds()`, called from `main.tsx`) loads the AdSense script only when `VITE_ADSENSE_CLIENT_ID` is set — unset in local dev/CI, set in production via a Render `sync: false` variable, the same gating and reasoning as `VITE_UMAMI_WEBSITE_ID`. The consent message is created in the AdSense dashboard; the script shows it and withholds personalised ads until the visitor has chosen.
+**Option 1.** The `adsense-snippet` plugin in `frontend/vite.config.ts` injects the AdSense `<script>` into the built HTML `<head>` only when `VITE_ADSENSE_CLIENT_ID` is set — unset in local dev/CI, set in production via a Render `sync: false` variable, the same gating and reasoning as `VITE_UMAMI_WEBSITE_ID`. It is a static tag in the served HTML (not injected at runtime) because AdSense's site verification reads the page source; `prerender.mjs` derives both the landing page and the SPA shell from that build output, so every page carries it. `ads.ts` holds the runtime helpers (`adsEnabled()`, `openConsentSettings()`). `public/ads.txt` declares the publisher id (public by design). The consent message is created in the AdSense dashboard; the script shows it and withholds personalised ads until the visitor has chosen.
 
 Withdrawal must be as easy as consent (Art. 7(3) DSGVO): the footer shows a "Cookie-Einstellungen" button (only when ads are enabled) that re-opens Google's dialog via `googlefc.showRevocationMessage`.
 
@@ -24,7 +24,7 @@ The Datenschutzerklärung gains an AdSense section (consent-based, TCF, revocabl
 ## Consequences
 
 - Google's script is loaded on every page, including before consent, because it is what renders the consent message. Google's CMP is designed for this; no ad requests or non-essential storage happen until the visitor consents.
-- Ad-free accounts must not load the script at all once the entitlement exists — `initAds()` will need to be gated on the account, not just the env var. Until then every account sees the consent message. Tracked as a follow-up together with the entitlement work.
+- A static tag can't be switched off per account. Once the ad-free entitlement exists, ad-free accounts would still load Google's script and see the consent message; that needs its own change then (e.g. load the script at runtime after `/auth/me` on logged-in routes and keep the static tag only on public pages).
 - Consent wording/design is limited to what Google's tool offers. Revisit (option 2) if a second consent-requiring service appears, e.g. the planned Web Speech API speech-to-text, which in Chromium sends audio to Google's servers and needs its own disclosure.
-- Manual steps outside the repo: create the consent message and enable TCF in the AdSense dashboard, add `ads.txt` (needs the publisher id, so it isn't committed here), submit the site for review, then set `VITE_ADSENSE_CLIENT_ID` on Render.
+- Manual steps outside the repo: create the consent message and enable TCF in the AdSense dashboard, submit the site for review, then set `VITE_ADSENSE_CLIENT_ID` on Render.
 - The Content-Security-Policy in `render.yaml` is still only `frame-ancestors 'none'`; adding a `script-src`/`connect-src` allowlist would now have to include Google's ad domains.

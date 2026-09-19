@@ -1,5 +1,3 @@
-const ADSENSE_SCRIPT_SRC = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
-
 interface GoogleFundingChoices {
   callbackQueue?: unknown[]
   showRevocationMessage?: () => void
@@ -11,22 +9,11 @@ declare global {
   }
 }
 
-// Google AdSense (ADR-0027). Gated on the publisher id being set, like
-// analytics.ts: unset locally/in CI so dev traffic never reaches Google.
-// The consent message itself (Google's certified TCF CMP) is configured in
-// the AdSense dashboard and shown by this very script, which withholds
-// personalised ads until the visitor has chosen.
-export function initAds() {
-  const clientId = import.meta.env.VITE_ADSENSE_CLIENT_ID
-  if (!clientId) return
-
-  const script = document.createElement('script')
-  script.async = true
-  script.src = `${ADSENSE_SCRIPT_SRC}?client=${encodeURIComponent(clientId)}`
-  script.crossOrigin = 'anonymous'
-  document.head.appendChild(script)
-}
-
+// Google AdSense (ADR-0027). The script tag itself is injected into the built
+// HTML by the adsense-snippet plugin in vite.config.ts, only when
+// VITE_ADSENSE_CLIENT_ID is set (unset locally/in CI). Google's certified TCF
+// CMP is configured in the AdSense dashboard and shown by that script, which
+// withholds personalised ads until the visitor has chosen.
 export function adsEnabled() {
   return Boolean(import.meta.env.VITE_ADSENSE_CLIENT_ID)
 }
