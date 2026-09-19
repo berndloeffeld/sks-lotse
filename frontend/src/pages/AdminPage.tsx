@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import { getFullName, type AdminUserExport, type AdminUserSearchResult, type ExamVariant } from '../api/types'
-import { ContourBackground } from '../components/ContourBackground'
-import { LegalFooter } from '../components/LegalFooter'
+import { PageLayout } from '../components/PageLayout'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
@@ -108,20 +107,11 @@ export function AdminPage() {
   const canConfirmDelete = result !== null && deleteConfirmEmail.trim().toLowerCase() === result.email.toLowerCase()
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="relative overflow-hidden py-4">
-        <ContourBackground className="h-24" />
-        <div className="relative">
-          <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
-            ← Zurück
-          </Link>
-          <h1 className="mt-2 font-serif text-2xl text-ink">Admin</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            Nutzerdaten einsehen, exportieren oder löschen (Art. 15/17/20 DSGVO).
-          </p>
-        </div>
-      </header>
-
+    <PageLayout
+      title="Admin"
+      backTo="/start"
+      subtitle="Nutzerdaten einsehen, exportieren oder löschen (Art. 15/17/20 DSGVO)."
+    >
       <form className="flex flex-col gap-4" onSubmit={handleSearch}>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="search-email">
           E-Mail-Adresse
@@ -212,8 +202,6 @@ export function AdminPage() {
           </div>
         </section>
       ) : null}
-
-      <LegalFooter />
-    </main>
+    </PageLayout>
   )
 }

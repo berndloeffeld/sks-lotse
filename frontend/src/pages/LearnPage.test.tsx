@@ -76,6 +76,27 @@ describe('LearnPage', () => {
     expect(screen.getByRole('combobox')).toHaveValue('motor')
   })
 
+  it('shows the category pie and the topics grouped by subject', async () => {
+    useAuthStore.setState({ user: baseUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
+
+    renderLearnPage()
+
+    expect(await screen.findByText('Ankern')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Themen' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Fachgebiete' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
+  })
+
+  it('shows an error instead of the topics when the Lernstand fails to load', async () => {
+    useAuthStore.setState({ user: baseUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 500)))
+
+    renderLearnPage()
+
+    expect(await screen.findByText('Der Lernstand konnte nicht geladen werden.')).toBeInTheDocument()
+  })
+
   it('saves a picked exam variant', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({

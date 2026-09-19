@@ -63,8 +63,9 @@ export function ProgressPie({ slices }: ProgressPieProps) {
     return { slice, color, fraction, gradientId, path, summary }
   })
 
+  // Legend under the pie, so it fits one column of a three-column band.
   return (
-    <div className="flex shrink-0 items-center gap-4">
+    <div className="flex shrink-0 flex-col items-start gap-4">
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"

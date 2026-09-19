@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import { getDisplayName, type User } from '../api/types'
-import { ContourBackground } from '../components/ContourBackground'
-import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
-import { LegalFooter } from '../components/LegalFooter'
-import { ProgressSummarySection } from '../components/ProgressSummarySection'
-import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
+import { Band, Columns } from '../components/Bands'
+import { formStyles } from '../components/formStyles'
+import { PageLayout } from '../components/PageLayout'
+import { ProgressOverview } from '../components/ProgressOverview'
+import { useProgressSummary } from '../hooks/useProgressSummary'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
@@ -27,9 +27,6 @@ export function ProfilePage() {
   const [isSavingPersonalInfo, setIsSavingPersonalInfo] = useState(false)
   const [personalInfoError, setPersonalInfoError] = useState<string | null>(null)
   const [personalInfoSuccess, setPersonalInfoSuccess] = useState<string | null>(null)
-
-  // Prüfungsziel
-  const { changeVariant, isSaving: isSavingVariant, error: variantError } = useExamVariantUpdate()
 
   // E-Mail-Adresse ändern
   const [emailStep, setEmailStep] = useState<EmailChangeStep>('email')
@@ -148,189 +145,202 @@ export function ProfilePage() {
     }
   }
 
+  const dark = formStyles('dark')
+  const light = formStyles('light')
+  const successClass = 'text-sm text-surface'
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="relative overflow-hidden py-4">
-        <ContourBackground className="h-24" />
-        <div className="relative">
-          <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
-            ← Zurück
-          </Link>
-          <h1 className="mt-2 font-serif text-2xl text-ink">Profil</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            Angemeldet als <span className="font-mono text-ink">{getDisplayName(user)}</span> · Mitglied seit{' '}
-            {new Date(user.created_at).toLocaleDateString('de-DE')}
-          </p>
-        </div>
-      </header>
+    <PageLayout
+      title="Profil"
+      backTo="/start"
+      subtitle={
+        <>
+          Angemeldet als <span className="font-mono text-surface">{getDisplayName(user)}</span> · Mitglied seit{' '}
+          {new Date(user.created_at).toLocaleDateString('de-DE')}
+        </>
+      }
+      bands
+    >
+      <Band className="pt-10 pb-16">
+        {/* Keyed on exam_variant so a change refetches the Lernstand for
+            the new variant's subjects. */}
+        <ProfileProgress key={user.exam_variant ?? 'none'} />
+      </Band>
 
-      <section className="flex flex-col gap-4 border border-border p-4">
-        <h2 className="font-serif text-lg text-ink">Persönliche Daten</h2>
-        <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
-          <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="first-name">
-            Vorname
-            <input
-              id="first-name"
-              type="text"
-              maxLength={128}
-              value={firstName}
-              onChange={(event) => setFirstName(event.target.value)}
-              className="border border-border bg-surface px-3 py-2 text-ink"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="last-name">
-            Nachname
-            <input
-              id="last-name"
-              type="text"
-              maxLength={128}
-              value={lastName}
-              onChange={(event) => setLastName(event.target.value)}
-              className="border border-border bg-surface px-3 py-2 text-ink"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="gender">
-            Geschlecht
-            <select
-              id="gender"
-              value={gender}
-              onChange={(event) => setGender(event.target.value)}
-              className="border border-border bg-surface px-3 py-2 text-ink"
-            >
-              <option value="">Keine Angabe</option>
-              {(Object.entries(GENDER_LABELS) as [string, string][]).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {personalInfoError ? <p className="text-sm text-danger">{personalInfoError}</p> : null}
-          {personalInfoSuccess ? <p className="text-sm text-ink">{personalInfoSuccess}</p> : null}
-          <button
-            type="submit"
-            disabled={isSavingPersonalInfo}
-            className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
-          >
-            Speichern
-          </button>
-        </form>
-      </section>
-
-      <section className="flex flex-col gap-4 border border-border p-4">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-serif text-lg text-ink">Prüfungsziel</h2>
-          <ExamVariantDropdown value={user.exam_variant} onChange={changeVariant} disabled={isSavingVariant} />
-        </div>
-        {variantError ? <p className="text-sm text-danger">{variantError}</p> : null}
-      </section>
-
-      <ProgressSummarySection key={user.exam_variant ?? 'none'} />
-
-      <section className="flex flex-col gap-4 border border-border p-4">
-        <h2 className="font-serif text-lg text-ink">E-Mail-Adresse ändern</h2>
-        <p className="text-sm text-ink-soft">
-          Aktuelle E-Mail-Adresse: <span className="font-mono text-ink">{user.email}</span>
+      <Band tone="dark" className="py-14">
+        <h2 className="font-serif text-3xl">Dein Konto</h2>
+        <p className="mt-3 max-w-xl text-sm text-surface-alt">
+          Deine persönlichen Angaben und die E-Mail-Adresse, mit der du dich anmeldest.
         </p>
-        {emailStep === 'email' ? (
-          <form className="flex flex-col gap-4" onSubmit={handleRequestEmailChange}>
-            <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="new-email">
-              Neue E-Mail-Adresse
-              <input
-                id="new-email"
-                type="email"
-                required
-                value={newEmail}
-                onChange={(event) => setNewEmail(event.target.value)}
-                className="border border-border bg-surface px-3 py-2 text-ink"
-              />
-            </label>
-            {emailError ? <p className="text-sm text-danger">{emailError}</p> : null}
-            {emailSuccess ? <p className="text-sm text-ink">{emailSuccess}</p> : null}
-            <button
-              type="submit"
-              disabled={isSubmittingEmail}
-              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-            >
-              Code anfordern
-            </button>
-          </form>
-        ) : (
-          <form className="flex flex-col gap-4" onSubmit={handleVerifyEmailChange}>
-            <p className="text-sm text-ink-soft">Code gesendet an {newEmail}.</p>
-            <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="email-change-code">
-              Bestätigungscode
-              <input
-                id="email-change-code"
-                type="text"
-                inputMode="numeric"
-                required
-                value={emailCode}
-                onChange={(event) => setEmailCode(event.target.value)}
-                className="border border-border bg-surface px-3 py-2 font-mono text-ink"
-              />
-            </label>
-            {emailError ? <p className="text-sm text-danger">{emailError}</p> : null}
-            <button
-              type="submit"
-              disabled={isSubmittingEmail}
-              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-            >
-              Bestätigen
-            </button>
+      </Band>
+
+      <Band tone="primary">
+        <Columns className="sm:grid-cols-2 sm:gap-12">
+          <section className="flex flex-col gap-6">
+            <h3 className="font-serif text-2xl">Persönliche Daten</h3>
+            <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
+              <label className={dark.label} htmlFor="first-name">
+                Vorname
+                <input
+                  id="first-name"
+                  type="text"
+                  maxLength={128}
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                  className={dark.input}
+                />
+              </label>
+              <label className={dark.label} htmlFor="last-name">
+                Nachname
+                <input
+                  id="last-name"
+                  type="text"
+                  maxLength={128}
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  className={dark.input}
+                />
+              </label>
+              <label className={dark.label} htmlFor="gender">
+                Geschlecht
+                <select
+                  id="gender"
+                  value={gender}
+                  onChange={(event) => setGender(event.target.value)}
+                  className={dark.input}
+                >
+                  <option value="">Keine Angabe</option>
+                  {(Object.entries(GENDER_LABELS) as [string, string][]).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {personalInfoError ? <p className={dark.error}>{personalInfoError}</p> : null}
+              {personalInfoSuccess ? <p className={successClass}>{personalInfoSuccess}</p> : null}
+              <button type="submit" disabled={isSavingPersonalInfo} className={dark.button}>
+                Speichern
+              </button>
+            </form>
+          </section>
+
+          <section className="flex flex-col gap-6">
+            <h3 className="font-serif text-2xl">E-Mail-Adresse ändern</h3>
+            <p className="text-sm text-surface-alt">
+              Aktuelle E-Mail-Adresse: <span className="font-mono text-surface">{user.email}</span>
+            </p>
+            {emailStep === 'email' ? (
+              <form className="flex flex-col gap-4" onSubmit={handleRequestEmailChange}>
+                <label className={dark.label} htmlFor="new-email">
+                  Neue E-Mail-Adresse
+                  <input
+                    id="new-email"
+                    type="email"
+                    required
+                    value={newEmail}
+                    onChange={(event) => setNewEmail(event.target.value)}
+                    className={dark.input}
+                  />
+                </label>
+                <p className={`text-xs ${dark.note}`}>Wir senden dir einen Bestätigungscode an die neue Adresse.</p>
+                {emailError ? <p className={dark.error}>{emailError}</p> : null}
+                {emailSuccess ? <p className={successClass}>{emailSuccess}</p> : null}
+                <button type="submit" disabled={isSubmittingEmail} className={dark.button}>
+                  Code anfordern
+                </button>
+              </form>
+            ) : (
+              <form className="flex flex-col gap-4" onSubmit={handleVerifyEmailChange}>
+                <p className="text-sm text-surface-alt">Code gesendet an {newEmail}.</p>
+                <label className={dark.label} htmlFor="email-change-code">
+                  Bestätigungscode
+                  <input
+                    id="email-change-code"
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    value={emailCode}
+                    onChange={(event) => setEmailCode(event.target.value)}
+                    className={`${dark.input} font-mono`}
+                  />
+                </label>
+                {emailError ? <p className={dark.error}>{emailError}</p> : null}
+                <button type="submit" disabled={isSubmittingEmail} className={dark.button}>
+                  Bestätigen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmailStep('email')
+                    setEmailCode('')
+                    setEmailError(null)
+                  }}
+                  className={dark.link}
+                >
+                  Andere E-Mail-Adresse verwenden
+                </button>
+              </form>
+            )}
+          </section>
+        </Columns>
+      </Band>
+
+      <Band>
+        <section className="flex max-w-xl flex-col gap-4">
+          <h2 className="font-serif text-2xl text-danger">Konto löschen</h2>
+          <p className="text-sm leading-relaxed text-ink-soft">
+            Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
+          </p>
+          {!showDeleteConfirm ? (
             <button
               type="button"
-              onClick={() => {
-                setEmailStep('email')
-                setEmailCode('')
-                setEmailError(null)
-              }}
-              className="text-primary text-sm underline"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="self-start rounded-tile border-2 border-danger px-4 py-3 font-mono text-sm tracking-wide text-danger uppercase hover:bg-surface-alt"
             >
-              Andere E-Mail-Adresse verwenden
+              Account löschen
             </button>
-          </form>
-        )}
-      </section>
+          ) : (
+            <form className="flex flex-col gap-4" onSubmit={handleDeleteAccount}>
+              <label className={light.label} htmlFor="delete-confirm-email">
+                Zur Bestätigung E-Mail-Adresse erneut eingeben: {user.email}
+                <input
+                  id="delete-confirm-email"
+                  type="email"
+                  value={deleteConfirmEmail}
+                  onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                  className={`${light.input} border-danger`}
+                />
+              </label>
+              {deleteError ? <p className={light.error}>{deleteError}</p> : null}
+              <button
+                type="submit"
+                disabled={!canConfirmDelete || isDeleting}
+                className="rounded-tile bg-danger px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
+              >
+                Endgültig löschen
+              </button>
+            </form>
+          )}
+        </section>
+      </Band>
+    </PageLayout>
+  )
+}
 
-      <section className="flex flex-col gap-2 border border-danger p-4">
-        <h2 className="font-serif text-lg text-ink">Konto löschen</h2>
-        <p className="text-sm text-ink-soft">
-          Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
-        </p>
-        {!showDeleteConfirm ? (
-          <button
-            type="button"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="border border-danger px-4 py-2 font-mono text-sm tracking-wide text-danger uppercase hover:bg-surface-alt"
-          >
-            Account löschen
-          </button>
-        ) : (
-          <form className="flex flex-col gap-2" onSubmit={handleDeleteAccount}>
-            <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="delete-confirm-email">
-              Zur Bestätigung E-Mail-Adresse erneut eingeben: {user.email}
-              <input
-                id="delete-confirm-email"
-                type="email"
-                value={deleteConfirmEmail}
-                onChange={(event) => setDeleteConfirmEmail(event.target.value)}
-                className="border border-border bg-surface px-3 py-2 text-ink"
-              />
-            </label>
-            {deleteError ? <p className="text-sm text-danger">{deleteError}</p> : null}
-            <button
-              type="submit"
-              disabled={!canConfirmDelete || isDeleting}
-              className="border border-danger bg-danger px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
-            >
-              Endgültig löschen
-            </button>
-          </form>
-        )}
-      </section>
+// Lernstand overview for the profile — same three columns as /learn, with a
+// link there for the per-topic details.
+function ProfileProgress() {
+  const { isLoading, error, totals, categories } = useProgressSummary()
 
-      <LegalFooter />
-    </main>
+  return (
+    <div className="flex flex-col gap-8">
+      <ProgressOverview totals={totals} categories={categories} />
+      {isLoading ? <p className="text-sm text-ink-soft">Lernstand wird geladen…</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      <Link to="/learn" className="self-start font-mono text-xs tracking-wide text-primary uppercase hover:underline">
+        Alle Themen ansehen →
+      </Link>
+    </div>
   )
 }

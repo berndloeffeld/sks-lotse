@@ -1,37 +1,51 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
+import { useAuthStore } from '../store/authStore'
 import { LandingPage } from './LandingPage'
 
+function renderLandingPage() {
+  return render(
+    <MemoryRouter>
+      <LandingPage />
+    </MemoryRouter>,
+  )
+}
+
 describe('LandingPage', () => {
-  it('renders the headline, the header brand link, and links to /login', () => {
-    render(
-      <MemoryRouter>
-        <LandingPage />
-      </MemoryRouter>,
-    )
+  afterEach(() => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+  })
 
-    expect(screen.getByRole('heading', { name: 'Sicher durch die SKS-Theorieprüfung' })).toBeInTheDocument()
-    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute(
-      'href',
-      '/',
-    )
-    expect(screen.getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
+  it('sends logged-in visitors into the app instead of showing the sign-up form', () => {
+    useAuthStore.setState({ user: null, isAuthenticated: true, isLoading: false })
+    renderLandingPage()
 
-    const ctaLinks = screen.getAllByRole('link', { name: 'Jetzt kostenlos anmelden' })
-    expect(ctaLinks).toHaveLength(2)
-    for (const link of ctaLinks) {
-      expect(link).toHaveAttribute('href', '/login')
-    }
+    const banner = screen.getByRole('banner')
+    expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/start')
+    expect(within(banner).queryByRole('link', { name: 'Anmelden' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '/start')
+    expect(screen.getByRole('link', { name: 'Zur Übersicht' })).toHaveAttribute('href', '/start')
+    expect(screen.queryByLabelText('E-Mail-Adresse')).not.toBeInTheDocument()
+  })
+
+  it('renders the headline, the header brand link, and the sign-up entry points', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Sicher durch die SKS-Theorie' })).toBeInTheDocument()
+    const banner = screen.getByRole('banner')
+    expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/')
+    expect(within(banner).getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
+
+    expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '#anmelden')
+    expect(screen.getByRole('heading', { name: 'Jetzt loslegen' })).toBeInTheDocument()
+    expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Code anfordern' })).toBeInTheDocument()
   })
 
   it('explains how the app works and the free/premium split', () => {
-    render(
-      <MemoryRouter>
-        <LandingPage />
-      </MemoryRouter>,
-    )
+    renderLandingPage()
 
     expect(screen.getByRole('heading', { name: "So funktioniert's" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Originalfragen üben' })).toBeInTheDocument()
@@ -42,7 +56,7 @@ describe('LandingPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Kostenlos starten' })).toBeInTheDocument()
     expect(screen.getByText('Anzeige')).toBeInTheDocument()
-    expect(screen.getByText('KI-Bewertung')).toBeInTheDocument()
-    expect(screen.getByText('Werbefrei')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'KI-Bewertung' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })
 })

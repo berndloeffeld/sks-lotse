@@ -18,7 +18,7 @@ describe('App', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('heading', { name: 'Sicher durch die SKS-Theorieprüfung' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Sicher durch die SKS-Theorie' })).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/v1/auth/me'), expect.anything())
   })
 })

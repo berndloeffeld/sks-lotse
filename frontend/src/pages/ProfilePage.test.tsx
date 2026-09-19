@@ -76,6 +76,26 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Mitglied seit/)).toBeInTheDocument()
   })
 
+  it('shows the Lernstand overview with a link to the topics on /learn', async () => {
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
+
+    renderProfilePage()
+
+    expect(screen.getByRole('heading', { name: 'Gesamtfortschritt' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /Alle Themen ansehen/ })).toHaveAttribute('href', '/learn')
+    expect(screen.queryByText('Lernstand wird geladen…')).not.toBeInTheDocument()
+  })
+
+  it('shows an error when the Lernstand fails to load', async () => {
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 500)))
+
+    renderProfilePage()
+
+    expect(await screen.findByText('Der Lernstand konnte nicht geladen werden.')).toBeInTheDocument()
+  })
+
   it('saves personal info, keeps the success message and updates the store from the PATCH response', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })

@@ -1,38 +1,75 @@
-import { Link } from 'react-router-dom'
-
-import { ContourBackground } from '../components/ContourBackground'
-import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
-import { LegalFooter } from '../components/LegalFooter'
-import { ProgressSummarySection } from '../components/ProgressSummarySection'
-import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
+import { Band, Columns } from '../components/Bands'
+import { LedgerRow } from '../components/LedgerRow'
+import { PageLayout } from '../components/PageLayout'
+import { ProgressOverview } from '../components/ProgressOverview'
+import { SUBJECT_LABELS, useProgressSummary } from '../hooks/useProgressSummary'
 import { useAuthStore } from '../store/authStore'
+
+// The Lernstand, banded like the landing page: overall progress, the
+// per-category pie and the exam-variant picker as three columns, then every
+// topic grouped by subject.
+function LearnContent() {
+  const { progress, isLoading, error, totals, categories, bySubject } = useProgressSummary()
+
+  const status = isLoading ? (
+    <p className="text-sm text-ink-soft">Lernstand wird geladen…</p>
+  ) : error ? (
+    <p className="text-sm text-danger">{error}</p>
+  ) : progress.length === 0 ? (
+    <p className="text-sm text-ink-soft">Keine Themen gefunden.</p>
+  ) : null
+
+  return (
+    <>
+      <Band className="pt-10 pb-16">
+        <ProgressOverview totals={totals} categories={categories} />
+      </Band>
+
+      <Band tone="dark" className="py-14">
+        <h2 className="font-serif text-3xl">Themen</h2>
+        <p className="mt-3 max-w-xl text-sm text-surface-alt">
+          Alle Themen des amtlichen Katalogs, nach Fachgebiet sortiert.
+        </p>
+      </Band>
+
+      <Band>
+        {status ?? (
+          <Columns className="sm:grid-cols-2">
+            {Array.from(bySubject.entries()).map(([subject, topics]) => (
+              <div key={subject} className="flex flex-col gap-2">
+                <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
+                <div>
+                  {topics.map((topic) => (
+                    <LedgerRow
+                      key={topic.topic_slug}
+                      title={topic.topic_name}
+                      learned={topic.learned_questions}
+                      total={topic.total_questions}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </Columns>
+        )}
+      </Band>
+    </>
+  )
+}
 
 export function LearnPage() {
   const user = useAuthStore((state) => state.user)
-  const { changeVariant, isSaving: isSavingVariant, error } = useExamVariantUpdate()
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="relative overflow-hidden py-4">
-        <ContourBackground className="h-24" />
-        <div className="relative flex items-start justify-between gap-4">
-          <div>
-            <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
-              ← Zurück
-            </Link>
-            <h1 className="mt-2 font-serif text-2xl text-ink">Lernen</h1>
-          </div>
-          <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSavingVariant} />
-        </div>
-      </header>
-
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-
-      {/* Keyed on exam_variant so a change remounts (and refetches) this
-          section — it has no props, since it's shared as-is with ProfilePage. */}
-      <ProgressSummarySection key={user?.exam_variant ?? 'none'} collapsible={false} />
-
-      <LegalFooter />
-    </main>
+    <PageLayout
+      title="Lernen"
+      backTo="/start"
+      subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog."
+      bands
+    >
+      {/* Keyed on exam_variant so a change remounts (and refetches) the
+          Lernstand for the new variant's subjects. */}
+      <LearnContent key={user?.exam_variant ?? 'none'} />
+    </PageLayout>
   )
 }
