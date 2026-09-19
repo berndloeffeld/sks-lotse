@@ -2064,7 +2064,7 @@
                             "method": "POST",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"outcome\": \"falsch\"\n}",
+                              "raw": "{\n  \"outcome\": \"<string>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
@@ -2132,7 +2132,7 @@
                                 "method": "POST",
                                 "body": {
                                   "mode": "raw",
-                                  "raw": "{\n  \"outcome\": \"falsch\"\n}",
+                                  "raw": "{\n  \"outcome\": \"<string>\"\n}",
                                   "options": {
                                     "raw": {
                                       "headerFamily": "json",
@@ -2202,7 +2202,7 @@
                                 "method": "POST",
                                 "body": {
                                   "mode": "raw",
-                                  "raw": "{\n  \"outcome\": \"falsch\"\n}",
+                                  "raw": "{\n  \"outcome\": \"<string>\"\n}",
                                   "options": {
                                     "raw": {
                                       "headerFamily": "json",
