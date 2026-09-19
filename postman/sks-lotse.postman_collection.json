@@ -1910,7 +1910,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "[\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\"\n  },\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\"\n  }\n]",
+                          "body": "[\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\",\n    \"learning_questions\": \"<integer>\",\n    \"is_focus\": \"<boolean>\"\n  },\n  {\n    \"subject\": \"<string>\",\n    \"topic_slug\": \"<string>\",\n    \"topic_name\": \"<string>\",\n    \"display_order\": \"<integer>\",\n    \"total_questions\": \"<integer>\",\n    \"learned_questions\": \"<integer>\",\n    \"learning_questions\": \"<integer>\",\n    \"is_focus\": \"<boolean>\"\n  }\n]",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }
@@ -1919,6 +1919,414 @@
                       "protocolProfileBehavior": {
                         "disableBodyPruning": true
                       }
+                    }
+                  ]
+                },
+                {
+                  "name": "focus",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "{subject}",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "{topic_slug}",
+                          "description": "",
+                          "item": [
+                            {
+                              "name": "Add Focus Topic",
+                              "request": {
+                                "name": "Add Focus Topic",
+                                "description": {
+                                  "content": "Mark a topic as Fokus (idempotent, ADR-0028).",
+                                  "type": "text/plain"
+                                },
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "progress",
+                                    "focus",
+                                    ":subject",
+                                    ":topic_slug"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "subject",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    },
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "topic_slug",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "PUT",
+                                "body": {},
+                                "auth": {
+                                  "type": "bearer",
+                                  "bearer": [
+                                    {
+                                      "key": "token",
+                                      "value": "{{bearerToken}}"
+                                    }
+                                  ]
+                                }
+                              },
+                              "response": [
+                                {
+                                  "name": "Successful Response",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "progress",
+                                        "focus",
+                                        ":subject",
+                                        ":topic_slug"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "subject"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "topic_slug"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "description": {
+                                          "content": "Added as a part of security scheme: bearer",
+                                          "type": "text/plain"
+                                        },
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "method": "PUT",
+                                    "body": {}
+                                  },
+                                  "status": "No Content",
+                                  "code": 204,
+                                  "header": [],
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "text"
+                                },
+                                {
+                                  "name": "Validation Error",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "progress",
+                                        "focus",
+                                        ":subject",
+                                        ":topic_slug"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "subject"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "topic_slug"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": {
+                                          "content": "Added as a part of security scheme: bearer",
+                                          "type": "text/plain"
+                                        },
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "method": "PUT",
+                                    "body": {}
+                                  },
+                                  "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                  "code": 422,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                }
+                              ],
+                              "event": [],
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              }
+                            },
+                            {
+                              "name": "Remove Focus Topic",
+                              "request": {
+                                "name": "Remove Focus Topic",
+                                "description": {
+                                  "content": "Remove a topic's Fokus mark (idempotent).",
+                                  "type": "text/plain"
+                                },
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "progress",
+                                    "focus",
+                                    ":subject",
+                                    ":topic_slug"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "subject",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    },
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "topic_slug",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "DELETE",
+                                "body": {},
+                                "auth": {
+                                  "type": "bearer",
+                                  "bearer": [
+                                    {
+                                      "key": "token",
+                                      "value": "{{bearerToken}}"
+                                    }
+                                  ]
+                                }
+                              },
+                              "response": [
+                                {
+                                  "name": "Successful Response",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "progress",
+                                        "focus",
+                                        ":subject",
+                                        ":topic_slug"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "subject"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "topic_slug"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "description": {
+                                          "content": "Added as a part of security scheme: bearer",
+                                          "type": "text/plain"
+                                        },
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "method": "DELETE",
+                                    "body": {}
+                                  },
+                                  "status": "No Content",
+                                  "code": 204,
+                                  "header": [],
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "text"
+                                },
+                                {
+                                  "name": "Validation Error",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "progress",
+                                        "focus",
+                                        ":subject",
+                                        ":topic_slug"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "subject"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "topic_slug"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": {
+                                          "content": "Added as a part of security scheme: bearer",
+                                          "type": "text/plain"
+                                        },
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "method": "DELETE",
+                                    "body": {}
+                                  },
+                                  "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                  "code": 422,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                }
+                              ],
+                              "event": [],
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
@@ -2536,7 +2944,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },

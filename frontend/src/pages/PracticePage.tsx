@@ -7,6 +7,7 @@ import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/t
 import { CourseGauge } from '../components/CourseGauge'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
+import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
 import { isLearned, streakProgress } from '../progress'
@@ -210,12 +211,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         <CourseGauge key={question.id} progress={streakProgress(streak)} />
       </div>
 
-      <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">{question.question_text}</h2>
+      <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
+        <RichText text={question.question_text} />
+      </h2>
 
       {phase === 'answer' ? (
         <>
           <label className={styles.label}>
-            Deine Antwort (optional, wird nicht gespeichert)
+            Deine Antwort
             <textarea
               ref={noteRef}
               value={note}
@@ -246,7 +249,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           <section className="flex flex-col gap-1 rounded-tile border border-ink bg-surface p-4">
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
             {question.answer_text ? (
-              <p className="whitespace-pre-line text-ink">{question.answer_text}</p>
+              <p className="whitespace-pre-line text-ink">
+                <RichText text={question.answer_text} />
+              </p>
             ) : (
               // A few official answers are only a sketch in the catalog PDF,
               // with no text at all — and images aren't extracted yet.

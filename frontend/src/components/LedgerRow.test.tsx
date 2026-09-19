@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { LedgerRow } from './LedgerRow'
@@ -32,5 +33,31 @@ describe('LedgerRow', () => {
     )
 
     expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
+  })
+
+  it('shows the count of partially learned questions', () => {
+    render(<LedgerRow title="Ankern" learned={2} learning={3} total={7} />)
+
+    expect(screen.getByText('2 von 7 Fragen gelernt · 3 teilweise')).toBeInTheDocument()
+  })
+
+  it('renders no Fokus star without a toggle handler', () => {
+    render(<LedgerRow title="Ankern" learned={0} total={7} />)
+
+    expect(screen.queryByRole('button', { name: /Fokus/ })).not.toBeInTheDocument()
+  })
+
+  it.each([
+    [false, 'Als Fokus markieren: Ankern', 'false'],
+    [true, 'Fokus entfernen: Ankern', 'true'],
+  ])('renders the Fokus star for isFocus=%s and calls the handler on click', async (isFocus, name, pressed) => {
+    const onToggleFocus = vi.fn()
+    render(<LedgerRow title="Ankern" learned={0} total={7} isFocus={isFocus} onToggleFocus={onToggleFocus} />)
+
+    const star = screen.getByRole('button', { name })
+    expect(star).toHaveAttribute('aria-pressed', pressed)
+    await userEvent.click(star)
+
+    expect(onToggleFocus).toHaveBeenCalledOnce()
   })
 })
