@@ -65,8 +65,8 @@ def test_parse_splits_numbered_sub_questions_from_numbered_answer():
     # numbered answer, used to land entirely in question_text.
     q = _parsed("seemannschaft_1", 143)
     assert q.question_text == (
-        "Welcher Ankergrund ist für die üblichen Leichtgewichtsanker \n"
-        "1. gut geeignet? \n2. mäßig geeignet? \n3. ungeeignet?"
+        "Welcher Ankergrund ist für die üblichen Leichtgewichtsanker\n"
+        "1. gut geeignet?\n2. mäßig geeignet?\n3. ungeeignet?"
     )
     assert q.answer_text.startswith("1. Sand, Schlick, weicher Ton und Lehm,")
 
@@ -81,7 +81,7 @@ def test_parse_splits_question_with_abbreviation_before_the_question_mark():
 def test_parse_keeps_a_trailing_instruction_in_the_question():
     # "Nennen Sie ..." is part of the (bold) question, not of the answer.
     q = _parsed("seemannschaft_1", 124)
-    assert q.question_text.endswith("zu beachten? \nNennen Sie mindestens 6 Beispiele.")
+    assert q.question_text.endswith("zu beachten? Nennen Sie mindestens 6 Beispiele.")
     assert q.answer_text.startswith("1. Seetüchtigkeit der Yacht,")
 
 
@@ -95,6 +95,25 @@ def test_parse_restores_the_drying_height_symbol_in_navigation_84():
     question = _parsed("navigation", 84).question_text
     assert "Tiefenangabe 2\u0332\u2083." in question
     assert "2 3" not in question
+
+
+def test_parse_joins_lines_the_pdf_only_wrapped():
+    assert "nur ein Hoch- bzw. Niedrigwasser pro Tag?" in _parsed("navigation", 72).question_text
+    assert _parsed("navigation", 84).question_text.endswith("2\u0332\u2083. Was bedeutet das?")
+    assert (
+        _parsed("navigation", 26).question_text
+        == 'Was ist die "Sichtweite" eines Feuers? Wovon hängt sie ab?'
+    )
+
+
+def test_parse_keeps_line_breaks_before_list_items():
+    question = _parsed("navigation", 20).question_text
+    assert question.startswith("1. Was sind Richtfeuer (leading lights)?\n2. Wann befindet man sich")
+
+
+def test_unwrap_soft_breaks():
+    assert catalog_seed.unwrap_soft_breaks("Nord-\nund Ostsee") == "Nord- und Ostsee"
+    assert catalog_seed.unwrap_soft_breaks("Frage:\n1. a\n2. b") == "Frage:\n1. a\n2. b"
 
 
 def test_split_question_answer_splits_at_the_first_marker_only():
