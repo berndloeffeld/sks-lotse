@@ -62,6 +62,10 @@ NUMBER_RE = re.compile(r"Nummer\s+(\d+):\s*\n")
 WHITESPACE_RE = re.compile(r"[ \t]+")
 ANY_WHITESPACE_RE = re.compile(r"\s+")
 BLANK_LINES_RE = re.compile(r"\n\s*\n+")
+# A line starting like this begins a list item ("1. ", "a) ", "- ", "• ") and
+# keeps its line break; every other break in the PDF text is just its layout
+# wrapping the line.
+LIST_ITEM_START_RE = re.compile(r"(?:\d+\.|[a-z]\)|[-•–])\s")
 # Never occurs in the PDF's text: marks where a question's answer begins.
 ANSWER_START = "\x1e"
 
@@ -106,10 +110,19 @@ class CatalogQuestion:
     topic_slug: str | None = None
 
 
+def unwrap_soft_breaks(s: str) -> str:
+    """Join lines the PDF only wrapped; keep breaks before list items."""
+    lines = [line.strip() for line in s.split("\n")]
+    out = lines[0]
+    for line in lines[1:]:
+        out += ("\n" if LIST_ITEM_START_RE.match(line) else " ") + line
+    return out
+
+
 def clean(s: str) -> str:
     s = WHITESPACE_RE.sub(" ", s)
     s = BLANK_LINES_RE.sub("\n", s)
-    return s.strip()
+    return unwrap_soft_breaks(s.strip())
 
 
 def split_question_answer(body: str) -> tuple[str, str]:
