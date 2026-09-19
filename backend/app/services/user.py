@@ -1,6 +1,7 @@
-from sqlalchemy import delete, or_
+from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
 
+from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
 from app.models.question_progress import QuestionProgress
@@ -16,6 +17,10 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # cascade under both engines.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
     db.execute(delete(FocusTopic).where(FocusTopic.user_id == user.id))
+    # Exam attempts carry the learner's free-text answers; their questions go first.
+    attempt_ids = select(ExamAttempt.id).where(ExamAttempt.user_id == user.id)
+    db.execute(delete(ExamAttemptQuestion).where(ExamAttemptQuestion.attempt_id.in_(attempt_ids)))
+    db.execute(delete(ExamAttempt).where(ExamAttempt.user_id == user.id))
     # Pending/recent codes are personal data too — both those for the
     # account's own address and email-change codes it requested for another
     # one. The regular cleanup (ADR-0010) only runs opportunistically on later

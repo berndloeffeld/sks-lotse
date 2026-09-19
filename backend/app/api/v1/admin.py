@@ -6,12 +6,15 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.jwt import require_admin
+from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
+    AdminExamAttemptExport,
+    AdminExamQuestionExport,
     AdminFocusTopicExport,
     AdminQuestionProgressExport,
     AdminUserExport,
@@ -76,8 +79,41 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
         .order_by(Topic.subject, Topic.display_order)
     ).all()
 
+    attempts = db.execute(
+        select(ExamAttempt).where(ExamAttempt.user_id == user_id).order_by(ExamAttempt.started_at)
+    ).scalars()
+    exam_attempts = []
+    for attempt in attempts:
+        question_ids = [q.question_id for q in attempt.questions if q.question_id is not None]
+        catalog = {
+            q.id: q for q in db.execute(select(Question).where(Question.id.in_(question_ids))).scalars()
+        }
+        exam_attempts.append(
+            AdminExamAttemptExport(
+                exam_id=attempt.id,
+                exam_variant=attempt.exam_variant,
+                started_at=attempt.started_at,
+                deadline_at=attempt.deadline_at,
+                submitted_at=attempt.submitted_at,
+                graded_at=attempt.graded_at,
+                timed_out=attempt.timed_out,
+                questions=[
+                    AdminExamQuestionExport(
+                        position=q.position,
+                        subject_group=q.subject_group,
+                        subject=catalog[q.question_id].subject if q.question_id in catalog else None,
+                        question_number=catalog[q.question_id].number if q.question_id in catalog else None,
+                        answer_text=q.answer_text,
+                        outcome=q.outcome,
+                    )
+                    for q in attempt.questions
+                ],
+            )
+        )
+
     return AdminUserExport(
         user=_admin_user_read(user, len(rows)),
+        exam_attempts=exam_attempts,
         focus_topics=[
             AdminFocusTopicExport(
                 subject=topic.subject,

@@ -38,8 +38,6 @@ export function StartPage() {
         </>
       }
     >
-      {/* Prüfungssimulation stays non-interactive for now — exam simulation
-          doesn't exist yet (no grading backend, see CLAUDE.md). */}
       <div className="grid gap-6 pt-4 sm:grid-cols-2">
         <Link to="/learn" className="group block transition hover:-translate-y-0.5">
           <ChartTile
@@ -51,14 +49,16 @@ export function StartPage() {
             badge="Los geht's →"
           />
         </Link>
-        <ChartTile
-          size="lg"
-          className="opacity-70"
-          icon={<ClipboardIcon />}
-          title="Prüfungssimulation"
-          description="Eine Prüfung unter realistischen Bedingungen durchspielen."
-          badge="Demnächst verfügbar"
-        />
+        <Link to="/exam" className="group block transition hover:-translate-y-0.5">
+          <ChartTile
+            size="lg"
+            className="h-full transition group-hover:border-primary group-hover:shadow-md"
+            icon={<ClipboardIcon />}
+            title="Prüfungssimulation"
+            description="Eine Prüfung unter realistischen Bedingungen durchspielen."
+            badge="Los geht's →"
+          />
+        </Link>
       </div>
     </PageLayout>
   )

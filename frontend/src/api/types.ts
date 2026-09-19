@@ -67,11 +67,34 @@ export interface AdminFocusTopicExport {
   created_at: string
 }
 
+// Mirrors backend/app/schemas/admin.py::AdminExamQuestionExport.
+export interface AdminExamQuestionExport {
+  position: number
+  subject_group: string
+  subject: string | null
+  question_number: number | null
+  answer_text: string | null
+  outcome: string | null
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminExamAttemptExport.
+export interface AdminExamAttemptExport {
+  exam_id: number
+  exam_variant: string
+  started_at: string
+  deadline_at: string
+  submitted_at: string | null
+  graded_at: string | null
+  timed_out: boolean
+  questions: AdminExamQuestionExport[]
+}
+
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
   user: AdminUserSearchResult
   question_progress: AdminQuestionProgressExport[]
   focus_topics: AdminFocusTopicExport[]
+  exam_attempts: AdminExamAttemptExport[]
   exported_at: string
 }
 
@@ -102,4 +125,70 @@ export interface QuestionProgress {
   question_id: number
   correct_streak: number
   learned: boolean
+}
+
+// Mirrors ExamStatus / ExamResult in backend/app/core/exam.py.
+export type ExamStatus = 'in_progress' | 'grading' | 'completed'
+export type ExamResult = 'bestanden' | 'muendliche_nachpruefung' | 'nicht_bestanden'
+
+// Mirrors backend/app/schemas/exam.py::ExamSummary.
+export interface ExamSummary {
+  id: number
+  status: ExamStatus
+  exam_variant: string
+  started_at: string
+  submitted_at: string | null
+  timed_out: boolean
+  answered_count: number
+  question_count: number
+  points: number | null
+  max_points: number
+  result: ExamResult | null
+}
+
+// Mirrors backend/app/schemas/exam.py::ExamQuestionRead.
+export interface ExamQuestion {
+  position: number
+  subject_group: string
+  question_id: number | null
+  subject: string | null
+  number: number | null
+  question_text: string | null
+  answer_text: string | null
+  official_answer: string | null
+  outcome: GradingOutcome | null
+  points: number | null
+}
+
+// Mirrors backend/app/schemas/exam.py::ExamGroupScore.
+export interface ExamGroupScore {
+  subject_group: string
+  points: number
+  max_points: number
+}
+
+// Mirrors backend/app/schemas/exam.py::ExamRead.
+export interface Exam extends ExamSummary {
+  deadline_at: string
+  server_now: string
+  group_scores: ExamGroupScore[] | null
+  questions: ExamQuestion[]
+}
+
+// Mirrors backend/app/schemas/exam.py::ExamStatsPoint / ExamStats.
+export interface ExamStatsPoint {
+  exam_id: number
+  submitted_at: string
+  points: number
+  result: ExamResult
+}
+
+export interface ExamStats {
+  completed_count: number
+  passed_count: number
+  average_points: number | null
+  best_points: number | null
+  max_points: number
+  recent: ExamStatsPoint[]
+  group_scores: ExamGroupScore[]
 }

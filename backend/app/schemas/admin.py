@@ -40,8 +40,30 @@ class AdminFocusTopicExport(BaseModel):
     created_at: datetime
 
 
+class AdminExamQuestionExport(BaseModel):
+    position: int
+    subject_group: str
+    # None if the question has since vanished from the catalog.
+    subject: str | None
+    question_number: int | None
+    answer_text: str | None
+    outcome: str | None
+
+
+class AdminExamAttemptExport(BaseModel):
+    exam_id: int
+    exam_variant: str
+    started_at: datetime
+    deadline_at: datetime
+    submitted_at: datetime | None
+    graded_at: datetime | None
+    timed_out: bool
+    questions: list[AdminExamQuestionExport]
+
+
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
     focus_topics: list[AdminFocusTopicExport]
+    exam_attempts: list[AdminExamAttemptExport]
     exported_at: datetime
