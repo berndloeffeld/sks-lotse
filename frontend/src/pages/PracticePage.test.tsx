@@ -206,18 +206,18 @@ describe('PracticePage', () => {
     renderPracticePage()
 
     expect(await screen.findByText('Frage 1 von 2 · Nr. 8')).toBeInTheDocument()
-    let user = await revealAndGrade('Falsch')
+    await revealAndGrade('Falsch')
     await waitFor(() => expect(screen.getByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument())
     expect(screen.getByRole('textbox')).toHaveFocus()
-    user = await revealAndGrade('Richtig')
+    await revealAndGrade('Richtig')
     expect(await screen.findByRole('status')).toHaveTextContent('Gelernt.')
 
     expect(screen.getByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()
     expect(screen.getByText('Neu gelernt').nextSibling).toHaveTextContent('1')
     expect(screen.getByText('Falsch').nextSibling).toHaveTextContent('1')
 
-    await user.click(screen.getByRole('button', { name: 'Neue Runde' }))
-    expect(screen.getByText('Frage 1 von 1 · Nr. 8')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Neue Runde' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
   })
 
   it('runs the whole loop from the keyboard', async () => {
