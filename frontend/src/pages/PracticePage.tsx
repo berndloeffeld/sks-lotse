@@ -3,11 +3,12 @@ import { Link, useParams } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/types'
+import { CourseGauge } from '../components/CourseGauge'
 import { formStyles } from '../components/formStyles'
-import { LEARNED_STREAK, LotGauge } from '../components/LotGauge'
 import { PageLayout } from '../components/PageLayout'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
+import { isLearned, streakProgress } from '../progress'
 
 type Phase = 'answer' | 'assess' | 'graded'
 
@@ -25,7 +26,7 @@ function shuffled<T>(items: T[]): T[] {
 // A run is the topic's not-yet-learned questions in random order, or — once
 // everything is learned and the learner asks for it — all of them.
 function buildRun(questions: Question[], streaks: Map<number, number>, includeLearned: boolean): Question[] {
-  return shuffled(includeLearned ? questions : questions.filter((q) => (streaks.get(q.id) ?? 0) < LEARNED_STREAK))
+  return shuffled(includeLearned ? questions : questions.filter((q) => !isLearned(streaks.get(q.id) ?? 0)))
 }
 
 // Loads the topic's questions, the learner's per-question streaks and the
@@ -72,7 +73,7 @@ interface PracticeRunProps {
 
 // The learning loop for one run (ADR-0023): read the question, optionally
 // jot down an answer, reveal the official answer, assess yourself —
-// Richtig / Teilweise Richtig / Falsch — and see the Lot gauge move.
+// Richtig / Teilweise Richtig / Falsch — and watch the boat move (CourseGauge).
 function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [run, setRun] = useState(() => buildRun(questions, streaks, false))
   const [index, setIndex] = useState(0)
@@ -118,7 +119,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     try {
       const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome })
       const before = streaks.get(question.id) ?? 0
-      if (result.learned && before < LEARNED_STREAK) setNewlyLearned((n) => n + 1)
+      if (result.learned && !isLearned(before)) setNewlyLearned((n) => n + 1)
       onGraded(question.id, result.correct_streak)
       setTally((t) => [...t, outcome])
       setPhase('graded')
@@ -133,9 +134,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     return (
       <section className="flex flex-col items-start gap-4">
         <h2 className="font-serif text-2xl text-primary">Alles gelernt</h2>
-        <p className="text-sm text-ink-soft">
-          Du hast jede Frage dieses Themas {LEARNED_STREAK} Mal in Folge richtig beantwortet.
-        </p>
+        <p className="text-sm text-ink-soft">Du hast jede Frage dieses Themas gelernt.</p>
         <div className="flex flex-wrap gap-3">
           <button type="button" className={styles.button} onClick={() => startRun(true)}>
             Alle Fragen wiederholen
@@ -184,7 +183,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
         </p>
-        <LotGauge streak={streak} />
+        {/* Keyed per question: a new question starts where it stands, only a
+            grading of this one makes the boat sail. */}
+        <CourseGauge key={question.id} progress={streakProgress(streak)} />
       </div>
 
       <h2 ref={headingRef} tabIndex={-1} className="font-serif text-xl whitespace-pre-line text-ink outline-none">
@@ -248,12 +249,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             </button>
           ) : (
             <>
-              <p role="status" className="text-sm text-ink">
-                {streak >= LEARNED_STREAK
-                  ? `Gelernt – ${LEARNED_STREAK} Mal in Folge richtig.`
+              {/* The boat's move is the visible feedback; this only tells
+                  screen readers what it did. */}
+              <p role="status" className="sr-only">
+                {isLearned(streak)
+                  ? 'Gelernt.'
                   : outcome === 'richtig'
-                    ? `${streak} von ${LEARNED_STREAK} Mal in Folge richtig.`
-                    : 'Serie zurückgesetzt – die Frage kommt wieder.'}
+                    ? 'Richtig – ein Stück näher am Ziel.'
+                    : 'Zurück zum Start – die Frage kommt wieder.'}
               </p>
               <button type="button" className={styles.button} onClick={nextQuestion}>
                 {isLast ? 'Runde beenden' : 'Nächste Frage'}

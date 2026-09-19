@@ -106,18 +106,21 @@ describe('PracticePage', () => {
     expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
   })
 
-  it('saves a self-assessment and moves the Lot gauge', async () => {
+  it('saves a self-assessment and sails the boat forward', async () => {
     const fetchMock = mockBackend({
       progress: [{ question_id: 1, correct_streak: 1, learned: false }],
       grades: [jsonResponse({ question_id: 1, correct_streak: 2, learned: false })],
     })
     renderPracticePage()
-    expect(await screen.findByRole('img', { name: '1 von 3 Mal in Folge richtig' })).toBeInTheDocument()
+    expect(await screen.findByRole('img', { name: 'Auf Kurs zu gelernt' })).toBeInTheDocument()
+    const before = screen.getByTestId('course-boat').style.transform
 
     await revealAndGrade('Richtig')
 
-    expect(await screen.findByRole('status')).toHaveTextContent('2 von 3 Mal in Folge richtig.')
-    expect(screen.getByRole('img', { name: '2 von 3 Mal in Folge richtig' })).toBeInTheDocument()
+    expect(await screen.findByRole('status')).toHaveTextContent('Richtig – ein Stück näher am Ziel.')
+    expect(screen.getByTestId('course-boat').style.transform).not.toBe(before)
+    // Nothing on the page gives away how many correct answers "gelernt" takes.
+    expect(screen.queryByText(/von 3/)).not.toBeInTheDocument()
     const post = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
     expect(String(post[0])).toMatch(/\/progress\/questions\/1$/)
     expect(JSON.parse(String(post[1]!.body))).toEqual({ outcome: 'richtig' })
@@ -132,7 +135,8 @@ describe('PracticePage', () => {
 
     await revealAndGrade('Teilweise Richtig')
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Serie zurückgesetzt')
+    expect(await screen.findByRole('status')).toHaveTextContent('Zurück zum Start')
+    expect(screen.getByRole('img', { name: 'Noch nicht gelernt' })).toBeInTheDocument()
   })
 
   it('keeps the assessment open when saving fails', async () => {
@@ -168,6 +172,7 @@ describe('PracticePage', () => {
 
     expect(screen.getByRole('heading', { name: 'Frage 7?' })).toHaveFocus()
     user = await revealAndGrade('Richtig')
+    expect(await screen.findByRole('status')).toHaveTextContent('Gelernt.')
     await user.click(await screen.findByRole('button', { name: 'Runde beenden' }))
 
     expect(screen.getByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()

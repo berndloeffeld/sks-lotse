@@ -4,7 +4,7 @@ interface LogoMarkProps {
 
 // The brand mark: a chart tile (see ChartTile's dog-eared corner, ADR-0014)
 // with a plotted course line and position fix — "Lotse" (pilot) charting a
-// course, and a nod to the Lot gauge's dot-advances-on-progress motif.
+// course, the same idea as the per-question CourseGauge.
 export function LogoMark({ className }: LogoMarkProps) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true" focusable="false">
