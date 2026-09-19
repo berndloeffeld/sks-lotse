@@ -141,17 +141,17 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
               progress={total > 1 ? index / (total - 1) : 1}
               label={`Frage ${question.position} von ${total}`}
             />
-            <p className="text-ink">
+            <p className="font-mono text-sm text-ink">
               Frage {question.position} von {total}
             </p>
           </div>
         ) : (
-          <p className="text-ink">
+          <p className="font-mono text-sm text-ink">
             Übersicht: {answered} von {total} beantwortet
           </p>
         )}
         <p
-          className={lowTime ? 'font-bold text-danger' : 'text-ink'}
+          className={lowTime ? 'font-mono text-sm font-bold text-danger' : 'font-mono text-sm text-ink'}
           role="timer"
           aria-label={`Verbleibende Zeit: ${formatCountdown(remainingMs)} Minuten`}
         >
