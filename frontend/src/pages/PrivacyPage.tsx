@@ -4,7 +4,7 @@ export function PrivacyPage() {
   return (
     <PageLayout title="Datenschutzerklärung" nav="public">
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Verantwortlicher</h2>
+        <h2 className="font-serif text-xl text-primary">Verantwortlicher</h2>
         <p className="text-ink-soft">
           Bernd Löffeld
           <br />
@@ -17,7 +17,7 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Hosting</h2>
+        <h2 className="font-serif text-xl text-primary">Hosting</h2>
         <p className="text-ink-soft">
           Diese Website sowie die zugehörige Datenbank werden bei Render (Frankfurt, EU) gehostet. Render verarbeitet
           dabei in unserem Auftrag personenbezogene Daten, u. a. Server-Logdaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit.
@@ -26,7 +26,7 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Konto und Anmeldung</h2>
+        <h2 className="font-serif text-xl text-primary">Konto und Anmeldung</h2>
         <p className="text-ink-soft">
           Die Nutzung von SKS Lotse setzt ein Konto voraus. Bei der Anmeldung per E-Mail und Login-Code (OTP)
           verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code. Der Code ist nur kurze Zeit gültig und wird
@@ -39,7 +39,7 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Webanalyse</h2>
+        <h2 className="font-serif text-xl text-primary">Webanalyse</h2>
         <p className="text-ink-soft">
           Wir nutzen den Analysedienst Umami Cloud, um die Nutzung dieser Website statistisch auszuwerten (z. B.
           Seitenaufrufe). Umami arbeitet cookielos: Es werden keine Cookies gesetzt und keine dauerhafte, geräte- oder
@@ -51,7 +51,7 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Ihre Rechte</h2>
+        <h2 className="font-serif text-xl text-primary">Ihre Rechte</h2>
         <p className="text-ink-soft">
           Sie haben das Recht auf Auskunft über die zu Ihrer Person gespeicherten Daten (Art. 15 DSGVO) sowie auf
           Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO),
@@ -61,7 +61,7 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-lg text-ink">Beschwerderecht</h2>
+        <h2 className="font-serif text-xl text-primary">Beschwerderecht</h2>
         <p className="text-ink-soft">
           Sie haben das Recht, sich bei einer Datenschutzaufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen
           Daten zu beschweren.

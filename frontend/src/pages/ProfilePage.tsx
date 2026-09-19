@@ -159,7 +159,7 @@ export function ProfilePage() {
       }
     >
       <section className="flex flex-col gap-4 border border-border p-4">
-        <h2 className="font-serif text-lg text-ink">Persönliche Daten</h2>
+        <h2 className="font-serif text-xl text-primary">Persönliche Daten</h2>
         <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
           <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="first-name">
             Vorname
@@ -213,7 +213,7 @@ export function ProfilePage() {
 
       <section className="flex flex-col gap-4 border border-border p-4">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="font-serif text-lg text-ink">Prüfungsziel</h2>
+          <h2 className="font-serif text-xl text-primary">Prüfungsziel</h2>
           <ExamVariantDropdown value={user.exam_variant} onChange={changeVariant} disabled={isSavingVariant} />
         </div>
         {variantError ? <p className="text-sm text-danger">{variantError}</p> : null}
@@ -222,7 +222,7 @@ export function ProfilePage() {
       <ProgressSummarySection key={user.exam_variant ?? 'none'} />
 
       <section className="flex flex-col gap-4 border border-border p-4">
-        <h2 className="font-serif text-lg text-ink">E-Mail-Adresse ändern</h2>
+        <h2 className="font-serif text-xl text-primary">E-Mail-Adresse ändern</h2>
         <p className="text-sm text-ink-soft">
           Aktuelle E-Mail-Adresse: <span className="font-mono text-ink">{user.email}</span>
         </p>
@@ -288,7 +288,7 @@ export function ProfilePage() {
       </section>
 
       <section className="flex flex-col gap-2 border border-danger p-4">
-        <h2 className="font-serif text-lg text-ink">Konto löschen</h2>
+        <h2 className="font-serif text-xl text-primary">Konto löschen</h2>
         <p className="text-sm text-ink-soft">
           Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
         </p>
