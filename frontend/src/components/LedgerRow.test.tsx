@@ -60,4 +60,21 @@ describe('LedgerRow', () => {
 
     expect(onToggleFocus).toHaveBeenCalledOnce()
   })
+
+  it('marks a fully learned topic as done', () => {
+    render(
+      <MemoryRouter>
+        <LedgerRow title="Ankern" learned={7} total={7} to="/learn/navigation/ankern" />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Wiederholen' })).toBeInTheDocument()
+    expect(screen.getByText('✓')).toBeInTheDocument()
+  })
+
+  it('does not mark a topic without questions as done', () => {
+    render(<LedgerRow title="Ankern" learned={0} total={0} />)
+
+    expect(screen.queryByText('✓')).not.toBeInTheDocument()
+  })
 })

@@ -23,10 +23,15 @@ interface LedgerRowProps {
 export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = false, onToggleFocus }: LedgerRowProps) {
   const percent = percentOf(learned, total)
   const learningPercent = percentOf(learning, total)
+  const done = total > 0 && learned >= total
   const action = 'border px-3 py-1.5 font-mono text-xs tracking-wide uppercase'
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">
+    <div
+      className={`flex items-center justify-between gap-4 border-b border-border px-2 py-3 last:border-b-0 ${
+        done ? 'bg-success/10' : ''
+      }`}
+    >
       {onToggleFocus ? (
         <button
           type="button"
@@ -40,13 +45,20 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
         </button>
       ) : null}
       <div className="flex-1">
-        <p className="text-ink">{title}</p>
+        <p className={done ? 'font-medium text-success' : 'text-ink'}>
+          {done ? (
+            <span aria-hidden="true" className="mr-1.5">
+              ✓
+            </span>
+          ) : null}
+          {title}
+        </p>
         <div className="mt-1.5 flex items-center gap-2">
           <div className="flex h-1 w-20 bg-surface-alt">
             <div className="h-full bg-success" style={{ width: `${percent}%` }} />
             <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
           </div>
-          <p className="font-mono text-xs text-ink-soft">
+          <p className={`font-mono text-xs ${done ? 'text-success' : 'text-ink-soft'}`}>
             {learned} von {total} Fragen gelernt
             {learning > 0 ? ` · ${learning} teilweise` : ''}
           </p>
@@ -54,7 +66,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
       </div>
       {to && total > 0 ? (
         <Link to={to} className={`${action} border-primary text-primary hover:bg-primary hover:text-surface`}>
-          Lernen starten
+          {done ? 'Wiederholen' : 'Lernen starten'}
         </Link>
       ) : (
         <button type="button" disabled className={`${action} border-border text-ink-soft disabled:cursor-not-allowed`}>

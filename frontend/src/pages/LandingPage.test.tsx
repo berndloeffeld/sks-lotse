@@ -55,7 +55,7 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Warum SKS Lotse?' })).toBeInTheDocument()
 
     expect(screen.getByRole('heading', { name: 'Kostenlos starten' })).toBeInTheDocument()
-    expect(screen.getByText('Anzeige')).toBeInTheDocument()
+    expect(screen.queryByText('Anzeige')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'KI-Bewertung' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })

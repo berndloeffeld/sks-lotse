@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/types'
 import { CourseGauge } from '../components/CourseGauge'
+import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebration'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { RichText } from '../components/RichText'
@@ -71,9 +72,9 @@ function usePracticeData(subject: string, topicSlug: string) {
 const BOAT_SETTLE_MS = 1000
 
 // Nothing sails under reduced motion, so there is nothing to wait for.
-function letBoatSettle(): Promise<void> {
+function letBoatSettle(ms = BOAT_SETTLE_MS): Promise<void> {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return Promise.resolve()
-  return new Promise((resolve) => setTimeout(resolve, BOAT_SETTLE_MS))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 interface PracticeRunProps {
@@ -96,6 +97,8 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [tally, setTally] = useState<GradingOutcome[]>([])
   const [newlyLearned, setNewlyLearned] = useState(0)
   const [feedback, setFeedback] = useState('')
+  // Number of the question that just became gelernt, while its celebration runs.
+  const [celebrating, setCelebrating] = useState<number | null>(null)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -142,7 +145,11 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     try {
       const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome })
       const before = streaks.get(question.id) ?? 0
-      if (result.learned && !isLearned(before)) setNewlyLearned((n) => n + 1)
+      const learnedNow = result.learned && !isLearned(before)
+      if (learnedNow) {
+        setNewlyLearned((n) => n + 1)
+        setCelebrating(question.number)
+      }
       onGraded(question.id, result.correct_streak)
       setTally((t) => [...t, outcome])
       // The result is announced to screen readers; sighted learners see the
@@ -154,7 +161,8 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             ? 'Richtig – ein Stück näher am Ziel.'
             : 'Zurück zum Start – die Frage kommt wieder.',
       )
-      await letBoatSettle()
+      await letBoatSettle(learnedNow ? CELEBRATION_MS : BOAT_SETTLE_MS)
+      setCelebrating(null)
       nextQuestion()
     } catch {
       setSaveError('Die Bewertung konnte nicht gespeichert werden. Bitte versuche es erneut.')
@@ -169,10 +177,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         <h2 className="font-serif text-2xl text-primary">Alles gelernt</h2>
         <p className="text-sm text-ink-soft">Du hast jede Frage dieses Themas gelernt.</p>
         <div className="flex flex-wrap gap-3">
-          <button type="button" className={styles.button} onClick={() => startRun(true)}>
+          <button
+            type="button"
+            className="rounded-tile border border-primary px-4 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"
+            onClick={() => startRun(true)}
+          >
             Alle Fragen wiederholen
           </button>
-          <Link to="/learn" className={styles.link + ' self-center'}>
+          <Link to="/learn" className={styles.button}>
             Zur Themenübersicht
           </Link>
         </div>
@@ -198,7 +210,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           <dt className="text-ink-soft">Neu gelernt</dt>
           <dd className="text-ink">{newlyLearned}</dd>
         </dl>
-        <Link to="/learn" className={styles.link}>
+        <Link to="/learn" className={styles.button}>
           Zur Themenübersicht
         </Link>
       </section>
@@ -212,6 +224,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       <p role="status" className="sr-only">
         {feedback}
       </p>
+      {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
       <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
@@ -333,7 +346,7 @@ export function PracticePage() {
   )
 
   return (
-    <PageLayout title={topic?.name ?? 'Lernen'} subtitle={SUBJECT_LABELS[subject] ?? subject} backTo="/learn">
+    <PageLayout title={topic?.name ?? 'Lernen'} subtitle={SUBJECT_LABELS[subject] ?? subject} backTo="/learn" compact>
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : error ? (

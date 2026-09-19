@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 
 import { AccountNav } from '../components/AccountNav'
-import { AdSlot } from '../components/AdSlot'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { ContourBackground } from '../components/ContourBackground'
 import { Header } from '../components/Header'
@@ -22,21 +21,18 @@ const PLANS = [
     title: 'Musterantwort',
     icon: <CatalogIcon className="h-16 w-16" />,
     text: 'Fragen üben und die amtliche Musterantwort direkt zum Vergleich sehen – mit Werbung finanziert.',
-    ad: true,
   },
   {
     kicker: 'Erweiterung · demnächst',
     title: 'KI-Bewertung',
     icon: <AnswerIcon className="h-16 w-16" />,
     text: 'Schreib oder sprich deine Antwort und erhalte eine Bewertung mit Erklärung, was gefehlt hat.',
-    ad: false,
   },
   {
     kicker: 'Erweiterung · demnächst',
     title: 'Werbefrei',
     icon: <FeedbackIcon className="h-16 w-16" />,
     text: 'Lernen ganz ohne Anzeigen – ruhig und konzentriert.',
-    ad: false,
   },
 ]
 
@@ -190,7 +186,7 @@ export function LandingPage() {
 
         <section className={`${CONTENT} py-16`}>
           <Columns>
-            {PLANS.map(({ kicker, title, icon, text, ad }) => (
+            {PLANS.map(({ kicker, title, icon, text }) => (
               <div key={title} className="flex flex-col gap-4">
                 <div className="relative flex h-40 items-center justify-center overflow-hidden bg-surface-alt text-primary">
                   <ContourBackground className="h-full" />
@@ -199,7 +195,6 @@ export function LandingPage() {
                 <span className="mt-2 font-mono text-xs tracking-wide text-ink-soft uppercase">{kicker}</span>
                 <h3 className="font-serif text-2xl text-primary">{title}</h3>
                 <p className="text-sm leading-relaxed text-ink-soft">{text}</p>
-                {ad ? <AdSlot /> : null}
               </div>
             ))}
           </Columns>
