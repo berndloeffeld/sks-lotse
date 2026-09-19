@@ -3,28 +3,14 @@ import { useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
+import { formStyles, type FormTone } from './formStyles'
 
 type Step = 'email' | 'code'
 
 interface LoginFormProps {
   // `dark` for use on a primary band (the landing page's sign-up section),
   // `light` on the page background (the login page).
-  tone?: 'light' | 'dark'
-}
-
-const TONES = {
-  light: {
-    label: 'text-ink-soft',
-    input: 'border-primary bg-surface text-ink',
-    note: 'text-ink-soft',
-    link: 'text-primary',
-  },
-  dark: {
-    label: 'text-surface',
-    input: 'border-surface bg-transparent text-surface',
-    note: 'text-surface-alt',
-    link: 'text-surface',
-  },
+  tone?: FormTone
 }
 
 // The two-step email + OTP sign-in (request a code, then verify it),
@@ -40,13 +26,12 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const t = TONES[tone]
-  const labelClass = `flex flex-col gap-1 text-sm ${t.label}`
-  const inputClass = `rounded-tile border-2 px-3 py-2 ${t.input}`
-  const buttonClass =
-    'rounded-tile bg-accent px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink disabled:opacity-60'
+  const f = formStyles(tone)
+  const labelClass = f.label
+  const inputClass = f.input
+  const buttonClass = f.button
   const errorMessage = error ? (
-    <p role="alert" className="rounded-tile bg-danger px-3 py-2 text-sm text-surface">
+    <p role="alert" className={f.error}>
       {error}
     </p>
   ) : null
@@ -102,7 +87,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
             className={inputClass}
           />
         </label>
-        <p className={`text-xs ${t.note}`}>Wir senden dir einen Login-Code per E-Mail – ganz ohne Passwort.</p>
+        <p className={`text-xs ${f.note}`}>Wir senden dir einen Login-Code per E-Mail – ganz ohne Passwort.</p>
         {errorMessage}
         <button type="submit" disabled={isSubmitting} className={buttonClass}>
           Code anfordern
@@ -113,7 +98,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleVerifyCode}>
-      <p className={`text-sm ${t.note}`}>Code gesendet an {email}.</p>
+      <p className={`text-sm ${f.note}`}>Code gesendet an {email}.</p>
       <label className={labelClass} htmlFor="code">
         Login-Code
         <input
@@ -138,7 +123,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
           setCode('')
           setError(null)
         }}
-        className={`text-sm underline ${t.link}`}
+        className={f.link}
       >
         Andere E-Mail-Adresse verwenden
       </button>

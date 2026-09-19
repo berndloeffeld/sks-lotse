@@ -11,9 +11,6 @@ export interface ProgressSlice {
 
 interface ProgressPieProps {
   slices: ProgressSlice[]
-  // `row`: legend beside the pie; `column`: legend underneath, for narrow
-  // spots like one column of a three-column band.
-  layout?: 'row' | 'column'
 }
 
 // Category colors from the ADR-0014 palette — deliberately not a traffic-light
@@ -36,7 +33,7 @@ function pointAt(angle: number): [number, number] {
 // out to learned/total of the radius, so a fully learned slice is solid, and
 // a slice with nothing learned has no strong core at all. Hovering a slice or
 // its legend row highlights it and dims the rest.
-export function ProgressPie({ slices, layout = 'row' }: ProgressPieProps) {
+export function ProgressPie({ slices }: ProgressPieProps) {
   const idPrefix = useId()
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const visible = slices.filter((slice) => slice.total > 0)
@@ -66,8 +63,9 @@ export function ProgressPie({ slices, layout = 'row' }: ProgressPieProps) {
     return { slice, color, fraction, gradientId, path, summary }
   })
 
+  // Legend under the pie, so it fits one column of a three-column band.
   return (
-    <div className={`flex shrink-0 gap-4 ${layout === 'row' ? 'items-center' : 'flex-col items-start'}`}>
+    <div className="flex shrink-0 flex-col items-start gap-4">
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
