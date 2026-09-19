@@ -26,4 +26,15 @@ describe('LegalFooter', () => {
     expect(screen.getByText(/Wasserstraßen- und Schifffahrtsverwaltung des Bundes/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ELWIS' })).toHaveAttribute('href', 'https://www.elwis.de')
   })
+
+  it('renders the dark variant inside a colored band with the same links', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <LegalFooter tone="dark" />
+      </MemoryRouter>,
+    )
+
+    expect(container.firstElementChild).toHaveClass('bg-primary-dark')
+    expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
+  })
 })

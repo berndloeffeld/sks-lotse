@@ -24,13 +24,15 @@ export function LogoMark({ className }: LogoMarkProps) {
 
 interface LogoProps {
   className?: string
+  // Light wordmark for dark bands (the landing page's header).
+  inverted?: boolean
 }
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, inverted = false }: LogoProps) {
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ''}`}>
       <LogoMark className="h-8 w-8 shrink-0" />
-      <span className="font-serif text-xl text-ink">SKS Lotse</span>
+      <span className={`font-serif text-xl ${inverted ? 'text-surface' : 'text-ink'}`}>SKS Lotse</span>
     </span>
   )
 }

@@ -10,4 +10,12 @@ describe('ContourBackground', () => {
 
     expect(svg).toHaveAttribute('aria-hidden', 'true')
   })
+
+  it('draws its lines in the given stroke color', () => {
+    const { container } = render(<ContourBackground stroke="red" />)
+
+    for (const path of container.querySelectorAll('path')) {
+      expect(path).toHaveAttribute('stroke', 'red')
+    }
+  })
 })
