@@ -10,6 +10,8 @@
 18: segelstellung-stabilitaet-rumpfgeschwindigkeit
 19: segelstellung-stabilitaet-rumpfgeschwindigkeit
 20: segelstellung-stabilitaet-rumpfgeschwindigkeit
+22: antriebsmaschine-betrieb-wartung
+25: antriebsmaschine-betrieb-wartung
 26: antriebsmaschine-betrieb-wartung
 27: antriebsmaschine-betrieb-wartung
 28: antriebsmaschine-betrieb-wartung
@@ -29,7 +31,9 @@
 52: segelstellung-stabilitaet-rumpfgeschwindigkeit
 53: antriebsmaschine-betrieb-wartung
 54: antriebsmaschine-betrieb-wartung
+55: antriebsmaschine-betrieb-wartung
 56: antriebsmaschine-betrieb-wartung
+58: antriebsmaschine-betrieb-wartung
 61: antriebsmaschine-betrieb-wartung
 62: antriebsmaschine-betrieb-wartung
 63: antriebsmaschine-betrieb-wartung
@@ -55,3 +59,7 @@
 103: manoever-schwerem-wetter
 104: manoever-schwerem-wetter
 105: manoever-schwerem-wetter
+107: manoever-schwerem-wetter
+109: manoever-schwerem-wetter
+124: manoever-schwerem-wetter
+157: manoever-schwerem-wetter

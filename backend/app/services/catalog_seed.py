@@ -55,9 +55,12 @@ SUBJECTS = [
     ("seemannschaft_2", "Seemannschaft II"),
 ]
 
+SEEMANNSCHAFT_SUBJECTS = ("seemannschaft_allgemein", "seemannschaft_segeln", "seemannschaft_motor")
+
 BREADCRUMB_RE = re.compile(r"Sie sind hier:")
 NUMBER_RE = re.compile(r"Nummer\s+(\d+):\s*\n")
 WHITESPACE_RE = re.compile(r"[ \t]+")
+ANY_WHITESPACE_RE = re.compile(r"\s+")
 BLANK_LINES_RE = re.compile(r"\n\s*\n+")
 # Never occurs in the PDF's text: marks where a question's answer begins.
 ANSWER_START = "\x1e"
@@ -178,6 +181,18 @@ def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
     return questions
 
 
+def normalize_wording(text: str) -> str:
+    """Whitespace-normalized text, for word-for-word comparisons."""
+    return ANY_WHITESPACE_RE.sub(" ", text).strip()
+
+
+def wording_differs(a: CatalogQuestion, b: CatalogQuestion) -> bool:
+    """True unless both question and answer match word for word."""
+    return normalize_wording(a.question_text) != normalize_wording(b.question_text) or normalize_wording(
+        a.answer_text
+    ) != normalize_wording(b.answer_text)
+
+
 def merge_seemannschaft(questions: list[CatalogQuestion]) -> list[CatalogQuestion]:
     """Collapse seemannschaft_1/seemannschaft_2 into the 3 merged subjects.
 
@@ -186,18 +201,38 @@ def merge_seemannschaft(questions: list[CatalogQuestion]) -> list[CatalogQuestio
     merged pair keeps the Seemannschaft I wording and is renumbered
     sequentially (in Seemannschaft I order) within seemannschaft_allgemein;
     variant-exclusive questions keep their original number.
+
+    Showing Seemannschaft I wording to Motor learners is only faithful to
+    their official catalog if both texts match, so a pair whose question or
+    answer differs (see `wording_differs`) must carry a reviewed
+    `accepted_difference` rationale — otherwise this raises. See ADR-0026.
     """
     pairs = yaml.safe_load(SEEMANNSCHAFT_DUPLICATES_PATH.read_text()) or []
     pair_map: dict[int, int] = {p["seemannschaft_1"]: p["seemannschaft_2"] for p in pairs}
+    accepted = {p["seemannschaft_1"] for p in pairs if p.get("accepted_difference")}
     matched_motor_numbers = set(pair_map.values())
 
     segeln_rows = {q.number: q for q in questions if q.subject == "seemannschaft_1"}
     motor_rows = {q.number: q for q in questions if q.subject == "seemannschaft_2"}
     merged = [q for q in questions if q.subject not in ("seemannschaft_1", "seemannschaft_2")]
 
-    for new_number, (num1, num2) in enumerate(sorted(pair_map.items()), start=1):
+    for num1, num2 in pair_map.items():
+        if num1 not in segeln_rows:
+            raise ValueError(f"duplicate pair references unknown Seemannschaft I question {num1}")
         if num2 not in motor_rows:
             raise ValueError(f"duplicate pair references unknown Seemannschaft II question {num2}")
+    unaccepted = [
+        f"{num1}/{num2}"
+        for num1, num2 in sorted(pair_map.items())
+        if num1 not in accepted and wording_differs(segeln_rows[num1], motor_rows[num2])
+    ]
+    if unaccepted:
+        raise ValueError(
+            "Seemannschaft I/II pairs differ in wording but have no accepted_difference: "
+            + ", ".join(unaccepted)
+        )
+
+    for new_number, (num1, num2) in enumerate(sorted(pair_map.items()), start=1):
         merged.append(
             dataclasses.replace(
                 segeln_rows[num1],
@@ -250,6 +285,110 @@ def build_catalog() -> list[CatalogQuestion]:
     return assign_topics(merge_seemannschaft(parse_catalog_pdf()))
 
 
+def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion]) -> None:
+    """Move existing Seemannschaft rows to their target (subject, number).
+
+    `number` is derived for seemannschaft_allgemein (a pair's position in
+    the reviewed duplicate list), so un-merging or adding a pair shifts
+    every later one — and the plain (subject, number) upsert in
+    `sync_catalog` would then silently attach learners' progress to a
+    different question. The official catalog numbers
+    (`seemannschaft_1_number`/`_2_number`) never shift, so they are the
+    identity here:
+
+    - a target with exactly an existing row's official numbers keeps it;
+    - otherwise it takes over the existing row sharing its Seemannschaft I
+      (else II) number — an un-merged pair's seemannschaft_segeln half keeps
+      the old seemannschaft_allgemein row, id and progress included;
+    - if that row is already taken (by the pair's other half), a new row is
+      inserted with a copy of the old row's progress, so learners keep it in
+      either exam variant;
+    - an existing row no target claims is deleted, progress with it (its
+      question left the catalog in that form, see ADR-0022).
+
+    Only moves rows; `sync_catalog` then updates their contents as usual.
+    See ADR-0026.
+    """
+    existing = connection.execute(
+        sa.select(
+            _questions.c.id,
+            _questions.c.subject,
+            _questions.c.number,
+            _questions.c.seemannschaft_1_number,
+            _questions.c.seemannschaft_2_number,
+        ).where(_questions.c.subject.in_(SEEMANNSCHAFT_SUBJECTS))
+    ).all()
+    if not existing:
+        return
+    by_pair = {(r.seemannschaft_1_number, r.seemannschaft_2_number): r.id for r in existing}
+    by_1 = {r.seemannschaft_1_number: r.id for r in existing if r.seemannschaft_1_number is not None}
+    by_2 = {r.seemannschaft_2_number: r.id for r in existing if r.seemannschaft_2_number is not None}
+    targets = [q for q in questions if q.subject in SEEMANNSCHAFT_SUBJECTS]
+
+    claims: dict[int, CatalogQuestion] = {}
+    # Exact matches first, so a partial match never takes a row that still
+    # exists unchanged.
+    for q in targets:
+        row_id = by_pair.get((q.seemannschaft_1_number, q.seemannschaft_2_number))
+        if row_id is not None:
+            claims[row_id] = q
+    exact = set(claims.values())
+    copies: list[tuple[CatalogQuestion, int]] = []
+    for q in targets:
+        if q in exact:
+            continue
+        row_id = by_1.get(q.seemannschaft_1_number)
+        if row_id is None:
+            row_id = by_2.get(q.seemannschaft_2_number)
+        if row_id is None:
+            continue  # a new question: sync_catalog inserts it
+        if row_id in claims:
+            copies.append((q, row_id))
+        else:
+            claims[row_id] = q
+
+    unclaimed = [r.id for r in existing if r.id not in claims]
+    if unclaimed:
+        connection.execute(sa.delete(_questions).where(_questions.c.id.in_(unclaimed)))
+    moved = [
+        r.id
+        for r in existing
+        if r.id in claims and (r.subject, r.number) != (claims[r.id].subject, claims[r.id].number)
+    ]
+    # Two steps, so no row ever lands on a key another row still holds
+    # (uq_question_subject_number is checked per statement).
+    for row_id in moved:
+        connection.execute(sa.update(_questions).where(_questions.c.id == row_id).values(number=-row_id))
+    for row_id in moved:
+        q = claims[row_id]
+        connection.execute(
+            sa.update(_questions).where(_questions.c.id == row_id).values(subject=q.subject, number=q.number)
+        )
+
+    if copies:
+        # Reflected rather than frozen: a copy has to carry every column the
+        # table has at the migration's revision.
+        progress = sa.Table("question_progress", sa.MetaData(), autoload_with=connection)
+        carried = [c for c in progress.c if c.name not in ("id", "question_id")]
+        for q, source_id in copies:
+            new_id = connection.execute(
+                sa.insert(_questions)
+                .values(
+                    subject=q.subject,
+                    number=q.number,
+                    question_text=q.question_text,
+                    answer_text=q.answer_text,
+                )
+                .returning(_questions.c.id)
+            ).scalar_one()
+            connection.execute(
+                progress.insert().from_select(
+                    [c.name for c in carried] + ["question_id"],
+                    sa.select(*carried, sa.literal(new_id)).where(progress.c.question_id == source_id),
+                )
+            )
+
+
 def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> None:
     """Make `topics`/`questions` match topics.yaml and `questions` by upsert.
 
@@ -279,7 +418,9 @@ def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> No
     }
 
     # Questions: upsert by (subject, number) so ids — and every learner's
-    # question_progress row pointing at them — survive a re-sync.
+    # question_progress row pointing at them — survive a re-sync. Seemannschaft
+    # rows are first moved to their new key by official number.
+    _rekey_seemannschaft(connection, questions)
     existing_questions = {
         (row.subject, row.number): row.id
         for row in connection.execute(sa.select(_questions.c.id, _questions.c.subject, _questions.c.number))

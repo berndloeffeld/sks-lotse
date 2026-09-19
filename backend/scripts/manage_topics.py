@@ -14,8 +14,12 @@ reviewed scripts/data/seemannschaft_duplicates.yaml must be final first).
 Needs ANTHROPIC_API_KEY set (backend/.env) — this is a local dev-only tool,
 not read by the running app:
 
-    PYTHONPATH=. .venv/bin/python scripts/manage_topics.py [--force]
+    PYTHONPATH=. .venv/bin/python scripts/manage_topics.py [--force | --missing]
     # review/edit scripts/data/topic_assignments/<subject>.yaml by hand
+
+`--missing` classifies only the questions an existing file has no entry for
+(e.g. after un-merging a Seemannschaft pair) and adds them to that file,
+leaving every already-reviewed assignment untouched.
     PYTHONPATH=. .venv/bin/python scripts/import_catalog.py
 
 Applying the reviewed files happens in app/services/catalog_seed.py
@@ -49,20 +53,25 @@ class TopicAssignments(BaseModel):
     assignments: list[Assignment]
 
 
-def propose(force: bool) -> None:
+def propose(force: bool, missing_only: bool = False) -> None:
     topics_by_subject = load_topics()
     client = Anthropic(api_key=settings.anthropic_api_key)
     catalog = merge_seemannschaft(parse_catalog_pdf())
 
     for subject, topics in topics_by_subject.items():
         out_path = ASSIGNMENTS_DIR / f"{subject}.yaml"
-        if out_path.exists() and not force:
-            print(f"Skipping {subject}: {out_path} already exists (use --force to overwrite)")
+        reviewed: dict[int, str] = {}
+        if missing_only and out_path.exists():
+            reviewed = yaml.safe_load(out_path.read_text()) or {}
+        elif out_path.exists() and not force:
+            print(f"Skipping {subject}: {out_path} already exists (use --force or --missing)")
             continue
 
-        questions = sorted((q for q in catalog if q.subject == subject), key=lambda q: q.number)
+        questions = sorted(
+            (q for q in catalog if q.subject == subject and q.number not in reviewed), key=lambda q: q.number
+        )
         if not questions:
-            print(f"Skipping {subject}: no questions found in the parsed catalog")
+            print(f"Skipping {subject}: nothing to classify")
             continue
 
         allowed_slugs = {t["slug"] for t in topics}
@@ -92,14 +101,17 @@ def propose(force: bool) -> None:
             print(f"{subject}: {len(missing)} questions got no assignment: {missing}")
 
         ASSIGNMENTS_DIR.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(yaml.dump(assignments, allow_unicode=True, sort_keys=True))
-        print(f"{subject}: wrote {len(assignments)} assignments to {out_path}")
+        out_path.write_text(yaml.dump({**reviewed, **assignments}, allow_unicode=True, sort_keys=True))
+        print(f"{subject}: wrote {len(assignments)} new assignments to {out_path}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--force", action="store_true", help="overwrite existing assignment files")
-    propose(parser.parse_args().force)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--force", action="store_true", help="overwrite existing assignment files")
+    mode.add_argument("--missing", action="store_true", help="only classify questions without an assignment")
+    args = parser.parse_args()
+    propose(args.force, missing_only=args.missing)
 
 
 if __name__ == "__main__":
