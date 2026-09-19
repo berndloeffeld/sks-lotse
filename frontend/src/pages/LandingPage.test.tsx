@@ -65,4 +65,17 @@ describe('LandingPage', () => {
 
     expect(screen.getByText(/KI-Bewertung und Spracheingabe folgen/)).toBeInTheDocument()
   })
+
+  it('shows screenshots of the app, each with a description', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('heading', { name: 'Ein Blick in die App' })).toBeInTheDocument()
+    const images = screen.getAllByRole('img', { name: /^Screenshot:/ })
+    expect(images).toHaveLength(3)
+    for (const image of images) {
+      expect(image).toHaveAttribute('src', expect.stringMatching(/^\/screenshots\/.+\.png$/))
+      expect(image).toHaveAttribute('width')
+      expect(image).toHaveAttribute('height')
+    }
+  })
 })

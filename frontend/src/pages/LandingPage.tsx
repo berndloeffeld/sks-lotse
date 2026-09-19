@@ -40,6 +40,38 @@ const PLANS = [
   },
 ]
 
+// Real screenshots of the running app (public/screenshots), cropped to the
+// content column; the demo account's data is made up.
+const SCREENSHOTS = [
+  {
+    src: '/screenshots/frage-beantworten.png',
+    width: 1050,
+    height: 566,
+    title: '1. Frage beantworten',
+    text: 'Eine Frage aus dem Katalog, dazu ein optionales Notizfeld für deine Antwort – sie wird nicht gespeichert.',
+    alt: 'Screenshot: Die Frage „Welchen Kurs zeigen GPS-Geräte an?“ mit ausgefülltem Antwortfeld und der Schaltfläche „Lösung anzeigen“.',
+    wide: false,
+  },
+  {
+    src: '/screenshots/selbst-bewerten.png',
+    width: 1050,
+    height: 779,
+    title: '2. Vergleichen und bewerten',
+    text: 'Neben deiner Antwort steht die amtliche Musterantwort. Du bewertest selbst: richtig, teilweise richtig oder falsch.',
+    alt: 'Screenshot: Deine Antwort neben der amtlichen Antwort „Den Kurs über Grund (KüG)“, darunter die Auswahl Richtig, Teilweise Richtig, Falsch.',
+    wide: false,
+  },
+  {
+    src: '/screenshots/lernstand.png',
+    width: 1380,
+    height: 537,
+    title: '3. Lernstand im Blick',
+    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten – dazu die Wahl zwischen „Segeln und Motor“ und „Motor“.',
+    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete und der Auswahl der Prüfungsvariante.',
+    wide: true,
+  },
+]
+
 const HERO_CTA =
   'mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide uppercase transition hover:bg-surface hover:text-primary-dark'
 
@@ -116,6 +148,34 @@ export function LandingPage() {
                 </div>
               ))}
             </Columns>
+          </div>
+        </section>
+
+        <section className={`${CONTENT} py-16`}>
+          <h2 className="font-serif text-3xl text-primary">Ein Blick in die App</h2>
+          <p className="mt-3 max-w-xl text-sm text-ink-soft">
+            So sieht das Lernen in SKS Lotse aus – Screenshots der Beta-Version.
+          </p>
+          <div className="mt-10 flex flex-col gap-14">
+            {SCREENSHOTS.map(({ src, width, height, title, text, alt, wide }) => (
+              <figure
+                key={src}
+                className={`flex flex-col gap-4 ${wide ? '' : 'sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:items-center sm:gap-8'}`}
+              >
+                <img
+                  src={src}
+                  width={width}
+                  height={height}
+                  alt={alt}
+                  loading="lazy"
+                  className="h-auto w-full border border-border sm:order-2"
+                />
+                <figcaption className="flex flex-col gap-1 sm:order-1">
+                  <span className="font-serif text-xl text-primary">{title}</span>
+                  <span className="text-sm leading-relaxed text-ink-soft">{text}</span>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </section>
 
