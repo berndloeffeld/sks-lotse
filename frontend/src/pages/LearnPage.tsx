@@ -2,22 +2,23 @@ import { Band, Columns } from '../components/Bands'
 import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
+import { ProgressPie } from '../components/ProgressPie'
 import { percentOf } from '../format'
 import { SUBJECT_LABELS, useProgressSummary } from '../hooks/useProgressSummary'
 import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { useAuthStore } from '../store/authStore'
 
-function Bar({ percent, tone }: { percent: number; tone: 'light' | 'dark' }) {
+function Bar({ percent }: { percent: number }) {
   return (
-    <div className={`h-1.5 w-full ${tone === 'light' ? 'bg-surface-alt' : 'bg-primary-dark'}`}>
-      <div className={`h-full ${tone === 'light' ? 'bg-success' : 'bg-surface'}`} style={{ width: `${percent}%` }} />
+    <div className="h-1.5 w-full bg-surface-alt">
+      <div className="h-full bg-success" style={{ width: `${percent}%` }} />
     </div>
   )
 }
 
-// The Lernstand, banded like the landing page: key figures as three
-// columns, the exam's main categories on a primary band, then every topic
-// grouped by subject.
+// The Lernstand, banded like the landing page: overall progress, the
+// per-category pie and the exam-variant picker as three columns, then every
+// topic grouped by subject.
 function LearnContent() {
   const user = useAuthStore((state) => state.user)
   const { changeVariant, isSaving: isSavingVariant, error: variantError } = useExamVariantUpdate()
@@ -39,10 +40,14 @@ function LearnContent() {
           <div className="flex flex-col gap-4">
             <h2 className="font-serif text-2xl text-primary">Gesamtfortschritt</h2>
             <p className="font-serif text-5xl text-ink">{percent}%</p>
-            <Bar percent={percent} tone="light" />
+            <Bar percent={percent} />
             <p className="font-mono text-xs text-ink-soft">
               {totals.learned} von {totals.total} Fragen gelernt
             </p>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h2 className="font-serif text-2xl text-primary">Fachgebiete</h2>
+            {categories.length > 0 ? <ProgressPie slices={categories} layout="column" /> : null}
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="font-serif text-2xl text-primary">Prüfungsvariante</h2>
@@ -54,35 +59,8 @@ function LearnContent() {
             />
             {variantError ? <p className="text-sm text-danger">{variantError}</p> : null}
           </div>
-          <div className="flex flex-col gap-4">
-            <h2 className="font-serif text-2xl text-primary">Gelernt heißt</h2>
-            <p className="text-sm leading-relaxed text-ink-soft">
-              Eine Frage gilt als gelernt, wenn du sie dreimal in Folge richtig beantwortest. „Teilweise richtig“ oder
-              „falsch“ setzt die Serie zurück.
-            </p>
-          </div>
         </Columns>
       </Band>
-
-      {categories.length > 0 ? (
-        <Band tone="primary">
-          <h2 className="sr-only">Fachgebiete</h2>
-          <Columns className="sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => {
-              const categoryPercent = percentOf(category.learned, category.total)
-              return (
-                <div key={category.key} className="flex flex-col gap-4">
-                  <h3 className="font-serif text-2xl">{category.label}</h3>
-                  <Bar percent={categoryPercent} tone="dark" />
-                  <p className="font-mono text-xs text-surface-alt">
-                    {category.learned} von {category.total} · {categoryPercent}%
-                  </p>
-                </div>
-              )
-            })}
-          </Columns>
-        </Band>
-      ) : null}
 
       <Band tone="dark" className="py-14">
         <h2 className="font-serif text-3xl">Themen</h2>

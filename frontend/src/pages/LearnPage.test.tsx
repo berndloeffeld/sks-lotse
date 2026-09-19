@@ -76,7 +76,7 @@ describe('LearnPage', () => {
     expect(screen.getByRole('combobox')).toHaveValue('motor')
   })
 
-  it('shows the categories on their own band and the topics grouped by subject', async () => {
+  it('shows the category pie and the topics grouped by subject', async () => {
     useAuthStore.setState({ user: baseUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
 
@@ -84,7 +84,8 @@ describe('LearnPage', () => {
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Themen' })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { name: 'Navigation' })).toHaveLength(2)
+    expect(screen.getByRole('heading', { name: 'Fachgebiete' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
   })
 
   it('shows an error instead of the topics when the Lernstand fails to load', async () => {
