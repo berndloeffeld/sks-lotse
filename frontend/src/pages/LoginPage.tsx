@@ -2,8 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
-import { ContourBackground } from '../components/ContourBackground'
-import { LegalFooter } from '../components/LegalFooter'
+import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'
 
 type Step = 'email' | 'code'
@@ -61,12 +60,7 @@ export function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <div className="relative overflow-hidden py-6">
-        <ContourBackground className="h-20" />
-        <h1 className="relative font-serif text-2xl text-ink">Anmelden</h1>
-      </div>
-
+    <PageLayout title="Anmelden" nav="none" width="sm">
       {step === 'email' ? (
         <form className="flex flex-col gap-4" onSubmit={handleRequestCode}>
           <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="email">
@@ -127,7 +121,6 @@ export function LoginPage() {
           </button>
         </form>
       )}
-      <LegalFooter />
-    </main>
+    </PageLayout>
   )
 }

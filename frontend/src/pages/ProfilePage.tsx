@@ -1,11 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import { getDisplayName, type User } from '../api/types'
-import { ContourBackground } from '../components/ContourBackground'
 import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
-import { LegalFooter } from '../components/LegalFooter'
+import { PageLayout } from '../components/PageLayout'
 import { ProgressSummarySection } from '../components/ProgressSummarySection'
 import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { GENDER_LABELS } from '../labels'
@@ -149,21 +148,16 @@ export function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="relative overflow-hidden py-4">
-        <ContourBackground className="h-24" />
-        <div className="relative">
-          <Link to="/start" className="font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink">
-            ← Zurück
-          </Link>
-          <h1 className="mt-2 font-serif text-2xl text-ink">Profil</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            Angemeldet als <span className="font-mono text-ink">{getDisplayName(user)}</span> · Mitglied seit{' '}
-            {new Date(user.created_at).toLocaleDateString('de-DE')}
-          </p>
-        </div>
-      </header>
-
+    <PageLayout
+      title="Profil"
+      backTo="/start"
+      subtitle={
+        <>
+          Angemeldet als <span className="font-mono text-surface">{getDisplayName(user)}</span> · Mitglied seit{' '}
+          {new Date(user.created_at).toLocaleDateString('de-DE')}
+        </>
+      }
+    >
       <section className="flex flex-col gap-4 border border-border p-4">
         <h2 className="font-serif text-lg text-ink">Persönliche Daten</h2>
         <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
@@ -329,8 +323,6 @@ export function ProfilePage() {
           </form>
         )}
       </section>
-
-      <LegalFooter />
-    </main>
+    </PageLayout>
   )
 }

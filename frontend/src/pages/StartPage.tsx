@@ -1,56 +1,25 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { getDisplayName } from '../api/types'
 import { ChartTile } from '../components/ChartTile'
-import { ContourBackground } from '../components/ContourBackground'
-import { LegalFooter } from '../components/LegalFooter'
+import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'
 
 export function StartPage() {
-  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const logout = useAuthStore((state) => state.logout)
-
-  async function handleLogout() {
-    await logout()
-    navigate('/')
-  }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <header className="relative overflow-hidden py-4">
-        <ContourBackground className="h-24" />
-        <div className="relative flex items-center justify-between">
-          <Link to="/profile" className="hover:underline">
-            <p className="text-sm text-ink-soft">Angemeldet als</p>
-            <p className="font-mono text-ink">{user ? getDisplayName(user) : ''}</p>
+    <PageLayout
+      title="Übersicht"
+      subtitle={
+        <>
+          Angemeldet als{' '}
+          <Link to="/profile" className="font-mono text-surface hover:underline">
+            {user ? getDisplayName(user) : ''}
           </Link>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/profile"
-              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
-            >
-              Profil
-            </Link>
-            {user?.is_admin ? (
-              <Link
-                to="/admin"
-                className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
-              >
-                Admin
-              </Link>
-            ) : null}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt"
-            >
-              Abmelden
-            </button>
-          </div>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       {/* Prüfungssimulation stays non-interactive for now — exam simulation
           doesn't exist yet (no grading backend, see CLAUDE.md). */}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -59,7 +28,6 @@ export function StartPage() {
         </Link>
         <ChartTile title="Prüfungssimulation" description="Demnächst verfügbar" />
       </div>
-      <LegalFooter />
-    </main>
+    </PageLayout>
   )
 }

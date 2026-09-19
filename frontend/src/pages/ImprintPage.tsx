@@ -1,14 +1,8 @@
-import { ContourBackground } from '../components/ContourBackground'
-import { LegalFooter } from '../components/LegalFooter'
+import { PageLayout } from '../components/PageLayout'
 
 export function ImprintPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-12">
-      <div className="relative overflow-hidden py-8">
-        <ContourBackground className="h-28" />
-        <h1 className="relative font-serif text-3xl text-ink">Impressum</h1>
-      </div>
-
+    <PageLayout title="Impressum" nav="public">
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-lg text-ink">Angaben gemäß § 5 DDG</h2>
         <p className="text-ink-soft">
@@ -71,8 +65,6 @@ export function ImprintPage() {
           des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
         </p>
       </section>
-
-      <LegalFooter />
-    </main>
+    </PageLayout>
   )
 }

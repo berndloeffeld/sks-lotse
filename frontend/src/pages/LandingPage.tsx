@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { AdSlot } from '../components/AdSlot'
-import { ContourBackground } from '../components/ContourBackground'
 import { Header } from '../components/Header'
+import { HeroBand } from '../components/HeroBand'
 import { AnswerIcon, CatalogIcon, FeedbackIcon } from '../components/icons/FeatureIcons'
 import { LegalFooter } from '../components/LegalFooter'
 
@@ -24,11 +24,7 @@ export function LandingPage() {
       <Header />
 
       <main className="flex-1">
-        <section
-          className="relative bg-primary pt-16 pb-28 text-center text-surface sm:pb-36"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 85%, 0 100%)' }}
-        >
-          <ContourBackground className="h-full" stroke="var(--color-surface-alt)" />
+        <HeroBand className="pt-16 pb-28 text-center sm:pb-36">
           <div className={`relative flex flex-col items-center gap-6 ${CONTENT} max-w-2xl`}>
             <h1 className="font-serif text-3xl tracking-wide break-words uppercase sm:text-4xl">
               Sicher durch die SKS-Theorieprüfung
@@ -43,7 +39,7 @@ export function LandingPage() {
               Jetzt kostenlos anmelden
             </Link>
           </div>
-        </section>
+        </HeroBand>
 
         <section className={`${CONTENT} py-12`}>
           <h2 className="sr-only">So funktioniert&apos;s</h2>
@@ -145,7 +141,7 @@ export function LandingPage() {
         </section>
       </main>
 
-      <LegalFooter tone="dark" />
+      <LegalFooter />
     </div>
   )
 }
