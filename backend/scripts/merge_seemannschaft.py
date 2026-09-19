@@ -17,8 +17,14 @@ which assigns topics keyed on the post-merge subjects):
     PYTHONPATH=. .venv/bin/python scripts/import_catalog.py
 
 This only ever suggests candidates for a human to check — matching is plain
-text-similarity (no LLM needed, the duplicates are near word-for-word
-identical). Applying the reviewed file happens in
+text-similarity of the questions (no LLM needed, the duplicates are near
+word-for-word identical). Each candidate also records how similar the two
+*answers* are: a merged pair shows the Seemannschaft I wording to both exam
+variants, so a pair isn't a duplicate just because the questions match.
+Candidates whose question or answer isn't word-for-word identical are
+listed at the end; review them with scripts/diff_seemannschaft_pairs.py and
+either drop the pair or add an `accepted_difference` rationale — until then
+the merge refuses to run (see ADR-0026). Applying the reviewed file happens in
 app/services/catalog_seed.py (merge_seemannschaft), which also runs
 automatically as an Alembic data migration — that's what seeds production.
 """
@@ -29,7 +35,7 @@ import re
 
 import yaml
 
-from app.services.catalog_seed import SEEMANNSCHAFT_DUPLICATES_PATH, parse_catalog_pdf
+from app.services.catalog_seed import SEEMANNSCHAFT_DUPLICATES_PATH, parse_catalog_pdf, wording_differs
 
 DATA_PATH = SEEMANNSCHAFT_DUPLICATES_PATH
 SIMILARITY_THRESHOLD = 0.75
@@ -50,8 +56,10 @@ def propose(force: bool) -> None:
     motor = sorted((q for q in raw if q.subject == "seemannschaft_2"), key=lambda q: q.number)
 
     motor_norm = {m.number: normalize(m.question_text) for m in motor}
+    motor_by_number = {m.number: m for m in motor}
     used_motor_numbers: set[int] = set()
     pairs = []
+    differing: list[str] = []
     for s in segeln:
         s_norm = normalize(s.question_text)
         best_number, best_ratio = None, 0.0
@@ -62,19 +70,32 @@ def propose(force: bool) -> None:
             if ratio > best_ratio:
                 best_number, best_ratio = m_number, ratio
         if best_number is not None and best_ratio >= SIMILARITY_THRESHOLD:
+            m = motor_by_number[best_number]
+            answer_ratio = difflib.SequenceMatcher(
+                None, normalize(s.answer_text), normalize(m.answer_text)
+            ).ratio()
             pairs.append(
                 {
                     "seemannschaft_1": s.number,
                     "seemannschaft_2": best_number,
                     "similarity": round(best_ratio, 3),
+                    "answer_similarity": round(answer_ratio, 3),
                 }
             )
             used_motor_numbers.add(best_number)
+            if wording_differs(s, m):
+                differing.append(f"{s.number}/{best_number}")
 
     DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
     DATA_PATH.write_text(yaml.dump(pairs, allow_unicode=True, sort_keys=False))
     print(f"Wrote {len(pairs)} candidate duplicate pairs to {DATA_PATH}")
     print(f"Seemannschaft I: {len(segeln)} questions, Seemannschaft II: {len(motor)} questions")
+    if differing:
+        print(
+            f"{len(differing)} candidates aren't word-for-word identical (S I/S II): "
+            f"{', '.join(differing)} — review with scripts/diff_seemannschaft_pairs.py, "
+            "then drop each pair or add accepted_difference"
+        )
 
 
 def main() -> None:
