@@ -75,7 +75,8 @@ sks-lotse/
 2. Learner is shown a question from the official SKS catalog.
 3. **If the account has AI-based grading unlocked**: learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit); the answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer; the LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
 4. **If not**: the official model answer is shown for the learner to self-compare against — no forced writing step (an optional scratchpad field is never sent), no LLM call. The learner then grades themselves (Richtig / Teilweise Richtig / Falsch), which moves the question's "gelernt" streak exactly like an AI grading would ([ADR-0023](docs/adr/0023-self-assessed-learning-flow.md)). **This is the only grading that exists today** — AI grading and entitlements aren't built yet.
-5. Progress is synced server-side against the logged-in account. If the account hasn't paid to remove ads, ads (Google AdSense) are shown.
+5. Learners can mark topics as **Fokus** (star on `/learn`); the Fokus band shows how many of those questions are sicher gelernt (streak ≥ 3) or teilweise gelernt (streak 1–2). A Fokus topic drops out permanently once all its questions are learned ([ADR-0028](docs/adr/0028-focus-topics.md)). Focus marks are deleted with the account and part of the admin DSGVO export.
+6. Progress is synced server-side against the logged-in account. If the account hasn't paid to remove ads, ads (Google AdSense) are shown.
 
 ---
 

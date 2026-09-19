@@ -33,7 +33,15 @@ class AdminQuestionProgressExport(BaseModel):
     updated_at: datetime
 
 
+class AdminFocusTopicExport(BaseModel):
+    subject: str
+    topic_slug: str
+    topic_name: str
+    created_at: datetime
+
+
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
+    focus_topics: list[AdminFocusTopicExport]
     exported_at: datetime

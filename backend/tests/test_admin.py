@@ -1,6 +1,8 @@
 from app.core.config import settings
+from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
+from app.models.topic import Topic
 from app.models.user import User
 
 _FIXTURE_EMAIL = "fixture-user@example.com"
@@ -129,3 +131,20 @@ def test_me_reports_is_admin_false_for_non_admin(client, db_session, auth_header
     response = client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["is_admin"] is False
+
+
+def test_admin_export_includes_focus_topics(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    topic = Topic(subject="navigation", slug="ankern", name="Ankern", display_order=1)
+    db_session.add(topic)
+    db_session.commit()
+    db_session.add(FocusTopic(user_id=user.id, topic_id=topic.id))
+    db_session.commit()
+
+    response = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
+    assert response.status_code == 200
+    focus = response.json()["focus_topics"]
+    assert [(f["subject"], f["topic_slug"], f["topic_name"]) for f in focus] == [
+        ("navigation", "ankern", "Ankern")
+    ]

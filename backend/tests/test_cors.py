@@ -59,3 +59,17 @@ def test_preflight_allows_delete(client):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_preflight_allows_put(client):
+    # PUT /progress/focus/{subject}/{topic} (Fokus star on /learn) needs this —
+    # see app/main.py's CORSMiddleware allow_methods.
+    response = client.options(
+        "/api/v1/progress/focus/navigation/seekarten",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "PUT",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"

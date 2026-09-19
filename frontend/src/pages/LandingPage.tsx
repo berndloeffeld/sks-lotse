@@ -63,11 +63,11 @@ const SCREENSHOTS = [
   },
   {
     src: '/screenshots/lernstand.png',
-    width: 1380,
-    height: 537,
-    title: '3. Lernstand im Blick',
-    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten – dazu die Wahl zwischen „Segeln und Motor“ und „Motor“.',
-    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete und der Auswahl der Prüfungsvariante.',
+    width: 1344,
+    height: 1274,
+    title: '3. Lernstand und Fokus',
+    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Markiere Themen als Fokus und sieh, wie viele Fragen du sicher oder teilweise gelernt hast.',
+    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und dem Fokus-Bereich mit drei markierten Themen und ihrem Lernstand.',
     wide: true,
   },
 ]
