@@ -66,6 +66,15 @@ function usePracticeData(subject: string, topicSlug: string) {
   return { questions, streaks, setStreaks, topic, isLoading, error }
 }
 
+// How long the boat gets to sail to its new position before the next question.
+const BOAT_SETTLE_MS = 1000
+
+// Nothing sails under reduced motion, so there is nothing to wait for.
+function letBoatSettle(): Promise<void> {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return Promise.resolve()
+  return new Promise((resolve) => setTimeout(resolve, BOAT_SETTLE_MS))
+}
+
 interface PracticeRunProps {
   questions: Question[]
   streaks: Map<number, number>
@@ -135,8 +144,8 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       if (result.learned && !isLearned(before)) setNewlyLearned((n) => n + 1)
       onGraded(question.id, result.correct_streak)
       setTally((t) => [...t, outcome])
-      // Saving moves straight on to the next question; the result is only
-      // announced to screen readers.
+      // The result is announced to screen readers; sighted learners see the
+      // boat sail to the new status before the next question comes up.
       setFeedback(
         result.learned
           ? 'Gelernt.'
@@ -144,6 +153,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             ? 'Richtig – ein Stück näher am Ziel.'
             : 'Zurück zum Start – die Frage kommt wieder.',
       )
+      await letBoatSettle()
       nextQuestion()
     } catch {
       setSaveError('Die Bewertung konnte nicht gespeichert werden. Bitte versuche es erneut.')
