@@ -67,9 +67,19 @@ async function revealAndGrade(outcome: string) {
   return user
 }
 
+function mockReducedMotion(reduced: boolean) {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((query: string) => ({ matches: reduced && query.includes('reduce'), media: query })),
+  )
+}
+
 describe('PracticePage', () => {
   beforeEach(() => {
     useAuthStore.setState({ isAuthenticated: true, isLoading: false })
+    // jsdom has no matchMedia; by default tests run as reduced motion, i.e.
+    // without the pause that lets the boat sail before the next question.
+    mockReducedMotion(true)
   })
 
   afterEach(() => {
@@ -134,6 +144,26 @@ describe('PracticePage', () => {
     const post = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
     expect(String(post[0])).toMatch(/\/progress\/questions\/1$/)
     expect(JSON.parse(String(post[1]!.body))).toEqual({ outcome: 'richtig' })
+  })
+
+  it('lets the boat sail to the new status before showing the next question', async () => {
+    mockReducedMotion(false)
+    mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      progress: [{ question_id: 1, correct_streak: 0, learned: false }],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+    })
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    renderPracticePage()
+    expect(await screen.findByRole('img', { name: 'Noch nicht gelernt' })).toBeInTheDocument()
+
+    await revealAndGrade('Richtig')
+
+    // Still on the graded question, boat already on its way.
+    expect(await screen.findByRole('img', { name: 'Auf Kurs zu gelernt' })).toBeInTheDocument()
+    expect(screen.getByText(/Frage 1 von 2/)).toBeInTheDocument()
+    // Then the next question comes up.
+    expect(await screen.findByText(/Frage 2 von 2/, {}, { timeout: 2000 })).toBeInTheDocument()
   })
 
   it('tells the learner when a grading resets the streak', async () => {
