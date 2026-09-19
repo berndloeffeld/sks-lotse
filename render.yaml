@@ -94,11 +94,14 @@ services:
         sync: false
     routes:
       # SPA fallback: routes like /login and /start have no matching static
-      # file, so a direct load/refresh still needs to serve index.html and
-      # let React Router take over client-side.
+      # file, so a direct load/refresh still needs to serve the app and let
+      # React Router take over client-side. The destination is app.html, the
+      # empty shell — index.html carries the prerendered landing page
+      # (ADR-0025), which must not flash up on /start. Render only rewrites
+      # paths with no matching file, so / still serves index.html.
       - type: rewrite
         source: /*
-        destination: /index.html
+        destination: /app.html
     # Defense-in-depth headers for the HTML the learner actually interacts
     # with. The backend's SecurityHeadersMiddleware only covers
     # api.sks-lotse.de; without these, sks-lotse.de (incl. /profile's

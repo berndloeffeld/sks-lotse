@@ -18,7 +18,9 @@ function ThrowForPreview(): never {
   throw new Error('Error page preview')
 }
 
-function App() {
+// Everything below the router, so the build-time prerender
+// (entry-server.tsx) can render the same tree under a StaticRouter.
+export function AppRoutes() {
   const checkSession = useAuthStore((state) => state.checkSession)
 
   useEffect(() => {
@@ -26,27 +28,33 @@ function App() {
   }, [checkSession])
 
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/imprint" element={<ImprintPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/start" element={<StartPage />} />
-            <Route path="/learn" element={<LearnPage />} />
-            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminPage />} />
-          </Route>
-          {/* Dev-only: throws on purpose to preview the ErrorBoundary's error
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/imprint" element={<ImprintPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/start" element={<StartPage />} />
+          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Route>
+        {/* Dev-only: throws on purpose to preview the ErrorBoundary's error
             page. import.meta.env.DEV is false in production builds, so this
             route isn't registered there. */}
-          {import.meta.env.DEV ? <Route path="/_dev/error" element={<ThrowForPreview />} /> : null}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </ErrorBoundary>
+        {import.meta.env.DEV ? <Route path="/_dev/error" element={<ThrowForPreview />} /> : null}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ErrorBoundary>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   )
 }
