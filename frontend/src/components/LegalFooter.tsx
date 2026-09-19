@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import { adsEnabled, openConsentSettings } from '../ads'
 import { LogoMark } from './Logo'
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
@@ -25,6 +26,15 @@ export function LegalFooter() {
           <Link to="/privacy" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             Datenschutz
           </Link>
+          {adsEnabled() && (
+            <button
+              type="button"
+              onClick={openConsentSettings}
+              className="border-b-2 border-transparent pb-1 font-mono tracking-wide uppercase hover:border-surface hover:text-surface"
+            >
+              Cookie-Einstellungen
+            </button>
+          )}
         </nav>
         <p className="font-mono text-[11px]">© {new Date().getFullYear()} SKS Lotse</p>
         <p className="max-w-md text-xs">

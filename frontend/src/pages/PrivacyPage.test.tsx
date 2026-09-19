@@ -14,6 +14,8 @@ describe('PrivacyPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Datenschutzerklärung', level: 1 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Webanalyse' })).toBeInTheDocument()
-    expect(screen.getByText(/Umami/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Werbung (Google AdSense)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Lernfortschritt und Profil' })).toBeInTheDocument()
+    expect(screen.getByText(/Umami Cloud/)).toBeInTheDocument()
   })
 })

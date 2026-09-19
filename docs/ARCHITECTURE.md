@@ -49,6 +49,7 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
 - **Auth state**: never reads the session token. "Logged in" is derived from `GET /auth/me` ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md)).
 - **API access**: one thin typed `fetch` wrapper (`src/api/client.ts`). It always sends credentials and treats any `401` as "session gone".
 - **Design system**: tokens in `src/index.css` ([ADR-0014](adr/0014-visual-design-system.md)), self-hosted fonts ([ADR-0021](adr/0021-self-hosted-web-fonts.md)), shared components in `src/components/`, incl. the per-question progress gauge ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)).
+- **Ads**: `src/ads.ts` loads Google AdSense only when `VITE_ADSENSE_CLIENT_ID` is set; consent comes from Google's own TCF consent management, re-openable via the footer's "Cookie-Einstellungen" ([ADR-0027](adr/0027-adsense-with-google-consent-management.md)). No ad units are rendered yet beyond the landing page's placeholder `AdSlot`.
 - **Analytics**: cookieless Umami, only enabled when `VITE_UMAMI_WEBSITE_ID` is set ([ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)).
 
 ### Backend (`backend/`)
@@ -132,7 +133,7 @@ All of them except the integration tests are required status checks on `main`, a
 - SSO login (Google/Facebook/X)
 - Entitlements: the "ads removed" and "AI grading unlocked" flags on the account ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
-- Ads (AdSense)
+- Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
 - Question images: charts and diagrams from the catalog PDF (`image_ref` is always null)
 
 This section should shrink as each piece lands. Keep it accurate rather than aspirational.

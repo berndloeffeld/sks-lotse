@@ -14,8 +14,10 @@ import '@fontsource/ibm-plex-mono/500.css'
 import './index.css'
 import App from './App.tsx'
 import { initAnalytics } from './analytics.ts'
+import { initAds } from './ads.ts'
 
 initAnalytics()
+initAds()
 
 const container = document.getElementById('root')!
 const app = (

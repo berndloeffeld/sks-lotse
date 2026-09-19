@@ -92,6 +92,10 @@ services:
       # steps).
       - key: VITE_UMAMI_WEBSITE_ID
         sync: false
+      # Google AdSense publisher id (ca-pub-…, ADR-0027). Unset = no ad
+      # script is loaded at all.
+      - key: VITE_ADSENSE_CLIENT_ID
+        sync: false
     routes:
       # SPA fallback: routes like /login and /start have no matching static
       # file, so a direct load/refresh still needs to serve the app and let

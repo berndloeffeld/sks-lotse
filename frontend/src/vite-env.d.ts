@@ -11,6 +11,10 @@ interface ImportMetaEnv {
   // src/analytics.ts skips loading the tracking script there — only set in
   // production (Render dashboard, sync: false in render.yaml).
   readonly VITE_UMAMI_WEBSITE_ID?: string
+
+  // Google AdSense publisher id (ca-pub-…, see ADR-0027). Unset in local dev/CI
+  // so src/ads.ts skips loading the ad script — only set in production.
+  readonly VITE_ADSENSE_CLIENT_ID?: string
 }
 
 interface ImportMeta {
