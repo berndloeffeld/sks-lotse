@@ -91,6 +91,12 @@ def test_parse_ignores_a_bold_word_inside_an_answer():
     assert "in einer Ebene mit der Erde" in q.answer_text
 
 
+def test_parse_restores_the_drying_height_symbol_in_navigation_84():
+    question = _parsed("navigation", 84).question_text
+    assert "Tiefenangabe 2\u0332\u2083." in question
+    assert "2 3" not in question
+
+
 def test_split_question_answer_splits_at_the_first_marker_only():
     body = f"Frage? \n{ANSWER_START}Antwort mit {ANSWER_START}fettem Wort. \n"
     assert split_question_answer(body) == ("Frage?", "Antwort mit fettem Wort.")

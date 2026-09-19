@@ -65,6 +65,13 @@ BLANK_LINES_RE = re.compile(r"\n\s*\n+")
 # Never occurs in the PDF's text: marks where a question's answer begins.
 ANSWER_START = "\x1e"
 
+# The PDF flattens a chart symbol's typesetting into plain digits. Navigation
+# 84 asks about the drying height "2" underlined with a small "3" (= 2,3 m, as
+# on a Seekarte), which the PDF text yields as "2 3" — unrecognisable. The
+# symbol is restored in Unicode (digit + combining low line, subscript digit);
+# the wording is otherwise untouched.
+QUESTION_TEXT_FIXES = {("navigation", 84): ("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083.")}
+
 # Frozen as of revision 16af6f481bf6 (the first data migration) — see the
 # module docstring for why these aren't the ORM models.
 _topics = sa.table(
@@ -170,6 +177,11 @@ def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
         parts = NUMBER_RE.split(section_text)[1:]  # alternating: number, body, number, body, ...
         for i in range(0, len(parts), 2):
             question_text, answer_text = split_question_answer(parts[i + 1])
+            if (subject, int(parts[i])) in QUESTION_TEXT_FIXES:
+                broken, fixed = QUESTION_TEXT_FIXES[(subject, int(parts[i]))]
+                if broken not in question_text:
+                    raise ValueError(f"{subject} {parts[i]}: expected {broken!r} in the question")
+                question_text = question_text.replace(broken, fixed)
             questions.append(
                 CatalogQuestion(
                     subject=subject,
