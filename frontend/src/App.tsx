@@ -10,6 +10,7 @@ import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
 import { ProtectedRoute } from './routes/ProtectedRoute'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAuthStore } from './store/authStore'
 
 function App() {
@@ -21,19 +22,21 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/imprint" element={<ImprintPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/start" element={<StartPage />} />
-          <Route path="/learn" element={<LearnPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/imprint" element={<ImprintPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/start" element={<StartPage />} />
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }
