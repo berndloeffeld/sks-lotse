@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -180,7 +180,7 @@ describe('PracticePage', () => {
     let user = await revealAndGrade('Falsch')
     await user.click(await screen.findByRole('button', { name: 'Nächste Frage' }))
 
-    expect(screen.getByRole('heading', { name: 'Frage 7?' })).toHaveFocus()
+    expect(screen.getByRole('textbox')).toHaveFocus()
     user = await revealAndGrade('Richtig')
     expect(await screen.findByRole('status')).toHaveTextContent('Gelernt.')
     await user.click(await screen.findByRole('button', { name: 'Runde beenden' }))
@@ -191,6 +191,45 @@ describe('PracticePage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Neue Runde' }))
     expect(screen.getByText('Frage 1 von 1 · Nr. 8')).toBeInTheDocument()
+  })
+
+  it('runs the whole loop from the keyboard', async () => {
+    const fetchMock = mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 0, learned: false })],
+    })
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    renderPracticePage()
+    const user = userEvent.setup()
+
+    const textbox = await screen.findByRole('textbox')
+    await waitFor(() => expect(textbox).toHaveFocus())
+    await user.keyboard('Zeile eins{Shift>}{Enter}{/Shift}Zeile zwei')
+    expect(textbox).toHaveValue('Zeile eins\nZeile zwei')
+    expect(screen.queryByText('Amtliche Antwort')).not.toBeInTheDocument()
+
+    await user.keyboard('{Enter}')
+    expect(await screen.findByText('Amtliche Antwort')).toBeInTheDocument()
+
+    const focusOrder = ['Richtig', 'Teilweise Richtig', 'Falsch', 'Richtig']
+    for (const name of focusOrder) {
+      await user.tab()
+      expect(screen.getByRole('radio', { name })).toHaveFocus()
+    }
+    expect(screen.getByRole('radio', { name: 'Richtig' })).not.toBeChecked()
+
+    await user.tab()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toBeChecked()
+    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    const next = await screen.findByRole('button', { name: 'Nächste Frage' })
+    await waitFor(() => expect(next).toHaveFocus())
+    expect(fetchMock).toHaveBeenCalled()
+
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('textbox')).toHaveFocus()
   })
 
   it('offers to repeat everything once the whole topic is learned', async () => {

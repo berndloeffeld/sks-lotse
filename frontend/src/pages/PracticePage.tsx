@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
@@ -84,14 +85,27 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [tally, setTally] = useState<GradingOutcome[]>([])
   const [newlyLearned, setNewlyLearned] = useState(0)
-  const headingRef = useRef<HTMLHeadingElement>(null)
+  const noteRef = useRef<HTMLTextAreaElement>(null)
+  const groupRef = useRef<HTMLFieldSetElement>(null)
+  const radioRefs = useRef<(HTMLInputElement | null)[]>([])
+  const saveRef = useRef<HTMLButtonElement>(null)
+  const nextRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
 
-  // Move focus to each new question, so keyboard and screen-reader users
-  // start reading from the top instead of from the button they just used.
+  // Keyboard flow: each phase hands focus to the control the learner needs
+  // next, so the whole loop works without a mouse (see the key handlers below).
   useEffect(() => {
-    if (index > 0) headingRef.current?.focus()
-  }, [index, run])
+    if (phase === 'answer') noteRef.current?.focus()
+    else if (phase === 'assess') groupRef.current?.focus()
+    else nextRef.current?.focus()
+  }, [phase, index, run])
+
+  // Tab cycles through the radios (focus only, no selection). The first Tab
+  // from the group itself is native and lands on Richtig.
+  const cycleFocus = (from: number, backwards: boolean) => {
+    const count = OUTCOMES.length
+    radioRefs.current[(from + (backwards ? count - 1 : 1)) % count]?.focus()
+  }
 
   const startRun = (includeLearned: boolean) => {
     setRun(buildRun(questions, streaks, includeLearned))
@@ -188,20 +202,26 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         <CourseGauge key={question.id} progress={streakProgress(streak)} />
       </div>
 
-      <h2 ref={headingRef} tabIndex={-1} className="font-serif text-xl whitespace-pre-line text-ink outline-none">
-        {question.question_text}
-      </h2>
+      <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">{question.question_text}</h2>
 
       {phase === 'answer' ? (
         <>
           <label className={styles.label}>
             Deine Antwort (optional, wird nicht gespeichert)
             <textarea
+              ref={noteRef}
               value={note}
               onChange={(event) => setNote(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                  event.preventDefault()
+                  setPhase('assess')
+                }
+              }}
               rows={4}
               className={styles.input}
             />
+            <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
           </label>
           <button type="button" className={styles.button} onClick={() => setPhase('assess')}>
             Lösung anzeigen
@@ -229,16 +249,34 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             )}
           </section>
 
-          <fieldset className="flex flex-col gap-2" disabled={phase === 'graded' || isSaving}>
+          <fieldset
+            ref={groupRef}
+            tabIndex={-1}
+            className="flex flex-col gap-2 outline-none"
+            disabled={phase === 'graded' || isSaving}
+          >
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
-            {OUTCOMES.map((o) => (
+            {OUTCOMES.map((o, i) => (
               <label key={o} className="flex items-center gap-2 text-ink">
                 <input
+                  ref={(el) => {
+                    radioRefs.current[i] = el
+                  }}
                   type="radio"
                   name="outcome"
                   value={o}
                   checked={outcome === o}
                   onChange={() => setOutcome(o)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Tab') {
+                      event.preventDefault()
+                      cycleFocus(i, event.shiftKey)
+                    } else if (event.key === 'Enter') {
+                      event.preventDefault()
+                      flushSync(() => setOutcome(o))
+                      saveRef.current?.focus()
+                    }
+                  }}
                   className="accent-primary"
                 />
                 {OUTCOME_LABELS[o]}
@@ -253,7 +291,13 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           ) : null}
 
           {phase === 'assess' ? (
-            <button type="button" className={styles.button} disabled={!outcome || isSaving} onClick={saveGrade}>
+            <button
+              ref={saveRef}
+              type="button"
+              className={styles.button}
+              disabled={!outcome || isSaving}
+              onClick={saveGrade}
+            >
               {isSaving ? 'Wird gespeichert…' : 'Bewertung speichern'}
             </button>
           ) : (
@@ -267,7 +311,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                     ? 'Richtig – ein Stück näher am Ziel.'
                     : 'Zurück zum Start – die Frage kommt wieder.'}
               </p>
-              <button type="button" className={styles.button} onClick={nextQuestion}>
+              <button ref={nextRef} type="button" className={styles.button} onClick={nextQuestion}>
                 {isLast ? 'Runde beenden' : 'Nächste Frage'}
               </button>
             </>
