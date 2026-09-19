@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
 import { Header } from './Header'
 import { HeroBand } from './HeroBand'
@@ -34,13 +35,16 @@ export function PageLayout({
   bands = false,
   children,
 }: PageLayoutProps) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  // Public pages (Impressum, Datenschutz) show the account nav once logged in.
+  const showAccountNav = nav === 'account' || (nav === 'public' && isAuthenticated)
   const column = `mx-auto w-full px-4 ${WIDTH[bands ? 'bands' : width]}`
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <Header
-        homeTo={nav === 'account' ? '/start' : '/'}
-        nav={nav === 'account' ? <AccountNav /> : nav === 'none' ? null : undefined}
+        homeTo={showAccountNav ? '/start' : '/'}
+        nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}
       />
       <main className="flex-1">
         <HeroBand className="pt-12 pb-24 text-center">

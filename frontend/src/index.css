@@ -28,3 +28,14 @@
 body {
   @apply bg-bg text-ink font-sans;
 }
+
+/* Long German compounds ("Verbraucherstreitbeilegung",
+   "Datenschutzerklärung") in large serif headings don't fit narrow columns
+   on phones: hyphenate them (relies on <html lang="de">), and break as a
+   last resort rather than overflow. */
+h1,
+h2,
+h3 {
+  hyphens: auto;
+  overflow-wrap: break-word;
+}

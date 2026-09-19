@@ -47,4 +47,15 @@ describe('PageLayout', () => {
     renderLayout({ nav: 'none' })
     expect(within(screen.getByRole('banner')).getAllByRole('link')).toHaveLength(1)
   })
+
+  it('shows the account nav on public pages once logged in', () => {
+    useAuthStore.setState({ user: null, isAuthenticated: true })
+    renderLayout({ nav: 'public' })
+
+    const banner = screen.getByRole('banner')
+    expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/start')
+    expect(within(banner).queryByRole('link', { name: 'Anmelden' })).not.toBeInTheDocument()
+    expect(within(banner).getByRole('button', { name: 'Abmelden' })).toBeInTheDocument()
+    useAuthStore.setState({ isAuthenticated: false })
+  })
 })
