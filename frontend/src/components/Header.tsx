@@ -20,9 +20,17 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
   return (
     <header className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
-        <Link to={homeTo} aria-label="SKS Lotse – Startseite">
-          <Logo inverted />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to={homeTo} aria-label="SKS Lotse – Startseite">
+            <Logo inverted />
+          </Link>
+          <span
+            className="border border-surface-alt px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-surface-alt uppercase"
+            title="Beta-Version: SKS Lotse wird gerade aufgebaut."
+          >
+            Beta
+          </span>
+        </div>
         {nav === undefined ? (
           <Link to="/login" className={HEADER_LINK}>
             Anmelden

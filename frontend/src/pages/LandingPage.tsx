@@ -25,14 +25,14 @@ const PLANS = [
     ad: true,
   },
   {
-    kicker: 'Erweiterung',
+    kicker: 'Erweiterung · demnächst',
     title: 'KI-Bewertung',
     icon: <AnswerIcon className="h-16 w-16" />,
     text: 'Schreib oder sprich deine Antwort und erhalte eine Bewertung mit Erklärung, was gefehlt hat.',
     ad: false,
   },
   {
-    kicker: 'Erweiterung',
+    kicker: 'Erweiterung · demnächst',
     title: 'Werbefrei',
     icon: <FeedbackIcon className="h-16 w-16" />,
     text: 'Lernen ganz ohne Anzeigen – ruhig und konzentriert.',
@@ -59,7 +59,10 @@ export function LandingPage() {
               Sicher durch die SKS-Theorie
             </h1>
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
-              Mit den Originalfragen des amtlichen Katalogs
+              Online für die SKS-Theorieprüfung lernen – mit den Originalfragen des amtlichen Katalogs
+            </p>
+            <p className="mt-6 text-sm text-surface-alt">
+              Beta-Version: SKS Lotse wird gerade aufgebaut – KI-Bewertung und Spracheingabe folgen.
             </p>
             {isAuthenticated ? (
               <Link to="/start" className={HERO_CTA}>
@@ -79,15 +82,15 @@ export function LandingPage() {
             {[
               [
                 'Originalfragen üben',
-                'Alle Fragen aus dem amtlichen SKS-Fragenkatalog – wahlweise für „Segeln und Motor" oder nur „Motor", genau wie in der echten Prüfung.',
+                'Online lernen mit allen Fragen aus dem amtlichen SKS-Fragenkatalog – wahlweise für „Segeln und Motor" oder nur „Motor", genau wie in der Theorieprüfung.',
               ],
               [
-                'Antworten oder sprechen',
-                'Tippe deine Antwort in eigenen Worten oder sprich sie ein – die Spracherkennung läuft direkt im Browser.',
+                'Mit der Musterantwort vergleichen',
+                'Überleg dir deine Antwort in eigenen Worten und vergleiche sie mit der amtlichen Musterantwort.',
               ],
               [
-                'Sofort Feedback bekommen',
-                'Eine KI bewertet deine Antwort gegen die amtliche Musterantwort und zeigt dir, was gefehlt hat.',
+                'Selbst bewerten',
+                'Richtig, teilweise richtig oder falsch: Deine Einschätzung bestimmt, welche Fragen du wiederholst, bis du sie sicher kannst.',
               ],
             ].map(([title, text]) => (
               <div key={title} className="flex flex-col gap-6">
