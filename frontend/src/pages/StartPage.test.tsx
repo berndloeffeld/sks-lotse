@@ -44,6 +44,7 @@ describe('StartPage', () => {
     expect(screen.getByRole('heading', { name: 'Lernen' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Lernen/ })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Prüfungssimulation/ })).toHaveAttribute('href', '/exam')
   })
 
   it('shows the display name instead of the email once one is set, and links to /profile', () => {

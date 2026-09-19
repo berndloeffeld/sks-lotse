@@ -20,14 +20,17 @@ function label(progress: number): string {
   return 'Auf Kurs zu gelernt'
 }
 
-export function CourseGauge({ progress }: { progress: number }) {
+// `label` replaces the spoken status where "gelernt" isn't what the boat means
+// (the exam simulation uses it as a "question x of n" indicator).
+export function CourseGauge({ progress, label: labelOverride }: { progress: number; label?: string }) {
   const learned = progress >= 1
+  const text = labelOverride ?? label(progress)
   const x = learned ? BOAT_MAX_X : Math.max(progress, 0) * BOAT_SAILING_MAX_X
   const motion = 'transition-[transform,color] duration-700 ease-in-out motion-reduce:transition-none'
 
   return (
-    <svg role="img" aria-label={label(progress)} viewBox="0 0 112 24" className="h-6 w-28 shrink-0">
-      <title>{label(progress)}</title>
+    <svg role="img" aria-label={text} viewBox="0 0 112 24" className="h-6 w-28 shrink-0">
+      <title>{text}</title>
       <line
         x1={2}
         y1={19}

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import { getDisplayName, type User } from '../api/types'
 import { Band, Columns } from '../components/Bands'
+import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
@@ -165,6 +166,10 @@ export function ProfilePage() {
         {/* Keyed on exam_variant so a change refetches the Lernstand for
             the new variant's subjects. */}
         <ProfileProgress key={user.exam_variant ?? 'none'} />
+      </Band>
+
+      <Band className="pt-0 pb-16">
+        <ExamStatsPanel />
       </Band>
 
       <Band tone="dark" className="py-14">

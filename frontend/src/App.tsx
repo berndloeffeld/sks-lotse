@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AdminPage } from './pages/AdminPage'
+import { ExamPage } from './pages/ExamPage'
+import { ExamRunPage } from './pages/ExamRunPage'
 import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
@@ -38,6 +40,8 @@ export function AppRoutes() {
           <Route path="/start" element={<StartPage />} />
           <Route path="/learn" element={<LearnPage />} />
           <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+          <Route path="/exam" element={<ExamPage />} />
+          <Route path="/exam/:id" element={<ExamRunPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
