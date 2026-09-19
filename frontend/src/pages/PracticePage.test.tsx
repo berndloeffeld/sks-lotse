@@ -106,6 +106,16 @@ describe('PracticePage', () => {
     expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
   })
 
+  it('explains an official answer that is only a sketch', async () => {
+    const user = userEvent.setup()
+    mockBackend({ questions: [{ ...question(1, 7), answer_text: '' }] })
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByText(/besteht nur aus einer Skizze/)).toBeInTheDocument()
+  })
+
   it('saves a self-assessment and sails the boat forward', async () => {
     const fetchMock = mockBackend({
       progress: [{ question_id: 1, correct_streak: 1, learned: false }],

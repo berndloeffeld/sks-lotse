@@ -1,4 +1,5 @@
 import dataclasses
+import functools
 
 from sqlalchemy import create_engine, text
 
@@ -7,13 +8,18 @@ from app.models.question import Question
 from app.models.topic import Topic
 from app.services import catalog_seed
 from app.services.catalog_seed import (
+    ANSWER_START,
     assign_topics,
     build_catalog,
     merge_seemannschaft,
     parse_catalog_pdf,
     seed_catalog,
+    split_question_answer,
     sync_catalog,
 )
+
+# The official answer to these is only a sketch in the PDF — no text at all.
+SKETCH_ONLY_ANSWERS = {("seemannschaft_1", 79), ("seemannschaft_1", 104), ("seemannschaft_2", 65)}
 
 
 def test_parse_catalog_pdf_matches_known_counts():
@@ -30,6 +36,61 @@ def test_parse_catalog_pdf_matches_known_counts():
         "seemannschaft_1": 163,
         "seemannschaft_2": 146,
     }
+
+
+def test_every_parsed_question_has_an_answer_apart_from_the_sketches():
+    questions = list(_parsed_catalog().values())
+
+    without_answer = {(q.subject, q.number) for q in questions if not q.answer_text}
+    assert without_answer == SKETCH_ONLY_ANSWERS
+    assert all(q.question_text for q in questions)
+    assert not any(ANSWER_START in q.question_text + q.answer_text for q in questions)
+
+
+@functools.cache
+def _parsed_catalog():
+    return {(q.subject, q.number): q for q in parse_catalog_pdf()}
+
+
+def _parsed(subject: str, number: int):
+    return _parsed_catalog()[(subject, number)]
+
+
+def test_parse_splits_numbered_sub_questions_from_numbered_answer():
+    # Regression: a question ending in numbered sub-questions, followed by a
+    # numbered answer, used to land entirely in question_text.
+    q = _parsed("seemannschaft_1", 143)
+    assert q.question_text == (
+        "Welcher Ankergrund ist für die üblichen Leichtgewichtsanker \n"
+        "1. gut geeignet? \n2. mäßig geeignet? \n3. ungeeignet?"
+    )
+    assert q.answer_text.startswith("1. Sand, Schlick, weicher Ton und Lehm,")
+
+
+def test_parse_splits_question_with_abbreviation_before_the_question_mark():
+    # Regression: the "." in "z. B." made the old punctuation heuristic give up.
+    q = _parsed("seemannschaft_1", 159)
+    assert q.question_text.endswith("kurvenreichen Fahrwasser, beachten?")
+    assert q.answer_text.startswith("Bei einer Kursänderung schwenkt das Heck")
+
+
+def test_parse_keeps_a_trailing_instruction_in_the_question():
+    # "Nennen Sie ..." is part of the (bold) question, not of the answer.
+    q = _parsed("seemannschaft_1", 124)
+    assert q.question_text.endswith("zu beachten? \nNennen Sie mindestens 6 Beispiele.")
+    assert q.answer_text.startswith("1. Seetüchtigkeit der Yacht,")
+
+
+def test_parse_ignores_a_bold_word_inside_an_answer():
+    q = _parsed("navigation", 70)
+    assert q.question_text.endswith("unberücksichtigt bleiben)?")
+    assert "in einer Ebene mit der Erde" in q.answer_text
+
+
+def test_split_question_answer_splits_at_the_first_marker_only():
+    body = f"Frage? \n{ANSWER_START}Antwort mit {ANSWER_START}fettem Wort. \n"
+    assert split_question_answer(body) == ("Frage?", "Antwort mit fettem Wort.")
+    assert split_question_answer("Nur eine Frage? \n") == ("Nur eine Frage?", "")
 
 
 def test_merge_seemannschaft_collapses_into_three_subjects():
