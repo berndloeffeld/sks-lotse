@@ -123,7 +123,7 @@ GitHub Actions runs on every PR and every push to `main`:
 
 - **Backend**: lint, unit tests with an 80% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
 - **Frontend**: lint, type check, and tests with an 80% coverage gate.
-- **Security**: Aikido scans the repo.
+- **Security**: Aikido scans the repo; findings are checked by hand before merging (no CI job).
 
 All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
 
