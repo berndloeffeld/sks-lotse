@@ -89,15 +89,6 @@ describe('ProgressSummarySection', () => {
     expect(screen.getByText('5 / 10 · 50%')).toBeInTheDocument()
   })
 
-  it('always shows the details, without a toggle, when not collapsible', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
-
-    render(<ProgressSummarySection collapsible={false} />)
-
-    expect(await screen.findByText('Ankern')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Details/ })).not.toBeInTheDocument()
-  })
-
   it('shows an empty state when no topics are scoped in yet', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
 

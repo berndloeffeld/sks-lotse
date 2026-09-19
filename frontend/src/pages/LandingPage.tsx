@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react'
-
 import { AdSlot } from '../components/AdSlot'
+import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { ContourBackground } from '../components/ContourBackground'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
@@ -12,12 +11,6 @@ import { LoginForm } from '../components/LoginForm'
 // bg / primary / primary-dark) alternating down the page, a slanted hero
 // edge, three-column text blocks, image-topped cards and a sign-up form
 // band. Palette, type and square-cornered chrome stay per ADR-0014.
-
-const CONTENT = 'mx-auto w-full max-w-4xl px-4'
-
-function Columns({ children }: { children: ReactNode }) {
-  return <div className="grid gap-10 sm:grid-cols-3 sm:gap-8">{children}</div>
-}
 
 const HERO_FEATURES = [
   { label: 'Originalfragen', icon: <CatalogIcon className="h-5 w-5" /> },
