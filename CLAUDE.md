@@ -137,7 +137,7 @@ Trunk-based development:
 
 **Branch protection on `main`** (enforced by GitHub, admins included — this is the actual merge gate):
 - PR required; no approving review required; force-push and branch deletion blocked.
-- **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` and `aikido` run on every PR too but are **not** required — check `integration-tests` is green before merging anyway (for `aikido` see Security Scanning below).
+- **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` runs on every PR too but is **not** required — check it's green before merging anyway. There is no Aikido check in CI (see Security Scanning below).
 - **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
 - GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
 - Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs.
@@ -158,10 +158,8 @@ Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Cod
 ### Security Scanning (Aikido)
 Aikido Security is connected to this GitHub repo.
 
-- A PR must not be merged while Aikido reports open findings, unless the finding is explicitly triaged/accepted first.
-- `scripts/check_aikido.sh` also runs as the `aikido` job in `.github/workflows/backend-ci.yml`, using `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET` GitHub Actions repository secrets (Settings → Secrets and variables → Actions on GitHub — separate from the local `.env.aikido` below). The job fails the build if there are open findings; if those secrets aren't set yet, it emits a warning and no-ops instead of failing.
-- `aikido` is **not** a required status check on `main` (removed 2026-09-19: Aikido's free plan rejects API access with "This action is not allowed on the free plan", so the job failed on every PR). It still runs and shows red while the API is unusable; there is no automatic merge gate for findings, so check the Aikido dashboard by hand before merging. Re-add it to the required checks (Settings → Branches → `main`) once API access works again. If the secrets are unset the job no-ops green.
-- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot. Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
+- A PR must not be merged while Aikido reports open findings, unless the finding is explicitly triaged/accepted first. **This is checked by hand before each merge** — there is no Aikido job in CI and no required status check for it (removed 2026-09-19: Aikido's free plan rejects API access with "This action is not allowed on the free plan", so the job failed on every PR). The `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET` GitHub Actions secrets are unused now.
+- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot (needs a plan with API access; otherwise it prints the API error and exits 1 — use the dashboard then). Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
 ### Test Coverage
 Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
