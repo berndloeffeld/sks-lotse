@@ -49,8 +49,8 @@ describe('LandingPage', () => {
 
     expect(screen.getByRole('heading', { name: "So funktioniert's" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Originalfragen üben' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Antworten oder sprechen' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Sofort Feedback bekommen' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Mit der Musterantwort vergleichen' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Selbst bewerten' })).toBeInTheDocument()
 
     expect(screen.getByRole('heading', { name: 'Warum SKS Lotse?' })).toBeInTheDocument()
 
@@ -58,5 +58,11 @@ describe('LandingPage', () => {
     expect(screen.getByText('Anzeige')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'KI-Bewertung' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
+  })
+
+  it('flags the app as a beta with the features still to come', () => {
+    renderLandingPage()
+
+    expect(screen.getByText(/KI-Bewertung und Spracheingabe folgen/)).toBeInTheDocument()
   })
 })
