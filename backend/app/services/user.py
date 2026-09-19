@@ -1,6 +1,7 @@
 from sqlalchemy import delete, or_
 from sqlalchemy.orm import Session
 
+from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
 from app.models.question_progress import QuestionProgress
 from app.models.user import User
@@ -14,6 +15,7 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # doesn't do — an ORM-level session.delete(user) alone can't be trusted to
     # cascade under both engines.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
+    db.execute(delete(FocusTopic).where(FocusTopic.user_id == user.id))
     # Pending/recent codes are personal data too — both those for the
     # account's own address and email-change codes it requested for another
     # one. The regular cleanup (ADR-0010) only runs opportunistically on later

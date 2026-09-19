@@ -34,6 +34,8 @@ const progressSummary = [
     display_order: 1,
     total_questions: 7,
     learned_questions: 2,
+    learning_questions: 1,
+    is_focus: false,
   },
 ]
 
@@ -152,6 +154,72 @@ describe('LearnPage', () => {
     await user.selectOptions(screen.getByRole('combobox'), 'motor')
 
     expect(await screen.findByText('Die Prüfungsvariante konnte nicht gespeichert werden.')).toBeInTheDocument()
+  })
+
+  it('marks a topic as Fokus with the star and reloads the Lernstand', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    let focused = false
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/progress/focus/navigation/ankern') && init?.method === 'PUT') {
+        focused = true
+        return new Response(null, { status: 204 })
+      }
+      if (url.endsWith('/progress/summary')) return jsonResponse([{ ...progressSummary[0], is_focus: focused }])
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderLearnPage()
+    expect(await screen.findByText(/Markiere Themen mit dem Stern/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Als Fokus markieren: Ankern' }))
+
+    // The topic now shows up in the Fokus band (and stays in the list), with
+    // its "sicher"/"teilweise"/"offen" counts.
+    expect(await screen.findByText('2 sicher gelernt · 1 teilweise · 4 offen (von 7 Fragen)')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Fokus entfernen: Ankern (Navigation)' })).toHaveLength(1)
+    expect(screen.getByRole('button', { name: 'Fokus entfernen: Ankern' })).toBeInTheDocument()
+  })
+
+  it('removes a Fokus topic with the star', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    let focused = true
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/progress/focus/navigation/ankern') && init?.method === 'DELETE') {
+        focused = false
+        return new Response(null, { status: 204 })
+      }
+      if (url.endsWith('/progress/summary')) return jsonResponse([{ ...progressSummary[0], is_focus: focused }])
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderLearnPage()
+    await user.click(await screen.findByRole('button', { name: 'Fokus entfernen: Ankern' }))
+
+    expect(await screen.findByText(/Markiere Themen mit dem Stern/)).toBeInTheDocument()
+  })
+
+  it('keeps the Lernstand and shows an error when the Fokus cannot be saved', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/progress/focus/')) return jsonResponse({ detail: 'Topic is already fully learned' }, 409)
+      if (url.endsWith('/progress/summary')) return jsonResponse(progressSummary)
+      return jsonResponse({ detail: 'not found' }, init ? 500 : 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderLearnPage()
+    await user.click(await screen.findByRole('button', { name: 'Als Fokus markieren: Ankern' }))
+
+    expect(await screen.findByText('Der Fokus konnte nicht gespeichert werden.')).toBeInTheDocument()
+    expect(screen.getByText('Ankern')).toBeInTheDocument()
   })
 
   it('links back to /start', async () => {

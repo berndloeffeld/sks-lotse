@@ -1,4 +1,5 @@
 import { Band, Columns } from '../components/Bands'
+import { FocusBand } from '../components/FocusBand'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
@@ -9,7 +10,18 @@ import { useAuthStore } from '../store/authStore'
 // per-category pie and the exam-variant picker as three columns, then every
 // topic grouped by subject.
 function LearnContent() {
-  const { progress, isLoading, error, totals, categories, bySubject } = useProgressSummary()
+  const {
+    progress,
+    isLoading,
+    error,
+    totals,
+    categories,
+    bySubject,
+    focusTopics,
+    focusTotals,
+    toggleFocus,
+    focusError,
+  } = useProgressSummary()
 
   const status = isLoading ? (
     <p className="text-sm text-ink-soft">Lernstand wird geladen…</p>
@@ -24,6 +36,10 @@ function LearnContent() {
       <Band className="pt-10 pb-16">
         <ProgressOverview totals={totals} categories={categories} />
       </Band>
+
+      {status ? null : (
+        <FocusBand topics={focusTopics} totals={focusTotals} onToggleFocus={toggleFocus} error={focusError} />
+      )}
 
       <Band tone="dark" className="py-14">
         <h2 className="font-serif text-3xl">Themen</h2>
@@ -44,8 +60,11 @@ function LearnContent() {
                       key={topic.topic_slug}
                       title={topic.topic_name}
                       learned={topic.learned_questions}
+                      learning={topic.learning_questions}
                       total={topic.total_questions}
                       to={`/learn/${topic.subject}/${topic.topic_slug}`}
+                      isFocus={topic.is_focus}
+                      onToggleFocus={() => toggleFocus(topic)}
                     />
                   ))}
                 </div>

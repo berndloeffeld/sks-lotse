@@ -628,7 +628,8 @@
                   "pm.collectionVariables.set('catalogSeeded', qs.length > 0 ? 'true' : 'false');",
                   "pm.collectionVariables.set('firstQuestionId', qs.length > 0 ? String(qs[0].id) : '999999999');",
                   "var withTopic = qs.find(function (q) { return q.topic; });",
-                  "pm.collectionVariables.set('firstTopicSlug', withTopic ? withTopic.topic : 'no-such-topic');"
+                  "pm.collectionVariables.set('firstTopicSlug', withTopic ? withTopic.topic : 'no-such-topic');",
+                  "pm.collectionVariables.set('firstTopicSubject', withTopic ? withTopic.subject : 'no-such-subject');"
                 ]
               }
             }
@@ -1167,12 +1168,13 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('one row per topic, learned never exceeds total', function () {",
+                  "pm.test('one row per topic, learned + learning never exceed total', function () {",
                   "    var rows = pm.response.json();",
                   "    pm.expect(rows).to.be.an('array');",
                   "    rows.forEach(function (r) {",
-                  "        pm.expect(r).to.have.all.keys('subject', 'topic_slug', 'topic_name', 'display_order', 'total_questions', 'learned_questions');",
-                  "        pm.expect(r.learned_questions).to.be.within(0, r.total_questions);",
+                  "        pm.expect(r).to.have.all.keys('subject', 'topic_slug', 'topic_name', 'display_order', 'total_questions', 'learned_questions', 'learning_questions', 'is_focus');",
+                  "        pm.expect(r.learned_questions).to.be.within(0, r.total_questions);\n                  ",
+                  "        pm.expect(r.learned_questions + r.learning_questions).to.be.at.most(r.total_questions);",
                   "    });",
                   "    if (pm.collectionVariables.get('catalogSeeded') === 'true') { pm.expect(rows).to.not.be.empty; }",
                   "});"
@@ -1201,7 +1203,302 @@
               ]
             }
           },
-          "description": "A fresh account has nothing learned yet (the grading requests below only ever start one streak) - this checks shape and invariants, not specific counts.",
+          "description": "A fresh account has nothing learned yet (the grading requests below only ever start one streak) - this checks shape and invariants, not specific counts. Fokus-Themen: is_focus is false for every topic until the focus requests below mark one.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - PUT without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/{{firstTopicSubject}}/{{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "{{firstTopicSubject}}",
+                "{{firstTopicSlug}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - DELETE without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/{{firstTopicSubject}}/{{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "{{firstTopicSubject}}",
+                "{{firstTopicSlug}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - mark",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204 (or 404 on an unseeded catalog)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(pm.collectionVariables.get('catalogSeeded') === 'true' ? 204 : 404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/{{firstTopicSubject}}/{{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "{{firstTopicSubject}}",
+                "{{firstTopicSlug}}"
+              ]
+            }
+          },
+          "description": "Marks the first catalog topic as Fokus. Idempotent - see the repeat request below.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - mark again is idempotent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204 (or 404 on an unseeded catalog)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(pm.collectionVariables.get('catalogSeeded') === 'true' ? 204 : 404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/{{firstTopicSubject}}/{{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "{{firstTopicSubject}}",
+                "{{firstTopicSlug}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - summary reports is_focus",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('only the marked topic is Fokus', function () {",
+                  "    if (pm.collectionVariables.get('catalogSeeded') !== 'true') { return; }",
+                  "    var focus = pm.response.json().filter(function (r) { return r.is_focus; });",
+                  "    pm.expect(focus.length).to.eql(1);",
+                  "    pm.expect(focus[0].subject).to.eql(pm.collectionVariables.get('firstTopicSubject'));",
+                  "    pm.expect(focus[0].topic_slug).to.eql(pm.collectionVariables.get('firstTopicSlug'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "summary"
+              ]
+            }
+          },
+          "description": "After marking, exactly the marked topic is reported as Fokus.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - unmark",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204 (or 404 on an unseeded catalog)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(pm.collectionVariables.get('catalogSeeded') === 'true' ? 204 : 404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/{{firstTopicSubject}}/{{firstTopicSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "{{firstTopicSubject}}",
+                "{{firstTopicSlug}}"
+              ]
+            }
+          },
+          "description": "Removing a mark is idempotent too.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus topic - unknown topic is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/no-such-subject/no-such-topic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "no-such-subject",
+                "no-such-topic"
+              ]
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -4286,7 +4583,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var e = pm.response.json();",
                   "pm.test('user, progress rows and export timestamp', function () {",
-                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'exported_at');",
+                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'focus_topics', 'exported_at');",
                   "    pm.expect(e.user.email).to.eql(pm.collectionVariables.get('testEmail'));",
                   "    pm.expect(e.question_progress).to.be.an('array');",
                   "    pm.expect(e.question_progress.length).to.eql(e.user.question_progress_count);",
@@ -4934,6 +5231,11 @@
     },
     {
       "key": "firstTopicSlug",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "firstTopicSubject",
       "value": "",
       "type": "default"
     },

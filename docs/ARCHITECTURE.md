@@ -66,7 +66,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 |---|---|---|
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
 | `questions` | Read-only catalog and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md) |
-| `progress` | Per-topic learning status, per-question streaks, recording a self-assessed grading | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md) |
+| `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question streaks, recording a self-assessed grading, marking topics as Fokus | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
 | `admin` | GDPR lookup/export/delete, allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md) |
 
 Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
@@ -94,6 +94,7 @@ PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
 | `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
 | `users` | Account and profile | Auth and admin flows |
 | `question_progress` | Per-user, per-question answer streak | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
+| `focus_topics` | Per-user topics marked as Fokus | `PUT`/`DELETE /progress/focus/...`; deleted automatically once every question of the topic is learned ([ADR-0028](adr/0028-focus-topics.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
 Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data.

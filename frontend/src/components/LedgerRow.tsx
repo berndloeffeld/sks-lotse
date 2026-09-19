@@ -9,25 +9,46 @@ interface LedgerRowProps {
   // Where "Lernen starten" leads; the button stays disabled without it or
   // for a topic with no questions.
   to?: string
+  // Questions on the way to "gelernt" (streak 1–2), shown as a fainter bar
+  // segment and in the count line.
+  learning?: number
+  // Renders the Fokus star when `onToggleFocus` is given.
+  isFocus?: boolean
+  onToggleFocus?: () => void
 }
 
 // The "ledger list rows" pattern from ADR-0014: flat rows separated by
 // hairlines (not boxed cards), counts set in IBM Plex Mono. Used for the
 // per-topic Lernstand list on /learn.
-export function LedgerRow({ title, learned, total, to }: LedgerRowProps) {
+export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = false, onToggleFocus }: LedgerRowProps) {
   const percent = percentOf(learned, total)
+  const learningPercent = percentOf(learning, total)
   const action = 'border px-3 py-1.5 font-mono text-xs tracking-wide uppercase'
 
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">
+      {onToggleFocus ? (
+        <button
+          type="button"
+          onClick={onToggleFocus}
+          aria-pressed={isFocus}
+          aria-label={isFocus ? `Fokus entfernen: ${title}` : `Als Fokus markieren: ${title}`}
+          title={isFocus ? 'Fokus entfernen' : 'Als Fokus markieren'}
+          className={`text-xl leading-none ${isFocus ? 'text-accent' : 'text-ink-soft hover:text-accent'}`}
+        >
+          <span aria-hidden="true">{isFocus ? '★' : '☆'}</span>
+        </button>
+      ) : null}
       <div className="flex-1">
         <p className="text-ink">{title}</p>
         <div className="mt-1.5 flex items-center gap-2">
-          <div className="h-1 w-20 bg-surface-alt">
+          <div className="flex h-1 w-20 bg-surface-alt">
             <div className="h-full bg-success" style={{ width: `${percent}%` }} />
+            <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
           </div>
           <p className="font-mono text-xs text-ink-soft">
             {learned} von {total} Fragen gelernt
+            {learning > 0 ? ` · ${learning} teilweise` : ''}
           </p>
         </div>
       </div>

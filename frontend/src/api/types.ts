@@ -32,6 +32,9 @@ export interface TopicProgress {
   display_order: number
   total_questions: number
   learned_questions: number
+  // Streak 1–2: on the way to "gelernt".
+  learning_questions: number
+  is_focus: boolean
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminUserRead.
@@ -56,10 +59,19 @@ export interface AdminQuestionProgressExport {
   updated_at: string
 }
 
+// Mirrors backend/app/schemas/admin.py::AdminFocusTopicExport.
+export interface AdminFocusTopicExport {
+  subject: string
+  topic_slug: string
+  topic_name: string
+  created_at: string
+}
+
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
   user: AdminUserSearchResult
   question_progress: AdminQuestionProgressExport[]
+  focus_topics: AdminFocusTopicExport[]
   exported_at: string
 }
 

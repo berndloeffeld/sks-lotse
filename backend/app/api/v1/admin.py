@@ -6,10 +6,13 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.jwt import require_admin
+from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
+from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
+    AdminFocusTopicExport,
     AdminQuestionProgressExport,
     AdminUserExport,
     AdminUserRead,
@@ -66,8 +69,24 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
         .where(QuestionProgress.user_id == user_id)
     ).all()
 
+    focus_rows = db.execute(
+        select(FocusTopic, Topic)
+        .join(Topic, Topic.id == FocusTopic.topic_id)
+        .where(FocusTopic.user_id == user_id)
+        .order_by(Topic.subject, Topic.display_order)
+    ).all()
+
     return AdminUserExport(
         user=_admin_user_read(user, len(rows)),
+        focus_topics=[
+            AdminFocusTopicExport(
+                subject=topic.subject,
+                topic_slug=topic.slug,
+                topic_name=topic.name,
+                created_at=focus.created_at,
+            )
+            for focus, topic in focus_rows
+        ],
         question_progress=[
             AdminQuestionProgressExport(
                 question_id=progress.question_id,

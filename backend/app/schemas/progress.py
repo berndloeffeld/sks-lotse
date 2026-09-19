@@ -14,6 +14,10 @@ class TopicProgressRead(BaseModel):
     display_order: int
     total_questions: int
     learned_questions: int
+    # "Teilweise gelernt": a streak of 1 or 2, i.e. above 0 and below
+    # LEARNED_STREAK_THRESHOLD (app/core/progress.py).
+    learning_questions: int
+    is_focus: bool
 
 
 class QuestionProgressRead(BaseModel):
