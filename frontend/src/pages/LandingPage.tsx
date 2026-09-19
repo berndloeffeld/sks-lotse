@@ -12,12 +12,6 @@ import { LoginForm } from '../components/LoginForm'
 // edge, three-column text blocks, image-topped cards and a sign-up form
 // band. Palette, type and square-cornered chrome stay per ADR-0014.
 
-const HERO_FEATURES = [
-  { label: 'Originalfragen', icon: <CatalogIcon className="h-5 w-5" /> },
-  { label: 'Antworten per Sprache', icon: <AnswerIcon className="h-5 w-5" /> },
-  { label: 'KI-Feedback', icon: <FeedbackIcon className="h-5 w-5" /> },
-]
-
 const PLANS = [
   {
     kicker: 'Standard',
@@ -62,18 +56,6 @@ export function LandingPage() {
             >
               Jetzt kostenlos anmelden
             </a>
-            <ul className="mt-6 flex gap-3">
-              {HERO_FEATURES.map(({ label, icon }) => (
-                <li
-                  key={label}
-                  title={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-tile border border-surface-alt text-surface-alt"
-                >
-                  {icon}
-                  <span className="sr-only">{label}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </HeroBand>
 
