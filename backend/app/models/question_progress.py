@@ -17,8 +17,8 @@ class QuestionProgress(Base):
     question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
     # Consecutive "Richtig" gradings for this (user, question) — see app/core/progress.py
     # for the "gelernt" threshold. Reset to 0 by "Teilweise Richtig"/"Falsch" (or a
-    # tip-assisted "Richtig", see docs/adr/0018-...). Nothing writes to this yet —
-    # that's the future grading endpoint; this table just exists ahead of it.
+    # tip-assisted "Richtig", see docs/adr/0018-...). Written by
+    # POST /api/v1/progress/questions/{id} (self-assessment, docs/adr/0023-...).
     correct_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

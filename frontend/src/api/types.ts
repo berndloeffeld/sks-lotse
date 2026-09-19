@@ -62,3 +62,32 @@ export interface AdminUserExport {
   question_progress: AdminQuestionProgressExport[]
   exported_at: string
 }
+
+// Mirrors backend/app/schemas/question.py::QuestionRead.
+export interface Question {
+  id: number
+  subject: string
+  number: number
+  question_text: string
+  answer_text: string
+  image_ref: string | null
+  topic: string | null
+}
+
+// Mirrors backend/app/schemas/question.py::TopicRead.
+export interface Topic {
+  subject: string
+  slug: string
+  name: string
+  display_order: number
+}
+
+// Mirrors GradingOutcome in backend/app/core/progress.py.
+export type GradingOutcome = 'richtig' | 'teilweise_richtig' | 'falsch'
+
+// Mirrors backend/app/schemas/progress.py::QuestionProgressRead.
+export interface QuestionProgress {
+  question_id: number
+  correct_streak: number
+  learned: boolean
+}

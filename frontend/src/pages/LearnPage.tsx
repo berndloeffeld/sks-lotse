@@ -45,6 +45,7 @@ function LearnContent() {
                       title={topic.topic_name}
                       learned={topic.learned_questions}
                       total={topic.total_questions}
+                      to={`/learn/${topic.subject}/${topic.topic_slug}`}
                     />
                   ))}
                 </div>

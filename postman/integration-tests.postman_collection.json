@@ -1201,7 +1201,374 @@
               ]
             }
           },
-          "description": "Progress is only ever written by the (not yet built) grading flow, so a fresh account has nothing learned - this checks shape and invariants, not specific counts.",
+          "description": "A fresh account has nothing learned yet (the grading requests below only ever start one streak) - this checks shape and invariants, not specific counts.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade a question - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions/{{firstQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions",
+                "{{firstQuestionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\": \"richtig\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade a question - unknown outcome is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions/{{firstQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions",
+                "{{firstQuestionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\": \"fast richtig\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade a non-existent question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions",
+                "999999999"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\": \"richtig\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade a question: Richtig",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "    pm.test('starts a streak of 1, not yet learned', function () {",
+                  "        var p = pm.response.json();",
+                  "        pm.expect(p).to.have.all.keys('question_id', 'correct_streak', 'learned');",
+                  "        pm.expect(String(p.question_id)).to.eql(pm.collectionVariables.get('firstQuestionId'));",
+                  "        pm.expect(p.correct_streak).to.eql(1);",
+                  "        pm.expect(p.learned).to.eql(false);",
+                  "    });",
+                  "} else {",
+                  "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions/{{firstQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions",
+                "{{firstQuestionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\": \"richtig\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "The test user is fresh, so this is the question's first grading.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Question progress - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Question progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('lists the graded question with its streak', function () {",
+                  "    var rows = pm.response.json();",
+                  "    pm.expect(rows).to.be.an('array');",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "        var row = rows.find(function (r) { return String(r.question_id) === pm.collectionVariables.get('firstQuestionId'); });",
+                  "        pm.expect(row).to.eql({ question_id: row.question_id, correct_streak: 1, learned: false });",
+                  "    } else {",
+                  "        pm.expect(rows).to.be.empty;",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade a question: Falsch resets the streak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "    pm.test('streak back to 0', function () { pm.expect(pm.response.json().correct_streak).to.eql(0); });",
+                  "} else {",
+                  "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions/{{firstQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions",
+                "{{firstQuestionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\": \"falsch\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -1250,7 +1617,7 @@
           }
         }
       ],
-      "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
+      "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py and test_progress.py, incl. grading the first question (self-assessment) and reading its streak back. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
     },
     {
       "name": "Profile & exam variant (authenticated)",

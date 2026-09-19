@@ -1,0 +1,208 @@
+import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+
+import type { QuestionProgress } from '../api/types'
+import { useAuthStore } from '../store/authStore'
+import { PracticePage } from './PracticePage'
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+}
+
+function question(id: number, number: number) {
+  return {
+    id,
+    subject: 'navigation',
+    number,
+    question_text: `Frage ${number}?`,
+    answer_text: `Antwort ${number}.`,
+    image_ref: null,
+    topic: 'ankern',
+  }
+}
+
+const topics = [{ subject: 'navigation', slug: 'ankern', name: 'Ankern', display_order: 1 }]
+
+interface Backend {
+  questions?: ReturnType<typeof question>[]
+  progress?: QuestionProgress[]
+  // Response to each POST /progress/questions/{id}, in order.
+  grades?: Response[]
+  failLoad?: boolean
+}
+
+function mockBackend({ questions = [question(1, 7)], progress = [], grades = [], failLoad = false }: Backend) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input)
+    if (failLoad) return jsonResponse({ detail: 'boom' }, 500)
+    if (init?.method === 'POST' && url.includes('/progress/questions/')) {
+      return grades.shift() ?? jsonResponse({ detail: 'unexpected' }, 500)
+    }
+    if (url.includes('/questions?')) return jsonResponse(questions)
+    if (url.endsWith('/progress/questions')) return jsonResponse(progress)
+    if (url.includes('/topics?')) return jsonResponse(topics)
+    return jsonResponse({ detail: 'not found' }, 404)
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
+function renderPracticePage() {
+  return render(
+    <MemoryRouter initialEntries={['/learn/navigation/ankern']}>
+      <Routes>
+        <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+async function revealAndGrade(outcome: string) {
+  const user = userEvent.setup()
+  await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+  await user.click(screen.getByRole('radio', { name: outcome }))
+  await user.click(screen.getByRole('button', { name: 'Bewertung speichern' }))
+  return user
+}
+
+describe('PracticePage', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ isAuthenticated: true, isLoading: false })
+  })
+
+  afterEach(() => {
+    cleanup()
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it('loads the topic and asks the scoped questions', async () => {
+    const fetchMock = mockBackend({})
+
+    renderPracticePage()
+
+    expect(await screen.findByRole('heading', { name: 'Frage 7?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Ankern' })).toBeInTheDocument()
+    expect(screen.getByText('Frage 1 von 1 · Nr. 7')).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/questions?subject=navigation&topic=ankern'))).toBe(
+      true,
+    )
+    // The official answer stays hidden until asked for.
+    expect(screen.queryByText('Antwort 7.')).not.toBeInTheDocument()
+  })
+
+  it('reveals the official answer next to the learner’s own note', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    await user.type(await screen.findByRole('textbox'), 'Mein Versuch')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByText('Antwort 7.')).toBeInTheDocument()
+    expect(screen.getByText('Mein Versuch')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
+  })
+
+  it('saves a self-assessment and moves the Lot gauge', async () => {
+    const fetchMock = mockBackend({
+      progress: [{ question_id: 1, correct_streak: 1, learned: false }],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 2, learned: false })],
+    })
+    renderPracticePage()
+    expect(await screen.findByRole('img', { name: '1 von 3 Mal in Folge richtig' })).toBeInTheDocument()
+
+    await revealAndGrade('Richtig')
+
+    expect(await screen.findByRole('status')).toHaveTextContent('2 von 3 Mal in Folge richtig.')
+    expect(screen.getByRole('img', { name: '2 von 3 Mal in Folge richtig' })).toBeInTheDocument()
+    const post = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
+    expect(String(post[0])).toMatch(/\/progress\/questions\/1$/)
+    expect(JSON.parse(String(post[1]!.body))).toEqual({ outcome: 'richtig' })
+  })
+
+  it('tells the learner when a grading resets the streak', async () => {
+    mockBackend({
+      progress: [{ question_id: 1, correct_streak: 2, learned: false }],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 0, learned: false })],
+    })
+    renderPracticePage()
+
+    await revealAndGrade('Teilweise Richtig')
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Serie zurückgesetzt')
+  })
+
+  it('keeps the assessment open when saving fails', async () => {
+    mockBackend({ grades: [jsonResponse({ detail: 'boom' }, 500)] })
+    renderPracticePage()
+
+    await revealAndGrade('Falsch')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Bewertung konnte nicht gespeichert werden.')
+    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeEnabled()
+  })
+
+  it('walks through a run and sums it up at the end', async () => {
+    mockBackend({
+      questions: [question(1, 7), question(2, 8), question(3, 9)],
+      // Question 3 is already learned, so it isn't part of the run.
+      progress: [
+        { question_id: 2, correct_streak: 2, learned: false },
+        { question_id: 3, correct_streak: 3, learned: true },
+      ],
+      grades: [
+        jsonResponse({ question_id: 0, correct_streak: 0, learned: false }),
+        jsonResponse({ question_id: 0, correct_streak: 3, learned: true }),
+      ],
+    })
+    // Deterministic shuffle: the run becomes [question 8, question 7].
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    renderPracticePage()
+
+    expect(await screen.findByText('Frage 1 von 2 · Nr. 8')).toBeInTheDocument()
+    let user = await revealAndGrade('Falsch')
+    await user.click(await screen.findByRole('button', { name: 'Nächste Frage' }))
+
+    expect(screen.getByRole('heading', { name: 'Frage 7?' })).toHaveFocus()
+    user = await revealAndGrade('Richtig')
+    await user.click(await screen.findByRole('button', { name: 'Runde beenden' }))
+
+    expect(screen.getByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()
+    expect(screen.getByText('Neu gelernt').nextSibling).toHaveTextContent('1')
+    expect(screen.getByText('Falsch').nextSibling).toHaveTextContent('1')
+
+    await user.click(screen.getByRole('button', { name: 'Neue Runde' }))
+    expect(screen.getByText('Frage 1 von 1 · Nr. 8')).toBeInTheDocument()
+  })
+
+  it('offers to repeat everything once the whole topic is learned', async () => {
+    const user = userEvent.setup()
+    mockBackend({ progress: [{ question_id: 1, correct_streak: 3, learned: true }] })
+    renderPracticePage()
+
+    expect(await screen.findByRole('heading', { name: 'Alles gelernt' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
+
+    await user.click(screen.getByRole('button', { name: 'Alle Fragen wiederholen' }))
+    expect(screen.getByRole('heading', { name: 'Frage 7?' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Gelernt' })).toBeInTheDocument()
+  })
+
+  it('says so when the topic has no questions', async () => {
+    mockBackend({ questions: [] })
+    renderPracticePage()
+
+    expect(await screen.findByText('Zu diesem Thema gibt es keine Fragen.')).toBeInTheDocument()
+  })
+
+  it('shows an error when loading fails', async () => {
+    mockBackend({ failLoad: true })
+    renderPracticePage()
+
+    expect(await screen.findByText('Die Fragen konnten nicht geladen werden.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
+  })
+})

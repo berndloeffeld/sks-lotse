@@ -44,7 +44,7 @@ Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security sc
 ### Frontend (`frontend/`)
 A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013](adr/0013-frontend-architecture-and-tooling.md)), served by a Render static site ([ADR-0015](adr/0015-frontend-deployment-topology.md)).
 
-- **Routing**: public pages (landing, login, legal) and protected pages (start, learn, profile, admin) behind `ProtectedRoute`.
+- **Routing**: public pages (landing, login, legal) and protected pages (start, learn, practice, profile, admin) behind `ProtectedRoute`.
 - **Auth state**: never reads the session token. "Logged in" is derived from `GET /auth/me` ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md)).
 - **API access**: one thin typed `fetch` wrapper (`src/api/client.ts`). It always sends credentials and treats any `401` as "session gone".
 - **Design system**: tokens in `src/index.css` ([ADR-0014](adr/0014-visual-design-system.md)), self-hosted fonts ([ADR-0021](adr/0021-self-hosted-web-fonts.md)), shared components in `src/components/`.
@@ -64,7 +64,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 |---|---|---|
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
 | `questions` | Read-only catalog and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md) |
-| `progress` | Per-topic learning status | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md) |
+| `progress` | Per-topic learning status, per-question streaks, recording a self-assessed grading | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md) |
 | `admin` | GDPR lookup/export/delete, allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md) |
 
 Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
@@ -91,7 +91,7 @@ PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
 |---|---|---|
 | `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
 | `users` | Account and profile | Auth and admin flows |
-| `question_progress` | Per-user, per-question answer streak | Nothing yet (grading not built), so all progress reads are zero |
+| `question_progress` | Per-user, per-question answer streak | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
 Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data.
@@ -126,7 +126,8 @@ All of them except the integration tests are required status checks on `main`, a
 
 ## Not yet built
 
-- Answering questions and grading them: the frontend flow and the LLM grading endpoint (OpenAI). With it goes the first write path to `question_progress`.
+- LLM grading of free-text answers (OpenAI). Answering questions works, but learners grade themselves against the official answer ([ADR-0023](adr/0023-self-assessed-learning-flow.md)).
+- Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
 - SSO login (Google/Facebook/X)
 - Entitlements: the "ads removed" and "AI grading unlocked" flags on the account ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)

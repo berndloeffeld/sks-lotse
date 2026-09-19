@@ -5,6 +5,7 @@ import { AdminPage } from './pages/AdminPage'
 import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
+import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -35,6 +36,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/start" element={<StartPage />} />
             <Route path="/learn" element={<LearnPage />} />
+            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Route>

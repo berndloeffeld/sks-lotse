@@ -51,7 +51,7 @@ sks-lotse/
 │   │   ├── api/        # Thin typed fetch wrapper + shared response types
 │   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
 │   │   ├── hooks/      # Shared React hooks (e.g. useExamVariantUpdate)
-│   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, AdminPage, ImprintPage, PrivacyPage
+│   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, PracticePage, ProfilePage, AdminPage, ImprintPage, PrivacyPage
 │   │   ├── routes/     # ProtectedRoute
 │   │   └── store/      # Zustand auth store
 │   ├── .env.example
@@ -74,7 +74,7 @@ sks-lotse/
 1. Learner logs in (SSO via Google/Facebook/X, or email + OTP) — required before using the app.
 2. Learner is shown a question from the official SKS catalog.
 3. **If the account has AI-based grading unlocked**: learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit); the answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer; the LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
-4. **If not**: the official model answer is shown directly for the learner to self-compare against — no writing step, no LLM call.
+4. **If not**: the official model answer is shown for the learner to self-compare against — no forced writing step (an optional scratchpad field is never sent), no LLM call. The learner then grades themselves (Richtig / Teilweise Richtig / Falsch), which moves the question's "gelernt" streak exactly like an AI grading would ([ADR-0023](docs/adr/0023-self-assessed-learning-flow.md)). **This is the only grading that exists today** — AI grading and entitlements aren't built yet.
 5. Progress is synced server-side against the logged-in account. If the account hasn't paid to remove ads, ads (Google AdSense) are shown.
 
 ---

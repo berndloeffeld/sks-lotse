@@ -86,6 +86,7 @@ describe('LearnPage', () => {
     expect(screen.getByRole('heading', { name: 'Themen' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Fachgebiete' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
   })
 
   it('shows an error instead of the topics when the Lernstand fails to load', async () => {
