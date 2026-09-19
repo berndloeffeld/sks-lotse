@@ -11,7 +11,7 @@ import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
 import { isLearned, streakProgress } from '../progress'
 
-type Phase = 'answer' | 'assess' | 'graded'
+type Phase = 'answer' | 'assess'
 
 const OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
 
@@ -85,19 +85,18 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [tally, setTally] = useState<GradingOutcome[]>([])
   const [newlyLearned, setNewlyLearned] = useState(0)
+  const [feedback, setFeedback] = useState('')
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
   const saveRef = useRef<HTMLButtonElement>(null)
-  const nextRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
 
   // Keyboard flow: each phase hands focus to the control the learner needs
   // next, so the whole loop works without a mouse (see the key handlers below).
   useEffect(() => {
     if (phase === 'answer') noteRef.current?.focus()
-    else if (phase === 'assess') groupRef.current?.focus()
-    else nextRef.current?.focus()
+    else groupRef.current?.focus()
   }, [phase, index, run])
 
   // Tab cycles through the radios (focus only, no selection). The first Tab
@@ -136,7 +135,16 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       if (result.learned && !isLearned(before)) setNewlyLearned((n) => n + 1)
       onGraded(question.id, result.correct_streak)
       setTally((t) => [...t, outcome])
-      setPhase('graded')
+      // Saving moves straight on to the next question; the result is only
+      // announced to screen readers.
+      setFeedback(
+        result.learned
+          ? 'Gelernt.'
+          : outcome === 'richtig'
+            ? 'Richtig – ein Stück näher am Ziel.'
+            : 'Zurück zum Start – die Frage kommt wieder.',
+      )
+      nextQuestion()
     } catch {
       setSaveError('Die Bewertung konnte nicht gespeichert werden. Bitte versuche es erneut.')
     } finally {
@@ -165,6 +173,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     const count = (o: GradingOutcome) => tally.filter((t) => t === o).length
     return (
       <section className="flex flex-col items-start gap-4">
+        <p role="status" className="sr-only">
+          {feedback}
+        </p>
         <h2 className="font-serif text-2xl text-primary">Runde beendet</h2>
         <dl className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 font-mono text-sm">
           {OUTCOMES.map((o) => (
@@ -189,10 +200,12 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   }
 
   const streak = streaks.get(question.id) ?? 0
-  const isLast = index === run.length - 1
 
   return (
     <article className="flex flex-col gap-6">
+      <p role="status" className="sr-only">
+        {feedback}
+      </p>
       <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
@@ -249,12 +262,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             )}
           </section>
 
-          <fieldset
-            ref={groupRef}
-            tabIndex={-1}
-            className="flex flex-col gap-2 outline-none"
-            disabled={phase === 'graded' || isSaving}
-          >
+          <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
             {OUTCOMES.map((o, i) => (
               <label key={o} className="flex items-center gap-2 text-ink">
@@ -290,32 +298,15 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             </p>
           ) : null}
 
-          {phase === 'assess' ? (
-            <button
-              ref={saveRef}
-              type="button"
-              className={styles.button}
-              disabled={!outcome || isSaving}
-              onClick={saveGrade}
-            >
-              {isSaving ? 'Wird gespeichert…' : 'Bewertung speichern'}
-            </button>
-          ) : (
-            <>
-              {/* The boat's move is the visible feedback; this only tells
-                  screen readers what it did. */}
-              <p role="status" className="sr-only">
-                {isLearned(streak)
-                  ? 'Gelernt.'
-                  : outcome === 'richtig'
-                    ? 'Richtig – ein Stück näher am Ziel.'
-                    : 'Zurück zum Start – die Frage kommt wieder.'}
-              </p>
-              <button ref={nextRef} type="button" className={styles.button} onClick={nextQuestion}>
-                {isLast ? 'Runde beenden' : 'Nächste Frage'}
-              </button>
-            </>
-          )}
+          <button
+            ref={saveRef}
+            type="button"
+            className={styles.button}
+            disabled={!outcome || isSaving}
+            onClick={saveGrade}
+          >
+            {isSaving ? 'Wird gespeichert…' : 'Bewertung speichern'}
+          </button>
         </>
       )}
     </article>

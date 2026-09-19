@@ -123,12 +123,12 @@ describe('PracticePage', () => {
     })
     renderPracticePage()
     expect(await screen.findByRole('img', { name: 'Auf Kurs zu gelernt' })).toBeInTheDocument()
-    const before = screen.getByTestId('course-boat').style.transform
 
     await revealAndGrade('Richtig')
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Richtig – ein Stück näher am Ziel.')
-    expect(screen.getByTestId('course-boat').style.transform).not.toBe(before)
+    // Saving moves straight on (here: to the round summary); no extra click.
+    expect(await screen.findByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Richtig – ein Stück näher am Ziel.')
     // Nothing on the page gives away how many correct answers "gelernt" takes.
     expect(screen.queryByText(/von 3/)).not.toBeInTheDocument()
     const post = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
@@ -146,7 +146,6 @@ describe('PracticePage', () => {
     await revealAndGrade('Teilweise Richtig')
 
     expect(await screen.findByRole('status')).toHaveTextContent('Zurück zum Start')
-    expect(screen.getByRole('img', { name: 'Noch nicht gelernt' })).toBeInTheDocument()
   })
 
   it('keeps the assessment open when saving fails', async () => {
@@ -178,12 +177,10 @@ describe('PracticePage', () => {
 
     expect(await screen.findByText('Frage 1 von 2 · Nr. 8')).toBeInTheDocument()
     let user = await revealAndGrade('Falsch')
-    await user.click(await screen.findByRole('button', { name: 'Nächste Frage' }))
-
+    await waitFor(() => expect(screen.getByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument())
     expect(screen.getByRole('textbox')).toHaveFocus()
     user = await revealAndGrade('Richtig')
     expect(await screen.findByRole('status')).toHaveTextContent('Gelernt.')
-    await user.click(await screen.findByRole('button', { name: 'Runde beenden' }))
 
     expect(screen.getByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()
     expect(screen.getByText('Neu gelernt').nextSibling).toHaveTextContent('1')
@@ -224,12 +221,10 @@ describe('PracticePage', () => {
     expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toHaveFocus()
 
     await user.keyboard('{Enter}')
-    const next = await screen.findByRole('button', { name: 'Nächste Frage' })
-    await waitFor(() => expect(next).toHaveFocus())
+    // Saving goes straight to the next question, answer field focused.
+    expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('textbox')).toHaveFocus())
     expect(fetchMock).toHaveBeenCalled()
-
-    await user.keyboard('{Enter}')
-    expect(screen.getByRole('textbox')).toHaveFocus()
   })
 
   it('offers to repeat everything once the whole topic is learned', async () => {
