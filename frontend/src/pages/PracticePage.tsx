@@ -188,14 +188,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           <dt className="text-ink-soft">Neu gelernt</dt>
           <dd className="text-ink">{newlyLearned}</dd>
         </dl>
-        <div className="flex flex-wrap gap-3">
-          <button type="button" className={styles.button} onClick={() => startRun(false)}>
-            Neue Runde
-          </button>
-          <Link to="/learn" className={styles.link + ' self-center'}>
-            Zur Themenübersicht
-          </Link>
-        </div>
+        <Link to="/learn" className={styles.link}>
+          Zur Themenübersicht
+        </Link>
       </section>
     )
   }
