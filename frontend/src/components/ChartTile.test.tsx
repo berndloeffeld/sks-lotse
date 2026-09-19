@@ -23,3 +23,11 @@ describe('ChartTile', () => {
     expect(screen.getByTestId('icon')).toBeInTheDocument()
   })
 })
+
+describe('ChartTile badge', () => {
+  it('renders a badge when given one', () => {
+    render(<ChartTile title="Prüfung" badge="Demnächst verfügbar" size="lg" />)
+
+    expect(screen.getByText('Demnächst verfügbar')).toBeInTheDocument()
+  })
+})

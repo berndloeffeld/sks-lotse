@@ -39,3 +39,32 @@ h3 {
   hyphens: auto;
   overflow-wrap: break-word;
 }
+
+/* "Gelernt!" celebration (LearnedCelebration): the banner pops in and out,
+   the confetti drifts up from it. All of it is skipped under reduced motion. */
+@keyframes celebrate-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  15%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes celebrate-confetti {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+  }
+}

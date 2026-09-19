@@ -16,6 +16,8 @@ interface PageLayoutProps {
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
   width?: 'sm' | 'md'
+  // Slimmer title band for pages where the content should start sooner.
+  compact?: boolean
   // Full-width children (e.g. <Band>s) instead of one content column.
   bands?: boolean
   children: ReactNode
@@ -32,6 +34,7 @@ export function PageLayout({
   backTo,
   nav = 'account',
   width = 'md',
+  compact = false,
   bands = false,
   children,
 }: PageLayoutProps) {
@@ -47,7 +50,7 @@ export function PageLayout({
         nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}
       />
       <main className="flex-1">
-        <HeroBand className="pt-12 pb-24 text-center">
+        <HeroBand className={`${compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
           <div className={column}>
             {backTo ? (
               <Link
@@ -57,8 +60,16 @@ export function PageLayout({
                 ← Zurück
               </Link>
             ) : null}
-            <h1 className="mt-4 font-serif text-3xl tracking-wide break-words uppercase sm:text-4xl">{title}</h1>
-            {subtitle ? <div className="mt-4 text-sm text-surface-alt">{subtitle}</div> : null}
+            <h1
+              className={`font-serif tracking-wide break-words uppercase ${
+                compact ? 'mt-2 text-2xl sm:text-3xl' : 'mt-4 text-3xl sm:text-4xl'
+              }`}
+            >
+              {title}
+            </h1>
+            {subtitle ? (
+              <div className={`text-sm text-surface-alt ${compact ? 'mt-2' : 'mt-4'}`}>{subtitle}</div>
+            ) : null}
           </div>
         </HeroBand>
         {bands ? children : <div className={`${column} flex flex-col gap-8 pt-4 pb-12`}>{children}</div>}
