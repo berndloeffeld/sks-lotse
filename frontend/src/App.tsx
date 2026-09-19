@@ -13,6 +13,10 @@ import { ProtectedRoute } from './routes/ProtectedRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAuthStore } from './store/authStore'
 
+function ThrowForPreview(): never {
+  throw new Error('Error page preview')
+}
+
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession)
 
@@ -34,6 +38,10 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Route>
+          {/* Dev-only: throws on purpose to preview the ErrorBoundary's error
+            page. import.meta.env.DEV is false in production builds, so this
+            route isn't registered there. */}
+          {import.meta.env.DEV ? <Route path="/_dev/error" element={<ThrowForPreview />} /> : null}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </ErrorBoundary>
