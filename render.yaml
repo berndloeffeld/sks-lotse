@@ -1,6 +1,6 @@
 databases:
   - name: sks-lotse-db
-    plan: free
+    plan: basic-256mb
     region: frankfurt
     databaseName: sks_lotse
     user: sks_lotse
@@ -10,13 +10,15 @@ services:
     type: web
     runtime: python
     region: frankfurt
-    plan: free
+    plan: starter
     rootDir: backend
     branch: main
     autoDeployTrigger: commit
     buildCommand: pip install -r requirements.txt
-    # preDeployCommand isn't available on the free plan — run the
-    # (idempotent) migration inline before starting the server instead.
+    # The (idempotent) migration still runs inline before the server starts.
+    # A paid plan would allow `preDeployCommand: alembic upgrade head`, which
+    # aborts a deploy on a failed migration instead of crash-looping — not
+    # switched over yet.
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     # Unauthenticated, not rate-limited (see backend/app/main.py) — Render
     # only routes traffic to a new deploy once this returns 2xx.
