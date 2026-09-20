@@ -132,6 +132,29 @@ def test_only_one_exam_in_progress(client, db_session, auth_headers):
     assert client.post("/api/v1/exams", headers=auth_headers).status_code == 409
 
 
+def test_parallel_start_is_rejected_by_the_database(client, db_session, auth_headers, monkeypatch):
+    # Simulates two parallel starts: the application-level check sees no running
+    # exam (as it would for the second request), so only the unique index stops it.
+    from app.api.v1 import exams as exams_api
+
+    _seed(db_session)
+    _start(client, auth_headers)
+    monkeypatch.setattr(exams_api, "_own_attempts", lambda db, user: [])
+
+    response = client.post("/api/v1/exams", headers=auth_headers)
+
+    assert response.status_code == 409
+    assert db_session.query(ExamAttempt).count() == 1
+
+
+def test_a_new_exam_can_start_once_the_previous_one_is_submitted(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    client.post(f"/api/v1/exams/{exam['id']}/submit", headers=auth_headers)
+
+    assert client.post("/api/v1/exams", headers=auth_headers).status_code == 201
+
+
 def test_official_answers_hidden_until_submit(client, db_session, auth_headers):
     _seed(db_session)
     exam = _start(client, auth_headers)

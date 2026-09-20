@@ -1,6 +1,17 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,7 +25,18 @@ class ExamAttempt(Base):
     """
 
     __tablename__ = "exam_attempts"
-    __table_args__ = (Index("ix_exam_attempts_user_id_started_at", "user_id", "started_at"),)
+    __table_args__ = (
+        Index("ix_exam_attempts_user_id_started_at", "user_id", "started_at"),
+        # At most one running exam per learner, enforced by the database so two
+        # parallel starts can't both pass the application-level check.
+        Index(
+            "uq_exam_attempts_one_in_progress_per_user",
+            "user_id",
+            unique=True,
+            postgresql_where=text("submitted_at IS NULL"),
+            sqlite_where=text("submitted_at IS NULL"),
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

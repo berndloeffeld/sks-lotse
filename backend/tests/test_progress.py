@@ -266,3 +266,20 @@ def test_grade_question_survives_a_concurrent_first_grading(client, db_session, 
     assert response.status_code == 200
     assert response.json()["correct_streak"] == 2
     assert db_session.query(QuestionProgress).count() == 1
+
+
+def test_grade_question_409_when_the_racing_row_vanished(client, db_session, auth_headers, monkeypatch):
+    from app.api.v1 import progress as progress_api
+
+    question = _question(db_session)
+    user = _fixture_user(db_session)
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=1))
+    db_session.commit()
+    # The row exists (so the insert collides) but every lookup misses it.
+    monkeypatch.setattr(progress_api, "_progress_row", lambda db, user_id, question_id: None)
+
+    response = client.post(
+        f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"}, headers=auth_headers
+    )
+
+    assert response.status_code == 409
