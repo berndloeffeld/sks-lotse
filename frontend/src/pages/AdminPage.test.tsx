@@ -29,6 +29,7 @@ const foundUser = {
   first_name: 'Anna',
   last_name: 'Beispiel',
   gender: 'weiblich',
+  ai_grading_enabled: false,
   question_progress_count: 3,
 }
 
@@ -181,6 +182,54 @@ describe('AdminPage', () => {
 
     expect(await screen.findByText('Account learner@example.com wurde gelöscht.')).toBeInTheDocument()
     expect(screen.queryByText('Endgültig löschen')).not.toBeInTheDocument()
+  })
+
+  it('unlocks and revokes the AI check for the found user', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH') {
+          return jsonResponse({ ...foundUser, ...JSON.parse(String(init.body)) })
+        }
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    await screen.findByText('Nicht freigeschaltet')
+
+    await user.click(screen.getByRole('button', { name: 'KI-Prüfung freischalten' }))
+    expect(await screen.findByText('Freigeschaltet')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'KI-Prüfung entziehen' }))
+    expect(await screen.findByText('Nicht freigeschaltet')).toBeInTheDocument()
+  })
+
+  it('shows an error when changing the AI check fails', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (init?.method === 'PATCH') return new Response(null, { status: 500 })
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    await user.click(await screen.findByRole('button', { name: 'KI-Prüfung freischalten' }))
+
+    expect(await screen.findByText('Die KI-Prüfung konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
   it('triggers a JSON file download when exporting', async () => {

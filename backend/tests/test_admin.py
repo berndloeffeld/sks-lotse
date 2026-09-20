@@ -20,6 +20,7 @@ def test_admin_routes_require_authentication(client):
     assert client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}).status_code == 401
     assert client.get("/api/v1/admin/users/1/export").status_code == 401
     assert client.delete("/api/v1/admin/users/1").status_code == 401
+    assert client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}).status_code == 401
 
 
 def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
@@ -29,6 +30,8 @@ def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
     response = client.get("/api/v1/admin/users/1/export", headers=auth_headers)
     assert response.status_code == 403
     response = client.delete("/api/v1/admin/users/1", headers=auth_headers)
+    assert response.status_code == 403
+    response = client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}, headers=auth_headers)
     assert response.status_code == 403
 
 
@@ -148,3 +151,32 @@ def test_admin_export_includes_focus_topics(client, db_session, auth_headers, mo
     assert [(f["subject"], f["topic_slug"], f["topic_name"]) for f in focus] == [
         ("navigation", "ankern", "Ankern")
     ]
+
+
+def test_admin_can_toggle_ai_grading(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    assert user.ai_grading_enabled is False
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": True}, headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json()["ai_grading_enabled"] is True
+    db_session.refresh(user)
+    assert user.ai_grading_enabled is True
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": False}, headers=auth_headers
+    )
+    assert response.json()["ai_grading_enabled"] is False
+
+
+def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    assert client.patch(f"/api/v1/admin/users/{user.id}", json={}, headers=auth_headers).status_code == 422
+    response = client.patch(
+        "/api/v1/admin/users/999999", json={"ai_grading_enabled": True}, headers=auth_headers
+    )
+    assert response.status_code == 404

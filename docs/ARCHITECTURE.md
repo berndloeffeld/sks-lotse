@@ -134,7 +134,7 @@ All of them except the integration tests are required status checks on `main`, a
 
 ## Not yet built
 
-- Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which is set by hand for now.
+- Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which the operator sets on `/admin` for now.
 - Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
 - SSO login (Google/Facebook/X)
 - Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))

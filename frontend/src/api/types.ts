@@ -56,6 +56,7 @@ export interface AdminUserSearchResult {
   first_name: string | null
   last_name: string | null
   gender: string | null
+  ai_grading_enabled: boolean
   question_progress_count: number
 }
 
