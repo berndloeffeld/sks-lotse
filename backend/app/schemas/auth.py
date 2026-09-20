@@ -4,13 +4,15 @@ from typing import Annotated
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, StringConstraints, computed_field
 
 from app.core.config import settings
+from app.core.email_address import canonicalize_email
 from app.core.exam_variant import EXAM_VARIANTS
 
-# EmailStr only lowercases the domain, not the local part. Lowercase the
-# whole address once, here, so every per-email check (cooldown, hourly cap,
-# allowlist) and the users.email lookup see one canonical form — otherwise
-# "A@x.de" and "a@x.de" would get separate OTP quotas and separate accounts.
-NormalizedEmail = Annotated[EmailStr, AfterValidator(str.lower)]
+# EmailStr only lowercases the domain, not the local part. Canonicalize the
+# whole address once, here (see app/core/email_address.py), so every per-email
+# check (cooldown, hourly cap, allowlist) and the users.email lookup see one
+# form — otherwise "A@x.de" and "a@x.de", or "a.b+x@gmail.com" and
+# "ab@gmail.com", would get separate OTP quotas and separate accounts.
+NormalizedEmail = Annotated[EmailStr, AfterValidator(canonicalize_email)]
 
 
 def _require_digits(value: str) -> str:

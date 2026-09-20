@@ -3,6 +3,8 @@ from typing import Literal
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.email_address import canonicalize_email
+
 # A real secret (e.g. `openssl rand -hex 32`) is 64 characters. This is a
 # floor, not a target — it rejects empty, short, human-typable/guessable
 # values in every environment (a required field alone only catches
@@ -82,14 +84,14 @@ class Settings(BaseSettings):
     def allowed_emails_set(self) -> set[str] | None:
         if not self.allowed_emails.strip():
             return None
-        return {email.strip().lower() for email in self.allowed_emails.split(",") if email.strip()}
+        return {canonicalize_email(email) for email in self.allowed_emails.split(",") if email.strip()}
 
     @property
     def admin_emails_set(self) -> set[str]:
         # Unlike allowed_emails_set, never returns None: an empty/unset value
         # must mean "no admins", not "unrestricted", so every caller can
         # write `email in settings.admin_emails_set` without a None guard.
-        return {email.strip().lower() for email in self.admin_emails.split(",") if email.strip()}
+        return {canonicalize_email(email) for email in self.admin_emails.split(",") if email.strip()}
 
     @property
     def is_production(self) -> bool:
