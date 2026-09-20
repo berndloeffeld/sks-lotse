@@ -107,7 +107,6 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
-  const saveRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
 
   // Keyboard flow: each phase hands focus to the control the learner needs
@@ -153,28 +152,29 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
 
   const question = run[index] as Question | undefined
 
-  const saveGrade = async () => {
-    if (!question || !outcome) return
+  // `chosen` lets Enter on a radio save the grade it just selected, before state has caught up.
+  const saveGrade = async (chosen: GradingOutcome | null = outcome) => {
+    if (!question || !chosen) return
     setIsSaving(true)
     setSaveError(null)
     try {
-      const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome })
+      const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome: chosen })
       const before = streaks.get(question.id) ?? 0
       const learnedNow = result.learned && !isLearned(before)
-      trackEvent('question_graded', { outcome })
+      trackEvent('question_graded', { outcome: chosen })
       if (learnedNow) {
         trackEvent('question_learned')
         setNewlyLearned((n) => n + 1)
         setCelebrating(question.number)
       }
       onGraded(question.id, result.correct_streak)
-      setTally((t) => [...t, outcome])
+      setTally((t) => [...t, chosen])
       // The result is announced to screen readers; sighted learners see the
       // boat sail to the new status before the next question comes up.
       setFeedback(
         result.learned
           ? 'Gelernt.'
-          : outcome === 'richtig'
+          : chosen === 'richtig'
             ? 'Richtig – ein Stück näher am Ziel.'
             : 'Zurück zum Start – die Frage kommt wieder.',
       )
@@ -326,14 +326,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                       cycleFocus(event.currentTarget, event.shiftKey)
                     } else if (event.key === 'Enter') {
                       event.preventDefault()
-                      // Enter on the already-checked radio (e.g. the Lotsen-Check's suggestion) confirms
-                      // it and moves on; on any other radio it selects it and hands over to the button.
-                      if (outcome === o) {
-                        void saveGrade()
-                      } else {
-                        flushSync(() => setOutcome(o))
-                        saveRef.current?.focus()
-                      }
+                      // Enter selects the focused option and moves straight on to the next question.
+                      setOutcome(o)
+                      void saveGrade(o)
                     }
                   }}
                   className="accent-primary"
@@ -366,11 +361,10 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           ) : null}
 
           <button
-            ref={saveRef}
             type="button"
             className={styles.button}
             disabled={!outcome || isSaving}
-            onClick={saveGrade}
+            onClick={() => void saveGrade()}
           >
             {isSaving ? 'Wird gespeichert…' : 'Weiter'}
           </button>

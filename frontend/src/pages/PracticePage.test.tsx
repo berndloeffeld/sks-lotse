@@ -433,11 +433,7 @@ describe('PracticePage', () => {
 
     await user.tab()
     await user.keyboard('{Enter}')
-    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toBeChecked()
-    expect(screen.getByRole('button', { name: 'Weiter' })).toHaveFocus()
-
-    await user.keyboard('{Enter}')
-    // Saving goes straight to the next question, answer field focused.
+    // Enter on an option saves it and goes straight to the next question, answer field focused.
     expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('textbox')).toHaveFocus())
     expect(fetchMock).toHaveBeenCalled()
