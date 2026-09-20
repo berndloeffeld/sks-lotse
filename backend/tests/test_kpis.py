@@ -107,7 +107,7 @@ def test_kpis_count_each_group(db_session):
 
     learning = report.learning
     assert (learning.learners, learning.learned_questions_total, learning.learned_per_learner) == (2, 1, 0.5)
-    assert learning.learned_by_subject == {"navigation": 1}
+    assert [(i.subject, i.learned_questions) for i in learning.learned_by_subject] == [("navigation", 1)]
     assert learning.focus_users == 1
     assert (learning.exams_started_24h, learning.exams_submitted_24h, learning.exams_timed_out_24h) == (
         1,

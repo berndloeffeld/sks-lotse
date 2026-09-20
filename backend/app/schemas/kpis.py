@@ -30,11 +30,18 @@ class EngagementKpis(BaseModel):
     ratings_per_active_user_24h: float | None
 
 
+class SubjectLearned(BaseModel):
+    subject: str
+    learned_questions: int
+
+
 class LearningKpis(BaseModel):
     learners: int
     learned_questions_total: int
     learned_per_learner: float | None
-    learned_by_subject: dict[str, int]
+    # A list, not a dict: the generated Postman example for a free-form dict
+    # has a random number of keys, which would make the committed collection flaky.
+    learned_by_subject: list[SubjectLearned]
     focus_users: int
     exams_started_24h: int
     exams_submitted_24h: int

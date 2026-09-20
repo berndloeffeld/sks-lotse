@@ -18,6 +18,7 @@ from app.schemas.kpis import (
     LearningKpis,
     QualityKpis,
     ReportedQuestion,
+    SubjectLearned,
 )
 
 TOP_REPORTED_LIMIT = 5
@@ -114,20 +115,23 @@ def _exam_count(db: Session, column, since: datetime, until: datetime) -> int:
 def _learning(db: Session, now: datetime) -> LearningKpis:
     day = timedelta(days=1)
     learned = QuestionProgress.correct_streak >= LEARNED_STREAK_THRESHOLD
-    by_subject = dict(
-        db.execute(
+    by_subject = [
+        SubjectLearned(subject=subject, learned_questions=count)
+        for subject, count in db.execute(
             select(Question.subject, func.count())
             .join(QuestionProgress, QuestionProgress.question_id == Question.id)
             .where(learned)
             .group_by(Question.subject)
+            .order_by(Question.subject)
         ).all()
-    )
+    ]
+    learned_total = sum(item.learned_questions for item in by_subject)
     learners = db.execute(select(func.count(distinct(QuestionProgress.user_id)))).scalar_one()
     graded, passed = _exams_passed(db, now - 7 * day)
     return LearningKpis(
         learners=learners,
-        learned_questions_total=sum(by_subject.values()),
-        learned_per_learner=_ratio(sum(by_subject.values()), learners),
+        learned_questions_total=learned_total,
+        learned_per_learner=_ratio(learned_total, learners),
         learned_by_subject=by_subject,
         focus_users=db.execute(select(func.count(distinct(FocusTopic.user_id)))).scalar_one(),
         exams_started_24h=_exam_count(db, ExamAttempt.started_at, now - day, now),
@@ -184,7 +188,7 @@ def _num(value: float | None) -> str:
 def format_report(report: KpiReport) -> str:
     """German plain-text rendering of the report, for the daily mail."""
     g, e, learn, q = report.growth, report.engagement, report.learning, report.quality
-    subjects = ", ".join(f"{name} {count}" for name, count in sorted(learn.learned_by_subject.items()))
+    subjects = ", ".join(f"{item.subject} {item.learned_questions}" for item in learn.learned_by_subject)
     top = [f"  - {r.subject} Nr. {r.number}: {r.reports}x" for r in q.top_reported_7d]
     lines = [
         f"SKS Lotse - Tagesreport {report.generated_at:%d.%m.%Y}",
