@@ -346,3 +346,36 @@ def test_admin_export_includes_exams(client, db_session, auth_headers, monkeypat
     assert attempt["exam_id"] == exam["id"]
     assert len(attempt["questions"]) == 30
     assert attempt["questions"][0]["answer_text"] == "Meine Antwort 1"
+
+
+def test_an_expired_exam_no_longer_blocks_a_new_start(client, db_session, auth_headers):
+    _seed(db_session)
+    expired = _start(client, auth_headers)
+    attempt = db_session.get(ExamAttempt, expired["id"])
+    attempt.deadline_at = datetime.now(UTC) - timedelta(seconds=1)
+    db_session.commit()
+
+    assert client.post("/api/v1/exams", headers=auth_headers).status_code == 201
+
+    old = next(
+        e for e in client.get("/api/v1/exams", headers=auth_headers).json() if e["id"] == expired["id"]
+    )
+    assert old["status"] == "grading"
+    assert old["timed_out"] is True
+
+
+def test_stats_ignore_exams_that_are_not_fully_graded(client, db_session, auth_headers):
+    _seed(db_session)
+    graded = _answer_and_submit(client, auth_headers, _start(client, auth_headers))
+    _grade_all(client, auth_headers, graded, ["richtig"] * 30)
+    pending = _answer_and_submit(client, auth_headers, _start(client, auth_headers))
+    client.put(
+        f"/api/v1/exams/{pending['id']}/questions/1/grade", json={"outcome": "richtig"}, headers=auth_headers
+    )
+    _start(client, auth_headers)
+
+    stats = client.get("/api/v1/exams/stats", headers=auth_headers).json()
+
+    assert stats["completed_count"] == 1
+    assert stats["best_points"] == 60
+    assert [g["points"] for g in stats["group_scores"]] == [18, 14, 10, 18]
