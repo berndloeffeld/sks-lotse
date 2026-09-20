@@ -20,12 +20,25 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 | Database | PostgreSQL 16 |
 | Auth | Email + one-time code (OTP), JWT sessions *(SSO not yet built)* |
 | Transactional email | Resend |
-| Answer grading (LLM) | OpenAI API *(not yet integrated)* |
+| Answer check (LLM) | Anthropic API (Claude Haiku), opt-in per account — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md) |
 | Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
 | Ads | Google AdSense *(script + consent are in, no ad units yet)* |
 | Analytics | Umami Cloud (cookieless, EU) |
 | Hosting | Render (Frankfurt EU) |
 | CI/CD | GitHub Actions |
+
+## Privacy & security
+
+Login is mandatory, so handling personal data properly is part of the design, not an afterthought. The user-facing statement is the in-app [Datenschutzerklärung](frontend/src/pages/PrivacyPage.tsx) (`/privacy`); this is the technical side.
+
+- **Passwordless login without magic links:** email + one-time code. Codes are stored only as keyed hashes, short-lived, single-purpose (a login code can't confirm an email change) and cleaned up automatically ([ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)). Disposable-email domains are blocked, and email addresses are canonicalized so one inbox can't become many accounts.
+- **Session:** JWT in an httpOnly cookie, never readable by JavaScript or kept in `localStorage` ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)). Every `/api/v1` route requires it; per-IP rate limiting applies throughout, with tighter limits on login and email change.
+- **Data residency:** app, database and static frontend all run on Render in Frankfurt (EU). Fonts are self-hosted. Transport is HTTPS-only; disk encryption at rest is provided by the hosting platform, not by the app.
+- **Data minimisation:** name and gender are optional. Analytics is Umami Cloud (EU), cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). Ads (AdSense) load only after consent via Google's TCF consent management ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
+- **AI check is opt-in and stateless:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email, name or history is sent and nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)).
+- **Data-subject rights:** learners can delete their account, including progress, exams, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
+- **Processors:** Render (hosting), Resend (login emails), Umami (analytics), Anthropic (AI check), Google (ads), all listed in the Datenschutzerklärung.
+- **Vulnerabilities:** report privately, see [SECURITY.md](SECURITY.md).
 
 ## Architecture & decisions
 
