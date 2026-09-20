@@ -15,3 +15,5 @@ disposable-email-domains==0.0.261
 anthropic==1.6.0
 # Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
 tzdata==2026.4
+# Token/userinfo calls to the SSO providers (app/services/sso.py, ADR-0034); also the TestClient's transport.
+httpx==0.28.1
