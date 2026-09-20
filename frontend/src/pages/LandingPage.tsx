@@ -68,8 +68,64 @@ const SCREENSHOTS = [
   },
 ]
 
+const EXAM_SCREENSHOTS = [
+  {
+    src: '/screenshots/pruefung-starten.png',
+    width: 700,
+    height: 390,
+    title: '1. Prüfung starten',
+    text: 'Eine zufällige Prüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
+    alt: 'Screenshot: Die Prüfungssimulation mit den Regeln, der Schaltfläche „Prüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
+    wide: false,
+  },
+  {
+    src: '/screenshots/pruefung-ablegen.png',
+    width: 700,
+    height: 335,
+    title: '2. Fragebogen beantworten',
+    text: 'Du beantwortest alle Fragen in eigenen Worten, mit Restzeit im Blick. Die Zeit wird serverseitig überwacht.',
+    alt: 'Screenshot: Prüfungsfrage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige und Restzeit.',
+    wide: false,
+  },
+  {
+    src: '/screenshots/pruefung-ergebnis.png',
+    width: 700,
+    height: 440,
+    title: '3. Ergebnis und Auswertung',
+    text: 'Danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein. Du siehst deine Punkte, das Ergebnis und die Auswertung nach Fachgebiet.',
+    alt: 'Screenshot: Prüfungsergebnis mit 54 von 60 Punkten, „Bestanden“ und Balken je Fachgebiet für Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft.',
+    wide: false,
+  },
+]
+
 const HERO_CTA =
   'mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide uppercase transition hover:bg-surface hover:text-primary-dark'
+
+function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; className: string }) {
+  return (
+    <div className={`${className} flex flex-col gap-14`}>
+      {items.map(({ src, width, height, title, text, alt, wide }) => (
+        <figure
+          key={src}
+          className={`flex flex-col gap-4 ${wide ? '' : 'sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:items-center sm:gap-8'}`}
+        >
+          <img
+            src={src}
+            width={width}
+            height={height}
+            alt={alt}
+            loading="lazy"
+            className="h-auto w-full border border-border sm:order-2"
+          />
+          <figcaption className="flex flex-col gap-1 sm:order-1">
+            <span className="font-serif text-xl text-primary">{title}</span>
+            <span className="text-sm leading-relaxed text-ink-soft">{text}</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )
+}
 
 export function LandingPage() {
   // Logged-in visitors get the account nav and links into the app instead
@@ -152,27 +208,14 @@ export function LandingPage() {
           <p className="mt-3 max-w-xl text-sm text-ink-soft">
             So sieht das Lernen in SKS Lotse aus – Screenshots der Beta-Version.
           </p>
-          <div className="mt-10 flex flex-col gap-14">
-            {SCREENSHOTS.map(({ src, width, height, title, text, alt, wide }) => (
-              <figure
-                key={src}
-                className={`flex flex-col gap-4 ${wide ? '' : 'sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:items-center sm:gap-8'}`}
-              >
-                <img
-                  src={src}
-                  width={width}
-                  height={height}
-                  alt={alt}
-                  loading="lazy"
-                  className="h-auto w-full border border-border sm:order-2"
-                />
-                <figcaption className="flex flex-col gap-1 sm:order-1">
-                  <span className="font-serif text-xl text-primary">{title}</span>
-                  <span className="text-sm leading-relaxed text-ink-soft">{text}</span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <ScreenshotList items={SCREENSHOTS} className="mt-10" />
+
+          <h3 className="mt-20 font-serif text-2xl text-primary">Prüfungssimulation</h3>
+          <p className="mt-3 max-w-xl text-sm text-ink-soft">
+            Teste dich unter realistischen Bedingungen: ein kompletter Fragebogen, danach Auswertung und Statistik in
+            deinem Profil.
+          </p>
+          <ScreenshotList items={EXAM_SCREENSHOTS} className="mt-10" />
         </section>
 
         <section className="bg-primary-dark py-14 text-surface">
