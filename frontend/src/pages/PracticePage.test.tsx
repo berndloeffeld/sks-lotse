@@ -114,7 +114,10 @@ describe('PracticePage', () => {
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
     expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toBeDisabled()
-    expect(screen.getByText('KI-Prüfung deiner Antwort – bald verfügbar.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveAttribute(
+      'title',
+      expect.stringContaining('Bald verfügbar'),
+    )
   })
 
   it('preselects the AI suggestion, which the learner still saves', async () => {

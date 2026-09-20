@@ -24,6 +24,21 @@ function errorMessage(error: unknown): string {
   return 'Die KI-Prüfung ist gerade nicht verfügbar. Bewerte dich bitte selbst.'
 }
 
+// The KI marker lives in the button; what happens to the answer is in the tooltip and the
+// accessible description rather than a caption line.
+const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
+
+function Chip({ children }: { children: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="ml-2 rounded-tile border border-current px-1.5 align-middle text-[0.65rem] leading-4 tracking-wide"
+    >
+      {children}
+    </span>
+  )
+}
+
 // "Lotsen-Check" (ADR-0031): a stateless LLM check of the written answer that only
 // *suggests* a grade. Accounts without the unlock see a teaser instead of the button.
 // Keyed by question in the parent, so each question starts fresh.
@@ -35,13 +50,17 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
 
   if (!isUnlocked) {
     return (
-      <div className="flex flex-col gap-1">
-        <button type="button" disabled className={`${styles.button} self-start`}>
-          <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
-          Lotsen-Check
-        </button>
-        <p className="text-xs text-ink-soft">KI-Prüfung deiner Antwort – bald verfügbar.</p>
-      </div>
+      <button
+        type="button"
+        disabled
+        title="Bald verfügbar: KI-Prüfung deiner Antwort"
+        className={`${styles.button} self-start`}
+      >
+        <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
+        Lotsen-Check
+        <Chip>KI</Chip>
+        <Chip>bald</Chip>
+      </button>
     )
   }
 
@@ -64,8 +83,13 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
 
   return (
     <div className="flex flex-col gap-2">
+      <span id={`ai-check-notice-${questionId}`} className="sr-only">
+        {SEND_NOTICE}
+      </span>
       <button
         type="button"
+        title={SEND_NOTICE}
+        aria-describedby={`ai-check-notice-${questionId}`}
         className={`${styles.button} self-start`}
         disabled={!hasAnswer || isChecking}
         onClick={check}
@@ -76,14 +100,13 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
           <>
             <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
             Lotsen-Check
+            <Chip>KI</Chip>
           </>
         )}
       </button>
-      <p className="text-xs text-ink-soft">
-        {hasAnswer
-          ? 'KI-Prüfung deiner Antwort · wird dafür an Anthropic gesendet.'
-          : 'Schreibe zuerst eine Antwort, dann kann die KI sie prüfen.'}
-      </p>
+      {hasAnswer ? null : (
+        <p className="text-xs text-ink-soft">Schreibe zuerst eine Antwort, dann kann die KI sie prüfen.</p>
+      )}
       {error ? (
         <p role="alert" className={styles.error}>
           {error}

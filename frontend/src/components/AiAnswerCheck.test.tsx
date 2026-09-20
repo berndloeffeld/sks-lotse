@@ -38,7 +38,10 @@ describe('AiAnswerCheck', () => {
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
     expect(screen.getByRole('button', BUTTON)).toBeDisabled()
-    expect(screen.getByText('KI-Prüfung deiner Antwort – bald verfügbar.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveAttribute(
+      'title',
+      expect.stringContaining('Bald verfügbar'),
+    )
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
@@ -59,6 +62,8 @@ describe('AiAnswerCheck', () => {
     const onSuggest = vi.fn()
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={onSuggest} />)
 
+    // What happens to the answer is announced via the description/tooltip, not a caption.
+    expect(screen.getByRole('button', BUTTON)).toHaveAccessibleDescription(/an Anthropic gesendet/)
     await userEvent.setup().click(screen.getByRole('button', BUTTON))
 
     expect(await screen.findByText('Es fehlt die Seite.')).toBeInTheDocument()
