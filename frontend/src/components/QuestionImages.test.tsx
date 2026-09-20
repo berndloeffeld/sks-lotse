@@ -19,6 +19,14 @@ describe('QuestionImages', () => {
     expect(image).toHaveAttribute('height', '98')
   })
 
+  it('shows a large image at its natural size', () => {
+    render(<QuestionImages images={[{ src: 'wetterkunde-33-1.png', width: 264, height: 238 }]} part="question" />)
+
+    const image = screen.getByRole('img')
+    expect(image).toHaveAttribute('width', '264')
+    expect(image).toHaveAttribute('height', '238')
+  })
+
   it('numbers several images and labels answer images as such', () => {
     render(
       <QuestionImages
