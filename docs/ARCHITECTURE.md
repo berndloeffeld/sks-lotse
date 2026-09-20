@@ -114,6 +114,7 @@ Everything is declared in `render.yaml`:
 
 - **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
 - **Deploys**: every push to `main` deploys. The backend runs migrations before it starts and only receives traffic once `/health` passes.
+- **Monitoring**: Better Stack checks availability of the website and `/health` and hosts the public status page at [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) (configured in the Better Stack dashboard, not in this repo).
 - **Security headers**: the frontend's come from `render.yaml` (an enforced CSP for framing/objects/base/forms, and the full script/connect allowlist report-only until the live console is clean, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum), the backend's from middleware.
 
 | Domain | Served by |
