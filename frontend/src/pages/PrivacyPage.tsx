@@ -12,7 +12,7 @@ export function PrivacyPage() {
           <br />
           10318 Berlin
           <br />
-          E-Mail: Bernd.Loeffeld@web.de
+          E-Mail: kontakt@sks-lotse.de
         </p>
       </section>
 
