@@ -26,7 +26,7 @@ const PLANS = [
     kicker: 'Erweiterung · demnächst',
     title: 'KI-Bewertung',
     icon: <AnswerIcon className="h-16 w-16" />,
-    text: 'Schreib oder sprich deine Antwort und erhalte eine Bewertung mit Erklärung, was gefehlt hat.',
+    text: 'Lass deine Antwort vom Lotsen prüfen und erhalte einen Bewertungsvorschlag mit Erklärung, was gefehlt hat.',
   },
   {
     kicker: 'Erweiterung · demnächst',
@@ -41,27 +41,36 @@ const PLANS = [
 const SCREENSHOTS = [
   {
     src: '/screenshots/frage-beantworten.png',
-    width: 1050,
-    height: 566,
+    width: 1008,
+    height: 536,
     title: '1. Frage beantworten',
     text: 'Eine Frage aus dem Katalog, dazu ein optionales Notizfeld für deine Antwort – sie wird nicht gespeichert.',
-    alt: 'Screenshot: Die Frage „Welchen Kurs zeigen GPS-Geräte an?“ mit ausgefülltem Antwortfeld und der Schaltfläche „Lösung anzeigen“.',
+    alt: 'Screenshot: Die Frage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld und der Schaltfläche „Lösung anzeigen“.',
     wide: false,
   },
   {
     src: '/screenshots/selbst-bewerten.png',
-    width: 1050,
-    height: 779,
-    title: '2. Vergleichen und bewerten',
-    text: 'Neben deiner Antwort steht die amtliche Musterantwort. Du bewertest selbst: richtig, teilweise richtig oder falsch.',
-    alt: 'Screenshot: Deine Antwort neben der amtlichen Antwort „Den Kurs über Grund (KüG)“, darunter die Auswahl Richtig, Teilweise Richtig, Falsch.',
+    width: 1008,
+    height: 494,
+    title: '2. Mit der Musterantwort vergleichen',
+    text: 'Neben deiner Antwort steht die amtliche Musterantwort – so siehst du direkt, was gefehlt hat.',
+    alt: 'Screenshot: Deine Antwort zur Frage „Was bedeutet die Abkürzung GPS?“ neben der amtlichen Antwort „Global Positioning System“.',
+    wide: false,
+  },
+  {
+    src: '/screenshots/ki-bewertung.png',
+    width: 1008,
+    height: 441,
+    title: '3. Selbst bewerten – KI-Prüfung demnächst',
+    text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Die KI-Prüfung, die dir eine Bewertung vorschlägt, ist demnächst verfügbar.',
+    alt: 'Screenshot: Auswahl Richtig, Teilweise Richtig, Falsch und darunter die abgeblendete Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „bald verfügbar“ und einem KI-Band.',
     wide: false,
   },
   {
     src: '/screenshots/lernstand.png',
-    width: 1344,
-    height: 1274,
-    title: '3. Lernstand und Fokus',
+    width: 1392,
+    height: 1170,
+    title: '4. Lernstand und Fokus',
     text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Markiere Themen als Fokus und sieh, wie viele Fragen du sicher oder teilweise gelernt hast.',
     alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und dem Fokus-Bereich mit drei markierten Themen und ihrem Lernstand.',
     wide: true,
@@ -145,9 +154,6 @@ export function LandingPage() {
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
               Online für die SKS-Theorieprüfung lernen – mit den Originalfragen des amtlichen Katalogs
             </p>
-            <p className="mt-6 text-sm text-surface-alt">
-              Beta-Version: SKS Lotse wird gerade aufgebaut – KI-Bewertung und Spracheingabe folgen.
-            </p>
             {isAuthenticated ? (
               <Link to="/start" className={HERO_CTA}>
                 Jetzt loslegen
@@ -206,7 +212,7 @@ export function LandingPage() {
         <section className={`${CONTENT} py-16`}>
           <h2 className="font-serif text-3xl text-primary">Ein Blick in die App</h2>
           <p className="mt-3 max-w-xl text-sm text-ink-soft">
-            So sieht das Lernen in SKS Lotse aus – Screenshots der Beta-Version.
+            So sieht das Lernen in SKS Lotse aus – Screenshots aus der App.
           </p>
           <ScreenshotList items={SCREENSHOTS} className="mt-10" />
 

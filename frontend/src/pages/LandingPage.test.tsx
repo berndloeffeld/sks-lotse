@@ -60,10 +60,11 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })
 
-  it('flags the app as a beta with the features still to come', () => {
+  it('shows no beta or speech-input notice', () => {
     renderLandingPage()
 
-    expect(screen.getByText(/KI-Bewertung und Spracheingabe folgen/)).toBeInTheDocument()
+    expect(screen.queryByText(/Beta/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Spracheingabe|sprich/)).not.toBeInTheDocument()
   })
 
   it('shows screenshots of the app, each with a description', () => {
@@ -72,7 +73,7 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Ein Blick in die App' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
     const images = screen.getAllByRole('img', { name: /^Screenshot:/ })
-    expect(images).toHaveLength(6)
+    expect(images).toHaveLength(7)
     for (const image of images) {
       expect(image).toHaveAttribute('src', expect.stringMatching(/^\/screenshots\/.+\.png$/))
       expect(image).toHaveAttribute('width')
