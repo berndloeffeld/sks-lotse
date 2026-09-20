@@ -24,6 +24,8 @@ from app.schemas.admin import (
     AdminUserRead,
     AdminUserSearchRequest,
 )
+from app.schemas.kpis import KpiReport
+from app.services.kpis import compute_kpis
 from app.services.user import delete_user_and_progress
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -66,6 +68,11 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
     if user is None:
         raise _NOT_FOUND
     return _admin_user_read(user, _question_progress_count(db, user.id))
+
+
+@router.get("/kpis", response_model=KpiReport)
+def get_kpis(db: Session = Depends(get_db)):
+    return compute_kpis(db, datetime.now(UTC))
 
 
 @router.get("/question-reports", response_model=list[AdminQuestionReportRead])

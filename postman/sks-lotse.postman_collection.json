@@ -4889,6 +4889,100 @@
                   ]
                 },
                 {
+                  "name": "kpis",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Get Kpis",
+                      "request": {
+                        "name": "Get Kpis",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "kpis"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "kpis"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"generated_at\": \"<dateTime>\",\n  \"growth\": {\n    \"users_total\": \"<integer>\",\n    \"new_24h\": \"<integer>\",\n    \"new_previous_24h\": \"<integer>\",\n    \"new_7d\": \"<integer>\",\n    \"variant_motor\": \"<integer>\",\n    \"variant_segeln_und_motor\": \"<integer>\",\n    \"variant_unset\": \"<integer>\",\n    \"activation_rate_7d\": \"<number>\"\n  },\n  \"engagement\": {\n    \"dau\": \"<integer>\",\n    \"dau_previous\": \"<integer>\",\n    \"wau\": \"<integer>\",\n    \"mau\": \"<integer>\",\n    \"stickiness\": \"<number>\",\n    \"retention_cohort_size\": \"<integer>\",\n    \"retention_rate\": \"<number>\",\n    \"ratings_24h\": \"<integer>\",\n    \"ratings_per_active_user_24h\": \"<number>\"\n  },\n  \"learning\": {\n    \"learners\": \"<integer>\",\n    \"learned_questions_total\": \"<integer>\",\n    \"learned_per_learner\": \"<number>\",\n    \"learned_by_subject\": [\n      {\n        \"subject\": \"<string>\",\n        \"learned_questions\": \"<integer>\"\n      },\n      {\n        \"subject\": \"<string>\",\n        \"learned_questions\": \"<integer>\"\n      }\n    ],\n    \"focus_users\": \"<integer>\",\n    \"exams_started_24h\": \"<integer>\",\n    \"exams_submitted_24h\": \"<integer>\",\n    \"exams_timed_out_24h\": \"<integer>\",\n    \"exams_graded_7d\": \"<integer>\",\n    \"exams_passed_7d\": \"<integer>\"\n  },\n  \"quality\": {\n    \"reports_24h\": \"<integer>\",\n    \"reports_total\": \"<integer>\",\n    \"top_reported_7d\": [\n      {\n        \"subject\": \"<string>\",\n        \"number\": \"<integer>\",\n        \"reports\": \"<integer>\"\n      },\n      {\n        \"subject\": \"<string>\",\n        \"number\": \"<integer>\",\n        \"reports\": \"<integer>\"\n      }\n    ]\n  }\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                },
+                {
                   "name": "question-reports",
                   "description": "",
                   "item": [

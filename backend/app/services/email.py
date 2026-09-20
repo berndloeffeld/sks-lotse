@@ -41,3 +41,18 @@ def send_email_change_otp_email(to_email: str, code: str) -> None:
         "Dein Bestätigungscode lautet:",
         code,
     )
+
+
+def send_kpi_report_email(to_email: str, subject: str, body: str) -> None:
+    # Operator-facing (ADMIN_EMAILS), aggregates only. Monospace <pre> keeps
+    # the plain-text layout of the report in the HTML part.
+    resend.api_key = settings.resend_api_key
+    resend.Emails.send(
+        {
+            "from": settings.email_from_address,
+            "to": to_email,
+            "subject": subject,
+            "html": f'<pre style="font-family:monospace;font-size:14px">{escape(body)}</pre>',
+            "text": body,
+        }
+    )

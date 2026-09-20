@@ -69,7 +69,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question streaks, recording a self-assessed grading, marking topics as Fokus | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
 | `question_reports` (in `questions`) | "Frage melden": learners flag faulty catalog questions; the operator reads them via `GET /admin/question-reports` | [0030](adr/0030-question-reports-and-feedback-channels.md) |
 | `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment, history and statistics | [0029](adr/0029-exam-simulation.md) |
-| `admin` | GDPR lookup/export/delete, allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md) |
+| `admin` | GDPR lookup/export/delete, question reports, aggregate KPIs (`GET /admin/kpis`), allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md), [0032](adr/0032-daily-kpi-report.md) |
 
 Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
 
@@ -78,7 +78,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 ### Auth
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
 - **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. Logout invalidates all of a user's tokens by bumping a per-user `token_version`.
-- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open. Admin routes additionally require the email to be in `ADMIN_EMAILS`.
+- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
   - the per-IP limiter;
@@ -112,7 +112,7 @@ The official catalog PDF becomes database rows in two phases:
 ### Deployment
 Everything is declared in `render.yaml`:
 
-- **Services**: a backend web service, a frontend static site and a managed Postgres. All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
+- **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
 - **Deploys**: every push to `main` deploys. The backend runs migrations before it starts and only receives traffic once `/health` passes.
 - **Security headers**: the frontend's come from `render.yaml` (an enforced CSP for framing/objects/base/forms, and the full script/connect allowlist report-only until the live console is clean, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum), the backend's from middleware.
 
