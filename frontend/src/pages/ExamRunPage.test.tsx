@@ -181,7 +181,7 @@ describe('ExamRunPage', () => {
     expect(await screen.findByText('Frage 1?')).toBeInTheDocument()
     expect(screen.getByText('Meine A1')).toBeInTheDocument()
     expect(screen.getByText('Amtlich 1')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
 
     // Focus sits on the group, so the first Tab lands on "Richtig", then it cycles.
     // (waitFor: the focus effect runs after the first paint, so it can lag the text appearing.)
@@ -224,7 +224,7 @@ describe('ExamRunPage', () => {
     )
     renderRun()
     await user.click(await screen.findByLabelText('Falsch'))
-    await user.click(screen.getByRole('button', { name: 'Bewertung speichern' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
     expect(await screen.findByRole('heading', { name: 'Prüfungsergebnis' })).toBeInTheDocument()
   })
 
@@ -267,7 +267,7 @@ describe('ExamRunPage', () => {
     )
     renderRun()
     await user.click(await screen.findByLabelText('Teilweise Richtig'))
-    await user.click(screen.getByRole('button', { name: 'Bewertung speichern' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Bewertung konnte nicht gespeichert werden.')
   })
 

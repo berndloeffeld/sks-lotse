@@ -286,12 +286,12 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       ) : (
         <>
           {note.trim() ? (
-            <section className="flex flex-col gap-1">
+            <section className="flex flex-col gap-1 rounded-tile border-l-4 border-ink-soft bg-surface p-4">
               <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Deine Antwort</h3>
               <p className="whitespace-pre-line text-ink">{note}</p>
             </section>
           ) : null}
-          <section className="flex flex-col gap-1 rounded-tile border border-ink bg-surface p-4">
+          <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt p-4">
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
             {question.answer_text ? (
               <p className="whitespace-pre-line text-ink">
@@ -372,7 +372,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             disabled={!outcome || isSaving}
             onClick={saveGrade}
           >
-            {isSaving ? 'Wird gespeichert…' : 'Bewertung speichern'}
+            {isSaving ? 'Wird gespeichert…' : 'Weiter'}
           </button>
         </>
       )}
