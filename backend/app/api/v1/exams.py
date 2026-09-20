@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -175,7 +176,13 @@ def start_exam(db: Session = Depends(get_db), current_user: User = Depends(get_c
         ],
     )
     db.add(attempt)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # A parallel start won the race past the check above; the database's
+        # one-running-exam-per-learner index rejected this one.
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An exam is already in progress") from None
     db.refresh(attempt)
     return _read(db, attempt)
 
