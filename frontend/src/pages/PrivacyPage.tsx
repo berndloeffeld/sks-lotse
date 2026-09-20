@@ -133,14 +133,28 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
+        <h2 className="font-serif text-xl text-primary">Verfügbarkeitsüberwachung (Better Stack)</h2>
+        <p className="text-ink-soft">
+          Um Ausfälle schnell zu erkennen, prüft der Dienst Better Stack in regelmäßigen Abständen automatisiert, ob
+          unsere Website und unsere Schnittstelle erreichbar sind. Dabei ruft Better Stack lediglich öffentliche
+          Adressen von uns ab (z. B. die Startseite und die Statusabfrage der Schnittstelle). Daten von Besucherinnen
+          und Besuchern, Konten oder Lernfortschritte werden dabei nicht an Better Stack übermittelt; es entsteht
+          allenfalls ein Eintrag in unseren Server-Logdaten, dass die Abfrage von einem Überwachungsserver kam. Im
+          Störungsfall benachrichtigt uns Better Stack. Rechtsgrundlage ist unser berechtigtes Interesse am
+          zuverlässigen, sicheren Betrieb der Website (Art. 6 Abs. 1 lit. f DSGVO). Soweit Better Stack in unserem
+          Auftrag Daten verarbeitet, besteht ein Auftragsverarbeitungsvertrag.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">Empfänger und Drittlandübermittlung</h2>
         <p className="text-ink-soft">
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Resend
-          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse) und Google (Werbung). Mit den
-          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
-          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
-          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
-          (Art. 44 ff. DSGVO).
+          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse), Better Stack
+          (Verfügbarkeitsüberwachung) und Google (Werbung). Mit den Dienstleistern, die in unserem Auftrag Daten
+          verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben oder Daten
+          dorthin übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der EU-Kommission (EU-US
+          Data Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
         </p>
       </section>
 
