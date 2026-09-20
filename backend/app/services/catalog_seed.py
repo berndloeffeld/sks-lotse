@@ -46,6 +46,9 @@ DATA_DIR = _BACKEND_DIR / "scripts" / "data"
 TOPICS_PATH = DATA_DIR / "topics.yaml"
 ASSIGNMENTS_DIR = DATA_DIR / "topic_assignments"
 SEEMANNSCHAFT_DUPLICATES_PATH = DATA_DIR / "seemannschaft_duplicates.yaml"
+IMAGES_PATH = DATA_DIR / "question_images.yaml"
+# The static frontend serves these (ADR-0033); the API only hands out file names.
+IMAGES_DIR = _BACKEND_DIR.parent / "frontend" / "public" / "catalog"
 
 SUBJECTS = [
     ("navigation", "Navigation"),
@@ -96,17 +99,38 @@ _topics = sa.table(
     sa.column("name", sa.String),
     sa.column("display_order", sa.Integer),
 )
-_questions = sa.table(
+
+
+def _question_columns() -> list[sa.ColumnClause]:
+    return [
+        sa.column("id", sa.Integer),
+        sa.column("subject", sa.String),
+        sa.column("number", sa.Integer),
+        sa.column("question_text", sa.Text),
+        sa.column("answer_text", sa.Text),
+        sa.column("topic_id", sa.Integer),
+        sa.column("seemannschaft_1_number", sa.Integer),
+        sa.column("seemannschaft_2_number", sa.Integer),
+    ]
+
+
+_questions = sa.table("questions", *_question_columns())
+
+# Added by the migration that introduced image support. Older data migrations run
+# sync_catalog against a schema that doesn't have them yet — see `_image_columns_exist`.
+_questions_with_images = sa.table(
     "questions",
-    sa.column("id", sa.Integer),
-    sa.column("subject", sa.String),
-    sa.column("number", sa.Integer),
-    sa.column("question_text", sa.Text),
-    sa.column("answer_text", sa.Text),
-    sa.column("topic_id", sa.Integer),
-    sa.column("seemannschaft_1_number", sa.Integer),
-    sa.column("seemannschaft_2_number", sa.Integer),
+    *_question_columns(),
+    sa.column("question_images", sa.JSON),
+    sa.column("answer_images", sa.JSON),
 )
+
+
+@dataclasses.dataclass(frozen=True)
+class CatalogImage:
+    src: str  # file name inside frontend/public/catalog/
+    width: int
+    height: int
 
 
 @dataclasses.dataclass(frozen=True)
@@ -118,6 +142,8 @@ class CatalogQuestion:
     seemannschaft_1_number: int | None = None
     seemannschaft_2_number: int | None = None
     topic_slug: str | None = None
+    question_images: tuple[CatalogImage, ...] = ()
+    answer_images: tuple[CatalogImage, ...] = ()
 
 
 def unwrap_soft_breaks(s: str) -> str:
@@ -324,9 +350,44 @@ def assign_topics(questions: list[CatalogQuestion]) -> list[CatalogQuestion]:
     ]
 
 
+def attach_images(questions: list[CatalogQuestion]) -> list[CatalogQuestion]:
+    """Attach each question's reviewed images from IMAGES_PATH.
+
+    Keyed on the raw PDF key, so it runs before the Seemannschaft merge: a
+    merged pair then carries the Seemannschaft I images, like its wording
+    (ADR-0026). The PNG files themselves are extracted by
+    scripts/extract_catalog_images.py and committed; nothing is read from the
+    PDF here. Raises if an entry names an unknown question, a bad part or a
+    file that isn't there.
+    """
+    entries = yaml.safe_load(IMAGES_PATH.read_text()) or []
+    by_key = {(q.subject, q.number): q for q in questions}
+    images: dict[tuple[str, int], dict[str, list[CatalogImage]]] = {}
+    for entry in entries:
+        key = (entry["subject"], entry["number"])
+        if key not in by_key:
+            raise ValueError(f"{IMAGES_PATH.name}: no question {key[0]} {key[1]} for {entry['file']}")
+        if entry["part"] not in ("question", "answer"):
+            raise ValueError(f"{IMAGES_PATH.name}: {entry['file']} has part {entry['part']!r}")
+        if not (IMAGES_DIR / entry["file"]).is_file():
+            raise ValueError(f"{IMAGES_PATH.name}: {entry['file']} is missing from {IMAGES_DIR}")
+        image = CatalogImage(entry["file"], entry["width"], entry["height"])
+        images.setdefault(key, {"question": [], "answer": []})[entry["part"]].append(image)
+    return [
+        dataclasses.replace(
+            q,
+            question_images=tuple(images[(q.subject, q.number)]["question"]),
+            answer_images=tuple(images[(q.subject, q.number)]["answer"]),
+        )
+        if (q.subject, q.number) in images
+        else q
+        for q in questions
+    ]
+
+
 def build_catalog() -> list[CatalogQuestion]:
-    """The complete target catalog: parse -> merge -> topic assignment."""
-    return assign_topics(merge_seemannschaft(parse_catalog_pdf()))
+    """The complete target catalog: parse -> images -> merge -> topic assignment."""
+    return assign_topics(merge_seemannschaft(attach_images(parse_catalog_pdf())))
 
 
 def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion]) -> None:
@@ -433,6 +494,11 @@ def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion
             )
 
 
+def _image_columns_exist(connection: Connection) -> bool:
+    columns = {column["name"] for column in sa.inspect(connection).get_columns("questions")}
+    return {"question_images", "answer_images"} <= columns
+
+
 def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> None:
     """Make `topics`/`questions` match topics.yaml and `questions` by upsert.
 
@@ -465,6 +531,9 @@ def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> No
     # question_progress row pointing at them — survive a re-sync. Seemannschaft
     # rows are first moved to their new key by official number.
     _rekey_seemannschaft(connection, questions)
+    # The revisions before image support seed against a schema without the image columns.
+    with_images = _image_columns_exist(connection)
+    questions_table = _questions_with_images if with_images else _questions
     existing_questions = {
         (row.subject, row.number): row.id
         for row in connection.execute(sa.select(_questions.c.id, _questions.c.subject, _questions.c.number))
@@ -482,11 +551,18 @@ def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> No
             "seemannschaft_1_number": q.seemannschaft_1_number,
             "seemannschaft_2_number": q.seemannschaft_2_number,
         }
+        if with_images:
+            values["question_images"] = [dataclasses.asdict(i) for i in q.question_images]
+            values["answer_images"] = [dataclasses.asdict(i) for i in q.answer_images]
         question_id = existing_questions.get((q.subject, q.number))
         if question_id is None:
-            connection.execute(sa.insert(_questions).values(subject=q.subject, number=q.number, **values))
+            connection.execute(
+                sa.insert(questions_table).values(subject=q.subject, number=q.number, **values)
+            )
         else:
-            connection.execute(sa.update(_questions).where(_questions.c.id == question_id).values(**values))
+            connection.execute(
+                sa.update(questions_table).where(questions_table.c.id == question_id).values(**values)
+            )
 
     for subject, topics in topics_by_subject.items():
         current_slugs = {t["slug"] for t in topics}

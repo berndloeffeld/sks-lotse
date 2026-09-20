@@ -713,7 +713,7 @@
                   "    pm.test('has the documented shape', function () {",
                   "        var q = pm.response.json();",
                   "        pm.expect(String(q.id)).to.eql(pm.collectionVariables.get('firstQuestionId'));",
-                  "        pm.expect(q).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'image_ref', 'topic');",
+                  "        pm.expect(q).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'question_images', 'answer_images', 'topic');",
                   "    });",
                   "} else {",
                   "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",

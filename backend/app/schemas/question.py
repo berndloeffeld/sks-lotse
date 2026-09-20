@@ -1,6 +1,14 @@
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
+class QuestionImage(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    src: str  # file name; the frontend serves it from /catalog/
+    width: int
+    height: int
+
+
 class QuestionRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -9,7 +17,8 @@ class QuestionRead(BaseModel):
     number: int
     question_text: str
     answer_text: str
-    image_ref: str | None
+    question_images: list[QuestionImage]
+    answer_images: list[QuestionImage]
     topic: str | None = None
 
     @field_validator("topic", mode="before")

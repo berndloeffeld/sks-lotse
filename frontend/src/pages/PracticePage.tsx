@@ -11,6 +11,7 @@ import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebra
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { ReportQuestion } from '../components/ReportQuestion'
+import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
@@ -257,6 +258,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
       </h2>
+      <QuestionImages images={question.question_images} part="question" />
 
       {phase === 'answer' ? (
         <>
@@ -295,14 +297,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               <p className="whitespace-pre-line text-ink">
                 <RichText text={question.answer_text} />
               </p>
-            ) : (
-              // A few official answers are only a sketch in the catalog PDF,
-              // with no text at all — and images aren't extracted yet.
+            ) : question.answer_images.length === 0 ? (
+              // A few official answers are only a sketch in the catalog PDF, with no text at all;
+              // their sketch is an answer image, so this is only reached if that image is missing.
               <p className="text-ink-soft italic">
-                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse noch nicht anzeigen
-                kann.
+                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen kann.
               </p>
-            )}
+            ) : null}
+            <QuestionImages images={question.answer_images} part="answer" />
           </section>
 
           <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
