@@ -42,7 +42,7 @@ function Ribbon() {
   )
 }
 
-// "Unsicher – Lotse fragen" (ADR-0031): the fourth choice under the grade radios. A stateless LLM
+// "Antwort vom Lotsen bewerten lassen" (ADR-0031): the fourth choice under the grade radios. A stateless LLM
 // check of the written answer that only *suggests* a grade; the learner who is sure just grades.
 // Accounts without the unlock see it dimmed with "bald verfügbar". Keyed by question in the parent.
 export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
@@ -56,7 +56,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
   const remaining = user?.ai_checks_remaining ?? 0
   const hasAnswer = answer.trim().length > 0
 
-  let hint = `noch ${remaining} heute`
+  let hint = `Die KI schlägt dir eine Bewertung vor · noch ${remaining} heute`
   if (!isUnlocked) hint = 'bald verfügbar'
   else if (isChecking) hint = 'Lotse prüft…'
   else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
@@ -97,7 +97,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
       >
         <CompassIcon className="size-6 shrink-0 text-accent" />
         <span className="flex flex-col">
-          <span className="font-mono text-sm tracking-wide uppercase">Unsicher – Lotse fragen</span>
+          <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
           <span className="text-xs text-ink-soft">{hint}</span>
         </span>
         <Ribbon />

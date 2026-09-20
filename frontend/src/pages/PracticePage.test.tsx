@@ -66,7 +66,7 @@ async function revealAndGrade(outcome: string) {
   const user = userEvent.setup()
   await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
   await user.click(screen.getByRole('radio', { name: outcome }))
-  await user.click(screen.getByRole('button', { name: 'Bewertung speichern' }))
+  await user.click(screen.getByRole('button', { name: 'Weiter' }))
   return user
 }
 
@@ -113,8 +113,10 @@ describe('PracticePage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toHaveTextContent('bald verfügbar')
+    expect(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).toHaveTextContent(
+      'bald verfügbar',
+    )
   })
 
   it('preselects the AI suggestion, which the learner still saves', async () => {
@@ -138,7 +140,7 @@ describe('PracticePage', () => {
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+    await user.click(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
 
     expect(await screen.findByText('Das stimmt nicht.')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
@@ -165,7 +167,7 @@ describe('PracticePage', () => {
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    const ask = screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })
+    const ask = screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
     for (const name of ['Richtig', 'Teilweise Richtig', 'Falsch']) {
       await user.tab()
       expect(screen.getByRole('radio', { name })).toHaveFocus()
@@ -178,7 +180,7 @@ describe('PracticePage', () => {
     expect(ask).toHaveFocus()
 
     // After the check, focus lands on the suggested radio.
-    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+    await user.click(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
     await screen.findByText('Fast.')
     expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
   })
@@ -209,7 +211,7 @@ describe('PracticePage', () => {
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+    await user.click(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
     await screen.findByText('Passt.')
     expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
 
@@ -240,7 +242,7 @@ describe('PracticePage', () => {
 
     expect(screen.getByText('Antwort 7.')).toBeInTheDocument()
     expect(screen.getByText('Mein Versuch')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
   })
 
   it('explains an official answer that is only a sketch', async () => {
@@ -312,7 +314,7 @@ describe('PracticePage', () => {
     await revealAndGrade('Falsch')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Bewertung konnte nicht gespeichert werden.')
-    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled()
   })
 
   it('walks through a run and sums it up at the end', async () => {
@@ -389,7 +391,7 @@ describe('PracticePage', () => {
     await user.tab()
     await user.keyboard('{Enter}')
     expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toBeChecked()
-    expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Weiter' })).toHaveFocus()
 
     await user.keyboard('{Enter}')
     // Saving goes straight to the next question, answer field focused.
