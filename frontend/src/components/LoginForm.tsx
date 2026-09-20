@@ -2,13 +2,13 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
-import { API_BASE_URL, ApiError, apiClient } from '../api/client'
+import { ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
+import { SsoButton } from './SsoButton'
+import { isSsoProvider, type SsoProvider } from './ssoProviders'
 
 type Step = 'email' | 'code'
-
-const SSO_LABELS: Record<string, string> = { google: 'Google', facebook: 'Facebook' }
 
 // The backend redirects back to /login?sso_error=<code> when an SSO sign-in didn't work out.
 const SSO_ERRORS: Record<string, string> = {
@@ -37,7 +37,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const [searchParams] = useSearchParams()
   const ssoError = searchParams.get('sso_error')
   const [error, setError] = useState<string | null>(ssoError ? (SSO_ERRORS[ssoError] ?? SSO_ERRORS.failed) : null)
-  const [ssoProviders, setSsoProviders] = useState<string[]>([])
+  const [ssoProviders, setSsoProviders] = useState<SsoProvider[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
     // the email login stays the only option.
     apiClient
       .get<{ providers: string[] }>('/auth/sso/providers')
-      .then((result) => setSsoProviders(result.providers.filter((name) => name in SSO_LABELS)))
+      .then((result) => setSsoProviders(result.providers.filter(isSsoProvider)))
       .catch(() => undefined)
   }, [])
 
@@ -120,14 +120,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
           <>
             <p className={`text-center text-xs ${f.note}`}>oder</p>
             {ssoProviders.map((name) => (
-              <a
-                key={name}
-                href={`${API_BASE_URL}/api/v1/auth/sso/${name}/start`}
-                onClick={() => trackEvent('login_sso', { provider: name })}
-                className={`${buttonClass} text-center`}
-              >
-                Mit {SSO_LABELS[name]} anmelden
-              </a>
+              <SsoButton key={name} provider={name} />
             ))}
           </>
         )}
