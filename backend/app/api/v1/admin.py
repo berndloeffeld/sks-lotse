@@ -79,15 +79,20 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
         .order_by(Topic.subject, Topic.display_order)
     ).all()
 
-    attempts = db.execute(
-        select(ExamAttempt).where(ExamAttempt.user_id == user_id).order_by(ExamAttempt.started_at)
-    ).scalars()
+    attempts = list(
+        db.execute(
+            select(ExamAttempt).where(ExamAttempt.user_id == user_id).order_by(ExamAttempt.started_at)
+        ).scalars()
+    )
+    # One catalog lookup for all attempts, not one per attempt.
+    question_ids = {q.question_id for a in attempts for q in a.questions if q.question_id is not None}
+    catalog = (
+        {q.id: q for q in db.execute(select(Question).where(Question.id.in_(question_ids))).scalars()}
+        if question_ids
+        else {}
+    )
     exam_attempts = []
     for attempt in attempts:
-        question_ids = [q.question_id for q in attempt.questions if q.question_id is not None]
-        catalog = {
-            q.id: q for q in db.execute(select(Question).where(Question.id.in_(question_ids))).scalars()
-        }
         exam_attempts.append(
             AdminExamAttemptExport(
                 exam_id=attempt.id,
