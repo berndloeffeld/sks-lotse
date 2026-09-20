@@ -155,6 +155,26 @@ def test_a_new_exam_can_start_once_the_previous_one_is_submitted(client, db_sess
     assert client.post("/api/v1/exams", headers=auth_headers).status_code == 201
 
 
+def test_exam_questions_carry_images_and_the_answer_ones_stay_hidden_until_submit(
+    client, db_session, auth_headers
+):
+    _seed(db_session)
+    question_image = {"src": "q.png", "width": 10, "height": 20}
+    answer_image = {"src": "a.png", "width": 30, "height": 40}
+    for question in db_session.query(Question):
+        question.question_images = [question_image]
+        question.answer_images = [answer_image]
+    db_session.commit()
+
+    exam = _start(client, auth_headers)
+    assert all(q["question_images"] == [question_image] for q in exam["questions"])
+    assert all(q["official_answer_images"] == [] for q in exam["questions"])
+
+    _answer_and_submit(client, auth_headers, exam)
+    exam = client.get(f"/api/v1/exams/{exam['id']}", headers=auth_headers).json()
+    assert all(q["official_answer_images"] == [answer_image] for q in exam["questions"])
+
+
 def test_official_answers_hidden_until_submit(client, db_session, auth_headers):
     _seed(db_session)
     exam = _start(client, auth_headers)

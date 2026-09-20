@@ -235,3 +235,21 @@ def test_explicit_subject_overrides_exam_variant(client, db_session, auth_header
     )
     assert response.status_code == 200
     assert len(response.json()) == 1
+
+
+def test_question_carries_its_images(client, db_session, auth_headers):
+    image = {"src": "schifffahrtsrecht-23-1.png", "width": 64, "height": 49}
+    question = Question(
+        subject="schifffahrtsrecht",
+        number=23,
+        question_text="Q?",
+        answer_text="A",
+        question_images=[image],
+    )
+    db_session.add(question)
+    db_session.commit()
+    db_session.refresh(question)
+
+    data = client.get(f"/api/v1/questions/{question.id}", headers=auth_headers).json()
+    assert data["question_images"] == [image]
+    assert data["answer_images"] == []

@@ -228,6 +228,34 @@ describe('ExamRunPage', () => {
     expect(await screen.findByRole('heading', { name: 'Prüfungsergebnis' })).toBeInTheDocument()
   })
 
+  it('shows the images of a question while writing and of its official answer while grading', async () => {
+    const question = { question_images: [{ src: 'q.png', width: 10, height: 10 }] }
+    const answer = { src: 'a.png', width: 10, height: 10 }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(makeExam({ questions: [examQuestion(1, question)] }))),
+    )
+    renderRun()
+    expect(await screen.findByRole('img', { name: 'Abbildung zur Frage' })).toHaveAttribute('src', '/catalog/q.png')
+    cleanup()
+
+    const grading = makeExam({
+      status: 'grading',
+      questions: [examQuestion(1, { ...question, official_answer: '', official_answer_images: [answer] })],
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(grading)),
+    )
+    renderRun()
+    expect(await screen.findByRole('img', { name: 'Abbildung zur Frage' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort' })).toHaveAttribute(
+      'src',
+      '/catalog/a.png',
+    )
+    expect(screen.queryByText('—')).not.toBeInTheDocument()
+  })
+
   it('reports a failed grading save', async () => {
     const user = userEvent.setup()
     const grading = makeExam({ status: 'grading', questions: [examQuestion(1, { official_answer: 'A' })] })

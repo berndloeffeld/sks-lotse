@@ -65,7 +65,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | Area | Responsibility | ADRs |
 |---|---|---|
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
-| `questions` | Read-only catalog and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md) |
+| `questions` | Read-only catalog (incl. the images of image questions) and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md), [0033](adr/0033-catalog-images-as-static-files.md) |
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question streaks, recording a self-assessed grading, marking topics as Fokus | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
 | `question_reports` (in `questions`) | "Frage melden": learners flag faulty catalog questions; the operator reads them via `GET /admin/question-reports` | [0030](adr/0030-question-reports-and-feedback-channels.md) |
 | `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment, history and statistics | [0029](adr/0029-exam-simulation.md) |
@@ -140,6 +140,5 @@ All of them except the integration tests are required status checks on `main`, a
 - Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
-- Question images: charts and diagrams from the catalog PDF (`image_ref` is always null)
 
 This section should shrink as each piece lands. Keep it accurate rather than aspirational.

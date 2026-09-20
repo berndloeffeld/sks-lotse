@@ -8,6 +8,7 @@ import { formatCountdown } from '../format'
 import { SUBJECT_GROUP_LABELS } from '../labels'
 import { CourseGauge } from './CourseGauge'
 import { formStyles } from './formStyles'
+import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 
 const AUTOSAVE_DELAY_MS = 800
@@ -179,6 +180,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
               'Diese Frage ist nicht mehr im Katalog.'
             )}
           </p>
+          <QuestionImages images={question.question_images} part="question" />
           <label className={styles.label} htmlFor="exam-answer">
             Deine Antwort
             <textarea

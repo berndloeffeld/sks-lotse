@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import type { QuestionProgress } from '../api/types'
+import type { Question, QuestionProgress } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { PracticePage } from './PracticePage'
 
@@ -11,14 +11,15 @@ function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
-function question(id: number, number: number) {
+function question(id: number, number: number): Question {
   return {
     id,
     subject: 'navigation',
     number,
     question_text: `Frage ${number}?`,
     answer_text: `Antwort ${number}.`,
-    image_ref: null,
+    question_images: [],
+    answer_images: [],
     topic: 'ankern',
   }
 }
@@ -245,6 +246,48 @@ describe('PracticePage', () => {
     expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
   })
 
+  it('shows the question images at once and the answer images with the official answer', async () => {
+    const user = userEvent.setup()
+    mockBackend({
+      questions: [
+        {
+          ...question(1, 7),
+          question_images: [{ src: 'navigation-7-1.png', width: 64, height: 49 }],
+          answer_images: [{ src: 'navigation-7-2.png', width: 64, height: 49 }],
+        },
+      ],
+    })
+    renderPracticePage()
+
+    expect(await screen.findByRole('img', { name: 'Abbildung zur Frage' })).toHaveAttribute(
+      'src',
+      '/catalog/navigation-7-1.png',
+    )
+    expect(screen.queryByRole('img', { name: 'Abbildung zur amtlichen Antwort' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort' })).toHaveAttribute(
+      'src',
+      '/catalog/navigation-7-2.png',
+    )
+  })
+
+  it('shows an answer that is only a sketch as its image, without an explanation', async () => {
+    const user = userEvent.setup()
+    mockBackend({
+      questions: [
+        { ...question(1, 7), answer_text: '', answer_images: [{ src: 'navigation-7-2.png', width: 64, height: 49 }] },
+      ],
+    })
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort' })).toBeInTheDocument()
+    expect(screen.queryByText(/besteht nur aus einer Skizze/)).not.toBeInTheDocument()
+  })
+
   it('explains an official answer that is only a sketch', async () => {
     const user = userEvent.setup()
     mockBackend({ questions: [{ ...question(1, 7), answer_text: '' }] })
@@ -390,11 +433,7 @@ describe('PracticePage', () => {
 
     await user.tab()
     await user.keyboard('{Enter}')
-    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toBeChecked()
-    expect(screen.getByRole('button', { name: 'Weiter' })).toHaveFocus()
-
-    await user.keyboard('{Enter}')
-    // Saving goes straight to the next question, answer field focused.
+    // Enter on an option saves it and goes straight to the next question, answer field focused.
     expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('textbox')).toHaveFocus())
     expect(fetchMock).toHaveBeenCalled()

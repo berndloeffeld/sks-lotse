@@ -6,6 +6,7 @@ import type { Exam, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
 import { formStyles } from './formStyles'
 import { ReportQuestion } from './ReportQuestion'
+import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 
 const OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
@@ -68,6 +69,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
       <p className="font-serif text-xl whitespace-pre-line text-ink">
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}
       </p>
+      <QuestionImages images={question.question_images} part="question" />
       <section className="rounded-tile border-l-4 border-ink-soft bg-surface p-4">
         <h2 className="text-sm text-ink-soft">Deine Antwort</h2>
         {question.answer_text?.trim() ? (
@@ -79,8 +81,13 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
       <section className="rounded-tile border-l-4 border-primary bg-surface-alt p-4">
         <h2 className="text-sm text-ink-soft">Amtliche Antwort</h2>
         <p className="whitespace-pre-line text-ink">
-          {question.official_answer ? <RichText text={question.official_answer} /> : '—'}
+          {question.official_answer ? (
+            <RichText text={question.official_answer} />
+          ) : question.official_answer_images.length === 0 ? (
+            '—'
+          ) : null}
         </p>
+        <QuestionImages images={question.official_answer_images} part="answer" />
       </section>
       {question.question_id !== null ? (
         <ReportQuestion key={question.question_id} questionId={question.question_id} />

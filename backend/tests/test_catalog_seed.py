@@ -11,8 +11,10 @@ from app.models.topic import Topic
 from app.services import catalog_seed
 from app.services.catalog_seed import (
     ANSWER_START,
+    CatalogImage,
     CatalogQuestion,
     assign_topics,
+    attach_images,
     build_catalog,
     merge_seemannschaft,
     parse_catalog_pdf,
@@ -356,3 +358,92 @@ def test_resync_after_merging_a_pair_keeps_the_segeln_row_and_drops_the_motor_ro
     after = _seemannschaft_ids(db_session)
     assert after[(12, 30)] == segeln_id
     assert set(after) == {(12, 30), (13, None)}
+
+
+def _catalog_row(catalog, subject, number):
+    return next(q for q in catalog if (q.subject, q.number) == (subject, number))
+
+
+def test_catalog_images_are_attached_to_their_question_and_part():
+    catalog = build_catalog()
+
+    # Both light diagrams sit in the question, the answer has none.
+    lights = _catalog_row(catalog, "schifffahrtsrecht", 23)
+    assert [i.src for i in lights.question_images] == [
+        "schifffahrtsrecht-23-1.png",
+        "schifffahrtsrecht-23-2.png",
+    ]
+    assert lights.answer_images == ()
+
+    # A sketch question: the empty sketch is the question's, the solved one the answer's. The
+    # merged Seemannschaft row keeps the Seemannschaft I images (Seemannschaft I 78 = II 64).
+    sketch = next(q for q in catalog if q.seemannschaft_1_number == 78 and q.seemannschaft_2_number == 64)
+    assert [i.src for i in sketch.question_images] == ["seemannschaft_1-78-1.png"]
+    assert [i.src for i in sketch.answer_images] == ["seemannschaft_1-78-2.png"]
+
+    # The official answer that is *only* a sketch has no text, but an image.
+    sketch_only = _catalog_row(catalog, "seemannschaft_segeln", 104)
+    assert sketch_only.answer_text == ""
+    assert len(sketch_only.answer_images) == 1
+
+    assert _catalog_row(catalog, "navigation", 1).question_images == ()
+
+
+def test_every_committed_catalog_image_is_listed_in_the_reviewed_file():
+    listed = {entry["file"] for entry in yaml.safe_load(catalog_seed.IMAGES_PATH.read_text())}
+    assert {p.name for p in catalog_seed.IMAGES_DIR.glob("*.png")} == listed
+
+
+def _images_file(tmp_path, monkeypatch, entry: dict):
+    path = tmp_path / "question_images.yaml"
+    path.write_text(yaml.safe_dump([entry]))
+    monkeypatch.setattr(catalog_seed, "IMAGES_PATH", path)
+
+
+def _entry(**changes) -> dict:
+    return {
+        "subject": "navigation",
+        "number": 1,
+        "part": "answer",
+        "file": "x.png",
+        "width": 1,
+        "height": 1,
+    } | changes
+
+
+@pytest.mark.parametrize(
+    ("entry", "message"),
+    [
+        (_entry(number=9999), "no question navigation 9999"),
+        (_entry(part="sideways"), "part 'sideways'"),
+        (_entry(file="nope.png"), "nope.png is missing"),
+    ],
+)
+def test_attach_images_rejects_a_bad_entry(tmp_path, monkeypatch, entry, message):
+    _images_file(tmp_path, monkeypatch, entry)
+    with pytest.raises(ValueError, match=message):
+        attach_images(parse_catalog_pdf())
+
+
+def test_seeding_stores_the_images_and_reseeding_updates_them(db_session, monkeypatch):
+    seed_catalog(db_session)
+    lights = db_session.query(Question).filter_by(subject="schifffahrtsrecht", number=23).one()
+    assert lights.question_images == [
+        {"src": "schifffahrtsrecht-23-1.png", "width": 64, "height": 49},
+        {"src": "schifffahrtsrecht-23-2.png", "width": 129, "height": 64},
+    ]
+    assert lights.answer_images == []
+
+    # An entry moving between the two parts is picked up by a plain re-sync.
+    changed = [
+        dataclasses.replace(q, question_images=(), answer_images=(CatalogImage("x.png", 1, 2),))
+        if (q.subject, q.number) == ("schifffahrtsrecht", 23)
+        else q
+        for q in build_catalog()
+    ]
+    monkeypatch.setattr(catalog_seed, "build_catalog", lambda: changed)
+    seed_catalog(db_session)
+    db_session.expire_all()
+    lights = db_session.query(Question).filter_by(subject="schifffahrtsrecht", number=23).one()
+    assert lights.question_images == []
+    assert lights.answer_images == [{"src": "x.png", "width": 1, "height": 2}]

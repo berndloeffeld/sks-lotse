@@ -119,6 +119,13 @@ export interface AdminUserExport {
   exported_at: string
 }
 
+// Mirrors backend/app/schemas/question.py::QuestionImage. `src` is a file in /catalog/.
+export interface QuestionImage {
+  src: string
+  width: number
+  height: number
+}
+
 // Mirrors backend/app/schemas/question.py::QuestionRead.
 export interface Question {
   id: number
@@ -126,7 +133,8 @@ export interface Question {
   number: number
   question_text: string
   answer_text: string
-  image_ref: string | null
+  question_images: QuestionImage[]
+  answer_images: QuestionImage[]
   topic: string | null
 }
 
@@ -175,8 +183,10 @@ export interface ExamQuestion {
   subject: string | null
   number: number | null
   question_text: string | null
+  question_images: QuestionImage[]
   answer_text: string | null
   official_answer: string | null
+  official_answer_images: QuestionImage[]
   outcome: GradingOutcome | null
   points: number | null
 }

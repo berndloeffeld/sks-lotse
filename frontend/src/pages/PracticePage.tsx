@@ -11,6 +11,7 @@ import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebra
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { ReportQuestion } from '../components/ReportQuestion'
+import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
@@ -106,7 +107,6 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
-  const saveRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
 
   // Keyboard flow: each phase hands focus to the control the learner needs
@@ -152,28 +152,29 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
 
   const question = run[index] as Question | undefined
 
-  const saveGrade = async () => {
-    if (!question || !outcome) return
+  // `chosen` lets Enter on a radio save the grade it just selected, before state has caught up.
+  const saveGrade = async (chosen: GradingOutcome | null = outcome) => {
+    if (!question || !chosen) return
     setIsSaving(true)
     setSaveError(null)
     try {
-      const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome })
+      const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome: chosen })
       const before = streaks.get(question.id) ?? 0
       const learnedNow = result.learned && !isLearned(before)
-      trackEvent('question_graded', { outcome })
+      trackEvent('question_graded', { outcome: chosen })
       if (learnedNow) {
         trackEvent('question_learned')
         setNewlyLearned((n) => n + 1)
         setCelebrating(question.number)
       }
       onGraded(question.id, result.correct_streak)
-      setTally((t) => [...t, outcome])
+      setTally((t) => [...t, chosen])
       // The result is announced to screen readers; sighted learners see the
       // boat sail to the new status before the next question comes up.
       setFeedback(
         result.learned
           ? 'Gelernt.'
-          : outcome === 'richtig'
+          : chosen === 'richtig'
             ? 'Richtig – ein Stück näher am Ziel.'
             : 'Zurück zum Start – die Frage kommt wieder.',
       )
@@ -257,6 +258,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
       </h2>
+      <QuestionImages images={question.question_images} part="question" />
 
       {phase === 'answer' ? (
         <>
@@ -295,14 +297,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               <p className="whitespace-pre-line text-ink">
                 <RichText text={question.answer_text} />
               </p>
-            ) : (
-              // A few official answers are only a sketch in the catalog PDF,
-              // with no text at all — and images aren't extracted yet.
+            ) : question.answer_images.length === 0 ? (
+              // A few official answers are only a sketch in the catalog PDF, with no text at all;
+              // their sketch is an answer image, so this is only reached if that image is missing.
               <p className="text-ink-soft italic">
-                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse noch nicht anzeigen
-                kann.
+                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen kann.
               </p>
-            )}
+            ) : null}
+            <QuestionImages images={question.answer_images} part="answer" />
           </section>
 
           <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
@@ -324,14 +326,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                       cycleFocus(event.currentTarget, event.shiftKey)
                     } else if (event.key === 'Enter') {
                       event.preventDefault()
-                      // Enter on the already-checked radio (e.g. the Lotsen-Check's suggestion) confirms
-                      // it and moves on; on any other radio it selects it and hands over to the button.
-                      if (outcome === o) {
-                        void saveGrade()
-                      } else {
-                        flushSync(() => setOutcome(o))
-                        saveRef.current?.focus()
-                      }
+                      // Enter selects the focused option and moves straight on to the next question.
+                      setOutcome(o)
+                      void saveGrade(o)
                     }
                   }}
                   className="accent-primary"
@@ -364,11 +361,10 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           ) : null}
 
           <button
-            ref={saveRef}
             type="button"
             className={styles.button}
             disabled={!outcome || isSaving}
-            onClick={saveGrade}
+            onClick={() => void saveGrade()}
           >
             {isSaving ? 'Wird gespeichert…' : 'Weiter'}
           </button>

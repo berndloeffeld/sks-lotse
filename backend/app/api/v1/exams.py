@@ -145,8 +145,10 @@ def _read(db: Session, attempt: ExamAttempt) -> ExamRead:
                 subject=source.subject if source else None,
                 number=source.number if source else None,
                 question_text=source.question_text if source else None,
+                question_images=source.question_images if source else [],
                 answer_text=eq.answer_text,
                 official_answer=source.answer_text if source and revealed else None,
+                official_answer_images=source.answer_images if source and revealed else [],
                 outcome=eq.outcome,
                 points=_points(eq),
             )

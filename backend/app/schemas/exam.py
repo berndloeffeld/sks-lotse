@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from app.schemas.progress import GradingOutcomeField
+from app.schemas.question import QuestionImage
 
 # Generous for a written exam answer, but bounds what one request can store.
 ANSWER_MAX_LENGTH = 10_000
@@ -24,10 +25,12 @@ class ExamQuestionRead(BaseModel):
     subject: str | None
     number: int | None
     question_text: str | None
+    question_images: list[QuestionImage]
     # The learner's own answer.
     answer_text: str | None
     # Withheld until the exam is submitted, so it can't leak during the exam.
     official_answer: str | None
+    official_answer_images: list[QuestionImage]
     outcome: str | None
     points: int | None
 

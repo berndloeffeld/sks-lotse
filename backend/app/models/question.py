@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,7 +14,12 @@ class Question(Base):
     number: Mapped[int] = mapped_column(Integer, nullable=False)
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
     answer_text: Mapped[str] = mapped_column(Text, nullable=False)
-    image_ref: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Charts/sketches from the catalog PDF, as [{"src", "width", "height"}] — `src` a file name in
+    # frontend/public/catalog/ (see ADR-0033). One list for the question, one for its official answer.
+    question_images: Mapped[list[dict]] = mapped_column(
+        JSON, nullable=False, default=list, server_default="[]"
+    )
+    answer_images: Mapped[list[dict]] = mapped_column(JSON, nullable=False, default=list, server_default="[]")
     topic_id: Mapped[int | None] = mapped_column(
         ForeignKey("topics.id", ondelete="SET NULL", name="fk_questions_topic_id"), nullable=True
     )
