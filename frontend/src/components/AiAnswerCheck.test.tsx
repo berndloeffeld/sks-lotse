@@ -23,7 +23,7 @@ function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
-const ROW = { name: /Unsicher – Lotse fragen/ }
+const ROW = { name: /Antwort vom Lotsen bewerten lassen/ }
 
 describe('AiAnswerCheck', () => {
   afterEach(() => {

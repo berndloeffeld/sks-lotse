@@ -68,7 +68,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
       <p className="font-serif text-xl whitespace-pre-line text-ink">
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}
       </p>
-      <section>
+      <section className="rounded-tile border-l-4 border-ink-soft bg-surface p-4">
         <h2 className="text-sm text-ink-soft">Deine Antwort</h2>
         {question.answer_text?.trim() ? (
           <p className="whitespace-pre-line text-ink">{question.answer_text}</p>
@@ -76,7 +76,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
           <p className="text-ink-soft italic">Nicht beantwortet.</p>
         )}
       </section>
-      <section className="rounded-tile border border-ink bg-surface p-4">
+      <section className="rounded-tile border-l-4 border-primary bg-surface-alt p-4">
         <h2 className="text-sm text-ink-soft">Amtliche Antwort</h2>
         <p className="whitespace-pre-line text-ink">
           {question.official_answer ? <RichText text={question.official_answer} /> : '—'}
@@ -125,7 +125,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         disabled={!outcome || isSaving}
         onClick={() => void save(outcome)}
       >
-        {isSaving ? 'Wird gespeichert…' : 'Bewertung speichern'}
+        {isSaving ? 'Wird gespeichert…' : 'Weiter'}
       </button>
     </article>
   )
