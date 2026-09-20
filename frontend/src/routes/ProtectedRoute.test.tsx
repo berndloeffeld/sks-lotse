@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
@@ -19,6 +20,10 @@ function renderProtected() {
 }
 
 describe('ProtectedRoute', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ sessionError: false })
+  })
+
   it('shows a loading state while the session check is pending', () => {
     useAuthStore.setState({ isLoading: true, isAuthenticated: false })
 
@@ -41,5 +46,16 @@ describe('ProtectedRoute', () => {
     renderProtected()
 
     expect(screen.getByText('Start page')).toBeInTheDocument()
+  })
+
+  it('offers a retry instead of redirecting when the session check failed', async () => {
+    const checkSession = vi.fn().mockResolvedValue(undefined)
+    useAuthStore.setState({ isLoading: false, isAuthenticated: false, sessionError: true, checkSession })
+
+    renderProtected()
+
+    expect(screen.queryByText('Login page')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }))
+    expect(checkSession).toHaveBeenCalledOnce()
   })
 })
