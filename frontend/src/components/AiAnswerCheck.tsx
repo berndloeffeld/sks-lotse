@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type KeyboardEvent, type Ref } from 'react'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
@@ -15,20 +15,22 @@ interface AiAnswerCheckProps {
   answer: string
   // Hands the suggested grade to the self-assessment, which the learner still confirms.
   onSuggest: (outcome: GradingOutcome) => void
+  // So the parent can fold the button into the Tab loop of the grade radios.
+  buttonRef?: Ref<HTMLButtonElement>
+  onButtonKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void
 }
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 429) {
-    return 'Du hast das Limit für KI-Prüfungen vorerst erreicht. Bewerte dich bitte selbst.'
+    return 'Der Lotse ist für diese Frage oder für heute ausgelastet. Bewerte dich bitte selbst.'
   }
-  return 'Die KI-Prüfung ist gerade nicht verfügbar. Bewerte dich bitte selbst.'
+  return 'Der Lotse ist gerade nicht erreichbar. Bewerte dich bitte selbst.'
 }
 
-// The KI marker lives in the button; what happens to the answer is in the tooltip and the
-// accessible description rather than a caption line.
+// What happens to the answer lives in the tooltip and the accessible description, not in a caption.
 const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
 
-// A diagonal corner ribbon ("KI"), clipped by the button (which needs relative + overflow-hidden).
+// A diagonal corner ribbon ("KI"), clipped by the row (which needs relative + overflow-hidden).
 function Ribbon() {
   return (
     <span
@@ -40,28 +42,27 @@ function Ribbon() {
   )
 }
 
-const BUTTON_CLASS = `${styles.button} relative self-start overflow-hidden pr-12`
-
-// "Lotsen-Check" (ADR-0031): a stateless LLM check of the written answer that only
-// *suggests* a grade. Accounts without the unlock see a teaser instead of the button.
-// Keyed by question in the parent, so each question starts fresh.
-export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckProps) {
-  const isUnlocked = useAuthStore((s) => s.user?.ai_grading_enabled ?? false)
+// "Unsicher – Lotse fragen" (ADR-0031): the fourth choice under the grade radios. A stateless LLM
+// check of the written answer that only *suggests* a grade; the learner who is sure just grades.
+// Accounts without the unlock see it dimmed with "bald verfügbar". Keyed by question in the parent.
+export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
+  const user = useAuthStore((s) => s.user)
+  const setUser = useAuthStore((s) => s.setUser)
   const [isChecking, setIsChecking] = useState(false)
   const [result, setResult] = useState<AiGrade | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  if (!isUnlocked) {
-    return (
-      <button type="button" disabled title="Bald verfügbar: KI-Prüfung deiner Antwort" className={BUTTON_CLASS}>
-        <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
-        Lotsen-Check · bald
-        <Ribbon />
-      </button>
-    )
-  }
-
+  const isUnlocked = user?.ai_grading_enabled ?? false
+  const remaining = user?.ai_checks_remaining ?? 0
   const hasAnswer = answer.trim().length > 0
+
+  let hint = `noch ${remaining} heute`
+  if (!isUnlocked) hint = 'bald verfügbar'
+  else if (isChecking) hint = 'Lotse prüft…'
+  else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
+  else if (remaining <= 0) hint = 'morgen wieder'
+
+  const isDisabled = !isUnlocked || isChecking || !hasAnswer || remaining <= 0
 
   async function check() {
     setIsChecking(true)
@@ -69,6 +70,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
     try {
       const grade = await apiClient.post<AiGrade>(`/questions/${questionId}/ai-grade`, { answer })
       trackEvent('ai_check_used')
+      if (user) setUser({ ...user, ai_checks_remaining: grade.remaining_today })
       setResult(grade)
       onSuggest(grade.outcome)
     } catch (e) {
@@ -79,31 +81,27 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <span id={`ai-check-notice-${questionId}`} className="sr-only">
         {SEND_NOTICE}
       </span>
       <button
+        ref={buttonRef}
         type="button"
-        title={SEND_NOTICE}
+        disabled={isDisabled}
+        title={isUnlocked ? SEND_NOTICE : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
         aria-describedby={`ai-check-notice-${questionId}`}
-        className={BUTTON_CLASS}
-        disabled={!hasAnswer || isChecking}
         onClick={check}
+        onKeyDown={onButtonKeyDown}
+        className="relative flex min-h-12 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-2 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
       >
-        {isChecking ? (
-          'Lotse prüft…'
-        ) : (
-          <>
-            <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
-            Lotsen-Check
-          </>
-        )}
+        <CompassIcon className="size-6 shrink-0 text-accent" />
+        <span className="flex flex-col">
+          <span className="font-mono text-sm tracking-wide uppercase">Unsicher – Lotse fragen</span>
+          <span className="text-xs text-ink-soft">{hint}</span>
+        </span>
         <Ribbon />
       </button>
-      {hasAnswer ? null : (
-        <p className="text-xs text-ink-soft">Schreibe zuerst eine Antwort, dann kann die KI sie prüfen.</p>
-      )}
       {error ? (
         <p role="alert" className={styles.error}>
           {error}

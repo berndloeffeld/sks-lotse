@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 
@@ -104,7 +104,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [celebrating, setCelebrating] = useState<number | null>(null)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
-  const aiCheckRef = useRef<HTMLDivElement>(null)
+  const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
   const saveRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
@@ -116,11 +116,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     else groupRef.current?.focus()
   }, [phase, index, run])
 
-  // Tab cycles through the radios (focus only, no selection). The first Tab
-  // from the group itself is native and lands on Richtig.
-  const cycleFocus = (from: number, backwards: boolean) => {
-    const count = OUTCOMES.length
-    radioRefs.current[(from + (backwards ? count - 1 : 1)) % count]?.focus()
+  // Tab cycles through the grade radios and, when usable, the Lotse row (focus only, no selection).
+  // The first Tab from the group itself is native and lands on Richtig.
+  const cycleFocus = (from: HTMLElement, backwards: boolean) => {
+    const stops = [...radioRefs.current, askRef.current].filter(
+      (el): el is HTMLInputElement | HTMLButtonElement => el !== null && !el.disabled,
+    )
+    const at = stops.indexOf(from as HTMLInputElement | HTMLButtonElement)
+    stops[(at + (backwards ? stops.length - 1 : 1)) % stops.length]?.focus()
   }
 
   // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
@@ -128,16 +131,6 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const suggestOutcome = (suggested: GradingOutcome) => {
     flushSync(() => setOutcome(suggested))
     radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus()
-  }
-
-  // Focus rests on the group when the answer is revealed. The first Tab goes to the AI check
-  // (when it is usable), the next one into the radios — otherwise straight into the radios.
-  const focusAiCheckFirst = (event: KeyboardEvent<HTMLFieldSetElement>) => {
-    if (event.key !== 'Tab' || event.shiftKey || event.target !== groupRef.current) return
-    const button = aiCheckRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')
-    if (!button) return
-    event.preventDefault()
-    button.focus()
   }
 
   const startRun = (includeLearned: boolean) => {
@@ -312,20 +305,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             )}
           </section>
 
-          {question.answer_text ? (
-            <div ref={aiCheckRef}>
-              <AiAnswerCheck key={question.id} questionId={question.id} answer={note} onSuggest={suggestOutcome} />
-            </div>
-          ) : null}
-
-          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the group is the programmatic focus target after the reveal (tabIndex -1); this only redirects its first Tab */}
-          <fieldset
-            ref={groupRef}
-            tabIndex={-1}
-            className="flex flex-col gap-2 outline-none"
-            disabled={isSaving}
-            onKeyDown={focusAiCheckFirst}
-          >
+          <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
             {OUTCOMES.map((o, i) => (
               <label key={o} className="flex items-center gap-2 text-ink">
@@ -341,7 +321,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                   onKeyDown={(event) => {
                     if (event.key === 'Tab') {
                       event.preventDefault()
-                      cycleFocus(i, event.shiftKey)
+                      cycleFocus(event.currentTarget, event.shiftKey)
                     } else if (event.key === 'Enter') {
                       event.preventDefault()
                       // Enter on the already-checked radio (e.g. the Lotsen-Check's suggestion) confirms
@@ -360,6 +340,22 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               </label>
             ))}
           </fieldset>
+
+          {question.answer_text ? (
+            <AiAnswerCheck
+              key={question.id}
+              questionId={question.id}
+              answer={note}
+              onSuggest={suggestOutcome}
+              buttonRef={askRef}
+              onButtonKeyDown={(event) => {
+                if (event.key === 'Tab') {
+                  event.preventDefault()
+                  cycleFocus(event.currentTarget, event.shiftKey)
+                }
+              }}
+            />
+          ) : null}
 
           {saveError ? (
             <p role="alert" className={styles.error}>

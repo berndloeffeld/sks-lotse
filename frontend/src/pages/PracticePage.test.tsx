@@ -113,11 +113,8 @@ describe('PracticePage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toHaveAttribute(
-      'title',
-      expect.stringContaining('Bald verfügbar'),
-    )
+    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toHaveTextContent('bald verfügbar')
   })
 
   it('preselects the AI suggestion, which the learner still saves', async () => {
@@ -133,20 +130,21 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ai_checks_remaining: 20,
       },
     })
-    mockBackend({ aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.' }) })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.', remaining_today: 19 }) })
     renderPracticePage()
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
 
     expect(await screen.findByText('Das stimmt nicht.')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
   })
 
-  it('tabs from the revealed answer to the AI check first, then into the radios', async () => {
+  it('Tab loops through the grade radios and then the Lotse row', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
       user: {
@@ -159,20 +157,28 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ai_checks_remaining: 20,
       },
     })
-    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.' }) })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.', remaining_today: 19 }) })
     renderPracticePage()
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    const ask = screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })
+    for (const name of ['Richtig', 'Teilweise Richtig', 'Falsch']) {
+      await user.tab()
+      expect(screen.getByRole('radio', { name })).toHaveFocus()
+    }
     await user.tab()
-    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveFocus()
+    expect(ask).toHaveFocus()
     await user.tab()
     expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
+    await user.tab({ shift: true })
+    expect(ask).toHaveFocus()
 
     // After the check, focus lands on the suggested radio.
-    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
     await screen.findByText('Fast.')
     expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
   })
@@ -190,11 +196,12 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ai_checks_remaining: 20,
       },
     })
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.' }),
+      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_today: 19 }),
       grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0)
@@ -202,7 +209,7 @@ describe('PracticePage', () => {
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
     await screen.findByText('Passt.')
     expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
 

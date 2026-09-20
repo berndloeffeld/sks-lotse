@@ -93,6 +93,11 @@ class Settings(BaseSettings):
     grading_max_answer_chars: int = 1000
     grading_max_per_window: int = 30
     grading_window_seconds: int = 3600  # 1 hour
+    # The real budget (ADR-0031): checks per account and calendar day (Europe/Berlin), persisted on
+    # the user so a deploy doesn't reset it, plus a cap per question and day so nobody rephrases
+    # until it says "richtig". At ~0.13 cent per check, 20/day is at most ~2.5 cent per account and day.
+    grading_max_per_day: int = 20
+    grading_max_per_question_per_day: int = 2
 
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 

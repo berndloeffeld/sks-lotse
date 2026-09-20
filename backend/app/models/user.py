@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, false, func
+from sqlalchemy import Boolean, Date, DateTime, Integer, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.core import ai_quota
 from app.core.database import Base
 
 
@@ -34,3 +35,11 @@ class User(Base):
     ai_grading_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default=false()
     )
+    # Today's AI-check budget (app/core/ai_quota.py): `ai_checks_used` counts on `ai_checks_day` only;
+    # on any other day the budget is full again.
+    ai_checks_day: Mapped[date | None] = mapped_column(Date, nullable=True)
+    ai_checks_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+
+    @property
+    def ai_checks_remaining(self) -> int:
+        return ai_quota.remaining(self.ai_checks_day, self.ai_checks_used)

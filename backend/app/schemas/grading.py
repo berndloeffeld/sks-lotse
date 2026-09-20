@@ -19,3 +19,5 @@ class AiGradeRead(BaseModel):
     # A plain str, not the GradingOutcome Literal — see GradingOutcomeField in app/schemas/progress.py.
     outcome: str
     feedback: str
+    # Checks left today after this one — the learner sees it under the Lotse button.
+    remaining_today: int

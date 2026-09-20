@@ -14,6 +14,7 @@ const baseUser = {
   last_name: null,
   gender: null,
   ai_grading_enabled: false,
+  ai_checks_remaining: 20,
 }
 
 describe('AccountNav', () => {

@@ -1,4 +1,5 @@
 import inspect
+from datetime import date, timedelta
 
 import anthropic
 import httpx
@@ -8,6 +9,7 @@ from app.api.v1 import grading as grading_api
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import Question, User
+from app.services import ai_quota as ai_quota_service
 from app.services import grader
 from app.services.grader import GradeResult, GradingUnavailable
 
@@ -57,7 +59,11 @@ def test_happy_path_sends_only_question_and_answers(client, db_session, fake_gra
     headers = _headers(db_session, enabled=True)
     response = _post(client, q.id, headers, "  links  ")
     assert response.status_code == 200
-    assert response.json() == {"outcome": "teilweise_richtig", "feedback": "Es fehlt die Seite."}
+    assert response.json() == {
+        "outcome": "teilweise_richtig",
+        "feedback": "Es fehlt die Seite.",
+        "remaining_today": settings.grading_max_per_day - 1,
+    }
     assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links")]
 
 
@@ -95,7 +101,86 @@ def test_unavailable_is_503(client, db_session, monkeypatch):
     assert _post(client, q.id, headers).status_code == 503
 
 
-# --- service ---------------------------------------------------------------
+# --- budget ----------------------------------------------------------------
+
+
+def _user(db_session, email="grader@example.com") -> User:
+    return db_session.query(User).filter_by(email=email).one()
+
+
+def test_daily_budget_counts_down_and_then_blocks(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_day", 2)
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+
+    assert _post(client, q.id, headers).json()["remaining_today"] == 1
+    assert _post(client, q.id, headers).json()["remaining_today"] == 0
+    blocked = _post(client, q.id, headers)
+    assert blocked.status_code == 429
+    assert "Daily limit" in blocked.json()["detail"]
+    assert len(fake_grader) == 2
+    assert _user(db_session).ai_checks_remaining == 0
+
+
+def test_budget_is_full_again_on_the_next_day(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_day", 1)
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    assert _post(client, q.id, headers).status_code == 200
+    assert _post(client, q.id, headers).status_code == 429
+
+    user = _user(db_session)
+    user.ai_checks_day = user.ai_checks_day - timedelta(days=1)
+    db_session.commit()
+    assert user.ai_checks_remaining == 1
+    assert _post(client, q.id, headers).status_code == 200
+
+
+def test_per_question_cap_is_429_but_other_questions_still_work(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
+    first = _question(db_session)
+    second = Question(
+        subject="navigation", number=2, question_text="Was ist Steuerbord?", answer_text="Rechts."
+    )
+    db_session.add(second)
+    db_session.commit()
+    headers = _headers(db_session, enabled=True)
+
+    assert _post(client, first.id, headers).status_code == 200
+    capped = _post(client, first.id, headers)
+    assert capped.status_code == 429
+    assert "this question" in capped.json()["detail"]
+    assert _post(client, second.id, headers).status_code == 200
+
+
+def test_failed_call_gives_the_check_back(client, db_session, monkeypatch):
+    def boom(*args):
+        raise GradingUnavailable("APIError")
+
+    monkeypatch.setattr(grading_api, "grade_answer", boom)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    assert _post(client, q.id, headers).status_code == 503
+    assert _user(db_session).ai_checks_used == 0
+
+
+def test_refund_ignores_a_counter_that_moved_on(db_session):
+    user = User(email="r@example.com", ai_checks_day=date(2020, 1, 1), ai_checks_used=1)
+    db_session.add(user)
+    db_session.commit()
+    ai_quota_service.refund(db_session, user.id, date(2020, 1, 2))
+    assert user.ai_checks_used == 1
+
+
+def test_me_reports_the_remaining_budget(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_day", 5)
+    headers = _headers(db_session, enabled=True)
+    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 5
+
+
+# --- service ---
 
 
 class _FakeMessages:
