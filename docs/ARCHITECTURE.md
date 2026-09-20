@@ -47,7 +47,7 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
 - **Prerendered landing page**: `npm run build` renders `/` to static HTML (`dist/index.html`) so crawlers see its content; the client hydrates it. Every other route gets the empty shell (`dist/app.html`) via the SPA fallback ([ADR-0025](adr/0025-build-time-prerender-of-the-landing-page.md)).
 - **Routing**: public pages (landing, login, legal) and protected pages (start, learn, practice, exam simulation, profile, admin) behind `ProtectedRoute`.
 - **Auth state**: never reads the session token. "Logged in" is derived from `GET /auth/me` ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md)).
-- **API access**: one thin typed `fetch` wrapper (`src/api/client.ts`). It always sends credentials and treats any `401` as "session gone".
+- **API access**: one thin typed `fetch` wrapper (`src/api/client.ts`). It always sends credentials and treats any `401` as "session gone". A failed `/auth/me` check that isn't a `401` (network, 5xx) is not a logout: `ProtectedRoute` offers a retry instead of redirecting to `/login`.
 - **Design system**: tokens in `src/index.css` ([ADR-0014](adr/0014-visual-design-system.md)), self-hosted fonts ([ADR-0021](adr/0021-self-hosted-web-fonts.md)), shared components in `src/components/` (`RichText` renders the catalog's chart notation, e.g. the drying height in Navigation 84, as markup), incl. the per-question progress gauge ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)).
 - **Ads**: the `adsense-snippet` plugin in `vite.config.ts` puts Google's AdSense script into the built HTML `<head>` only when `VITE_ADSENSE_CLIENT_ID` is set (`src/ads.ts` holds the runtime helpers); consent comes from Google's own TCF consent management, re-openable via the footer's "Cookie-Einstellungen" ([ADR-0027](adr/0027-adsense-with-google-consent-management.md)). No ad units are rendered yet.
 - **Analytics**: cookieless Umami, only enabled when `VITE_UMAMI_WEBSITE_ID` is set ([ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)).
@@ -111,7 +111,7 @@ Everything is declared in `render.yaml`:
 
 - **Services**: a backend web service, a frontend static site and a managed Postgres. All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
 - **Deploys**: every push to `main` deploys. The backend runs migrations before it starts and only receives traffic once `/health` passes.
-- **Security headers**: the frontend's come from `render.yaml`, the backend's from middleware.
+- **Security headers**: the frontend's come from `render.yaml` (an enforced CSP for framing/objects/base/forms, and the full script/connect allowlist report-only until the live console is clean, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum), the backend's from middleware.
 
 | Domain | Served by |
 |---|---|
