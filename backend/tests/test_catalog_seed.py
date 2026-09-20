@@ -97,6 +97,12 @@ def test_parse_restores_the_drying_height_symbol_in_navigation_84():
     assert "2 3" not in question
 
 
+def test_parse_restores_the_subscripts_in_the_navigation_48_answer():
+    answer = _parsed("navigation", 48).answer_text
+    assert "Koppelort (O_k) zum beobachteten Ort (O_b)" in answer
+    assert not answer.endswith(" k b")
+
+
 def test_parse_joins_lines_the_pdf_only_wrapped():
     assert "nur ein Hoch- bzw. Niedrigwasser pro Tag?" in _parsed("navigation", 72).question_text
     assert _parsed("navigation", 84).question_text.endswith("2\u0332\u2083. Was bedeutet das?")
