@@ -37,10 +37,11 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      // Same bar as the backend's pytest-cov gate (backend/pyproject.toml).
+      // A few points under the actual values, like the backend's pytest-cov
+      // gate (backend/pyproject.toml); see CLAUDE.md → Test Coverage.
       thresholds: {
-        lines: 80,
-        branches: 80,
+        lines: 90,
+        branches: 85,
       },
     },
   },

@@ -86,7 +86,7 @@ def random_question(
     questions = _filtered_catalog(request, db, current_user, subject)
     if not questions:
         raise HTTPException(status_code=404, detail="No questions found")
-    return random.choice(questions)
+    return random.choice(questions)  # noqa: S311 - picking a practice question, not a secret
 
 
 @router.get("/{question_id}", response_model=QuestionRead)
