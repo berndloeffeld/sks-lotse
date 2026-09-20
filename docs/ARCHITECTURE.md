@@ -21,7 +21,7 @@ graph LR
 
     Resend[Resend<br/>OTP email]
     Umami[Umami Cloud<br/>analytics]
-    OpenAI[OpenAI API<br/>answer grading]
+    Anthropic[Anthropic API<br/>answer check, Haiku]
     AdSense[Google AdSense]
 
     Learner --> SPA
@@ -30,14 +30,14 @@ graph LR
     API --> DB
     API --> Resend
     SPA --> Umami
-    API -.-> OpenAI
+    API --> Anthropic
     SPA -.-> AdSense
     SPA -.-> STT
 ```
 
-Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU, except the Anthropic API (US, see ADR-0031). Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
-Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo) and the Anthropic API (offline topic classification of the catalog, see [Question catalog](#question-catalog)).
+Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo) and the Anthropic API when used offline for topic classification of the catalog (see [Question catalog](#question-catalog)); the runtime answer check also calls it ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)).
 
 ## Components
 
@@ -50,7 +50,7 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
 - **API access**: one thin typed `fetch` wrapper (`src/api/client.ts`). It always sends credentials and treats any `401` as "session gone". A failed `/auth/me` check that isn't a `401` (network, 5xx) is not a logout: `ProtectedRoute` offers a retry instead of redirecting to `/login`.
 - **Design system**: tokens in `src/index.css` ([ADR-0014](adr/0014-visual-design-system.md)), self-hosted fonts ([ADR-0021](adr/0021-self-hosted-web-fonts.md)), shared components in `src/components/` (`RichText` renders the catalog's chart notation, e.g. the drying height in Navigation 84, as markup), incl. the per-question progress gauge ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)).
 - **Ads**: the `adsense-snippet` plugin in `vite.config.ts` puts Google's AdSense script into the built HTML `<head>` only when `VITE_ADSENSE_CLIENT_ID` is set (`src/ads.ts` holds the runtime helpers); consent comes from Google's own TCF consent management, re-openable via the footer's "Cookie-Einstellungen" ([ADR-0027](adr/0027-adsense-with-google-consent-management.md)). No ad units are rendered yet.
-- **Analytics**: cookieless Umami, only enabled when `VITE_UMAMI_WEBSITE_ID` is set ([ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)).
+- **Analytics**: cookieless Umami, only enabled when `VITE_UMAMI_WEBSITE_ID` is set ([ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)); custom funnel events via `trackEvent`, coarse properties only ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)).
 
 ### Backend (`backend/`)
 One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-modulith-over-microservices.md)):
@@ -67,8 +67,9 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
 | `questions` | Read-only catalog and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md) |
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question streaks, recording a self-assessed grading, marking topics as Fokus | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
+| `question_reports` (in `questions`) | "Frage melden": learners flag faulty catalog questions; the operator reads them via `GET /admin/question-reports` | [0030](adr/0030-question-reports-and-feedback-channels.md) |
 | `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment, history and statistics | [0029](adr/0029-exam-simulation.md) |
-| `admin` | GDPR lookup/export/delete, allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md) |
+| `admin` | GDPR lookup/export/delete, question reports, aggregate KPIs (`GET /admin/kpis`), allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md), [0032](adr/0032-daily-kpi-report.md) |
 
 Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
 
@@ -77,7 +78,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 ### Auth
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
 - **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. Logout invalidates all of a user's tokens by bumping a per-user `token_version`.
-- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open. Admin routes additionally require the email to be in `ADMIN_EMAILS`.
+- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
   - the per-IP limiter;
@@ -96,6 +97,7 @@ PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
 | `users` | Account and profile | Auth and admin flows |
 | `question_progress` | Per-user, per-question answer streak | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
 | `focus_topics` | Per-user topics marked as Fokus | `PUT`/`DELETE /progress/focus/...`; deleted automatically once every question of the topic is learned ([ADR-0028](adr/0028-focus-topics.md)) |
+| `question_reports` | Per-user reports of faulty questions (category + optional comment) | `POST /questions/{id}/report`; deleted with the account ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)) |
 | `exam_attempts`, `exam_attempt_questions` | Per-user exam simulation runs: the drawn questions, the learner's answers and self-assessment | `/exams` endpoints; deleted with the account or one by one ([ADR-0029](adr/0029-exam-simulation.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
@@ -110,7 +112,7 @@ The official catalog PDF becomes database rows in two phases:
 ### Deployment
 Everything is declared in `render.yaml`:
 
-- **Services**: a backend web service, a frontend static site and a managed Postgres. All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
+- **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
 - **Deploys**: every push to `main` deploys. The backend runs migrations before it starts and only receives traffic once `/health` passes.
 - **Security headers**: the frontend's come from `render.yaml` (an enforced CSP for framing/objects/base/forms, and the full script/connect allowlist report-only until the live console is clean, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum), the backend's from middleware.
 
@@ -131,10 +133,10 @@ All of them except the integration tests are required status checks on `main`, a
 
 ## Not yet built
 
-- LLM grading of free-text answers (OpenAI). Answering questions works, but learners grade themselves against the official answer ([ADR-0023](adr/0023-self-assessed-learning-flow.md)).
+- Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which is set by hand for now.
 - Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
 - SSO login (Google/Facebook/X)
-- Entitlements: the "ads removed" and "AI grading unlocked" flags on the account ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
+- Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
 - Question images: charts and diagrams from the catalog PDF (`image_ref` is always null)

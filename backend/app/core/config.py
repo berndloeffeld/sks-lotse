@@ -35,9 +35,14 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
     openai_api_key: str = ""
-    # Not read by the running app — only by backend/scripts/manage_topics.py,
-    # a local dev-only classification tool (see CLAUDE.md → Question Catalog).
+    # Local dev tooling only (backend/scripts/manage_topics.py) — the running app never reads it.
     anthropic_api_key: str = ""
+    # The running app's own key for the AI answer check (app/services/grader.py, ADR-0031),
+    # deliberately separate from the dev-tooling key above (own workspace, own spend limit).
+    # Empty = the check answers 503 instead of calling out.
+    anthropic_grading_api_key: str = ""
+    anthropic_grading_model: str = "claude-haiku-4-5"
+    anthropic_grading_timeout_seconds: float = 15.0
     adsense_client_id: str = ""
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
@@ -77,6 +82,22 @@ class Settings(BaseSettings):
     # multiple IPs, or many accounts sharing one IP.
     email_change_max_requests_per_window: int = 5
     email_change_window_seconds: int = 3600  # 1 hour
+
+    # Per-authenticated-user cap on POST /questions/{id}/report: bounds how much
+    # free text one account can push into the operator's inbox.
+    question_report_max_per_window: int = 20
+    question_report_window_seconds: int = 3600  # 1 hour
+
+    # AI answer check: the learner's answer is capped (tokens = cost) and each account
+    # gets a per-hour budget on top of the blanket per-IP rule (app/main.py).
+    grading_max_answer_chars: int = 1000
+    grading_max_per_window: int = 30
+    grading_window_seconds: int = 3600  # 1 hour
+    # The real budget (ADR-0031): checks per account and calendar day (Europe/Berlin), persisted on
+    # the user so a deploy doesn't reset it, plus a cap per question and day so nobody rephrases
+    # until it says "richtig". At ~0.13 cent per check, 20/day is at most ~2.5 cent per account and day.
+    grading_max_per_day: int = 20
+    grading_max_per_question_per_day: int = 2
 
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 

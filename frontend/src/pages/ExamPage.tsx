@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import type { Exam, ExamSummary } from '../api/types'
 import { formStyles } from '../components/formStyles'
@@ -46,6 +47,7 @@ export function ExamPage() {
     setError(null)
     try {
       const exam = await apiClient.post<Exam>('/exams')
+      trackEvent('exam_started')
       navigate(`/exam/${exam.id}`)
     } catch (e) {
       setError(

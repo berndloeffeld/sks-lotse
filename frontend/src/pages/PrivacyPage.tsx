@@ -49,9 +49,9 @@ export function PrivacyPage() {
           können Sie in Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig.
           Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Lernangebots), für freiwillige Angaben Art.
           6 Abs. 1 lit. a DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit
-          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt und Fokus-Markierungen vollständig
-          gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art. 22 DSGVO
-          statt.
+          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt, Fokus-Markierungen und Fragenmeldungen
+          vollständig gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art.
+          22 DSGVO statt.
         </p>
         <p className="text-ink-soft">
           Wenn Sie die Prüfungssimulation nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen,
@@ -60,6 +60,19 @@ export function PrivacyPage() {
           Rechtsgrundlage ist ebenfalls Art. 6 Abs. 1 lit. b DSGVO. Diese Daten werden gespeichert, solange Ihr Konto
           besteht; einzelne Prüfungen können Sie jederzeit selbst löschen, mit dem Konto werden alle Prüfungen gelöscht.
           Bitte geben Sie in Ihren Antworten keine personenbezogenen Daten ein.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="font-serif text-xl text-primary">Fragen melden und Feedback</h2>
+        <p className="text-ink-soft">
+          Wenn Sie über „Fehler in dieser Frage melden“ eine Frage melden, speichern wir die Frage, die gewählte
+          Kategorie, Ihre optionale Anmerkung, den Zeitpunkt sowie die Verknüpfung mit Ihrem Konto, damit wir bei
+          Rückfragen antworten können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
+          Korrektur und Qualitätssicherung des Fragenkatalogs). Die Meldungen werden gespeichert, solange Ihr Konto
+          besteht, und mit dem Konto gelöscht. Bitte geben Sie in der Anmerkung keine personenbezogenen Daten ein.
+          Feedback per E-Mail über den Link „Feedback“ geht direkt an die oben genannte Adresse und wird nur zur
+          Beantwortung und Verbesserung des Angebots verwendet.
         </p>
       </section>
 
@@ -91,14 +104,31 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
+        <h2 className="font-serif text-xl text-primary">KI-Prüfung Ihrer Antwort (Anthropic)</h2>
+        <p className="text-ink-soft">
+          Sofern für Ihr Konto freigeschaltet, können Sie Ihre geschriebene Antwort per Klick von einer KI prüfen
+          lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort und Ihre
+          eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine kurze
+          Rückmeldung erzeugt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt und frühere Antworten werden nicht
+          übermittelt. Wir speichern Ihre Antwort und das Ergebnis nicht; die Bewertung übernehmen Sie selbst. Bitte
+          geben Sie in Ihre Antwort keine personenbezogenen Daten ein. Rechtsgrundlage ist die Erfüllung des Nutzungs-
+          vertrags (Art. 6 Abs. 1 lit. b DSGVO), da Sie die Funktion aktiv auslösen. Anthropic verarbeitet die Daten in
+          unserem Auftrag auf Grundlage eines Auftragsverarbeitungsvertrags; die Übermittlung in die USA stützt sich auf
+          EU-Standardvertragsklauseln (Art. 44 ff. DSGVO). Die Aufbewahrung bei Anthropic richtet sich nach deren
+          Vertragsbedingungen für die API-Nutzung.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">Webanalyse</h2>
         <p className="text-ink-soft">
           Wir nutzen den Analysedienst Umami Cloud, um die Nutzung dieser Website statistisch auszuwerten (z. B.
-          Seitenaufrufe). Umami arbeitet cookielos: Es werden keine Cookies gesetzt und keine dauerhafte, geräte- oder
-          personenbezogene Kennung gespeichert, mit der Sie über mehrere Besuche hinweg wiedererkannt werden könnten.
-          Rechtsgrundlage ist unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) an der bedarfsgerechten
-          Weiterentwicklung des Angebots. Da keine Wiedererkennung stattfindet, ist hierfür keine Einwilligung nach § 25
-          TDDDG erforderlich.
+          Seitenaufrufe sowie grobe Nutzungsereignisse wie Anmeldung, Start einer Prüfung oder Bewertung einer Frage,
+          ohne Inhalte Ihrer Antworten). Umami arbeitet cookielos: Es werden keine Cookies gesetzt und keine dauerhafte,
+          geräte- oder personenbezogene Kennung gespeichert, mit der Sie über mehrere Besuche hinweg wiedererkannt
+          werden könnten. Rechtsgrundlage ist unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) an der
+          bedarfsgerechten Weiterentwicklung des Angebots. Da keine Wiedererkennung stattfindet, ist hierfür keine
+          Einwilligung nach § 25 TDDDG erforderlich.
         </p>
       </section>
 
@@ -106,10 +136,11 @@ export function PrivacyPage() {
         <h2 className="font-serif text-xl text-primary">Empfänger und Drittlandübermittlung</h2>
         <p className="text-ink-soft">
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Resend
-          (E-Mail-Versand), Umami (Webanalyse) und Google (Werbung). Mit den Dienstleistern, die in unserem Auftrag
-          Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben oder
-          Daten dorthin übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der EU-Kommission
-          (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
+          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse) und Google (Werbung). Mit den
+          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
+          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
+          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
+          (Art. 44 ff. DSGVO).
         </p>
       </section>
 

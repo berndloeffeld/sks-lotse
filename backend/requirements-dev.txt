@@ -2,10 +2,5 @@
 pytest==9.1.1
 pytest-cov==7.1.0
 httpx==0.28.1
-ruff==0.16.7
+ruff==0.16.8
 pre-commit==4.6.2
-# Only for scripts/manage_topics.py's `propose` command (LLM-assisted topic
-# classification) — never imported by the running app or by `apply`/the
-# Alembic data migration that seeds production, so it stays out of the
-# runtime requirements.txt.
-anthropic==1.6.0

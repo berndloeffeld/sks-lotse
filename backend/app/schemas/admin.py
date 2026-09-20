@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -21,6 +21,9 @@ class AdminUserRead(BaseModel):
     first_name: str | None
     last_name: str | None
     gender: str | None
+    ai_grading_enabled: bool
+    ai_checks_day: date | None
+    ai_checks_used: int
     question_progress_count: int
 
 
@@ -38,6 +41,21 @@ class AdminFocusTopicExport(BaseModel):
     topic_slug: str
     topic_name: str
     created_at: datetime
+
+
+class AdminQuestionReportExport(BaseModel):
+    question_id: int
+    subject: str
+    question_number: int
+    category: str
+    comment: str | None
+    created_at: datetime
+
+
+class AdminQuestionReportRead(AdminQuestionReportExport):
+    # The reporting account, so the operator can reply — only ever shown to admins.
+    user_id: int
+    user_email: str
 
 
 class AdminExamQuestionExport(BaseModel):
@@ -65,5 +83,6 @@ class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
     focus_topics: list[AdminFocusTopicExport]
+    question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
     exported_at: datetime
