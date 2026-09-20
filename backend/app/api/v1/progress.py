@@ -179,7 +179,12 @@ def grade_question(
             # between our read and this insert — apply this one on top of it.
             db.rollback()
             row = _progress_row(db, current_user.id, question_id)
-            assert row is not None
+            if row is None:
+                # The row that beat us is gone again (e.g. the account was
+                # deleted meanwhile) — nothing sensible to apply the grading to.
+                raise HTTPException(
+                    status_code=409, detail="Progress changed concurrently, please retry"
+                ) from None
 
     row.correct_streak = next_streak(row.correct_streak, payload.outcome)
     db.commit()
