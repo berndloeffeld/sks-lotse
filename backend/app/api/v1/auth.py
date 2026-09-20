@@ -11,7 +11,7 @@ from app.core import cache
 from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
-from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
+from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user, set_session_cookie
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
     OTP_PURPOSE_LOGIN,
@@ -259,21 +259,9 @@ def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depe
             db.refresh(user)
 
     access_token = create_access_token(user.id, user.token_version)
-    # The browser frontend never reads this token directly (see ADR-0012) —
-    # it's set as an httpOnly cookie here, in addition to the response body,
-    # which stays populated for Postman/the integration-test suite/any
-    # future non-browser client (Bearer fallback, see get_current_user).
-    response.set_cookie(
-        SESSION_COOKIE_NAME,
-        access_token,
-        max_age=settings.jwt_access_token_expires_minutes * 60,
-        httponly=True,
-        # Secure cookies are dropped by browsers over plain http://, which
-        # local dev uses — only require it once actually deployed.
-        secure=settings.is_production,
-        samesite="lax",
-        path="/",
-    )
+    # The body stays populated for Postman/the integration-test suite/any future non-browser client
+    # (Bearer fallback, see get_current_user); browsers use the cookie (ADR-0012).
+    set_session_cookie(response, access_token)
     return TokenRead(access_token=access_token)
 
 

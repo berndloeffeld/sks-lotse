@@ -2,7 +2,7 @@
 // surface is small enough to hand-track. Always sends credentials: "include"
 // so the httpOnly session cookie (ADR-0012) rides along automatically;
 // nothing here ever reads or stores the token itself.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export class ApiError extends Error {
   status: number

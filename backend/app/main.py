@@ -41,6 +41,15 @@ app.add_middleware(
         # cap is applied inside request_email_change itself (see auth.py) —
         # this per-IP rule alone doesn't stop one account probing many target
         # addresses from multiple IPs.
+        # SSO start/callback are open and trigger outbound provider calls — capped like OTP requests.
+        **{
+            f"/api/v1/auth/sso/{provider}/{leg}": (
+                settings.rate_limit_otp_max_requests,
+                settings.rate_limit_otp_window_seconds,
+            )
+            for provider in ("google", "facebook")
+            for leg in ("start", "callback")
+        },
         "/api/v1/auth/me/email/request": (
             settings.rate_limit_otp_max_requests,
             settings.rate_limit_otp_window_seconds,

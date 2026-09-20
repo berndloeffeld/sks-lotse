@@ -571,6 +571,125 @@
       "description": "Mirrors the HTTP-observable parts of backend/tests/test_auth.py. Full round-trip through a real OTP code, made possible locally by the dev-peek endpoint (ADR-0011) - requires the server under test to be running with ENVIRONMENT unset or 'development', and testEmail to pass ALLOWED_EMAILS if that's set locally. Covers both ways to authenticate: the Bearer token from the verify response (cookies disabled on those requests) and the httpOnly session cookie it also sets (see 'Me - with the session cookie only')."
     },
     {
+      "name": "SSO (open routes)",
+      "item": [
+        {
+          "name": "SSO providers - lists the configured providers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('providers is a list', function () { pm.expect(pm.response.json().providers).to.be.an('array'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sso/providers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sso",
+                "providers"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true,
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "SSO start - unknown provider is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sso/x/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sso",
+                "x",
+                "start"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true,
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "SSO callback - unknown provider is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sso/x/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sso",
+                "x",
+                "callback"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true,
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
       "name": "Questions (authenticated)",
       "item": [
         {

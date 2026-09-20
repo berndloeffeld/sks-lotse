@@ -46,6 +46,21 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      # Public origins for the SSO redirects (ADR-0034); not secrets.
+      - key: API_BASE_URL
+        value: https://api.sks-lotse.de
+      - key: FRONTEND_BASE_URL
+        value: https://sks-lotse.de
+      # SSO providers (ADR-0034). Set in the Render dashboard; a provider whose id or secret is empty
+      # is switched off (no login button).
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_OAUTH_CLIENT_ID
+        sync: false
+      - key: FACEBOOK_OAUTH_CLIENT_SECRET
+        sync: false
       - key: ANTHROPIC_GRADING_API_KEY
         sync: false
       - key: ADSENSE_CLIENT_ID

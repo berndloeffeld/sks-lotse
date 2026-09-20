@@ -6,6 +6,7 @@ from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
+from app.models.user_identity import UserIdentity
 
 __all__ = [
     "ExamAttempt",
@@ -17,4 +18,5 @@ __all__ = [
     "QuestionReport",
     "Topic",
     "User",
+    "UserIdentity",
 ]

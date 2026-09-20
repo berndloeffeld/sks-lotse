@@ -13,10 +13,12 @@ from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
+from app.models.user_identity import UserIdentity
 from app.schemas.admin import (
     AdminExamAttemptExport,
     AdminExamQuestionExport,
     AdminFocusTopicExport,
+    AdminIdentityExport,
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
     AdminQuestionReportRead,
@@ -133,6 +135,10 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
         .order_by(QuestionReport.created_at)
     ).all()
 
+    identity_rows = db.execute(
+        select(UserIdentity).where(UserIdentity.user_id == user_id).order_by(UserIdentity.created_at)
+    ).scalars()
+
     attempts = list(
         db.execute(
             select(ExamAttempt).where(ExamAttempt.user_id == user_id).order_by(ExamAttempt.started_at)
@@ -203,6 +209,10 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
                 updated_at=progress.updated_at,
             )
             for progress, subject, number in rows
+        ],
+        identities=[
+            AdminIdentityExport(provider=i.provider, subject=i.subject, created_at=i.created_at)
+            for i in identity_rows
         ],
         exported_at=datetime.now(UTC),
     )

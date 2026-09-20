@@ -7,6 +7,7 @@ from app.models.otp_code import OtpCode
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.user import User
+from app.models.user_identity import UserIdentity
 
 
 def delete_user_and_progress(db: Session, user: User) -> None:
@@ -17,6 +18,7 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # doesn't do — an ORM-level session.delete(user) alone can't be trusted to
     # cascade under both engines.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
+    db.execute(delete(UserIdentity).where(UserIdentity.user_id == user.id))
     db.execute(delete(FocusTopic).where(FocusTopic.user_id == user.id))
     db.execute(delete(QuestionReport).where(QuestionReport.user_id == user.id))
     # Exam attempts carry the learner's free-text answers; their questions go first.

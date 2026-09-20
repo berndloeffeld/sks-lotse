@@ -76,7 +76,8 @@ Every request passes through a middleware stack: redirect of secondary domains t
 API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `ENVIRONMENT` is `development` or `test`.
 
 ### Auth
-- **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
+- **Login**: passwordless email + one-time code, or SSO with Google or Facebook ([ADR-0034](adr/0034-sso-with-google-and-facebook.md)). Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
+- **SSO**: a server-side OAuth2 authorization-code flow (`api/v1/sso.py`, `services/sso.py`). `GET /auth/sso/{provider}/start` redirects to the provider (state and, for Google, a PKCE verifier travel in a short-lived signed cookie), `GET .../callback` trades the code for the provider's user id and verified email, signs the learner in with the same session cookie as the OTP login, and redirects to the frontend. The account is found by `user_identities` (provider + subject) or, on first login, by the canonical email, so an OTP account and an SSO login for the same address are one account. Failures redirect to `/login?sso_error=…`. A provider whose client id/secret is unset is off (`GET /auth/sso/providers` lists the active ones, the login page shows a button for each). The allowlist and the disposable-domain check apply as for OTP.
 - **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. Logout invalidates all of a user's tokens by bumping a per-user `token_version`.
 - **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
@@ -99,6 +100,7 @@ PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
 | `focus_topics` | Per-user topics marked as Fokus | `PUT`/`DELETE /progress/focus/...`; deleted automatically once every question of the topic is learned ([ADR-0028](adr/0028-focus-topics.md)) |
 | `question_reports` | Per-user reports of faulty questions (category + optional comment) | `POST /questions/{id}/report`; deleted with the account ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)) |
 | `exam_attempts`, `exam_attempt_questions` | Per-user exam simulation runs: the drawn questions, the learner's answers and self-assessment | `/exams` endpoints; deleted with the account or one by one ([ADR-0029](adr/0029-exam-simulation.md)) |
+| `user_identities` | SSO identities (provider + provider user id) of an account | SSO callback ([0034](adr/0034-sso-with-google-and-facebook.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
 Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data.
@@ -136,7 +138,6 @@ All of them except the integration tests are required status checks on `main`, a
 
 - Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which the operator sets on `/admin` for now.
 - Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
-- SSO login (Google/Facebook/X)
 - Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))

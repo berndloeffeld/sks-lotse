@@ -39,6 +39,21 @@ export function PrivacyPage() {
           den Versand der Login-Codes per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig
           wird.
         </p>
+        <p className="text-ink-soft">
+          Alternativ können Sie sich mit Ihrem Google- oder Facebook-Konto anmelden. Dabei leiten wir Sie zum jeweiligen
+          Anbieter (Google Ireland Limited, Irland, bzw. Meta Platforms Ireland Limited, Irland) weiter, der Sie
+          authentifiziert und uns Ihre bestätigte E-Mail-Adresse sowie eine anbieterinterne Kennung übermittelt. Diese
+          beiden Angaben speichern wir; Passwörter, Freundeslisten oder Profilbilder erhalten wir nicht. Der Anbieter
+          erfährt dabei, dass Sie sich bei SKS Lotse anmelden, und verarbeitet dies nach eigenen
+          Datenschutzbestimmungen. Ohne Ihre Zustimmung beim Anbieter erfolgt keine Übermittlung. Rechtsgrundlage ist
+          Art. 6 Abs. 1 lit. b DSGVO. Mit einer bereits bestehenden Anmeldung per E-Mail-Code unter derselben
+          E-Mail-Adresse wird das Konto zusammengeführt.
+        </p>
+        <p className="text-ink-soft">
+          Die Verknüpfung mit Google bzw. Facebook löschen Sie zusammen mit Ihrem Konto unter „Profil“ (Konto löschen)
+          oder per E-Mail an uns; damit werden auch die bei uns gespeicherten Anbieter-Kennungen entfernt. Diese Seite
+          dient zugleich als Anleitung zur Löschung Ihrer Daten für Facebook Login.
+        </p>
       </section>
 
       <section className="flex flex-col gap-2">
@@ -136,11 +151,11 @@ export function PrivacyPage() {
         <h2 className="font-serif text-xl text-primary">Empfänger und Drittlandübermittlung</h2>
         <p className="text-ink-soft">
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Resend
-          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse) und Google (Werbung). Mit den
-          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
-          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
-          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
-          (Art. 44 ff. DSGVO).
+          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse), Google (Werbung) sowie Google
+          und Meta (Anmeldung, nur bei Nutzung der jeweiligen Anmeldeoption). Mit den Dienstleistern, die in unserem
+          Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben
+          oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der
+          EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
         </p>
       </section>
 

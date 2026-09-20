@@ -1,6 +1,6 @@
 # 0006. Mandatory login and feature-gated monetization
 
-Status: Accepted
+Status: Accepted (SSO part amended by [ADR-0034](0034-sso-with-google-and-facebook.md): Google and Facebook, X dropped)
 
 ## Context
 

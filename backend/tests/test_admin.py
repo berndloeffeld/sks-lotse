@@ -4,6 +4,7 @@ from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
+from app.models.user_identity import UserIdentity
 
 _FIXTURE_EMAIL = "fixture-user@example.com"
 
@@ -180,3 +181,13 @@ def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, 
         "/api/v1/admin/users/999999", json={"ai_grading_enabled": True}, headers=auth_headers
     )
     assert response.status_code == 404
+
+
+def test_admin_export_includes_sso_identities(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    db_session.add(UserIdentity(user_id=user.id, provider="google", subject="sub-42"))
+    db_session.commit()
+
+    body = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers).json()
+    assert [(i["provider"], i["subject"]) for i in body["identities"]] == [("google", "sub-42")]

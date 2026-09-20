@@ -44,6 +44,15 @@ class Settings(BaseSettings):
     anthropic_grading_model: str = "claude-haiku-4-5"
     anthropic_grading_timeout_seconds: float = 15.0
     adsense_client_id: str = ""
+    # Public origins of the API and the frontend (SSO redirect URIs and the redirects back into the
+    # app, ADR-0033). Production values are set in render.yaml.
+    api_base_url: str = "http://localhost:8000"
+    frontend_base_url: str = "http://localhost:5173"
+    # SSO providers (ADR-0033). A provider with an empty id or secret is switched off: no login button.
+    google_oauth_client_id: str = ""
+    google_oauth_client_secret: str = ""
+    facebook_oauth_client_id: str = ""
+    facebook_oauth_client_secret: str = ""
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
     # noreply address.

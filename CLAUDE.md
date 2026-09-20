@@ -18,7 +18,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 | Frontend testing | Vitest + React Testing Library ([ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md)) |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
-| Auth | Required — no anonymous access. SSO (Google/Facebook/X) or email + OTP, JWT-based session |
+| Auth | Required — no anonymous access. SSO (Google/Facebook, [ADR-0034](docs/adr/0034-sso-with-google-and-facebook.md)) or email + OTP, JWT-based session |
 | Transactional email | Resend (OTP login codes) |
 | Answer check (LLM) | Anthropic API (Claude Haiku), stateless, suggests a grade + feedback ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)) |
 | Speech-to-text | Web Speech API (browser-native, Chromium-based browsers) — no backend/cloud STT |
@@ -72,7 +72,7 @@ sks-lotse/
 
 ## Core Flow
 
-1. Learner logs in (SSO via Google/Facebook/X, or email + OTP) — required before using the app.
+1. Learner logs in (SSO via Google/Facebook, or email + OTP) — required before using the app.
 2. Learner is shown a question from the official SKS catalog.
 3. **If the account has AI-based grading unlocked**: learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit); the answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer; the LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
 4. **If not**: the official model answer is shown for the learner to self-compare against — no forced writing step (an optional scratchpad field is never sent), no LLM call. The learner then grades themselves (Richtig / Teilweise Richtig / Falsch), which moves the question's "gelernt" streak exactly like an AI grading would ([ADR-0023](docs/adr/0023-self-assessed-learning-flow.md)). Accounts with `ai_grading_enabled` (set by the operator on `/admin` (`PATCH /admin/users/{id}`) until payment exists) additionally get an "Antwort prüfen lassen" button that asks Claude Haiku for a *suggested* grade + feedback ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)); the learner still confirms the grade themselves.
@@ -120,7 +120,7 @@ See [docs/adr/0006-mandatory-login-and-feature-gated-monetization.md](docs/adr/0
 ## Accounts
 
 - Login is required to use the app at all — no anonymous access.
-- Sign-in via SSO (Google, Facebook, or X) or email + OTP (passwordless).
+- Sign-in via SSO (Google or Facebook — X was dropped, [ADR-0034](docs/adr/0034-sso-with-google-and-facebook.md)) or email + OTP (passwordless). SSO is a server-side authorization-code flow that ends in the same session cookie as the OTP login; identities live in `user_identities` (deleted with the account, part of the admin DSGVO export). A first SSO login links to an existing account with the same canonical email, but only if the provider reports the email as verified.
 - JWT-based session after sign-in. Progress is always synced server-side against the account (no browser-only anonymous progress).
 - Entitlements (ads removed? AI grading unlocked?) are attached to the account — see [Monetization](#monetization).
 - **GDPR admin tools** (`/admin` in the frontend): a learner exercises their Art. 15/16/17/18/20/21 DSGVO rights by emailing the operator (per the Datenschutzerklärung), who fulfills Auskunft/Löschung requests by hand via this page — look a user up by email, export their data as JSON, or delete their account. Gated by the `ADMIN_EMAILS` allowlist (see Environment Variables below), not a DB role — see [ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md).
@@ -210,7 +210,7 @@ Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-
 One-time manual steps (account-level actions, done by the project owner, not by Claude Code):
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
-3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS`) on the backend service, and `VITE_UMAMI_WEBSITE_ID` (from the Umami Cloud dashboard's tracking-code snippet — not a secret, just kept out of the repo, see [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) on the `sks-lotse-frontend` service, in the Render dashboard — never commit their values.
+3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS`, and once the OAuth apps exist `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`) on the backend service, and `VITE_UMAMI_WEBSITE_ID` (from the Umami Cloud dashboard's tracking-code snippet — not a secret, just kept out of the repo, see [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) on the `sks-lotse-frontend` service, in the Render dashboard — never commit their values.
 4. Once the `sks-lotse-daily-report` Cron Job exists (Blueprint Sync; it mails the daily KPI report, [ADR-0032](docs/adr/0032-daily-kpi-report.md)): set its `sync: false` secrets `JWT_SECRET`, `RESEND_API_KEY` and `ADMIN_EMAILS` to the same values as on the backend.
 5. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
 6. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, then **remove** them from the backend service (a domain can only be attached to one service). Add `api.sks-lotse.de` to the backend, and add a matching `CNAME api → sks-lotse-backend.onrender.com` in IONOS DNS.
@@ -220,7 +220,7 @@ After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`) on
 ### Auth & rate limiting
 How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/0011); the rules to follow when adding code:
 
-- **New `/api/v1` routes require a JWT.** Opt a router in via `dependencies=[Depends(get_current_user)]` (see `backend/app/api/v1/questions.py`), or take `current_user: User = Depends(get_current_user)` per route. The only intentionally open routes are `POST /auth/otp/request` and `POST /auth/otp/verify` (that's how a caller gets a token) and `/health` (Render's health check).
+- **New `/api/v1` routes require a JWT.** Opt a router in via `dependencies=[Depends(get_current_user)]` (see `backend/app/api/v1/questions.py`), or take `current_user: User = Depends(get_current_user)` per route. The only intentionally open routes are `POST /auth/otp/request` and `POST /auth/otp/verify`, `GET /auth/sso/providers` and `GET /auth/sso/{provider}/start|callback` (that's how a caller gets a token) and `/health` (Render's health check).
 - **Rate limiting is automatic** for everything under `/api/v1` (shared per-IP bucket, `backend/app/core/rate_limit.py`). An expensive or abusable new endpoint (e.g. the LLM grading call) gets its own tighter exact-path rule in `backend/app/main.py`.
 - **Accept email addresses via `NormalizedEmail`** (`backend/app/schemas/auth.py`), never plain `EmailStr` — every per-email lookup and quota relies on its canonical form (`canonicalize_email`, `backend/app/core/email_address.py`): lowercase, and for Gmail/Googlemail also without dots and `+tag`, with `googlemail.com` folded to `gmail.com`, so one inbox can't become many accounts. The `ALLOWED_EMAILS`/`ADMIN_EMAILS` allowlists are canonicalized the same way, so they may be written in any spelling. Anything new that compares or looks up an address outside a schema must call `canonicalize_email` itself.
 - **Dev/test-only endpoints are gated on `settings.exposes_dev_tooling`** (an allowlist that fails closed), never on `not settings.is_production`, and declared with `include_in_schema=False`.
@@ -248,7 +248,8 @@ Apply these four checks whenever adding or changing a database table — going f
 - **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `GRADING_*` — incl. the daily AI-check budget, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
 - **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
 - **Frontend `VITE_ADSENSE_CLIENT_ID`** — Google AdSense publisher id (`ca-pub-…`), set on the frontend service only; unset = the ad script and the "Cookie-Einstellungen" footer button are absent ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
-- **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused (grading went to Anthropic, ADR-0031).
+- **`GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`** — SSO (ADR-0034); a provider with an empty id or secret is off and gets no login button. `API_BASE_URL`/`FRONTEND_BASE_URL` are the public origins used for the redirect URI (`<API_BASE_URL>/api/v1/auth/sso/<provider>/callback`, registered at the provider) and the redirect back into the app; `render.yaml` sets them to `api.sks-lotse.de`/`sks-lotse.de`.
+- **Not yet read by the app:** `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused (grading went to Anthropic, ADR-0031).
 - **`ANTHROPIC_API_KEY`** — only used locally by `backend/scripts/manage_topics.py` (see Question Catalog) to classify questions into topics; not read by the running app, not set on Render.
 - **`ANTHROPIC_GRADING_API_KEY`** — the running app's key for the AI answer check (`backend/app/services/grader.py`, ADR-0031; empty = the endpoint answers 503). A `sync: false` secret on Render; keep it a different key (own Console workspace) from `ANTHROPIC_API_KEY`.
 

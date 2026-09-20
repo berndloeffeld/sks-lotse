@@ -18,7 +18,7 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 | Frontend | React (Vite) + TypeScript, Zustand, Tailwind CSS |
 | Backend | Python 3.12 / FastAPI |
 | Database | PostgreSQL 16 |
-| Auth | Email + one-time code (OTP), JWT sessions *(SSO not yet built)* |
+| Auth | Email + one-time code (OTP) or SSO with Google/Facebook, JWT sessions |
 | Transactional email | Resend |
 | Answer check (LLM) | Anthropic API (Claude Haiku), opt-in per account — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md) |
 | Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
@@ -37,7 +37,7 @@ Login is mandatory, so handling personal data properly is part of the design, no
 - **Data minimisation:** name and gender are optional. Analytics is Umami Cloud (EU), cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). Ads (AdSense) load only after consent via Google's TCF consent management ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
 - **AI check is opt-in and stateless:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email, name or history is sent and nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)).
 - **Data-subject rights:** learners can delete their account, including progress, exams, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
-- **Processors:** Render (hosting), Resend (login emails), Umami (analytics), Anthropic (AI check), Google (ads), all listed in the Datenschutzerklärung.
+- **Processors:** Render (hosting), Resend (login emails), Google/Meta (SSO, only if used), Umami (analytics), Anthropic (AI check), Google (ads), all listed in the Datenschutzerklärung.
 - **Vulnerabilities:** report privately, see [SECURITY.md](SECURITY.md).
 
 ## Architecture & decisions

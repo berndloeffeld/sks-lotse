@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi import Depends, HTTPException, Request, Security, status
+from fastapi import Depends, HTTPException, Request, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,21 @@ def create_access_token(user_id: int, token_version: int) -> str:
     expires_at = datetime.now(UTC) + timedelta(minutes=settings.jwt_access_token_expires_minutes)
     payload = {"sub": str(user_id), "tv": token_version, "exp": expires_at}
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+
+
+def set_session_cookie(response: Response, access_token: str) -> None:
+    # The browser frontend never reads this token directly (see ADR-0012) — it's an httpOnly cookie.
+    response.set_cookie(
+        SESSION_COOKIE_NAME,
+        access_token,
+        max_age=settings.jwt_access_token_expires_minutes * 60,
+        httponly=True,
+        # Secure cookies are dropped by browsers over plain http://, which
+        # local dev uses — only require it once actually deployed.
+        secure=settings.is_production,
+        samesite="lax",
+        path="/",
+    )
 
 
 def get_current_user(

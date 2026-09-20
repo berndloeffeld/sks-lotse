@@ -1121,6 +1121,490 @@
                       }
                     }
                   ]
+                },
+                {
+                  "name": "sso",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "providers",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "List Providers",
+                          "request": {
+                            "name": "List Providers",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "sso",
+                                "providers"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {},
+                            "auth": null
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "sso",
+                                    "providers"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"providers\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "{provider}",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "start",
+                          "description": "",
+                          "item": [
+                            {
+                              "name": "Start",
+                              "request": {
+                                "name": "Start",
+                                "description": {},
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "sso",
+                                    ":provider",
+                                    "start"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "provider",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {},
+                                "auth": null
+                              },
+                              "response": [
+                                {
+                                  "name": "Successful Response",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "auth",
+                                        "sso",
+                                        ":provider",
+                                        "start"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "provider"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      }
+                                    ],
+                                    "method": "GET",
+                                    "body": {}
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                },
+                                {
+                                  "name": "Validation Error",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "auth",
+                                        "sso",
+                                        ":provider",
+                                        "start"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "provider"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      }
+                                    ],
+                                    "method": "GET",
+                                    "body": {}
+                                  },
+                                  "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                  "code": 422,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                }
+                              ],
+                              "event": [],
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "callback",
+                          "description": "",
+                          "item": [
+                            {
+                              "name": "Callback",
+                              "request": {
+                                "name": "Callback",
+                                "description": {},
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "auth",
+                                    "sso",
+                                    ":provider",
+                                    "callback"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "",
+                                        "type": "text/plain"
+                                      },
+                                      "key": "code",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "",
+                                        "type": "text/plain"
+                                      },
+                                      "key": "state",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "",
+                                        "type": "text/plain"
+                                      },
+                                      "key": "error",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "type": "any",
+                                      "value": "<string>",
+                                      "key": "provider",
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      }
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {},
+                                "auth": null
+                              },
+                              "response": [
+                                {
+                                  "name": "Successful Response",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "auth",
+                                        "sso",
+                                        ":provider",
+                                        "callback"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "code",
+                                          "value": "<string>"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "state",
+                                          "value": "<string>"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "error",
+                                          "value": "<string>"
+                                        }
+                                      ],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "provider"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      }
+                                    ],
+                                    "method": "GET",
+                                    "body": {}
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                },
+                                {
+                                  "name": "Validation Error",
+                                  "originalRequest": {
+                                    "url": {
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "auth",
+                                        "sso",
+                                        ":provider",
+                                        "callback"
+                                      ],
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "query": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "code",
+                                          "value": "<string>"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "state",
+                                          "value": "<string>"
+                                        },
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "",
+                                            "type": "text/plain"
+                                          },
+                                          "key": "error",
+                                          "value": "<string>"
+                                        }
+                                      ],
+                                      "variable": [
+                                        {
+                                          "disabled": false,
+                                          "description": {
+                                            "content": "(Required) ",
+                                            "type": "text/plain"
+                                          },
+                                          "type": "any",
+                                          "value": "<string>",
+                                          "key": "provider"
+                                        }
+                                      ]
+                                    },
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      }
+                                    ],
+                                    "method": "GET",
+                                    "body": {}
+                                  },
+                                  "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                  "code": 422,
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                  "cookie": [],
+                                  "_postman_previewlanguage": "json"
+                                }
+                              ],
+                              "event": [],
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -5025,7 +5509,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_grading_enabled\": \"<boolean>\",\n    \"ai_checks_day\": \"<date>\",\n    \"ai_checks_used\": \"<integer>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"exam_variant\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_grading_enabled\": \"<boolean>\",\n    \"ai_checks_day\": \"<date>\",\n    \"ai_checks_used\": \"<integer>\",\n    \"question_progress_count\": \"<integer>\"\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"correct_streak\": \"<integer>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"identities\": [\n    {\n      \"provider\": \"<string>\",\n      \"subject\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"provider\": \"<string>\",\n      \"subject\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },

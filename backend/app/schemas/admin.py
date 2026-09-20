@@ -83,10 +83,17 @@ class AdminExamAttemptExport(BaseModel):
     questions: list[AdminExamQuestionExport]
 
 
+class AdminIdentityExport(BaseModel):
+    provider: str
+    subject: str
+    created_at: datetime
+
+
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
     focus_topics: list[AdminFocusTopicExport]
     question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
+    identities: list[AdminIdentityExport]
     exported_at: datetime

@@ -127,3 +127,8 @@ class UserUpdate(BaseModel):
     first_name: NameField | None = None
     last_name: NameField | None = None
     gender: GenderField | None = None
+
+
+class SsoProvidersRead(BaseModel):
+    # The SSO providers that are configured on this deployment (ADR-0034), e.g. ["facebook", "google"].
+    providers: list[str]

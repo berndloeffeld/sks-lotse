@@ -77,7 +77,10 @@ describe('LoginPage', () => {
 
   it('lets the learner go back and use a different email address', async () => {
     const user = userEvent.setup()
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'sent' }, 202)))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ detail: 'sent' }, 202)),
+    )
 
     renderLoginPage()
 

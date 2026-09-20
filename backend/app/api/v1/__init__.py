@@ -7,9 +7,11 @@ from app.api.v1.grading import router as grading_router
 from app.api.v1.progress import router as progress_router
 from app.api.v1.questions import router as questions_router
 from app.api.v1.questions import topics_router
+from app.api.v1.sso import router as sso_router
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(auth_router)
+router.include_router(sso_router)
 router.include_router(questions_router)
 router.include_router(grading_router)
 router.include_router(topics_router)

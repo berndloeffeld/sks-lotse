@@ -1,12 +1,22 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
-import { ApiError, apiClient } from '../api/client'
+import { API_BASE_URL, ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
 
 type Step = 'email' | 'code'
+
+const SSO_LABELS: Record<string, string> = { google: 'Google', facebook: 'Facebook' }
+
+// The backend redirects back to /login?sso_error=<code> when an SSO sign-in didn't work out.
+const SSO_ERRORS: Record<string, string> = {
+  cancelled: 'Die Anmeldung wurde abgebrochen.',
+  no_email: 'Der Anbieter hat keine bestätigte E-Mail-Adresse geliefert. Bitte melde dich per E-Mail-Code an.',
+  not_allowed: 'Mit dieser E-Mail-Adresse ist die Anmeldung derzeit nicht möglich.',
+  failed: 'Die Anmeldung über den Anbieter ist fehlgeschlagen. Bitte erneut versuchen.',
+}
 
 interface LoginFormProps {
   // `dark` for use on a primary band (the landing page's sign-up section),
@@ -24,8 +34,20 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
+  const ssoError = searchParams.get('sso_error')
+  const [error, setError] = useState<string | null>(ssoError ? (SSO_ERRORS[ssoError] ?? SSO_ERRORS.failed) : null)
+  const [ssoProviders, setSsoProviders] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    // Only the providers this deployment has configured get a button; a failure here just means
+    // the email login stays the only option.
+    apiClient
+      .get<{ providers: string[] }>('/auth/sso/providers')
+      .then((result) => setSsoProviders(result.providers.filter((name) => name in SSO_LABELS)))
+      .catch(() => undefined)
+  }, [])
 
   const f = formStyles(tone)
   const labelClass = f.label
@@ -94,6 +116,21 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         <button type="submit" disabled={isSubmitting} className={buttonClass}>
           Code anfordern
         </button>
+        {ssoProviders.length > 0 && (
+          <>
+            <p className={`text-center text-xs ${f.note}`}>oder</p>
+            {ssoProviders.map((name) => (
+              <a
+                key={name}
+                href={`${API_BASE_URL}/api/v1/auth/sso/${name}/start`}
+                onClick={() => trackEvent('login_sso', { provider: name })}
+                className={`${buttonClass} text-center`}
+              >
+                Mit {SSO_LABELS[name]} anmelden
+              </a>
+            ))}
+          </>
+        )}
       </form>
     )
   }

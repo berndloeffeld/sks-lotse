@@ -110,6 +110,12 @@ export interface AdminQuestionReportExport {
   created_at: string
 }
 
+export interface AdminIdentityExport {
+  provider: string
+  subject: string
+  created_at: string
+}
+
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
   user: AdminUserSearchResult
@@ -117,6 +123,7 @@ export interface AdminUserExport {
   focus_topics: AdminFocusTopicExport[]
   question_reports: AdminQuestionReportExport[]
   exam_attempts: AdminExamAttemptExport[]
+  identities: AdminIdentityExport[]
   exported_at: string
 }
 
