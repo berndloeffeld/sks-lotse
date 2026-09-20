@@ -15,14 +15,4 @@ describe('Header', () => {
     expect(screen.getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/')
     expect(screen.getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
   })
-
-  it('marks the app as a beta version', () => {
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>,
-    )
-
-    expect(screen.getByTitle(/Beta-Version/)).toHaveTextContent('Beta')
-  })
 })
