@@ -184,7 +184,8 @@ describe('ExamRunPage', () => {
     expect(screen.getByRole('button', { name: 'Bewertung speichern' })).toBeDisabled()
 
     // Focus sits on the group, so the first Tab lands on "Richtig", then it cycles.
-    expect(screen.getByRole('group', { name: 'Wie gut war deine Antwort?' })).toHaveFocus()
+    // (waitFor: the focus effect runs after the first paint, so it can lag the text appearing.)
+    await waitFor(() => expect(screen.getByRole('group', { name: 'Wie gut war deine Antwort?' })).toHaveFocus())
     await user.tab()
     expect(screen.getByLabelText('Richtig')).toHaveFocus()
     await user.tab()
