@@ -2,12 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 
+import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/types'
 import { CourseGauge } from '../components/CourseGauge'
 import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebration'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
+import { ReportQuestion } from '../components/ReportQuestion'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
@@ -146,7 +148,9 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
       const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome })
       const before = streaks.get(question.id) ?? 0
       const learnedNow = result.learned && !isLearned(before)
+      trackEvent('question_graded', { outcome })
       if (learnedNow) {
+        trackEvent('question_learned')
         setNewlyLearned((n) => n + 1)
         setCelebrating(question.number)
       }
@@ -284,6 +288,8 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               </p>
             )}
           </section>
+
+          <ReportQuestion key={question.id} questionId={question.id} />
 
           <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>

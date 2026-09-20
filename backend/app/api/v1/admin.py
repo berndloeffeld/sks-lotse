@@ -10,6 +10,7 @@ from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
+from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
@@ -17,6 +18,8 @@ from app.schemas.admin import (
     AdminExamQuestionExport,
     AdminFocusTopicExport,
     AdminQuestionProgressExport,
+    AdminQuestionReportExport,
+    AdminQuestionReportRead,
     AdminUserExport,
     AdminUserRead,
     AdminUserSearchRequest,
@@ -62,6 +65,30 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
     return _admin_user_read(user, _question_progress_count(db, user.id))
 
 
+@router.get("/question-reports", response_model=list[AdminQuestionReportRead])
+def list_question_reports(db: Session = Depends(get_db)) -> list[AdminQuestionReportRead]:
+    """All "Frage melden" notes, newest first (ADR-0030)."""
+    rows = db.execute(
+        select(QuestionReport, Question.subject, Question.number, User.email)
+        .join(Question, Question.id == QuestionReport.question_id)
+        .join(User, User.id == QuestionReport.user_id)
+        .order_by(QuestionReport.created_at.desc(), QuestionReport.id.desc())
+    ).all()
+    return [
+        AdminQuestionReportRead(
+            question_id=report.question_id,
+            subject=subject,
+            question_number=number,
+            category=report.category,
+            comment=report.comment,
+            created_at=report.created_at,
+            user_id=report.user_id,
+            user_email=email,
+        )
+        for report, subject, number, email in rows
+    ]
+
+
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)
 def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
     user = _get_user_or_404(db, user_id)
@@ -77,6 +104,13 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
         .join(Topic, Topic.id == FocusTopic.topic_id)
         .where(FocusTopic.user_id == user_id)
         .order_by(Topic.subject, Topic.display_order)
+    ).all()
+
+    report_rows = db.execute(
+        select(QuestionReport, Question.subject, Question.number)
+        .join(Question, Question.id == QuestionReport.question_id)
+        .where(QuestionReport.user_id == user_id)
+        .order_by(QuestionReport.created_at)
     ).all()
 
     attempts = list(
@@ -127,6 +161,17 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
                 created_at=focus.created_at,
             )
             for focus, topic in focus_rows
+        ],
+        question_reports=[
+            AdminQuestionReportExport(
+                question_id=report.question_id,
+                subject=subject,
+                question_number=number,
+                category=report.category,
+                comment=report.comment,
+                created_at=report.created_at,
+            )
+            for report, subject, number in report_rows
         ],
         question_progress=[
             AdminQuestionProgressExport(

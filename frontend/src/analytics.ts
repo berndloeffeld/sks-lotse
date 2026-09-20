@@ -14,3 +14,22 @@ export function initAnalytics() {
   script.dataset.websiteId = websiteId
   document.head.appendChild(script)
 }
+
+declare global {
+  interface Window {
+    umami?: { track: (name: string, data?: Record<string, string | number>) => void }
+  }
+}
+
+// Custom Umami events for the core funnel (login → learning → simulation →
+// focus). Names and properties are fixed, coarse keys — never free text, ids
+// of the learner or answers — so cookieless analytics stays free of personal
+// data (ADR-0016). A no-op wherever the script isn't loaded (local dev, CI,
+// blocked by an ad blocker); analytics must never break the app.
+export function trackEvent(name: string, data?: Record<string, string | number>) {
+  try {
+    window.umami?.track(name, data)
+  } catch {
+    // ignore
+  }
+}

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { adsEnabled, openConsentSettings } from '../ads'
+import { FEEDBACK_MAILTO } from '../contact'
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
@@ -10,13 +11,19 @@ export function LegalFooter() {
   return (
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
-        <nav className="flex gap-6 font-mono text-xs tracking-wide uppercase">
+        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
           <Link to="/imprint" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             Impressum
           </Link>
           <Link to="/privacy" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             Datenschutz
           </Link>
+          <a
+            href={FEEDBACK_MAILTO}
+            className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface"
+          >
+            Feedback
+          </a>
           {adsEnabled() && (
             <button
               type="button"

@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     email_change_max_requests_per_window: int = 5
     email_change_window_seconds: int = 3600  # 1 hour
 
+    # Per-authenticated-user cap on POST /questions/{id}/report: bounds how much
+    # free text one account can push into the operator's inbox.
+    question_report_max_per_window: int = 20
+    question_report_window_seconds: int = 3600  # 1 hour
+
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 
     @property

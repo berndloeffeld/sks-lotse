@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
@@ -60,6 +61,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
     try {
       await apiClient.post('/auth/otp/verify', { email, code })
       await checkSession()
+      trackEvent('login')
       navigate('/start')
     } catch (err) {
       setError(
