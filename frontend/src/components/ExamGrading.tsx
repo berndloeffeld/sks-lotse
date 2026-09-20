@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
 import { formStyles } from './formStyles'
+import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
 
 const OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
@@ -44,7 +46,11 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
     setIsSaving(true)
     setError(null)
     try {
-      onChange(await apiClient.put<Exam>(`/exams/${exam.id}/questions/${question.position}/grade`, { outcome: chosen }))
+      const updated = await apiClient.put<Exam>(`/exams/${exam.id}/questions/${question.position}/grade`, {
+        outcome: chosen,
+      })
+      if (updated.status === 'completed') trackEvent('exam_completed', { result: updated.result ?? 'unknown' })
+      onChange(updated)
       setOutcome(null)
     } catch {
       setError('Die Bewertung konnte nicht gespeichert werden.')
@@ -76,6 +82,9 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
           {question.official_answer ? <RichText text={question.official_answer} /> : '—'}
         </p>
       </section>
+      {question.question_id !== null ? (
+        <ReportQuestion key={question.question_id} questionId={question.question_id} />
+      ) : null}
       <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
         <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
         {OUTCOMES.map((o, i) => (

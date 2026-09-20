@@ -1,0 +1,123 @@
+import { useState, type KeyboardEvent, type Ref } from 'react'
+
+import { trackEvent } from '../analytics'
+import { ApiError, apiClient } from '../api/client'
+import type { AiGrade, GradingOutcome } from '../api/types'
+import { OUTCOME_LABELS } from '../labels'
+import { useAuthStore } from '../store/authStore'
+import { formStyles } from './formStyles'
+import { CompassIcon } from './icons/FeatureIcons'
+
+const styles = formStyles('light')
+
+interface AiAnswerCheckProps {
+  questionId: number
+  answer: string
+  // Hands the suggested grade to the self-assessment, which the learner still confirms.
+  onSuggest: (outcome: GradingOutcome) => void
+  // So the parent can fold the button into the Tab loop of the grade radios.
+  buttonRef?: Ref<HTMLButtonElement>
+  onButtonKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 429) {
+    return 'Der Lotse ist für diese Frage oder für heute ausgelastet. Bewerte dich bitte selbst.'
+  }
+  return 'Der Lotse ist gerade nicht erreichbar. Bewerte dich bitte selbst.'
+}
+
+// What happens to the answer lives in the tooltip and the accessible description, not in a caption.
+const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
+
+// A diagonal corner ribbon ("KI"), clipped by the row (which needs relative + overflow-hidden).
+function Ribbon() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute top-[8px] -right-[22px] w-[74px] rotate-45 bg-primary py-px text-center text-[0.7rem] leading-4 font-bold tracking-widest text-surface shadow-sm"
+    >
+      KI
+    </span>
+  )
+}
+
+// "Unsicher – Lotse fragen" (ADR-0031): the fourth choice under the grade radios. A stateless LLM
+// check of the written answer that only *suggests* a grade; the learner who is sure just grades.
+// Accounts without the unlock see it dimmed with "bald verfügbar". Keyed by question in the parent.
+export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
+  const user = useAuthStore((s) => s.user)
+  const setUser = useAuthStore((s) => s.setUser)
+  const [isChecking, setIsChecking] = useState(false)
+  const [result, setResult] = useState<AiGrade | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const isUnlocked = user?.ai_grading_enabled ?? false
+  const remaining = user?.ai_checks_remaining ?? 0
+  const hasAnswer = answer.trim().length > 0
+
+  let hint = `noch ${remaining} heute`
+  if (!isUnlocked) hint = 'bald verfügbar'
+  else if (isChecking) hint = 'Lotse prüft…'
+  else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
+  else if (remaining <= 0) hint = 'morgen wieder'
+
+  const isDisabled = !isUnlocked || isChecking || !hasAnswer || remaining <= 0
+
+  async function check() {
+    setIsChecking(true)
+    setError(null)
+    try {
+      const grade = await apiClient.post<AiGrade>(`/questions/${questionId}/ai-grade`, { answer })
+      trackEvent('ai_check_used')
+      if (user) setUser({ ...user, ai_checks_remaining: grade.remaining_today })
+      setResult(grade)
+      onSuggest(grade.outcome)
+    } catch (e) {
+      setError(errorMessage(e))
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <span id={`ai-check-notice-${questionId}`} className="sr-only">
+        {SEND_NOTICE}
+      </span>
+      <button
+        ref={buttonRef}
+        type="button"
+        disabled={isDisabled}
+        title={isUnlocked ? SEND_NOTICE : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
+        aria-describedby={`ai-check-notice-${questionId}`}
+        onClick={check}
+        onKeyDown={onButtonKeyDown}
+        className="relative flex min-h-12 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-2 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
+      >
+        <CompassIcon className="size-6 shrink-0 text-accent" />
+        <span className="flex flex-col">
+          <span className="font-mono text-sm tracking-wide uppercase">Unsicher – Lotse fragen</span>
+          <span className="text-xs text-ink-soft">{hint}</span>
+        </span>
+        <Ribbon />
+      </button>
+      {error ? (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      ) : null}
+      {result ? (
+        <section role="status" className="flex flex-col gap-1 rounded-tile border border-primary p-4">
+          <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">
+            Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
+          </h3>
+          <p className="text-ink">{result.feedback}</p>
+          <p className="text-xs text-ink-soft">
+            Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
+          </p>
+        </section>
+      ) : null}
+    </div>
+  )
+}

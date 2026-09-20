@@ -5,6 +5,7 @@ from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
 from app.models.question_progress import QuestionProgress
+from app.models.question_report import QuestionReport
 from app.models.user import User
 
 
@@ -17,6 +18,7 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # cascade under both engines.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
     db.execute(delete(FocusTopic).where(FocusTopic.user_id == user.id))
+    db.execute(delete(QuestionReport).where(QuestionReport.user_id == user.id))
     # Exam attempts carry the learner's free-text answers; their questions go first.
     attempt_ids = select(ExamAttempt.id).where(ExamAttempt.user_id == user.id)
     db.execute(delete(ExamAttemptQuestion).where(ExamAttemptQuestion.attempt_id.in_(attempt_ids)))

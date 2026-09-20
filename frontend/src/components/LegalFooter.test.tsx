@@ -17,6 +17,19 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
   })
 
+  it('offers a feedback mail link', () => {
+    render(
+      <MemoryRouter>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(
+      'href',
+      'mailto:kontakt@sks-lotse.de?subject=Feedback%20SKS%20Lotse',
+    )
+  })
+
   it('attributes the question catalog to the WSV via ELWIS', () => {
     render(
       <MemoryRouter>

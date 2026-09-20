@@ -45,3 +45,33 @@ export function FeedbackIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+// An envelope with a warning triangle at its corner — "Fehler melden" (mail + problem). The
+// triangle is cut out of the envelope with a mask, so it reads on any background.
+export function ReportIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <mask id="report-icon-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+        <rect width="32" height="32" fill="white" />
+        <path d="M23 12.5 32 29H14Z" fill="black" stroke="black" strokeWidth={3} />
+      </mask>
+      <g mask="url(#report-icon-cut)">
+        <rect x="2.5" y="6.5" width="23" height="17" rx="2" />
+        <path d="m3 8 11 8.5L25 8" />
+      </g>
+      <path d="M23 15.5 29.5 27.5h-13Z" />
+      <path d="M23 20v3.5" />
+      <circle cx="23" cy="26" r="0.6" fill="currentColor" />
+    </svg>
+  )
+}
+
+// A compass rose in a ring — the Lotsen-Check (AI answer check) button.
+export function CompassIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <circle cx="16" cy="16" r="12" />
+      <path d="m20.5 11.5-3 6-6 3 3-6 6-3Z" />
+    </svg>
+  )
+}

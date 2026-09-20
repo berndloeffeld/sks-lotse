@@ -31,12 +31,15 @@ interface Backend {
   // Response to each POST /progress/questions/{id}, in order.
   grades?: Response[]
   failLoad?: boolean
+  // Response to POST /questions/{id}/ai-grade.
+  aiGrade?: Response
 }
 
-function mockBackend({ questions = [question(1, 7)], progress = [], grades = [], failLoad = false }: Backend) {
+function mockBackend({ questions = [question(1, 7)], progress = [], grades = [], failLoad = false, aiGrade }: Backend) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
     if (failLoad) return jsonResponse({ detail: 'boom' }, 500)
+    if (init?.method === 'POST' && url.includes('/ai-grade')) return aiGrade ?? jsonResponse({ detail: 'x' }, 503)
     if (init?.method === 'POST' && url.includes('/progress/questions/')) {
       return grades.shift() ?? jsonResponse({ detail: 'unexpected' }, 500)
     }
@@ -76,7 +79,7 @@ function mockReducedMotion(reduced: boolean) {
 
 describe('PracticePage', () => {
   beforeEach(() => {
-    useAuthStore.setState({ isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: null, isAuthenticated: true, isLoading: false })
     // jsdom has no matchMedia; by default tests run as reduced motion, i.e.
     // without the pause that lets the boat sail before the next question.
     mockReducedMotion(true)
@@ -101,6 +104,130 @@ describe('PracticePage', () => {
     )
     // The official answer stays hidden until asked for.
     expect(screen.queryByText('Antwort 7.')).not.toBeInTheDocument()
+  })
+
+  it('offers the AI check only as a teaser without the unlock', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })).toHaveTextContent('bald verfügbar')
+  })
+
+  it('preselects the AI suggestion, which the learner still saves', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+        ai_checks_remaining: 20,
+      },
+    })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.', remaining_today: 19 }) })
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+
+    expect(await screen.findByText('Das stimmt nicht.')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
+  })
+
+  it('Tab loops through the grade radios and then the Lotse row', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+        ai_checks_remaining: 20,
+      },
+    })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.', remaining_today: 19 }) })
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    const ask = screen.getByRole('button', { name: /Unsicher – Lotse fragen/ })
+    for (const name of ['Richtig', 'Teilweise Richtig', 'Falsch']) {
+      await user.tab()
+      expect(screen.getByRole('radio', { name })).toHaveFocus()
+    }
+    await user.tab()
+    expect(ask).toHaveFocus()
+    await user.tab()
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
+    await user.tab({ shift: true })
+    expect(ask).toHaveFocus()
+
+    // After the check, focus lands on the suggested radio.
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+    await screen.findByText('Fast.')
+    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
+  })
+
+  it('Enter on the Lotsen-Check suggestion saves it and moves to the next question', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+        ai_checks_remaining: 20,
+      },
+    })
+    const fetchMock = mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_today: 19 }),
+      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+    })
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('button', { name: /Unsicher – Lotse fragen/ }))
+    await screen.findByText('Passt.')
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+
+    expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
+    const post = fetchMock.mock.calls.find(([u]) => String(u).includes('/progress/questions/'))
+    expect(JSON.parse(String((post?.[1] as RequestInit).body))).toEqual({ outcome: 'richtig' })
+  })
+
+  it('goes straight into the radios when there is no AI check to use', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+    await user.tab()
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
   })
 
   it('reveals the official answer next to the learner’s own note', async () => {
@@ -218,6 +345,20 @@ describe('PracticePage', () => {
 
     expect(screen.queryByRole('button', { name: 'Neue Runde' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
+  })
+
+  it('shows exactly one course gauge and report button after moving to the next question', async () => {
+    mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+    })
+    renderPracticePage()
+
+    await revealAndGrade('Richtig')
+
+    expect(await screen.findByText(/Frage 2 von 2/)).toBeInTheDocument()
+    expect(screen.getAllByTestId('course-boat')).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: 'Fehler in dieser Frage melden' })).toHaveLength(1)
   })
 
   it('runs the whole loop from the keyboard', async () => {

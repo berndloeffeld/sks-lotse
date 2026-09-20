@@ -1,11 +1,20 @@
-from fastapi import FastAPI
+import logging
+
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.api.v1 import router as api_v1_router
 from app.core.canonical_domain import RedirectSecondaryDomainsMiddleware
 from app.core.config import settings
+from app.core.database import get_session_factory
 from app.core.rate_limit import RateLimitMiddleware
 from app.core.security_headers import SecurityHeadersMiddleware
+
+logger = logging.getLogger(__name__)
 
 
 def _docs_kwargs() -> dict:
@@ -61,5 +70,14 @@ app.include_router(api_v1_router)
 
 
 @app.get("/health")
-def health():
+def health(session_factory: sessionmaker[Session] = Depends(get_session_factory)):
+    # Readiness, not just liveness: Render only routes traffic to a new deploy
+    # once this returns 2xx, and the uptime monitor alerts on non-2xx — a
+    # backend that is up but cut off from its database must not count as healthy.
+    try:
+        with session_factory() as db:
+            db.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        logger.exception("Health check failed: database unreachable")
+        return JSONResponse({"status": "unavailable"}, status_code=503)
     return {"status": "ok"}

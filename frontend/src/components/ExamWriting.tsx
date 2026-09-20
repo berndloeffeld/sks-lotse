@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import type { Exam } from '../api/types'
 import { useExamCountdown } from '../hooks/useExamCountdown'
@@ -117,6 +118,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
     await flush()
     try {
       onChange(await apiClient.post<Exam>(`/exams/${exam.id}/submit`))
+      trackEvent('exam_submitted')
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         onChange(null)
