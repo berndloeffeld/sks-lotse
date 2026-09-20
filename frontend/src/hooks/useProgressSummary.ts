@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
 import type { ProgressSlice } from '../components/ProgressPie'
@@ -70,6 +71,7 @@ export function useProgressSummary() {
       setFocusError(null)
       try {
         await (topic.is_focus ? apiClient.delete(path) : apiClient.put(path))
+        if (!topic.is_focus) trackEvent('focus_set')
       } catch {
         setFocusError('Der Fokus konnte nicht gespeichert werden.')
         return

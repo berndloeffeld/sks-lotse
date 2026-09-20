@@ -34,4 +34,17 @@ describe('AccountNav', () => {
     )
     expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
   })
+
+  it('links to the feedback mail', () => {
+    useAuthStore.setState({ user: { ...baseUser, is_admin: false } })
+    render(
+      <MemoryRouter>
+        <AccountNav />
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^mailto:kontakt@sks-lotse\.de/),
+    )
+  })
 })

@@ -123,6 +123,7 @@ See [docs/adr/0006-mandatory-login-and-feature-gated-monetization.md](docs/adr/0
 - JWT-based session after sign-in. Progress is always synced server-side against the account (no browser-only anonymous progress).
 - Entitlements (ads removed? AI grading unlocked?) are attached to the account — see [Monetization](#monetization).
 - **GDPR admin tools** (`/admin` in the frontend): a learner exercises their Art. 15/16/17/18/20/21 DSGVO rights by emailing the operator (per the Datenschutzerklärung), who fulfills Auskunft/Löschung requests by hand via this page — look a user up by email, export their data as JSON, or delete their account. Gated by the `ADMIN_EMAILS` allowlist (see Environment Variables below), not a DB role — see [ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md).
+- **Feedback channels** ([ADR-0030](docs/adr/0030-question-reports-and-feedback-channels.md)): a "Feedback" `mailto:` link (footer + account nav), "Frage melden" under every question (`POST /questions/{id}/report` → `question_reports`, read by the operator via `GET /admin/question-reports`; deleted with the account and in the DSGVO export), and coarse Umami funnel events via `trackEvent` (`frontend/src/analytics.ts` — fixed keys only, never free text).
 
 ---
 

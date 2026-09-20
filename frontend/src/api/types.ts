@@ -89,11 +89,22 @@ export interface AdminExamAttemptExport {
   questions: AdminExamQuestionExport[]
 }
 
+// Mirrors backend/app/schemas/admin.py::AdminQuestionReportExport.
+export interface AdminQuestionReportExport {
+  question_id: number
+  subject: string
+  question_number: number
+  category: string
+  comment: string | null
+  created_at: string
+}
+
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
   user: AdminUserSearchResult
   question_progress: AdminQuestionProgressExport[]
   focus_topics: AdminFocusTopicExport[]
+  question_reports: AdminQuestionReportExport[]
   exam_attempts: AdminExamAttemptExport[]
   exported_at: string
 }

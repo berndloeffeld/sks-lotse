@@ -40,6 +40,21 @@ class AdminFocusTopicExport(BaseModel):
     created_at: datetime
 
 
+class AdminQuestionReportExport(BaseModel):
+    question_id: int
+    subject: str
+    question_number: int
+    category: str
+    comment: str | None
+    created_at: datetime
+
+
+class AdminQuestionReportRead(AdminQuestionReportExport):
+    # The reporting account, so the operator can reply — only ever shown to admins.
+    user_id: int
+    user_email: str
+
+
 class AdminExamQuestionExport(BaseModel):
     position: int
     subject_group: str
@@ -65,5 +80,6 @@ class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
     focus_topics: list[AdminFocusTopicExport]
+    question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
     exported_at: datetime
