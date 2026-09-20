@@ -9,6 +9,10 @@ class AdminUserSearchRequest(BaseModel):
     email: NormalizedEmail
 
 
+class AdminUserUpdate(BaseModel):
+    ai_grading_enabled: bool
+
+
 class AdminUserRead(BaseModel):
     # Doubles as the "user" part of the Art. 15/20 DSGVO export below, so it
     # has to cover every personal-data column on User — add new ones here.
