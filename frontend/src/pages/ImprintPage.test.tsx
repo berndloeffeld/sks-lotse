@@ -13,6 +13,6 @@ describe('ImprintPage', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Impressum', level: 1 })).toBeInTheDocument()
-    expect(screen.getByText(/Bernd\.Loeffeld@web\.de/)).toBeInTheDocument()
+    expect(screen.getByText(/kontakt@sks-lotse\.de/)).toBeInTheDocument()
   })
 })

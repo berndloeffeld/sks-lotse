@@ -16,7 +16,7 @@ export function ImprintPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">Kontakt</h2>
-        <p className="text-ink-soft">E-Mail: Bernd.Loeffeld@web.de</p>
+        <p className="text-ink-soft">E-Mail: kontakt@sks-lotse.de</p>
       </section>
 
       <section className="flex flex-col gap-2">
