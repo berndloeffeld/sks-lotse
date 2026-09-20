@@ -30,6 +30,9 @@ export function AdminPage() {
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
+  const [isTogglingAi, setIsTogglingAi] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
@@ -49,6 +52,7 @@ export function AdminPage() {
     setDeleteConfirmEmail('')
     setDeleteError(null)
     setExportError(null)
+    setAiError(null)
   }
 
   async function handleSearch(event: FormEvent) {
@@ -86,6 +90,22 @@ export function AdminPage() {
     }
   }
 
+  async function handleToggleAi() {
+    if (!result) return
+    setAiError(null)
+    setIsTogglingAi(true)
+    try {
+      const updated = await apiClient.patch<AdminUserSearchResult>(`/admin/users/${result.id}`, {
+        ai_grading_enabled: !result.ai_grading_enabled,
+      })
+      setResult(updated)
+    } catch {
+      setAiError('Die KI-Prüfung konnte nicht geändert werden.')
+    } finally {
+      setIsTogglingAi(false)
+    }
+  }
+
   async function handleDelete(event: FormEvent) {
     event.preventDefault()
     if (!result) return
@@ -110,7 +130,7 @@ export function AdminPage() {
     <PageLayout
       title="Admin"
       backTo="/start"
-      subtitle="Nutzerdaten einsehen, exportieren oder löschen (Art. 15/17/20 DSGVO)."
+      subtitle="Nutzerdaten einsehen, exportieren oder löschen (Art. 15/17/20 DSGVO) und die KI-Prüfung freischalten."
     >
       <form className="flex flex-col gap-4" onSubmit={handleSearch}>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="search-email">
@@ -154,7 +174,21 @@ export function AdminPage() {
             </dd>
             <dt className="text-ink-soft">Beantwortete Fragen</dt>
             <dd className="text-ink">{result.question_progress_count}</dd>
+            <dt className="text-ink-soft">KI-Prüfung</dt>
+            <dd className="text-ink">{result.ai_grading_enabled ? 'Freigeschaltet' : 'Nicht freigeschaltet'}</dd>
           </dl>
+
+          <div className="flex flex-col gap-2">
+            {aiError ? <p className="text-sm text-danger">{aiError}</p> : null}
+            <button
+              type="button"
+              onClick={handleToggleAi}
+              disabled={isTogglingAi}
+              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+            >
+              {result.ai_grading_enabled ? 'KI-Prüfung entziehen' : 'KI-Prüfung freischalten'}
+            </button>
+          </div>
 
           <div className="flex flex-col gap-2">
             {exportError ? <p className="text-sm text-danger">{exportError}</p> : null}

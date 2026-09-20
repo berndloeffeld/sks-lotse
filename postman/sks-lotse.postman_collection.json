@@ -4548,6 +4548,376 @@
                       "description": "",
                       "item": [
                         {
+                          "name": "Update User",
+                          "request": {
+                            "name": "Update User",
+                            "description": {
+                              "content": "Unlock or revoke the AI answer check for an account (ADR-0031) — until payment exists.",
+                              "type": "text/plain"
+                            },
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "users",
+                                ":user_id"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<integer>",
+                                  "key": "user_id",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "PATCH",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"ai_grading_enabled\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "users",
+                                    ":user_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "user_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "PATCH",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"ai_grading_enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_grading_enabled\": \"<boolean>\",\n  \"ai_checks_day\": \"<date>\",\n  \"ai_checks_used\": \"<integer>\",\n  \"question_progress_count\": \"<integer>\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "users",
+                                    ":user_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "user_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "PATCH",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"ai_grading_enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        },
+                        {
+                          "name": "Delete User",
+                          "request": {
+                            "name": "Delete User",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "users",
+                                ":user_id"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<integer>",
+                                  "key": "user_id",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "DELETE",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "users",
+                                    ":user_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "user_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "DELETE",
+                                "body": {}
+                              },
+                              "status": "No Content",
+                              "code": 204,
+                              "header": [],
+                              "cookie": [],
+                              "_postman_previewlanguage": "text"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "users",
+                                    ":user_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "user_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "DELETE",
+                                "body": {}
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        },
+                        {
                           "name": "export",
                           "description": "",
                           "item": [
@@ -4724,165 +5094,6 @@
                               }
                             }
                           ]
-                        },
-                        {
-                          "name": "Delete User",
-                          "request": {
-                            "name": "Delete User",
-                            "description": {},
-                            "url": {
-                              "path": [
-                                "api",
-                                "v1",
-                                "admin",
-                                "users",
-                                ":user_id"
-                              ],
-                              "host": [
-                                "{{baseUrl}}"
-                              ],
-                              "query": [],
-                              "variable": [
-                                {
-                                  "type": "any",
-                                  "value": "<integer>",
-                                  "key": "user_id",
-                                  "disabled": false,
-                                  "description": {
-                                    "content": "(Required) ",
-                                    "type": "text/plain"
-                                  }
-                                }
-                              ]
-                            },
-                            "header": [
-                              {
-                                "key": "Accept",
-                                "value": "application/json"
-                              }
-                            ],
-                            "method": "DELETE",
-                            "body": {},
-                            "auth": {
-                              "type": "bearer",
-                              "bearer": [
-                                {
-                                  "key": "token",
-                                  "value": "{{bearerToken}}"
-                                }
-                              ]
-                            }
-                          },
-                          "response": [
-                            {
-                              "name": "Successful Response",
-                              "originalRequest": {
-                                "url": {
-                                  "path": [
-                                    "api",
-                                    "v1",
-                                    "admin",
-                                    "users",
-                                    ":user_id"
-                                  ],
-                                  "host": [
-                                    "{{baseUrl}}"
-                                  ],
-                                  "query": [],
-                                  "variable": [
-                                    {
-                                      "disabled": false,
-                                      "description": {
-                                        "content": "(Required) ",
-                                        "type": "text/plain"
-                                      },
-                                      "type": "any",
-                                      "value": "<integer>",
-                                      "key": "user_id"
-                                    }
-                                  ]
-                                },
-                                "header": [
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: bearer",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "Authorization",
-                                    "value": "Bearer <token>"
-                                  }
-                                ],
-                                "method": "DELETE",
-                                "body": {}
-                              },
-                              "status": "No Content",
-                              "code": 204,
-                              "header": [],
-                              "cookie": [],
-                              "_postman_previewlanguage": "text"
-                            },
-                            {
-                              "name": "Validation Error",
-                              "originalRequest": {
-                                "url": {
-                                  "path": [
-                                    "api",
-                                    "v1",
-                                    "admin",
-                                    "users",
-                                    ":user_id"
-                                  ],
-                                  "host": [
-                                    "{{baseUrl}}"
-                                  ],
-                                  "query": [],
-                                  "variable": [
-                                    {
-                                      "disabled": false,
-                                      "description": {
-                                        "content": "(Required) ",
-                                        "type": "text/plain"
-                                      },
-                                      "type": "any",
-                                      "value": "<integer>",
-                                      "key": "user_id"
-                                    }
-                                  ]
-                                },
-                                "header": [
-                                  {
-                                    "key": "Accept",
-                                    "value": "application/json"
-                                  },
-                                  {
-                                    "description": {
-                                      "content": "Added as a part of security scheme: bearer",
-                                      "type": "text/plain"
-                                    },
-                                    "key": "Authorization",
-                                    "value": "Bearer <token>"
-                                  }
-                                ],
-                                "method": "DELETE",
-                                "body": {}
-                              },
-                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
-                              "code": 422,
-                              "header": [
-                                {
-                                  "key": "Content-Type",
-                                  "value": "application/json"
-                                }
-                              ],
-                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
-                              "cookie": [],
-                              "_postman_previewlanguage": "json"
-                            }
-                          ],
-                          "event": [],
-                          "protocolProfileBehavior": {
-                            "disableBodyPruning": true
-                          }
                         }
                       ]
                     }

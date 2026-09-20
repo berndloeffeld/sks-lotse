@@ -23,6 +23,7 @@ from app.schemas.admin import (
     AdminUserExport,
     AdminUserRead,
     AdminUserSearchRequest,
+    AdminUserUpdate,
 )
 from app.schemas.kpis import KpiReport
 from app.services.kpis import compute_kpis
@@ -67,6 +68,15 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if user is None:
         raise _NOT_FOUND
+    return _admin_user_read(user, _question_progress_count(db, user.id))
+
+
+@router.patch("/users/{user_id}", response_model=AdminUserRead)
+def update_user(user_id: int, payload: AdminUserUpdate, db: Session = Depends(get_db)) -> AdminUserRead:
+    """Unlock or revoke the AI answer check for an account (ADR-0031) — until payment exists."""
+    user = _get_user_or_404(db, user_id)
+    user.ai_grading_enabled = payload.ai_grading_enabled
+    db.commit()
     return _admin_user_read(user, _question_progress_count(db, user.id))
 
 
