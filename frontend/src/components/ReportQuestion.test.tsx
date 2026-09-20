@@ -21,17 +21,17 @@ describe('ReportQuestion', () => {
     expect(screen.queryByLabelText('Was ist das Problem?')).not.toBeInTheDocument()
   })
 
-  it('opens as a dialog with focus on the first field and closes on Escape, returning focus to the flag', async () => {
+  it('opens as a dialog with focus on the first field and closes on Escape, returning focus to the report button', async () => {
     const user = userEvent.setup()
     render(<ReportQuestion questionId={7} />)
 
-    const flag = screen.getByRole('button', { name: 'Fehler in dieser Frage melden' })
-    await user.click(flag)
+    const reportButton = screen.getByRole('button', { name: 'Fehler in dieser Frage melden' })
+    await user.click(reportButton)
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByLabelText('Was ist das Problem?')).toHaveFocus()
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(flag).toHaveFocus()
+    expect(reportButton).toHaveFocus()
   })
 
   it('sends the category and comment, then thanks the learner', async () => {

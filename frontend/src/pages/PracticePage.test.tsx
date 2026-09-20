@@ -301,6 +301,20 @@ describe('PracticePage', () => {
     expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
   })
 
+  it('shows exactly one course gauge and report button after moving to the next question', async () => {
+    mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+    })
+    renderPracticePage()
+
+    await revealAndGrade('Richtig')
+
+    expect(await screen.findByText(/Frage 2 von 2/)).toBeInTheDocument()
+    expect(screen.getAllByTestId('course-boat')).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: 'Fehler in dieser Frage melden' })).toHaveLength(1)
+  })
+
   it('runs the whole loop from the keyboard', async () => {
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],

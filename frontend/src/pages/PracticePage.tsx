@@ -252,11 +252,12 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
         </p>
-        {/* Keyed per question: a new question starts where it stands, only a
-            grading of this one makes the boat sail. */}
-        <div className="flex items-center gap-3">
-          <CourseGauge key={question.id} progress={streakProgress(streak)} />
-          <ReportQuestion key={question.id} questionId={question.id} />
+        {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
+            previous question's gauge standing): a new question starts where it stands, only a
+            grading of this one makes the boat sail, and the report popover starts closed. */}
+        <div key={question.id} className="flex items-center gap-3">
+          <CourseGauge progress={streakProgress(streak)} />
+          <ReportQuestion questionId={question.id} />
         </div>
       </div>
 

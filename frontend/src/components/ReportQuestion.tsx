@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
-import { FlagIcon } from './icons/FeatureIcons'
+import { ReportIcon } from './icons/FeatureIcons'
 import { formStyles } from './formStyles'
 
 // Mirrors REPORT_CATEGORIES in backend/app/schemas/question_report.py.
@@ -18,7 +18,7 @@ type Category = keyof typeof CATEGORIES
 
 const styles = formStyles('light')
 
-// "Frage melden" (ADR-0030): a flag in the question header that opens the form as a popover, so
+// "Frage melden" (ADR-0030): an envelope-with-warning icon in the question header that opens the form as a popover, so
 // reporting never shifts the learning loop. Anchors to the nearest positioned ancestor (the header
 // row); keyed by question in the parent, so a new question always starts closed.
 export function ReportQuestion({ questionId }: { questionId: number }) {
@@ -66,7 +66,7 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
         onClick={() => (isOpen ? close() : setIsOpen(true))}
         className={`rounded-tile p-1 hover:text-ink ${isSent ? 'text-primary' : 'text-ink-soft'}`}
       >
-        <FlagIcon className="size-5" />
+        <ReportIcon className="size-6" />
       </button>
       {isOpen ? (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog, standard dialog behavior
