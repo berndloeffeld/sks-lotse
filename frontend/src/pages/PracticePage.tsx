@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/types'
+import { AiAnswerCheck } from '../components/AiAnswerCheck'
 import { CourseGauge } from '../components/CourseGauge'
 import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebration'
 import { formStyles } from '../components/formStyles'
@@ -103,6 +104,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [celebrating, setCelebrating] = useState<number | null>(null)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
+  const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
   const saveRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
@@ -114,11 +116,21 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     else groupRef.current?.focus()
   }, [phase, index, run])
 
-  // Tab cycles through the radios (focus only, no selection). The first Tab
-  // from the group itself is native and lands on Richtig.
-  const cycleFocus = (from: number, backwards: boolean) => {
-    const count = OUTCOMES.length
-    radioRefs.current[(from + (backwards ? count - 1 : 1)) % count]?.focus()
+  // Tab cycles through the grade radios and, when usable, the Lotse row (focus only, no selection).
+  // The first Tab from the group itself is native and lands on Richtig.
+  const cycleFocus = (from: HTMLElement, backwards: boolean) => {
+    const stops = [...radioRefs.current, askRef.current].filter(
+      (el): el is HTMLInputElement | HTMLButtonElement => el !== null && !el.disabled,
+    )
+    const at = stops.indexOf(from as HTMLInputElement | HTMLButtonElement)
+    stops[(at + (backwards ? stops.length - 1 : 1)) % stops.length]?.focus()
+  }
+
+  // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
+  // and Tab keeps cycling through the radios like in the manual loop.
+  const suggestOutcome = (suggested: GradingOutcome) => {
+    flushSync(() => setOutcome(suggested))
+    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus()
   }
 
   const startRun = (includeLearned: boolean) => {
@@ -229,13 +241,17 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         {feedback}
       </p>
       {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+      <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
         </p>
-        {/* Keyed per question: a new question starts where it stands, only a
-            grading of this one makes the boat sail. */}
-        <CourseGauge key={question.id} progress={streakProgress(streak)} />
+        {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
+            previous question's gauge standing): a new question starts where it stands, only a
+            grading of this one makes the boat sail, and the report popover starts closed. */}
+        <div key={question.id} className="flex items-center gap-3">
+          <CourseGauge progress={streakProgress(streak)} />
+          <ReportQuestion questionId={question.id} />
+        </div>
       </div>
 
       <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
@@ -289,8 +305,6 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             )}
           </section>
 
-          <ReportQuestion key={question.id} questionId={question.id} />
-
           <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
             {OUTCOMES.map((o, i) => (
@@ -307,11 +321,17 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                   onKeyDown={(event) => {
                     if (event.key === 'Tab') {
                       event.preventDefault()
-                      cycleFocus(i, event.shiftKey)
+                      cycleFocus(event.currentTarget, event.shiftKey)
                     } else if (event.key === 'Enter') {
                       event.preventDefault()
-                      flushSync(() => setOutcome(o))
-                      saveRef.current?.focus()
+                      // Enter on the already-checked radio (e.g. the Lotsen-Check's suggestion) confirms
+                      // it and moves on; on any other radio it selects it and hands over to the button.
+                      if (outcome === o) {
+                        void saveGrade()
+                      } else {
+                        flushSync(() => setOutcome(o))
+                        saveRef.current?.focus()
+                      }
                     }
                   }}
                   className="accent-primary"
@@ -320,6 +340,22 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               </label>
             ))}
           </fieldset>
+
+          {question.answer_text ? (
+            <AiAnswerCheck
+              key={question.id}
+              questionId={question.id}
+              answer={note}
+              onSuggest={suggestOutcome}
+              buttonRef={askRef}
+              onButtonKeyDown={(event) => {
+                if (event.key === 'Tab') {
+                  event.preventDefault()
+                  cycleFocus(event.currentTarget, event.shiftKey)
+                }
+              }}
+            />
+          ) : null}
 
           {saveError ? (
             <p role="alert" className={styles.error}>

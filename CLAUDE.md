@@ -20,7 +20,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 | Database | PostgreSQL 16 (Render, Frankfurt EU) |
 | Auth | Required — no anonymous access. SSO (Google/Facebook/X) or email + OTP, JWT-based session |
 | Transactional email | Resend (OTP login codes) |
-| Answer grading (LLM) | OpenAI API (GPT model) — grades free text against official answer, returns score + explanation |
+| Answer check (LLM) | Anthropic API (Claude Haiku), stateless, suggests a grade + feedback ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)) |
 | Speech-to-text | Web Speech API (browser-native, Chromium-based browsers) — no backend/cloud STT |
 | Ads | Google AdSense |
 | Analytics | Umami Cloud (Hobby plan, cookieless, EU region — [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) |
@@ -74,7 +74,7 @@ sks-lotse/
 1. Learner logs in (SSO via Google/Facebook/X, or email + OTP) — required before using the app.
 2. Learner is shown a question from the official SKS catalog.
 3. **If the account has AI-based grading unlocked**: learner answers via text input or speech-to-text (Web Speech API transcribes locally in-browser before submit); the answer is sent to the backend, which calls the LLM with the question, the official model answer, and the learner's answer; the LLM returns a graded score (e.g. "80% correct") plus an explanation of what was missing or incorrect.
-4. **If not**: the official model answer is shown for the learner to self-compare against — no forced writing step (an optional scratchpad field is never sent), no LLM call. The learner then grades themselves (Richtig / Teilweise Richtig / Falsch), which moves the question's "gelernt" streak exactly like an AI grading would ([ADR-0023](docs/adr/0023-self-assessed-learning-flow.md)). **This is the only grading that exists today** — AI grading and entitlements aren't built yet.
+4. **If not**: the official model answer is shown for the learner to self-compare against — no forced writing step (an optional scratchpad field is never sent), no LLM call. The learner then grades themselves (Richtig / Teilweise Richtig / Falsch), which moves the question's "gelernt" streak exactly like an AI grading would ([ADR-0023](docs/adr/0023-self-assessed-learning-flow.md)). Accounts with `ai_grading_enabled` (set by hand until payment exists) additionally get an "Antwort prüfen lassen" button that asks Claude Haiku for a *suggested* grade + feedback ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)); the learner still confirms the grade themselves.
 5. **Prüfungssimulation** (`/exam`): a random Fragebogen (30 questions, 9/7/5/9 by subject, 90 minutes enforced server-side, no tips) is answered in full, then self-assessed question by question; history and statistics (in `/profile`) are kept per account, separate from the "gelernt" streak. Only the Fragebogen — the Kartenaufgabe isn't simulated ([ADR-0029](docs/adr/0029-exam-simulation.md)).
 6. Learners can mark topics as **Fokus** (star on `/learn`); the Fokus band shows how many of those questions are sicher gelernt (streak ≥ 3) or teilweise gelernt (streak 1–2). A Fokus topic drops out permanently once all its questions are learned ([ADR-0028](docs/adr/0028-focus-topics.md)). Focus marks are deleted with the account and part of the admin DSGVO export.
 7. Progress is synced server-side against the logged-in account. If the account hasn't paid to remove ads, ads (Google AdSense) are shown.
@@ -243,11 +243,12 @@ Apply these four checks whenever adding or changing a database table — going f
 - **`RESEND_API_KEY`** — the sending domain must be verified at Resend via IONOS DNS records before OTP emails go out. Locally it can stay empty: the API still returns 202 and logs the failed send.
 - **`ALLOWED_EMAILS`** — comma-separated allowlist for the private beta; unset = open to everyone. Non-listed addresses get the same generic 202 with no code and no email.
 - **`ADMIN_EMAILS`** — comma-separated allowlist gating the GDPR admin tools (`/admin`, see Accounts below). Unlike `ALLOWED_EMAILS`, unset/empty = **no admins** (fails closed) — the inverse default, since an unset var here must never grant access.
-- **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
+- **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `GRADING_*` — incl. the daily AI-check budget, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
 - **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
 - **Frontend `VITE_ADSENSE_CLIENT_ID`** — Google AdSense publisher id (`ca-pub-…`), set on the frontend service only; unset = the ad script and the "Cookie-Einstellungen" footer button are absent ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
-- **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused until ads/grading land.
+- **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused (grading went to Anthropic, ADR-0031).
 - **`ANTHROPIC_API_KEY`** — only used locally by `backend/scripts/manage_topics.py` (see Question Catalog) to classify questions into topics; not read by the running app, not set on Render.
+- **`ANTHROPIC_GRADING_API_KEY`** — the running app's key for the AI answer check (`backend/app/services/grader.py`, ADR-0031; empty = the endpoint answers 503). A `sync: false` secret on Render; keep it a different key (own Console workspace) from `ANTHROPIC_API_KEY`.
 
 ---
 

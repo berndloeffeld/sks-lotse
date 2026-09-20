@@ -38,6 +38,8 @@ function baseUser(overrides: Partial<Record<string, unknown>> = {}) {
     first_name: null,
     last_name: null,
     gender: null,
+    ai_grading_enabled: false,
+    ai_checks_remaining: 20,
     is_admin: false,
     ...overrides,
   }

@@ -46,6 +46,9 @@ def _admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         first_name=user.first_name,
         last_name=user.last_name,
         gender=user.gender,
+        ai_grading_enabled=user.ai_grading_enabled,
+        ai_checks_day=user.ai_checks_day,
+        ai_checks_used=user.ai_checks_used,
         question_progress_count=question_progress_count,
     )
 

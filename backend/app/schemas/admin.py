@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -21,6 +21,9 @@ class AdminUserRead(BaseModel):
     first_name: str | None
     last_name: str | None
     gender: str | None
+    ai_grading_enabled: bool
+    ai_checks_day: date | None
+    ai_checks_used: int
     question_progress_count: int
 
 

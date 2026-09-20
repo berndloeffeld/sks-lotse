@@ -11,6 +11,9 @@ export interface User {
   last_name: string | null
   gender: string | null
   is_admin: boolean
+  ai_grading_enabled: boolean
+  // Today's AI-check budget left (see backend/app/core/ai_quota.py).
+  ai_checks_remaining: number
 }
 
 type Named = Pick<User, 'first_name' | 'last_name'>
@@ -22,6 +25,13 @@ export function getFullName(person: Named): string {
 
 export function getDisplayName(user: Named & Pick<User, 'email'>): string {
   return getFullName(user) || user.email
+}
+
+// Mirrors backend/app/schemas/grading.py::AiGradeRead.
+export interface AiGrade {
+  outcome: GradingOutcome
+  feedback: string
+  remaining_today: number
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.

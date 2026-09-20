@@ -2189,6 +2189,110 @@
           "protocolProfileBehavior": {
             "disableCookies": true
           }
+        },
+        {
+          "name": "AI answer check - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/{{firstQuestionId}}/ai-grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "{{firstQuestionId}}",
+                "ai-grade"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"answer\": \"Backbord ist links.\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "AI answer check - account without the unlock is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/{{firstQuestionId}}/ai-grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "{{firstQuestionId}}",
+                "ai-grade"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"answer\": \"Backbord ist links.\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Test accounts don't have ai_grading_enabled, so the check is refused before any LLM call.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         }
       ],
       "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py and test_progress.py, incl. grading the first question (self-assessment) and reading its streak back. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
@@ -6165,7 +6269,7 @@
                   "var u = pm.response.json();",
                   "pm.test('finds the main test account with the documented shape', function () {",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'question_progress_count');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ai_checks_day', 'ai_checks_used', 'question_progress_count');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});",
                   "pm.collectionVariables.set('testUserId', u.id);"
