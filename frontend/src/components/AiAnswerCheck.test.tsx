@@ -37,8 +37,8 @@ describe('AiAnswerCheck', () => {
     vi.stubGlobal('fetch', fetchMock)
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
-    expect(screen.getByRole('button', BUTTON)).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toHaveAttribute(
       'title',
       expect.stringContaining('Bald verfügbar'),
     )

@@ -28,16 +28,19 @@ function errorMessage(error: unknown): string {
 // accessible description rather than a caption line.
 const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
 
-function Chip({ children }: { children: string }) {
+// A diagonal corner ribbon ("KI"), clipped by the button (which needs relative + overflow-hidden).
+function Ribbon() {
   return (
     <span
       aria-hidden="true"
-      className="ml-2 rounded-tile border border-current px-1.5 align-middle text-[0.65rem] leading-4 tracking-wide"
+      className="pointer-events-none absolute top-[8px] -right-[22px] w-[74px] rotate-45 bg-primary py-px text-center text-[0.7rem] leading-4 font-bold tracking-widest text-surface shadow-sm"
     >
-      {children}
+      KI
     </span>
   )
 }
+
+const BUTTON_CLASS = `${styles.button} relative self-start overflow-hidden pr-12`
 
 // "Lotsen-Check" (ADR-0031): a stateless LLM check of the written answer that only
 // *suggests* a grade. Accounts without the unlock see a teaser instead of the button.
@@ -50,16 +53,10 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
 
   if (!isUnlocked) {
     return (
-      <button
-        type="button"
-        disabled
-        title="Bald verfügbar: KI-Prüfung deiner Antwort"
-        className={`${styles.button} self-start`}
-      >
+      <button type="button" disabled title="Bald verfügbar: KI-Prüfung deiner Antwort" className={BUTTON_CLASS}>
         <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
-        Lotsen-Check
-        <Chip>KI</Chip>
-        <Chip>bald</Chip>
+        Lotsen-Check · bald
+        <Ribbon />
       </button>
     )
   }
@@ -90,7 +87,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
         type="button"
         title={SEND_NOTICE}
         aria-describedby={`ai-check-notice-${questionId}`}
-        className={`${styles.button} self-start`}
+        className={BUTTON_CLASS}
         disabled={!hasAnswer || isChecking}
         onClick={check}
       >
@@ -100,9 +97,9 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
           <>
             <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
             Lotsen-Check
-            <Chip>KI</Chip>
           </>
         )}
+        <Ribbon />
       </button>
       {hasAnswer ? null : (
         <p className="text-xs text-ink-soft">Schreibe zuerst eine Antwort, dann kann die KI sie prüfen.</p>

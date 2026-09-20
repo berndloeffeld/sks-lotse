@@ -113,8 +113,8 @@ describe('PracticePage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check · bald' })).toHaveAttribute(
       'title',
       expect.stringContaining('Bald verfügbar'),
     )
