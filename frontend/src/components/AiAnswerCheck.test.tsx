@@ -22,7 +22,7 @@ function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
-const BUTTON = { name: 'Antwort per KI prüfen lassen' }
+const BUTTON = { name: 'Lotsen-Check' }
 
 describe('AiAnswerCheck', () => {
   afterEach(() => {
@@ -38,7 +38,7 @@ describe('AiAnswerCheck', () => {
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
     expect(screen.getByRole('button', BUTTON)).toBeDisabled()
-    expect(screen.getByText('Bald verfügbar.')).toBeInTheDocument()
+    expect(screen.getByText('KI-Prüfung deiner Antwort – bald verfügbar.')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
@@ -62,7 +62,7 @@ describe('AiAnswerCheck', () => {
     await userEvent.setup().click(screen.getByRole('button', BUTTON))
 
     expect(await screen.findByText('Es fehlt die Seite.')).toBeInTheDocument()
-    expect(screen.getByText('KI-Vorschlag: Teilweise Richtig')).toBeInTheDocument()
+    expect(screen.getByText('Lotsen-Vorschlag: Teilweise Richtig')).toBeInTheDocument()
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]

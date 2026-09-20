@@ -21,6 +21,19 @@ describe('ReportQuestion', () => {
     expect(screen.queryByLabelText('Was ist das Problem?')).not.toBeInTheDocument()
   })
 
+  it('opens as a dialog with focus on the first field and closes on Escape, returning focus to the flag', async () => {
+    const user = userEvent.setup()
+    render(<ReportQuestion questionId={7} />)
+
+    const flag = screen.getByRole('button', { name: 'Fehler in dieser Frage melden' })
+    await user.click(flag)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByLabelText('Was ist das Problem?')).toHaveFocus()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(flag).toHaveFocus()
+  })
+
   it('sends the category and comment, then thanks the learner', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: 1 }), { status: 201 }))
@@ -35,6 +48,8 @@ describe('ReportQuestion', () => {
     await user.click(screen.getByRole('button', { name: 'Meldung senden' }))
 
     expect(await screen.findByText('Danke für deine Meldung!')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Schließen' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toMatch(/\/api\/v1\/questions\/7\/report$/)
     expect(init.method).toBe('POST')

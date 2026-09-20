@@ -45,3 +45,23 @@ export function FeedbackIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+// A pennant on a pole — "Frage melden", small enough for a toolbar button.
+export function FlagIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <path d="M8 28V5" />
+      <path d="M8 6h15l-3.5 5 3.5 5H8" />
+    </svg>
+  )
+}
+
+// A compass rose in a ring — the Lotsen-Check (AI answer check) button.
+export function CompassIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <circle cx="16" cy="16" r="12" />
+      <path d="m20.5 11.5-3 6-6 3 3-6 6-3Z" />
+    </svg>
+  )
+}

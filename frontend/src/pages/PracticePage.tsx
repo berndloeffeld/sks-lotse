@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 
@@ -104,6 +104,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const [celebrating, setCelebrating] = useState<number | null>(null)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
+  const aiCheckRef = useRef<HTMLDivElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
   const saveRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
@@ -120,6 +121,23 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   const cycleFocus = (from: number, backwards: boolean) => {
     const count = OUTCOMES.length
     radioRefs.current[(from + (backwards ? count - 1 : 1)) % count]?.focus()
+  }
+
+  // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
+  // and Tab keeps cycling through the radios like in the manual loop.
+  const suggestOutcome = (suggested: GradingOutcome) => {
+    flushSync(() => setOutcome(suggested))
+    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus()
+  }
+
+  // Focus rests on the group when the answer is revealed. The first Tab goes to the AI check
+  // (when it is usable), the next one into the radios — otherwise straight into the radios.
+  const focusAiCheckFirst = (event: KeyboardEvent<HTMLFieldSetElement>) => {
+    if (event.key !== 'Tab' || event.shiftKey || event.target !== groupRef.current) return
+    const button = aiCheckRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')
+    if (!button) return
+    event.preventDefault()
+    button.focus()
   }
 
   const startRun = (includeLearned: boolean) => {
@@ -230,13 +248,16 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
         {feedback}
       </p>
       {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+      <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
         </p>
         {/* Keyed per question: a new question starts where it stands, only a
             grading of this one makes the boat sail. */}
-        <CourseGauge key={question.id} progress={streakProgress(streak)} />
+        <div className="flex items-center gap-3">
+          <CourseGauge key={question.id} progress={streakProgress(streak)} />
+          <ReportQuestion key={question.id} questionId={question.id} />
+        </div>
       </div>
 
       <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
@@ -291,12 +312,19 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
           </section>
 
           {question.answer_text ? (
-            <AiAnswerCheck key={question.id} questionId={question.id} answer={note} onSuggest={setOutcome} />
+            <div ref={aiCheckRef}>
+              <AiAnswerCheck key={question.id} questionId={question.id} answer={note} onSuggest={suggestOutcome} />
+            </div>
           ) : null}
 
-          <ReportQuestion key={question.id} questionId={question.id} />
-
-          <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the group is the programmatic focus target after the reveal (tabIndex -1); this only redirects its first Tab */}
+          <fieldset
+            ref={groupRef}
+            tabIndex={-1}
+            className="flex flex-col gap-2 outline-none"
+            disabled={isSaving}
+            onKeyDown={focusAiCheckFirst}
+          >
             <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
             {OUTCOMES.map((o, i) => (
               <label key={o} className="flex items-center gap-2 text-ink">

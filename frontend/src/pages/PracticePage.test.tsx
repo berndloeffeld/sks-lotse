@@ -79,7 +79,7 @@ function mockReducedMotion(reduced: boolean) {
 
 describe('PracticePage', () => {
   beforeEach(() => {
-    useAuthStore.setState({ isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: null, isAuthenticated: true, isLoading: false })
     // jsdom has no matchMedia; by default tests run as reduced motion, i.e.
     // without the pause that lets the boat sail before the next question.
     mockReducedMotion(true)
@@ -113,8 +113,8 @@ describe('PracticePage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(screen.getByRole('button', { name: 'Antwort per KI prüfen lassen' })).toBeDisabled()
-    expect(screen.getByText('Bald verfügbar.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toBeDisabled()
+    expect(screen.getByText('KI-Prüfung deiner Antwort – bald verfügbar.')).toBeInTheDocument()
   })
 
   it('preselects the AI suggestion, which the learner still saves', async () => {
@@ -137,10 +137,51 @@ describe('PracticePage', () => {
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
-    await user.click(screen.getByRole('button', { name: 'Antwort per KI prüfen lassen' }))
+    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
 
     expect(await screen.findByText('Das stimmt nicht.')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
+  })
+
+  it('tabs from the revealed answer to the AI check first, then into the radios', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+      },
+    })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.' }) })
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.tab()
+    expect(screen.getByRole('button', { name: 'Lotsen-Check' })).toHaveFocus()
+    await user.tab()
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
+
+    // After the check, focus lands on the suggested radio.
+    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
+    await screen.findByText('Fast.')
+    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
+  })
+
+  it('goes straight into the radios when there is no AI check to use', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+    await user.tab()
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
   })
 
   it('reveals the official answer next to the learner’s own note', async () => {

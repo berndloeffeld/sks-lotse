@@ -6,6 +6,7 @@ import type { AiGrade, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formStyles } from './formStyles'
+import { CompassIcon } from './icons/FeatureIcons'
 
 const styles = formStyles('light')
 
@@ -23,7 +24,7 @@ function errorMessage(error: unknown): string {
   return 'Die KI-Prüfung ist gerade nicht verfügbar. Bewerte dich bitte selbst.'
 }
 
-// "Antwort prüfen lassen" (ADR-0031): a stateless LLM check of the written answer that only
+// "Lotsen-Check" (ADR-0031): a stateless LLM check of the written answer that only
 // *suggests* a grade. Accounts without the unlock see a teaser instead of the button.
 // Keyed by question in the parent, so each question starts fresh.
 export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckProps) {
@@ -36,9 +37,10 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
     return (
       <div className="flex flex-col gap-1">
         <button type="button" disabled className={`${styles.button} self-start`}>
-          Antwort per KI prüfen lassen
+          <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
+          Lotsen-Check
         </button>
-        <p className="text-xs text-ink-soft">Bald verfügbar.</p>
+        <p className="text-xs text-ink-soft">KI-Prüfung deiner Antwort – bald verfügbar.</p>
       </div>
     )
   }
@@ -68,11 +70,18 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
         disabled={!hasAnswer || isChecking}
         onClick={check}
       >
-        {isChecking ? 'Wird geprüft…' : 'Antwort per KI prüfen lassen'}
+        {isChecking ? (
+          'Lotse prüft…'
+        ) : (
+          <>
+            <CompassIcon className="mr-2 inline size-5 align-text-bottom" />
+            Lotsen-Check
+          </>
+        )}
       </button>
       <p className="text-xs text-ink-soft">
         {hasAnswer
-          ? 'Deine Antwort wird zur Prüfung an eine KI (Anthropic) gesendet.'
+          ? 'KI-Prüfung deiner Antwort · wird dafür an Anthropic gesendet.'
           : 'Schreibe zuerst eine Antwort, dann kann die KI sie prüfen.'}
       </p>
       {error ? (
@@ -83,7 +92,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
       {result ? (
         <section role="status" className="flex flex-col gap-1 rounded-tile border border-primary p-4">
           <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">
-            KI-Vorschlag: {OUTCOME_LABELS[result.outcome]}
+            Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
           <p className="text-ink">{result.feedback}</p>
           <p className="text-xs text-ink-soft">Nur ein Vorschlag – die Bewertung bestätigst du selbst.</p>
