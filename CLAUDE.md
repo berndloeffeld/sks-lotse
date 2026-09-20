@@ -210,8 +210,9 @@ One-time manual steps (account-level actions, done by the project owner, not by 
 1. Connect the GitHub repo to a Render account.
 2. "Deploy from Blueprint" using `render.yaml`.
 3. Set the `sync: false` secrets (`JWT_SECRET`, `OPENAI_API_KEY`, `ADSENSE_CLIENT_ID`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS`) on the backend service, and `VITE_UMAMI_WEBSITE_ID` (from the Umami Cloud dashboard's tracking-code snippet — not a secret, just kept out of the repo, see [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) on the `sks-lotse-frontend` service, in the Render dashboard — never commit their values.
-4. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
-5. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, then **remove** them from the backend service (a domain can only be attached to one service). Add `api.sks-lotse.de` to the backend, and add a matching `CNAME api → sks-lotse-backend.onrender.com` in IONOS DNS.
+4. Once the `sks-lotse-daily-report` Cron Job exists (Blueprint Sync; it mails the daily KPI report, [ADR-0032](docs/adr/0032-daily-kpi-report.md)): set its `sync: false` secrets `JWT_SECRET`, `RESEND_API_KEY` and `ADMIN_EMAILS` to the same values as on the backend.
+5. Point the purchased domains (`sks-lotse.de` etc., see Naming / Domain below) at the Render service once it's live.
+6. Once the `sks-lotse-frontend` service exists (added to `render.yaml` after step 2 — trigger a Blueprint Sync in the Render dashboard if it doesn't appear on its own): add `sks-lotse.de`/`www.sks-lotse.de` as Custom Domains there, then **remove** them from the backend service (a domain can only be attached to one service). Add `api.sks-lotse.de` to the backend, and add a matching `CNAME api → sks-lotse-backend.onrender.com` in IONOS DNS.
 
 After that, every commit to `main` auto-deploys (`autoDeployTrigger: commit`) on both services.
 
