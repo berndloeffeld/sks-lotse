@@ -49,7 +49,7 @@ def compose_exam(
 
     `questions` are (id, subject) pairs already restricted to the variant's subjects.
     """
-    rng = rng or random.Random()
+    rng = rng or random.Random()  # noqa: S311 - exam composition, not a secret
     by_group: dict[str, list[int]] = {group: [] for group in SUBJECT_GROUPS}
     for question_id, subject in questions:
         by_group[subject_group(subject)].append(question_id)

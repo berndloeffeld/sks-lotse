@@ -20,3 +20,4 @@ Learners want to concentrate on a few topics at a time and see, for exactly thos
 - Rejected: only *hiding* a completed topic (deriving it on read). Then a later streak reset would silently bring the topic back into the focus, which surprises more than it helps — the learner can simply mark it again.
 - Rejected: a JSON column of topic ids on `users`. It would need its own cleanup when topics are re-synced and can't be joined or cascaded.
 - A topic completed some other way than grading (e.g. a catalog re-sync that removes its last unlearned question) keeps its mark until the learner removes it or the next grading; acceptable at this scale.
+- **Privacy**: focus marks are personal data. They are deleted with the account (`delete_user_and_progress`), included in the admin DSGVO export, and named in the Datenschutzerklärung.

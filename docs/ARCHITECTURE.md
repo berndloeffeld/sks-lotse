@@ -67,6 +67,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
 | `questions` | Read-only catalog and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md) |
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question streaks, recording a self-assessed grading, marking topics as Fokus | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
+| `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment, history and statistics | [0029](adr/0029-exam-simulation.md) |
 | `admin` | GDPR lookup/export/delete, allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md) |
 
 Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
@@ -122,8 +123,8 @@ Everything is declared in `render.yaml`:
 ### Quality gates
 GitHub Actions runs on every PR and every push to `main`:
 
-- **Backend**: lint, unit tests with an 80% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
-- **Frontend**: lint, type check, and tests with an 80% coverage gate.
+- **Backend**: lint, unit tests with a 95% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
+- **Frontend**: lint, type check, and tests with a 90%/85% (lines/branches) coverage gate.
 - **Security**: Aikido scans the repo; findings are checked by hand before merging (no CI job).
 
 All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.

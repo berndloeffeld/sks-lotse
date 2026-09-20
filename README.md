@@ -9,7 +9,7 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 ## Status
 
-Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, a learning-progress overview, and GDPR admin tooling are live; LLM grading of free-text answers hasn't been built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
+Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, and GDPR admin tooling are live; LLM grading of free-text answers hasn't been built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
 
 ## Tech stack
 
@@ -22,7 +22,7 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 | Transactional email | Resend |
 | Answer grading (LLM) | OpenAI API *(not yet integrated)* |
 | Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
-| Ads | Google AdSense *(not yet integrated)* |
+| Ads | Google AdSense *(script + consent are in, no ad units yet)* |
 | Analytics | Umami Cloud (cookieless, EU) |
 | Hosting | Render (Frankfurt EU) |
 | CI/CD | GitHub Actions |
@@ -68,7 +68,7 @@ API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](post
 Backend — run from `backend/`, with the venv active:
 
 ```bash
-pytest                # tests + 80% line/branch coverage gate (backend/pyproject.toml)
+pytest                # tests + 95% line/branch coverage gate (backend/pyproject.toml)
 ruff check .          # lint
 ruff format --check . # formatting
 ```
@@ -77,7 +77,7 @@ Frontend — run from `frontend/`:
 
 ```bash
 npx tsc -b                  # type check
-npx vitest run --coverage   # tests + 80% line/branch coverage gate (vite.config.ts)
+npx vitest run --coverage   # tests + 90%/85% line/branch coverage gate (vite.config.ts)
 npm run lint                # ESLint
 npm run format:check        # Prettier
 ```
@@ -88,7 +88,7 @@ Optional but recommended: `pre-commit install` (from the venv) — runs ruff, ES
 
 A separate, hand-written Postman collection black-box tests every endpoint of a running local server (auth flow, profile/email change/account deletion, admin tools, CORS, security headers, rate limiting) without needing Python: start the API as above with `ADMIN_EMAILS=integration-admin@example.com` on a freshly started server, then run `./scripts/run_integration_tests.sh` from the repo root. The script's header lists the full server requirements.
 
-The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido`, see `CLAUDE.md`).
+The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see `CLAUDE.md`). There is no Aikido job in CI.
 
 ## Development conventions
 

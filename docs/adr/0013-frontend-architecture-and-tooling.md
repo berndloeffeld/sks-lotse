@@ -24,7 +24,7 @@ The visual design system (color palette, typography, spacing, logo/branding) is 
 
 **Quality gates**, mirroring the backend's existing conventions so the frontend isn't held to a lower bar:
 - **Linting & formatting**: ESLint (`typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`) + Prettier, enforced via a pre-commit hook (extending `.pre-commit-config.yaml`, same role `ruff` plays today) plus a CI check.
-- **Test coverage**: Vitest's built-in coverage (v8 provider), same 80% lines+branches threshold as the backend's `pytest-cov` gate.
+- **Test coverage**: Vitest's built-in coverage (v8 provider), same 80% lines+branches threshold as the backend's `pytest-cov` gate. *(Both gates were later raised to sit just under the actual coverage, see `CLAUDE.md` → Test Coverage.)*
 - **Security scanning**: no new setup — Aikido already scans the whole GitHub repo, not just `backend/`, so `frontend/package.json` dependencies are picked up automatically once they exist.
 - **CI**: a new `.github/workflows/frontend-ci.yml` mirroring `backend-ci.yml`'s shape (lint, format check, test+coverage) — decided now, written when the actual scaffold lands, so it isn't an afterthought.
 
@@ -33,7 +33,7 @@ The visual design system (color palette, typography, spacing, logo/branding) is 
 - The frontend can be scaffolded directly against these choices without re-litigating tooling mid-implementation; the API-client and auth-store shape can be written knowing exactly what the backend contract and 401 semantics are.
 - The API-client and auth-store design here is deliberately built on top of ADR-0012's httpOnly-cookie decision rather than an independent choice — this ADR would need revisiting if ADR-0012 is ever superseded (e.g. a move to in-memory tokens + refresh cookie).
 - Because the visual design system is deliberately deferred, the first scaffolded UI will be functional but unstyled beyond Tailwind's defaults — that's expected, not a gap in this decision.
-- CLAUDE.md's "Test Coverage", "Linting & Formatting", and "Security Scanning (Aikido)" sections currently read backend-only (e.g. "Backend enforces a minimum of 80% coverage...") and will need a frontend-equivalent paragraph once the scaffold and its CI workflow actually exist. Flagged here so it isn't forgotten; the rewrite happens in the scaffolding step, not this one.
+- CLAUDE.md's "Test Coverage", "Linting & Formatting", and "Security Scanning (Aikido)" sections currently read backend-only (e.g. "Backend enforces a minimum of 80% coverage...") and will need a frontend-equivalent paragraph once the scaffold and its CI workflow actually exist. Flagged here so it isn't forgotten; the rewrite happens in the scaffolding step, not this one. *(Done: those sections now cover the frontend.)*
 - Rejected: a component library (MUI/Chakra) — imposes its own visual identity that would need re-skinning once real branding exists, working against the deliberate deferral of that decision.
 - Rejected: a generated/OpenAPI-derived TypeScript client — not worth the tooling overhead for 7 endpoints; revisit if the API surface grows substantially (e.g. once grading lands).
 - Rejected: Biome for lint/format — the closest JS analogue to the backend's `ruff` (one fast tool, lint+format in one), but its React-specific and `jsx-a11y`-equivalent rules are still less mature than the ESLint plugin ecosystem. Revisit if that gap closes.

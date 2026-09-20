@@ -1,6 +1,6 @@
 # 0005. Render deployment topology
 
-Status: Accepted
+Status: Accepted — the "no frontend service yet" part is superseded by [ADR-0015](0015-frontend-deployment-topology.md)
 
 ## Context
 

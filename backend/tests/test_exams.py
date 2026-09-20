@@ -294,7 +294,7 @@ def test_list_and_stats(client, db_session, auth_headers):
     running = _start(client, auth_headers)
 
     listed = client.get("/api/v1/exams", headers=auth_headers).json()
-    assert [e["id"] for e in listed][0] == running["id"]
+    assert next(e["id"] for e in listed) == running["id"]
     assert listed[0]["status"] == "in_progress"
     assert listed[0]["points"] is None
 

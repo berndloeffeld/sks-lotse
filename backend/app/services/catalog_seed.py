@@ -65,7 +65,7 @@ BLANK_LINES_RE = re.compile(r"\n\s*\n+")
 # A line starting like this begins a list item ("1. ", "a) ", "- ", "• ") and
 # keeps its line break; every other break in the PDF text is just its layout
 # wrapping the line.
-LIST_ITEM_START_RE = re.compile(r"(?:\d+\.|[a-z]\)|[-•–])\s")
+LIST_ITEM_START_RE = re.compile(r"(?:\d+\.|[a-z]\)|[-•–])\s")  # noqa: RUF001 - the catalog uses en dashes as list bullets
 # Never occurs in the PDF's text: marks where a question's answer begins.
 ANSWER_START = "\x1e"
 
