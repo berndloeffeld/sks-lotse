@@ -1,6 +1,6 @@
 # 0014. Visual design system: palette, typography, and core UI patterns
 
-Status: Accepted
+Status: Accepted — the "Lot gauge" bullet is superseded by [ADR-0024](0024-course-gauge-without-visible-step-count.md)
 
 ## Context
 

@@ -15,4 +15,4 @@ npm run dev
 - `npm run dev` — Vite dev server
 - `npm run build` — type-check (`tsc -b`) + production build
 - `npm run lint` / `npm run format` / `npm run format:check` — ESLint / Prettier
-- `npm run test` — Vitest once; `npm run test:watch` for watch mode; add `-- --coverage` for the coverage report (80% lines+branches gate, mirroring the backend)
+- `npm run test` — Vitest once; `npm run test:watch` for watch mode; add `-- --coverage` for the coverage report (90% lines / 85% branches gate)

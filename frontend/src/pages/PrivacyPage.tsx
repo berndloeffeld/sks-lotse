@@ -45,12 +45,13 @@ export function PrivacyPage() {
         <h2 className="font-serif text-xl text-primary">Lernfortschritt und Profil</h2>
         <p className="text-ink-soft">
           Wir speichern Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete Lernstand)
-          sowie die von Ihnen gewählte Prüfungsvariante. Optional können Sie in Ihrem Profil Vor- und Nachname sowie
-          eine Anrede angeben; diese Angaben sind freiwillig. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
-          (Bereitstellung des Lernangebots), für freiwillige Angaben Art. 6 Abs. 1 lit. a DSGVO. Die Daten werden
-          gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit selbst unter „Profil“ löschen; dabei
-          werden Konto und Lernfortschritt vollständig gelöscht. Es findet keine automatisierte Entscheidungsfindung
-          oder Profilbildung im Sinne von Art. 22 DSGVO statt.
+          sowie die von Ihnen gewählte Prüfungsvariante und die Themen, die Sie als Fokus markiert haben. Optional
+          können Sie in Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Lernangebots), für freiwillige Angaben Art.
+          6 Abs. 1 lit. a DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit
+          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt und Fokus-Markierungen vollständig
+          gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art. 22 DSGVO
+          statt.
         </p>
         <p className="text-ink-soft">
           Wenn Sie die Prüfungssimulation nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen,

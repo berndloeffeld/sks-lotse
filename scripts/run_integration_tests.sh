@@ -26,7 +26,7 @@ COLLECTION=postman/integration-tests.postman_collection.json
 ENV_FILE=postman/local.postman_environment.json
 
 if [ ! -f "$ENV_FILE" ]; then
-  echo "No $ENV_FILE — copying it from local.postman_environment.json.example (see CLAUDE.md → Postman Collection)."
+  echo "No $ENV_FILE — copying it from local.postman_environment.json.example (see docs/postman-and-integration-tests.md)."
   cp postman/local.postman_environment.json.example "$ENV_FILE"
 fi
 

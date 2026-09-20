@@ -35,7 +35,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 sks-lotse/
 ├── backend/
 │   ├── app/
-│   │   ├── api/v1/     # Route handlers (/api/v1/auth, /api/v1/questions, /api/v1/progress, /api/v1/admin)
+│   │   ├── api/v1/     # Route handlers (/api/v1/auth, /questions + /topics, /progress, /exams, /admin)
 │   │   ├── core/       # Config, JWT, OTP, cache, middlewares (rate limit, security headers, canonical domain)
 │   │   ├── models/     # SQLAlchemy ORM models
 │   │   ├── schemas/    # Pydantic request/response schemas
@@ -51,12 +51,12 @@ sks-lotse/
 │   │   ├── api/        # Thin typed fetch wrapper + shared response types
 │   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
 │   │   ├── hooks/      # Shared React hooks (e.g. useExamVariantUpdate)
-│   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, PracticePage, ProfilePage, AdminPage, ImprintPage, PrivacyPage
+│   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, PracticePage, ExamPage, ExamRunPage, ProfilePage, AdminPage, ImprintPage, PrivacyPage
 │   │   ├── routes/     # ProtectedRoute
 │   │   └── store/      # Zustand auth store
 │   ├── .env.example
 │   └── package.json
-├── docs/               # ARCHITECTURE.md, adr/, question catalog source PDF
+├── docs/               # ARCHITECTURE.md, adr/, postman-and-integration-tests.md, question catalog source PDF
 ├── postman/            # Generated API-reference collection + hand-written integration tests
 ├── scripts/            # Repo tooling (Postman generation, integration tests, Aikido check)
 ├── .github/            # CI workflow, Dependabot
@@ -163,14 +163,14 @@ Aikido Security is connected to this GitHub repo.
 - `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot (needs a plan with API access; otherwise it prints the API error and exits 1 — use the dashboard then). Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 
 ### Test Coverage
-Backend enforces a minimum of **80% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=80`) — `pytest` fails the run if coverage drops below that.
+Backend enforces a minimum of **95% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=95`) — `pytest` fails the run if coverage drops below that. The bar sits a few points under the actual value (~99%) on purpose: high enough to catch untested new code, with room for the odd defensive branch. Raise it when the actual value settles higher; don't lower it to get a PR through — test the code.
 
 - `.github/workflows/backend-ci.yml` runs the backend test suite (incl. the coverage gate) on every push to `main` and on every PR.
 - The `test` job is a required status check on `main` (see Branch Strategy), so a coverage drop blocks the merge.
 - API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override) — no Docker/Postgres needed to run the suite.
 - Because of that, the suite never runs the Alembic migrations. The separate `migrations` CI job does, against a real Postgres 16 service: `alembic upgrade head`, `alembic check` (fails if models and migrations have drifted — i.e. a model change without a migration), `alembic downgrade base`, `alembic upgrade head`.
 
-Frontend mirrors the same 80% (lines + branches) bar via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — a required check, like the backend's `test`.
+Frontend enforces **90% lines / 85% branches** via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`; actual ~97% / ~91%), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — a required check, like the backend's `test`.
 
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
@@ -178,7 +178,7 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 - `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml`'s `lint` job on every push to `main` and on every PR — a required check.
 - Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
 
-- `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug.
+- The rule set is `E, F, I, UP, B, S, SIM, C4, RUF` (`backend/pyproject.toml`). `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug. Tests are exempt from the bandit `S101`/`S105` and `RUF001` (asserts, dummy tokens, full-width test digits). A `# noqa` in app code carries its reason after a dash.
 
 Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
 
@@ -196,23 +196,11 @@ This project doubles as a reference sample (incl. for job applications), so arch
 - Write an ADR when a decision would be genuinely costly to reverse or non-obvious to a future reader (e.g. auth flow, grading-request architecture, deployment topology) — not for routine implementation choices already covered elsewhere in this file.
 - Superseding a decision: add a new ADR referencing the old one, mark the old one "Superseded by ADR-NNNN". Don't edit history away.
 
-### Postman Collection
-`postman/sks-lotse.postman_collection.json` is generated from the FastAPI app's live OpenAPI schema — never edit it by hand, it will just get overwritten.
+### Postman & integration tests
+Two collections live in `postman/`; the how-to and the reasoning are in [docs/postman-and-integration-tests.md](docs/postman-and-integration-tests.md).
 
-- Regenerate after any API change: `./scripts/generate_postman_collection.sh` (needs the backend venv set up and Node/npx available), then commit the result.
-- `.github/workflows/backend-ci.yml` (`postman-collection` job) regenerates it in CI and fails the build if the committed file is out of date — a required check, so a stale collection blocks the merge.
-- Every request in the collection uses a `{{baseUrl}}` variable (collection variable, default `/`). `postman/local.postman_environment.json.example` and `postman/production.postman_environment.json.example` are static, hand-maintained templates. **Copy each to the same name without `.example`** (gitignored — real copies hold live secrets, e.g. a JWT for testing protected endpoints) and import *those*, then switch between them via Postman's environment dropdown. Update the production URL in the copy if a custom domain is wired up later.
-- When importing in Postman: use a plain one-off **Import**, not the Git-sync "Local Mode" — that mode (a) wants to upgrade the file to Postman's v3 YAML format, which would conflict with the JSON the generator script produces and the CI freshness check expects, and (b) writes whatever you enter in the app back to disk, which is exactly how a real secret ended up in a tracked file once already (the `X-Access-Key` this project used before real JWT auth landed — renaming the committed files to `.example` and gitignoring the real ones makes that impossible now).
-
-### Integration Tests (external / non-pytest)
-`postman/integration-tests.postman_collection.json` is a separate, hand-written Postman collection — not the OpenAPI-generated API reference above. It black-box tests a real, running local backend over HTTP: auth guards, CORS, security headers, the full OTP login round-trip (request → verify → `/me` → `/logout`), the question catalog/topics/progress endpoints incl. exam-variant filtering, profile updates (`PATCH /auth/me`), the email-change and self-delete flows (purpose-bound codes, per-user cap), the admin GDPR tools (incl. the non-admin 403s), and both OTP rate limits actually tripping. Point of it: runnable without a Python environment, e.g. in CI or by hand.
-
-- Run it with `./scripts/run_integration_tests.sh` (wraps `newman run ... -e postman/local.postman_environment.json`, via `npx`) against an already-running local server (`cd backend && uvicorn app.main:app --reload`). Server requirements: `ADMIN_EMAILS` must include the collection's `adminEmail` (default `integration-admin@example.com`); if `ALLOWED_EMAILS` is set it must include all five `integration-*@example.com` test addresses; use a freshly started server (rate-limit counters, dev-peek codes) on a scratch DB with the catalog seeded, and leave `RESEND_API_KEY` empty so the test addresses never get mail. It creates and deletes throwaway users. CI runs it in `backend-ci.yml`'s `integration-tests` job (real uvicorn + Postgres, `alembic upgrade head` first) — the one CI job that is **not** a required status check (see Branch Strategy), so verify it's green before merging.
-- The OTP round-trip needs the real, one-time plaintext code — pytest gets this for free by monkeypatching the email service in-process; an external HTTP client can't. `GET /api/v1/auth/otp/_dev-peek` (`backend/app/api/v1/auth.py`) exists to bridge that gap: it returns the last code generated for an email, 404s outright unless `ENVIRONMENT` is `development` or `test` (an opt-in allowlist, so it fails closed), is never populated at all otherwise either, and is excluded from the OpenAPI schema so it never surfaces in the API reference collection above. See [docs/adr/0011](docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md).
-- Not covered: `RedirectSecondaryDomainsMiddleware` (the canonical-domain redirect) — it keys off the `Host` header, which Postman/Newman silently drop rather than send as given (a restricted header, same idea as a browser's `fetch()`). Verify that one manually: `curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health`.
-- Run order matters within the collection (documented in its own description too): Auth Flow's token is reused by Questions and Logout, Logout must come after both since it deliberately invalidates that token, and Rate Limiting must run last since it deliberately exhausts the OTP-endpoint quota for the caller's IP for the next hour.
-- **Cookies are off except where they're the point.** `Verify OTP` also sets the httpOnly session cookie (ADR-0012), `get_current_user` reads it before any `Authorization` header, and Newman keeps a cookie jar across requests — so every request that authenticates via Bearer, or deliberately sends no credentials (the `... is rejected` auth guards), sets `"protocolProfileBehavior": {"disableCookies": true}`. Without it, the jar silently authenticates them and the guards pass requests they should reject. Only the requests with "session cookie" in their name leave cookies on, to test the cookie path itself. Do the same for any new request.
-- **Keep it up to date — this is enforced, not just a convention.** Unlike `sks-lotse.postman_collection.json`, this one is hand-written, not generated from the OpenAPI schema, so it can't be regenerated. Two things stop it from drifting: (1) `backend/tests/test_integration_collection.py` (part of the normal pytest run) fails when an `/api/v1` route or `/health` has no request in the collection, when a request points at a route that no longer exists, when a request has no `pm.test` assertion, or when a Bearer/`... rejected` request forgets `disableCookies`; (2) CI actually executes the collection against a real server. So **any PR that adds/changes/removes an endpoint or its behavior updates the matching requests and `pm.test` assertions here in the same PR**, the same way `backend/tests/` gets updated — a new endpoint needs at least a happy path, its auth guard (401, plus 403 where role-gated) and its main validation failure. A route declared with `include_in_schema=False` isn't discovered by the coverage test automatically — add it to `_UNDOCUMENTED_ROUTES` there. A change to the server requirements above (new env var the run needs, new test address) is documented in this section, the collection description and `scripts/run_integration_tests.sh`'s header.
+- `sks-lotse.postman_collection.json` is **generated** from the live OpenAPI schema — never edit it by hand. After any API change run `./scripts/generate_postman_collection.sh` and commit the result; the required `postman-collection` CI job fails on a stale file. Copy the `*.postman_environment.json.example` templates to the same name without `.example` (gitignored, they hold secrets) and use a plain one-off **Import**, never Postman's Git-sync "Local Mode".
+- `integration-tests.postman_collection.json` is **hand-written** and black-box tests a running local backend (`./scripts/run_integration_tests.sh`; server requirements are in the script header). **Any PR that adds/changes/removes an endpoint or its behavior updates its requests and `pm.test` assertions in the same PR** — at least a happy path, the auth guard (401, plus 403 where role-gated) and the main validation failure. `backend/tests/test_integration_collection.py` fails when a route has no request, a request has no assertion, or a Bearer/`... rejected` request forgets `"protocolProfileBehavior": {"disableCookies": true}` (Newman's cookie jar would otherwise authenticate it); a route with `include_in_schema=False` goes into `_UNDOCUMENTED_ROUTES` there. CI runs the collection in the `integration-tests` job, which is **not** a required check — verify it's green before merging.
 
 ### Deployment (Render)
 Provisioned as code via `render.yaml` (repo root) — see [docs/adr/0005-render-deployment-topology.md](docs/adr/0005-render-deployment-topology.md) for the backend/DB reasoning and [ADR-0015](docs/adr/0015-frontend-deployment-topology.md) for the frontend. Two web services (backend, Python; frontend, static site) + one managed Postgres, Frankfurt region, production only (no staging yet). Subdomain split: `sks-lotse.de`/`www.sks-lotse.de` → frontend, `api.sks-lotse.de` → backend (the frontend's `VITE_API_BASE_URL`), `sks-lotse.com`/`www.sks-lotse.com` → backend, unchanged, still 301s to `.de`.
