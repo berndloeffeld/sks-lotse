@@ -1,3 +1,5 @@
+import inspect
+
 import anthropic
 import httpx
 import pytest
@@ -125,6 +127,8 @@ def test_service_builds_minimal_prompt(monkeypatch):
     kwargs = messages.kwargs
     assert kwargs["model"] == settings.anthropic_grading_model
     assert kwargs["max_tokens"] == 300
+    # A mock accepts anything, the real SDK doesn't (it once rejected `temperature`).
+    assert set(kwargs) <= set(inspect.signature(anthropic.resources.messages.Messages.parse).parameters)
     assert kwargs["messages"] == [
         {
             "role": "user",

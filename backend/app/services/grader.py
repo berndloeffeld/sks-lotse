@@ -53,7 +53,6 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         response = _client().messages.parse(
             model=settings.anthropic_grading_model,
             max_tokens=300,
-            temperature=0,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
             output_format=GradeResult,
