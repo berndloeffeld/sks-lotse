@@ -70,8 +70,9 @@ describe('LandingPage', () => {
     renderLandingPage()
 
     expect(screen.getByRole('heading', { name: 'Ein Blick in die App' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Prüfungssimulation' })).toBeInTheDocument()
     const images = screen.getAllByRole('img', { name: /^Screenshot:/ })
-    expect(images).toHaveLength(3)
+    expect(images).toHaveLength(6)
     for (const image of images) {
       expect(image).toHaveAttribute('src', expect.stringMatching(/^\/screenshots\/.+\.png$/))
       expect(image).toHaveAttribute('width')
