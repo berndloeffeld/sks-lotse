@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core import cache
 from app.core.config import settings
 from app.core.database import get_db, get_session_factory
+from app.core.email_address import canonicalize_email
 from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
@@ -287,7 +288,7 @@ def dev_peek_otp_code(email: str, request: Request):
     # endpoints (see _docs_kwargs in app/main.py). See ADR-0011.
     if not settings.exposes_dev_tooling:
         raise _NOT_FOUND
-    code = _dev_otp_codes(request.app).get(email.lower())
+    code = _dev_otp_codes(request.app).get(canonicalize_email(email))
     if code is None:
         raise _NOT_FOUND
     return OtpDevPeekRead(code=code)

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import { apiClient, setUnauthorizedHandler } from '../api/client'
+import { ApiError, apiClient, setUnauthorizedHandler } from '../api/client'
 import type { User } from '../api/types'
 
 // The PATCH /auth/me body — mirrors backend/app/schemas/auth.py::UserUpdate.
@@ -12,6 +12,10 @@ interface AuthState {
   // True until the initial GET /auth/me (see checkSession) resolves — lets
   // ProtectedRoute avoid redirecting to /login before that first check runs.
   isLoading: boolean
+  // True when the last checkSession failed for a reason other than "no valid
+  // session" (network down, 5xx). The session may well still be valid, so
+  // ProtectedRoute offers a retry instead of bouncing the learner to /login.
+  sessionError: boolean
   // The only source of truth for "logged in" (ADR-0013) — never derived from
   // inspecting a token, since the frontend never holds one (ADR-0012).
   checkSession: () => Promise<void>
@@ -28,20 +32,24 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => {
-  const clearSession = () => set({ user: null, isAuthenticated: false, isLoading: false })
+  const clearSession = () => set({ user: null, isAuthenticated: false, isLoading: false, sessionError: false })
   setUnauthorizedHandler(clearSession)
 
   return {
     user: null,
     isAuthenticated: false,
     isLoading: true,
+    sessionError: false,
     checkSession: async () => {
-      set({ isLoading: true })
+      set({ isLoading: true, sessionError: false })
       try {
         const user = await apiClient.get<User>('/auth/me')
         set({ user, isAuthenticated: true, isLoading: false })
-      } catch {
-        set({ user: null, isAuthenticated: false, isLoading: false })
+      } catch (error) {
+        // Only a 401 means "logged out" (the client's unauthorized handler has
+        // already cleared the session by then); anything else is a failed check.
+        const unauthorized = error instanceof ApiError && error.status === 401
+        set({ user: null, isAuthenticated: false, isLoading: false, sessionError: !unauthorized })
       }
     },
     setUser: (user) => set({ user }),

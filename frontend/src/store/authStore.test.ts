@@ -20,7 +20,7 @@ function jsonResponse(body: unknown, status = 200) {
 
 describe('authStore', () => {
   beforeEach(() => {
-    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: true })
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: true, sessionError: false })
   })
 
   afterEach(() => {
@@ -41,6 +41,39 @@ describe('authStore', () => {
     await useAuthStore.getState().checkSession()
 
     expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false, isLoading: false })
+  })
+
+  it('checkSession flags a session error (not a logout) on a server error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 503)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, isLoading: false, sessionError: true })
+  })
+
+  it('checkSession flags a session error when the network is down', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(true)
+  })
+
+  it('checkSession clears an earlier session error once the check succeeds', async () => {
+    useAuthStore.setState({ sessionError: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: true, sessionError: false })
+  })
+
+  it('a 401 is a plain logout, not a session error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(false)
   })
 
   it('setUser swaps the user without touching isLoading or isAuthenticated', () => {

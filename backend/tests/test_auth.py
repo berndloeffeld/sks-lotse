@@ -56,6 +56,41 @@ def test_request_otp_allows_whitelisted_email_case_insensitively(client, monkeyp
     assert len(sent) == 1
 
 
+def test_request_otp_gmail_variants_share_one_cooldown_and_get_the_canonical_address(client, monkeypatch):
+    # a.b+x@googlemail.com and ab@gmail.com are one inbox: the dot/plus/domain
+    # spelling must not mint a fresh per-address quota.
+    sent = _capture_otp(monkeypatch)
+
+    for variant in ("Anna.Meyer+sks@googlemail.com", "annameyer@gmail.com", "a.nnameyer@gmail.com"):
+        assert client.post("/api/v1/auth/otp/request", json={"email": variant}).status_code == 202
+
+    assert [to for to, _ in sent] == ["annameyer@gmail.com"]
+
+
+def test_gmail_variants_log_into_the_same_account(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch, email="annameyer@gmail.com")
+    assert client.post(
+        "/api/v1/auth/otp/verify", json={"email": "annameyer@gmail.com", "code": code}
+    ).is_success
+
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
+    code = _request_and_get_code(client, db_session, monkeypatch, email="Anna.Meyer+x@googlemail.com")
+    assert client.post(
+        "/api/v1/auth/otp/verify", json={"email": "Anna.Meyer+x@googlemail.com", "code": code}
+    ).is_success
+
+    assert db_session.query(User).count() == 1
+
+
+def test_request_otp_allowlist_matches_gmail_variants(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    monkeypatch.setattr(settings, "allowed_emails", "anna.meyer@googlemail.com")
+
+    client.post("/api/v1/auth/otp/request", json={"email": "annameyer+trick@gmail.com"})
+
+    assert len(sent) == 1
+
+
 def test_request_otp_email_case_variants_share_one_cooldown(client, monkeypatch):
     # Upper-casing the local part must not mint a fresh per-email quota.
     sent = _capture_otp(monkeypatch)
