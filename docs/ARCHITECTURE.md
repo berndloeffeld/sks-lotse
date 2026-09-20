@@ -78,7 +78,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 ### Auth
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
 - **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. Logout invalidates all of a user's tokens by bumping a per-user `token_version`.
-- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open. Admin routes additionally require the email to be in `ADMIN_EMAILS`.
+- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
   - the per-IP limiter;
