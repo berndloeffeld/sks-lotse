@@ -174,6 +174,42 @@ describe('PracticePage', () => {
     expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
   })
 
+  it('Enter on the Lotsen-Check suggestion saves it and moves to the next question', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+      },
+    })
+    const fetchMock = mockBackend({
+      questions: [question(1, 7), question(2, 8)],
+      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.' }),
+      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+    })
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('button', { name: 'Lotsen-Check' }))
+    await screen.findByText('Passt.')
+    expect(screen.getByRole('radio', { name: 'Richtig' })).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+
+    expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
+    const post = fetchMock.mock.calls.find(([u]) => String(u).includes('/progress/questions/'))
+    expect(JSON.parse(String((post?.[1] as RequestInit).body))).toEqual({ outcome: 'richtig' })
+  })
+
   it('goes straight into the radios when there is no AI check to use', async () => {
     const user = userEvent.setup()
     mockBackend({})

@@ -344,8 +344,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
                       cycleFocus(i, event.shiftKey)
                     } else if (event.key === 'Enter') {
                       event.preventDefault()
-                      flushSync(() => setOutcome(o))
-                      saveRef.current?.focus()
+                      // Enter on the already-checked radio (e.g. the Lotsen-Check's suggestion) confirms
+                      // it and moves on; on any other radio it selects it and hands over to the button.
+                      if (outcome === o) {
+                        void saveGrade()
+                      } else {
+                        flushSync(() => setOutcome(o))
+                        saveRef.current?.focus()
+                      }
                     }
                   }}
                   className="accent-primary"

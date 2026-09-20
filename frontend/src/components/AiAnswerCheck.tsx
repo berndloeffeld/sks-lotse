@@ -95,7 +95,9 @@ export function AiAnswerCheck({ questionId, answer, onSuggest }: AiAnswerCheckPr
             Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
           <p className="text-ink">{result.feedback}</p>
-          <p className="text-xs text-ink-soft">Nur ein Vorschlag – die Bewertung bestätigst du selbst.</p>
+          <p className="text-xs text-ink-soft">
+            Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
+          </p>
         </section>
       ) : null}
     </div>
