@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -55,12 +55,23 @@ def _expire_if_due(db: Session, attempt: ExamAttempt) -> None:
         db.commit()
 
 
-def _own_attempts(db: Session, user: User) -> list[ExamAttempt]:
-    stmt = select(ExamAttempt).where(ExamAttempt.user_id == user.id).order_by(ExamAttempt.started_at.desc())
+def _running_attempts(db: Session, user: User) -> list[ExamAttempt]:
+    """The learner's exams still in progress after auto-submitting any past their deadline.
+
+    Only unsubmitted attempts can be overdue (and at most one exists per learner), so the
+    history never has to be loaded just to look for them.
+    """
+    stmt = select(ExamAttempt).where(ExamAttempt.user_id == user.id, ExamAttempt.submitted_at.is_(None))
     attempts = list(db.execute(stmt).scalars())
     for attempt in attempts:
         _expire_if_due(db, attempt)
-    return attempts
+    return [attempt for attempt in attempts if attempt.submitted_at is None]
+
+
+def _own_attempts(db: Session, user: User) -> list[ExamAttempt]:
+    _running_attempts(db, user)
+    stmt = select(ExamAttempt).where(ExamAttempt.user_id == user.id).order_by(ExamAttempt.started_at.desc())
+    return list(db.execute(stmt).scalars())
 
 
 def _get_attempt(db: Session, user: User, exam_id: int) -> ExamAttempt:
@@ -155,7 +166,7 @@ def start_exam(db: Session = Depends(get_db), current_user: User = Depends(get_c
     allowed = subjects_for_variant(current_user.exam_variant)
     if allowed is None or current_user.exam_variant is None:
         raise HTTPException(status_code=400, detail="Choose an exam variant in your profile first")
-    if any(_status(a) == "in_progress" for a in _own_attempts(db, current_user)):
+    if _running_attempts(db, current_user):
         raise HTTPException(status_code=409, detail="An exam is already in progress")
 
     rows = db.execute(select(Question.id, Question.subject).where(Question.subject.in_(allowed))).all()
@@ -194,25 +205,45 @@ def list_exams(db: Session = Depends(get_db), current_user: User = Depends(get_c
 
 @router.get("/stats", response_model=ExamStats)
 def exam_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> ExamStats:
-    completed = [a for a in _own_attempts(db, current_user) if _status(a) == "completed"]
-    totals = [_total_points(a) for a in completed]
-    chronological = sorted(completed, key=lambda a: as_utc(a.started_at))
+    _running_attempts(db, current_user)
+    # Aggregated in SQL: the statistics never need the answers, only the points.
+    points = case(*((ExamAttemptQuestion.outcome == o, p) for o, p in OUTCOME_POINTS.items()), else_=0)
+    completed = ExamAttempt.user_id == current_user.id, ExamAttempt.graded_at.is_not(None)
+
+    per_attempt = db.execute(
+        select(ExamAttempt.id, ExamAttempt.submitted_at, func.coalesce(func.sum(points), 0))
+        .join(ExamAttemptQuestion, ExamAttemptQuestion.attempt_id == ExamAttempt.id)
+        .where(*completed)
+        .group_by(ExamAttempt.id, ExamAttempt.submitted_at, ExamAttempt.started_at)
+        .order_by(ExamAttempt.started_at)
+    ).all()
+    totals = [int(total) for _, _, total in per_attempt]
+
+    per_group = {
+        group: (int(earned), count * POINTS_PER_QUESTION)
+        for group, earned, count in db.execute(
+            select(ExamAttemptQuestion.subject_group, func.coalesce(func.sum(points), 0), func.count())
+            .join(ExamAttempt, ExamAttempt.id == ExamAttemptQuestion.attempt_id)
+            .where(*completed)
+            .group_by(ExamAttemptQuestion.subject_group)
+        )
+    }
     return ExamStats(
-        completed_count=len(completed),
+        completed_count=len(per_attempt),
         passed_count=sum(1 for t in totals if result_for(t) == "bestanden"),
         average_points=round(sum(totals) / len(totals), 1) if totals else None,
         best_points=max(totals) if totals else None,
         max_points=MAX_POINTS,
         recent=[
-            ExamStatsPoint(
-                exam_id=a.id,
-                submitted_at=a.submitted_at,
-                points=_total_points(a),
-                result=result_for(_total_points(a)),
-            )
-            for a in chronological[-10:]
+            ExamStatsPoint(exam_id=exam_id, submitted_at=submitted_at, points=total, result=result_for(total))
+            for (exam_id, submitted_at, _), total in list(zip(per_attempt, totals, strict=True))[-10:]
         ],
-        group_scores=_group_scores(completed),
+        group_scores=[
+            ExamGroupScore(
+                subject_group=g, points=per_group.get(g, (0, 0))[0], max_points=per_group.get(g, (0, 0))[1]
+            )
+            for g in SUBJECT_GROUPS
+        ],
     )
 
 

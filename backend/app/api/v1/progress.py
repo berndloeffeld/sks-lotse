@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import delete, func, select
+from sqlalchemy import case, delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -28,37 +28,24 @@ def progress_summary(
         topics_stmt = topics_stmt.where(Topic.subject.in_(allowed))
     topics = db.execute(topics_stmt).scalars().all()
 
-    totals_stmt = (
-        select(Question.topic_id, func.count())
+    # One pass over the catalog, joined to this learner's streaks: count() skips
+    # the NULLs the CASEs yield for questions in the other bucket.
+    streak = QuestionProgress.correct_streak
+    counts_stmt = (
+        select(
+            Question.topic_id,
+            func.count(Question.id),
+            func.count(case((streak >= LEARNED_STREAK_THRESHOLD, 1))),
+            func.count(case(((streak > 0) & (streak < LEARNED_STREAK_THRESHOLD), 1))),
+        )
+        .outerjoin(
+            QuestionProgress,
+            (QuestionProgress.question_id == Question.id) & (QuestionProgress.user_id == current_user.id),
+        )
         .where(Question.topic_id.is_not(None))
         .group_by(Question.topic_id)
     )
-    totals = dict(db.execute(totals_stmt).all())
-
-    learned_stmt = (
-        select(Question.topic_id, func.count())
-        .join(QuestionProgress, QuestionProgress.question_id == Question.id)
-        .where(
-            QuestionProgress.user_id == current_user.id,
-            QuestionProgress.correct_streak >= LEARNED_STREAK_THRESHOLD,
-            Question.topic_id.is_not(None),
-        )
-        .group_by(Question.topic_id)
-    )
-    learned = dict(db.execute(learned_stmt).all())
-
-    learning_stmt = (
-        select(Question.topic_id, func.count())
-        .join(QuestionProgress, QuestionProgress.question_id == Question.id)
-        .where(
-            QuestionProgress.user_id == current_user.id,
-            QuestionProgress.correct_streak > 0,
-            QuestionProgress.correct_streak < LEARNED_STREAK_THRESHOLD,
-            Question.topic_id.is_not(None),
-        )
-        .group_by(Question.topic_id)
-    )
-    learning = dict(db.execute(learning_stmt).all())
+    counts = {topic_id: (total, done, partial) for topic_id, total, done, partial in db.execute(counts_stmt)}
 
     focus_ids = set(
         db.execute(select(FocusTopic.topic_id).where(FocusTopic.user_id == current_user.id)).scalars()
@@ -70,9 +57,9 @@ def progress_summary(
             topic_slug=topic.slug,
             topic_name=topic.name,
             display_order=topic.display_order,
-            total_questions=totals.get(topic.id, 0),
-            learned_questions=learned.get(topic.id, 0),
-            learning_questions=learning.get(topic.id, 0),
+            total_questions=counts.get(topic.id, (0, 0, 0))[0],
+            learned_questions=counts.get(topic.id, (0, 0, 0))[1],
+            learning_questions=counts.get(topic.id, (0, 0, 0))[2],
             is_focus=topic.id in focus_ids,
         )
         for topic in topics
