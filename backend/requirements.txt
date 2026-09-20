@@ -12,3 +12,4 @@ email-validator==2.3.0
 # Releases every time its upstream domain list changes (very often) — bump
 # periodically, this pin will go stale fast.
 disposable-email-domains==0.0.261
+anthropic==1.6.0

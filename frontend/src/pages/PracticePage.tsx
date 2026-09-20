@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress, Topic } from '../api/types'
+import { AiAnswerCheck } from '../components/AiAnswerCheck'
 import { CourseGauge } from '../components/CourseGauge'
 import { CELEBRATION_MS, LearnedCelebration } from '../components/LearnedCelebration'
 import { formStyles } from '../components/formStyles'
@@ -288,6 +289,10 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
               </p>
             )}
           </section>
+
+          {question.answer_text ? (
+            <AiAnswerCheck key={question.id} questionId={question.id} answer={note} onSuggest={setOutcome} />
+          ) : null}
 
           <ReportQuestion key={question.id} questionId={question.id} />
 

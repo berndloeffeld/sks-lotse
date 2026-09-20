@@ -31,12 +31,15 @@ interface Backend {
   // Response to each POST /progress/questions/{id}, in order.
   grades?: Response[]
   failLoad?: boolean
+  // Response to POST /questions/{id}/ai-grade.
+  aiGrade?: Response
 }
 
-function mockBackend({ questions = [question(1, 7)], progress = [], grades = [], failLoad = false }: Backend) {
+function mockBackend({ questions = [question(1, 7)], progress = [], grades = [], failLoad = false, aiGrade }: Backend) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
     if (failLoad) return jsonResponse({ detail: 'boom' }, 500)
+    if (init?.method === 'POST' && url.includes('/ai-grade')) return aiGrade ?? jsonResponse({ detail: 'x' }, 503)
     if (init?.method === 'POST' && url.includes('/progress/questions/')) {
       return grades.shift() ?? jsonResponse({ detail: 'unexpected' }, 500)
     }
@@ -101,6 +104,43 @@ describe('PracticePage', () => {
     )
     // The official answer stays hidden until asked for.
     expect(screen.queryByText('Antwort 7.')).not.toBeInTheDocument()
+  })
+
+  it('offers the AI check only as a teaser without the unlock', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
+
+    expect(screen.getByRole('button', { name: 'Antwort per KI prüfen lassen' })).toBeDisabled()
+    expect(screen.getByText('Bald verfügbar.')).toBeInTheDocument()
+  })
+
+  it('preselects the AI suggestion, which the learner still saves', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+      },
+    })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.' }) })
+    renderPracticePage()
+
+    await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('button', { name: 'Antwort per KI prüfen lassen' }))
+
+    expect(await screen.findByText('Das stimmt nicht.')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
   })
 
   it('reveals the official answer next to the learner’s own note', async () => {

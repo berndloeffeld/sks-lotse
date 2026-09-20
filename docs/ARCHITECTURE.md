@@ -21,7 +21,7 @@ graph LR
 
     Resend[Resend<br/>OTP email]
     Umami[Umami Cloud<br/>analytics]
-    OpenAI[OpenAI API<br/>answer grading]
+    Anthropic[Anthropic API<br/>answer check, Haiku]
     AdSense[Google AdSense]
 
     Learner --> SPA
@@ -30,14 +30,14 @@ graph LR
     API --> DB
     API --> Resend
     SPA --> Umami
-    API -.-> OpenAI
+    API --> Anthropic
     SPA -.-> AdSense
     SPA -.-> STT
 ```
 
-Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU, except the Anthropic API (US, see ADR-0031). Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
-Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo) and the Anthropic API (offline topic classification of the catalog, see [Question catalog](#question-catalog)).
+Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo) and the Anthropic API when used offline for topic classification of the catalog (see [Question catalog](#question-catalog)); the runtime answer check also calls it ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)).
 
 ## Components
 
@@ -133,10 +133,10 @@ All of them except the integration tests are required status checks on `main`, a
 
 ## Not yet built
 
-- LLM grading of free-text answers (OpenAI). Answering questions works, but learners grade themselves against the official answer ([ADR-0023](adr/0023-self-assessed-learning-flow.md)).
+- Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which is set by hand for now.
 - Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
 - SSO login (Google/Facebook/X)
-- Entitlements: the "ads removed" and "AI grading unlocked" flags on the account ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
+- Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
 - Question images: charts and diagrams from the catalog PDF (`image_ref` is always null)

@@ -11,6 +11,7 @@ export interface User {
   last_name: string | null
   gender: string | null
   is_admin: boolean
+  ai_grading_enabled: boolean
 }
 
 type Named = Pick<User, 'first_name' | 'last_name'>
@@ -22,6 +23,12 @@ export function getFullName(person: Named): string {
 
 export function getDisplayName(user: Named & Pick<User, 'email'>): string {
   return getFullName(user) || user.email
+}
+
+// Mirrors backend/app/schemas/grading.py::AiGradeRead.
+export interface AiGrade {
+  outcome: GradingOutcome
+  feedback: string
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.

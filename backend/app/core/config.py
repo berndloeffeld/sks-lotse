@@ -35,9 +35,11 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
     openai_api_key: str = ""
-    # Not read by the running app — only by backend/scripts/manage_topics.py,
-    # a local dev-only classification tool (see CLAUDE.md → Question Catalog).
+    # Answer check (app/services/grader.py) and, locally, backend/scripts/manage_topics.py.
+    # Empty = the check answers 503 instead of calling out.
     anthropic_api_key: str = ""
+    anthropic_grading_model: str = "claude-haiku-4-5"
+    anthropic_grading_timeout_seconds: float = 15.0
     adsense_client_id: str = ""
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
@@ -82,6 +84,12 @@ class Settings(BaseSettings):
     # free text one account can push into the operator's inbox.
     question_report_max_per_window: int = 20
     question_report_window_seconds: int = 3600  # 1 hour
+
+    # AI answer check: the learner's answer is capped (tokens = cost) and each account
+    # gets a per-hour budget on top of the blanket per-IP rule (app/main.py).
+    grading_max_answer_chars: int = 1000
+    grading_max_per_window: int = 30
+    grading_window_seconds: int = 3600  # 1 hour
 
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 
