@@ -75,6 +75,16 @@ ANSWER_START = "\x1e"
 # symbol is restored in Unicode (digit + combining low line, subscript digit);
 # the wording is otherwise untouched.
 QUESTION_TEXT_FIXES = {("navigation", 84): ("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083.")}
+# Same for answers: Navigation 48 names the Koppelort O_k and the beobachteten
+# Ort O_b, but the PDF text drops the subscripts and appends them after the
+# sentence ("(O ) ... (O ), ... Zeitpunkt. k b"). Unicode has no subscript b,
+# so they are written "O_k"/"O_b" and drawn as markup by RichText.
+ANSWER_TEXT_FIXES = {
+    ("navigation", 48): (
+        "Koppelort (O ) zum beobachteten Ort (O ), bezogen auf den gleichen Zeitpunkt. k b",
+        "Koppelort (O_k) zum beobachteten Ort (O_b), bezogen auf den gleichen Zeitpunkt.",
+    )
+}
 
 # Frozen as of revision 16af6f481bf6 (the first data migration) — see the
 # module docstring for why these aren't the ORM models.
@@ -181,6 +191,17 @@ def extract_sections(text: str) -> list[tuple[str, str]]:
     return [(SUBJECTS[i][0], text[starts[i] : starts[i + 1]]) for i in range(len(SUBJECTS))]
 
 
+def _apply_fix(
+    fixes: dict[tuple[str, int], tuple[str, str]], key: tuple[str, int], text: str, part: str
+) -> str:
+    if key not in fixes:
+        return text
+    broken, fixed = fixes[key]
+    if broken not in text:
+        raise ValueError(f"{key[0]} {key[1]}: expected {broken!r} in the {part}")
+    return text.replace(broken, fixed)
+
+
 def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
     """The raw PDF parse — Seemannschaft still as seemannschaft_1/seemannschaft_2."""
     text = extract_marked_text(pypdf.PdfReader(str(pdf_path)))
@@ -190,11 +211,9 @@ def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
         parts = NUMBER_RE.split(section_text)[1:]  # alternating: number, body, number, body, ...
         for i in range(0, len(parts), 2):
             question_text, answer_text = split_question_answer(parts[i + 1])
-            if (subject, int(parts[i])) in QUESTION_TEXT_FIXES:
-                broken, fixed = QUESTION_TEXT_FIXES[(subject, int(parts[i]))]
-                if broken not in question_text:
-                    raise ValueError(f"{subject} {parts[i]}: expected {broken!r} in the question")
-                question_text = question_text.replace(broken, fixed)
+            key = (subject, int(parts[i]))
+            question_text = _apply_fix(QUESTION_TEXT_FIXES, key, question_text, "question")
+            answer_text = _apply_fix(ANSWER_TEXT_FIXES, key, answer_text, "answer")
             questions.append(
                 CatalogQuestion(
                     subject=subject,

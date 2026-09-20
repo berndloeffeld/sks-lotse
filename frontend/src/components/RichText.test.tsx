@@ -10,6 +10,13 @@ describe('RichText', () => {
     expect(document.body).toHaveTextContent('Tiefenangabe 23. Was bedeutet das?')
   })
 
+  it('renders O_k and O_b as a letter with a subscript index', () => {
+    render(<p>{<RichText text="vom Koppelort (O_k) zum Ort (O_b)." />}</p>)
+    expect(screen.getByText('k').tagName).toBe('SUB')
+    expect(screen.getByText('b').tagName).toBe('SUB')
+    expect(document.body).toHaveTextContent('vom Koppelort (Ok) zum Ort (Ob).')
+  })
+
   it('leaves other text untouched', () => {
     render(<p>{<RichText text="Nord- und Ostsee" />}</p>)
     expect(document.body).toHaveTextContent('Nord- und Ostsee')
