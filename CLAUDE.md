@@ -24,6 +24,7 @@ Target stack. Not all of it exists yet — `docs/ARCHITECTURE.md` → "Not yet b
 | Speech-to-text | Web Speech API (browser-native, Chromium-based browsers) — no backend/cloud STT |
 | Ads | Google AdSense |
 | Analytics | Umami Cloud (Hobby plan, cookieless, EU region — [ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)) |
+| Uptime monitoring | Better Stack; public status page at [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) (dashboard-configured) |
 | Hosting | Render (Frankfurt EU — all services) |
 | CI/CD | GitHub Actions → auto-deploy on push to main |
 
