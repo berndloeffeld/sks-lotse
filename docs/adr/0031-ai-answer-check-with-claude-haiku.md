@@ -16,7 +16,7 @@ Learners without AI grading self-assess against the official answer ([ADR-0023](
 
 ## Consequences
 
-- `anthropic` moves from `requirements-dev.txt` to `requirements.txt`; `ANTHROPIC_API_KEY` is now a production secret (`render.yaml`, `sync: false`).
+- `anthropic` moves from `requirements-dev.txt` to `requirements.txt`; `ANTHROPIC_GRADING_API_KEY` is a production secret (`render.yaml`, `sync: false`). It is deliberately a different variable, and a different Console key/workspace, from `ANTHROPIC_API_KEY` (local catalog tooling), so each has its own spend limit and can be rotated independently.
 - The learner's answer leaves for a US processor: the Datenschutzerklärung must name Anthropic (with AVV/SCC) before the unlock is offered to real users.
 - Questions that refer to charts can only be judged against the answer text, since images aren't extracted yet.
 - Rejected: sending subject/topic/history (cost, privacy, little gain); auto-saving the LLM's grade (a wrong verdict would silently move a streak); streaming (short answers, not worth the complexity).

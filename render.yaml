@@ -44,7 +44,7 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-      - key: ANTHROPIC_API_KEY
+      - key: ANTHROPIC_GRADING_API_KEY
         sync: false
       - key: ADSENSE_CLIENT_ID
         sync: false

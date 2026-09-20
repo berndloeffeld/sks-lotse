@@ -36,15 +36,15 @@ class GradingUnavailable(Exception):
 
 def _client() -> anthropic.Anthropic:
     return anthropic.Anthropic(
-        api_key=settings.anthropic_api_key,
+        api_key=settings.anthropic_grading_api_key,
         timeout=settings.anthropic_grading_timeout_seconds,
         max_retries=1,
     )
 
 
 def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> GradeResult:
-    if not settings.anthropic_api_key:
-        raise GradingUnavailable("ANTHROPIC_API_KEY is not configured")
+    if not settings.anthropic_grading_api_key:
+        raise GradingUnavailable("ANTHROPIC_GRADING_API_KEY is not configured")
     user_prompt = (
         f"<frage>{question_text}</frage>\n<musterantwort>{model_answer}</musterantwort>\n"
         f"<antwort>{learner_answer}</antwort>"

@@ -113,7 +113,7 @@ class _FakeResponse:
 
 
 def _patch_client(monkeypatch, messages):
-    monkeypatch.setattr(settings, "anthropic_api_key", "test-key")
+    monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
     monkeypatch.setattr(grader, "_client", lambda: type("C", (), {"messages": messages})())
 
 
@@ -134,7 +134,7 @@ def test_service_builds_minimal_prompt(monkeypatch):
 
 
 def test_service_without_key_is_unavailable(monkeypatch):
-    monkeypatch.setattr(settings, "anthropic_api_key", "")
+    monkeypatch.setattr(settings, "anthropic_grading_api_key", "")
     with pytest.raises(GradingUnavailable):
         grader.grade_answer("F", "M", "A")
 
@@ -150,5 +150,5 @@ def test_service_wraps_api_errors_and_empty_replies(monkeypatch):
 
 
 def test_client_factory_uses_configured_key(monkeypatch):
-    monkeypatch.setattr(settings, "anthropic_api_key", "test-key")
+    monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
     assert grader._client().api_key == "test-key"

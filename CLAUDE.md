@@ -247,7 +247,8 @@ Apply these four checks whenever adding or changing a database table — going f
 - **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
 - **Frontend `VITE_ADSENSE_CLIENT_ID`** — Google AdSense publisher id (`ca-pub-…`), set on the frontend service only; unset = the ad script and the "Cookie-Einstellungen" footer button are absent ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
 - **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused (grading went to Anthropic, ADR-0031).
-- **`ANTHROPIC_API_KEY`** — used by the AI answer check (`backend/app/services/grader.py`, ADR-0031; empty = the endpoint answers 503) and locally by `backend/scripts/manage_topics.py`; a `sync: false` secret on Render.
+- **`ANTHROPIC_API_KEY`** — only used locally by `backend/scripts/manage_topics.py` (see Question Catalog) to classify questions into topics; not read by the running app, not set on Render.
+- **`ANTHROPIC_GRADING_API_KEY`** — the running app's key for the AI answer check (`backend/app/services/grader.py`, ADR-0031; empty = the endpoint answers 503). A `sync: false` secret on Render; keep it a different key (own Console workspace) from `ANTHROPIC_API_KEY`.
 
 ---
 

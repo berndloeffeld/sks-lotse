@@ -35,9 +35,12 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
     openai_api_key: str = ""
-    # Answer check (app/services/grader.py) and, locally, backend/scripts/manage_topics.py.
-    # Empty = the check answers 503 instead of calling out.
+    # Local dev tooling only (backend/scripts/manage_topics.py) — the running app never reads it.
     anthropic_api_key: str = ""
+    # The running app's own key for the AI answer check (app/services/grader.py, ADR-0031),
+    # deliberately separate from the dev-tooling key above (own workspace, own spend limit).
+    # Empty = the check answers 503 instead of calling out.
+    anthropic_grading_api_key: str = ""
     anthropic_grading_model: str = "claude-haiku-4-5"
     anthropic_grading_timeout_seconds: float = 15.0
     adsense_client_id: str = ""
