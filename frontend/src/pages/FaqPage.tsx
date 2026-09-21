@@ -39,12 +39,7 @@ const FAQ: { question: string; answer: string }[] = [
   {
     question: 'Was ist die Prüfungssimulation?',
     answer:
-      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Danach bewertest du dich Frage für Frage. Die praktische Kartenaufgabe wird nicht simuliert.',
-  },
-  {
-    question: 'Kann ich Antworten einsprechen?',
-    answer:
-      'Ja, in Chromium-basierten Browsern (z. B. Chrome, Edge). Die Sprache wird lokal im Browser in Text umgewandelt.',
+      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Die praktische Kartenaufgabe wird nicht simuliert.',
   },
   {
     question: 'Was passiert mit meinen Daten?',
