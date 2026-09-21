@@ -1,11 +1,13 @@
 import inspect
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import anthropic
 import httpx
 import pytest
 
 from app.api.v1 import grading as grading_api
+from app.core import ai_quota as ai_quota_core
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import Question, User
@@ -62,7 +64,7 @@ def test_happy_path_sends_only_question_and_answers(client, db_session, fake_gra
     assert response.json() == {
         "outcome": "teilweise_richtig",
         "feedback": "Es fehlt die Seite.",
-        "remaining_today": settings.grading_max_per_day - 1,
+        "remaining_this_week": settings.grading_max_per_week - 1,
     }
     assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links")]
 
@@ -108,23 +110,23 @@ def _user(db_session, email="grader@example.com") -> User:
     return db_session.query(User).filter_by(email=email).one()
 
 
-def test_daily_budget_counts_down_and_then_blocks(client, db_session, fake_grader, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_day", 2)
+def test_weekly_budget_counts_down_and_then_blocks(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_week", 2)
     monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
 
-    assert _post(client, q.id, headers).json()["remaining_today"] == 1
-    assert _post(client, q.id, headers).json()["remaining_today"] == 0
+    assert _post(client, q.id, headers).json()["remaining_this_week"] == 1
+    assert _post(client, q.id, headers).json()["remaining_this_week"] == 0
     blocked = _post(client, q.id, headers)
     assert blocked.status_code == 429
-    assert "Daily limit" in blocked.json()["detail"]
+    assert "Weekly limit" in blocked.json()["detail"]
     assert len(fake_grader) == 2
     assert _user(db_session).ai_checks_remaining == 0
 
 
-def test_budget_is_full_again_on_the_next_day(client, db_session, fake_grader, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_day", 1)
+def test_budget_is_full_again_in_the_next_week(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_week", 1)
     monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
@@ -132,7 +134,7 @@ def test_budget_is_full_again_on_the_next_day(client, db_session, fake_grader, m
     assert _post(client, q.id, headers).status_code == 429
 
     user = _user(db_session)
-    user.ai_checks_day = user.ai_checks_day - timedelta(days=1)
+    user.ai_checks_week = user.ai_checks_week - timedelta(days=7)
     db_session.commit()
     assert user.ai_checks_remaining == 1
     assert _post(client, q.id, headers).status_code == 200
@@ -182,7 +184,7 @@ def test_failed_call_gives_the_check_back(client, db_session, monkeypatch):
 
 
 def test_refund_ignores_a_counter_that_moved_on(db_session):
-    user = User(email="r@example.com", ai_checks_day=date(2020, 1, 1), ai_checks_used=1)
+    user = User(email="r@example.com", ai_checks_week=date(2020, 1, 1), ai_checks_used=1)
     db_session.add(user)
     db_session.commit()
     ai_quota_service.refund(db_session, user.id, date(2020, 1, 2))
@@ -191,7 +193,7 @@ def test_refund_ignores_a_counter_that_moved_on(db_session):
 
 def test_refund_never_goes_below_zero(db_session):
     day = date(2020, 1, 1)
-    user = User(email="r0@example.com", ai_checks_day=day, ai_checks_used=0)
+    user = User(email="r0@example.com", ai_checks_week=day, ai_checks_used=0)
     db_session.add(user)
     db_session.commit()
     ai_quota_service.refund(db_session, user.id, day)
@@ -199,9 +201,57 @@ def test_refund_never_goes_below_zero(db_session):
 
 
 def test_me_reports_the_remaining_budget(client, db_session, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_day", 5)
+    monkeypatch.setattr(settings, "grading_max_per_week", 5)
     headers = _headers(db_session, enabled=True)
     assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 5
+
+
+def test_a_per_user_limit_beats_the_default(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_week", 5)
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    _user(db_session).ai_checks_weekly_limit = 1
+    db_session.commit()
+
+    assert _post(client, q.id, headers).json()["remaining_this_week"] == 0
+    assert _post(client, q.id, headers).status_code == 429
+
+
+def test_zero_blocks_and_the_db_default_beats_the_env_default(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_week", 5)
+    headers = _headers(db_session, enabled=True)
+    ai_quota_service.set_weekly_default(db_session, 7)
+    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 7
+    ai_quota_service.set_weekly_default(db_session, 3)  # update of the existing row
+    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 3
+    _user(db_session).ai_checks_weekly_limit = 0
+    db_session.commit()
+    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 0
+
+
+def test_limit_of_a_user_outside_a_session_falls_back_to_the_env_default(monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_week", 9)
+    assert User(email="t@example.com").ai_checks_limit == 9
+    assert User(email="t@example.com", ai_checks_weekly_limit=2).ai_checks_limit == 2
+
+
+@pytest.mark.parametrize(
+    ("berlin_now", "monday"),
+    [
+        (datetime(2026, 9, 21, 0, 0, 1, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 21)),
+        (datetime(2026, 9, 20, 23, 59, 59, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 14)),
+        (datetime(2026, 9, 24, 12, 0, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 21)),
+    ],
+)
+def test_the_week_starts_on_monday_in_berlin(monkeypatch, berlin_now, monday):
+    class _Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return berlin_now.astimezone(tz)
+
+    monkeypatch.setattr(ai_quota_core, "datetime", _Clock)
+    assert ai_quota_core.current_week() == monday
 
 
 # --- service ---

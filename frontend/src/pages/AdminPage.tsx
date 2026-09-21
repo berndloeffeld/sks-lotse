@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import { getFullName, type AdminUserExport, type AdminUserSearchResult, type ExamVariant } from '../api/types'
@@ -33,6 +33,9 @@ export function AdminPage() {
   const [isToggling, setIsToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
 
+  const [limitInput, setLimitInput] = useState('')
+  const [limitError, setLimitError] = useState<string | null>(null)
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
@@ -53,6 +56,7 @@ export function AdminPage() {
     setDeleteError(null)
     setExportError(null)
     setToggleError(null)
+    setLimitError(null)
   }
 
   async function handleSearch(event: FormEvent) {
@@ -64,6 +68,7 @@ export function AdminPage() {
       const found = await apiClient.post<AdminUserSearchResult>('/admin/users/search', { email: searchEmail })
       resetResult()
       setResult(found)
+      setLimitInput(found.ai_checks_weekly_limit === null ? '' : String(found.ai_checks_weekly_limit))
     } catch (err) {
       setResult(null)
       setSearchError(
@@ -101,6 +106,24 @@ export function AdminPage() {
       setResult(updated)
     } catch {
       setToggleError(errorMessage)
+    } finally {
+      setIsToggling(false)
+    }
+  }
+
+  // limit = null resets the account to the app-wide default.
+  async function handleSaveLimit(limit: number | null) {
+    if (!result) return
+    setLimitError(null)
+    setIsToggling(true)
+    try {
+      const updated = await apiClient.patch<AdminUserSearchResult>(`/admin/users/${result.id}`, {
+        ai_checks_weekly_limit: limit,
+      })
+      setResult(updated)
+      setLimitInput(updated.ai_checks_weekly_limit === null ? '' : String(updated.ai_checks_weekly_limit))
+    } catch {
+      setLimitError('Das Wochenlimit konnte nicht geändert werden.')
     } finally {
       setIsToggling(false)
     }
@@ -176,6 +199,11 @@ export function AdminPage() {
             <dd className="text-ink">{result.question_progress_count}</dd>
             <dt className="text-ink-soft">KI-Prüfung</dt>
             <dd className="text-ink">{result.ai_grading_enabled ? 'Freigeschaltet' : 'Nicht freigeschaltet'}</dd>
+            <dt className="text-ink-soft">KI-Prüfungen diese Woche</dt>
+            <dd className="text-ink">
+              {result.ai_checks_used} von {result.ai_checks_limit}
+              {result.ai_checks_weekly_limit === null ? ' (Standard)' : ' (eigenes Limit)'}
+            </dd>
             <dt className="text-ink-soft">Werbung</dt>
             <dd className="text-ink">{result.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>
           </dl>
@@ -199,6 +227,50 @@ export function AdminPage() {
               {result.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
             </button>
           </div>
+
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={(event) => {
+              event.preventDefault()
+              const limit = Number(limitInput)
+              if (limitInput.trim() === '' || !Number.isInteger(limit) || limit < 0) {
+                setLimitError('Bitte eine ganze Zahl ab 0 eingeben.')
+                return
+              }
+              handleSaveLimit(limit)
+            }}
+          >
+            <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="weekly-limit">
+              KI-Prüfungen pro Woche (Montag bis Sonntag)
+              <input
+                id="weekly-limit"
+                type="number"
+                min={0}
+                value={limitInput}
+                placeholder="Standard"
+                onChange={(event) => setLimitInput(event.target.value)}
+                className="border border-border bg-surface px-3 py-2 text-ink"
+              />
+            </label>
+            {limitError ? <p className="text-sm text-danger">{limitError}</p> : null}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={isToggling}
+                className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+              >
+                Limit speichern
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSaveLimit(null)}
+                disabled={isToggling || result.ai_checks_weekly_limit === null}
+                className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+              >
+                Standard verwenden
+              </button>
+            </div>
+          </form>
 
           <div className="flex flex-col gap-2">
             {exportError ? <p className="text-sm text-danger">{exportError}</p> : null}
@@ -246,6 +318,10 @@ export function AdminPage() {
           </div>
         </section>
       ) : null}
+
+      <Link to="/admin/settings" className="text-sm text-ink underline">
+        Standard-Wochenlimit für die KI-Prüfung ändern
+      </Link>
     </PageLayout>
   )
 }

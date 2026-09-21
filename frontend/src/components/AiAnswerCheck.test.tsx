@@ -53,21 +53,21 @@ describe('AiAnswerCheck', () => {
 
     rerender(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
     expect(screen.getByRole('button', ROW)).toBeEnabled()
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('noch 14 heute')
+    expect(screen.getByRole('button', ROW)).toHaveTextContent('noch 14 diese Woche')
   })
 
-  it('is disabled with "morgen wieder" once the day is used up', () => {
+  it('is disabled with "ab Montag wieder" once the week is used up', () => {
     useAuthStore.setState({ user: { ...user, ai_checks_remaining: 0 } })
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
     expect(screen.getByRole('button', ROW)).toBeDisabled()
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('morgen wieder')
+    expect(screen.getByRole('button', ROW)).toHaveTextContent('ab Montag wieder')
   })
 
   it('sends only the answer, shows the feedback, suggests the grade and updates the budget', async () => {
     useAuthStore.setState({ user })
     const fetchMock = vi.fn(async () =>
-      jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Es fehlt die Seite.', remaining_today: 13 }),
+      jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Es fehlt die Seite.', remaining_this_week: 13 }),
     )
     vi.stubGlobal('fetch', fetchMock)
     const track = vi.fn()

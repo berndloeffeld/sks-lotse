@@ -31,6 +31,9 @@ const foundUser = {
   gender: 'weiblich',
   ai_grading_enabled: false,
   ads_removed: false,
+  ai_checks_used: 4,
+  ai_checks_weekly_limit: null,
+  ai_checks_limit: 100,
   question_progress_count: 3,
 }
 
@@ -317,5 +320,64 @@ describe('AdminPage', () => {
 
     expect(createObjectURL).toHaveBeenCalledTimes(1)
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+  })
+
+  it('sets a per-user weekly limit and resets it to the default', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    const bodies: unknown[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH') {
+          const body = JSON.parse(String(init.body))
+          bodies.push(body)
+          return jsonResponse({ ...foundUser, ...body })
+        }
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    expect(await screen.findByText('4 von 100 (Standard)')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '7')
+    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
+    expect(await screen.findByText(/\(eigenes Limit\)/)).toBeInTheDocument()
+    expect(bodies[0]).toEqual({ ai_checks_weekly_limit: 7 })
+
+    await user.click(screen.getByRole('button', { name: 'Standard verwenden' }))
+    expect(await screen.findByText(/\(Standard\)/)).toBeInTheDocument()
+    expect(bodies[1]).toEqual({ ai_checks_weekly_limit: null })
+  })
+
+  it('rejects an invalid weekly limit and reports a failed save', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (init?.method === 'PATCH') return new Response(null, { status: 500 })
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    await screen.findByText('learner@example.com')
+
+    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
+    expect(screen.getByText('Bitte eine ganze Zahl ab 0 eingeben.')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '5')
+    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
+    expect(await screen.findByText('Das Wochenlimit konnte nicht geändert werden.')).toBeInTheDocument()
   })
 })

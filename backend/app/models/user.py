@@ -1,9 +1,10 @@
 from datetime import date, datetime
 
 from sqlalchemy import Boolean, Date, DateTime, Integer, String, false, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, object_session
 
 from app.core import ai_quota
+from app.core.config import settings
 from app.core.database import Base
 
 
@@ -38,11 +39,22 @@ class User(Base):
     # Entitlement "ads removed" — flipped by hand until payment exists. Hides the UI's ad elements; the
     # AdSense script in the frontend's <head> stays (ADR-0027).
     ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
-    # Today's AI-check budget (app/core/ai_quota.py): `ai_checks_used` counts on `ai_checks_day` only;
-    # on any other day the budget is full again.
-    ai_checks_day: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # This week's AI-check budget (app/core/ai_quota.py): `ai_checks_used` counts on the week starting
+    # `ai_checks_week` (a Monday) only; in any other week the budget is full again.
+    ai_checks_week: Mapped[date | None] = mapped_column(Date, nullable=True)
     ai_checks_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    # Operator override of the weekly budget for this account; NULL = the app-wide default.
+    ai_checks_weekly_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    @property
+    def ai_checks_limit(self) -> int:
+        session = object_session(self)
+        if session is None:  # not attached to a session: only its own override or the env default
+            if self.ai_checks_weekly_limit is not None:
+                return self.ai_checks_weekly_limit
+            return settings.grading_max_per_week
+        return ai_quota.effective_limit(session, self.ai_checks_weekly_limit)
 
     @property
     def ai_checks_remaining(self) -> int:
-        return ai_quota.remaining(self.ai_checks_day, self.ai_checks_used)
+        return ai_quota.remaining(self.ai_checks_week, self.ai_checks_used, self.ai_checks_limit)

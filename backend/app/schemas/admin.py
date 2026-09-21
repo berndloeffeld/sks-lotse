@@ -1,8 +1,10 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.auth import NormalizedEmail
+
+MAX_WEEKLY_LIMIT = 10_000
 
 
 class AdminUserSearchRequest(BaseModel):
@@ -12,12 +14,28 @@ class AdminUserSearchRequest(BaseModel):
 class AdminUserUpdate(BaseModel):
     ai_grading_enabled: bool | None = None
     ads_removed: bool | None = None
+    # Explicit null resets the account to the app-wide default; "absent" is told apart via model_fields_set.
+    ai_checks_weekly_limit: int | None = Field(default=None, ge=0, le=MAX_WEEKLY_LIMIT)
 
     @model_validator(mode="after")
     def _require_a_field(self) -> "AdminUserUpdate":
-        if self.ai_grading_enabled is None and self.ads_removed is None:
-            raise ValueError("at least one of ai_grading_enabled, ads_removed is required")
+        if (
+            self.ai_grading_enabled is None
+            and self.ads_removed is None
+            and "ai_checks_weekly_limit" not in self.model_fields_set
+        ):
+            raise ValueError(
+                "at least one of ai_grading_enabled, ads_removed, ai_checks_weekly_limit required"
+            )
         return self
+
+
+class AdminSettingsRead(BaseModel):
+    ai_checks_weekly_default: int
+
+
+class AdminSettingsUpdate(BaseModel):
+    ai_checks_weekly_default: int = Field(ge=0, le=MAX_WEEKLY_LIMIT)
 
 
 class AdminUserRead(BaseModel):
@@ -34,8 +52,10 @@ class AdminUserRead(BaseModel):
     gender: str | None
     ai_grading_enabled: bool
     ads_removed: bool
-    ai_checks_day: date | None
+    ai_checks_week: date | None
     ai_checks_used: int
+    ai_checks_weekly_limit: int | None  # the account's override; null = the app-wide default
+    ai_checks_limit: int  # what actually applies to the account this week
     question_progress_count: int
 
 

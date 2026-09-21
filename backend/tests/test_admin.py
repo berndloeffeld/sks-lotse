@@ -296,3 +296,56 @@ def test_admin_export_contains_every_stored_exam_and_progress_field(
     assert (known["answer_text"], known["outcome"]) == ("Mein Text", "teilweise_richtig")
     assert (gone["subject"], gone["question_number"], gone["outcome"]) == (None, None, None)
     assert body["question_progress"][0]["last_correct_at"].startswith("2026-03-02T09:00")
+
+
+def test_settings_routes_require_admin(client, auth_headers):
+    assert client.get("/api/v1/admin/settings").status_code == 401
+    assert client.put("/api/v1/admin/settings", json={"ai_checks_weekly_default": 5}).status_code == 401
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).status_code == 403
+    response = client.put(
+        "/api/v1/admin/settings", json={"ai_checks_weekly_default": 5}, headers=auth_headers
+    )
+    assert response.status_code == 403
+
+
+def test_admin_can_read_and_change_the_weekly_default(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    monkeypatch.setattr(settings, "grading_max_per_week", 100)
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == {
+        "ai_checks_weekly_default": 100
+    }
+
+    response = client.put(
+        "/api/v1/admin/settings", json={"ai_checks_weekly_default": 40}, headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json() == {"ai_checks_weekly_default": 40}
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == {
+        "ai_checks_weekly_default": 40
+    }
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["ai_checks_remaining"] == 40
+
+
+@pytest.mark.parametrize("value", [-1, 10_001, "x", None])
+def test_admin_settings_reject_invalid_default(client, db_session, auth_headers, monkeypatch, value):
+    _make_admin(monkeypatch)
+    response = client.put(
+        "/api/v1/admin/settings", json={"ai_checks_weekly_default": value}, headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_admin_can_set_and_reset_a_per_user_weekly_limit(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    monkeypatch.setattr(settings, "grading_max_per_week", 100)
+    user_id = _fixture_user(db_session).id
+    url = f"/api/v1/admin/users/{user_id}"
+
+    body = client.patch(url, json={"ai_checks_weekly_limit": 7}, headers=auth_headers).json()
+    assert (body["ai_checks_weekly_limit"], body["ai_checks_limit"]) == (7, 7)
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["ai_checks_remaining"] == 7
+
+    body = client.patch(url, json={"ai_checks_weekly_limit": None}, headers=auth_headers).json()
+    assert (body["ai_checks_weekly_limit"], body["ai_checks_limit"]) == (None, 100)
+
+    assert client.patch(url, json={"ai_checks_weekly_limit": -1}, headers=auth_headers).status_code == 422
