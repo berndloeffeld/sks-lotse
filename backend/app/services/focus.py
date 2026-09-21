@@ -1,7 +1,9 @@
+from datetime import UTC, datetime
+
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from app.core.progress import LEARNED_STREAK_THRESHOLD
+from app.core.progress import learned_clause
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -18,7 +20,7 @@ def is_topic_fully_learned(db: Session, user_id: int, topic_id: int) -> bool:
         .where(
             Question.topic_id == topic_id,
             QuestionProgress.user_id == user_id,
-            QuestionProgress.correct_streak >= LEARNED_STREAK_THRESHOLD,
+            learned_clause(datetime.now(UTC)),
         )
     ).scalar_one()
     return total > 0 and learned == total
@@ -27,7 +29,7 @@ def is_topic_fully_learned(db: Session, user_id: int, topic_id: int) -> bool:
 def remove_focus_if_topic_learned(db: Session, user_id: int, topic_id: int) -> None:
     """Drop the learner's focus mark on a topic once all its questions are "gelernt".
 
-    Permanent by design (docs/adr/0028-...): a later streak reset doesn't bring
+    Permanent by design (docs/adr/0028-...): a later decay or setback doesn't bring
     the mark back.
     """
     if is_topic_fully_learned(db, user_id, topic_id):

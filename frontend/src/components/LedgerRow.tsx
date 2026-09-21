@@ -9,7 +9,7 @@ interface LedgerRowProps {
   // Where "Lernen starten" leads; the button stays disabled without it or
   // for a topic with no questions.
   to?: string
-  // Questions on the way to "gelernt" (streak 1–2), shown as a fainter bar
+  // Questions on the way to "gelernt", shown as a fainter bar
   // segment and in the count line.
   learning?: number
   // Renders the Fokus star when `onToggleFocus` is given.

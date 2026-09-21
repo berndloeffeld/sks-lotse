@@ -43,7 +43,9 @@ class AdminQuestionProgressExport(BaseModel):
     question_id: int
     subject: str
     question_number: int
-    correct_streak: int
+    half_life_days: float
+    last_graded_at: datetime
+    review_due_at: datetime
     created_at: datetime
     updated_at: datetime
 

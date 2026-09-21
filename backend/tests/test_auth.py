@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.core.otp import OTP_PURPOSE_LOGIN
 from app.models import OtpCode, Question, QuestionProgress, User
+from tests.helpers import progress_state
 
 
 def _capture_otp(monkeypatch):
@@ -559,7 +560,7 @@ def test_delete_me_removes_user_and_cascades_progress(client, db_session, auth_h
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
     db_session.commit()
-    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=1))
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
     db_session.commit()
 
     response = client.delete("/api/v1/auth/me", headers=auth_headers)

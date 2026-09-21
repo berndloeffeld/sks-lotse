@@ -14,15 +14,16 @@ class TopicProgressRead(BaseModel):
     display_order: int
     total_questions: int
     learned_questions: int
-    # "Teilweise gelernt": a streak of 1 or 2, i.e. above 0 and below
-    # LEARNED_STREAK_THRESHOLD (app/core/progress.py).
+    # "Teilweise gelernt": answered right at least once, but not (or no
+    # longer) gelernt — see app/core/progress.py.
     learning_questions: int
     is_focus: bool
 
 
 class QuestionProgressRead(BaseModel):
     question_id: int
-    correct_streak: int
+    # 0-1 position for the course gauge (progress_fraction()), not a step count.
+    progress: float
     learned: bool
 
 

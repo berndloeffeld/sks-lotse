@@ -23,6 +23,7 @@ from app.services.catalog_seed import (
     sync_catalog,
     wording_differs,
 )
+from tests.helpers import progress_state
 
 # The official answer to these is only a sketch in the PDF — no text at all.
 SKETCH_ONLY_ANSWERS = {("seemannschaft_1", 79), ("seemannschaft_1", 104), ("seemannschaft_2", 65)}
@@ -226,7 +227,7 @@ def test_reseed_keeps_question_ids_and_learner_progress(db_session):
     db_session.add(user)
     db_session.flush()
     question = db_session.query(Question).filter_by(subject="navigation", number=1).one()
-    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=2))
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(2)))
     db_session.commit()
 
     seed_catalog(db_session)
@@ -236,7 +237,7 @@ def test_reseed_keeps_question_ids_and_learner_progress(db_session):
     assert db_session.query(Topic).count() == 25
     progress = db_session.query(QuestionProgress).one()
     assert progress.question_id == question.id
-    assert progress.correct_streak == 2
+    assert progress.half_life_days == pytest.approx(6.25)
 
 
 def test_sync_updates_changed_rows_and_removes_vanished_ones(db_session):
@@ -308,8 +309,8 @@ def test_resync_after_unmerging_a_pair_keeps_progress_on_the_same_official_quest
     db_session.flush()
     db_session.add_all(
         [
-            QuestionProgress(user_id=user.id, question_id=unmerged.id, correct_streak=2),
-            QuestionProgress(user_id=user.id, question_id=shifted.id, correct_streak=1),
+            QuestionProgress(user_id=user.id, question_id=unmerged.id, **progress_state(2)),
+            QuestionProgress(user_id=user.id, question_id=shifted.id, **progress_state(1)),
         ]
     )
     db_session.commit()
@@ -334,8 +335,8 @@ def test_resync_after_unmerging_a_pair_keeps_progress_on_the_same_official_quest
     assert (motor.seemannschaft_1_number, motor.seemannschaft_2_number) == (None, 45)
     assert motor.topic_id is not None
 
-    streaks = {p.question_id: p.correct_streak for p in db_session.query(QuestionProgress)}
-    assert streaks == {segeln.id: 2, motor.id: 2, shifted.id: 1}
+    half_lives = {p.question_id: p.half_life_days for p in db_session.query(QuestionProgress)}
+    assert half_lives == {segeln.id: 6.25, motor.id: 6.25, shifted.id: 2.5}
     assert db_session.query(Question).count() == 540
 
 

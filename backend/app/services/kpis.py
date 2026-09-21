@@ -4,7 +4,7 @@ from sqlalchemy import distinct, exists, func, select, union
 from sqlalchemy.orm import Session
 
 from app.core.exam import OUTCOME_POINTS, PASS_MIN_POINTS
-from app.core.progress import LEARNED_STREAK_THRESHOLD
+from app.core.progress import learned_clause
 from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
@@ -114,7 +114,7 @@ def _exam_count(db: Session, column, since: datetime, until: datetime) -> int:
 
 def _learning(db: Session, now: datetime) -> LearningKpis:
     day = timedelta(days=1)
-    learned = QuestionProgress.correct_streak >= LEARNED_STREAK_THRESHOLD
+    learned = learned_clause(now)
     by_subject = [
         SubjectLearned(subject=subject, learned_questions=count)
         for subject, count in db.execute(

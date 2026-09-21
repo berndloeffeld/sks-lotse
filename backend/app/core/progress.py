@@ -1,23 +1,95 @@
-"""The "gelernt" streak rule: how a grading outcome moves a question's streak.
+"""The "gelernt" rule: a per-question memory half-life, moved by each self-grading.
 
-See docs/adr/0018-learning-progress-model-and-gelernt-streak-rule.md and
-docs/adr/0023-self-assessed-learning-flow.md.
+Duolingo-style half-life model (docs/adr/0034-half-life-model-for-gelernt.md,
+superseding the streak rule of docs/adr/0018-...): recall probability decays as
+``p = 2 ** (-elapsed / half_life)``, and every grading re-estimates the half-life.
+Unlike Duolingo's regression, the update factors below are fixed constants, not
+weights fitted on review logs — there is no data to fit them on yet.
 """
 
+import math
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
-LEARNED_STREAK_THRESHOLD = 3
+from sqlalchemy import ColumnElement, and_
+
+from app.models.question_progress import QuestionProgress
 
 # The three outcomes of the self-assessment control (ADR-0014), in the
 # order the UI lists them.
 GradingOutcome = Literal["richtig", "teilweise_richtig", "falsch"]
 
+# Half-life assumed before a question has been graded (and the floor for
+# "on the way": a half-life above it means at least one solid recall).
+INITIAL_HALF_LIFE_DAYS = 1.0
+MIN_HALF_LIFE_DAYS = 0.25
+MAX_HALF_LIFE_DAYS = 365.0
+# A question is "gelernt" once its half-life reaches this ...
+LEARNED_HALF_LIFE_DAYS = 7.0
+# ... and stays so until the estimated recall probability drops below this,
+# at which point it resurfaces (review_due_at).
+RECALL_THRESHOLD = 0.7
 
-def is_learned(correct_streak: int) -> bool:
-    return correct_streak >= LEARNED_STREAK_THRESHOLD
+# How a grading scales the half-life. A "Richtig" grows it by up to FULL_GAIN,
+# scaled by how much of the current half-life has elapsed since the last
+# grading (spacing effect: re-answering right away proves little).
+FULL_GAIN = 2.5
+_SETBACK_FACTORS = {"teilweise_richtig": 0.5, "falsch": 0.25}
 
 
-def next_streak(correct_streak: int, outcome: GradingOutcome) -> int:
-    # Only a full "Richtig" extends the streak; anything else resets it —
-    # it's a consecutive run, not a cumulative count.
-    return correct_streak + 1 if outcome == "richtig" else 0
+def _aware(moment: datetime) -> datetime:
+    # SQLite (the test DB) hands timezone-aware columns back naive.
+    return moment if moment.tzinfo is not None else moment.replace(tzinfo=UTC)
+
+
+def recall_probability(half_life_days: float, elapsed_days: float) -> float:
+    return 2 ** (-max(elapsed_days, 0.0) / half_life_days)
+
+
+def next_half_life(half_life_days: float, elapsed_days: float | None, outcome: GradingOutcome) -> float:
+    """The half-life after one grading; ``elapsed_days`` is None for a first grading."""
+    if outcome == "richtig":
+        spacing = 1.0 if elapsed_days is None else min(max(elapsed_days, 0.0) / half_life_days, 1.0)
+        updated = half_life_days * (1 + (FULL_GAIN - 1) * spacing)
+    else:
+        updated = half_life_days * _SETBACK_FACTORS[outcome]
+    return min(max(updated, MIN_HALF_LIFE_DAYS), MAX_HALF_LIFE_DAYS)
+
+
+def due_at(last_graded_at: datetime, half_life_days: float) -> datetime:
+    """When the recall probability falls to RECALL_THRESHOLD — the question resurfaces."""
+    return last_graded_at + timedelta(days=half_life_days * math.log2(1 / RECALL_THRESHOLD))
+
+
+def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime, *, is_new: bool) -> None:
+    elapsed = None if is_new else (now - _aware(row.last_graded_at)).total_seconds() / 86400
+    row.half_life_days = next_half_life(row.half_life_days, elapsed, outcome)
+    row.last_graded_at = now
+    row.review_due_at = due_at(now, row.half_life_days)
+
+
+def is_learned(row: QuestionProgress, now: datetime) -> bool:
+    return row.half_life_days >= LEARNED_HALF_LIFE_DAYS and _aware(row.review_due_at) > now
+
+
+def learned_clause(now: datetime) -> ColumnElement[bool]:
+    """SQL twin of is_learned()."""
+    return and_(
+        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at > now
+    )
+
+
+def learning_clause(now: datetime) -> ColumnElement[bool]:
+    """ "Teilweise gelernt": answered right at least once, but not (or no longer) gelernt."""
+    return and_(QuestionProgress.half_life_days > INITIAL_HALF_LIFE_DAYS, ~learned_clause(now))
+
+
+def progress_fraction(row: QuestionProgress, now: datetime) -> float:
+    """0 to 1 for the course gauge (ADR-0024: a position, never a step count)."""
+    if is_learned(row, now):
+        return 1.0
+    reached = math.log(row.half_life_days / INITIAL_HALF_LIFE_DAYS) / math.log(
+        LEARNED_HALF_LIFE_DAYS / INITIAL_HALF_LIFE_DAYS
+    )
+    # Never full unless learned — a decayed question sits just short of it.
+    return min(max(reached, 0.0), 0.95)

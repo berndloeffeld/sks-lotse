@@ -202,7 +202,9 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
                 question_id=progress.question_id,
                 subject=subject,
                 question_number=number,
-                correct_streak=progress.correct_streak,
+                half_life_days=progress.half_life_days,
+                last_graded_at=progress.last_graded_at,
+                review_due_at=progress.review_due_at,
                 created_at=progress.created_at,
                 updated_at=progress.updated_at,
             )

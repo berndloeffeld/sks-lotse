@@ -1203,7 +1203,7 @@
               ]
             }
           },
-          "description": "A fresh account has nothing learned yet (the grading requests below only ever start one streak) - this checks shape and invariants, not specific counts. Fokus-Themen: is_focus is false for every topic until the focus requests below mark one.",
+          "description": "A fresh account has nothing learned yet (the grading requests below only ever start one question) - this checks shape and invariants, not specific counts. Fokus-Themen: is_focus is false for every topic until the focus requests below mark one.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -1672,11 +1672,11 @@
                 "exec": [
                   "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
                   "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "    pm.test('starts a streak of 1, not yet learned', function () {",
+                  "    pm.test('moves the half-life up, not yet learned', function () {",
                   "        var p = pm.response.json();",
-                  "        pm.expect(p).to.have.all.keys('question_id', 'correct_streak', 'learned');",
+                  "        pm.expect(p).to.have.all.keys('question_id', 'progress', 'learned');",
                   "        pm.expect(String(p.question_id)).to.eql(pm.collectionVariables.get('firstQuestionId'));",
-                  "        pm.expect(p.correct_streak).to.eql(1);",
+                  "        pm.expect(p.progress).to.be.within(0.01, 0.99);",
                   "        pm.expect(p.learned).to.eql(false);",
                   "    });",
                   "} else {",
@@ -1771,12 +1771,13 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('lists the graded question with its streak', function () {",
+                  "pm.test('lists the graded question with its progress', function () {",
                   "    var rows = pm.response.json();",
                   "    pm.expect(rows).to.be.an('array');",
                   "    if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
                   "        var row = rows.find(function (r) { return String(r.question_id) === pm.collectionVariables.get('firstQuestionId'); });",
-                  "        pm.expect(row).to.eql({ question_id: row.question_id, correct_streak: 1, learned: false });",
+                  "        pm.expect(row.learned).to.eql(false);",
+                  "        pm.expect(row.progress).to.be.within(0.01, 0.99);",
                   "    } else {",
                   "        pm.expect(rows).to.be.empty;",
                   "    }",
@@ -1813,7 +1814,7 @@
           }
         },
         {
-          "name": "Grade a question: Falsch resets the streak",
+          "name": "Grade a question: Falsch sets the half-life back",
           "event": [
             {
               "listen": "test",
@@ -1822,7 +1823,7 @@
                 "exec": [
                   "if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
                   "    pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "    pm.test('streak back to 0', function () { pm.expect(pm.response.json().correct_streak).to.eql(0); });",
+                  "    pm.test('progress back to 0', function () { pm.expect(pm.response.json().progress).to.eql(0); });",
                   "} else {",
                   "    pm.test('status 404 (catalog empty)', function () { pm.response.to.have.status(404); });",
                   "}"
@@ -2295,7 +2296,7 @@
           }
         }
       ],
-      "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py and test_progress.py, incl. grading the first question (self-assessment) and reading its streak back. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
+      "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py and test_progress.py, incl. grading the first question (self-assessment) and reading its progress back. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
     },
     {
       "name": "Profile & exam variant (authenticated)",
