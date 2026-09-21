@@ -204,6 +204,7 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
                 question_number=number,
                 half_life_days=progress.half_life_days,
                 last_graded_at=progress.last_graded_at,
+                last_correct_at=progress.last_correct_at,
                 review_due_at=progress.review_due_at,
                 created_at=progress.created_at,
                 updated_at=progress.updated_at,

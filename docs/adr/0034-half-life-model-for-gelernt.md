@@ -11,6 +11,7 @@ The model the research pointed to is Duolingo's half-life regression: the probab
 ## Decision
 
 - `question_progress` replaces `correct_streak` with `half_life_days`, `last_graded_at` and `review_due_at` (`last_graded_at` plus the time until `p` falls to the recall threshold). One row per (user, question) as before; the migration converts an old streak `n` to the half-life `2.5^n` (0.25 days for a reset one), dated from the row's last update.
+- A later addition (Fokus session, ADR-0028): `last_correct_at`, nullable, set only by a "Richtig" grading. Existing rows were backfilled with `last_graded_at` where the half-life is above the 1-day baseline, an approximation that only affects the Fokus session's order.
 - **Update rule per grading** (`app/core/progress.py`, all constants there):
   - "Richtig" multiplies the half-life by `1 + 1.5 · s`, where `s = min(elapsed / half_life, 1)` — the *spacing effect*: answering right again straight away earns (almost) nothing, answering after a full half-life earns the full ×2.5. A question's first grading counts as `s = 1`.
   - "Teilweise Richtig" halves it, "Falsch" quarters it. Bounds: 0.25 days to 365 days.

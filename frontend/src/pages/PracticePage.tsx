@@ -32,12 +32,15 @@ function shuffled<T>(items: T[]): T[] {
 // A run is the topic's not-yet-learned questions in random order, or — once
 // everything is learned and the learner asks for it — all of them. A question
 // that was learned but has been forgotten meanwhile (server-side) counts as not learned.
+// The Fokus session (`keepOrder`) arrives ordered by the server and stays that way.
 function buildRun(
   questions: Question[],
   standings: Map<number, QuestionProgress>,
   includeLearned: boolean,
+  keepOrder: boolean,
 ): Question[] {
-  return shuffled(includeLearned ? questions : questions.filter((q) => !standings.get(q.id)?.learned))
+  const pool = includeLearned ? questions : questions.filter((q) => !standings.get(q.id)?.learned)
+  return keepOrder ? pool : shuffled(pool)
 }
 
 // Loads the topic's questions, the learner's per-question standings and the
@@ -89,13 +92,16 @@ interface PracticeRunProps {
   questions: Question[]
   standings: Map<number, QuestionProgress>
   onGraded: (result: QuestionProgress) => void
+  // Fokus session: play the questions in the given order, and say which topic each one is from.
+  keepOrder?: boolean
+  contextLabel?: (question: Question) => string
 }
 
 // The learning loop for one run (ADR-0023): read the question, optionally
 // jot down an answer, reveal the official answer, assess yourself —
 // Richtig / Teilweise Richtig / Falsch — and watch the boat move (CourseGauge).
-function PracticeRun({ questions, standings, onGraded }: PracticeRunProps) {
-  const [run, setRun] = useState(() => buildRun(questions, standings, false))
+export function PracticeRun({ questions, standings, onGraded, keepOrder = false, contextLabel }: PracticeRunProps) {
+  const [run, setRun] = useState(() => buildRun(questions, standings, false, keepOrder))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('answer')
   const [note, setNote] = useState('')
@@ -138,7 +144,7 @@ function PracticeRun({ questions, standings, onGraded }: PracticeRunProps) {
   }
 
   const startRun = (includeLearned: boolean) => {
-    setRun(buildRun(questions, standings, includeLearned))
+    setRun(buildRun(questions, standings, includeLearned, keepOrder))
     setIndex(0)
     setPhase('answer')
     setNote('')
@@ -195,15 +201,19 @@ function PracticeRun({ questions, standings, onGraded }: PracticeRunProps) {
     return (
       <section className="flex flex-col items-start gap-4">
         <h2 className="font-serif text-2xl text-primary">Alles gelernt</h2>
-        <p className="text-sm text-ink-soft">Du hast jede Frage dieses Themas gelernt.</p>
+        <p className="text-sm text-ink-soft">
+          {keepOrder ? 'Es sind keine Fokus-Fragen offen.' : 'Du hast jede Frage dieses Themas gelernt.'}
+        </p>
         <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="rounded-tile border border-primary px-4 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"
-            onClick={() => startRun(true)}
-          >
-            Alle Fragen wiederholen
-          </button>
+          {keepOrder ? null : (
+            <button
+              type="button"
+              className="rounded-tile border border-primary px-4 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"
+              onClick={() => startRun(true)}
+            >
+              Alle Fragen wiederholen
+            </button>
+          )}
           <Link to="/learn" className={styles.button}>
             Zur Themenübersicht
           </Link>
@@ -246,6 +256,7 @@ function PracticeRun({ questions, standings, onGraded }: PracticeRunProps) {
       <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           Frage {index + 1} von {run.length} · Nr. {question.number}
+          {contextLabel ? ` · ${contextLabel(question)}` : ''}
         </p>
         {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
             previous question's gauge standing): a new question starts where it stands, only a

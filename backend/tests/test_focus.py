@@ -178,3 +178,87 @@ def test_deleting_a_user_removes_their_focus_topics(db_session):
     delete_user_and_progress(db_session, user)
 
     assert db_session.query(FocusTopic).count() == 0
+
+
+def _session(client, headers):
+    return client.get("/api/v1/progress/focus/questions", headers=headers)
+
+
+def _grade_at(db_session, question, *, level, correct_days_ago):
+    """Progress whose last grading was ``correct_days_ago``; None = never graded "Richtig"."""
+    user = _fixture_user(db_session)
+    state = progress_state(level, graded_days_ago=correct_days_ago or 0)
+    last_correct = state["last_graded_at"] if correct_days_ago is not None else None
+    db_session.add(
+        QuestionProgress(user_id=user.id, question_id=question.id, last_correct_at=last_correct, **state)
+    )
+    db_session.commit()
+
+
+def test_focus_session_requires_auth(client):
+    assert client.get("/api/v1/progress/focus/questions").status_code == 401
+
+
+def test_focus_session_is_empty_without_focus_topics(client, db_session, auth_headers):
+    _topic_with_questions(db_session)
+
+    response = _session(client, auth_headers)
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_focus_session_orders_by_last_correct_answer_across_topics(client, db_session, auth_headers):
+    _, nav = _topic_with_questions(db_session, count=2, subject="navigation", slug="nav")
+    _, wetter = _topic_with_questions(db_session, count=2, subject="wetterkunde", slug="wetter")
+    _topic_with_questions(db_session, count=1, subject="schifffahrtsrecht", slug="nicht-fokus")
+    _grade_at(db_session, nav[0], level=1, correct_days_ago=2)
+    _grade_at(db_session, wetter[0], level=1, correct_days_ago=5)
+    _grade_at(db_session, wetter[1], level=1, correct_days_ago=3)
+    # nav[1] was never graded
+    _put(client, auth_headers, "navigation", "nav")
+    _put(client, auth_headers, "wetterkunde", "wetter")
+
+    ids = [q["id"] for q in _session(client, auth_headers).json()]
+
+    assert ids == [nav[1].id, wetter[0].id, wetter[1].id, nav[0].id]
+
+
+def test_focus_session_puts_wrong_answers_before_correct_ones_and_skips_learned(
+    client, db_session, auth_headers
+):
+    _, questions = _topic_with_questions(db_session, count=3)
+    user = _fixture_user(db_session)
+    # Graded "Falsch" yesterday (never correct), "Richtig" 10 days ago, and gelernt.
+    _grade_at(db_session, questions[0], level=0, correct_days_ago=None)
+    _grade_at(db_session, questions[1], level=1, correct_days_ago=10)
+    db_session.add(QuestionProgress(user_id=user.id, question_id=questions[2].id, **progress_state(3)))
+    db_session.commit()
+    _put(client, auth_headers)
+
+    ids = [q["id"] for q in _session(client, auth_headers).json()]
+
+    assert ids == [questions[0].id, questions[1].id]
+
+
+def test_focus_session_is_scoped_to_the_user_and_the_exam_variant(client, db_session, auth_headers):
+    _, mine = _topic_with_questions(db_session, count=1)
+    _, sail = _topic_with_questions(db_session, count=1, subject="seemannschaft_segeln", slug="rigg")
+    user = _fixture_user(db_session)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    db_session.add_all(
+        FocusTopic(user_id=uid, topic_id=topic_id)
+        for uid, topic_id in [
+            (user.id, mine[0].topic_id),
+            (user.id, sail[0].topic_id),
+            (other.id, sail[0].topic_id),
+        ]
+    )
+    user.exam_variant = "motor"
+    db_session.commit()
+
+    ids = [q["id"] for q in _session(client, auth_headers).json()]
+
+    assert ids == [mine[0].id]

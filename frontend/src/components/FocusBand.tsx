@@ -1,6 +1,9 @@
+import { Link } from 'react-router-dom'
+
 import type { TopicProgress } from '../api/types'
 import { percentOf } from '../format'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
+import { formStyles } from './formStyles'
 import { Band } from './Bands'
 import { LedgerRow } from './LedgerRow'
 
@@ -22,7 +25,16 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
 
   return (
     <Band className="py-14">
-      <h2 className="font-serif text-3xl text-primary">Fokus</h2>
+      {/* pr-2 matches the LedgerRow inset, so the button lines up with the "Lernen starten" buttons below. */}
+      <div className="flex items-center justify-between gap-4 pr-2">
+        <h2 className="font-serif text-3xl text-primary">Fokus</h2>
+        {/* Everything not yet gelernt (offen + teilweise) is in the session, oldest correct answer first. */}
+        {topics.length > 0 && totals.total > totals.learned ? (
+          <Link to="/learn/fokus" className={formStyles('light').button}>
+            Fokus-Lernen starten
+          </Link>
+        ) : null}
+      </div>
       {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
       {topics.length === 0 ? (
         <p className="mt-3 max-w-xl text-sm text-ink-soft">

@@ -1,10 +1,11 @@
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import case, delete, func, select
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.v1.questions import _catalog_by_id
 from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
@@ -21,6 +22,7 @@ from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.progress import QuestionGradeCreate, QuestionProgressRead, TopicProgressRead
+from app.schemas.question import QuestionRead
 from app.services.focus import is_topic_fully_learned, remove_focus_if_topic_learned
 
 router = APIRouter(prefix="/progress", tags=["progress"], dependencies=[Depends(get_current_user)])
@@ -118,6 +120,40 @@ def remove_focus_topic(
         delete(FocusTopic).where(FocusTopic.user_id == current_user.id, FocusTopic.topic_id == topic.id)
     )
     db.commit()
+
+
+@router.get("/focus/questions", response_model=list[QuestionRead])
+def focus_session_questions(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[QuestionRead]:
+    """The Fokus session: open questions of all Fokus topics, oldest correct answer first.
+
+    Never-correct questions come first, then by how long ago the last "Richtig" was,
+    regardless of topic. Questions that are gelernt are left out (ADR-0028, ADR-0034).
+    """
+    now = datetime.now(UTC)
+    stmt = (
+        select(Question.id)
+        .join(
+            FocusTopic, (FocusTopic.topic_id == Question.topic_id) & (FocusTopic.user_id == current_user.id)
+        )
+        .outerjoin(
+            QuestionProgress,
+            (QuestionProgress.question_id == Question.id) & (QuestionProgress.user_id == current_user.id),
+        )
+        # An outer-joined row without progress is not learned; NOT(NULL) alone would drop it.
+        .where(or_(QuestionProgress.id.is_(None), ~learned_clause(now)))
+        .order_by(
+            QuestionProgress.last_correct_at.is_not(None), QuestionProgress.last_correct_at, Question.id
+        )
+    )
+    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        stmt = stmt.where(Question.subject.in_(allowed))
+
+    catalog = _catalog_by_id(request, db)
+    return [catalog[question_id] for question_id in db.execute(stmt).scalars()]
 
 
 def _question_progress_read(row: QuestionProgress, now: datetime) -> QuestionProgressRead:

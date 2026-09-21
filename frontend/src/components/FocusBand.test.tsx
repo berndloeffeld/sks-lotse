@@ -35,6 +35,18 @@ describe('FocusBand', () => {
     expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
   })
 
+  it('links to the Fokus session while questions are not yet learned', () => {
+    renderBand()
+
+    expect(screen.getByRole('link', { name: 'Fokus-Lernen starten' })).toHaveAttribute('href', '/learn/fokus')
+  })
+
+  it('offers no Fokus session once everything is learned', () => {
+    renderBand({ totals: { learned: 10, learning: 0, total: 10 } })
+
+    expect(screen.queryByRole('link', { name: 'Fokus-Lernen starten' })).not.toBeInTheDocument()
+  })
+
   it('falls back to the raw subject key for an unknown subject', () => {
     renderBand({ topics: [{ ...topic, subject: 'neu' }] })
 

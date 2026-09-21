@@ -65,6 +65,8 @@ def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime,
     elapsed = None if is_new else (now - _aware(row.last_graded_at)).total_seconds() / 86400
     row.half_life_days = next_half_life(row.half_life_days, elapsed, outcome)
     row.last_graded_at = now
+    if outcome == "richtig":
+        row.last_correct_at = now
     row.review_due_at = due_at(now, row.half_life_days)
 
 
