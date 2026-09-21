@@ -4463,6 +4463,215 @@
           }
         },
         {
+          "name": "Grade the remaining questions - completes the exam",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Positions 2-15 richtig, 16-29 teilweise_richtig (sequential, so no request races the",
+                  "// 'all graded' check); position 30 is graded by this request itself as falsch.",
+                  "var base = pm.variables.get('baseUrl'), examId = pm.variables.get('examId'), token = pm.variables.get('accessToken');",
+                  "pm.collectionVariables.set('examGradeFailures', '0');",
+                  "function grade(position) {",
+                  "    if (position > 29) { return; }",
+                  "    pm.sendRequest({",
+                  "        url: base + '/api/v1/exams/' + examId + '/questions/' + position + '/grade',",
+                  "        method: 'PUT',",
+                  "        header: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },",
+                  "        body: { mode: 'raw', raw: JSON.stringify({ outcome: position <= 15 ? 'richtig' : 'teilweise_richtig' }) }",
+                  "    }, function (err, res) {",
+                  "        if (err || res.code !== 200) { pm.collectionVariables.set('examGradeFailures', '1'); }",
+                  "        grade(position + 1);",
+                  "    });",
+                  "}",
+                  "grade(2);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('positions 2-29 were graded without error', function () {",
+                  "    pm.expect(pm.collectionVariables.get('examGradeFailures')).to.eql('0');",
+                  "});",
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('completed: 44 of 60 points is bestanden', function () {",
+                  "    var e = pm.response.json();",
+                  "    pm.expect(e.status).to.eql('completed');",
+                  "    pm.expect(e.points).to.eql(44);",
+                  "    pm.expect(e.max_points).to.eql(60);",
+                  "    pm.expect(e.result).to.eql('bestanden');",
+                  "    e.questions.forEach(function (q) { pm.expect(q.outcome).to.be.a('string'); });",
+                  "});",
+                  "pm.test('points add up per subject group', function () {",
+                  "    var got = {};",
+                  "    pm.response.json().group_scores.forEach(function (s) { got[s.subject_group] = [s.points, s.max_points]; });",
+                  "    pm.expect(got).to.eql({ navigation: [18, 18], schifffahrtsrecht: [13, 14], wetterkunde: [5, 10], seemannschaft: [8, 18] });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}/questions/30/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}",
+                "questions",
+                "30",
+                "grade"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\":\"falsch\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Grades positions 2-29 in a pre-request script (14x richtig, 14x teilweise_richtig; position 1 was richtig before), then position 30 falsch: 28 + 14 + 2 (position 1) = 44 points, above the 39 needed to pass. Relies on the questions being ordered navigation, schifffahrtsrecht, wetterkunde, seemannschaft (9/7/5/9).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Grade an exam question - after completion is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}/questions/1/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}",
+                "questions",
+                "1",
+                "grade"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"outcome\":\"richtig\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Exam stats - a completed exam counts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('one completed, passed exam with 44 points', function () {",
+                  "    var s = pm.response.json();",
+                  "    pm.expect(s.completed_count).to.eql(1);",
+                  "    pm.expect(s.passed_count).to.eql(1);",
+                  "    pm.expect(s.average_points).to.eql(44);",
+                  "    pm.expect(s.best_points).to.eql(44);",
+                  "    pm.expect(s.recent.length).to.eql(1);",
+                  "    pm.expect(String(s.recent[0].exam_id)).to.eql(pm.collectionVariables.get('examId'));",
+                  "    pm.expect(s.recent[0].points).to.eql(44);",
+                  "    pm.expect(s.recent[0].result).to.eql('bestanden');",
+                  "});",
+                  "pm.test('group scores match the self-assessment', function () {",
+                  "    var got = {};",
+                  "    pm.response.json().group_scores.forEach(function (x) { got[x.subject_group] = [x.points, x.max_points]; });",
+                  "    pm.expect(got).to.eql({ navigation: [18, 18], schifffahrtsrecht: [13, 14], wetterkunde: [5, 10], seemannschaft: [8, 18] });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "stats"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Delete an exam",
           "event": [
             {
@@ -4493,6 +4702,52 @@
                 "v1",
                 "exams",
                 "{{examId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Exam stats - deleting the exam removes it from the statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('nothing completed any more', function () {",
+                  "    var s = pm.response.json();",
+                  "    pm.expect(s.completed_count).to.eql(0);",
+                  "    pm.expect(s.recent).to.eql([]);",
+                  "    pm.expect(s.best_points).to.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "stats"
               ]
             }
           },
@@ -4583,7 +4838,7 @@
           }
         }
       ],
-      "description": "Runs on the main test account (accessToken) before Logout. Needs the seeded catalog. Exercises /exams: start (official 9/7/5/9 split, 90 minute deadline, exam variant required), autosaving answers, the official answers staying hidden until the submit, self-assessment, stats and deletion. The 90-minute expiry itself is covered by the pytest suite (it needs the clock)."
+      "description": "Runs on the main test account (accessToken) before Logout. Needs the seeded catalog. Exercises /exams: start (official 9/7/5/9 split, 90 minute deadline, exam variant required), autosaving answers, the official answers staying hidden until the submit, self-assessment through to a completed exam (points, result, per-group scores), stats and deletion. The 90-minute expiry itself is covered by the pytest suite (it needs the clock)."
     },
     {
       "name": "Logout",
