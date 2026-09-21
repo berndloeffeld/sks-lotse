@@ -1,7 +1,7 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 
 from app.core.config import settings
-from app.core.exam import QUESTIONS_PER_GROUP, result_for
+from app.core.exam import QUESTIONS_PER_GROUP, as_utc, result_for
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -399,3 +399,11 @@ def test_stats_ignore_exams_that_are_not_fully_graded(client, db_session, auth_h
     assert stats["completed_count"] == 1
     assert stats["best_points"] == 60
     assert [g["points"] for g in stats["group_scores"]] == [18, 14, 10, 18]
+
+
+def test_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
+    # SQLite (tests) hands back naive datetimes, Postgres (production) aware ones.
+    assert as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    plus_two = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
+    assert as_utc(plus_two) is plus_two
+    assert as_utc(plus_two) == datetime(2026, 1, 1, 10, 0, tzinfo=UTC)

@@ -1,5 +1,7 @@
 [tool.pytest.ini_options]
 addopts = "--cov=app --cov-branch --cov-report=term-missing --cov-fail-under=95"
+# mutmut's working copy (a full copy of app/ and tests/) must not be collected.
+norecursedirs = ["mutants"]
 
 [tool.coverage.run]
 source = ["app"]

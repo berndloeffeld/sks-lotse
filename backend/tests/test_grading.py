@@ -174,6 +174,15 @@ def test_refund_ignores_a_counter_that_moved_on(db_session):
     assert user.ai_checks_used == 1
 
 
+def test_refund_never_goes_below_zero(db_session):
+    day = date(2020, 1, 1)
+    user = User(email="r0@example.com", ai_checks_day=day, ai_checks_used=0)
+    db_session.add(user)
+    db_session.commit()
+    ai_quota_service.refund(db_session, user.id, day)
+    assert user.ai_checks_used == 0
+
+
 def test_me_reports_the_remaining_budget(client, db_session, monkeypatch):
     monkeypatch.setattr(settings, "grading_max_per_day", 5)
     headers = _headers(db_session, enabled=True)

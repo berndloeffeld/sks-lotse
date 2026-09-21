@@ -20,10 +20,16 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 - **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`): the pure logic modules — `core/progress`,
   `exam`, `exam_variant`, `email_address`, `cache`, `rate_limit`, `otp`, `services/ai_quota`. Wiring,
   config and the catalog importer would only add noise. Widen `only_mutate` to grow the scope.
-- **First run (2026-09-21): about 360 of 407 mutants killed (88%)**, 46–47 survivors (varies by one between runs: timing-dependent rate-limit tests) — mostly in `rate_limit`
-  (sweep/`_client_ip` details), `progress` (the `learned_clause`/`learning_clause` SQL filters) and
-  `email_address`/`otp` edge cases. Worth working through: a survivor is either a missing test or
-  dead/redundant code.
+- **Score (2026-09-21): about 384 of 407 mutants killed (94%)**, 23 survivors (±1 between runs: timing-dependent
+  rate-limit tests). The first run killed ~360 (88%); the difference is tests for the real gaps it found — the SQL
+  `learned_clause` ignoring the due date, `_client_ip`'s fallback to the socket peer, `as_utc` on aware datetimes
+  (Postgres), the idle sweep of the rate limiter, `refund` at zero, the OTP code's digit range, the 429 body and
+  the exact gelernt boundary (half-life 7.0).
+- **What survives is judged, not chased.** The remaining ones are equivalent or not worth a test: `>` vs `>=` on
+  timestamps that never compare equal, `86401` vs `86400`, `partition` vs `rpartition` on validated single-`@`
+  addresses, `call_next(None)` (Starlette ignores the argument), renamed throttle/log keys, `XXXX` as an unused
+  default, the HMAC label of the OTP key (a pure constant), and `populate_existing` in `ai_quota._locked_user`
+  (needs a stale-session race to observe). A new survivor in a module not on this list deserves a look.
 - The two test files that read files outside `backend/` (`test_catalog_seed.py`,
   `test_integration_collection.py`) are ignored in the mutation run; they cover none of the scoped modules.
 

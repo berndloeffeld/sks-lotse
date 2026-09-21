@@ -886,3 +886,11 @@ def test_email_change_code_is_bound_to_the_requesting_account(client, db_session
     )
     assert response.status_code == 200
     assert db_session.query(OtpCode).filter_by(email="new@example.com").one().attempts == 0
+
+
+def test_generated_otp_codes_are_all_digits_of_the_configured_length():
+    from app.core.config import settings
+    from app.core.otp import generate_code
+
+    codes = [generate_code() for _ in range(300)]
+    assert all(code.isdigit() and len(code) == settings.otp_length for code in codes)
