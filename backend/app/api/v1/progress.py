@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import case, delete, func, or_, select
@@ -11,8 +10,6 @@ from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.progress import (
-    GradingOutcome,
-    apply_grading,
     is_learned,
     learned_clause,
     learning_clause,
@@ -25,7 +22,8 @@ from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.progress import QuestionGradeCreate, QuestionProgressRead, TopicProgressRead
 from app.schemas.question import QuestionRead
-from app.services.focus import is_topic_fully_learned, remove_focus_if_topic_learned
+from app.services.focus import is_topic_fully_learned
+from app.services.progress import record_grading
 
 router = APIRouter(prefix="/progress", tags=["progress"], dependencies=[Depends(get_current_user)])
 
@@ -186,13 +184,6 @@ def list_question_progress(
     return [_question_progress_read(row, now) for row in db.execute(stmt).scalars()]
 
 
-def _progress_row(db: Session, user_id: int, question_id: int) -> QuestionProgress | None:
-    stmt = select(QuestionProgress).where(
-        QuestionProgress.user_id == user_id, QuestionProgress.question_id == question_id
-    )
-    return db.execute(stmt).scalar_one_or_none()
-
-
 @router.post("/questions/{question_id}", response_model=QuestionProgressRead)
 def grade_question(
     question_id: int,
@@ -206,29 +197,7 @@ def grade_question(
         raise HTTPException(status_code=404, detail="Question not found")
 
     now = datetime.now(UTC)
-    row = _progress_row(db, current_user.id, question_id)
-    is_new = row is None
+    row = record_grading(db, current_user.id, question, payload.outcome, now)
     if row is None:
-        row = QuestionProgress(user_id=current_user.id, question_id=question_id)
-        db.add(row)
-        try:
-            db.flush()
-        except IntegrityError:
-            # A concurrent first grading (double submit) inserted the row
-            # between our read and this insert — apply this one on top of it.
-            db.rollback()
-            is_new = False
-            row = _progress_row(db, current_user.id, question_id)
-            if row is None:
-                # The row that beat us is gone again (e.g. the account was
-                # deleted meanwhile) — nothing sensible to apply the grading to.
-                raise HTTPException(
-                    status_code=409, detail="Progress changed concurrently, please retry"
-                ) from None
-
-    apply_grading(row, cast(GradingOutcome, payload.outcome), now, is_new=is_new)
-    db.commit()
-    # Only a grading that just made this question "gelernt" can complete a topic.
-    if is_learned(row, now) and question.topic_id is not None:
-        remove_focus_if_topic_learned(db, current_user.id, question.topic_id)
+        raise HTTPException(status_code=409, detail="Progress changed concurrently, please retry")
     return _question_progress_read(row, now)

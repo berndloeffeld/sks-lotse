@@ -276,14 +276,6 @@ def test_result_thresholds():
     assert result_for(60) == "bestanden"
 
 
-def test_exam_does_not_touch_learning_progress(client, db_session, auth_headers):
-    _seed(db_session)
-    exam = _start(client, auth_headers)
-    _answer_and_submit(client, auth_headers, exam)
-    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
-    assert db_session.query(QuestionProgress).count() == 0
-
-
 def test_other_users_exam_is_not_found(client, db_session, auth_headers):
     _seed(db_session)
     exam = _start(client, auth_headers)
@@ -499,3 +491,79 @@ def test_stats_over_many_exams_count_passes_round_the_average_and_keep_the_last_
     assert groups["schifffahrtsrecht"] == (5 * 14, 12 * 14)
     assert groups["wetterkunde"] == (5 * 10, 12 * 10)
     assert groups["seemannschaft"] == (4 * 18 + 17, 12 * 18)
+
+
+def _progress_by_question(db_session):
+    return {row.question_id: row for row in db_session.query(QuestionProgress).all()}
+
+
+def test_completing_the_exam_credits_only_richtig_answers_to_the_lernstand(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    _answer_and_submit(client, auth_headers, exam)
+    outcomes = ["richtig"] * 10 + ["teilweise_richtig"] * 10 + ["falsch"] * 10
+    _grade_all(client, auth_headers, exam, outcomes)
+
+    progress = _progress_by_question(db_session)
+    assert set(progress) == {q["question_id"] for q in exam["questions"][:10]}
+    assert all(row.half_life_days > 1.0 and row.last_correct_at is not None for row in progress.values())
+
+
+def test_exam_grades_change_nothing_before_the_exam_is_complete(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, {**exam, "questions": exam["questions"][:29]}, ["richtig"] * 29)
+
+    assert db_session.query(QuestionProgress).count() == 0
+
+
+def test_a_grade_changed_during_the_self_assessment_counts_once_with_its_final_value(
+    client, db_session, auth_headers
+):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    _answer_and_submit(client, auth_headers, exam)
+    url = f"/api/v1/exams/{exam['id']}/questions/1/grade"
+    client.put(url, json={"outcome": "richtig"}, headers=auth_headers)
+    client.put(url, json={"outcome": "richtig"}, headers=auth_headers)
+    client.put(url, json={"outcome": "falsch"}, headers=auth_headers)
+    _grade_all(client, auth_headers, {**exam, "questions": exam["questions"][1:]}, ["richtig"] * 29)
+
+    progress = _progress_by_question(db_session)
+    assert exam["questions"][0]["question_id"] not in progress
+    assert len(progress) == 29
+
+
+def test_exam_richtig_grows_the_half_life_like_a_practice_grading(client, db_session, auth_headers):
+    user = _seed(db_session)
+    exam = _start(client, auth_headers)
+    first = exam["questions"][0]["question_id"]
+    db_session.add(
+        QuestionProgress(
+            user_id=user.id,
+            question_id=first,
+            half_life_days=2.0,
+            last_graded_at=datetime.now(UTC) - timedelta(days=3),
+            review_due_at=datetime.now(UTC),
+        )
+    )
+    db_session.commit()
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
+
+    # Spacing >= the half-life -> full gain (x2.5).
+    assert _progress_by_question(db_session)[first].half_life_days == 5.0
+
+
+def test_a_question_dropped_from_the_catalog_is_skipped_when_crediting(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    _answer_and_submit(client, auth_headers, exam)
+    db_session.query(ExamAttemptQuestion).filter_by(attempt_id=exam["id"], position=1).update(
+        {"question_id": None}
+    )
+    db_session.commit()
+    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
+
+    assert db_session.query(QuestionProgress).count() == 29

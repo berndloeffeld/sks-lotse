@@ -43,6 +43,7 @@ only_mutate = [
     "app/core/ai_quota.py",
     "app/services/ai_quota.py",
     "app/services/focus.py",
+    "app/services/progress.py",
     "app/services/user.py",
     "app/services/grader.py",
     "app/services/kpis.py",

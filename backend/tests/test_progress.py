@@ -412,7 +412,7 @@ def test_list_question_progress_returns_only_own_rows(client, db_session, auth_h
 def test_grade_question_survives_a_concurrent_first_grading(client, db_session, auth_headers, monkeypatch):
     # Simulates a double submit: another request inserted the row between
     # this request's lookup and its insert.
-    from app.api.v1 import progress as progress_api
+    from app.services import progress as progress_api
 
     question = _question(db_session)
     user = _fixture_user(db_session)
@@ -439,7 +439,7 @@ def test_grade_question_survives_a_concurrent_first_grading(client, db_session, 
 
 
 def test_grade_question_409_when_the_racing_row_vanished(client, db_session, auth_headers, monkeypatch):
-    from app.api.v1 import progress as progress_api
+    from app.services import progress as progress_api
 
     question = _question(db_session)
     user = _fixture_user(db_session)
