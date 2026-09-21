@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
@@ -23,7 +25,7 @@ class QuestionRead(BaseModel):
 
     @field_validator("topic", mode="before")
     @classmethod
-    def _topic_slug(cls, value: object) -> str | None:
+    def _topic_slug(cls, value: Any) -> str | None:
         # `Question.topic` is a Topic ORM object (or None) via the relationship —
         # reduce it to its slug, which is all API consumers need.
         return value if value is None or isinstance(value, str) else value.slug

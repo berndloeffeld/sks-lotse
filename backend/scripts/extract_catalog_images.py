@@ -52,6 +52,39 @@ def _section_starts(doc: fitz.Document) -> dict[int, str]:
     return {page: SUBJECTS[i][0] for i, page in enumerate(starts)}
 
 
+def _reading_order(page: fitz.Page) -> list[tuple[str, dict]]:
+    """The page's text blocks and non-banner images as (kind, payload), top to bottom."""
+    items = [
+        (block["bbox"][1], "text", block) for block in page.get_text("dict")["blocks"] if block["type"] == 0
+    ]
+    items += [
+        (info["bbox"][1], "image", info)
+        for info in page.get_image_info(xrefs=True)
+        if (info["width"], info["height"]) != BANNER_SIZE
+    ]
+    return [(kind, payload) for _, kind, payload in sorted(items, key=lambda item: item[0])]
+
+
+def _track_text(block: dict, number: int | None, answer_seen: bool) -> tuple[int | None, bool]:
+    """Update (question number, answer started?) after a text block: a number line starts a
+    question, any non-bold text after it is the official answer."""
+    spans = [span for line in block["lines"] for span in line["spans"]]
+    if match := NUMBER_RE.match("".join(span["text"] for span in spans)):
+        return int(match.group(1)), False
+    if any("Georgia-Bold" not in span["font"] and span["text"].strip() for span in spans):
+        return number, True
+    return number, answer_seen
+
+
+def _save_image(doc: fitz.Document, xref: int, filename: str) -> fitz.Pixmap:
+    pixmap = fitz.Pixmap(doc, xref)
+    if pixmap.n >= 4:  # drop alpha/CMYK: the page background is white anyway
+        pixmap = fitz.Pixmap(fitz.csRGB, pixmap)
+    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    pixmap.save(IMAGES_DIR / filename)
+    return pixmap
+
+
 def propose() -> list[dict]:
     doc = fitz.open(PDF_PATH)
     starts = _section_starts(doc)
@@ -63,35 +96,16 @@ def propose() -> list[dict]:
     for page_number, page in enumerate(doc, start=1):
         if page_number in starts:
             subject, number, answer_seen = starts[page_number], None, False
-        items = []  # (y, kind, payload) in reading order
-        for block in page.get_text("dict")["blocks"]:
-            if block["type"] == 0:
-                items.append((block["bbox"][1], "text", block))
-        for info in page.get_image_info(xrefs=True):
-            if (info["width"], info["height"]) != BANNER_SIZE:
-                items.append((info["bbox"][1], "image", info))
-        for _, kind, payload in sorted(items, key=lambda item: item[0]):
+        for kind, payload in _reading_order(page):
             if kind == "text":
-                text = "".join(s["text"] for line in payload["lines"] for s in line["spans"])
-                if match := NUMBER_RE.match(text):
-                    number, answer_seen = int(match.group(1)), False
-                elif any(
-                    "Georgia-Bold" not in s["font"] and s["text"].strip()
-                    for line in payload["lines"]
-                    for s in line["spans"]
-                ):
-                    answer_seen = True
+                number, answer_seen = _track_text(payload, number, answer_seen)
                 continue
             if subject is None or number is None:
                 raise ValueError(f"image on page {page_number} before the first question of its section")
             key = (subject, number)
             counts[key] = counts.get(key, 0) + 1
             filename = f"{subject}-{number}-{counts[key]}.png"
-            pixmap = fitz.Pixmap(doc, payload["xref"])
-            if pixmap.n >= 4:  # drop alpha/CMYK: the page background is white anyway
-                pixmap = fitz.Pixmap(fitz.csRGB, pixmap)
-            IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-            pixmap.save(IMAGES_DIR / filename)
+            pixmap = _save_image(doc, payload["xref"], filename)
             entries.append(
                 {
                     "subject": subject,
