@@ -35,6 +35,7 @@ from app.schemas.exam import (
     ExamSummary,
 )
 from app.schemas.question import QuestionImage
+from app.services.progress import record_grading
 
 router = APIRouter(prefix="/exams", tags=["exams"], dependencies=[Depends(get_current_user)])
 
@@ -291,6 +292,21 @@ def submit_exam(exam_id: int, db: Session = Depends(get_db), current_user: User 
     return _read(db, attempt)
 
 
+def _credit_correct_answers(db: Session, user: User, attempt: ExamAttempt) -> None:
+    """Feed the "Richtig" answers into the Lernstand once the self-assessment is final (ADR-0037).
+
+    Only at that point, so a grade changed while grading is still open counts once, with its final
+    value. "Teilweise"/"Falsch" never lower the Lernstand.
+    """
+    now = _now()
+    for exam_question in attempt.questions:
+        if exam_question.outcome != "richtig" or exam_question.question_id is None:
+            continue
+        question = db.get(Question, exam_question.question_id)
+        if question is not None:
+            record_grading(db, user.id, question, "richtig", now)
+
+
 @router.put("/{exam_id}/questions/{position}/grade", response_model=ExamRead)
 def grade_question(
     exam_id: int,
@@ -307,9 +323,12 @@ def grade_question(
     if status == "completed":
         raise HTTPException(status_code=409, detail="The self-assessment is already complete")
     question.outcome = body.outcome
-    if all(q.outcome is not None for q in attempt.questions):
+    finalized = all(q.outcome is not None for q in attempt.questions)
+    if finalized:
         attempt.graded_at = _now()
     db.commit()
+    if finalized:
+        _credit_correct_answers(db, current_user, attempt)
     return _read(db, attempt)
 
 

@@ -4672,6 +4672,49 @@
           }
         },
         {
+          "name": "Question progress - the richtig exam answers are credited",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('the 15 richtig exam answers feed the Lernstand (ADR-0037)', function () {",
+                  "    pm.expect(pm.response.json().length).to.be.at.least(15);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "questions"
+              ]
+            }
+          },
+          "description": "Positions 1-15 were graded richtig; completing the self-assessment credits them to the account's question progress. Teilweise/falsch answers leave it alone.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Delete an exam",
           "event": [
             {
