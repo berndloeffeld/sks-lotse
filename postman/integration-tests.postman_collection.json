@@ -1419,6 +1419,91 @@
           }
         },
         {
+          "name": "Focus session - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "questions"
+              ]
+            }
+          },
+          "description": "The Fokus session needs a session token.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Focus session - open questions of the Fokus topics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('a list of questions, all from the marked topic', function () {",
+                  "    var questions = pm.response.json();",
+                  "    pm.expect(questions).to.be.an('array');",
+                  "    if (pm.collectionVariables.get('catalogSeeded') === 'true') {",
+                  "        pm.expect(questions.length).to.be.above(0);",
+                  "        questions.forEach(function (q) { pm.expect(q.topic).to.eql(pm.collectionVariables.get('firstTopicSlug')); });",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/focus/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "focus",
+                "questions"
+              ]
+            }
+          },
+          "description": "With the first topic marked as Fokus (and nothing graded yet), the session lists that topic's questions, oldest correct answer first.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Focus topic - unmark",
           "event": [
             {

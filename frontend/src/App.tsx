@@ -5,6 +5,7 @@ import { AdminPage } from './pages/AdminPage'
 import { ExamPage } from './pages/ExamPage'
 import { ExamRunPage } from './pages/ExamRunPage'
 import { FaqPage } from './pages/FaqPage'
+import { FocusPracticePage } from './pages/FocusPracticePage'
 import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
@@ -41,6 +42,7 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<StartPage />} />
           <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn/fokus" element={<FocusPracticePage />} />
           <Route path="/learn/:subject/:topic" element={<PracticePage />} />
           <Route path="/exam" element={<ExamPage />} />
           <Route path="/exam/:id" element={<ExamRunPage />} />

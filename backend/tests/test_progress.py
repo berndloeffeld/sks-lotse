@@ -242,6 +242,23 @@ def test_grade_question_moves_the_half_life(client, db_session, auth_headers):
     assert grade("falsch")[0] == 0.25
 
 
+def test_grade_question_records_the_last_correct_answer_only_for_richtig(client, db_session, auth_headers):
+    question = _question(db_session)
+    url = f"/api/v1/progress/questions/{question.id}"
+
+    def last_correct():
+        db_session.expire_all()
+        return db_session.query(QuestionProgress).one().last_correct_at
+
+    client.post(url, json={"outcome": "falsch"}, headers=auth_headers)
+    assert last_correct() is None
+    client.post(url, json={"outcome": "richtig"}, headers=auth_headers)
+    first = last_correct()
+    assert first is not None
+    client.post(url, json={"outcome": "teilweise_richtig"}, headers=auth_headers)
+    assert last_correct() == first
+
+
 def test_grade_question_becomes_learned_with_spacing(client, db_session, auth_headers):
     question = _question(db_session)
     user = _fixture_user(db_session)

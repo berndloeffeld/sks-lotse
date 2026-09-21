@@ -45,6 +45,7 @@ class AdminQuestionProgressExport(BaseModel):
     question_number: int
     half_life_days: float
     last_graded_at: datetime
+    last_correct_at: datetime | None
     review_due_at: datetime
     created_at: datetime
     updated_at: datetime

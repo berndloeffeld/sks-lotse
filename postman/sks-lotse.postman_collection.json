@@ -2761,6 +2761,105 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "name": "questions",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Focus Session Questions",
+                          "request": {
+                            "name": "Focus Session Questions",
+                            "description": {
+                              "content": "The Fokus session: open questions of all Fokus topics, oldest correct answer first.\n\nNever-correct questions come first, then by how long ago the last \"Richtig\" was,\nregardless of topic. Questions that are gelernt are left out (ADR-0028, ADR-0034).",
+                              "type": "text/plain"
+                            },
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "progress",
+                                "focus",
+                                "questions"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "progress",
+                                    "focus",
+                                    "questions"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "[\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"question_images\": [\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      },\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      }\n    ],\n    \"answer_images\": [\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      },\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      }\n    ],\n    \"topic\": \"<string>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"subject\": \"<string>\",\n    \"number\": \"<integer>\",\n    \"question_text\": \"<string>\",\n    \"answer_text\": \"<string>\",\n    \"question_images\": [\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      },\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      }\n    ],\n    \"answer_images\": [\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      },\n      {\n        \"src\": \"<string>\",\n        \"width\": \"<integer>\",\n        \"height\": \"<integer>\"\n      }\n    ],\n    \"topic\": \"<string>\"\n  }\n]",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
