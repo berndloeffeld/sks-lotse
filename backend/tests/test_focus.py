@@ -225,6 +225,17 @@ def test_focus_session_orders_by_last_correct_answer_across_topics(client, db_se
     assert ids == [nav[1].id, wetter[0].id, wetter[1].id, nav[0].id]
 
 
+def test_focus_session_starts_with_never_answered_questions(client, db_session, auth_headers):
+    _, questions = _topic_with_questions(db_session, count=3)
+    # The lowest id was answered "Falsch"; the two others were never answered.
+    _grade_at(db_session, questions[0], level=0, correct_days_ago=None)
+    _put(client, auth_headers)
+
+    ids = [q["id"] for q in _session(client, auth_headers).json()]
+
+    assert ids == [questions[1].id, questions[2].id, questions[0].id]
+
+
 def test_focus_session_puts_wrong_answers_before_correct_ones_and_skips_learned(
     client, db_session, auth_headers
 ):
