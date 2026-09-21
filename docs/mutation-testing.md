@@ -5,8 +5,9 @@ The tool changes the code one small step at a time (`>=` → `>`, `and` → `or`
 line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed**; one that still
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
-**It runs on every PR** (`mutation-testing` in `backend-ci.yml` and `frontend-ci.yml`) but is **not a required check** — it takes
-about 5 minutes in CI and must not hold up merges; look at it before merging anyway. The backend job fails if fewer than
+**It runs weekly** (Mondays 03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
+Actions tab), not on every PR — it takes about 5 minutes in CI and must not hold up merges. A failed run opens an issue
+("Mutation testing failed"); a regression therefore surfaces up to a week after the change that caused it. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
 points under the current score (~88.5%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
