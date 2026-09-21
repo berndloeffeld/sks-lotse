@@ -67,6 +67,7 @@ describe('apiClient', () => {
       expect.unreachable('expected apiClient.post to throw')
     } catch (err) {
       expect(err).toBeInstanceOf(ApiError)
+      expect((err as ApiError).name).toBe('ApiError')
       expect((err as ApiError).status).toBe(401)
       expect((err as ApiError).message).toBe('Invalid or expired code')
     }
@@ -89,5 +90,41 @@ describe('apiClient', () => {
     await apiClient.get('/auth/me').catch(() => {})
 
     expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['post', 'POST'],
+    ['put', 'PUT'],
+    ['patch', 'PATCH'],
+  ] as const)('%s without a body sends none, and no Content-Type', async (verb, method) => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiClient[verb]('/x')
+
+    const [, init] = fetchMock.mock.calls[0]
+    expect(init.method).toBe(method)
+    expect(init.body).toBeUndefined()
+    expect(init.headers).not.toHaveProperty('Content-Type')
+  })
+
+  it('PUT serializes the body as JSON', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiClient.put('/focus/1', { on: true })
+
+    const [, init] = fetchMock.mock.calls[0]
+    expect(init.body).toBe(JSON.stringify({ on: true }))
+    expect(init.headers).toHaveProperty('Content-Type', 'application/json')
+  })
+
+  it('DELETE uses the DELETE method', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiClient.delete('/auth/me')
+
+    expect(fetchMock.mock.calls[0][1].method).toBe('DELETE')
   })
 })

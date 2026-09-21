@@ -18,6 +18,13 @@ updates:
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
+    # Vitest stays on 4.x until @stryker-mutator/vitest-runner supports Vitest 5
+    # (stryker-js#6210, ADR-0035); a bump would silently zero the mutation score.
+    ignore:
+      - dependency-name: vitest
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/coverage-v8"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

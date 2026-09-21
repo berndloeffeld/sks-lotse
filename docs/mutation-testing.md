@@ -5,8 +5,8 @@ The tool changes the code one small step at a time (`>=` → `>`, `and` → `or`
 line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed**; one that still
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
-**It runs on every PR** (`mutation-testing` in `backend-ci.yml`) but is **not a required check** — it takes
-about 5 minutes in CI and must not hold up merges; look at it before merging anyway. The job fails if fewer than
+**It runs on every PR** (`mutation-testing` in `backend-ci.yml` and `frontend-ci.yml`) but is **not a required check** — it takes
+about 5 minutes in CI and must not hold up merges; look at it before merging anyway. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
 points under the current score (~88.5%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
@@ -59,13 +59,35 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 - The two test files that read files outside `backend/` (`test_catalog_seed.py`,
   `test_integration_collection.py`) are ignored in the mutation run; they cover none of the scoped modules.
 
-## Frontend (Stryker) — not set up yet
+## Frontend (Stryker)
 
-`@stryker-mutator/vitest-runner` 10.0.0 doesn't work with Vitest 5: it filters tests by name with a
-space-joined path, Vitest 5 joins with ` > `, so no test runs and *every* mutant "survives"
-([stryker-js#6210](https://github.com/stryker-mutator/stryker-js/issues/6210)). This project is on
-Vitest 5.0.1. Once the runner is fixed (or if the project pins Vitest 4 in the meantime), install
-`@stryker-mutator/core` + `@stryker-mutator/vitest-runner`, scope `mutate` to the logic files
-(`src/format.ts`, `ads.ts`, `analytics.ts`, `labels.ts`, `api/client.ts`, `store/authStore.ts`,
-`hooks/useExamCountdown.ts`) and check that the score is plausible (a survivor list that includes
-`percentOf`'s obvious conditional means the runner is still broken).
+```bash
+cd frontend && npm ci                                   # once
+./scripts/run_frontend_mutation_tests.sh                # ~2 min; clear-text survivors + HTML report in frontend/reports/mutation/
+./scripts/run_frontend_mutation_tests.sh gate           # what CI runs: fails below the minimum score
+```
+
+- **Scope** (`mutate` in `frontend/stryker.config.json`): the logic modules — `format.ts`, `ads.ts`, `analytics.ts`,
+  `labels.ts`, `contact.ts`, `api/client.ts`, `store/authStore.ts`, and the hooks (`useExam`, `useExamCountdown`,
+  `useExamVariantUpdate`, `useProgressSummary`). Components and pages are deliberately out for now: their mutants are
+  mostly markup and class names, and only page-level tests cover them, which makes runs slow and survivors noisy.
+  `src/test/mutationScope.test.ts` keeps the list current (same idea as the backend's `test_mutation_scope.py`).
+- **Setup**: `@stryker-mutator/core` + `vitest-runner` + `typescript-checker` (exact versions), `coverageAnalysis: perTest`
+  (each mutant only runs the tests that cover it, ~12 per mutant). The TypeScript checker drops mutants that don't compile
+  (≈60 of ~300) instead of counting them as survivors.
+- **Score (2026-09-21): 226 of 236 counted mutants killed (95.8%)**, ~2 minutes. Minimum in CI: **90%**
+  (`MUTATION_MIN_SCORE`), a ratchet like the others. The first run (7 modules) scored 81%; the survivors were real
+  gaps (no test for `formatDateTime`, `put`/`delete`, body-less requests, the countdown's expiry boundary and
+  latest-callback handling, the auth store's loading state, logout URL, wiring of the unauthorized handler) and the
+  hooks, which had only been exercised through pages, got their own tests.
+- **Remaining survivors are equivalent:** `body === undefined ? undefined : JSON.stringify(body)` → `JSON.stringify(body)`
+  (`JSON.stringify(undefined)` is `undefined` anyway), `.catch(() => null)` vs `() => undefined`, the `?? ''` default of
+  `VITE_API_BASE_URL` (a build-time config), the countdown's initial state (overwritten by the immediate tick), and
+  the dependency arrays of `useCallback`/`useEffect` in `useProgressSummary` (the callbacks are stable; a wrong array
+  needs a re-render race to observe).
+- **The gate refuses a broken runner.** `@stryker-mutator/vitest-runner` 10.0.0 doesn't work with Vitest 5: it filters
+  tests by name with a space-joined path, Vitest 5 joins with ` > `, so no test runs and *every* mutant "survives"
+  ([stryker-js#6210](https://github.com/stryker-mutator/stryker-js/issues/6210)), while Stryker still exits 0. Hence Vitest
+  and `@vitest/coverage-v8` are pinned to 4.1.11 ([ADR-0035](adr/0035-vitest-pinned-to-4x-for-stryker.md)), Dependabot ignores
+  their major bumps, and `gate` fails when a surviving mutant ran zero tests. Symptoms of the broken runner: a score under
+  ~20% and "Ran 0.00 tests per mutant on average" — that means the runner, not the tests.

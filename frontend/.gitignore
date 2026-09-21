@@ -26,3 +26,7 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Stryker (mutation testing): sandbox copy and reports
+.stryker-tmp
+reports
