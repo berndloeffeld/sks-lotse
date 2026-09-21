@@ -11,6 +11,7 @@ from app.models.user import User
 from app.services import email as email_service
 from app.services.kpis import compute_kpis, format_report
 from scripts import send_daily_report
+from tests.helpers import progress_state
 
 NOW = datetime(2026, 9, 20, 12, 0, tzinfo=UTC)
 _FIXTURE_EMAIL = "fixture-user@example.com"
@@ -36,14 +37,14 @@ def _populate(db) -> None:
             QuestionProgress(
                 user_id=active.id,
                 question_id=nav.id,
-                correct_streak=3,
+                **progress_state(3),
                 created_at=_ago(hours=1),
                 updated_at=_ago(hours=1),
             ),
             QuestionProgress(
                 user_id=cohort.id,
                 question_id=weather.id,
-                correct_streak=1,
+                **progress_state(1),
                 created_at=_ago(days=3),
                 updated_at=_ago(days=3),
             ),

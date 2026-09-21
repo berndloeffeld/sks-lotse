@@ -15,7 +15,6 @@ import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
-import { isLearned, streakProgress } from '../progress'
 
 type Phase = 'answer' | 'assess'
 
@@ -31,16 +30,21 @@ function shuffled<T>(items: T[]): T[] {
 }
 
 // A run is the topic's not-yet-learned questions in random order, or — once
-// everything is learned and the learner asks for it — all of them.
-function buildRun(questions: Question[], streaks: Map<number, number>, includeLearned: boolean): Question[] {
-  return shuffled(includeLearned ? questions : questions.filter((q) => !isLearned(streaks.get(q.id) ?? 0)))
+// everything is learned and the learner asks for it — all of them. A question
+// that was learned but has been forgotten meanwhile (server-side) counts as not learned.
+function buildRun(
+  questions: Question[],
+  standings: Map<number, QuestionProgress>,
+  includeLearned: boolean,
+): Question[] {
+  return shuffled(includeLearned ? questions : questions.filter((q) => !standings.get(q.id)?.learned))
 }
 
-// Loads the topic's questions, the learner's per-question streaks and the
+// Loads the topic's questions, the learner's per-question standings and the
 // topic's display name, in parallel, once on mount.
 function usePracticeData(subject: string, topicSlug: string) {
   const [questions, setQuestions] = useState<Question[]>([])
-  const [streaks, setStreaks] = useState<Map<number, number>>(new Map())
+  const [standings, setStandings] = useState<Map<number, QuestionProgress>>(new Map())
   const [topic, setTopic] = useState<Topic | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +58,7 @@ function usePracticeData(subject: string, topicSlug: string) {
         apiClient.get<Topic[]>(`/topics?${query}`),
       ])
       setQuestions(questionData)
-      setStreaks(new Map(progressData.map((p) => [p.question_id, p.correct_streak])))
+      setStandings(new Map(progressData.map((p) => [p.question_id, p])))
       setTopic(topicData.find((t) => t.slug === topicSlug) ?? null)
     } catch {
       setError('Die Fragen konnten nicht geladen werden.')
@@ -69,7 +73,7 @@ function usePracticeData(subject: string, topicSlug: string) {
     load()
   }, [load])
 
-  return { questions, streaks, setStreaks, topic, isLoading, error }
+  return { questions, standings, setStandings, topic, isLoading, error }
 }
 
 // How long the boat gets to sail to its new position before the next question.
@@ -83,15 +87,15 @@ function letBoatSettle(ms = BOAT_SETTLE_MS): Promise<void> {
 
 interface PracticeRunProps {
   questions: Question[]
-  streaks: Map<number, number>
-  onGraded: (questionId: number, streak: number) => void
+  standings: Map<number, QuestionProgress>
+  onGraded: (result: QuestionProgress) => void
 }
 
 // The learning loop for one run (ADR-0023): read the question, optionally
 // jot down an answer, reveal the official answer, assess yourself —
 // Richtig / Teilweise Richtig / Falsch — and watch the boat move (CourseGauge).
-function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
-  const [run, setRun] = useState(() => buildRun(questions, streaks, false))
+function PracticeRun({ questions, standings, onGraded }: PracticeRunProps) {
+  const [run, setRun] = useState(() => buildRun(questions, standings, false))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('answer')
   const [note, setNote] = useState('')
@@ -134,7 +138,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
   }
 
   const startRun = (includeLearned: boolean) => {
-    setRun(buildRun(questions, streaks, includeLearned))
+    setRun(buildRun(questions, standings, includeLearned))
     setIndex(0)
     setPhase('answer')
     setNote('')
@@ -159,15 +163,14 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     setSaveError(null)
     try {
       const result = await apiClient.post<QuestionProgress>(`/progress/questions/${question.id}`, { outcome: chosen })
-      const before = streaks.get(question.id) ?? 0
-      const learnedNow = result.learned && !isLearned(before)
+      const learnedNow = result.learned && !standings.get(question.id)?.learned
       trackEvent('question_graded', { outcome: chosen })
       if (learnedNow) {
         trackEvent('question_learned')
         setNewlyLearned((n) => n + 1)
         setCelebrating(question.number)
       }
-      onGraded(question.id, result.correct_streak)
+      onGraded(result)
       setTally((t) => [...t, chosen])
       // The result is announced to screen readers; sighted learners see the
       // boat sail to the new status before the next question comes up.
@@ -234,8 +237,6 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
     )
   }
 
-  const streak = streaks.get(question.id) ?? 0
-
   return (
     <article className="flex flex-col gap-6">
       <p role="status" className="sr-only">
@@ -250,7 +251,7 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
             previous question's gauge standing): a new question starts where it stands, only a
             grading of this one makes the boat sail, and the report popover starts closed. */}
         <div key={question.id} className="flex items-center gap-3">
-          <CourseGauge progress={streakProgress(streak)} />
+          <CourseGauge progress={standings.get(question.id)?.progress ?? 0} />
           <ReportQuestion questionId={question.id} />
         </div>
       </div>
@@ -376,11 +377,11 @@ function PracticeRun({ questions, streaks, onGraded }: PracticeRunProps) {
 
 export function PracticePage() {
   const { subject = '', topic: topicSlug = '' } = useParams()
-  const { questions, streaks, setStreaks, topic, isLoading, error } = usePracticeData(subject, topicSlug)
+  const { questions, standings, setStandings, topic, isLoading, error } = usePracticeData(subject, topicSlug)
 
   const onGraded = useCallback(
-    (questionId: number, streak: number) => setStreaks((current) => new Map(current).set(questionId, streak)),
-    [setStreaks],
+    (result: QuestionProgress) => setStandings((current) => new Map(current).set(result.question_id, result)),
+    [setStandings],
   )
 
   return (
@@ -392,7 +393,7 @@ export function PracticePage() {
       ) : questions.length === 0 ? (
         <p className="text-sm text-ink-soft">Zu diesem Thema gibt es keine Fragen.</p>
       ) : (
-        <PracticeRun questions={questions} streaks={streaks} onGraded={onGraded} />
+        <PracticeRun questions={questions} standings={standings} onGraded={onGraded} />
       )}
     </PageLayout>
   )

@@ -5,6 +5,7 @@ from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
 from app.services.user import delete_user_and_progress
+from tests.helpers import progress_state
 
 
 def _fixture_user(db_session) -> User:
@@ -27,7 +28,7 @@ def _topic_with_questions(db_session, count=2, subject="navigation", slug="nav")
 def _set_streaks(db_session, questions, streaks):
     user = _fixture_user(db_session)
     db_session.add_all(
-        QuestionProgress(user_id=user.id, question_id=q.id, correct_streak=s)
+        QuestionProgress(user_id=user.id, question_id=q.id, **progress_state(s, graded_days_ago=7))
         for q, s in zip(questions, streaks, strict=True)
     )
     db_session.commit()

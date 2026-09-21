@@ -42,7 +42,7 @@ export interface TopicProgress {
   display_order: number
   total_questions: number
   learned_questions: number
-  // Streak 1–2: on the way to "gelernt".
+  // Answered right at least once, but not (or no longer) "gelernt".
   learning_questions: number
   is_focus: boolean
 }
@@ -65,7 +65,9 @@ export interface AdminQuestionProgressExport {
   question_id: number
   subject: string
   question_number: number
-  correct_streak: number
+  half_life_days: number
+  last_graded_at: string
+  review_due_at: string
   created_at: string
   updated_at: string
 }
@@ -153,7 +155,8 @@ export type GradingOutcome = 'richtig' | 'teilweise_richtig' | 'falsch'
 // Mirrors backend/app/schemas/progress.py::QuestionProgressRead.
 export interface QuestionProgress {
   question_id: number
-  correct_streak: number
+  // 0–1 position for the course gauge — not a step count (ADR-0024).
+  progress: number
   learned: boolean
 }
 

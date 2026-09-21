@@ -1,6 +1,6 @@
 # 0018. Learning-progress data model and the "gelernt" streak rule
 
-Status: Accepted
+Status: Accepted; the "gelernt" streak rule (and `correct_streak`) is superseded by [ADR-0034](0034-half-life-model-for-gelernt.md). The table layout, the tip rule and the summary endpoint stand.
 
 ## Context
 

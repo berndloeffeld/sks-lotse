@@ -1,9 +1,12 @@
+import pytest
+
 from app.core.config import settings
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
+from tests.helpers import progress_state
 
 _FIXTURE_EMAIL = "fixture-user@example.com"
 
@@ -60,7 +63,7 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
     db_session.commit()
-    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=2))
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(2)))
     db_session.commit()
 
     response = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
@@ -71,7 +74,8 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     row = body["question_progress"][0]
     assert row["subject"] == "navigation"
     assert row["question_number"] == 1
-    assert row["correct_streak"] == 2
+    assert row["half_life_days"] == pytest.approx(6.25)
+    assert {"last_graded_at", "review_due_at"} <= row.keys()
 
 
 def test_admin_search_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
@@ -106,7 +110,7 @@ def test_admin_delete_removes_user_and_cascades_progress(client, db_session, aut
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
     db_session.commit()
-    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, correct_streak=1))
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
     db_session.commit()
 
     response = client.delete(f"/api/v1/admin/users/{user_id}", headers=auth_headers)

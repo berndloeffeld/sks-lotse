@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import case, delete, func, select
 from sqlalchemy.exc import IntegrityError
@@ -6,7 +8,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
-from app.core.progress import LEARNED_STREAK_THRESHOLD, is_learned, next_streak
+from app.core.progress import (
+    apply_grading,
+    is_learned,
+    learned_clause,
+    learning_clause,
+    progress_fraction,
+)
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -28,15 +36,15 @@ def progress_summary(
         topics_stmt = topics_stmt.where(Topic.subject.in_(allowed))
     topics = db.execute(topics_stmt).scalars().all()
 
-    # One pass over the catalog, joined to this learner's streaks: count() skips
+    # One pass over the catalog, joined to this learner's progress: count() skips
     # the NULLs the CASEs yield for questions in the other bucket.
-    streak = QuestionProgress.correct_streak
+    now = datetime.now(UTC)
     counts_stmt = (
         select(
             Question.topic_id,
             func.count(Question.id),
-            func.count(case((streak >= LEARNED_STREAK_THRESHOLD, 1))),
-            func.count(case(((streak > 0) & (streak < LEARNED_STREAK_THRESHOLD), 1))),
+            func.count(case((learned_clause(now), 1))),
+            func.count(case((learning_clause(now), 1))),
         )
         .outerjoin(
             QuestionProgress,
@@ -112,11 +120,11 @@ def remove_focus_topic(
     db.commit()
 
 
-def _question_progress_read(row: QuestionProgress) -> QuestionProgressRead:
+def _question_progress_read(row: QuestionProgress, now: datetime) -> QuestionProgressRead:
     return QuestionProgressRead(
         question_id=row.question_id,
-        correct_streak=row.correct_streak,
-        learned=is_learned(row.correct_streak),
+        progress=progress_fraction(row, now),
+        learned=is_learned(row, now),
     )
 
 
@@ -126,14 +134,15 @@ def list_question_progress(
     current_user: User = Depends(get_current_user),
 ) -> list[QuestionProgressRead]:
     # Only questions the caller has graded at least once have a row; the
-    # client treats every other question as streak 0. At most one row per
+    # client treats every other question as not started. At most one row per
     # catalog question (~500), so no paging.
     stmt = (
         select(QuestionProgress)
         .where(QuestionProgress.user_id == current_user.id)
         .order_by(QuestionProgress.question_id)
     )
-    return [_question_progress_read(row) for row in db.execute(stmt).scalars()]
+    now = datetime.now(UTC)
+    return [_question_progress_read(row, now) for row in db.execute(stmt).scalars()]
 
 
 def _progress_row(db: Session, user_id: int, question_id: int) -> QuestionProgress | None:
@@ -150,14 +159,16 @@ def grade_question(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> QuestionProgressRead:
-    """Record one grading of a question and move its streak (ADR-0018/0023)."""
+    """Record one grading of a question and re-estimate its half-life (ADR-0023/0034)."""
     question = db.get(Question, question_id)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
 
+    now = datetime.now(UTC)
     row = _progress_row(db, current_user.id, question_id)
+    is_new = row is None
     if row is None:
-        row = QuestionProgress(user_id=current_user.id, question_id=question_id, correct_streak=0)
+        row = QuestionProgress(user_id=current_user.id, question_id=question_id)
         db.add(row)
         try:
             db.flush()
@@ -165,6 +176,7 @@ def grade_question(
             # A concurrent first grading (double submit) inserted the row
             # between our read and this insert — apply this one on top of it.
             db.rollback()
+            is_new = False
             row = _progress_row(db, current_user.id, question_id)
             if row is None:
                 # The row that beat us is gone again (e.g. the account was
@@ -173,9 +185,9 @@ def grade_question(
                     status_code=409, detail="Progress changed concurrently, please retry"
                 ) from None
 
-    row.correct_streak = next_streak(row.correct_streak, payload.outcome)
+    apply_grading(row, payload.outcome, now, is_new=is_new)
     db.commit()
     # Only a grading that just made this question "gelernt" can complete a topic.
-    if is_learned(row.correct_streak) and question.topic_id is not None:
+    if is_learned(row, now) and question.topic_id is not None:
         remove_focus_if_topic_learned(db, current_user.id, question.topic_id)
-    return _question_progress_read(row)
+    return _question_progress_read(row, now)

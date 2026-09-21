@@ -12,7 +12,7 @@ interface FocusBandProps {
 }
 
 // The topics the learner marked as Fokus, with how many of their questions
-// are "sicher gelernt" (streak ≥ 3) and how many "teilweise" (streak 1–2).
+// are "sicher gelernt" and how many "teilweise".
 // A topic drops out on its own once all its questions are learned (ADR-0028),
 // so there is nothing to do here for that.
 export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandProps) {

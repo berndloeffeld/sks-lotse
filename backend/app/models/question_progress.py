@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, UniqueConstraint, func
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -15,11 +15,14 @@ class QuestionProgress(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
-    # Consecutive "Richtig" gradings for this (user, question) — see app/core/progress.py
-    # for the "gelernt" threshold. Reset to 0 by "Teilweise Richtig"/"Falsch" (or a
-    # tip-assisted "Richtig", see docs/adr/0018-...). Written by
+    # Estimated memory half-life in days, re-estimated by every grading — see
+    # app/core/progress.py and docs/adr/0034-... Written by
     # POST /api/v1/progress/questions/{id} (self-assessment, docs/adr/0023-...).
-    correct_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    half_life_days: Mapped[float] = mapped_column(Float, nullable=False, default=1.0, server_default="1")
+    last_graded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # last_graded_at + the time until recall probability falls to RECALL_THRESHOLD.
+    # Stored (not derived) so "gelernt" is a plain SQL filter on half_life_days.
+    review_due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

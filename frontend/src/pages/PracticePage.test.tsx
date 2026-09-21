@@ -205,7 +205,7 @@ describe('PracticePage', () => {
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],
       aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_today: 19 }),
-      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+      grades: [jsonResponse({ question_id: 1, progress: 0.4, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0)
     renderPracticePage()
@@ -300,8 +300,8 @@ describe('PracticePage', () => {
 
   it('saves a self-assessment and sails the boat forward', async () => {
     const fetchMock = mockBackend({
-      progress: [{ question_id: 1, correct_streak: 1, learned: false }],
-      grades: [jsonResponse({ question_id: 1, correct_streak: 2, learned: false })],
+      progress: [{ question_id: 1, progress: 0.4, learned: false }],
+      grades: [jsonResponse({ question_id: 1, progress: 0.9, learned: false })],
     })
     renderPracticePage()
     expect(await screen.findByRole('img', { name: 'Auf Kurs zu gelernt' })).toBeInTheDocument()
@@ -322,8 +322,8 @@ describe('PracticePage', () => {
     mockReducedMotion(false)
     mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      progress: [{ question_id: 1, correct_streak: 0, learned: false }],
-      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+      progress: [{ question_id: 1, progress: 0, learned: false }],
+      grades: [jsonResponse({ question_id: 1, progress: 0.4, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0.99)
     renderPracticePage()
@@ -338,10 +338,10 @@ describe('PracticePage', () => {
     expect(await screen.findByText(/Frage 2 von 2/, {}, { timeout: 2000 })).toBeInTheDocument()
   })
 
-  it('tells the learner when a grading resets the streak', async () => {
+  it('tells the learner when a grading sets the question back', async () => {
     mockBackend({
-      progress: [{ question_id: 1, correct_streak: 2, learned: false }],
-      grades: [jsonResponse({ question_id: 1, correct_streak: 0, learned: false })],
+      progress: [{ question_id: 1, progress: 0.9, learned: false }],
+      grades: [jsonResponse({ question_id: 1, progress: 0, learned: false })],
     })
     renderPracticePage()
 
@@ -365,12 +365,12 @@ describe('PracticePage', () => {
       questions: [question(1, 7), question(2, 8), question(3, 9)],
       // Question 3 is already learned, so it isn't part of the run.
       progress: [
-        { question_id: 2, correct_streak: 2, learned: false },
-        { question_id: 3, correct_streak: 3, learned: true },
+        { question_id: 2, progress: 0.9, learned: false },
+        { question_id: 3, progress: 1, learned: true },
       ],
       grades: [
-        jsonResponse({ question_id: 0, correct_streak: 0, learned: false }),
-        jsonResponse({ question_id: 0, correct_streak: 3, learned: true }),
+        jsonResponse({ question_id: 0, progress: 0, learned: false }),
+        jsonResponse({ question_id: 0, progress: 1, learned: true }),
       ],
     })
     // Deterministic shuffle: the run becomes [question 8, question 7].
@@ -395,7 +395,7 @@ describe('PracticePage', () => {
   it('shows exactly one course gauge and report button after moving to the next question', async () => {
     mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      grades: [jsonResponse({ question_id: 1, correct_streak: 1, learned: false })],
+      grades: [jsonResponse({ question_id: 1, progress: 0.4, learned: false })],
     })
     renderPracticePage()
 
@@ -409,7 +409,7 @@ describe('PracticePage', () => {
   it('runs the whole loop from the keyboard', async () => {
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      grades: [jsonResponse({ question_id: 1, correct_streak: 0, learned: false })],
+      grades: [jsonResponse({ question_id: 1, progress: 0, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0)
     renderPracticePage()
@@ -441,7 +441,7 @@ describe('PracticePage', () => {
 
   it('offers to repeat everything once the whole topic is learned', async () => {
     const user = userEvent.setup()
-    mockBackend({ progress: [{ question_id: 1, correct_streak: 3, learned: true }] })
+    mockBackend({ progress: [{ question_id: 1, progress: 1, learned: true }] })
     renderPracticePage()
 
     expect(await screen.findByRole('heading', { name: 'Alles gelernt' })).toBeInTheDocument()
