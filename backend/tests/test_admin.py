@@ -211,3 +211,25 @@ def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, 
         "/api/v1/admin/users/999999", json={"ai_grading_enabled": True}, headers=auth_headers
     )
     assert response.status_code == 404
+
+
+def test_admin_search_counts_only_that_users_progress(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    me = db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
+    other = User(email="other@example.com")
+    db_session.add(other)
+    questions = [Question(subject="navigation", number=n, question_text="Q", answer_text="A") for n in (1, 2)]
+    db_session.add_all(questions)
+    db_session.commit()
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=me.id, question_id=questions[0].id, **progress_state(1)),
+            QuestionProgress(user_id=me.id, question_id=questions[1].id, **progress_state(1)),
+            QuestionProgress(user_id=other.id, question_id=questions[0].id, **progress_state(1)),
+        ]
+    )
+    db_session.commit()
+
+    response = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+
+    assert response.json()["question_progress_count"] == 2

@@ -32,6 +32,16 @@ only_mutate = [
     "app/core/rate_limit.py",
     "app/core/otp.py",
     "app/services/ai_quota.py",
+    "app/services/focus.py",
+    "app/services/user.py",
+    "app/services/grader.py",
+    "app/services/kpis.py",
+    "app/services/email.py",
+    "app/api/v1/exams.py",
+    "app/api/v1/progress.py",
+    "app/api/v1/auth.py",
+    "app/api/v1/questions.py",
+    "app/api/v1/admin.py",
 ]
 source_paths = ["app"]
 also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]

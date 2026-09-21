@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from app.core.config import settings
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
@@ -186,3 +188,92 @@ def test_daily_report_script_fails_without_admins(monkeypatch):
     monkeypatch.setattr(settings, "admin_emails", "")
 
     assert send_daily_report.main() == 1
+
+
+_DAY = timedelta(days=1)
+
+
+def _user(db, name, created=timedelta(days=60)) -> User:
+    user = User(email=f"{name}@example.com", created_at=NOW - created)
+    db.add(user)
+    db.flush()
+    return user
+
+
+def _rated(db, user, question, ago) -> None:
+    at = NOW - ago
+    db.add(
+        QuestionProgress(
+            user_id=user.id, question_id=question.id, **progress_state(1), created_at=at, updated_at=at
+        )
+    )
+
+
+def _started_exam(db, user, ago) -> None:
+    at = NOW - ago
+    db.add(
+        ExamAttempt(
+            user_id=user.id, exam_variant="motor", started_at=at, deadline_at=at + timedelta(minutes=90)
+        )
+    )
+
+
+def test_activity_windows_are_half_open_and_exactly_1_7_and_30_days_long(db_session):
+    # One learner per case, each active exactly once: the windows are [since, until).
+    question = Question(subject="navigation", number=1, question_text="q", answer_text="a")
+    db_session.add(question)
+    db_session.flush()
+    for name, ago in {
+        "in-24h": timedelta(hours=23),
+        "exactly-24h": _DAY,  # counts for the last 24h, not for the 24h before
+        "previous-24h": timedelta(hours=25),
+        "in-7d": timedelta(days=6, hours=22),
+        "over-7d": timedelta(days=7, hours=2),
+        "in-30d": timedelta(days=29, hours=22),
+        "over-30d": timedelta(days=30, hours=2),
+    }.items():
+        _rated(db_session, _user(db_session, name), question, ago)
+    _started_exam(db_session, _user(db_session, "exam-today"), timedelta(hours=12))  # exam-only activity
+    _started_exam(db_session, _user(db_session, "exam-long-ago"), timedelta(days=40))
+    db_session.commit()
+
+    engagement = compute_kpis(db_session, NOW).engagement
+
+    assert engagement.dau == 3  # in-24h, exactly-24h, exam-today
+    assert engagement.dau_previous == 1  # previous-24h; exactly-24h belongs to the later window
+    assert engagement.wau == 5  # + previous-24h, in-7d
+    assert engagement.mau == 7  # + over-7d, in-30d
+    assert engagement.ratings_24h == 2  # in-24h, exactly-24h (exam starts aren't ratings)
+
+
+def test_signup_windows_and_the_retention_cohort_are_1_7_and_7_to_14_days(db_session):
+    question = Question(subject="navigation", number=1, question_text="q", answer_text="a")
+    db_session.add(question)
+    db_session.flush()
+    created = {
+        "in-24h": timedelta(hours=23),
+        "exactly-24h": _DAY,
+        "previous-24h": timedelta(hours=47),
+        "before-previous-24h": timedelta(hours=60),  # neither in the last 24h nor in the 24h before
+        "in-7d": timedelta(days=6, hours=22),
+        "exactly-7d": timedelta(days=7),  # counts as new this week, belongs to no cohort
+        "cohort-early": timedelta(days=13, hours=22),
+        "exactly-14d": timedelta(days=14),  # the oldest cohort member
+        "cohort-late": timedelta(days=7, hours=2),
+        "before-cohort": timedelta(days=14, hours=2),
+    }
+    users = {name: _user(db_session, name, ago) for name, ago in created.items()}
+    # Active again within the last week: one of the two cohort members, and one who is no cohort member.
+    _rated(db_session, users["cohort-late"], question, timedelta(hours=1))
+    _rated(db_session, users["exactly-14d"], question, timedelta(hours=1))
+    _rated(db_session, users["before-cohort"], question, timedelta(hours=1))
+    db_session.commit()
+
+    report = compute_kpis(db_session, NOW)
+
+    assert report.growth.new_24h == 2  # in-24h, exactly-24h
+    assert report.growth.new_previous_24h == 1  # previous-24h
+    assert report.growth.new_7d == 6  # all of the above, incl. exactly-7d
+    assert (report.growth.variant_motor, report.growth.variant_segeln_und_motor) == (0, 0)
+    assert report.engagement.retention_cohort_size == 3  # cohort-early, cohort-late, exactly-14d
+    assert report.engagement.retention_rate == pytest.approx(2 / 3)  # early wasn't back

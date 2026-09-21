@@ -894,3 +894,42 @@ def test_generated_otp_codes_are_all_digits_of_the_configured_length():
 
     codes = [generate_code() for _ in range(300)]
     assert all(code.isdigit() and len(code) == settings.otp_length for code in codes)
+
+
+def test_a_login_code_works_only_once(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    payload = {"email": "learner@example.com", "code": code}
+
+    assert client.post("/api/v1/auth/otp/verify", json=payload).status_code == 200
+    assert client.post("/api/v1/auth/otp/verify", json=payload).status_code == 401
+
+
+def test_each_wrong_guess_counts_exactly_once_against_the_attempt_limit(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "otp_max_attempts", 3)
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    wrong = "000000" if code != "000000" else "111111"
+
+    for _ in range(2):
+        assert (
+            client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": wrong})
+        ).status_code == 401
+    # Two of three attempts are used: the right code still works.
+    right = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+    assert right.status_code == 200
+
+
+def test_the_resend_cooldown_is_per_address(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    for email in ("first@example.com", "second@example.com"):
+        assert client.post("/api/v1/auth/otp/request", json={"email": email}).status_code == 202
+    assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
+
+
+def test_auth_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
+    from datetime import UTC, datetime, timedelta, timezone
+
+    from app.api.v1.auth import _as_utc
+
+    assert _as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    aware = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
+    assert _as_utc(aware) is aware

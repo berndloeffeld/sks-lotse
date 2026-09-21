@@ -17,16 +17,23 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 ./scripts/run_mutation_tests.sh show app.core.progress.x_is_learned__mutmut_2
 ```
 
-- **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`): the pure logic modules — `core/progress`,
-  `exam`, `exam_variant`, `email_address`, `cache`, `rate_limit`, `otp`, `services/ai_quota`. Wiring,
-  config and the catalog importer would only add noise. Widen `only_mutate` to grow the scope.
-- **Score (2026-09-21): about 384 of 407 mutants killed (94%)**, 23 survivors (±1 between runs: timing-dependent
-  rate-limit tests). The first run killed ~360 (88%); the difference is tests for the real gaps it found — the SQL
-  `learned_clause` ignoring the due date, `_client_ip`'s fallback to the socket peer, `as_utc` on aware datetimes
-  (Postgres), the idle sweep of the rate limiter, `refund` at zero, the OTP code's digit range, the 429 body and
-  the exact gelernt boundary (half-life 7.0).
+- **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`, `only_mutate`): the pure logic in `core/` (progress, exam,
+  exam_variant, email_address, cache, rate_limit, otp), all of `services/` except the catalog importer
+  (`ai_quota`, `focus`, `user`, `grader`, `kpis`, `email`) and the helper functions in `api/v1/` (exams, progress,
+  auth, questions, admin). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
+  the PDF, which `mutants/` doesn't have), `config.py`, `main.py`, `database.py`, `models/`, `schemas/`.
+- **mutmut skips decorated functions**, i.e. every FastAPI route handler (`@router.get(...)`), so their bodies are
+  never mutated. What the handlers delegate to undecorated helpers (`_get_attempt`, `_topic_or_404`, `_consume_otp_code`,
+  …) is covered; logic written inline in a handler is not. When a survivor points at such a gap, the fix is a test on
+  the endpoint — and, for anything sizeable, moving the logic into a helper so it can be mutated.
+- **Score (2026-09-21): about 1440 of 1608 mutants killed (90%)**, ~168 survivors, ~1 minute per run (±1–2 between
+  runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
+  tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants
+  and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`
+  and `_progress_row` not scoped to the user, an OTP that could be replayed, the KPI window lengths) — all now tested.
 - **What survives is judged, not chased.** The remaining ones are equivalent or not worth a test: `>` vs `>=` on
-  timestamps that never compare equal, `86401` vs `86400`, `partition` vs `rpartition` on validated single-`@`
+  timestamps that never compare equal, log and `detail=` message wording, the text of the KPI report and e-mails
+  (`kpis.format_report` alone is ~33 of the survivors), `86401` vs `86400`, `partition` vs `rpartition` on validated single-`@`
   addresses, `call_next(None)` (Starlette ignores the argument), renamed throttle/log keys, `XXXX` as an unused
   default, the HMAC label of the OTP key (a pure constant), and `populate_existing` in `ai_quota._locked_user`
   (needs a stale-session race to observe). A new survivor in a module not on this list deserves a look.

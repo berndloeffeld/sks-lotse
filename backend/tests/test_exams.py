@@ -407,3 +407,44 @@ def test_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
     plus_two = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
     assert as_utc(plus_two) is plus_two
     assert as_utc(plus_two) == datetime(2026, 1, 1, 10, 0, tzinfo=UTC)
+
+
+def test_exam_view_shows_each_question_with_its_catalog_source_and_grading(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    first = exam["questions"][0]
+    assert first["subject"] == "navigation" and first["number"] >= 1
+    assert first["question_text"] == f"Frage navigation {first['number']}"
+    assert first["outcome"] is None and first["points"] is None
+
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
+    body = client.get(f"/api/v1/exams/{exam['id']}", headers=auth_headers).json()
+
+    assert all(q["outcome"] == "richtig" and q["points"] == 2 for q in body["questions"])
+    assert all(q["official_answer"] for q in body["questions"])
+    # 9 / 7 / 5 / 9 questions per subject group at 2 points each, all of them earned.
+    assert {g["subject_group"]: (g["points"], g["max_points"]) for g in body["group_scores"]} == {
+        "navigation": (18, 18),
+        "schifffahrtsrecht": (14, 14),
+        "wetterkunde": (10, 10),
+        "seemannschaft": (18, 18),
+    }
+
+
+def test_only_my_own_unsubmitted_exam_blocks_starting_another(client, db_session, auth_headers):
+    me = _seed(db_session)
+    other = User(email="other@example.com", exam_variant="motor")
+    db_session.add(other)
+    db_session.commit()
+    now = datetime.now(UTC)
+    running = {"exam_variant": "motor", "started_at": now, "deadline_at": now + timedelta(minutes=90)}
+    db_session.add_all(
+        [
+            ExamAttempt(user_id=other.id, **running),  # someone else's, still running
+            ExamAttempt(user_id=me.id, submitted_at=now, **running),  # mine, but already submitted
+        ]
+    )
+    db_session.commit()
+
+    assert client.post("/api/v1/exams", headers=auth_headers).status_code == 201

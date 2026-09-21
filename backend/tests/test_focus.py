@@ -4,6 +4,7 @@ from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
+from app.services.focus import is_topic_fully_learned, remove_focus_if_topic_learned
 from app.services.user import delete_user_and_progress
 from tests.helpers import progress_state
 
@@ -262,3 +263,49 @@ def test_focus_session_is_scoped_to_the_user_and_the_exam_variant(client, db_ses
     ids = [q["id"] for q in _session(client, auth_headers).json()]
 
     assert ids == [mine[0].id]
+
+
+def test_topic_learned_check_counts_only_this_user_and_this_topic(db_session):
+    topic, questions = _topic_with_questions(db_session, count=2)
+    _, elsewhere = _topic_with_questions(db_session, count=2, subject="wetterkunde", slug="wet")
+    me, other = User(email="me@example.com"), User(email="other@example.com")
+    db_session.add_all([me, other])
+    db_session.commit()
+    learned = progress_state(3)
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=me.id, question_id=questions[0].id, **learned),
+            # Neither the other learner's progress on this topic nor mine on another topic may count.
+            QuestionProgress(user_id=other.id, question_id=questions[1].id, **learned),
+            *(QuestionProgress(user_id=me.id, question_id=q.id, **learned) for q in elsewhere),
+        ]
+    )
+    db_session.commit()
+
+    assert not is_topic_fully_learned(db_session, me.id, topic.id)
+
+    db_session.add(QuestionProgress(user_id=me.id, question_id=questions[1].id, **learned))
+    db_session.commit()
+    assert is_topic_fully_learned(db_session, me.id, topic.id)
+
+
+def test_learned_topic_only_loses_the_focus_mark_of_the_learner_who_learned_it(db_session):
+    topic, questions = _topic_with_questions(db_session, count=1)
+    _, elsewhere = _topic_with_questions(db_session, count=1, subject="wetterkunde", slug="wet")
+    me, other = User(email="me@example.com"), User(email="other@example.com")
+    db_session.add_all([me, other])
+    db_session.commit()
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=me.id, question_id=questions[0].id, **progress_state(3)),
+            FocusTopic(user_id=me.id, topic_id=topic.id),
+            FocusTopic(user_id=other.id, topic_id=topic.id),  # same topic, another learner
+            FocusTopic(user_id=me.id, topic_id=elsewhere[0].topic_id),  # another topic, same learner
+        ]
+    )
+    db_session.commit()
+
+    remove_focus_if_topic_learned(db_session, me.id, topic.id)
+
+    remaining = {(f.user_id, f.topic_id) for f in db_session.query(FocusTopic)}
+    assert remaining == {(other.id, topic.id), (me.id, elsewhere[0].topic_id)}

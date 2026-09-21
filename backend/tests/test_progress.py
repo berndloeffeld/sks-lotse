@@ -453,3 +453,34 @@ def test_grade_question_409_when_the_racing_row_vanished(client, db_session, aut
     )
 
     assert response.status_code == 409
+
+
+def test_grading_only_touches_the_callers_own_progress_row(client, db_session, auth_headers):
+    question = _question(db_session)
+    me = _fixture_user(db_session)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    theirs = QuestionProgress(user_id=other.id, question_id=question.id, **progress_state(2))
+    db_session.add(theirs)
+    db_session.commit()
+    before = (theirs.half_life_days, theirs.last_graded_at)
+
+    response = client.post(
+        f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    db_session.refresh(theirs)
+    assert (theirs.half_life_days, theirs.last_graded_at) == before
+    assert db_session.query(QuestionProgress).filter_by(user_id=me.id).count() == 1
+
+
+def test_focus_topic_lookup_needs_both_subject_and_slug(client, db_session, auth_headers):
+    db_session.add(Topic(subject="navigation", slug="nav", name="Navigation", display_order=1))
+    db_session.commit()
+
+    response = client.put("/api/v1/progress/focus/wetterkunde/nav", headers=auth_headers)
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Topic not found"}

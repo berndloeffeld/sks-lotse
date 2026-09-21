@@ -231,22 +231,35 @@ def test_service_builds_minimal_prompt(monkeypatch):
     ]
 
 
+def test_service_sends_the_system_prompt_and_asks_for_a_structured_reply(monkeypatch):
+    messages = _FakeMessages(_FakeResponse(GradeResult(outcome="falsch", feedback="Nein.")))
+    _patch_client(monkeypatch, messages)
+    grader.grade_answer("F", "M", "A")
+    assert messages.kwargs["system"] == grader.SYSTEM_PROMPT
+    assert messages.kwargs["output_format"] is GradeResult
+
+
 def test_service_without_key_is_unavailable(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "")
-    with pytest.raises(GradingUnavailable):
+    with pytest.raises(GradingUnavailable, match=r"^ANTHROPIC_GRADING_API_KEY is not configured$"):
         grader.grade_answer("F", "M", "A")
 
 
 def test_service_wraps_api_errors_and_empty_replies(monkeypatch):
     error = anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com"))
     _patch_client(monkeypatch, _FakeMessages(error=error))
-    with pytest.raises(GradingUnavailable):
+    # The reason (never the learner's answer) is what ends up in the log.
+    with pytest.raises(GradingUnavailable, match=r"^APIConnectionError$"):
         grader.grade_answer("F", "M", "A")
     _patch_client(monkeypatch, _FakeMessages(_FakeResponse(None)))
-    with pytest.raises(GradingUnavailable):
+    with pytest.raises(GradingUnavailable, match=r"^unparseable reply$"):
         grader.grade_answer("F", "M", "A")
 
 
-def test_client_factory_uses_configured_key(monkeypatch):
+def test_client_factory_uses_configured_key_timeout_and_a_single_retry(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
-    assert grader._client().api_key == "test-key"
+    monkeypatch.setattr(settings, "anthropic_grading_timeout_seconds", 7.5)
+    client = grader._client()
+    assert client.api_key == "test-key"
+    assert client.timeout == 7.5
+    assert client.max_retries == 1
