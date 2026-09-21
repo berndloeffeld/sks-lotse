@@ -5,15 +5,24 @@ The tool changes the code one small step at a time (`>=` → `>`, `and` → `or`
 line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed**; one that still
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
-It is a periodic check, deliberately not a CI gate: a run is minutes to hours, and equivalent
-mutants (a change with no observable effect) mean 100% is neither reachable nor the goal.
-The trend and the individual survivors are what matter.
+**It is a required CI check** (`mutation-testing` in `backend-ci.yml`): the job fails if fewer than
+`MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
+points under the current score (~89.6%), like the coverage gates: raise it when the score settles higher, never
+lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
+that is optimised for stops measuring anything — the gate is there to catch regressions. Two limits to keep in
+mind: an aggregate score over ~1600 mutants barely moves for a small new function (50 surviving mutants ≈ 3 points),
+so when you add logic, look at the survivor list the job prints, not just at pass/fail; and the run is ±1–2
+mutants noisy (timing-dependent rate-limit tests), which the margin absorbs.
+
+A failing job prints the surviving mutants. Work them like this: `./scripts/run_mutation_tests.sh show <name>`
+shows the change, then add the test that would fail on it — or, if the change has no observable effect, leave it.
 
 ## Backend (mutmut)
 
 ```bash
 cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
-./scripts/run_mutation_tests.sh                                     # ~30 s
+./scripts/run_mutation_tests.sh                                     # ~1 min; lists the survivors
+./scripts/run_mutation_tests.sh gate                                # what CI runs: fails below the minimum score
 ./scripts/run_mutation_tests.sh show app.core.progress.x_is_learned__mutmut_2
 ```
 
