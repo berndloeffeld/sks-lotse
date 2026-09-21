@@ -19,6 +19,7 @@ triggering it gets called. See CLAUDE.md → Data Layer Conventions.
 
 import time
 from collections.abc import Callable
+from typing import cast
 
 
 def get_or_set[T](app, key: str, ttl_seconds: float, factory: Callable[[], T]) -> T:
@@ -26,7 +27,7 @@ def get_or_set[T](app, key: str, ttl_seconds: float, factory: Callable[[], T]) -
     now = time.monotonic()
     cached = entries.get(key)
     if cached is not None and cached[0] > now:
-        return cached[1]
+        return cast(T, cached[1])
     value = factory()
     entries[key] = (now + ttl_seconds, value)
     return value

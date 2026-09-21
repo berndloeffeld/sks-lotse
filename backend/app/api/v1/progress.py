@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import case, delete, func, or_, select
@@ -10,6 +11,7 @@ from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.progress import (
+    GradingOutcome,
     apply_grading,
     is_learned,
     learned_clause,
@@ -221,7 +223,7 @@ def grade_question(
                     status_code=409, detail="Progress changed concurrently, please retry"
                 ) from None
 
-    apply_grading(row, payload.outcome, now, is_new=is_new)
+    apply_grading(row, cast(GradingOutcome, payload.outcome), now, is_new=is_new)
     db.commit()
     # Only a grading that just made this question "gelernt" can complete a topic.
     if is_learned(row, now) and question.topic_id is not None:

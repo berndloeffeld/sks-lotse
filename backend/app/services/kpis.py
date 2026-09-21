@@ -56,7 +56,9 @@ def _users_created(db: Session, since: datetime, until: datetime) -> int:
 def _growth(db: Session, now: datetime) -> GrowthKpis:
     day = timedelta(days=1)
     week = 7 * day
-    variants = dict(db.execute(select(User.exam_variant, func.count()).group_by(User.exam_variant)).all())
+    variants: dict[str | None, int] = dict(
+        db.execute(select(User.exam_variant, func.count()).group_by(User.exam_variant)).tuples().all()
+    )
     recent = select(User.id).where(User.created_at >= now - week)
     has_progress = exists().where(QuestionProgress.user_id == User.id)
     activated = _count(db, recent.where(has_progress))

@@ -136,4 +136,4 @@ class Settings(BaseSettings):
         return ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]  # required fields come from the environment

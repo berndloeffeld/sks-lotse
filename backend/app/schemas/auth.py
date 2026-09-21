@@ -113,7 +113,7 @@ class UserRead(BaseModel):
     ads_removed: bool
     ai_checks_remaining: int
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
     @property
     def is_admin(self) -> bool:
         return self.email in settings.admin_emails_set

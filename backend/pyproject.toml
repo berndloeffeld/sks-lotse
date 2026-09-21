@@ -11,14 +11,20 @@ line-length = 110
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "S", "SIM", "C4", "RUF"]
+select = ["E", "F", "I", "UP", "B", "S", "SIM", "C4", "RUF", "C901", "PLR0912"]
 ignore = ["B008"]  # FastAPI's Depends(...) default-argument pattern
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-branches = 10
 
 [tool.ruff.lint.per-file-ignores]
 # Asserts are what tests are made of; the full-width digits and dummy tokens are test data.
 "tests/**" = ["S101", "S105", "RUF001"]
 
-# Mutation testing (manual/periodic, not a CI gate): `mutmut run`, see docs/mutation-testing.md.
+# Mutation testing (required CI check `mutation-testing`, `./scripts/run_mutation_tests.sh gate`); see docs/mutation-testing.md.
 # (mutmut copies only source_paths into mutants/, hence all of app/ there and the scope in only_mutate.)
 # Scoped to the pure business-logic modules, where a surviving mutant means a real gap in the
 # tests; wiring, config and the catalog importer would only produce noise and hours of runtime.
@@ -51,3 +57,9 @@ pytest_add_cli_args_test_selection = ["tests/"]
 # and cover no mutated module anyway.
 pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tests/test_integration_collection.py",
     "--ignore=tests/test_catalog_seed.py"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
