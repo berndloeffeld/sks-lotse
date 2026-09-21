@@ -2,7 +2,7 @@
 # Mutation testing of the backend's business logic with mutmut. `gate` is the
 # CI check (backend-ci.yml, job `mutation-testing`; runs on every PR, not required); the other modes are
 # for working on survivors locally. See docs/mutation-testing.md for scope,
-# reading the results and why the frontend isn't covered yet.
+# reading the results and the frontend counterpart is scripts/run_frontend_mutation_tests.sh.
 #
 #   ./scripts/run_mutation_tests.sh           # run all mutants (~30 s)
 #   ./scripts/run_mutation_tests.sh results   # list the survivors

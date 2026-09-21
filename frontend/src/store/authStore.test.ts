@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { useAuthStore } from './authStore'
 
@@ -145,5 +146,54 @@ describe('authStore', () => {
     await useAuthStore.getState().logout()
 
     expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('starts loading and without a session error, before the first checkSession', () => {
+    expect(useAuthStore.getInitialState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+    })
+  })
+
+  it('checkSession shows the loading state while /auth/me is in flight', async () => {
+    useAuthStore.setState({ isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+    const loadingStates: boolean[] = []
+    const unsubscribe = useAuthStore.subscribe((state) => loadingStates.push(state.isLoading))
+
+    await useAuthStore.getState().checkSession()
+    unsubscribe()
+
+    expect(loadingStates[0]).toBe(true)
+  })
+
+  it('clearSession also resets an earlier session error', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, sessionError: true })
+
+    useAuthStore.getState().clearSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(false)
+  })
+
+  it('a 401 on any API call clears the session (unauthorized handler is wired to the store)', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/questions').catch(() => {})
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('logout calls POST /auth/logout', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await useAuthStore.getState().logout()
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/v1\/auth\/logout$/)
+    expect(init.method).toBe('POST')
   })
 })
