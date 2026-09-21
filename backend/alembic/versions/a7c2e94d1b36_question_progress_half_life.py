@@ -1,7 +1,7 @@
 """question_progress: replace correct_streak with a memory half-life
 
 Revision ID: a7c2e94d1b36
-Revises: e5b3a9c1d720
+Revises: f2a6c8d04b17
 Create Date: 2026-09-21 12:00:00.000000
 
 ADR-0034. Existing streaks are carried over as the half-life a run of that
@@ -21,7 +21,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "a7c2e94d1b36"
-down_revision: str | None = "e5b3a9c1d720"
+down_revision: str | None = "f2a6c8d04b17"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
