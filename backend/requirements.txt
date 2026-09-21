@@ -11,7 +11,7 @@ resend==2.46.0
 email-validator==2.3.0
 # Releases every time its upstream domain list changes (very often) — bump
 # periodically, this pin will go stale fast.
-disposable-email-domains==0.0.261
+disposable-email-domains==0.0.262
 anthropic==1.6.0
 # Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
 tzdata==2026.4
