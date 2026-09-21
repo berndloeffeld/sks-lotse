@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Mutation testing of the backend's business logic with mutmut. `gate` is the
-# required CI check (backend-ci.yml, job `mutation-testing`); the other modes are
+# CI check (backend-ci.yml, job `mutation-testing`; runs on every PR, not required); the other modes are
 # for working on survivors locally. See docs/mutation-testing.md for scope,
 # reading the results and why the frontend isn't covered yet.
 #

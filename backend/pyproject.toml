@@ -37,6 +37,10 @@ only_mutate = [
     "app/core/cache.py",
     "app/core/rate_limit.py",
     "app/core/otp.py",
+    "app/core/jwt.py",
+    "app/core/security_headers.py",
+    "app/core/canonical_domain.py",
+    "app/core/ai_quota.py",
     "app/services/ai_quota.py",
     "app/services/focus.py",
     "app/services/user.py",
@@ -48,6 +52,7 @@ only_mutate = [
     "app/api/v1/auth.py",
     "app/api/v1/questions.py",
     "app/api/v1/admin.py",
+    "app/api/v1/grading.py",
 ]
 source_paths = ["app"]
 also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]

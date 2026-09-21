@@ -56,7 +56,7 @@ jobs:
     # Do the tests notice a bug, not just execute the line? mutmut changes the business-logic
     # modules one small step at a time and the job fails if fewer than MUTATION_MIN_SCORE (87%,
     # scripts/run_mutation_tests.sh) of those changes are caught. Scope, survivors and how to work
-    # on them: docs/mutation-testing.md.
+    # on them: docs/mutation-testing.md. Not a required check (~5 min) — look at it before merging.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

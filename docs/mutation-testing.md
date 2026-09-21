@@ -5,14 +5,18 @@ The tool changes the code one small step at a time (`>=` → `>`, `and` → `or`
 line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed**; one that still
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
-**It is a required CI check** (`mutation-testing` in `backend-ci.yml`): the job fails if fewer than
+**It runs on every PR** (`mutation-testing` in `backend-ci.yml`) but is **not a required check** — it takes
+about 5 minutes in CI and must not hold up merges; look at it before merging anyway. The job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
-points under the current score (~89.6%), like the coverage gates: raise it when the score settles higher, never
+points under the current score (~88.5%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
-that is optimised for stops measuring anything — the gate is there to catch regressions. Two limits to keep in
+that is optimised for stops measuring anything — the check is there to catch regressions. Two limits to keep in
 mind: an aggregate score over ~1600 mutants barely moves for a small new function (50 surviving mutants ≈ 3 points),
 so when you add logic, look at the survivor list the job prints, not just at pass/fail; and the run is ±1–2
 mutants noisy (timing-dependent rate-limit tests), which the margin absorbs.
+
+**Keep `only_mutate` current** (`backend/pyproject.toml`): it is the whole scope, and a module missing from it is
+silently unchecked. Add new business-logic modules in the PR that introduces them (`CLAUDE.md` says so too).
 
 A failing job prints the surviving mutants. Work them like this: `./scripts/run_mutation_tests.sh show <name>`
 shows the change, then add the test that would fail on it — or, if the change has no observable effect, leave it.
@@ -27,9 +31,9 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 ```
 
 - **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`, `only_mutate`): the pure logic in `core/` (progress, exam,
-  exam_variant, email_address, cache, rate_limit, otp), all of `services/` except the catalog importer
+  exam_variant, email_address, cache, rate_limit, otp, jwt, security_headers, canonical_domain, ai_quota), all of `services/` except the catalog importer
   (`ai_quota`, `focus`, `user`, `grader`, `kpis`, `email`) and the helper functions in `api/v1/` (exams, progress,
-  auth, questions, admin). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
+  auth, questions, admin, grading). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
   the PDF, which `mutants/` doesn't have), `config.py`, `main.py`, `database.py`, `models/`, `schemas/`.
 - **mutmut skips decorated functions**, i.e. every FastAPI route handler, so the normal run never mutates their bodies.
   `./scripts/run_mutation_tests.sh handlers` does: it mutates a throw-away copy of `backend/` in which each decorator is
@@ -40,7 +44,7 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   export, per-user limit keys, the hourly code quota — are tested. Two handlers are big enough that logic inline
   is a smell: `export_user` (~100 lines) and `exam_stats` (~40); splitting them into helpers would let the normal run
   cover them.
-- **Score (2026-09-21): about 1440 of 1608 mutants killed (90%)**, ~168 survivors, ~1 minute per run (±1–2 between
+- **Score (2026-09-21): about 1550 of 1754 mutants killed (88.5%)**, ~200 survivors, ~1 minute per run (±1–2 between
   runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
   tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants
   and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`

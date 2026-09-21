@@ -141,7 +141,7 @@ Trunk-based development:
 
 **Branch protection on `main`** (enforced by GitHub, admins included — this is the actual merge gate):
 - PR required; no approving review required; force-push and branch deletion blocked.
-- **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`, `mutation-testing`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` runs on every PR too but is **not** required — check it's green before merging anyway. There is no Aikido check in CI (see Security Scanning below).
+- **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` and `mutation-testing` run on every PR too but are **not** required (the latter takes ~5 min) — check they're green before merging anyway. There is no Aikido check in CI (see Security Scanning below).
 - **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
 - GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
 - Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs.
@@ -176,7 +176,14 @@ Backend enforces a minimum of **95% coverage (lines + branches)** via `pytest-co
 Frontend enforces **90% lines / 85% branches** via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`; actual ~97% / ~91%), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — a required check, like the backend's `test`.
 
 ### Mutation testing
-A required CI check (`mutation-testing`, min. score 87% — a ratchet like the coverage gates: raise, never lower): `./scripts/run_mutation_tests.sh gate` (mutmut, backend logic modules, ~1 min). Without `gate` it just lists survivors; `handlers` mutates the route handlers in a throw-away copy (mutmut skips decorated functions). Scope, reading survivors and why the frontend (Stryker) isn't set up yet: [docs/mutation-testing.md](docs/mutation-testing.md).
+CI job `mutation-testing` (runs on every PR, **not** a required check — ~5 min): `./scripts/run_mutation_tests.sh gate` runs mutmut over the backend's business logic and fails below a minimum score (87% — a ratchet like the coverage gates: raise it, never lower it to get a PR through). Without `gate` the script just lists the survivors; `handlers` mutates the route handlers in a throw-away copy (mutmut skips decorated functions). Scope, reading survivors and why the frontend (Stryker) isn't set up yet: [docs/mutation-testing.md](docs/mutation-testing.md).
+
+**Keep the scope current.** What gets mutated is exactly `only_mutate` in `[tool.mutmut]` of `backend/pyproject.toml` — a module missing from it is silently unchecked. So in the same PR:
+- a new backend module with business logic (`app/core/`, `app/services/`, or an `app/api/v1/` file with undecorated helpers) is **added** to `only_mutate`;
+- a renamed or deleted module is updated/removed there;
+- deliberately left out (don't add): `config.py`, `main.py`, `database.py`, `models/`, `schemas/`, `catalog_seed.py`, `scripts/`.
+
+Logic that lives inline in a route handler isn't covered by the normal run (decorated functions are skipped) — put anything sizeable into an undecorated helper, and check new handlers with `./scripts/run_mutation_tests.sh handlers`.
 
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
