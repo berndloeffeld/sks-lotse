@@ -484,3 +484,12 @@ def test_focus_topic_lookup_needs_both_subject_and_slug(client, db_session, auth
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Topic not found"}
+
+
+def test_summary_lists_a_topic_without_questions_as_empty(client, db_session, auth_headers):
+    db_session.add(Topic(subject="navigation", slug="leer", name="Leer", display_order=1))
+    db_session.commit()
+
+    [row] = client.get("/api/v1/progress/summary", headers=auth_headers).json()
+
+    assert (row["total_questions"], row["learned_questions"], row["learning_questions"]) == (0, 0, 0)

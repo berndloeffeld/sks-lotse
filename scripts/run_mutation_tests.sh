@@ -6,6 +6,7 @@
 #   ./scripts/run_mutation_tests.sh           # run all mutants (~30 s)
 #   ./scripts/run_mutation_tests.sh results   # list the survivors
 #   ./scripts/run_mutation_tests.sh show <mutant name>   # the diff a survivor made
+#   ./scripts/run_mutation_tests.sh handlers  # the FastAPI route handlers (~1 min), see below
 #
 # Needs backend/.venv with requirements-mutation.txt installed. No database,
 # no .env: the suite runs on in-memory SQLite, the two variables below only
@@ -29,5 +30,14 @@ export PYTHONPATH=.
 
 case "${1:-run}" in
   run) rm -rf mutants; "$MUTMUT" run; "$MUTMUT" results | grep -v ': killed' || true ;;
+  handlers)
+    # mutmut skips decorated functions, i.e. all route handlers. This mutates them in a throw-away
+    # copy (decorators moved behind the definitions, see mutation_handlers_setup.py); the repo stays
+    # untouched. Inspect afterwards with: cd "$COPY" && $PWD/$MUTMUT results | grep -v killed
+    COPY="${TMPDIR:-/tmp}/sks-lotse-mutation-handlers"
+    "$PWD/.venv/bin/python" scripts/mutation_handlers_setup.py "$COPY"
+    (cd "$COPY" && "$OLDPWD/$MUTMUT" run; "$OLDPWD/$MUTMUT" results | grep -v ': killed' || true)
+    echo "Copy kept in $COPY (mutmut show <name> works there)."
+    ;;
   *) "$MUTMUT" "$@" ;;
 esac

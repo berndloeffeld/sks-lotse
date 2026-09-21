@@ -138,6 +138,21 @@ def test_budget_is_full_again_on_the_next_day(client, db_session, fake_grader, m
     assert _post(client, q.id, headers).status_code == 200
 
 
+def test_the_hourly_check_limit_is_per_user(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_window", 1)
+    questions = [
+        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in (1, 2, 3)
+    ]
+    db_session.add_all(questions)
+    db_session.commit()
+    anna = _headers(db_session, enabled=True, email="anna@example.com")
+    ben = _headers(db_session, enabled=True, email="ben@example.com")
+
+    assert _post(client, questions[0].id, anna).status_code == 200
+    assert _post(client, questions[1].id, anna).status_code == 429
+    assert _post(client, questions[2].id, ben).status_code == 200  # Anna's limit is not Ben's
+
+
 def test_per_question_cap_is_429_but_other_questions_still_work(client, db_session, fake_grader, monkeypatch):
     monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
     first = _question(db_session)

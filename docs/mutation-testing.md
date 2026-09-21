@@ -22,10 +22,15 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   (`ai_quota`, `focus`, `user`, `grader`, `kpis`, `email`) and the helper functions in `api/v1/` (exams, progress,
   auth, questions, admin). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
   the PDF, which `mutants/` doesn't have), `config.py`, `main.py`, `database.py`, `models/`, `schemas/`.
-- **mutmut skips decorated functions**, i.e. every FastAPI route handler (`@router.get(...)`), so their bodies are
-  never mutated. What the handlers delegate to undecorated helpers (`_get_attempt`, `_topic_or_404`, `_consume_otp_code`,
-  …) is covered; logic written inline in a handler is not. When a survivor points at such a gap, the fix is a test on
-  the endpoint — and, for anything sizeable, moving the logic into a helper so it can be mutated.
+- **mutmut skips decorated functions**, i.e. every FastAPI route handler, so the normal run never mutates their bodies.
+  `./scripts/run_mutation_tests.sh handlers` does: it mutates a throw-away copy of `backend/` in which each decorator is
+  moved behind its function (`backend/scripts/mutation_handlers_setup.py`; the repo isn't touched), scoped to
+  `app/api/v1/`, ~1 minute. Its baseline (2026-09-21): **1503 of 1811 killed (83%)**. Most of the ~300 survivors are
+  message wording (`detail=`), rate-limit bucket *names* (`'ai_grade:user'` → `None`; harmless as long as the keys
+  differ) and SQL shape (`order_by`, join conditions SQLAlchemy infers anyway). The real ones — statistics, the DSGVO
+  export, per-user limit keys, the hourly code quota — are tested. Two handlers are big enough that logic inline
+  is a smell: `export_user` (~100 lines) and `exam_stats` (~40); splitting them into helpers would let the normal run
+  cover them.
 - **Score (2026-09-21): about 1440 of 1608 mutants killed (90%)**, ~168 survivors, ~1 minute per run (±1–2 between
   runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
   tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants

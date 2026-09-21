@@ -933,3 +933,31 @@ def test_auth_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
     assert _as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
     aware = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
     assert _as_utc(aware) is aware
+
+
+def test_the_email_change_cap_is_per_user(client, db_session, monkeypatch, auth_headers):
+    monkeypatch.setattr(settings, "email_change_max_requests_per_window", 1)
+    _capture_email_change_otp(monkeypatch)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    other_headers = {"Authorization": f"Bearer {create_access_token(other.id, other.token_version)}"}
+
+    def request_change(headers, address):
+        return client.post("/api/v1/auth/me/email/request", json={"new_email": address}, headers=headers)
+
+    assert request_change(auth_headers, "one@example.com").status_code == 202
+    assert request_change(auth_headers, "two@example.com").status_code == 429
+    assert request_change(other_headers, "three@example.com").status_code == 202
+
+
+def test_the_hourly_code_quota_is_per_address(client, monkeypatch):
+    monkeypatch.setattr(settings, "otp_max_requests_per_window", 1)
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
+    sent = _capture_otp(monkeypatch)
+
+    for email in ("first@example.com", "second@example.com", "first@example.com"):
+        assert client.post("/api/v1/auth/otp/request", json={"email": email}).status_code == 202
+
+    # The third request is silently dropped: first@ already used its one code this hour.
+    assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
