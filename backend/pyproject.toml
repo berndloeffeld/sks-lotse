@@ -15,3 +15,27 @@ ignore = ["B008"]  # FastAPI's Depends(...) default-argument pattern
 [tool.ruff.lint.per-file-ignores]
 # Asserts are what tests are made of; the full-width digits and dummy tokens are test data.
 "tests/**" = ["S101", "S105", "RUF001"]
+
+# Mutation testing (manual/periodic, not a CI gate): `mutmut run`, see docs/mutation-testing.md.
+# (mutmut copies only source_paths into mutants/, hence all of app/ there and the scope in only_mutate.)
+# Scoped to the pure business-logic modules, where a surviving mutant means a real gap in the
+# tests; wiring, config and the catalog importer would only produce noise and hours of runtime.
+[tool.mutmut]
+only_mutate = [
+    "app/core/progress.py",
+    "app/core/exam.py",
+    "app/core/exam_variant.py",
+    "app/core/email_address.py",
+    "app/core/cache.py",
+    "app/core/rate_limit.py",
+    "app/core/otp.py",
+    "app/services/ai_quota.py",
+]
+source_paths = ["app"]
+also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]
+pytest_add_cli_args_test_selection = ["tests/"]
+# addopts= drops the coverage gate in [tool.pytest.ini_options], which would fail every partial run;
+# the Postman-collection and catalog-PDF tests read files outside backend/, which mutants/ doesn't have,
+# and cover no mutated module anyway.
+pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tests/test_integration_collection.py",
+    "--ignore=tests/test_catalog_seed.py"]

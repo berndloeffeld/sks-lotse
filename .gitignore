@@ -30,3 +30,6 @@ postman/postman/
 # copy the committed *.example templates locally, never commit the real files
 postman/local.postman_environment.json
 postman/production.postman_environment.json
+
+# mutmut working copy
+backend/mutants/

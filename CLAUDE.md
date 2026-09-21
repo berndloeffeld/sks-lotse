@@ -175,6 +175,9 @@ Backend enforces a minimum of **95% coverage (lines + branches)** via `pytest-co
 
 Frontend enforces **90% lines / 85% branches** via Vitest's built-in coverage (`frontend/vite.config.ts`, `test.coverage.thresholds`; actual ~97% / ~91%), run with `npx vitest run --coverage`. `.github/workflows/frontend-ci.yml`'s `test` job runs `tsc -b` plus that command on every push to `main` and every PR — a required check, like the backend's `test`.
 
+### Mutation testing
+Periodic, not a CI gate: `./scripts/run_mutation_tests.sh` (mutmut, backend logic modules, ~30 s). Scope, reading survivors and why the frontend (Stryker) isn't set up yet: [docs/mutation-testing.md](docs/mutation-testing.md).
+
 ### Linting & Formatting
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
