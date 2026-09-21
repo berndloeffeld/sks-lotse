@@ -12,7 +12,7 @@ from typing import Literal
 
 ExamVariant = Literal["motor", "segeln_und_motor"]
 
-EXAM_VARIANTS: dict[ExamVariant, set[str]] = {
+EXAM_VARIANTS: dict[str, set[str]] = {
     "motor": {
         "navigation",
         "schifffahrtsrecht",

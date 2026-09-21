@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import case, func, select
@@ -18,7 +19,7 @@ from app.core.exam import (
     compose_exam,
     result_for,
 )
-from app.core.exam_variant import subjects_for_variant
+from app.core.exam_variant import ExamVariant, subjects_for_variant
 from app.core.jwt import get_current_user
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
@@ -33,6 +34,7 @@ from app.schemas.exam import (
     ExamStatsPoint,
     ExamSummary,
 )
+from app.schemas.question import QuestionImage
 
 router = APIRouter(prefix="/exams", tags=["exams"], dependencies=[Depends(get_current_user)])
 
@@ -145,10 +147,16 @@ def _read(db: Session, attempt: ExamAttempt) -> ExamRead:
                 subject=source.subject if source else None,
                 number=source.number if source else None,
                 question_text=source.question_text if source else None,
-                question_images=source.question_images if source else [],
+                question_images=[QuestionImage.model_validate(i) for i in source.question_images]
+                if source
+                else [],
                 answer_text=eq.answer_text,
                 official_answer=source.answer_text if source and revealed else None,
-                official_answer_images=source.answer_images if source and revealed else [],
+                official_answer_images=(
+                    [QuestionImage.model_validate(i) for i in source.answer_images]
+                    if source and revealed
+                    else []
+                ),
                 outcome=eq.outcome,
                 points=_points(eq),
             )
@@ -172,7 +180,9 @@ def start_exam(db: Session = Depends(get_db), current_user: User = Depends(get_c
         raise HTTPException(status_code=409, detail="An exam is already in progress")
 
     rows = db.execute(select(Question.id, Question.subject).where(Question.subject.in_(allowed))).all()
-    picked = compose_exam([(row.id, row.subject) for row in rows], current_user.exam_variant)
+    picked = compose_exam(
+        [(row.id, row.subject) for row in rows], cast(ExamVariant, current_user.exam_variant)
+    )
     if len(picked) < sum(QUESTIONS_PER_GROUP.values()):
         raise HTTPException(status_code=503, detail="Not enough questions in the catalog")
 

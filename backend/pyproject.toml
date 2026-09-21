@@ -9,9 +9,23 @@ line-length = 110
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "S", "SIM", "C4", "RUF"]
+select = ["E", "F", "I", "UP", "B", "S", "SIM", "C4", "RUF", "C901", "PLR0912"]
 ignore = ["B008"]  # FastAPI's Depends(...) default-argument pattern
+
+# Complexity ceilings sit just above the current worst offenders (catalog_seed._rekey_seemannschaft: 14):
+# they stop new code from getting worse, and are lowered as those get refactored.
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pylint]
+max-branches = 15
 
 [tool.ruff.lint.per-file-ignores]
 # Asserts are what tests are made of; the full-width digits and dummy tokens are test data.
 "tests/**" = ["S101", "S105", "RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
