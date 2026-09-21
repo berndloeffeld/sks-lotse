@@ -350,7 +350,7 @@ describe('PracticePage', () => {
 
     await revealAndGrade('Teilweise Richtig')
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Zurück zum Start')
+    expect(await screen.findByRole('status')).toHaveTextContent('Zurückgefallen')
   })
 
   it('keeps the assessment open when saving fails', async () => {

@@ -90,8 +90,10 @@ def progress_fraction(row: QuestionProgress, now: datetime) -> float:
     """0 to 1 for the course gauge (ADR-0024: a position, never a step count)."""
     if is_learned(row, now):
         return 1.0
-    reached = math.log(row.half_life_days / INITIAL_HALF_LIFE_DAYS) / math.log(
-        LEARNED_HALF_LIFE_DAYS / INITIAL_HALF_LIFE_DAYS
+    # Measured from the floor, not from INITIAL_HALF_LIFE_DAYS: a "Richtig" after a setback (half-life
+    # below the initial one) still moves the boat, even if it doesn't yet count as "on the way".
+    reached = math.log(row.half_life_days / MIN_HALF_LIFE_DAYS) / math.log(
+        LEARNED_HALF_LIFE_DAYS / MIN_HALF_LIFE_DAYS
     )
     # Never full unless learned — a decayed question sits just short of it.
     return min(max(reached, 0.0), 0.95)
