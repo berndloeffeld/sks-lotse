@@ -32,12 +32,13 @@ this module's logic.
 
 import dataclasses
 import re
+from collections.abc import Sequence
 from pathlib import Path
 
 import pypdf
 import sqlalchemy as sa
 import yaml
-from sqlalchemy.engine import Connection
+from sqlalchemy.engine import Connection, Row
 from sqlalchemy.orm import Session
 
 _BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
@@ -425,18 +426,34 @@ def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion
     ).all()
     if not existing:
         return
-    by_pair = {(r.seemannschaft_1_number, r.seemannschaft_2_number): r.id for r in existing}
-    by_1 = {r.seemannschaft_1_number: r.id for r in existing if r.seemannschaft_1_number is not None}
-    by_2 = {r.seemannschaft_2_number: r.id for r in existing if r.seemannschaft_2_number is not None}
     targets = [q for q in questions if q.subject in SEEMANNSCHAFT_SUBJECTS]
+    claims, copies = _claim_rows(existing, targets)
+    _delete_unclaimed(connection, existing, claims)
+    _move_claimed(connection, existing, claims)
+    _copy_taken_rows(connection, copies)
 
+
+def _exact_claims(existing: Sequence[Row], targets: list[CatalogQuestion]) -> dict[int, CatalogQuestion]:
+    """Existing row id -> the target with exactly that row's official numbers."""
+    by_pair = {(r.seemannschaft_1_number, r.seemannschaft_2_number): r.id for r in existing}
     claims: dict[int, CatalogQuestion] = {}
-    # Exact matches first, so a partial match never takes a row that still
-    # exists unchanged.
     for q in targets:
         row_id = by_pair.get((q.seemannschaft_1_number, q.seemannschaft_2_number))
         if row_id is not None:
             claims[row_id] = q
+    return claims
+
+
+def _claim_rows(
+    existing: Sequence[Row], targets: list[CatalogQuestion]
+) -> tuple[dict[int, CatalogQuestion], list[tuple[CatalogQuestion, int]]]:
+    """Which target takes over which existing row, and which targets need a copy of a row
+    that's already taken (as (target, source row id))."""
+    by_1 = {r.seemannschaft_1_number: r.id for r in existing if r.seemannschaft_1_number is not None}
+    by_2 = {r.seemannschaft_2_number: r.id for r in existing if r.seemannschaft_2_number is not None}
+    # Exact matches first, so a partial match never takes a row that still
+    # exists unchanged.
+    claims = _exact_claims(existing, targets)
     exact = set(claims.values())
     copies: list[tuple[CatalogQuestion, int]] = []
     for q in targets:
@@ -451,10 +468,20 @@ def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion
             copies.append((q, row_id))
         else:
             claims[row_id] = q
+    return claims, copies
 
+
+def _delete_unclaimed(
+    connection: Connection, existing: Sequence[Row], claims: dict[int, CatalogQuestion]
+) -> None:
     unclaimed = [r.id for r in existing if r.id not in claims]
     if unclaimed:
         connection.execute(sa.delete(_questions).where(_questions.c.id.in_(unclaimed)))
+
+
+def _move_claimed(
+    connection: Connection, existing: Sequence[Row], claims: dict[int, CatalogQuestion]
+) -> None:
     moved = [
         r.id
         for r in existing
@@ -470,28 +497,31 @@ def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion
             sa.update(_questions).where(_questions.c.id == row_id).values(subject=q.subject, number=q.number)
         )
 
-    if copies:
-        # Reflected rather than frozen: a copy has to carry every column the
-        # table has at the migration's revision.
-        progress = sa.Table("question_progress", sa.MetaData(), autoload_with=connection)
-        carried = [c for c in progress.c if c.name not in ("id", "question_id")]
-        for q, source_id in copies:
-            new_id = connection.execute(
-                sa.insert(_questions)
-                .values(
-                    subject=q.subject,
-                    number=q.number,
-                    question_text=q.question_text,
-                    answer_text=q.answer_text,
-                )
-                .returning(_questions.c.id)
-            ).scalar_one()
-            connection.execute(
-                progress.insert().from_select(
-                    [c.name for c in carried] + ["question_id"],
-                    sa.select(*carried, sa.literal(new_id)).where(progress.c.question_id == source_id),
-                )
+
+def _copy_taken_rows(connection: Connection, copies: list[tuple[CatalogQuestion, int]]) -> None:
+    if not copies:
+        return
+    # Reflected rather than frozen: a copy has to carry every column the
+    # table has at the migration's revision.
+    progress = sa.Table("question_progress", sa.MetaData(), autoload_with=connection)
+    carried = [c for c in progress.c if c.name not in ("id", "question_id")]
+    for q, source_id in copies:
+        new_id = connection.execute(
+            sa.insert(_questions)
+            .values(
+                subject=q.subject,
+                number=q.number,
+                question_text=q.question_text,
+                answer_text=q.answer_text,
             )
+            .returning(_questions.c.id)
+        ).scalar_one()
+        connection.execute(
+            progress.insert().from_select(
+                [c.name for c in carried] + ["question_id"],
+                sa.select(*carried, sa.literal(new_id)).where(progress.c.question_id == source_id),
+            )
+        )
 
 
 def _image_columns_exist(connection: Connection) -> bool:
