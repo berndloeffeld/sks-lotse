@@ -49,6 +49,7 @@ function baseUser(overrides: Partial<{ exam_variant: string | null }> = {}) {
     last_name: null,
     gender: null,
     ai_grading_enabled: false,
+    ads_removed: false,
     ai_checks_remaining: 20,
     is_admin: false,
     ...overrides,

@@ -50,6 +50,7 @@ def _admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         last_name=user.last_name,
         gender=user.gender,
         ai_grading_enabled=user.ai_grading_enabled,
+        ads_removed=user.ads_removed,
         ai_checks_day=user.ai_checks_day,
         ai_checks_used=user.ai_checks_used,
         question_progress_count=question_progress_count,
@@ -73,9 +74,12 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
 
 @router.patch("/users/{user_id}", response_model=AdminUserRead)
 def update_user(user_id: int, payload: AdminUserUpdate, db: Session = Depends(get_db)) -> AdminUserRead:
-    """Unlock or revoke the AI answer check for an account (ADR-0031) — until payment exists."""
+    """Unlock/revoke the AI check (ADR-0031) and/or remove ads for an account — until payment exists."""
     user = _get_user_or_404(db, user_id)
-    user.ai_grading_enabled = payload.ai_grading_enabled
+    if payload.ai_grading_enabled is not None:
+        user.ai_grading_enabled = payload.ai_grading_enabled
+    if payload.ads_removed is not None:
+        user.ads_removed = payload.ads_removed
     db.commit()
     return _admin_user_read(user, _question_progress_count(db, user.id))
 

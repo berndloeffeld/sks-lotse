@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { adsEnabled, openConsentSettings } from '../ads'
+import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
@@ -8,6 +8,7 @@ import { FEEDBACK_MAILTO } from '../contact'
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
 export function LegalFooter() {
+  const showAds = useShowAds()
   return (
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
@@ -27,7 +28,7 @@ export function LegalFooter() {
           >
             Feedback
           </a>
-          {adsEnabled() && (
+          {showAds && (
             <button
               type="button"
               onClick={openConsentSettings}

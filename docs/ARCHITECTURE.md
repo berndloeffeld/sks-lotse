@@ -137,7 +137,7 @@ All of them except the integration tests are required status checks on `main`, a
 - Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which the operator sets on `/admin` for now.
 - Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
 - SSO login (Google/Facebook/X)
-- Entitlements: the "ads removed" flag on the account (the "AI grading unlocked" flag exists, see above) ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
+- Entitlements via payment: the "ads removed" (`users.ads_removed`) and "AI grading unlocked" flags exist and are set by the operator on `/admin`; the ad UI honours `ads_removed` via `useShowAds()`, the AdSense script in the `<head>` does not ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
 

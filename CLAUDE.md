@@ -109,7 +109,7 @@ sks-lotse/
 
 Freemium, with two independent paid add-ons (not bundled — a learner can buy either, both, or neither):
 
-- **Remove ads** (Google AdSense) — default (free) accounts see ads.
+- **Remove ads** (Google AdSense) — default (free) accounts see ads. Flag `users.ads_removed` (exposed on `UserRead`), set by the operator on `/admin` (`PATCH /admin/users/{id}`, same call and page as the AI check) until payment exists; the frontend hides ad elements via `useShowAds()` (`frontend/src/ads.ts`). The AdSense script itself stays in the HTML `<head>` for everyone ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
 - **Unlock AI-based grading** — default (free) accounts don't get LLM scoring; they write (or just read) the question and are shown the official model answer directly for self-assessment instead (see Core Flow).
 
 All four combinations are valid: ads+no AI grading, ads+AI grading, no ads+no AI grading, no ads+AI grading. Pricing model (one-time vs. subscription) and price points: TBD.

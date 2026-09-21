@@ -6449,7 +6449,7 @@
                   "var u = pm.response.json();",
                   "pm.test('finds the main test account with the documented shape', function () {",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ai_checks_day', 'ai_checks_used', 'question_progress_count');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ads_removed', 'ai_checks_day', 'ai_checks_used', 'question_progress_count');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});",
                   "pm.collectionVariables.set('testUserId', u.id);"
@@ -7027,6 +7027,115 @@
             "body": {
               "mode": "raw",
               "raw": "{\"ai_grading_enabled\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Remove ads for a user (leaves the AI check untouched)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('ads_removed is now true and ai_grading_enabled unchanged', function () { var u = pm.response.json(); pm.expect(u.ads_removed).to.eql(true); pm.expect(u.ai_grading_enabled).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{victimId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"ads_removed\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Update a user - empty body is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{victimId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
               "options": {
                 "raw": {
                   "language": "json"
