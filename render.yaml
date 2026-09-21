@@ -131,6 +131,18 @@ services:
       - key: VITE_ADSENSE_CLIENT_ID
         sync: false
     routes:
+      # Prerendered public pages (ADR-0025): each path serves its own
+      # prerendered file. Listed explicitly because Render doesn't map /faq
+      # to faq.html on its own. Must match PAGES in scripts/prerender.mjs.
+      - type: rewrite
+        source: /faq
+        destination: /faq.html
+      - type: rewrite
+        source: /imprint
+        destination: /imprint.html
+      - type: rewrite
+        source: /privacy
+        destination: /privacy.html
       # SPA fallback: routes like /login and /start have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the

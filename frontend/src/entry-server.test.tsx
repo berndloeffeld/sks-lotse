@@ -13,4 +13,15 @@ describe('entry-server render', () => {
     // Logged-out state: the sign-up form, not the "already logged in" link.
     expect(html).not.toContain('Du bist bereits angemeldet')
   })
+
+  it.each([
+    ['/faq', 'Häufige Fragen'],
+    ['/imprint', 'Angaben gemäß § 5 DDG'],
+    ['/privacy', 'Datenschutz'],
+  ])('prerenders %s as a public page with its heading', (path, heading) => {
+    const html = render(path)
+
+    expect(html).toContain(heading)
+    expect(html).not.toContain('Sicher durch die SKS-Theorie')
+  })
 })

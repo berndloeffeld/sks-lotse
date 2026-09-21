@@ -24,11 +24,13 @@ const app = (
   </StrictMode>
 )
 
-// dist/index.html carries the prerendered landing page (ADR-0025); every
-// other route is served the empty app.html shell. Only hydrate when the
-// markup actually belongs to this route — e.g. `vite preview` falls back to
-// index.html for /start too — otherwise start from a clean container.
-if (container.hasChildNodes() && window.location.pathname === '/') {
+// The public pages are prerendered (ADR-0025), each tagged with the path it
+// was rendered for; every other route is served the empty app.html shell. Only
+// hydrate when the markup actually belongs to this route — e.g. `vite preview`
+// falls back to index.html for /start too — otherwise start from a clean
+// container.
+const path = window.location.pathname.replace(/(.)\/$/, '$1')
+if (container.hasChildNodes() && container.dataset.prerendered === path) {
   hydrateRoot(container, app)
 } else {
   container.replaceChildren()

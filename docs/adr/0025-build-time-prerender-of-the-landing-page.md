@@ -27,7 +27,13 @@ Option 3.
 ## Consequences
 
 - Crawlers and link previews get the real heading, text and links of `/` without any runtime or new dependency.
-- Only `/` is prerendered. `/imprint` and `/privacy` could follow the same way (`dist/imprint/index.html`), but whether Render serves a directory index for them without the trailing slash is unverified, and they don't need to rank.
+- Only `/` was prerendered at first (see the update below for the other public pages).
 - Anything rendered on the landing page must now be SSR-safe: no `window`/`document` access during render, and no values that differ between build and first client render. A mismatch doesn't break the page. React logs it and client-renders from scratch, losing the benefit. One known case is the footer's `new Date().getFullYear()`, which mismatches from New Year until the next deploy.
 - Two builds per `npm run build`, a few hundred ms longer.
 - `vite dev` is unaffected: there is no prerendered markup, so it always takes the `createRoot` path. `npm run preview` serves the prerendered `index.html` for every route, and the path check in `main.tsx` handles that.
+
+## Update 2026-09-21: `/faq`, `/imprint` and `/privacy` prerendered too
+
+The FAQ is public content that should be findable, and the legal pages are public too, so `scripts/prerender.mjs` now writes `faq.html`, `imprint.html` and `privacy.html` next to `index.html`. Whether Render maps `/faq` to a file on its own stayed unverified, so `render.yaml` rewrites each of the three paths to its file explicitly, ahead of the `/app.html` fallback. The list of pages exists twice (`PAGES` in the script and the rewrites); adding a public page means touching both.
+
+Each prerendered root carries `data-prerendered="<path>"`, and `main.tsx` hydrates only when that equals the current path (trailing slash ignored). That replaces the old `pathname === '/'` check and keeps the `vite preview` case working: it serves `index.html` for every route, and the mismatch makes the client render from scratch.
