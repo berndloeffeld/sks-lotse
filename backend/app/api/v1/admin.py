@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core import ai_quota as ai_quota_core
 from app.core.database import get_db
 from app.core.jwt import require_admin
 from app.models.exam_attempt import ExamAttempt
@@ -20,12 +21,15 @@ from app.schemas.admin import (
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
     AdminQuestionReportRead,
+    AdminSettingsRead,
+    AdminSettingsUpdate,
     AdminUserExport,
     AdminUserRead,
     AdminUserSearchRequest,
     AdminUserUpdate,
 )
 from app.schemas.kpis import KpiReport
+from app.services import ai_quota as ai_quota_service
 from app.services.kpis import compute_kpis
 from app.services.user import delete_user_and_progress
 
@@ -51,8 +55,10 @@ def _admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         gender=user.gender,
         ai_grading_enabled=user.ai_grading_enabled,
         ads_removed=user.ads_removed,
-        ai_checks_day=user.ai_checks_day,
+        ai_checks_week=user.ai_checks_week,
         ai_checks_used=user.ai_checks_used,
+        ai_checks_weekly_limit=user.ai_checks_weekly_limit,
+        ai_checks_limit=user.ai_checks_limit,
         question_progress_count=question_progress_count,
     )
 
@@ -74,14 +80,28 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
 
 @router.patch("/users/{user_id}", response_model=AdminUserRead)
 def update_user(user_id: int, payload: AdminUserUpdate, db: Session = Depends(get_db)) -> AdminUserRead:
-    """Unlock/revoke the AI check (ADR-0031) and/or remove ads for an account — until payment exists."""
+    """Unlock/revoke the AI check (ADR-0031), remove ads, set the weekly check limit (null = default)."""
     user = _get_user_or_404(db, user_id)
     if payload.ai_grading_enabled is not None:
         user.ai_grading_enabled = payload.ai_grading_enabled
     if payload.ads_removed is not None:
         user.ads_removed = payload.ads_removed
+    if "ai_checks_weekly_limit" in payload.model_fields_set:
+        user.ai_checks_weekly_limit = payload.ai_checks_weekly_limit
     db.commit()
     return _admin_user_read(user, _question_progress_count(db, user.id))
+
+
+@router.get("/settings", response_model=AdminSettingsRead)
+def get_settings(db: Session = Depends(get_db)) -> AdminSettingsRead:
+    return AdminSettingsRead(ai_checks_weekly_default=ai_quota_core.weekly_default(db))
+
+
+@router.put("/settings", response_model=AdminSettingsRead)
+def update_settings(payload: AdminSettingsUpdate, db: Session = Depends(get_db)) -> AdminSettingsRead:
+    """Set the app-wide default weekly AI-check budget (accounts without their own override follow it)."""
+    ai_quota_service.set_weekly_default(db, payload.ai_checks_weekly_default)
+    return AdminSettingsRead(ai_checks_weekly_default=payload.ai_checks_weekly_default)
 
 
 @router.get("/kpis", response_model=KpiReport)

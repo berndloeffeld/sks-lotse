@@ -1,6 +1,6 @@
 # 0031. AI answer check with Claude Haiku
 
-Status: Accepted
+Status: Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable)
 
 ## Context
 

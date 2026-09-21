@@ -13,7 +13,7 @@ export interface User {
   is_admin: boolean
   ai_grading_enabled: boolean
   ads_removed: boolean
-  // Today's AI-check budget left (see backend/app/core/ai_quota.py).
+  // This week's AI-check budget left (see backend/app/core/ai_quota.py).
   ai_checks_remaining: number
 }
 
@@ -32,7 +32,7 @@ export function getDisplayName(user: Named & Pick<User, 'email'>): string {
 export interface AiGrade {
   outcome: GradingOutcome
   feedback: string
-  remaining_today: number
+  remaining_this_week: number
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.
@@ -59,7 +59,17 @@ export interface AdminUserSearchResult {
   gender: string | null
   ai_grading_enabled: boolean
   ads_removed: boolean
+  ai_checks_used: number
+  // The account's override of the weekly budget; null = the app-wide default.
+  ai_checks_weekly_limit: number | null
+  // What actually applies to the account this week.
+  ai_checks_limit: number
   question_progress_count: number
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminSettingsRead.
+export interface AdminSettings {
+  ai_checks_weekly_default: number
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminQuestionProgressExport.

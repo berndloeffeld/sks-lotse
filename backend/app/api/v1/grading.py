@@ -57,8 +57,8 @@ def ai_grade_answer(
         raise HTTPException(status_code=429, detail="Too many answer checks")
     reserved = ai_quota.reserve(db, current_user.id)
     if reserved is None:
-        raise HTTPException(status_code=429, detail="Daily limit for answer checks reached")
-    remaining_today, booked_on = reserved
+        raise HTTPException(status_code=429, detail="Weekly limit for answer checks reached")
+    remaining_this_week, booked_on = reserved
     try:
         result = grade_answer(question.question_text, question.answer_text, payload.answer)
     except GradingUnavailable as exc:
@@ -66,4 +66,6 @@ def ai_grade_answer(
         # Reason only — the learner's answer is never logged.
         logger.warning("AI answer check unavailable: %s", exc)
         raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc
-    return AiGradeRead(outcome=result.outcome, feedback=result.feedback, remaining_today=remaining_today)
+    return AiGradeRead(
+        outcome=result.outcome, feedback=result.feedback, remaining_this_week=remaining_this_week
+    )

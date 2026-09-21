@@ -1,4 +1,4 @@
-"""Reserving and refunding one AI check against the user's daily budget (ADR-0031)."""
+"""Reserving and refunding one AI check against the user's weekly budget (ADR-0036)."""
 
 from datetime import date
 
@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core import ai_quota
-from app.core.config import settings
+from app.models.app_setting import AppSetting
 from app.models.user import User
 
 
@@ -18,23 +18,33 @@ def _locked_user(db: Session, user_id: int) -> User:
 
 
 def reserve(db: Session, user_id: int) -> tuple[int, date] | None:
-    """Spend one check. Returns (checks left, the day it was booked on), or None if today's budget is gone."""
+    """Spend one check. Returns (checks left, the week it was booked on), or None if the budget is gone."""
     user = _locked_user(db, user_id)
-    day = ai_quota.today()
-    if user.ai_checks_day != day:
-        user.ai_checks_day = day
+    week = ai_quota.current_week()
+    if user.ai_checks_week != week:
+        user.ai_checks_week = week
         user.ai_checks_used = 0
-    if user.ai_checks_used >= settings.grading_max_per_day:
+    limit = user.ai_checks_limit
+    if user.ai_checks_used >= limit:
         db.commit()
         return None
     user.ai_checks_used += 1
     db.commit()
-    return settings.grading_max_per_day - user.ai_checks_used, day
+    return limit - user.ai_checks_used, week
 
 
-def refund(db: Session, user_id: int, day: date) -> None:
-    """Give a reserved check back (the LLM call failed) — only if it was booked on the current counter day."""
+def refund(db: Session, user_id: int, week: date) -> None:
+    """Give a reserved check back (the LLM call failed) — only if booked on the current counter week."""
     user = _locked_user(db, user_id)
-    if user.ai_checks_day == day and user.ai_checks_used > 0:
+    if user.ai_checks_week == week and user.ai_checks_used > 0:
         user.ai_checks_used -= 1
+    db.commit()
+
+
+def set_weekly_default(db: Session, value: int) -> None:
+    row = db.get(AppSetting, ai_quota.WEEKLY_DEFAULT_KEY)
+    if row is None:
+        db.add(AppSetting(key=ai_quota.WEEKLY_DEFAULT_KEY, value=str(value)))
+    else:
+        row.value = str(value)
     db.commit()

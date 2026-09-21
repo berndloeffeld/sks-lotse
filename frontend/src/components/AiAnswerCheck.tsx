@@ -56,11 +56,11 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
   const remaining = user?.ai_checks_remaining ?? 0
   const hasAnswer = answer.trim().length > 0
 
-  let hint = `Die KI schlägt dir eine Bewertung vor · noch ${remaining} heute`
+  let hint = `Die KI schlägt dir eine Bewertung vor · noch ${remaining} diese Woche`
   if (!isUnlocked) hint = 'bald verfügbar'
   else if (isChecking) hint = 'Lotse prüft…'
   else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
-  else if (remaining <= 0) hint = 'morgen wieder'
+  else if (remaining <= 0) hint = 'ab Montag wieder'
 
   const isDisabled = !isUnlocked || isChecking || !hasAnswer || remaining <= 0
 
@@ -70,7 +70,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
     try {
       const grade = await apiClient.post<AiGrade>(`/questions/${questionId}/ai-grade`, { answer })
       trackEvent('ai_check_used')
-      if (user) setUser({ ...user, ai_checks_remaining: grade.remaining_today })
+      if (user) setUser({ ...user, ai_checks_remaining: grade.remaining_this_week })
       setResult(grade)
       onSuggest(grade.outcome)
     } catch (e) {

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AdminPage } from './pages/AdminPage'
+import { AdminSettingsPage } from './pages/AdminSettingsPage'
 import { ExamPage } from './pages/ExamPage'
 import { ExamRunPage } from './pages/ExamRunPage'
 import { FaqPage } from './pages/FaqPage'
@@ -48,6 +49,7 @@ export function AppRoutes() {
           <Route path="/exam/:id" element={<ExamRunPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
         </Route>
         {/* Dev-only: throws on purpose to preview the ErrorBoundary's error
             page. import.meta.env.DEV is false in production builds, so this

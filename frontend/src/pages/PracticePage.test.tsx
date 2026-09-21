@@ -137,7 +137,9 @@ describe('PracticePage', () => {
         ai_checks_remaining: 20,
       },
     })
-    mockBackend({ aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.', remaining_today: 19 }) })
+    mockBackend({
+      aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.', remaining_this_week: 19 }),
+    })
     renderPracticePage()
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
@@ -165,7 +167,7 @@ describe('PracticePage', () => {
         ai_checks_remaining: 20,
       },
     })
-    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.', remaining_today: 19 }) })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.', remaining_this_week: 19 }) })
     renderPracticePage()
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
@@ -207,7 +209,7 @@ describe('PracticePage', () => {
     })
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_today: 19 }),
+      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_this_week: 19 }),
       grades: [jsonResponse({ question_id: 1, progress: 0.4, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0)

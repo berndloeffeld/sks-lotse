@@ -1,3 +1,4 @@
+from app.models.app_setting import AppSetting  # noqa: F401 — registers the model with Base.metadata
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
