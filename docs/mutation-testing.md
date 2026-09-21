@@ -16,7 +16,8 @@ so when you add logic, look at the survivor list the job prints, not just at pas
 mutants noisy (timing-dependent rate-limit tests), which the margin absorbs.
 
 **Keep `only_mutate` current** (`backend/pyproject.toml`): it is the whole scope, and a module missing from it is
-silently unchecked. Add new business-logic modules in the PR that introduces them (`CLAUDE.md` says so too).
+silently unchecked. Add new business-logic modules in the PR that introduces them; `backend/tests/test_mutation_scope.py`
+fails otherwise (it is ignored inside mutmut's own runs, since the handlers mode rewrites `only_mutate`).
 
 A failing job prints the surviving mutants. Work them like this: `./scripts/run_mutation_tests.sh show <name>`
 shows the change, then add the test that would fail on it — or, if the change has no observable effect, leave it.

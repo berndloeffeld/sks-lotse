@@ -178,10 +178,10 @@ Frontend enforces **90% lines / 85% branches** via Vitest's built-in coverage (`
 ### Mutation testing
 CI job `mutation-testing` (runs on every PR, **not** a required check — ~5 min): `./scripts/run_mutation_tests.sh gate` runs mutmut over the backend's business logic and fails below a minimum score (87% — a ratchet like the coverage gates: raise it, never lower it to get a PR through). Without `gate` the script just lists the survivors; `handlers` mutates the route handlers in a throw-away copy (mutmut skips decorated functions). Scope, reading survivors and why the frontend (Stryker) isn't set up yet: [docs/mutation-testing.md](docs/mutation-testing.md).
 
-**Keep the scope current.** What gets mutated is exactly `only_mutate` in `[tool.mutmut]` of `backend/pyproject.toml` — a module missing from it is silently unchecked. So in the same PR:
+**Keep the scope current.** What gets mutated is exactly `only_mutate` in `[tool.mutmut]` of `backend/pyproject.toml` — a module missing from it is silently unchecked. `backend/tests/test_mutation_scope.py` fails when a module in `app/core/`, `app/services/` or `app/api/v1/` is in neither `only_mutate` nor its `EXCLUDED` set (with reasons), or when an entry points at a file that's gone. So in the same PR:
 - a new backend module with business logic (`app/core/`, `app/services/`, or an `app/api/v1/` file with undecorated helpers) is **added** to `only_mutate`;
 - a renamed or deleted module is updated/removed there;
-- deliberately left out (don't add): `config.py`, `main.py`, `database.py`, `models/`, `schemas/`, `catalog_seed.py`, `scripts/`.
+- deliberately left out (don't add): `config.py`, `main.py`, `database.py`, `models/`, `schemas/`, `catalog_seed.py`, `scripts/` — the test's `EXCLUDED` set holds the ones in the scanned directories.
 
 Logic that lives inline in a route handler isn't covered by the normal run (decorated functions are skipped) — put anything sizeable into an undecorated helper, and check new handlers with `./scripts/run_mutation_tests.sh handlers`.
 
