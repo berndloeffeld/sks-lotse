@@ -132,8 +132,8 @@ def focus_session_questions(
 ) -> list[QuestionRead]:
     """The Fokus session: open questions of all Fokus topics, oldest correct answer first.
 
-    Never-correct questions come first, then by how long ago the last "Richtig" was,
-    regardless of topic. Questions that are gelernt are left out (ADR-0028, ADR-0034).
+    Never-answered questions come first, then never-correct ones, then by how long ago
+    the last "Richtig" was, regardless of topic. Questions that are gelernt are left out (ADR-0028, ADR-0034).
     """
     now = datetime.now(UTC)
     stmt = (
@@ -148,7 +148,10 @@ def focus_session_questions(
         # An outer-joined row without progress is not learned; NOT(NULL) alone would drop it.
         .where(or_(QuestionProgress.id.is_(None), ~learned_clause(now)))
         .order_by(
-            QuestionProgress.last_correct_at.is_not(None), QuestionProgress.last_correct_at, Question.id
+            QuestionProgress.id.is_not(None),
+            QuestionProgress.last_correct_at.is_not(None),
+            QuestionProgress.last_correct_at,
+            Question.id,
         )
     )
     if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
