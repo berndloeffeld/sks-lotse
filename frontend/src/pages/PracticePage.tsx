@@ -80,7 +80,7 @@ function usePracticeData(subject: string, topicSlug: string) {
 }
 
 // How long the boat gets to sail to its new position before the next question.
-const BOAT_SETTLE_MS = 1000
+const BOAT_SETTLE_MS = 1500
 
 // Nothing sails under reduced motion, so there is nothing to wait for.
 function letBoatSettle(ms = BOAT_SETTLE_MS): Promise<void> {
@@ -185,7 +185,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
           ? 'Gelernt.'
           : chosen === 'richtig'
             ? 'Richtig – ein Stück näher am Ziel.'
-            : 'Zurück zum Start – die Frage kommt wieder.',
+            : 'Zurückgefallen – die Frage kommt später wieder.',
       )
       await letBoatSettle(learnedNow ? CELEBRATION_MS : BOAT_SETTLE_MS)
       setCelebrating(null)
@@ -248,7 +248,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   }
 
   return (
-    <article className="flex flex-col gap-6">
+    <article className="flex flex-col gap-4">
       <p role="status" className="sr-only">
         {feedback}
       </p>
@@ -267,7 +267,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
         </div>
       </div>
 
-      <h2 className="font-serif text-xl whitespace-pre-line text-ink outline-none">
+      <h2 className="font-serif text-lg whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
       </h2>
       <QuestionImages images={question.question_images} part="question" />
@@ -298,15 +298,15 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
       ) : (
         <>
           {note.trim() ? (
-            <section className="flex flex-col gap-1 rounded-tile border-l-4 border-ink-soft bg-surface p-4">
+            <section className="flex flex-col gap-1 rounded-tile border-l-4 border-ink-soft bg-surface px-3 py-2">
               <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Deine Antwort</h3>
-              <p className="whitespace-pre-line text-ink">{note}</p>
+              <p className="text-sm whitespace-pre-line text-ink-soft">{note}</p>
             </section>
           ) : null}
-          <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt p-4">
+          <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
             {question.answer_text ? (
-              <p className="whitespace-pre-line text-ink">
+              <p className="text-sm whitespace-pre-line text-ink">
                 <RichText text={question.answer_text} />
               </p>
             ) : question.answer_images.length === 0 ? (
@@ -319,10 +319,15 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
             <QuestionImages images={question.answer_images} part="answer" />
           </section>
 
-          <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none" disabled={isSaving}>
-            <legend className="mb-2 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
+          <fieldset
+            ref={groupRef}
+            tabIndex={-1}
+            className="flex flex-wrap items-center gap-x-5 gap-y-1 outline-none"
+            disabled={isSaving}
+          >
+            <legend className="mb-1 text-sm text-ink-soft">Wie gut war deine Antwort?</legend>
             {OUTCOMES.map((o, i) => (
-              <label key={o} className="flex items-center gap-2 text-ink">
+              <label key={o} className="flex items-center gap-2 text-sm text-ink">
                 <input
                   ref={(el) => {
                     radioRefs.current[i] = el

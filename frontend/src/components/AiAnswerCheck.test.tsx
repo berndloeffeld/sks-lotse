@@ -84,7 +84,8 @@ describe('AiAnswerCheck', () => {
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(13)
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('noch 13 heute')
+    // The suggestion takes the button's place.
+    expect(screen.queryByRole('button', ROW)).not.toBeInTheDocument()
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toMatch(/\/api\/v1\/questions\/7\/ai-grade$/)
     expect(JSON.parse(String(init.body))).toEqual({ answer: 'links' })

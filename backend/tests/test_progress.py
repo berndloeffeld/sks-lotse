@@ -5,6 +5,7 @@ import pytest
 from app.core.jwt import create_access_token
 from app.core.progress import (
     MAX_HALF_LIFE_DAYS,
+    apply_grading,
     due_at,
     is_learned,
     next_half_life,
@@ -203,6 +204,16 @@ def test_progress_fraction_is_a_position_that_only_reaches_one_when_learned():
     assert progress_fraction(QuestionProgress(**progress_state(3, graded_days_ago=30)), now) == 0.95
 
 
+def test_progress_fraction_moves_on_a_richtig_after_a_setback():
+    # From the floor (0.25 days) a "Richtig" reaches at most 0.625 days — below the initial half-life,
+    # yet the boat must still sail.
+    now = datetime.now(UTC)
+    row = QuestionProgress(**progress_state(0))
+    before = progress_fraction(row, now)
+    apply_grading(row, "richtig", now + timedelta(days=1), is_new=False)
+    assert progress_fraction(row, now + timedelta(days=1)) > before
+
+
 def _question(db_session) -> Question:
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
@@ -334,7 +345,7 @@ def test_list_question_progress_returns_only_own_rows(client, db_session, auth_h
     response = client.get("/api/v1/progress/questions", headers=auth_headers)
     assert response.status_code == 200
     assert response.json() == [
-        {"question_id": questions[0].id, "progress": pytest.approx(0.4709, abs=0.001), "learned": False},
+        {"question_id": questions[0].id, "progress": pytest.approx(0.6910, abs=0.001), "learned": False},
         {"question_id": questions[2].id, "progress": 1.0, "learned": True},
     ]
 

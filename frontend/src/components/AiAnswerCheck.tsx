@@ -85,38 +85,43 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
       <span id={`ai-check-notice-${questionId}`} className="sr-only">
         {SEND_NOTICE}
       </span>
-      <button
-        ref={buttonRef}
-        type="button"
-        disabled={isDisabled}
-        title={isUnlocked ? SEND_NOTICE : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
-        aria-describedby={`ai-check-notice-${questionId}`}
-        onClick={check}
-        onKeyDown={onButtonKeyDown}
-        className="relative flex min-h-12 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-2 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
-      >
-        <CompassIcon className="size-6 shrink-0 text-accent" />
-        <span className="flex flex-col">
-          <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
-          <span className="text-xs text-ink-soft">{hint}</span>
-        </span>
-        <Ribbon />
-      </button>
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
       {result ? (
-        <section role="status" className="flex flex-col gap-1 rounded-tile border border-primary p-4">
-          <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">
+        <section
+          role="status"
+          className="flex flex-col gap-1 rounded-tile border-l-4 border-accent bg-surface px-3 py-2"
+        >
+          <h3 className="font-mono text-xs tracking-wide text-accent uppercase">
             Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
-          <p className="text-ink">{result.feedback}</p>
+          <p className="text-sm text-ink-soft">{result.feedback}</p>
           <p className="text-xs text-ink-soft">
             Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
           </p>
         </section>
+      ) : null}
+      {result ? null : (
+        <button
+          ref={buttonRef}
+          type="button"
+          disabled={isDisabled}
+          title={isUnlocked ? SEND_NOTICE : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
+          aria-describedby={`ai-check-notice-${questionId}`}
+          onClick={check}
+          onKeyDown={onButtonKeyDown}
+          className="relative flex min-h-10 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-1.5 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
+        >
+          <CompassIcon className="size-6 shrink-0 text-accent" />
+          <span className="flex flex-col">
+            <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
+            <span className="text-xs text-ink-soft">{hint}</span>
+          </span>
+          <Ribbon />
+        </button>
+      )}
+      {error ? (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
       ) : null}
     </div>
   )
