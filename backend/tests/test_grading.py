@@ -138,6 +138,21 @@ def test_budget_is_full_again_on_the_next_day(client, db_session, fake_grader, m
     assert _post(client, q.id, headers).status_code == 200
 
 
+def test_the_hourly_check_limit_is_per_user(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_window", 1)
+    questions = [
+        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in (1, 2, 3)
+    ]
+    db_session.add_all(questions)
+    db_session.commit()
+    anna = _headers(db_session, enabled=True, email="anna@example.com")
+    ben = _headers(db_session, enabled=True, email="ben@example.com")
+
+    assert _post(client, questions[0].id, anna).status_code == 200
+    assert _post(client, questions[1].id, anna).status_code == 429
+    assert _post(client, questions[2].id, ben).status_code == 200  # Anna's limit is not Ben's
+
+
 def test_per_question_cap_is_429_but_other_questions_still_work(client, db_session, fake_grader, monkeypatch):
     monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
     first = _question(db_session)
@@ -172,6 +187,15 @@ def test_refund_ignores_a_counter_that_moved_on(db_session):
     db_session.commit()
     ai_quota_service.refund(db_session, user.id, date(2020, 1, 2))
     assert user.ai_checks_used == 1
+
+
+def test_refund_never_goes_below_zero(db_session):
+    day = date(2020, 1, 1)
+    user = User(email="r0@example.com", ai_checks_day=day, ai_checks_used=0)
+    db_session.add(user)
+    db_session.commit()
+    ai_quota_service.refund(db_session, user.id, day)
+    assert user.ai_checks_used == 0
 
 
 def test_me_reports_the_remaining_budget(client, db_session, monkeypatch):
@@ -222,22 +246,35 @@ def test_service_builds_minimal_prompt(monkeypatch):
     ]
 
 
+def test_service_sends_the_system_prompt_and_asks_for_a_structured_reply(monkeypatch):
+    messages = _FakeMessages(_FakeResponse(GradeResult(outcome="falsch", feedback="Nein.")))
+    _patch_client(monkeypatch, messages)
+    grader.grade_answer("F", "M", "A")
+    assert messages.kwargs["system"] == grader.SYSTEM_PROMPT
+    assert messages.kwargs["output_format"] is GradeResult
+
+
 def test_service_without_key_is_unavailable(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "")
-    with pytest.raises(GradingUnavailable):
+    with pytest.raises(GradingUnavailable, match=r"^ANTHROPIC_GRADING_API_KEY is not configured$"):
         grader.grade_answer("F", "M", "A")
 
 
 def test_service_wraps_api_errors_and_empty_replies(monkeypatch):
     error = anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com"))
     _patch_client(monkeypatch, _FakeMessages(error=error))
-    with pytest.raises(GradingUnavailable):
+    # The reason (never the learner's answer) is what ends up in the log.
+    with pytest.raises(GradingUnavailable, match=r"^APIConnectionError$"):
         grader.grade_answer("F", "M", "A")
     _patch_client(monkeypatch, _FakeMessages(_FakeResponse(None)))
-    with pytest.raises(GradingUnavailable):
+    with pytest.raises(GradingUnavailable, match=r"^unparseable reply$"):
         grader.grade_answer("F", "M", "A")
 
 
-def test_client_factory_uses_configured_key(monkeypatch):
+def test_client_factory_uses_configured_key_timeout_and_a_single_retry(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
-    assert grader._client().api_key == "test-key"
+    monkeypatch.setattr(settings, "anthropic_grading_timeout_seconds", 7.5)
+    client = grader._client()
+    assert client.api_key == "test-key"
+    assert client.timeout == 7.5
+    assert client.max_retries == 1

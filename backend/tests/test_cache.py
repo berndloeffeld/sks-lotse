@@ -45,6 +45,10 @@ def test_invalidate_forces_refetch():
     assert cache.get_or_set(app, "k", 60, factory) == 2
 
 
+def test_invalidate_of_an_unknown_key_is_a_noop():
+    cache.invalidate(_app(), "never-set")
+
+
 def test_different_keys_are_independent():
     app = _app()
     assert cache.get_or_set(app, "a", 60, lambda: "A") == "A"

@@ -1,4 +1,8 @@
+import time
+from collections import deque
+
 from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 from starlette.testclient import TestClient
@@ -31,6 +35,16 @@ def test_exact_rule_overrides_default():
     assert client.get("/limited").status_code == 200
     assert client.get("/limited").status_code == 200
     assert client.get("/limited").status_code == 429
+
+
+def test_429_response_explains_itself():
+    app = _make_app(rules={"/limited": (1, 60)})
+    client = TestClient(app)
+
+    client.get("/limited")
+    response = client.get("/limited")
+    assert response.status_code == 429
+    assert response.json() == {"detail": "Too many requests"}
 
 
 def test_default_rule_applies_within_scope_prefix():
@@ -181,3 +195,48 @@ def test_sweep_keeps_route_level_keys_with_a_longer_window_than_the_middleware(m
 
     assert ("per-user", "42") in app.state.rate_limit_hits
     assert rate_limit.check_and_record(app, "per-user", "42", 1, 3600) is False
+
+
+def _request(client, headers=()):
+    scope = {"type": "http", "headers": [(k.encode(), v.encode()) for k, v in headers], "client": client}
+    return Request(scope)
+
+
+def test_client_ip_falls_back_to_the_socket_peer_then_to_unknown():
+    assert rate_limit._client_ip(_request(("203.0.113.5", 1234)), ()) == "203.0.113.5"
+    assert rate_limit._client_ip(_request(None), ()) == "unknown"
+    # A blank trusted header doesn't count as an address.
+    assert (
+        rate_limit._client_ip(_request(("203.0.113.5", 1), [("cf-connecting-ip", " ")]), _CF) == "203.0.113.5"
+    )
+
+
+def test_sweep_drops_only_keys_idle_beyond_their_own_window():
+    app = Starlette()
+    now = time.monotonic()
+    rate_limit.check_and_record(app, "short", "ip", 5, 10)  # window 10 s
+    rate_limit.check_and_record(app, "long", "ip", 5, 1000)  # window 1000 s
+    app.state.rate_limit_hits[("empty", "ip")] = deque()  # no hits left at all
+    hits = app.state.rate_limit_hits
+
+    rate_limit._sweep_idle(app, now + 50)
+
+    assert ("short", "ip") not in hits
+    assert ("short", "ip") not in app.state.rate_limit_windows  # the remembered window goes with it
+    assert ("empty", "ip") not in hits
+    assert ("long", "ip") in hits
+    assert ("long", "ip") in app.state.rate_limit_windows
+
+
+def test_sweep_treats_a_key_without_a_remembered_window_as_window_zero():
+    app = Starlette()
+    now = time.monotonic()
+    app.state.rate_limit_hits = {("orphan", "ip"): deque([now - 0.5])}
+
+    rate_limit._sweep_idle(app, now)
+
+    assert app.state.rate_limit_hits == {}
+
+
+def test_sweep_without_any_store_is_a_noop():
+    rate_limit._sweep_idle(Starlette(), time.monotonic())

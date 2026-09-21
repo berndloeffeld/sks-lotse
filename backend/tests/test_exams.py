@@ -1,7 +1,7 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 
 from app.core.config import settings
-from app.core.exam import QUESTIONS_PER_GROUP, result_for
+from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, as_utc, result_for
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -399,3 +399,103 @@ def test_stats_ignore_exams_that_are_not_fully_graded(client, db_session, auth_h
     assert stats["completed_count"] == 1
     assert stats["best_points"] == 60
     assert [g["points"] for g in stats["group_scores"]] == [18, 14, 10, 18]
+
+
+def test_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
+    # SQLite (tests) hands back naive datetimes, Postgres (production) aware ones.
+    assert as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    plus_two = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
+    assert as_utc(plus_two) is plus_two
+    assert as_utc(plus_two) == datetime(2026, 1, 1, 10, 0, tzinfo=UTC)
+
+
+def test_exam_view_shows_each_question_with_its_catalog_source_and_grading(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    first = exam["questions"][0]
+    assert first["subject"] == "navigation" and first["number"] >= 1
+    assert first["question_text"] == f"Frage navigation {first['number']}"
+    assert first["outcome"] is None and first["points"] is None
+
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
+    body = client.get(f"/api/v1/exams/{exam['id']}", headers=auth_headers).json()
+
+    assert all(q["outcome"] == "richtig" and q["points"] == 2 for q in body["questions"])
+    assert all(q["official_answer"] for q in body["questions"])
+    # 9 / 7 / 5 / 9 questions per subject group at 2 points each, all of them earned.
+    assert {g["subject_group"]: (g["points"], g["max_points"]) for g in body["group_scores"]} == {
+        "navigation": (18, 18),
+        "schifffahrtsrecht": (14, 14),
+        "wetterkunde": (10, 10),
+        "seemannschaft": (18, 18),
+    }
+
+
+def test_only_my_own_unsubmitted_exam_blocks_starting_another(client, db_session, auth_headers):
+    me = _seed(db_session)
+    other = User(email="other@example.com", exam_variant="motor")
+    db_session.add(other)
+    db_session.commit()
+    now = datetime.now(UTC)
+    running = {"exam_variant": "motor", "started_at": now, "deadline_at": now + timedelta(minutes=90)}
+    db_session.add_all(
+        [
+            ExamAttempt(user_id=other.id, **running),  # someone else's, still running
+            ExamAttempt(user_id=me.id, submitted_at=now, **running),  # mine, but already submitted
+        ]
+    )
+    db_session.commit()
+
+    assert client.post("/api/v1/exams", headers=auth_headers).status_code == 201
+
+
+def _graded_attempt(db_session, user, days_ago: int, richtig: int, teilweise: int = 0) -> None:
+    """A graded exam: `richtig` right answers (2 points each), `teilweise` partial (1), the rest wrong."""
+    started = datetime.now(UTC) - timedelta(days=days_ago)
+    attempt = ExamAttempt(
+        user_id=user.id,
+        exam_variant="motor",
+        started_at=started,
+        deadline_at=started + timedelta(minutes=90),
+        submitted_at=started + timedelta(minutes=60),
+        graded_at=started + timedelta(minutes=70),
+    )
+    db_session.add(attempt)
+    db_session.flush()
+    groups = [g for g in SUBJECT_GROUPS for _ in range(QUESTIONS_PER_GROUP[g])]
+    outcomes = ["richtig"] * richtig + ["teilweise_richtig"] * teilweise
+    outcomes += ["falsch"] * (len(groups) - len(outcomes))
+    db_session.add_all(
+        ExamAttemptQuestion(attempt_id=attempt.id, position=i, subject_group=g, outcome=o)
+        for i, (g, o) in enumerate(zip(groups, outcomes, strict=True), start=1)
+    )
+
+
+def test_stats_over_many_exams_count_passes_round_the_average_and_keep_the_last_ten(
+    client, db_session, auth_headers
+):
+    empty = client.get("/api/v1/exams/stats", headers=auth_headers).json()
+    assert [(g["points"], g["max_points"]) for g in empty["group_scores"]] == [(0, 0)] * 4
+
+    user = _seed(db_session)
+    # Oldest first, in points: 60, 0, 60, 0, 60, 0, 60, 0, 59, 0, 0, 2 — five passes, seven not.
+    shapes = [(30, 0), (0, 0)] * 4 + [(29, 1), (0, 0), (0, 0), (0, 2)]
+    for index, (richtig, teilweise) in enumerate(shapes):
+        _graded_attempt(db_session, user, days_ago=len(shapes) - index, richtig=richtig, teilweise=teilweise)
+    db_session.commit()
+
+    stats = client.get("/api/v1/exams/stats", headers=auth_headers).json()
+
+    assert stats["completed_count"] == 12
+    assert stats["passed_count"] == 5
+    assert stats["average_points"] == 25.1  # 301 / 12 = 25.083...
+    assert stats["best_points"] == 60
+    assert [p["points"] for p in stats["recent"]] == [60, 0, 60, 0, 60, 0, 59, 0, 0, 2]
+    assert [p["result"] for p in stats["recent"]][:2] == ["bestanden", "nicht_bestanden"]
+    groups = {g["subject_group"]: (g["points"], g["max_points"]) for g in stats["group_scores"]}
+    # Four full exams, one full except its last (seemannschaft) answer, one with two partial answers up front.
+    assert groups["navigation"] == (5 * 18 + 2, 12 * 18)
+    assert groups["schifffahrtsrecht"] == (5 * 14, 12 * 14)
+    assert groups["wetterkunde"] == (5 * 10, 12 * 10)
+    assert groups["seemannschaft"] == (4 * 18 + 17, 12 * 18)

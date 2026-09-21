@@ -1,5 +1,7 @@
 [tool.pytest.ini_options]
 addopts = "--cov=app --cov-branch --cov-report=term-missing --cov-fail-under=95"
+# mutmut's working copy (a full copy of app/ and tests/) must not be collected.
+norecursedirs = ["mutants"]
 
 [tool.coverage.run]
 source = ["app"]
@@ -21,6 +23,46 @@ max-branches = 10
 [tool.ruff.lint.per-file-ignores]
 # Asserts are what tests are made of; the full-width digits and dummy tokens are test data.
 "tests/**" = ["S101", "S105", "RUF001"]
+
+# Mutation testing (required CI check `mutation-testing`, `./scripts/run_mutation_tests.sh gate`); see docs/mutation-testing.md.
+# (mutmut copies only source_paths into mutants/, hence all of app/ there and the scope in only_mutate.)
+# Scoped to the pure business-logic modules, where a surviving mutant means a real gap in the
+# tests; wiring, config and the catalog importer would only produce noise and hours of runtime.
+[tool.mutmut]
+only_mutate = [
+    "app/core/progress.py",
+    "app/core/exam.py",
+    "app/core/exam_variant.py",
+    "app/core/email_address.py",
+    "app/core/cache.py",
+    "app/core/rate_limit.py",
+    "app/core/otp.py",
+    "app/core/jwt.py",
+    "app/core/security_headers.py",
+    "app/core/canonical_domain.py",
+    "app/core/ai_quota.py",
+    "app/services/ai_quota.py",
+    "app/services/focus.py",
+    "app/services/user.py",
+    "app/services/grader.py",
+    "app/services/kpis.py",
+    "app/services/email.py",
+    "app/api/v1/exams.py",
+    "app/api/v1/progress.py",
+    "app/api/v1/auth.py",
+    "app/api/v1/questions.py",
+    "app/api/v1/admin.py",
+    "app/api/v1/grading.py",
+]
+source_paths = ["app"]
+also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]
+pytest_add_cli_args_test_selection = ["tests/"]
+# addopts= drops the coverage gate in [tool.pytest.ini_options], which would fail every partial run;
+# the Postman-collection and catalog-PDF tests read files outside backend/, which mutants/ doesn't have,
+# and the scope test reads only_mutate (which the handlers mode rewrites); none of them covers a mutated module.
+pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tests/test_integration_collection.py",
+    "--ignore=tests/test_catalog_seed.py",
+    "--ignore=tests/test_mutation_scope.py"]
 
 [tool.mypy]
 python_version = "3.12"

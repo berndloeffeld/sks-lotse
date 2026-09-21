@@ -1,6 +1,9 @@
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from app.core.config import settings
+from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -211,3 +214,85 @@ def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, 
         "/api/v1/admin/users/999999", json={"ai_grading_enabled": True}, headers=auth_headers
     )
     assert response.status_code == 404
+
+
+def test_admin_search_counts_only_that_users_progress(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    me = db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
+    other = User(email="other@example.com")
+    db_session.add(other)
+    questions = [Question(subject="navigation", number=n, question_text="Q", answer_text="A") for n in (1, 2)]
+    db_session.add_all(questions)
+    db_session.commit()
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=me.id, question_id=questions[0].id, **progress_state(1)),
+            QuestionProgress(user_id=me.id, question_id=questions[1].id, **progress_state(1)),
+            QuestionProgress(user_id=other.id, question_id=questions[0].id, **progress_state(1)),
+        ]
+    )
+    db_session.commit()
+
+    response = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+
+    assert response.json()["question_progress_count"] == 2
+
+
+def test_admin_export_contains_every_stored_exam_and_progress_field(
+    client, db_session, auth_headers, monkeypatch
+):
+    # Art. 15/20 DSGVO: an export that silently drops a stored field is an incomplete disclosure.
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    question = Question(subject="wetterkunde", number=7, question_text="Q?", answer_text="A")
+    db_session.add(question)
+    db_session.commit()
+    started = datetime(2026, 3, 1, 10, 0, tzinfo=UTC)
+    attempt = ExamAttempt(
+        user_id=user.id,
+        exam_variant="motor",
+        started_at=started,
+        deadline_at=started + timedelta(minutes=90),
+        submitted_at=started + timedelta(minutes=95),
+        graded_at=started + timedelta(minutes=99),
+        timed_out=True,
+    )
+    db_session.add(attempt)
+    db_session.flush()
+    db_session.add_all(
+        [
+            ExamAttemptQuestion(
+                attempt_id=attempt.id,
+                question_id=question.id,
+                position=1,
+                subject_group="wetterkunde",
+                answer_text="Mein Text",
+                outcome="teilweise_richtig",
+            ),
+            # A question that has since left the catalog: kept, but without subject/number.
+            ExamAttemptQuestion(attempt_id=attempt.id, position=2, subject_group="navigation"),
+        ]
+    )
+    correct_at = datetime(2026, 3, 2, 9, 0, tzinfo=UTC)
+    db_session.add(
+        QuestionProgress(
+            user_id=user.id, question_id=question.id, last_correct_at=correct_at, **progress_state(2)
+        )
+    )
+    db_session.commit()
+
+    body = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers).json()
+
+    [exam] = body["exam_attempts"]
+    assert exam["exam_id"] == attempt.id
+    assert exam["exam_variant"] == "motor"
+    assert exam["timed_out"] is True
+    assert exam["started_at"].startswith("2026-03-01T10:00")
+    assert exam["deadline_at"].startswith("2026-03-01T11:30")
+    assert exam["submitted_at"].startswith("2026-03-01T11:35")
+    assert exam["graded_at"].startswith("2026-03-01T11:39")
+    known, gone = exam["questions"]
+    assert (known["subject"], known["question_number"]) == ("wetterkunde", 7)
+    assert (known["answer_text"], known["outcome"]) == ("Mein Text", "teilweise_richtig")
+    assert (gone["subject"], gone["question_number"], gone["outcome"]) == (None, None, None)
+    assert body["question_progress"][0]["last_correct_at"].startswith("2026-03-02T09:00")

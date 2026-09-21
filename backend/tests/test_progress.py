@@ -1,13 +1,18 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from sqlalchemy import func, select
 
 from app.core.jwt import create_access_token
 from app.core.progress import (
+    INITIAL_HALF_LIFE_DAYS,
+    LEARNED_HALF_LIFE_DAYS,
     MAX_HALF_LIFE_DAYS,
     apply_grading,
     due_at,
     is_learned,
+    learned_clause,
+    learning_clause,
     next_half_life,
     progress_fraction,
     recall_probability,
@@ -193,6 +198,60 @@ def test_is_learned_accepts_naive_timestamps_from_sqlite():
     row = QuestionProgress(**progress_state(3))
     row.review_due_at = row.review_due_at.replace(tzinfo=None)
     assert is_learned(row, datetime.now(UTC))
+
+
+def _count_where(db_session, clause) -> int:
+    return db_session.execute(select(func.count()).select_from(QuestionProgress).where(clause)).scalar_one()
+
+
+def test_sql_clauses_agree_with_is_learned_incl_decayed_questions(db_session):
+    # learned_clause is the SQL twin of is_learned(): a question with a long half-life whose recall
+    # has decayed below the threshold (due date passed) must NOT count as gelernt, but as "learning".
+    user = User(email="clauses@example.com")
+    db_session.add(user)
+    questions = [
+        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in range(1, 5)
+    ]
+    db_session.add_all(questions)
+    db_session.commit()
+    states = [
+        progress_state(3),  # gelernt
+        progress_state(3, graded_days_ago=30),  # long half-life, but decayed
+        progress_state(2),  # on the way
+        progress_state(0),  # just failed
+    ]
+    for question, state in zip(questions, states, strict=True):
+        db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **state))
+    db_session.commit()
+
+    now = datetime.now(UTC)
+    assert _count_where(db_session, learned_clause(now)) == 1
+    assert _count_where(db_session, learning_clause(now)) == 2  # decayed + on the way, not the failed one
+
+
+def test_gelernt_starts_exactly_at_the_learned_half_life(db_session):
+    # "Gelernt" is half-life >= 7 days, so exactly 7.0 counts; exactly the initial half-life
+    # (never answered right) is not yet "learning" — in Python and in its SQL twin alike.
+    user = User(email="boundary@example.com")
+    db_session.add(user)
+    questions = [
+        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in (1, 2)
+    ]
+    db_session.add_all(questions)
+    db_session.commit()
+    now = datetime.now(UTC)
+    at_learned = {"half_life_days": LEARNED_HALF_LIFE_DAYS, "last_graded_at": now}
+    at_initial = {"half_life_days": INITIAL_HALF_LIFE_DAYS, "last_graded_at": now}
+    rows = [
+        QuestionProgress(user_id=user.id, question_id=q.id, review_due_at=now + timedelta(days=1), **state)
+        for q, state in zip(questions, (at_learned, at_initial), strict=True)
+    ]
+    db_session.add_all(rows)
+    db_session.commit()
+
+    assert is_learned(rows[0], now)
+    assert _count_where(db_session, learned_clause(now)) == 1
+    assert _count_where(db_session, learning_clause(now)) == 0
 
 
 def test_progress_fraction_is_a_position_that_only_reaches_one_when_learned():
@@ -394,3 +453,43 @@ def test_grade_question_409_when_the_racing_row_vanished(client, db_session, aut
     )
 
     assert response.status_code == 409
+
+
+def test_grading_only_touches_the_callers_own_progress_row(client, db_session, auth_headers):
+    question = _question(db_session)
+    me = _fixture_user(db_session)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    theirs = QuestionProgress(user_id=other.id, question_id=question.id, **progress_state(2))
+    db_session.add(theirs)
+    db_session.commit()
+    before = (theirs.half_life_days, theirs.last_graded_at)
+
+    response = client.post(
+        f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    db_session.refresh(theirs)
+    assert (theirs.half_life_days, theirs.last_graded_at) == before
+    assert db_session.query(QuestionProgress).filter_by(user_id=me.id).count() == 1
+
+
+def test_focus_topic_lookup_needs_both_subject_and_slug(client, db_session, auth_headers):
+    db_session.add(Topic(subject="navigation", slug="nav", name="Navigation", display_order=1))
+    db_session.commit()
+
+    response = client.put("/api/v1/progress/focus/wetterkunde/nav", headers=auth_headers)
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Topic not found"}
+
+
+def test_summary_lists_a_topic_without_questions_as_empty(client, db_session, auth_headers):
+    db_session.add(Topic(subject="navigation", slug="leer", name="Leer", display_order=1))
+    db_session.commit()
+
+    [row] = client.get("/api/v1/progress/summary", headers=auth_headers).json()
+
+    assert (row["total_questions"], row["learned_questions"], row["learning_questions"]) == (0, 0, 0)

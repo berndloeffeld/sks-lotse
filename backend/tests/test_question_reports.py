@@ -1,4 +1,5 @@
 from app.core.config import settings
+from app.core.jwt import create_access_token
 from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.user import User
@@ -71,6 +72,20 @@ def test_report_is_capped_per_user(client, db_session, auth_headers, monkeypatch
     assert client.post(url, json={"category": "typo"}, headers=auth_headers).status_code == 201
     assert client.post(url, json={"category": "typo"}, headers=auth_headers).status_code == 201
     assert client.post(url, json={"category": "typo"}, headers=auth_headers).status_code == 429
+
+
+def test_the_report_cap_is_per_user(client, db_session, auth_headers, monkeypatch):
+    monkeypatch.setattr(settings, "question_report_max_per_window", 1)
+    question = _question(db_session)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    other_headers = {"Authorization": f"Bearer {create_access_token(other.id, other.token_version)}"}
+    url = f"/api/v1/questions/{question.id}/report"
+
+    assert client.post(url, json={"category": "typo"}, headers=auth_headers).status_code == 201
+    assert client.post(url, json={"category": "typo"}, headers=auth_headers).status_code == 429
+    assert client.post(url, json={"category": "typo"}, headers=other_headers).status_code == 201
 
 
 def test_admin_lists_and_exports_reports(client, db_session, auth_headers, monkeypatch):

@@ -886,3 +886,78 @@ def test_email_change_code_is_bound_to_the_requesting_account(client, db_session
     )
     assert response.status_code == 200
     assert db_session.query(OtpCode).filter_by(email="new@example.com").one().attempts == 0
+
+
+def test_generated_otp_codes_are_all_digits_of_the_configured_length():
+    from app.core.config import settings
+    from app.core.otp import generate_code
+
+    codes = [generate_code() for _ in range(300)]
+    assert all(code.isdigit() and len(code) == settings.otp_length for code in codes)
+
+
+def test_a_login_code_works_only_once(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    payload = {"email": "learner@example.com", "code": code}
+
+    assert client.post("/api/v1/auth/otp/verify", json=payload).status_code == 200
+    assert client.post("/api/v1/auth/otp/verify", json=payload).status_code == 401
+
+
+def test_each_wrong_guess_counts_exactly_once_against_the_attempt_limit(client, db_session, monkeypatch):
+    monkeypatch.setattr(settings, "otp_max_attempts", 3)
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    wrong = "000000" if code != "000000" else "111111"
+
+    for _ in range(2):
+        assert (
+            client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": wrong})
+        ).status_code == 401
+    # Two of three attempts are used: the right code still works.
+    right = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+    assert right.status_code == 200
+
+
+def test_the_resend_cooldown_is_per_address(client, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    for email in ("first@example.com", "second@example.com"):
+        assert client.post("/api/v1/auth/otp/request", json={"email": email}).status_code == 202
+    assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
+
+
+def test_auth_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
+    from datetime import UTC, datetime, timedelta, timezone
+
+    from app.api.v1.auth import _as_utc
+
+    assert _as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    aware = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
+    assert _as_utc(aware) is aware
+
+
+def test_the_email_change_cap_is_per_user(client, db_session, monkeypatch, auth_headers):
+    monkeypatch.setattr(settings, "email_change_max_requests_per_window", 1)
+    _capture_email_change_otp(monkeypatch)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    other_headers = {"Authorization": f"Bearer {create_access_token(other.id, other.token_version)}"}
+
+    def request_change(headers, address):
+        return client.post("/api/v1/auth/me/email/request", json={"new_email": address}, headers=headers)
+
+    assert request_change(auth_headers, "one@example.com").status_code == 202
+    assert request_change(auth_headers, "two@example.com").status_code == 429
+    assert request_change(other_headers, "three@example.com").status_code == 202
+
+
+def test_the_hourly_code_quota_is_per_address(client, monkeypatch):
+    monkeypatch.setattr(settings, "otp_max_requests_per_window", 1)
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
+    sent = _capture_otp(monkeypatch)
+
+    for email in ("first@example.com", "second@example.com", "first@example.com"):
+        assert client.post("/api/v1/auth/otp/request", json={"email": email}).status_code == 202
+
+    # The third request is silently dropped: first@ already used its one code this hour.
+    assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
