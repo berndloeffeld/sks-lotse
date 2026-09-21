@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from app.schemas.auth import NormalizedEmail
 
@@ -10,7 +10,14 @@ class AdminUserSearchRequest(BaseModel):
 
 
 class AdminUserUpdate(BaseModel):
-    ai_grading_enabled: bool
+    ai_grading_enabled: bool | None = None
+    ads_removed: bool | None = None
+
+    @model_validator(mode="after")
+    def _require_a_field(self) -> "AdminUserUpdate":
+        if self.ai_grading_enabled is None and self.ads_removed is None:
+            raise ValueError("at least one of ai_grading_enabled, ads_removed is required")
+        return self
 
 
 class AdminUserRead(BaseModel):
@@ -26,6 +33,7 @@ class AdminUserRead(BaseModel):
     last_name: str | None
     gender: str | None
     ai_grading_enabled: bool
+    ads_removed: bool
     ai_checks_day: date | None
     ai_checks_used: int
     question_progress_count: int

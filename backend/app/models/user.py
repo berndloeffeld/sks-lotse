@@ -35,6 +35,9 @@ class User(Base):
     ai_grading_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default=false()
     )
+    # Entitlement "ads removed" — flipped by hand until payment exists. Hides the UI's ad elements; the
+    # AdSense script in the frontend's <head> stays (ADR-0027).
+    ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     # Today's AI-check budget (app/core/ai_quota.py): `ai_checks_used` counts on `ai_checks_day` only;
     # on any other day the budget is full again.
     ai_checks_day: Mapped[date | None] = mapped_column(Date, nullable=True)

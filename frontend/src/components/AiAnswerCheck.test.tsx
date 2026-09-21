@@ -16,6 +16,7 @@ const user: User = {
   gender: null,
   is_admin: false,
   ai_grading_enabled: true,
+  ads_removed: false,
   ai_checks_remaining: 14,
 }
 

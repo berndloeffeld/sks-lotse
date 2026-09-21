@@ -30,6 +30,7 @@ const foundUser = {
   last_name: 'Beispiel',
   gender: 'weiblich',
   ai_grading_enabled: false,
+  ads_removed: false,
   question_progress_count: 3,
 }
 
@@ -44,6 +45,7 @@ function setAdminSession() {
       last_name: null,
       gender: null,
       ai_grading_enabled: false,
+      ads_removed: false,
       ai_checks_remaining: 20,
       is_admin: true,
     },
@@ -69,6 +71,7 @@ describe('AdminPage', () => {
         last_name: null,
         gender: null,
         ai_grading_enabled: false,
+        ads_removed: false,
         ai_checks_remaining: 20,
         is_admin: false,
       },
@@ -209,6 +212,54 @@ describe('AdminPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'KI-Prüfung entziehen' }))
     expect(await screen.findByText('Nicht freigeschaltet')).toBeInTheDocument()
+  })
+
+  it('removes and restores ads for the found user', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH') {
+          return jsonResponse({ ...foundUser, ...JSON.parse(String(init.body)) })
+        }
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    await screen.findByText('Aktiv')
+
+    await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
+    expect(await screen.findByText('Entfernt')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Werbung wieder aktivieren' }))
+    expect(await screen.findByText('Aktiv')).toBeInTheDocument()
+  })
+
+  it('shows an error when changing the ads setting fails', async () => {
+    const user = userEvent.setup()
+    setAdminSession()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/admin/users/search')) return jsonResponse(foundUser)
+        if (init?.method === 'PATCH') return new Response(null, { status: 500 })
+        throw new Error(`unexpected fetch to ${url}`)
+      }),
+    )
+
+    renderAdminPage()
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    await user.click(await screen.findByRole('button', { name: 'Werbung entfernen' }))
+
+    expect(await screen.findByText('Die Werbung konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
   it('shows an error when changing the AI check fails', async () => {

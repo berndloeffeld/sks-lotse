@@ -172,6 +172,33 @@ def test_admin_can_toggle_ai_grading(client, db_session, auth_headers, monkeypat
     assert response.json()["ai_grading_enabled"] is False
 
 
+def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    assert user.ads_removed is False
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}", json={"ads_removed": True}, headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json()["ads_removed"] is True
+    assert response.json()["ai_grading_enabled"] is False
+    db_session.refresh(user)
+    assert user.ads_removed is True
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": True}, headers=auth_headers
+    )
+    assert response.json()["ads_removed"] is True
+    assert response.json()["ai_grading_enabled"] is True
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}", json={"ads_removed": False}, headers=auth_headers
+    )
+    assert response.json()["ads_removed"] is False
+    assert response.json()["ai_grading_enabled"] is True
+
+
 def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     user = _fixture_user(db_session)

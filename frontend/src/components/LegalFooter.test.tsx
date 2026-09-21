@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
+import { useAuthStore } from '../store/authStore'
 import { LegalFooter } from './LegalFooter'
 
 describe('LegalFooter', () => {
@@ -45,9 +46,38 @@ describe('LegalFooter', () => {
     afterEach(() => {
       delete window.googlefc
       vi.unstubAllEnvs()
+      useAuthStore.setState({ user: null, isAuthenticated: false })
     })
 
     it('is hidden while ads are not configured', () => {
+      render(
+        <MemoryRouter>
+          <LegalFooter />
+        </MemoryRouter>,
+      )
+
+      expect(screen.queryByRole('button', { name: 'Cookie-Einstellungen' })).not.toBeInTheDocument()
+    })
+
+    it('is hidden for an account with ads removed', () => {
+      vi.stubEnv('VITE_ADSENSE_CLIENT_ID', 'ca-pub-123')
+      useAuthStore.setState({
+        user: {
+          id: 1,
+          email: 'a@example.com',
+          created_at: '2026-01-01T00:00:00Z',
+          exam_variant: null,
+          first_name: null,
+          last_name: null,
+          gender: null,
+          is_admin: false,
+          ai_grading_enabled: false,
+          ads_removed: true,
+          ai_checks_remaining: 20,
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      })
       render(
         <MemoryRouter>
           <LegalFooter />

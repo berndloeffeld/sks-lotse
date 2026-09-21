@@ -1,3 +1,5 @@
+import { useAuthStore } from './store/authStore'
+
 interface GoogleFundingChoices {
   callbackQueue?: unknown[]
   showRevocationMessage?: () => void
@@ -16,6 +18,14 @@ declare global {
 // withholds personalised ads until the visitor has chosen.
 export function adsEnabled() {
   return Boolean(import.meta.env.VITE_ADSENSE_CLIENT_ID)
+}
+
+// Whether this visitor should see ads: configured, and not an account with ads
+// removed (the operator flips users.ads_removed on /admin). Every ad element
+// goes through this.
+export function useShowAds() {
+  const adsRemoved = useAuthStore((state) => state.user?.ads_removed ?? false)
+  return adsEnabled() && !adsRemoved
 }
 
 // Re-opens Google's consent dialog so a visitor can change or withdraw their

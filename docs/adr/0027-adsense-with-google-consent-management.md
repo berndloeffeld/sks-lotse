@@ -32,3 +32,7 @@ The Datenschutzerklärung gains an AdSense section (consent-based, TCF, revocabl
 ## Addendum (2026-09-20): Content-Security-Policy
 
 The frontend now sends an enforced CSP with the directives that can't break an integration (`frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`) plus a full allowlist (`script-src`, `connect-src`, `img-src`, `frame-src`, ...) as `Content-Security-Policy-Report-Only`. Google's ad stack loads from many hosts that vary with the ads served, so an enforced allowlist written from documentation alone could silently break ads or the consent dialog; report-only makes the gaps visible in the browser console first. Follow-up, once the live console is clean: move the allowlist into the enforced header. `style-src` keeps `'unsafe-inline'` because the prerendered landing page contains `style=""` attributes.
+
+## Addendum (2026-09-21): `users.ads_removed`
+
+The ad-free entitlement now exists as a flag, set by the operator on `/admin` like the AI check. It only hides the UI's ad elements (`useShowAds()` in `frontend/src/ads.ts`: the "Cookie-Einstellungen" button and any future ad unit). The static script in the `<head>` is unchanged, so ad-free accounts still load Google's script and may see the consent message — the runtime-loading change described above stays open until there are ad units worth suppressing.

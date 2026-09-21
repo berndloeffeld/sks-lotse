@@ -133,6 +133,7 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ads_removed: false,
         ai_checks_remaining: 20,
       },
     })
@@ -160,6 +161,7 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ads_removed: false,
         ai_checks_remaining: 20,
       },
     })
@@ -199,6 +201,7 @@ describe('PracticePage', () => {
         gender: null,
         is_admin: false,
         ai_grading_enabled: true,
+        ads_removed: false,
         ai_checks_remaining: 20,
       },
     })

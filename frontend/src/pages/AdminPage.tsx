@@ -30,8 +30,8 @@ export function AdminPage() {
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
-  const [isTogglingAi, setIsTogglingAi] = useState(false)
-  const [aiError, setAiError] = useState<string | null>(null)
+  const [isToggling, setIsToggling] = useState(false)
+  const [toggleError, setToggleError] = useState<string | null>(null)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
@@ -52,7 +52,7 @@ export function AdminPage() {
     setDeleteConfirmEmail('')
     setDeleteError(null)
     setExportError(null)
-    setAiError(null)
+    setToggleError(null)
   }
 
   async function handleSearch(event: FormEvent) {
@@ -90,19 +90,19 @@ export function AdminPage() {
     }
   }
 
-  async function handleToggleAi() {
+  async function handleToggle(field: 'ai_grading_enabled' | 'ads_removed', errorMessage: string) {
     if (!result) return
-    setAiError(null)
-    setIsTogglingAi(true)
+    setToggleError(null)
+    setIsToggling(true)
     try {
       const updated = await apiClient.patch<AdminUserSearchResult>(`/admin/users/${result.id}`, {
-        ai_grading_enabled: !result.ai_grading_enabled,
+        [field]: !result[field],
       })
       setResult(updated)
     } catch {
-      setAiError('Die KI-Prüfung konnte nicht geändert werden.')
+      setToggleError(errorMessage)
     } finally {
-      setIsTogglingAi(false)
+      setIsToggling(false)
     }
   }
 
@@ -176,17 +176,27 @@ export function AdminPage() {
             <dd className="text-ink">{result.question_progress_count}</dd>
             <dt className="text-ink-soft">KI-Prüfung</dt>
             <dd className="text-ink">{result.ai_grading_enabled ? 'Freigeschaltet' : 'Nicht freigeschaltet'}</dd>
+            <dt className="text-ink-soft">Werbung</dt>
+            <dd className="text-ink">{result.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>
           </dl>
 
           <div className="flex flex-col gap-2">
-            {aiError ? <p className="text-sm text-danger">{aiError}</p> : null}
+            {toggleError ? <p className="text-sm text-danger">{toggleError}</p> : null}
             <button
               type="button"
-              onClick={handleToggleAi}
-              disabled={isTogglingAi}
+              onClick={() => handleToggle('ai_grading_enabled', 'Die KI-Prüfung konnte nicht geändert werden.')}
+              disabled={isToggling}
               className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
             >
               {result.ai_grading_enabled ? 'KI-Prüfung entziehen' : 'KI-Prüfung freischalten'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggle('ads_removed', 'Die Werbung konnte nicht geändert werden.')}
+              disabled={isToggling}
+              className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+            >
+              {result.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
             </button>
           </div>
 

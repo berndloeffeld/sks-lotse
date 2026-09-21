@@ -12,6 +12,7 @@ export interface User {
   gender: string | null
   is_admin: boolean
   ai_grading_enabled: boolean
+  ads_removed: boolean
   // Today's AI-check budget left (see backend/app/core/ai_quota.py).
   ai_checks_remaining: number
 }
@@ -57,6 +58,7 @@ export interface AdminUserSearchResult {
   last_name: string | null
   gender: string | null
   ai_grading_enabled: boolean
+  ads_removed: boolean
   question_progress_count: number
 }
 
