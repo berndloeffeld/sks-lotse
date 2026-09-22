@@ -34,7 +34,6 @@ class Settings(BaseSettings):
     # loudly, not silently run with a known secret.
     jwt_secret: str = Field(min_length=MIN_JWT_SECRET_LENGTH)
     jwt_access_token_expires_minutes: int = 10080  # 7 days
-    openai_api_key: str = ""
     # Local dev tooling only (backend/scripts/manage_topics.py) — the running app never reads it.
     anthropic_api_key: str = ""
     # The running app's own key for the AI answer check (app/services/grader.py, ADR-0031),
@@ -43,7 +42,6 @@ class Settings(BaseSettings):
     anthropic_grading_api_key: str = ""
     anthropic_grading_model: str = "claude-haiku-4-5"
     anthropic_grading_timeout_seconds: float = 15.0
-    adsense_client_id: str = ""
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
     # noreply address.
@@ -107,6 +105,14 @@ class Settings(BaseSettings):
     grading_sanitizer_log_threshold: int = 3
 
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
+
+    # app/core/log_config.py. "json" on Render, where Better Stack parses each line into fields;
+    # "text" (default) reads better in a local terminal.
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    log_format: Literal["text", "json"] = "text"
+    # Better Stack heartbeat the daily-report cron pings after a successful run, so a run that
+    # failed or never started raises an alert. Empty = no ping (local runs, before it's set up).
+    betterstack_heartbeat_url: str = ""
 
     @property
     def allowed_emails_set(self) -> set[str] | None:

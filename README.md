@@ -17,7 +17,7 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 |---|---|
 | Frontend | React (Vite) + TypeScript, Zustand, Tailwind CSS |
 | Backend | Python 3.12 / FastAPI |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL 18 |
 | Auth | Email + one-time code (OTP), JWT sessions *(SSO not yet built)* |
 | Transactional email | Resend |
 | Answer check (LLM) | Anthropic API (Claude Haiku), opt-in per account — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md) |
