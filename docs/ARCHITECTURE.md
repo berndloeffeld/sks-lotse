@@ -51,6 +51,7 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
 - **Design system**: tokens in `src/index.css` ([ADR-0014](adr/0014-visual-design-system.md)), self-hosted fonts ([ADR-0021](adr/0021-self-hosted-web-fonts.md)), shared components in `src/components/` (`RichText` renders the catalog's chart notation, e.g. the drying height in Navigation 84, as markup), incl. the per-question progress gauge ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)).
 - **Ads**: the `adsense-snippet` plugin in `vite.config.ts` puts Google's AdSense script into the built HTML `<head>` only when `VITE_ADSENSE_CLIENT_ID` is set (`src/ads.ts` holds the runtime helpers); consent comes from Google's own TCF consent management, re-openable via the footer's "Cookie-Einstellungen" ([ADR-0027](adr/0027-adsense-with-google-consent-management.md)). No ad units are rendered yet.
 - **Analytics**: cookieless Umami, only enabled when `VITE_UMAMI_WEBSITE_ID` is set ([ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)); custom funnel events via `trackEvent`, coarse properties only ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)).
+- **Catalog attribution**: the `/imprint` page credits ELWIS (Wasserstraßen- und Schifffahrtsverwaltung des Bundes) as the source of the official SKS question catalog. The catalog is an amtliches Werk under § 5 UrhG and copyright-free; ELWIS requires only a source citation (verified 2026-09-18).
 
 ### Backend (`backend/`)
 One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-modulith-over-microservices.md)):
@@ -135,7 +136,7 @@ All of them except the integration tests are required status checks on `main`, a
 ## Not yet built
 
 - Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which the operator sets on `/admin` for now.
-- Tips per question, and enforcing the tip rule ([ADR-0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md))
+- Tips per question (text or image), and enforcing the rule that a revealed tip caps that attempt's grading to "Teilweise Richtig" ([ADR-0038](adr/0038-tip-reveal-caps-grading-outcome.md))
 - SSO login (Google/Facebook/X)
 - Entitlements via payment: the "ads removed" (`users.ads_removed`) and "AI grading unlocked" flags exist and are set by the operator on `/admin`; the ad UI honours `ads_removed` via `useShowAds()`, the AdSense script in the `<head>` does not ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
