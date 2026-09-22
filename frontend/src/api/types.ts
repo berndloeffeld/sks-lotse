@@ -64,6 +64,9 @@ export interface AdminUserSearchResult {
   ai_checks_weekly_limit: number | null
   // What actually applies to the account this week.
   ai_checks_limit: number
+  // Read-only abuse-monitoring signal (ADR-0040): how often the sanitizer backstop fired.
+  ai_flags_count: number
+  ai_flags_last_at: string | null
   question_progress_count: number
 }
 

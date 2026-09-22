@@ -34,6 +34,8 @@ const foundUser = {
   ai_checks_used: 4,
   ai_checks_weekly_limit: null,
   ai_checks_limit: 100,
+  ai_flags_count: 0,
+  ai_flags_last_at: null,
   question_progress_count: 3,
 }
 

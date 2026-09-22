@@ -45,6 +45,10 @@ class User(Base):
     ai_checks_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     # Operator override of the weekly budget for this account; NULL = the app-wide default.
     ai_checks_weekly_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # How often the sanitizer backstop (app/services/grader.py) fired for this account — a signal
+    # for prompt-injection abuse, never the triggering text itself (ADR-0031, ADR-0040).
+    ai_flags_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    ai_flags_last_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     @property
     def ai_checks_limit(self) -> int:
