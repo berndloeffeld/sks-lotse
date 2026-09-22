@@ -5,6 +5,10 @@ superseding the streak rule of docs/adr/0018-...): recall probability decays as
 ``p = 2 ** (-elapsed / half_life)``, and every grading re-estimates the half-life.
 Unlike Duolingo's regression, the update factors below are fixed constants, not
 weights fitted on review logs — there is no data to fit them on yet.
+
+Within an unbroken "Richtig" streak, the spacing effect is measured against the
+streak's first "Richtig", not just the previous grading (docs/adr/0039-cumulative-
+spacing-for-richtig-streaks.md) — see ``apply_grading()``.
 """
 
 import math
@@ -62,11 +66,29 @@ def due_at(last_graded_at: datetime, half_life_days: float) -> datetime:
 
 
 def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime, *, is_new: bool) -> None:
-    elapsed = None if is_new else (now - _aware(row.last_graded_at)).total_seconds() / 86400
+    """Apply one grading; ``is_new`` marks a question's very first grading ever.
+
+    A "Richtig" that continues an unbroken streak (row.streak_start_at already set)
+    measures spacing cumulatively from the streak's first "Richtig", so a run of
+    quick re-confirmations after a setback still earns growing credit instead of
+    each step being judged against only the one before it. The streak's own first
+    "Richtig" — and any grading outside a streak — is unaffected: it's still judged
+    against the previous grading, same as before docs/adr/0039-...
+    """
+    if outcome == "richtig" and not is_new and row.streak_start_at is not None:
+        continuing_streak = True
+        since = row.streak_start_at
+    else:
+        continuing_streak = False
+        since = row.last_graded_at
+    elapsed = None if is_new else (now - _aware(since)).total_seconds() / 86400
     row.half_life_days = next_half_life(row.half_life_days, elapsed, outcome)
-    row.last_graded_at = now
     if outcome == "richtig":
+        row.streak_start_at = row.streak_start_at if continuing_streak else now
         row.last_correct_at = now
+    else:
+        row.streak_start_at = None
+    row.last_graded_at = now
     row.review_due_at = due_at(now, row.half_life_days)
 
 
