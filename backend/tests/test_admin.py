@@ -50,6 +50,7 @@ def test_admin_search_finds_user_case_insensitively(client, db_session, auth_hea
     body = response.json()
     assert body["email"] == _FIXTURE_EMAIL
     assert body["question_progress_count"] == 0
+    assert (body["ai_flags_count"], body["ai_flags_last_at"]) == (0, None)
 
 
 def test_admin_search_returns_404_for_unknown_email(client, db_session, auth_headers, monkeypatch):
@@ -98,6 +99,22 @@ def test_admin_search_and_export_include_every_profile_field(client, db_session,
     expected = {"first_name": "Anna", "last_name": "Beispiel", "gender": "weiblich", "exam_variant": "motor"}
     assert search.json().items() >= expected.items()
     assert export.json()["user"].items() >= expected.items()
+
+
+def test_admin_search_and_export_include_the_sanitizer_flag_counter(
+    client, db_session, auth_headers, monkeypatch
+):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    user.ai_flags_count = 2
+    user.ai_flags_last_at = datetime(2026, 9, 20, 12, 0, tzinfo=UTC)
+    db_session.commit()
+
+    search = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
+
+    assert search.json()["ai_flags_count"] == 2
+    assert export.json()["user"]["ai_flags_count"] == 2
 
 
 def test_admin_export_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
@@ -349,3 +366,20 @@ def test_admin_can_set_and_reset_a_per_user_weekly_limit(client, db_session, aut
     assert (body["ai_checks_weekly_limit"], body["ai_checks_limit"]) == (None, 100)
 
     assert client.patch(url, json={"ai_checks_weekly_limit": -1}, headers=auth_headers).status_code == 422
+
+
+def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth_headers, monkeypatch):
+    # ai_flags_count is a diagnostic signal (ADR-0040), not an entitlement — AdminUserUpdate has no
+    # such field, so a PATCH body naming it is silently ignored rather than applied.
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    user.ai_flags_count = 3
+    db_session.commit()
+
+    response = client.patch(
+        f"/api/v1/admin/users/{user.id}",
+        json={"ai_grading_enabled": True, "ai_flags_count": 0},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["ai_flags_count"] == 3

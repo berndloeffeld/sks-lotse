@@ -24,10 +24,22 @@ def _ago(**delta) -> datetime:
 
 
 def _populate(db) -> None:
-    active = User(email="active@example.com", exam_variant="motor", created_at=_ago(hours=2))
+    active = User(
+        email="active@example.com",
+        exam_variant="motor",
+        created_at=_ago(hours=2),
+        ai_flags_count=2,
+        ai_flags_last_at=_ago(hours=1),
+    )
     yesterday = User(email="yesterday@example.com", created_at=_ago(hours=30))
     cohort = User(email="cohort@example.com", exam_variant="segeln_und_motor", created_at=_ago(days=10))
-    idle = User(email="idle@example.com", exam_variant="motor", created_at=_ago(days=40))
+    idle = User(
+        email="idle@example.com",
+        exam_variant="motor",
+        created_at=_ago(days=40),
+        ai_flags_count=1,
+        ai_flags_last_at=_ago(days=40),
+    )
     nav = Question(subject="navigation", number=1, question_text="q", answer_text="a")
     weather = Question(subject="wetterkunde", number=1, question_text="q", answer_text="a")
     topic = Topic(subject="navigation", slug="t", name="T", display_order=1)
@@ -86,6 +98,7 @@ def test_kpis_on_an_empty_database(db_session):
     assert report.engagement.retention_rate is None
     assert report.learning.learned_per_learner is None
     assert report.quality.top_reported_7d == []
+    assert (report.quality.ai_flags_24h, report.quality.ai_flags_total) == (0, 0)
     text = format_report(report)
     assert "Konten gesamt: 0" in text
     assert "Aktivierung (Neukonten 7 Tage mit mind. 1 Bewertung): -" in text
@@ -122,6 +135,8 @@ def test_kpis_count_each_group(db_session):
     quality = report.quality
     assert (quality.reports_24h, quality.reports_total) == (1, 1)
     assert [(r.subject, r.number, r.reports) for r in quality.top_reported_7d] == [("navigation", 1, 1)]
+    # active was flagged within the last 24h; idle was flagged 40 days ago and doesn't count there.
+    assert (quality.ai_flags_24h, quality.ai_flags_total) == (1, 3)
 
 
 def test_exam_below_the_pass_mark_is_not_counted_as_passed(db_session):
@@ -143,6 +158,7 @@ def test_format_report_lists_the_numbers(db_session):
     assert "Neu (24 h / Vortag / 7 Tage): 1 / 1 / 2" in text
     assert "Gelernt je Fach: navigation 1" in text
     assert "  - navigation Nr. 1: 1x" in text
+    assert "KI-Prüfung Sanitizer-Flags (24 h neu / gesamt): 1 / 3" in text
 
 
 def test_admin_kpis_endpoint(client, db_session, auth_headers, monkeypatch):

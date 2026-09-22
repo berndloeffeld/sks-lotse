@@ -60,6 +60,10 @@ class QualityKpis(BaseModel):
     reports_24h: int
     reports_total: int
     top_reported_7d: list[ReportedQuestion]
+    # AI-grading abuse signal (ADR-0040): accounts newly flagged in the last 24h, and the
+    # cumulative flag count across all accounts — never any per-account or answer detail.
+    ai_flags_24h: int
+    ai_flags_total: int
 
 
 class KpiReport(BaseModel):

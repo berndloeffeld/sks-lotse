@@ -56,6 +56,10 @@ class AdminUserRead(BaseModel):
     ai_checks_used: int
     ai_checks_weekly_limit: int | None  # the account's override; null = the app-wide default
     ai_checks_limit: int  # what actually applies to the account this week
+    # Read-only diagnostic signal (ADR-0040): how often the sanitizer backstop fired for this
+    # account. No admin control to reset it — it's a symptom to investigate, not an entitlement.
+    ai_flags_count: int
+    ai_flags_last_at: datetime | None
     question_progress_count: int
 
 

@@ -204,6 +204,11 @@ export function AdminPage() {
               {result.ai_checks_used} von {result.ai_checks_limit}
               {result.ai_checks_weekly_limit === null ? ' (Standard)' : ' (eigenes Limit)'}
             </dd>
+            <dt className="text-ink-soft">Sanitizer-Flags</dt>
+            <dd className="text-ink">
+              {result.ai_flags_count}
+              {result.ai_flags_last_at ? ` (zuletzt ${new Date(result.ai_flags_last_at).toLocaleString('de-DE')})` : ''}
+            </dd>
             <dt className="text-ink-soft">Werbung</dt>
             <dd className="text-ink">{result.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>
           </dl>
