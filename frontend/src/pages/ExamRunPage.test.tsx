@@ -248,7 +248,7 @@ describe('ExamRunPage', () => {
     })
   }
 
-  it('offers the Lotsen-Check during exam self-assessment and preselects its suggestion (ADR-0040)', async () => {
+  it('offers the Lotsen-Check during exam self-assessment and preselects its suggestion', async () => {
     const user = userEvent.setup()
     aiGradingUser()
     const grading = makeExam({
