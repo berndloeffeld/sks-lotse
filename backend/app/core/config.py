@@ -73,6 +73,10 @@ class Settings(BaseSettings):
 
     rate_limit_otp_max_requests: int = 20
     rate_limit_otp_window_seconds: int = 3600  # 1 hour
+    # Per-IP cap on /auth/otp/verify. otp_max_attempts already bounds guesses per code, but not an
+    # attacker spraying guesses across many accounts' codes from one IP. A real login needs one or two.
+    rate_limit_otp_verify_max_requests: int = 30
+    rate_limit_otp_verify_window_seconds: int = 3600  # 1 hour
     rate_limit_default_max_requests: int = 300
     rate_limit_default_window_seconds: int = 300  # 5 minutes
 
@@ -99,6 +103,10 @@ class Settings(BaseSettings):
     # and overrides per account on /admin. At ~0.13 cent per check, 100/week is ~13 cent per account and week.
     grading_max_per_week: int = 100
     grading_max_per_question_per_day: int = 2
+    # LLM calls in flight at once, across all accounts. The endpoint is sync, so each call holds one of
+    # the server's worker threads for up to the timeout — without a cap a few accounts could starve the
+    # whole API. Past the cap the check answers 503 (budget refunded) instead of queueing.
+    grading_max_concurrent_calls: int = 5
     # Sanitizer backstop (ADR-0040): normal feedback is "höchstens 3 kurze Sätze", so this cap is
     # generous headroom that only trips on injected/off-topic content the model echoed back.
     grading_feedback_max_chars: int = 500
@@ -123,15 +131,18 @@ class Settings(BaseSettings):
 
     @property
     def is_production(self) -> bool:
-        return self.environment == "production"
+        # Running on Render counts as production even if ENVIRONMENT was forgotten on a new or cloned
+        # service: the development default must never reach a deployed app (Secure cookie, CORS).
+        return self.environment == "production" or self.render
 
     @property
     def exposes_dev_tooling(self) -> bool:
         # Opt-in allowlist, not `not is_production`: dev-only endpoints (e.g.
         # the OTP peek, see docs/adr/0011) must fail closed if this set ever
         # grows, rather than turning on for any environment that isn't
-        # literally "production".
-        return self.environment in ("development", "test")
+        # literally "production". Never on Render, whatever ENVIRONMENT says — the OTP peek would hand
+        # out login codes (see is_production).
+        return self.environment in ("development", "test") and not self.render
 
     @property
     def cors_allowed_origins(self) -> list[str]:

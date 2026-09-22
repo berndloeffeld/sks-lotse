@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
+import jwt
 import pytest
 
 from app.core.config import settings
@@ -408,6 +409,52 @@ def test_me_without_token_returns_401(client):
 def test_me_with_invalid_token_returns_401(client):
     response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer not-a-real-token"})
     assert response.status_code == 401
+
+
+@pytest.mark.parametrize("missing", ["exp", "sub", "tv"])
+def test_token_missing_a_required_claim_returns_401(client, db_session, missing):
+    user = User(email="claims@example.com")
+    db_session.add(user)
+    db_session.commit()
+    claims = {"sub": str(user.id), "tv": user.token_version, "exp": datetime.now(UTC) + timedelta(hours=1)}
+    del claims[missing]
+    token = jwt.encode(claims, settings.jwt_secret, algorithm="HS256")
+
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+
+    assert response.status_code == 401
+
+
+def test_issued_token_carries_issued_at(db_session):
+    token = create_access_token(1, 0)
+    assert "iat" in jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+
+
+def test_dev_peek_404s_on_render_even_if_environment_is_development(client, monkeypatch):
+    # A Render service with ENVIRONMENT forgotten falls back to "development" — the peek
+    # would then hand out anyone's login code.
+    _capture_otp(monkeypatch)
+    monkeypatch.setattr(settings, "render", True)
+    client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"})
+
+    response = client.get("/api/v1/auth/otp/_dev-peek", params={"email": "learner@example.com"})
+
+    assert response.status_code == 404
+
+
+def test_verify_otp_is_rate_limited_per_ip(client):
+    # Bounds guess-spraying across many accounts from one IP (app/main.py) — the per-code
+    # attempt cap alone doesn't.
+    limit = settings.rate_limit_otp_verify_max_requests
+    statuses = [
+        client.post(
+            "/api/v1/auth/otp/verify", json={"email": f"u{i}@example.com", "code": "000000"}
+        ).status_code
+        for i in range(limit + 1)
+    ]
+
+    assert statuses[:limit] == [401] * limit
+    assert statuses[limit] == 429
 
 
 def test_me_with_valid_token_returns_current_user(client, db_session, monkeypatch):

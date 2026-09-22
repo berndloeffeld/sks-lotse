@@ -42,3 +42,8 @@ Fix: `RateLimitMiddleware` takes an explicit `trusted_client_ip_headers` list in
 - A phone on mobile data right afterwards: 401, i.e. its own bucket — clients are separated again.
 - From the rate-limited network, `True-Client-IP: 1.2.3.4` sent by the client: still 429, so Cloudflare overwrites it with the real client IP.
 - A client-sent `CF-Connecting-IP` never reaches the app: Cloudflare rejects such requests at the edge (`error code: 1000`).
+
+## Addendum (2026-09-22)
+
+- **`/auth/otp/verify` has its own rule** (30 requests/hour/IP, `RATE_LIMIT_OTP_VERIFY_*`). The per-code attempt cap (`OTP_MAX_ATTEMPTS`) bounds guesses against one account, but a caller spraying guesses across many accounts' codes only hit the generous default cap before.
+- **The store is guarded by a lock.** Sync route handlers call `check_and_record` from FastAPI's threadpool while the middleware sweeps idle keys on the event loop; iterating the dict while another thread inserted a key could raise `RuntimeError: dictionary changed size during iteration` (a sporadic 500). `forget_last` takes back a hit for an attempt that failed on the server's side (the AI check answering 503).

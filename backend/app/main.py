@@ -37,6 +37,12 @@ app.add_middleware(
             settings.rate_limit_otp_max_requests,
             settings.rate_limit_otp_window_seconds,
         ),
+        # Bounds guess-spraying across many accounts' codes from one IP (each code alone
+        # already allows only otp_max_attempts guesses, see app/api/v1/auth.py).
+        "/api/v1/auth/otp/verify": (
+            settings.rate_limit_otp_verify_max_requests,
+            settings.rate_limit_otp_verify_window_seconds,
+        ),
         # Same tightness as OTP login requests. A second, per-authenticated-user
         # cap is applied inside request_email_change itself (see auth.py) —
         # this per-IP rule alone doesn't stop one account probing many target
