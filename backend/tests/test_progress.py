@@ -5,9 +5,11 @@ from sqlalchemy import func, select
 
 from app.core.jwt import create_access_token
 from app.core.progress import (
+    FULL_GAIN,
     INITIAL_HALF_LIFE_DAYS,
     LEARNED_HALF_LIFE_DAYS,
     MAX_HALF_LIFE_DAYS,
+    MIN_HALF_LIFE_DAYS,
     apply_grading,
     due_at,
     is_learned,
@@ -178,6 +180,59 @@ def test_next_half_life_setbacks_and_bounds():
     assert next_half_life(4.0, 4.0, "falsch") == 1.0
     assert next_half_life(0.3, 1.0, "falsch") == 0.25
     assert next_half_life(MAX_HALF_LIFE_DAYS, 999.0, "richtig") == MAX_HALF_LIFE_DAYS
+
+
+def test_apply_grading_starts_a_streak_on_the_first_richtig():
+    now = datetime.now(UTC)
+    row = QuestionProgress(half_life_days=INITIAL_HALF_LIFE_DAYS, last_graded_at=now)
+    apply_grading(row, "richtig", now, is_new=True)
+    assert row.streak_start_at == now
+
+
+def test_apply_grading_second_richtig_in_a_streak_is_unaffected_by_cumulative_spacing():
+    # The streak's own 2nd "Richtig" has streak_start_at == the previous grading, so
+    # cumulative and per-step spacing agree here — "two Richtig is never enough" (docs/
+    # adr/0034-...) stays true regardless of docs/adr/0039-cumulative-spacing-....
+    now = datetime.now(UTC)
+    row = QuestionProgress(half_life_days=INITIAL_HALF_LIFE_DAYS, last_graded_at=now)
+    apply_grading(row, "richtig", now, is_new=True)
+    fully_spaced = now + timedelta(days=row.half_life_days)
+    apply_grading(row, "richtig", fully_spaced, is_new=False)
+    assert row.half_life_days == pytest.approx(INITIAL_HALF_LIFE_DAYS * FULL_GAIN**2)
+    assert row.half_life_days < LEARNED_HALF_LIFE_DAYS
+
+
+def test_apply_grading_setback_resets_the_streak():
+    now = datetime.now(UTC)
+    row = QuestionProgress(half_life_days=INITIAL_HALF_LIFE_DAYS, last_graded_at=now)
+    apply_grading(row, "richtig", now, is_new=True)
+    assert row.streak_start_at is not None
+    apply_grading(row, "falsch", now + timedelta(days=1), is_new=False)
+    assert row.streak_start_at is None
+    # The next "Richtig" starts a fresh streak, measured from this setback, not
+    # from the (now irrelevant) earlier one.
+    apply_grading(row, "richtig", now + timedelta(days=2), is_new=False)
+    assert row.streak_start_at == now + timedelta(days=2)
+
+
+def test_apply_grading_streak_spacing_is_cumulative_not_per_step():
+    # A run of four quick "Richtig" after a setback (docs/adr/0039-...) earns more
+    # credit than if each were judged only against the grading right before it —
+    # the "Frage 3" scenario from the redesign: h ends at ~6.4 days instead of ~3.6.
+    base = datetime(2026, 1, 1, tzinfo=UTC)
+    row = QuestionProgress(half_life_days=MIN_HALF_LIFE_DAYS, last_graded_at=base + timedelta(days=6.5))
+    for day in (9.0, 9.5, 10.5, 11.0):
+        apply_grading(row, "richtig", base + timedelta(days=day), is_new=False)
+    assert row.half_life_days == pytest.approx(6.437, abs=0.001)
+    assert row.streak_start_at == base + timedelta(days=9.0)
+
+    per_step = MIN_HALF_LIFE_DAYS
+    previous_day = 6.5
+    for day in (9.0, 9.5, 10.5, 11.0):
+        per_step = next_half_life(per_step, day - previous_day, "richtig")
+        previous_day = day
+    assert per_step == pytest.approx(3.625, abs=0.001)
+    assert row.half_life_days > per_step
 
 
 def test_due_at_is_when_recall_drops_to_the_threshold():

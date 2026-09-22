@@ -78,7 +78,7 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     assert row["subject"] == "navigation"
     assert row["question_number"] == 1
     assert row["half_life_days"] == pytest.approx(6.25)
-    assert {"last_graded_at", "last_correct_at", "review_due_at"} <= row.keys()
+    assert {"last_graded_at", "last_correct_at", "streak_start_at", "review_due_at"} <= row.keys()
 
 
 def test_admin_search_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
