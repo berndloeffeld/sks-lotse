@@ -113,7 +113,7 @@ Backend dependencies are declared in `backend/requirements*.in` and locked — e
 ./scripts/lock_backend_requirements.sh
 ```
 
-Dependabot regenerates the locks itself for its bump PRs. Frontend dependencies are locked by `frontend/package-lock.json` (`npm ci`).
+Dependabot regenerates the locks itself for its bump PRs. A package some dependency needs only on certain platforms must be listed in the `.in` file explicitly when its absence on macOS would drop it from the lock (see `greenlet` in `requirements.in`) — Render and CI are Linux. Frontend dependencies are locked by `frontend/package-lock.json` (`npm ci`).
 
 ## Development conventions
 

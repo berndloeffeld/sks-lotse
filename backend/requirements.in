@@ -18,3 +18,7 @@ disposable-email-domains==0.0.262
 anthropic==1.6.0
 # Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
 tzdata==2026.4
+# SQLAlchemy needs greenlet only on some platforms (Linux x86_64 yes — Render and CI —, macOS arm64
+# no). Listed explicitly so the lock contains it whichever machine it was generated on; without it,
+# a lock made on a Mac failed CI's hash-checking install.
+greenlet==3.5.6
