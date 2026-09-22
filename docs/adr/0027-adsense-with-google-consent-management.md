@@ -36,3 +36,7 @@ The frontend now sends an enforced CSP with the directives that can't break an i
 ## Addendum (2026-09-21): `users.ads_removed`
 
 The ad-free entitlement now exists as a flag, set by the operator on `/admin` like the AI check. It only hides the UI's ad elements (`useShowAds()` in `frontend/src/ads.ts`: the "Cookie-Einstellungen" button and any future ad unit). The static script in the `<head>` is unchanged, so ad-free accounts still load Google's script and may see the consent message — the runtime-loading change described above stays open until there are ad units worth suppressing.
+
+## Addendum (2026-09-22): CSP moved from report-only to enforced
+
+Checked the browser console on sks-lotse.de (landing, imprint, privacy, and opening "Cookie-Einstellungen" to trigger the consent script): the only `[Report Only]` violation was `connect-src` missing `https://gateway.umami.is` — the Umami Cloud SDK loads its script from `cloud.umami.is` but sends tracked events to a separate `gateway.umami.is` endpoint. Added that host and promoted the full allowlist from `Content-Security-Policy-Report-Only` into the enforced `Content-Security-Policy` header in `render.yaml`; the report-only header is gone, there's now a single enforced policy.
