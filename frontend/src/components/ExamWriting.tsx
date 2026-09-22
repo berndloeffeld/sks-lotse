@@ -173,7 +173,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
           <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
             {SUBJECT_GROUP_LABELS[question.subject_group]}
           </p>
-          <p className="font-serif text-xl whitespace-pre-line text-ink">
+          <p className="font-serif text-base leading-snug whitespace-pre-line text-ink">
             {question.question_text ? (
               <RichText text={question.question_text} />
             ) : (

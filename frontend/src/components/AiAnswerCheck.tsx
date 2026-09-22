@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type Ref } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
@@ -51,6 +51,13 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
   const [isChecking, setIsChecking] = useState(false)
   const [result, setResult] = useState<AiGrade | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const resultRef = useRef<HTMLElement>(null)
+
+  // The suggestion box replaces the button in place, so it can land below the fold
+  // (e.g. on a short viewport where the answer reveal already used up the scroll budget).
+  useEffect(() => {
+    if (result) resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [result])
 
   const isUnlocked = user?.ai_grading_enabled ?? false
   const remaining = user?.ai_checks_remaining ?? 0
@@ -87,6 +94,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
       </span>
       {result ? (
         <section
+          ref={resultRef}
           role="status"
           className="flex flex-col gap-1 rounded-tile border-l-4 border-accent bg-surface px-3 py-2"
         >
