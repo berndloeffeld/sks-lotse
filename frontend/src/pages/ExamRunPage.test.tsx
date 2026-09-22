@@ -248,9 +248,13 @@ describe('ExamRunPage', () => {
     })
   }
 
-  it('offers the Lotsen-Check during exam self-assessment and preselects its suggestion', async () => {
+  it('offers the Lotsen-Check during exam self-assessment, preselects its suggestion and scrolls "Weiter" into view', async () => {
     const user = userEvent.setup()
     aiGradingUser()
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      bottom: window.innerHeight + 40,
+    } as DOMRect)
+    const scrollBy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {})
     const grading = makeExam({
       status: 'grading',
       questions: [examQuestion(1, { answer_text: 'Meine A1', official_answer: 'Amtlich 1' })],
@@ -273,6 +277,7 @@ describe('ExamRunPage', () => {
       expect.stringContaining('/questions/1/ai-grade'),
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ answer: 'Meine A1' }) }),
     )
+    expect(scrollBy).toHaveBeenCalledWith({ top: 42, behavior: 'smooth' })
   })
 
   it('folds the Lotsen-Check into the exam self-assessment Tab loop', async () => {
