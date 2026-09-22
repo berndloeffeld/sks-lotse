@@ -1,6 +1,6 @@
 # 0027. Google AdSense behind Google's own consent management
 
-Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md))
+Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries it" superseded by [ADR-0041](0041-no-ad-script-in-the-logged-in-app.md) — the logged-in app no longer loads the script
 
 ## Context
 
