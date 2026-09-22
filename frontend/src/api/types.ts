@@ -79,6 +79,7 @@ export interface AdminQuestionProgressExport {
   question_number: number
   half_life_days: number
   last_graded_at: string
+  streak_start_at: string | null
   review_due_at: string
   created_at: string
   updated_at: string

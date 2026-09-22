@@ -23,6 +23,10 @@ class QuestionProgress(Base):
     # When the question was last graded "Richtig" (NULL: never). Orders the Fokus session
     # oldest-correct-first (docs/adr/0028-...). Set by apply_grading().
     last_correct_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Start of the current unbroken "Richtig" streak (NULL: no streak in progress — the last
+    # grading, if any, wasn't "Richtig"). Reset to NULL by Teilweise/Falsch, set by the streak's
+    # first "Richtig", unchanged by the ones after — see app/core/progress.py and docs/adr/0039-...
+    streak_start_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # last_graded_at + the time until recall probability falls to RECALL_THRESHOLD.
     # Stored (not derived) so "gelernt" is a plain SQL filter on half_life_days.
     review_due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
