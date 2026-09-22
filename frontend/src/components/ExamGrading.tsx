@@ -5,6 +5,7 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
+import { scrollBelowIntoView } from '../scroll'
 import { AiAnswerCheck } from './AiAnswerCheck'
 import { formStyles } from './formStyles'
 import { ReportQuestion } from './ReportQuestion'
@@ -29,13 +30,19 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
+  const continueRef = useRef<HTMLButtonElement>(null)
 
   const graded = exam.questions.filter((q) => q.outcome !== null).length
   const question = exam.questions.find((q) => q.outcome === null)
   const position = question?.position
 
+  // A new question shows everything at once (answer, official answer, Lotse row), which can
+  // already overflow a short viewport, so scroll down until "Weiter" clears the fold too.
   useEffect(() => {
-    if (position !== undefined) groupRef.current?.focus()
+    if (position !== undefined) {
+      scrollBelowIntoView(continueRef.current)
+      groupRef.current?.focus({ preventScroll: true })
+    }
   }, [position])
 
   if (!question) return null
@@ -50,10 +57,12 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
   }
 
   // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
-  // and Tab keeps cycling through the radios like in the manual loop.
+  // and Tab keeps cycling through the radios like in the manual loop. Its suggestion box can
+  // push "Weiter" further down than the question-change scroll reached, so scroll again.
   function suggestOutcome(suggested: GradingOutcome) {
     flushSync(() => setOutcome(suggested))
-    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus()
+    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus({ preventScroll: true })
+    scrollBelowIntoView(continueRef.current)
   }
 
   async function save(chosen: GradingOutcome | null) {
@@ -156,6 +165,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         </p>
       ) : null}
       <button
+        ref={continueRef}
         type="button"
         className={styles.button}
         disabled={!outcome || isSaving}

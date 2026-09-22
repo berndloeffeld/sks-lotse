@@ -251,15 +251,18 @@ describe('PracticePage', () => {
     expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
   })
 
-  it('scrolls the revealed answer fully into view', async () => {
+  it('scrolls down until the "Weiter" button clears the fold, plus 2px, when the answer is revealed', async () => {
     const user = userEvent.setup()
-    const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      bottom: window.innerHeight + 40,
+    } as DOMRect)
+    const scrollBy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {})
     mockBackend({})
     renderPracticePage()
 
     await user.click(await screen.findByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' })
+    expect(scrollBy).toHaveBeenCalledWith({ top: 42, behavior: 'smooth' })
   })
 
   it('shows the question images at once and the answer images with the official answer', async () => {
