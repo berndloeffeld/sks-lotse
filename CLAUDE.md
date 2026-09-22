@@ -159,6 +159,11 @@ All file edits must be made in the canonical project root:
 
 Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Code is invoked from a worktree, edits must still target the real project root above.
 
+### Design Principles
+
+#### Avoid pipeline overkill for rare tasks
+For infrequent/one-off operations (e.g. importing the SKS question catalog from PDF, which runs once or a few times total), do not build infrastructure — use a plain script instead. No pipelines, queues, task runners, or extra abstraction layers are needed for tasks that run rarely. This aligns with the general principle of avoiding premature abstraction: match the infrastructure to the actual problem, not hypothetical future complexity.
+
 ### Security Scanning (Aikido)
 Aikido Security is connected to this GitHub repo.
 
