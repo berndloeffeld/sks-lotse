@@ -72,6 +72,7 @@ describe('AiAnswerCheck', () => {
     vi.stubGlobal('fetch', fetchMock)
     const track = vi.fn()
     window.umami = { track }
+    const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
     const onSuggest = vi.fn()
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={onSuggest} />)
 
@@ -84,8 +85,9 @@ describe('AiAnswerCheck', () => {
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(13)
-    // The suggestion takes the button's place.
+    // The suggestion takes the button's place, and — since it can land below the fold — scrolls fully into view.
     expect(screen.queryByRole('button', ROW)).not.toBeInTheDocument()
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' })
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toMatch(/\/api\/v1\/questions\/7\/ai-grade$/)
     expect(JSON.parse(String(init.body))).toEqual({ answer: 'links' })

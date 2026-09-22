@@ -114,6 +114,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   // Number of the question that just became gelernt, while its celebration runs.
   const [celebrating, setCelebrating] = useState<number | null>(null)
   const noteRef = useRef<HTMLTextAreaElement>(null)
+  const answerRef = useRef<HTMLElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -121,9 +122,15 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
 
   // Keyboard flow: each phase hands focus to the control the learner needs
   // next, so the whole loop works without a mouse (see the key handlers below).
+  // Revealing the answer also scrolls it fully into view first, since focusing
+  // the fieldset below it only scrolls that fieldset, not the (taller) answer box.
   useEffect(() => {
-    if (phase === 'answer') noteRef.current?.focus()
-    else groupRef.current?.focus()
+    if (phase === 'answer') {
+      noteRef.current?.focus()
+    } else {
+      answerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      groupRef.current?.focus({ preventScroll: true })
+    }
   }, [phase, index, run])
 
   // Tab cycles through the grade radios and, when usable, the Lotse row (focus only, no selection).
@@ -267,7 +274,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
         </div>
       </div>
 
-      <h2 className="font-serif text-lg whitespace-pre-line text-ink outline-none">
+      <h2 className="font-serif text-base leading-snug whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
       </h2>
       <QuestionImages images={question.question_images} part="question" />
@@ -303,7 +310,10 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
               <p className="text-sm whitespace-pre-line text-ink-soft">{note}</p>
             </section>
           ) : null}
-          <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
+          <section
+            ref={answerRef}
+            className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2"
+          >
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
             {question.answer_text ? (
               <p className="text-sm whitespace-pre-line text-ink">

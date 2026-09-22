@@ -228,6 +228,80 @@ describe('ExamRunPage', () => {
     expect(await screen.findByRole('heading', { name: 'Prüfungsergebnis' })).toBeInTheDocument()
   })
 
+  function aiGradingUser() {
+    useAuthStore.setState({
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        id: 1,
+        email: 'a@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+        exam_variant: null,
+        first_name: null,
+        last_name: null,
+        gender: null,
+        is_admin: false,
+        ai_grading_enabled: true,
+        ads_removed: false,
+        ai_checks_remaining: 20,
+      },
+    })
+  }
+
+  it('offers the Lotsen-Check during exam self-assessment and preselects its suggestion (ADR-0040)', async () => {
+    const user = userEvent.setup()
+    aiGradingUser()
+    const grading = makeExam({
+      status: 'grading',
+      questions: [examQuestion(1, { answer_text: 'Meine A1', official_answer: 'Amtlich 1' })],
+    })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (init?.method === 'POST' && url.includes('/ai-grade')) {
+        return jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast richtig.', remaining_this_week: 19 })
+      }
+      return jsonResponse(grading)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    renderRun()
+
+    await user.click(await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
+
+    expect(await screen.findByText('Fast richtig.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Teilweise Richtig')).toBeChecked()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/questions/1/ai-grade'),
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ answer: 'Meine A1' }) }),
+    )
+  })
+
+  it('folds the Lotsen-Check into the exam self-assessment Tab loop', async () => {
+    const user = userEvent.setup()
+    aiGradingUser()
+    const grading = makeExam({
+      status: 'grading',
+      questions: [examQuestion(1, { answer_text: 'Meine A1', official_answer: 'Amtlich 1' })],
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(grading)),
+    )
+    renderRun()
+
+    const ask = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    await waitFor(() => expect(screen.getByRole('group', { name: 'Wie gut war deine Antwort?' })).toHaveFocus())
+    await user.tab()
+    await user.tab()
+    await user.tab()
+    expect(screen.getByLabelText('Falsch')).toHaveFocus()
+    await user.tab()
+    expect(ask).toHaveFocus()
+    await user.tab()
+    expect(screen.getByLabelText('Richtig')).toHaveFocus()
+    await user.tab({ shift: true })
+    expect(ask).toHaveFocus()
+  })
+
   it('shows the images of a question while writing and of its official answer while grading', async () => {
     const question = { question_images: [{ src: 'q.png', width: 10, height: 10 }] }
     const answer = { src: 'a.png', width: 10, height: 10 }
