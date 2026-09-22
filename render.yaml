@@ -111,6 +111,7 @@ services:
     envVars:
       # Pinned for the same reason PYTHON_VERSION is pinned above — avoids
       # Render defaulting to a Node version newer than what CI/local dev use.
+      # Must match frontend/.nvmrc (the source for CI and local dev).
       - key: NODE_VERSION
         value: "22"
       # Build-time only (Vite inlines it into the bundle) — the frontend

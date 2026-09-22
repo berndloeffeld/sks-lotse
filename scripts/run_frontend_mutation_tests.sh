@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Mutation testing of the frontend's logic modules with Stryker. `gate` is the CI check
-# (frontend-ci.yml, job `mutation-testing`; runs on every PR, not required); the plain mode
+# Mutation testing of the frontend's logic modules with Stryker. `gate` is what the weekly
+# workflow runs (.github/workflows/mutation-testing.yml, job `frontend`; not a PR check); the plain mode
 # is for working on survivors locally. See docs/mutation-testing.md for scope, reading the
 # results and why Vitest is pinned to 4.x.
 #

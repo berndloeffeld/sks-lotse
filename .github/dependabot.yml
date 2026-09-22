@@ -1,12 +1,18 @@
 version: 2
 updates:
-  # Backend dependencies are pinned exactly (backend/requirements*.txt), so
-  # nothing moves on its own — Dependabot proposes the bumps as PRs, which then
-  # go through the normal CI (and the by-hand Aikido check) before merging.
+  # Backend dependencies are declared in backend/requirements*.in and locked with
+  # hashes in the pip-compile output backend/requirements*.txt (README → Dependencies),
+  # so nothing moves on its own — Dependabot proposes the bumps as PRs (regenerating
+  # the locks), which then go through the normal CI (and the by-hand Aikido check).
   - package-ecosystem: pip
     directory: /backend
     schedule:
       interval: weekly
+      day: monday
+    # A release is only proposed once it has been out for a few days — most malicious or broken
+    # releases are yanked within that window. Security updates are not delayed by this.
+    cooldown:
+      default-days: 5
     groups:
       python-minor-and-patch:
         update-types: [minor, patch]
@@ -15,6 +21,9 @@ updates:
     directory: /frontend
     schedule:
       interval: weekly
+      day: monday
+    cooldown:
+      default-days: 5
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
@@ -30,10 +39,24 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    cooldown:
+      default-days: 5
+    # One PR for all actions: with strict branch protection every merge makes the next open PR
+    # stale (update-branch + a full CI run), so fewer, grouped PRs are cheaper.
+    groups:
+      github-actions:
+        patterns: ["*"]
 
   # Keeps the pre-commit hook revisions (e.g. ruff) from drifting away from
-  # the pinned versions in backend/requirements-dev.txt.
+  # the pinned versions in backend/requirements-dev.in.
   - package-ecosystem: pre-commit
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    cooldown:
+      default-days: 5
+    groups:
+      pre-commit-hooks:
+        patterns: ["*"]

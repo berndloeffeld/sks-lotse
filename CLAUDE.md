@@ -46,7 +46,7 @@ sks-lotse/
 │   ├── scripts/        # One-off/dev scripts (catalog import, OpenAPI dump)
 │   ├── tests/
 │   ├── .env.example    # All backend env vars, with defaults
-│   └── requirements*.txt
+│   └── requirements*.in/.txt  # declared deps / hash-locked output of pip-compile
 ├── frontend/           # React (Vite) + TypeScript, Zustand
 │   ├── src/
 │   │   ├── api/        # Thin typed fetch wrapper + shared response types
@@ -144,7 +144,7 @@ Trunk-based development:
 - **Required status checks**, matched by job name: `lint`, `test`, `migrations`, `postman-collection`. `lint` and `test` exist in both `backend-ci.yml` and `frontend-ci.yml`, so both workflows' jobs report under those names. `integration-tests` runs on every PR too but is **not** required — check it's green before merging anyway. Mutation testing isn't a PR check at all, it runs weekly (see Mutation testing below). There is no Aikido check in CI (see Security Scanning below).
 - **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
 - GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
-- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs.
+- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs. A newer push to a PR branch cancels its still-running CI (`concurrency`); every job has a 15-minute timeout. The frontend `test` job also runs `npm run build` (incl. prerender), the same build Render deploys.
 
 ---
 
@@ -196,7 +196,7 @@ Logic that lives inline in a route handler isn't covered by the normal run (deco
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
 - `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml`'s `lint` job on every push to `main` and on every PR — a required check.
-- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install` (the package is in `requirements-dev.txt`).
+- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install -t pre-commit -t pre-push` (the package is in `requirements-dev.txt`); the pre-push stage adds `mypy app` and `tsc -b`.
 
 - `mypy app` (`[tool.mypy]` in `backend/pyproject.toml`) runs in the same `lint` job; a `# type: ignore` carries its reason after a second `#`. The frontend compiles with `"strict": true` (`tsc -b` in the `test` job).
 - Complexity is capped via `C901`/`PLR0912` (`max-complexity`/`max-branches` = 10) — split a function rather than raising the ceiling. `PLR0913` (argument count) is deliberately off: FastAPI routes take their dependencies as arguments.
@@ -205,7 +205,7 @@ Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting a
 Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
 
 - `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — a required check, like the backend's.
-- Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to `pre-commit install`).
+- Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to the `pre-commit install` above).
 
 ### Python version
 `.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
@@ -266,7 +266,7 @@ Apply these four checks whenever adding or changing a database table — going f
 - **`ALLOWED_EMAILS`** — comma-separated allowlist for the private beta; unset = open to everyone. Non-listed addresses get the same generic 202 with no code and no email.
 - **`ADMIN_EMAILS`** — comma-separated allowlist gating the GDPR admin tools (`/admin`, see Accounts below). Unlike `ALLOWED_EMAILS`, unset/empty = **no admins** (fails closed) — the inverse default, since an unset var here must never grant access.
 - **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `GRADING_*` — incl. the fallback weekly AI-check budget `GRADING_MAX_PER_WEEK` (the operator overrides it on `/admin` and `/admin/settings`, [ADR-0036](docs/adr/0036-weekly-ai-check-budget-with-admin-overrides.md)), `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
-- **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.txt`) — Dependabot bumps it.
+- **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.in`) — Dependabot bumps it.
 - **Frontend `VITE_ADSENSE_CLIENT_ID`** — Google AdSense publisher id (`ca-pub-…`), set on the frontend service only; unset = the ad script and the "Cookie-Einstellungen" footer button are absent ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
 - **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built). `ADSENSE_CLIENT_ID` and `OPENAI_API_KEY` are already in `Settings`/`render.yaml` but unused (grading went to Anthropic, ADR-0031).
 - **`ANTHROPIC_API_KEY`** — only used locally by `backend/scripts/manage_topics.py` (see Question Catalog) to classify questions into topics; not read by the running app, not set on Render.

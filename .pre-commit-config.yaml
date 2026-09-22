@@ -1,7 +1,11 @@
 # Local guardrails that catch problems before a push — GitHub's branch
 # protection on main enforces the same rules server-side (see CLAUDE.md →
 # Branch Strategy / Development Conventions).
-# One-time setup: `pip install -r backend/requirements-dev.txt && (cd frontend && npm install) && pre-commit install`
+# One-time setup: `pip install -r backend/requirements-dev.txt && (cd frontend && npm install) && pre-commit install --install-hooks -t pre-commit -t pre-push`
+# The type checks (mypy, tsc) run on `git push` rather than on every commit — they check the whole
+# project and take a few seconds each, same as the `lint`/`test` CI jobs they mirror.
+# Hooks without their own `stages` run on commit only; the slower type checks opt into pre-push.
+default_stages: [pre-commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -9,9 +13,24 @@ repos:
       # Trunk-based: every change goes through a feature branch + PR.
       - id: no-commit-to-branch
         args: [--branch, main]
+      - id: check-merge-conflict
+      - id: check-yaml
+        # render.yaml and the workflows use plain YAML; the flag only relaxes custom tags.
+        args: [--unsafe]
+      - id: check-json
+        # tsconfig files are JSONC (comments allowed); tsc itself checks them.
+        exclude: ^frontend/tsconfig.*\.json$
+      - id: check-added-large-files
+        # The catalog PDF and images live in the repo on purpose; this catches accidental dumps.
+        args: [--maxkb=2048]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: ^postman/sks-lotse\.postman_collection\.json$
+      - id: trailing-whitespace
+        exclude: ^postman/sks-lotse\.postman_collection\.json$
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8  # keep in sync with ruff in backend/requirements-dev.txt
+    rev: v0.16.8  # keep in sync with ruff in backend/requirements-dev.in
     hooks:
       - id: ruff
         args: [--fix]
@@ -36,3 +55,18 @@ repos:
         language: system
         files: ^frontend/
         pass_filenames: false
+      - id: backend-mypy
+        name: mypy (backend)
+        # The backend venv's mypy (same version as CI) when there is one, else whatever is on PATH.
+        entry: bash -c 'cd backend && if [ -x .venv/bin/mypy ]; then .venv/bin/mypy app; else mypy app; fi'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+        stages: [pre-push]
+      - id: frontend-tsc
+        name: tsc -b (frontend)
+        entry: bash -c 'cd frontend && npx tsc -b'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+        stages: [pre-push]

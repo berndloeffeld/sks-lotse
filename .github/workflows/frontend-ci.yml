@@ -9,9 +9,17 @@ on:
 permissions:
   contents: read
 
+# One run per branch/PR: a new push (or `gh pr update-branch`, which strict branch protection
+# needs after every merge) cancels the now-outdated run instead of queueing behind it. Runs for
+# pushes to main are never cancelled: every commit there gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
@@ -21,7 +29,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
@@ -30,6 +38,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
@@ -39,9 +48,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npx tsc -b
       - run: npx vitest run --coverage
+      # The same build Render runs (tsc, client + SSR build, prerender.mjs): a broken prerender or
+      # an app.html that still carries the ad script (ADR-0041) must fail here, not in the deploy.
+      - run: npm run build
