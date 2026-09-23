@@ -20,17 +20,24 @@ function label(progress: number): string {
   return 'Auf Kurs zu gelernt'
 }
 
+// Hover text while still sailing: explains what moves the boat without
+// naming the method or a count, so it can't be gamed (ADR-0024).
+const SAILING_HINT =
+  'Der Kurs berücksichtigt deine bisherigen Antworten und wie viel Zeit dazwischen lag – regelmäßiges Wiederholen bringt das Schiff näher zum Anker.'
+
 // `label` replaces the spoken status where "gelernt" isn't what the boat means
-// (the exam simulation uses it as a "question x of n" indicator).
+// (the exam simulation uses it as a "question x of n" indicator); that usage
+// keeps the tooltip identical to the label instead of the learning hint.
 export function CourseGauge({ progress, label: labelOverride }: { progress: number; label?: string }) {
   const learned = progress >= 1
   const text = labelOverride ?? label(progress)
+  const tooltip = labelOverride || learned ? text : SAILING_HINT
   const x = learned ? BOAT_MAX_X : Math.max(progress, 0) * BOAT_SAILING_MAX_X
   const motion = 'transition-[transform,color] duration-700 ease-in-out motion-reduce:transition-none'
 
   return (
     <svg role="img" aria-label={text} viewBox="0 0 112 24" className="h-6 w-28 shrink-0">
-      <title>{text}</title>
+      <title>{tooltip}</title>
       <line
         x1={2}
         y1={19}

@@ -22,8 +22,14 @@ grow with the number of distinct IPs seen since the last restart. Each key
 remembers its own window for that sweep, since route handlers record into
 the same store with windows the middleware knows nothing about (see
 `check_and_record`).
+
+The store is shared between the event loop (this middleware) and sync route
+handlers, which FastAPI runs in its threadpool — so every read-modify-write
+of it holds `_lock`. The critical sections are a few deque operations, short
+enough to take on the event loop.
 """
 
+import threading
 import time
 from collections import defaultdict, deque
 
@@ -36,6 +42,8 @@ from app.core import cache
 Rule = tuple[int, int]
 
 _SWEEP_INTERVAL_SECONDS = 60
+
+_lock = threading.Lock()
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -112,14 +120,23 @@ def check_and_record(app, bucket: str, key: str, limit: int, window_seconds: int
     account probing many addresses from multiple IPs.
     """
     now = time.monotonic()
-    hits = _hits_for(app, (bucket, key))
-    _windows_for(app)[(bucket, key)] = window_seconds
-    while hits and now - hits[0] > window_seconds:
-        hits.popleft()
-    if len(hits) >= limit:
-        return False
-    hits.append(now)
-    return True
+    with _lock:
+        hits = _hits_for(app, (bucket, key))
+        _windows_for(app)[(bucket, key)] = window_seconds
+        while hits and now - hits[0] > window_seconds:
+            hits.popleft()
+        if len(hits) >= limit:
+            return False
+        hits.append(now)
+        return True
+
+
+def forget_last(app, bucket: str, key: str) -> None:
+    """Take back the newest hit `check_and_record` recorded — for an attempt that failed on our side."""
+    with _lock:
+        hits = _hits_for(app, (bucket, key))
+        if hits:
+            hits.pop()
 
 
 def _sweep_idle(app, now: float) -> None:
@@ -128,11 +145,12 @@ def _sweep_idle(app, now: float) -> None:
     store = getattr(app.state, "rate_limit_hits", None)
     if not store:
         return
-    windows = _windows_for(app)
-    idle = [k for k, hits in store.items() if not hits or now - hits[-1] > windows.get(k, 0)]
-    for key in idle:
-        del store[key]
-        windows.pop(key, None)
+    with _lock:
+        windows = _windows_for(app)
+        idle = [k for k, hits in store.items() if not hits or now - hits[-1] > windows.get(k, 0)]
+        for key in idle:
+            del store[key]
+            windows.pop(key, None)
 
 
 def _hits_for(app, key: tuple[str, str]) -> deque:
