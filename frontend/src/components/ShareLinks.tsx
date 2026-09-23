@@ -1,25 +1,38 @@
-import { SHARE_MAILTO, TWITTER_SHARE_URL, WHATSAPP_SHARE_URL } from '../share'
+import {
+  EmailIcon,
+  EmailShareButton,
+  FacebookIcon,
+  FacebookShareButton,
+  TelegramIcon,
+  TelegramShareButton,
+  WhatsappIcon,
+  WhatsappShareButton,
+} from 'react-share'
 
-const LINK_CLASS = 'border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface'
+import { SHARE_TITLE, SHARE_URL } from '../share'
 
-// Plain share-intent links, no third-party button script — the page just
-// needed *some* social-sharing option, not a full share-button pipeline.
+const ICON_SIZE = 32
+
+// react-share draws the brand icons and opens each network's own share
+// dialog in a popup — no hand-rolled share-URL building needed.
 export function ShareLinks() {
   return (
-    <nav
-      aria-label="Seite teilen"
-      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-mono text-xs tracking-wide uppercase"
-    >
-      <span>SKS Lotse weitersagen:</span>
-      <a href={WHATSAPP_SHARE_URL} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
-        WhatsApp
-      </a>
-      <a href={TWITTER_SHARE_URL} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
-        X
-      </a>
-      <a href={SHARE_MAILTO} className={LINK_CLASS}>
-        E-Mail
-      </a>
-    </nav>
+    <div className="flex flex-col items-center gap-2">
+      <span className="font-mono text-xs tracking-wide text-surface-alt uppercase">SKS Lotse weitersagen</span>
+      <div className="flex items-center gap-3">
+        <WhatsappShareButton url={SHARE_URL} title={SHARE_TITLE} aria-label="Auf WhatsApp teilen">
+          <WhatsappIcon size={ICON_SIZE} round />
+        </WhatsappShareButton>
+        <FacebookShareButton url={SHARE_URL} aria-label="Auf Facebook teilen">
+          <FacebookIcon size={ICON_SIZE} round />
+        </FacebookShareButton>
+        <TelegramShareButton url={SHARE_URL} title={SHARE_TITLE} aria-label="Auf Telegram teilen">
+          <TelegramIcon size={ICON_SIZE} round />
+        </TelegramShareButton>
+        <EmailShareButton url={SHARE_URL} subject={SHARE_TITLE} aria-label="Per E-Mail teilen">
+          <EmailIcon size={ICON_SIZE} round />
+        </EmailShareButton>
+      </div>
+    </div>
   )
 }
