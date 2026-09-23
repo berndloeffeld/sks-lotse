@@ -273,7 +273,8 @@ export function LandingPage() {
             <div>
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
-                Zwei unabhängige Erweiterungen lassen sich später einzeln freischalten – Preise folgen in Kürze.
+                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
+                einzeln freischalten – Preise folgen in Kürze.
               </p>
             </div>
             <ShareLinks />
