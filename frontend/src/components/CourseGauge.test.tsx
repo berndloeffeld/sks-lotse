@@ -5,21 +5,30 @@ import { CourseGauge } from './CourseGauge'
 
 describe('CourseGauge', () => {
   it('starts at the beginning of the course', () => {
-    render(<CourseGauge progress={0} />)
+    const { container } = render(<CourseGauge progress={0} />)
     expect(screen.getByRole('img', { name: 'Noch nicht gelernt' })).toBeInTheDocument()
     expect(screen.getByTestId('course-boat')).toHaveStyle({ transform: 'translate(0px, 1px)' })
+    expect(container.querySelector('title')?.textContent).toContain('regelmäßiges Wiederholen')
   })
 
   it('sails along without revealing how many steps are left', () => {
-    render(<CourseGauge progress={0.5} />)
+    const { container } = render(<CourseGauge progress={0.5} />)
     expect(screen.getByRole('img', { name: 'Auf Kurs zu gelernt' })).toBeInTheDocument()
     expect(screen.getByTestId('course-boat')).toHaveStyle({ transform: 'translate(35px, 1px)' })
+    expect(container.querySelector('title')?.textContent).toContain('regelmäßiges Wiederholen')
   })
 
   it('lies at anchor once learned', () => {
-    render(<CourseGauge progress={1} />)
+    const { container } = render(<CourseGauge progress={1} />)
     expect(screen.getByRole('img', { name: 'Gelernt' })).toBeInTheDocument()
     expect(screen.getByTestId('course-boat')).toHaveClass('text-success')
     expect(screen.getByTestId('course-boat')).toHaveStyle({ transform: 'translate(78px, 1px)' })
+    expect(container.querySelector('title')?.textContent).toBe('Gelernt')
+  })
+
+  it('keeps the tooltip identical to the label when used as an exam position indicator', () => {
+    const { container } = render(<CourseGauge progress={0.5} label="Frage 3 von 10" />)
+    expect(screen.getByRole('img', { name: 'Frage 3 von 10' })).toBeInTheDocument()
+    expect(container.querySelector('title')?.textContent).toBe('Frage 3 von 10')
   })
 })
