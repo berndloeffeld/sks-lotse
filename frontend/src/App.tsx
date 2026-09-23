@@ -15,6 +15,7 @@ import { LoginPage } from './pages/LoginPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
+import { AdScriptGate } from './routes/AdScriptGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAuthStore } from './store/authStore'
@@ -36,20 +37,24 @@ export function AppRoutes() {
     <ErrorBoundary>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/imprint" element={<ImprintPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/start" element={<StartPage />} />
-          <Route path="/learn" element={<LearnPage />} />
-          <Route path="/learn/fokus" element={<FocusPracticePage />} />
-          <Route path="/learn/:subject/:topic" element={<PracticePage />} />
-          <Route path="/exam" element={<ExamPage />} />
-          <Route path="/exam/:id" element={<ExamRunPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/settings" element={<AdminSettingsPage />} />
+        {/* The prerendered public pages above carry the ad script statically; these load it
+            only where wanted — not for ads-removed accounts, never on /admin (ads.ts). */}
+        <Route element={<AdScriptGate />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/start" element={<StartPage />} />
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/learn/fokus" element={<FocusPracticePage />} />
+            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+            <Route path="/exam" element={<ExamPage />} />
+            <Route path="/exam/:id" element={<ExamRunPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+          </Route>
         </Route>
         {/* Dev-only: throws on purpose to preview the ErrorBoundary's error
             page. import.meta.env.DEV is false in production builds, so this

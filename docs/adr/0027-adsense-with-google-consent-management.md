@@ -40,3 +40,15 @@ The ad-free entitlement now exists as a flag, set by the operator on `/admin` li
 ## Addendum (2026-09-22): CSP moved from report-only to enforced
 
 Checked the browser console on sks-lotse.de (landing, imprint, privacy, and opening "Cookie-Einstellungen" to trigger the consent script): the only `[Report Only]` violation was `connect-src` missing `https://gateway.umami.is` — the Umami Cloud SDK loads its script from `cloud.umami.is` but sends tracked events to a separate `gateway.umami.is` endpoint. Added that host and promoted the full allowlist from `Content-Security-Policy-Report-Only` into the enforced `Content-Security-Policy` header in `render.yaml`; the report-only header is gone, there's now a single enforced policy.
+
+## Addendum (2026-09-23): script only where ads are shown, never on /admin
+
+The static tag used to be in every served page, including `app.html`, the shell of `/login` and every logged-in route. There it ran for accounts that had removed ads, and on the admin tools. The script runs as same-origin JavaScript, and the API accepts `sks-lotse.de` with credentials. So any compromise or malvertising along the ad chain could call the API with the session cookie, and on an operator's session that includes exporting and deleting accounts.
+
+Ads stay for every logged-in account that hasn't removed them (a stricter "public pages only" variant was considered and rejected: logged-in learners are the audience). The script is now kept out of exactly two places:
+
+- `scripts/prerender.mjs` strips the static tag from `app.html`; the build fails if any trace remains. The four prerendered public pages keep it, as AdSense's site verification requires.
+- `routes/AdScriptGate.tsx` wraps `/login` and the logged-in routes. Once the session check has settled, it loads the script at runtime where `wantsAdScript()` (`src/ads.ts`) says so: ads shown (`useShowAds()`) and not `/admin`. A script that can't be unloaded is left by one full load of the same URL, which Render serves as the script-free shell. This applies to an ads-removed account arriving from a public page, and to navigating into `/admin`. A one-shot `sessionStorage` marker stops a loop, and only when the document was served with the static tag (a misconfigured rewrite); a script the gate injected itself is always left.
+- "Cookie-Einstellungen" keeps working everywhere (Art. 7(3) DSGVO). Where the page has no consent API, it opens `/privacy?cookie-einstellungen`, which queues Google's revocation dialog on arrival.
+
+Accepted risk: for accounts that see ads, the script still runs next to their session, including on `/login` while the code is typed. That's the price of in-app ads, and it's bounded by the account's own rights. Ads-removed accounts now get what they pay for: no Google script while using the app.
