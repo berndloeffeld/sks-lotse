@@ -8,7 +8,14 @@ import { HeroBand } from '../components/HeroBand'
 import { AnswerIcon, CatalogIcon, FeedbackIcon } from '../components/icons/FeatureIcons'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
+import { ShareLinks } from '../components/ShareLinks'
+import { FAQ } from '../faq'
 import { useAuthStore } from '../store/authStore'
+
+// A short, first-time-visitor-relevant excerpt of the full FAQ (order
+// preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
+const LANDING_FAQ_IDS = new Set(['quelle', 'varianten', 'gelernt', 'pruefungssimulation'])
+const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 
 // Banded layout after a website template: full-width color bands (light
 // bg / primary / primary-dark) alternating down the page, a slanted hero
@@ -224,12 +231,53 @@ export function LandingPage() {
           <ScreenshotList items={EXAM_SCREENSHOTS} className="mt-10" />
         </section>
 
+        <section className={`${CONTENT} py-16`}>
+          <h2 className="font-serif text-3xl text-primary">Der amtliche SKS-Fragenkatalog</h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+            Die theoretische SKS-Prüfung deckt vier Fächer ab: Navigation, Schifffahrtsrecht, Wetterkunde und
+            Seemannschaft. Im echten Fragebogen sind sie mit 9, 7, 5 und 9 Fragen vertreten – zusammen 30 Fragen in 90
+            Minuten, ohne Hilfsmittel. SKS Lotse bildet den kompletten amtlichen Fragenkatalog ab, in beiden
+            Prüfungsvarianten „Segeln und Motor" und „Motor" – mit genau den Originalfragen und -musterantworten, die
+            auch im Examen vorkommen, nicht mit umformulierten oder gekürzten Versionen.
+          </p>
+          <Link to="/faq" className="mt-4 inline-block text-sm text-primary underline hover:no-underline">
+            Mehr zum Fragenkatalog in den häufigen Fragen
+          </Link>
+        </section>
+
+        <section className={`${CONTENT} py-16`}>
+          <h2 className="font-serif text-3xl text-primary">Häufige Fragen</h2>
+          <p className="mt-3 max-w-xl text-sm text-ink-soft">Ein paar Antworten auf Fragen, die uns oft erreichen.</p>
+          <div className="mt-10 flex flex-col gap-8">
+            {LANDING_FAQ.map(({ id, question, answer }) => (
+              <div key={id} className="flex flex-col gap-2">
+                <h3 className="font-serif text-xl text-primary">
+                  <Link to={`/faq#${id}`} className="hover:underline">
+                    {question}
+                  </Link>
+                </h3>
+                <p className="text-sm leading-relaxed text-ink-soft">{answer}</p>
+              </div>
+            ))}
+          </div>
+          <Link
+            to="/faq"
+            className="mt-8 inline-block font-mono text-sm tracking-wide text-primary uppercase hover:underline"
+          >
+            Alle Fragen ansehen →
+          </Link>
+        </section>
+
         <section className="bg-primary-dark py-14 text-surface">
-          <div className={CONTENT}>
-            <h2 className="font-serif text-3xl">Kostenlos starten</h2>
-            <p className="mt-3 max-w-xl text-sm text-surface-alt">
-              Zwei unabhängige Erweiterungen lassen sich später einzeln freischalten – Preise folgen in Kürze.
-            </p>
+          <div className={`${CONTENT} grid gap-10 sm:grid-cols-2 sm:items-center`}>
+            <div>
+              <h2 className="font-serif text-3xl">Kostenlos starten</h2>
+              <p className="mt-3 max-w-xl text-sm text-surface-alt">
+                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
+                einzeln freischalten – Preise folgen in Kürze.
+              </p>
+            </div>
+            <ShareLinks />
           </div>
         </section>
 

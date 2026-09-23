@@ -21,6 +21,7 @@ import { AdScriptGate } from './routes/AdScriptGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { useScrollToHash } from './hooks/useScrollToHash'
 import { useAuthStore } from './store/authStore'
 
 function ThrowForPreview(): never {
@@ -35,6 +36,8 @@ export function AppRoutes() {
   useEffect(() => {
     checkSession()
   }, [checkSession])
+
+  useScrollToHash()
 
   return (
     <ErrorBoundary>

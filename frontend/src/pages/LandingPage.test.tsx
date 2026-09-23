@@ -60,6 +60,12 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })
 
+  it('offers share buttons after the "Kostenlos starten" pitch', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('button', { name: 'Auf WhatsApp teilen' })).toBeInTheDocument()
+  })
+
   it('shows no beta or speech-input notice', () => {
     renderLandingPage()
 
