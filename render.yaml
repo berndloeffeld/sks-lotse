@@ -2,6 +2,9 @@ databases:
   - name: sks-lotse-db
     plan: basic-256mb
     region: frankfurt
+    # Pinned to what production runs, so a DB recreated from this Blueprint doesn't silently get
+    # Render's current default. CI's migrations job and docker-compose.yml use the same major version.
+    postgresMajorVersion: "18"
     databaseName: sks_lotse
     user: sks_lotse
 
@@ -13,13 +16,20 @@ services:
     plan: starter
     rootDir: backend
     branch: main
-    autoDeployTrigger: commit
+    # Deploy only once GitHub's checks on the commit have passed — not the moment it lands on
+    # main, while CI for it may still be running (or, for a direct push, never ran).
+    autoDeployTrigger: checksPass
     buildCommand: pip install -r requirements.txt
-    # The (idempotent) migration still runs inline before the server starts.
-    # A paid plan would allow `preDeployCommand: alembic upgrade head`, which
-    # aborts a deploy on a failed migration instead of crash-looping — not
-    # switched over yet.
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Runs once per deploy, before the new instance starts: a failed migration aborts the deploy
+    # and the old instance keeps serving, instead of the new one crash-looping. Migrations still
+    # have to be compatible with the code already running while they apply.
+    preDeployCommand: alembic upgrade head
+    # Exactly one worker process: the rate limiter, the catalog cache and the AI-check caps are
+    # in-process memory (ADR-0007, ADR-0009) — with more workers every limit would multiply and an
+    # admin change would reach only one of them. Explicit, because uvicorn otherwise takes
+    # WEB_CONCURRENCY from the environment. The graceful-shutdown window lets in-flight requests and
+    # background OTP mails finish before Render stops the old instance.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --timeout-graceful-shutdown 25
     # Unauthenticated, not rate-limited (see backend/app/main.py) — Render
     # only routes traffic to a new deploy once this returns 2xx.
     healthCheckPath: /health
@@ -40,15 +50,16 @@ services:
       # raw OpenAPI schema (see backend/app/main.py, backend/app/core/config.py).
       - key: ENVIRONMENT
         value: production
+      # One JSON object per log line: Render's log stream forwards stdout to Better Stack
+      # (syslog-ng), which turns the fields into searchable, alertable columns
+      # (app/core/log_config.py).
+      - key: LOG_FORMAT
+        value: json
       # Set manually in the Render dashboard after the first deploy —
       # not stored in this file or in git (see CLAUDE.md, Environment Variables).
       - key: JWT_SECRET
         sync: false
-      - key: OPENAI_API_KEY
-        sync: false
       - key: ANTHROPIC_GRADING_API_KEY
-        sync: false
-      - key: ADSENSE_CLIENT_ID
         sync: false
       - key: RESEND_API_KEY
         sync: false
@@ -73,7 +84,7 @@ services:
     schedule: "0 6 * * *"
     rootDir: backend
     branch: main
-    autoDeployTrigger: commit
+    autoDeployTrigger: checksPass
     buildCommand: pip install -r requirements.txt
     startCommand: python -m scripts.send_daily_report
     envVars:
@@ -91,6 +102,12 @@ services:
         sync: false
       - key: ADMIN_EMAILS
         sync: false
+      - key: LOG_FORMAT
+        value: json
+      # Better Stack heartbeat URL, pinged after every fully successful run — a run that failed or
+      # never started raises an alert there. Unset = no ping.
+      - key: BETTERSTACK_HEARTBEAT_URL
+        sync: false
 
   # Static site — no region/plan/startCommand/scaling fields (unsupported for
   # this service type; Render's static sites are edge-served globally, not
@@ -105,7 +122,7 @@ services:
     runtime: static
     rootDir: frontend
     branch: main
-    autoDeployTrigger: commit
+    autoDeployTrigger: checksPass
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
     envVars:
@@ -157,6 +174,12 @@ services:
     # api.sks-lotse.de; without these, sks-lotse.de (incl. /profile's
     # "Konto löschen") could be framed by another site for clickjacking.
     headers:
+      # Vite puts a content hash in every file name under /assets/, so a changed file always gets a
+      # new URL — browsers may keep these forever. The HTML files that reference them keep Render's
+      # default (revalidate on every load), so a deploy is picked up on the next page load.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
       # Enforced (ADR-0027 addendum): ran as Content-Security-Policy-Report-Only
       # first since Google's ad stack pulls in many hosts and an incomplete
       # enforced list would silently break ads or the consent dialog. Checked

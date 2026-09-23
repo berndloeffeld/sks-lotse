@@ -4,6 +4,10 @@ import resend
 
 from app.core.config import settings
 
+# The SDK's default client waits 30 s. OTP mails go out in a background task, where a hanging
+# send would still hold a worker thread — 10 s is plenty for one API call.
+resend.default_http_client = resend.http_client_requests.RequestsClient(timeout=10)
+
 
 def _send_code_email(to_email: str, subject: str, intro: str, code: str) -> None:
     # German copy, like the rest of the app. A plain-text part alongside the

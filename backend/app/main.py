@@ -11,9 +11,11 @@ from app.api.v1 import router as api_v1_router
 from app.core.canonical_domain import RedirectSecondaryDomainsMiddleware
 from app.core.config import settings
 from app.core.database import get_session_factory
+from app.core.log_config import RequestIdMiddleware, configure_logging
 from app.core.rate_limit import RateLimitMiddleware
 from app.core.security_headers import SecurityHeadersMiddleware
 
+configure_logging(settings.log_level, settings.log_format)
 logger = logging.getLogger(__name__)
 
 
@@ -72,6 +74,9 @@ app.add_middleware(
     # API on :8000); safe alongside an explicit origin allowlist, never `*`.
     allow_credentials=True,
 )
+# Added last, so it's the outermost user middleware: every line logged while handling the
+# request — including a 429 from the limiter — carries its id (app/core/log_config.py).
+app.add_middleware(RequestIdMiddleware)
 app.include_router(api_v1_router)
 
 
