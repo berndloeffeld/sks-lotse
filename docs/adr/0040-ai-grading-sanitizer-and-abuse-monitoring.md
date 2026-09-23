@@ -1,6 +1,6 @@
 # 0040. AI-grading sanitizer and abuse monitoring
 
-Status: Accepted
+Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring).
 
 ## Context
 

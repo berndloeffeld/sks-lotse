@@ -9,7 +9,7 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 ## Status
 
-Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, and GDPR admin tooling are live; LLM grading of free-text answers hasn't been built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
+Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, unlocked per account by the operator) and GDPR admin tooling are live; payment for the unlocks, SSO and speech-to-text aren't built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
 
 ## Tech stack
 
@@ -24,6 +24,7 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 | Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
 | Ads | Google AdSense *(script + consent are in, no ad units yet)* |
 | Analytics | Umami Cloud (cookieless, EU) |
+| Monitoring | Better Stack (uptime, status page, logs) |
 | Hosting | Render (Frankfurt EU) |
 | CI/CD | GitHub Actions |
 
@@ -43,7 +44,9 @@ Login is mandatory, so handling personal data properly is part of the design, no
 ## Architecture & decisions
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — current-state system overview (components, diagram)
-- [docs/adr/](docs/adr/) — Architecture Decision Records: the reasoning behind non-obvious or hard-to-reverse decisions, not just the resulting code
+- [docs/adr/](docs/adr/README.md) — Architecture Decision Records: the reasoning behind non-obvious or hard-to-reverse decisions, not just the resulting code (index with status)
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) — operating production: logs, deploys and rollback, backups, secrets, DSGVO requests
+- [docs/catalog-pipeline.md](docs/catalog-pipeline.md) — how the official catalog PDF becomes the question database
 
 ## Getting started
 
@@ -73,6 +76,14 @@ npm install
 cp .env.example .env  # points the app at the local API on :8000
 npm run dev           # http://localhost:5173
 ```
+
+**First login locally:** with `RESEND_API_KEY` left empty no email goes out, so read the code from the dev-only peek endpoint after requesting one on `http://localhost:5173/login`:
+
+```bash
+curl "http://localhost:8000/api/v1/auth/otp/_dev-peek?email=you@example.com"
+```
+
+To reach `/admin`, put your address into `ADMIN_EMAILS` in `backend/.env` and restart the API. To try the Lotsen-Check, set `ANTHROPIC_GRADING_API_KEY` and unlock your account on `/admin` (without the key the check answers 503).
 
 API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](postman/sks-lotse.postman_collection.json) is also generated from the live OpenAPI schema — see below.
 

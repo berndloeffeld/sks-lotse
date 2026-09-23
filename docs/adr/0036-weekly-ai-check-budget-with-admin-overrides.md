@@ -1,6 +1,6 @@
 # 0036. Weekly AI-check budget with admin-tunable default and per-user override
 
-Status: Accepted
+Status: Accepted — amends the budget bullet of [ADR-0031](0031-ai-answer-check-with-claude-haiku.md).
 
 Amends the budget bullet of [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (that ADR's other decisions stand).
 
