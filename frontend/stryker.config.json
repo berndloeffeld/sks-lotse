@@ -20,7 +20,8 @@
     "src/contact.ts",
     "src/scroll.ts",
     "src/faq.ts",
-    "src/share.ts"
+    "src/share.ts",
+    "src/legal.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

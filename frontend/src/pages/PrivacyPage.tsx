@@ -40,7 +40,15 @@ export function PrivacyPage() {
           Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
           (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für
           den Versand der Login-Codes per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig
-          wird.
+          wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
+          unserer{' '}
+          <a href="/agb" className="underline hover:text-primary">
+            AGB
+          </a>{' '}
+          Sie zuletzt zugestimmt haben und wann. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
+          (Vertragserfüllung/Zustimmungsnachweis) bzw. lit. f DSGVO (berechtigtes Interesse an einer begrenzten
+          Speicherdauer). Bleibt ein Konto länger als zwölf Monate ohne Login, behalten wir uns vor, es und die
+          zugehörigen Daten zu löschen; wir kündigen dies nach Möglichkeit vorher per E-Mail an.
         </p>
       </section>
 

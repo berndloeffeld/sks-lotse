@@ -15,6 +15,7 @@ const mockUser: User = {
   ai_grading_enabled: false,
   ads_removed: false,
   ai_checks_remaining: 20,
+  agb_accepted_version: null,
   is_admin: false,
 }
 

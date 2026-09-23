@@ -134,6 +134,16 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         <dd className="text-ink">{user.gender ? (GENDER_LABELS[user.gender] ?? user.gender) : '—'}</dd>
         <dt className="text-ink-soft">Angemeldet seit</dt>
         <dd className="text-ink">{new Date(user.created_at).toLocaleDateString('de-DE')}</dd>
+        <dt className="text-ink-soft">Letzter Login</dt>
+        <dd className="text-ink">{user.last_login_at ? new Date(user.last_login_at).toLocaleString('de-DE') : '—'}</dd>
+        <dt className="text-ink-soft">AGB akzeptiert</dt>
+        <dd className="text-ink">
+          {user.agb_accepted_version
+            ? `Version ${user.agb_accepted_version}${
+                user.agb_accepted_at ? ` (${new Date(user.agb_accepted_at).toLocaleString('de-DE')})` : ''
+              }`
+            : 'Noch nicht'}
+        </dd>
         <dt className="text-ink-soft">Prüfungsvariante</dt>
         <dd className="text-ink">
           {user.exam_variant ? (VARIANT_LABELS[user.exam_variant as ExamVariant] ?? user.exam_variant) : '—'}

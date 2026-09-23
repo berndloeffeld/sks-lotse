@@ -5,6 +5,7 @@ import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
 import { AdminUserPage } from './pages/AdminUserPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
+import { AgbPage } from './pages/AgbPage'
 import { ExamPage } from './pages/ExamPage'
 import { ExamRunPage } from './pages/ExamRunPage'
 import { FaqPage } from './pages/FaqPage'
@@ -18,6 +19,7 @@ import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
 import { AdScriptGate } from './routes/AdScriptGate'
+import { AgbGate } from './routes/AgbGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -46,24 +48,27 @@ export function AppRoutes() {
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/imprint" element={<ImprintPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/agb" element={<AgbPage />} />
         {/* The prerendered public pages above carry the ad script statically; these load it
             only where wanted — not for ads-removed accounts, never on /admin (ads.ts). */}
         <Route element={<AdScriptGate />}>
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/start" element={<StartPage />} />
-            <Route path="/learn" element={<LearnPage />} />
-            <Route path="/learn/fokus" element={<FocusPracticePage />} />
-            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
-            <Route path="/exam" element={<ExamPage />} />
-            <Route path="/exam/:id" element={<ExamRunPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="users" replace />} />
-              <Route path="users" element={<AdminUsersPage />} />
-              <Route path="users/:id" element={<AdminUserPage />} />
-              <Route path="questions" element={<AdminQuestionsPage />} />
-              <Route path="settings" element={<AdminSettingsPage />} />
+            <Route element={<AgbGate />}>
+              <Route path="/start" element={<StartPage />} />
+              <Route path="/learn" element={<LearnPage />} />
+              <Route path="/learn/fokus" element={<FocusPracticePage />} />
+              <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+              <Route path="/exam" element={<ExamPage />} />
+              <Route path="/exam/:id" element={<ExamRunPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="users" replace />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="users/:id" element={<AdminUserPage />} />
+                <Route path="questions" element={<AdminQuestionsPage />} />
+                <Route path="settings" element={<AdminSettingsPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>

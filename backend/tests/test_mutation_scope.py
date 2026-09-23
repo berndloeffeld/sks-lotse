@@ -16,6 +16,8 @@ EXCLUDED = {
     "app/core/config.py",
     "app/core/database.py",
     "app/services/catalog_seed.py",
+    # A single constant, no branching logic to mutate — same reasoning as config.py.
+    "app/core/legal.py",
 }
 
 

@@ -72,6 +72,9 @@ class AdminUserRead(BaseModel):
     # account. No admin control to reset it — it's a symptom to investigate, not an entitlement.
     ai_flags_count: int
     ai_flags_last_at: datetime | None
+    agb_accepted_version: str | None
+    agb_accepted_at: datetime | None
+    last_login_at: datetime | None
     question_progress_count: int
 
 

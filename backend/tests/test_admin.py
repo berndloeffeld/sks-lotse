@@ -99,6 +99,24 @@ def test_admin_detail_and_export_include_the_sanitizer_flag_counter(
     assert export.json()["user"]["ai_flags_count"] == 2
 
 
+def test_admin_detail_and_export_include_agb_acceptance_and_last_login(
+    client, db_session, auth_headers, monkeypatch
+):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    user.agb_accepted_version = "2026-09-23"
+    user.agb_accepted_at = datetime(2026, 9, 23, 8, 0, tzinfo=UTC)
+    user.last_login_at = datetime(2026, 9, 23, 9, 0, tzinfo=UTC)
+    db_session.commit()
+
+    detail = client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers)
+    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
+
+    for body in (detail.json(), export.json()["user"]):
+        assert body["agb_accepted_version"] == "2026-09-23"
+        assert body["last_login_at"] is not None
+
+
 def test_admin_export_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     response = client.get("/api/v1/admin/users/999999/export", headers=auth_headers)

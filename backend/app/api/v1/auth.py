@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
 from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
+from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
     OTP_PURPOSE_LOGIN,
@@ -95,6 +97,9 @@ def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depe
         else:
             db.refresh(user)
 
+    user.last_login_at = datetime.now(UTC)
+    db.commit()
+
     access_token = create_access_token(user.id, user.token_version)
     # The browser frontend never reads this token directly (see ADR-0012) —
     # it's set as an httpOnly cookie here, in addition to the response body,
@@ -163,6 +168,18 @@ def delete_current_user(
     # it the same way logout does. No token_version bump needed: the row
     # itself is gone, so get_current_user's next lookup already 401s.
     response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+
+
+@router.post("/me/agb-accept", response_model=UserRead)
+def accept_agb(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # No version comes from the client — a caller can only ever confirm the
+    # one version the server currently knows about, never claim to have
+    # accepted a stale one. See frontend/src/routes/AgbGate.tsx.
+    current_user.agb_accepted_version = CURRENT_AGB_VERSION
+    current_user.agb_accepted_at = datetime.now(UTC)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 
 @router.post("/me/email/request", response_model=OtpRequestAccepted, status_code=status.HTTP_202_ACCEPTED)

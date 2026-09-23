@@ -49,6 +49,17 @@ class User(Base):
     # for prompt-injection abuse, never the triggering text itself (ADR-0031, ADR-0040).
     ai_flags_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     ai_flags_last_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Which AGB version this account last confirmed, and when — set only by
+    # POST /auth/me/agb-accept (app/api/v1/auth.py), never on login itself.
+    # NULL until the first confirmation. See ADR-0041.
+    agb_accepted_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    agb_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Set on every successful login (app/api/v1/auth.py::verify_otp). Exists
+    # solely for a future inactivity-based retention policy (ADR-0041) — ADR-0032
+    # deliberately does not use it for KPI activity, to keep that definition
+    # purely learning-based. Indexed for the future cleanup job's
+    # `last_login_at < cutoff` scan.
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
     @property
     def ai_checks_limit(self) -> int:
