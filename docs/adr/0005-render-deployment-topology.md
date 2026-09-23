@@ -49,3 +49,7 @@ The backend moved to the `starter` plan and the database to `basic-256mb` (`rend
 - **Structured logs**: `LOG_FORMAT=json` on the backend and the cron job, for Better Stack (see `docs/ARCHITECTURE.md` → Deployment → Logs).
 - The database keeps accepting external connections (no `ipAllowList`), a deliberate choice so the operator can reach it directly. Access is protected by the generated password only.
 - **PostgreSQL 18** is what production actually runs (Render's default when the database was created). CI and docker-compose had tested against 16, so migrations were never exercised on the production version. All three now use 18, and `render.yaml` pins `postgresMajorVersion: "18"`.
+
+## Addendum (2026-09-23, closing external database access)
+
+The previous addendum's "keeps accepting external connections" is superseded: `render.yaml` now sets `ipAllowList: []` on `sks-lotse-db`. This followed adding the admin tools that covered the lookups direct SQL access was for — browsing and searching accounts (`GET /admin/users`) and question/answer texts (`GET /admin/questions`), alongside the GDPR lookup/export/delete already there (ADR-0019). An empty `ipAllowList` blocks external clients only; services within the same Render account (the backend, the cron job) still reach the database over its internal network, so nothing about the running app changes. Emergency ad hoc access that the admin UI doesn't cover goes through the backend service's Render Shell instead of a local `psql` (see `docs/RUNBOOK.md` → Database).

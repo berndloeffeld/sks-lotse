@@ -26,7 +26,6 @@ def test_admin_routes_require_authentication(client):
     assert client.get("/api/v1/admin/users").status_code == 401
     assert client.get("/api/v1/admin/users/1").status_code == 401
     assert client.get("/api/v1/admin/questions").status_code == 401
-    assert client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}).status_code == 401
     assert client.get("/api/v1/admin/users/1/export").status_code == 401
     assert client.delete("/api/v1/admin/users/1").status_code == 401
     assert client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}).status_code == 401
@@ -36,34 +35,12 @@ def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
     # No admin_emails set at all — the fixture user is logged in but not an admin.
     for path in ("/api/v1/admin/users", "/api/v1/admin/users/1", "/api/v1/admin/questions"):
         assert client.get(path, headers=auth_headers).status_code == 403
-    response = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
-    assert response.status_code == 403
     response = client.get("/api/v1/admin/users/1/export", headers=auth_headers)
     assert response.status_code == 403
     response = client.delete("/api/v1/admin/users/1", headers=auth_headers)
     assert response.status_code == 403
     response = client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}, headers=auth_headers)
     assert response.status_code == 403
-
-
-def test_admin_search_finds_user_case_insensitively(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    response = client.post(
-        "/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL.upper()}, headers=auth_headers
-    )
-    assert response.status_code == 200
-    body = response.json()
-    assert body["email"] == _FIXTURE_EMAIL
-    assert body["question_progress_count"] == 0
-    assert (body["ai_flags_count"], body["ai_flags_last_at"]) == (0, None)
-
-
-def test_admin_search_returns_404_for_unknown_email(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    response = client.post(
-        "/api/v1/admin/users/search", json={"email": "nobody@example.com"}, headers=auth_headers
-    )
-    assert response.status_code == 404
 
 
 def test_admin_export_includes_denormalized_question_progress(client, db_session, auth_headers, monkeypatch):
@@ -87,7 +64,7 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     assert {"last_graded_at", "last_correct_at", "streak_start_at", "review_due_at"} <= row.keys()
 
 
-def test_admin_search_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
+def test_admin_detail_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
     # Art. 15/20 DSGVO: the export has to contain all personal data stored
     # about the learner — including the optional, self-reported profile fields.
     _make_admin(monkeypatch)
@@ -98,15 +75,15 @@ def test_admin_search_and_export_include_every_profile_field(client, db_session,
     user.exam_variant = "motor"
     db_session.commit()
 
-    search = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+    detail = client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers)
     export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
 
     expected = {"first_name": "Anna", "last_name": "Beispiel", "gender": "weiblich", "exam_variant": "motor"}
-    assert search.json().items() >= expected.items()
+    assert detail.json().items() >= expected.items()
     assert export.json()["user"].items() >= expected.items()
 
 
-def test_admin_search_and_export_include_the_sanitizer_flag_counter(
+def test_admin_detail_and_export_include_the_sanitizer_flag_counter(
     client, db_session, auth_headers, monkeypatch
 ):
     _make_admin(monkeypatch)
@@ -115,10 +92,10 @@ def test_admin_search_and_export_include_the_sanitizer_flag_counter(
     user.ai_flags_last_at = datetime(2026, 9, 20, 12, 0, tzinfo=UTC)
     db_session.commit()
 
-    search = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+    detail = client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers)
     export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
 
-    assert search.json()["ai_flags_count"] == 2
+    assert detail.json()["ai_flags_count"] == 2
     assert export.json()["user"]["ai_flags_count"] == 2
 
 
@@ -238,7 +215,7 @@ def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, 
     assert response.status_code == 404
 
 
-def test_admin_search_counts_only_that_users_progress(client, db_session, auth_headers, monkeypatch):
+def test_admin_detail_counts_only_that_users_progress(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     me = db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
     other = User(email="other@example.com")
@@ -255,7 +232,7 @@ def test_admin_search_counts_only_that_users_progress(client, db_session, auth_h
     )
     db_session.commit()
 
-    response = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
+    response = client.get(f"/api/v1/admin/users/{me.id}", headers=auth_headers)
 
     assert response.json()["question_progress_count"] == 2
 
