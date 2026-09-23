@@ -1,3 +1,4 @@
+import logging
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -36,6 +37,15 @@ from app.services.user import delete_user_and_progress
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 _NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+logger = logging.getLogger(__name__)
+
+
+def _audit(admin: User, action: str, **details: object) -> None:
+    # Who did what to whom, for the GDPR record (ADR-0019) — ids and settings only, never the
+    # exported data or an address.
+    rendered = " ".join(f"{key}={value}" for key, value in details.items())
+    logger.info("admin action: admin=%s action=%s %s", admin.id, action, rendered)
 
 
 def _question_progress_count(db: Session, user_id: int) -> int:
@@ -81,7 +91,12 @@ def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) 
 
 
 @router.patch("/users/{user_id}", response_model=AdminUserRead)
-def update_user(user_id: int, payload: AdminUserUpdate, db: Session = Depends(get_db)) -> AdminUserRead:
+def update_user(
+    user_id: int,
+    payload: AdminUserUpdate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+) -> AdminUserRead:
     """Unlock/revoke the AI check (ADR-0031), remove ads, set the weekly check limit (null = default)."""
     user = _get_user_or_404(db, user_id)
     if payload.ai_grading_enabled is not None:
@@ -91,6 +106,7 @@ def update_user(user_id: int, payload: AdminUserUpdate, db: Session = Depends(ge
     if "ai_checks_weekly_limit" in payload.model_fields_set:
         user.ai_checks_weekly_limit = payload.ai_checks_weekly_limit
     db.commit()
+    _audit(admin, "update_user", target_user=user.id, **payload.model_dump(exclude_unset=True))
     return _admin_user_read(user, _question_progress_count(db, user.id))
 
 
@@ -100,9 +116,12 @@ def get_settings(db: Session = Depends(get_db)) -> AdminSettingsRead:
 
 
 @router.put("/settings", response_model=AdminSettingsRead)
-def update_settings(payload: AdminSettingsUpdate, db: Session = Depends(get_db)) -> AdminSettingsRead:
+def update_settings(
+    payload: AdminSettingsUpdate, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminSettingsRead:
     """Set the app-wide default weekly AI-check budget (accounts without their own override follow it)."""
     ai_quota_service.set_weekly_default(db, payload.ai_checks_weekly_default)
+    _audit(admin, "update_settings", ai_checks_weekly_default=payload.ai_checks_weekly_default)
     return AdminSettingsRead(ai_checks_weekly_default=payload.ai_checks_weekly_default)
 
 
@@ -136,8 +155,11 @@ def list_question_reports(db: Session = Depends(get_db)) -> list[AdminQuestionRe
 
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)
-def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
+def export_user(
+    user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminUserExport:
     user = _get_user_or_404(db, user_id)
+    _audit(admin, "export_user", target_user=user.id)
 
     rows = db.execute(
         select(QuestionProgress, Question.subject, Question.number)
@@ -239,6 +261,7 @@ def export_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserExport:
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
+def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)) -> None:
     user = _get_user_or_404(db, user_id)
     delete_user_and_progress(db, user)
+    _audit(admin, "delete_user", target_user=user_id)

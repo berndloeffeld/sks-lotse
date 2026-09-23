@@ -7,7 +7,7 @@ from app.api.v1.questions import _catalog_by_id
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
-from app.core.rate_limit import check_and_record
+from app.core.rate_limit import check_and_record, forget_last
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
 from app.services import ai_quota
@@ -58,10 +58,11 @@ def ai_grade_answer(
         raise HTTPException(status_code=409, detail="This question has no text answer to check against")
     # Three caps, cheapest first: per question and day (no rephrasing until it says "richtig"), per hour
     # (a brake on rapid-fire clicking), then the persisted daily budget, which is only spent on success.
+    question_key = f"{current_user.id}:{question_id}"
     if not check_and_record(
         request.app,
         "ai_grade:question",
-        f"{current_user.id}:{question_id}",
+        question_key,
         settings.grading_max_per_question_per_day,
         _DAY_SECONDS,
     ):
@@ -86,7 +87,10 @@ def ai_grade_answer(
     try:
         graded = grade_answer(question.question_text, question.answer_text, payload.answer)
     except GradingUnavailable as exc:
+        # A check that never happened costs the learner nothing: budget and both caps are given back.
         ai_quota.refund(db, current_user.id, booked_on)
+        forget_last(request.app, "ai_grade:question", question_key)
+        forget_last(request.app, "ai_grade:user", str(current_user.id))
         # Reason only — the learner's answer is never logged.
         logger.warning("AI answer check unavailable: %s", exc)
         raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc

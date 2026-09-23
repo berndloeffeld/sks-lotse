@@ -383,3 +383,29 @@ def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth
     )
     assert response.status_code == 200
     assert response.json()["ai_flags_count"] == 3
+
+
+def test_admin_actions_are_audit_logged_without_personal_data(
+    client, db_session, auth_headers, monkeypatch, caplog
+):
+    _make_admin(monkeypatch)
+    admin = _fixture_user(db_session)
+    target = User(email="target@example.com")
+    db_session.add(target)
+    db_session.commit()
+    target_id = target.id
+
+    with caplog.at_level("INFO", logger="app.api.v1.admin"):
+        client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
+        client.put("/api/v1/admin/settings", json={"ai_checks_weekly_default": 7}, headers=auth_headers)
+        client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
+        client.delete(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
+
+    messages = [r.getMessage() for r in caplog.records if r.name == "app.api.v1.admin"]
+    assert messages == [
+        f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
+        f"admin action: admin={admin.id} action=update_settings ai_checks_weekly_default=7",
+        f"admin action: admin={admin.id} action=export_user target_user={target_id}",
+        f"admin action: admin={admin.id} action=delete_user target_user={target_id}",
+    ]
+    assert not any("@" in m for m in messages)

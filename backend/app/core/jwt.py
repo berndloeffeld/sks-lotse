@@ -18,8 +18,9 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def create_access_token(user_id: int, token_version: int) -> str:
-    expires_at = datetime.now(UTC) + timedelta(minutes=settings.jwt_access_token_expires_minutes)
-    payload = {"sub": str(user_id), "tv": token_version, "exp": expires_at}
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=settings.jwt_access_token_expires_minutes)
+    payload = {"sub": str(user_id), "tv": token_version, "iat": now, "exp": expires_at}
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
@@ -36,7 +37,11 @@ def get_current_user(
     if token is None:
         raise unauthorized
     try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+        # PyJWT checks `exp` only when present — requiring it means a token signed without one
+        # (a bug elsewhere, a hand-made test token) can never become a session that never expires.
+        payload = jwt.decode(
+            token, settings.jwt_secret, algorithms=["HS256"], options={"require": ["exp", "sub", "tv"]}
+        )
         user_id = int(payload["sub"])
         token_version = int(payload["tv"])
     except (jwt.PyJWTError, KeyError, ValueError) as exc:
