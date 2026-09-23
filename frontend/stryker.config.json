@@ -16,8 +16,11 @@
     "src/hooks/useExam.ts",
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",
+    "src/hooks/useScrollToHash.ts",
     "src/contact.ts",
-    "src/scroll.ts"
+    "src/scroll.ts",
+    "src/faq.ts",
+    "src/share.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

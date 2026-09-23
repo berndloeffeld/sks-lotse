@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
+import { ShareLinks } from './ShareLinks'
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
@@ -38,6 +39,7 @@ export function LegalFooter() {
             </button>
           )}
         </nav>
+        <ShareLinks />
         <p className="font-mono text-[11px]">© {new Date().getFullYear()} SKS Lotse</p>
         <p className="max-w-md text-xs">
           Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS, Wasserstraßen- und
