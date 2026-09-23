@@ -13,9 +13,12 @@ import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import './index.css'
 import App from './App.tsx'
+import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
 
 initAnalytics()
+// Arriving from "Cookie-Einstellungen" on a page without the consent API (ads.ts).
+openConsentSettingsIfRequested()
 
 const container = document.getElementById('root')!
 const app = (

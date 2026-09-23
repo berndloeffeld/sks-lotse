@@ -3,11 +3,12 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
-// AdSense wants its snippet in the served <head> of every page (its site
-// verification reads the HTML source, and prerender.mjs derives both the
-// landing page and the SPA shell from this built index.html — ADR-0027).
-// Emitted only when VITE_ADSENSE_CLIENT_ID is set, so dev/CI builds stay
-// free of Google requests.
+// AdSense wants its snippet in the served <head> of the public pages (its site
+// verification reads the HTML source — ADR-0027). prerender.mjs derives the
+// public pages and the SPA shell from this built index.html and strips the tag
+// from the shell, which loads it at runtime only where wanted (ads.ts,
+// ADR-0027 addendum 2026-09-23). Emitted only when VITE_ADSENSE_CLIENT_ID is
+// set, so dev/CI builds stay free of Google requests.
 function adsenseSnippet(clientId: string | undefined): Plugin {
   return {
     name: 'adsense-snippet',
