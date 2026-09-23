@@ -165,6 +165,12 @@ def _quality(db: Session, now: datetime) -> QualityKpis:
         ).scalar_one(),
         reports_total=db.execute(select(func.count()).select_from(QuestionReport)).scalar_one(),
         top_reported_7d=[ReportedQuestion(subject=s, number=n, reports=r) for s, n, r in top],
+        ai_flags_24h=db.execute(
+            select(func.count())
+            .select_from(User)
+            .where(User.ai_flags_last_at.is_not(None), User.ai_flags_last_at >= now - timedelta(days=1))
+        ).scalar_one(),
+        ai_flags_total=db.execute(select(func.coalesce(func.sum(User.ai_flags_count), 0))).scalar_one(),
     )
 
 
@@ -220,6 +226,7 @@ def format_report(report: KpiReport) -> str:
         "",
         "QUALITÄT",
         f"Fragenmeldungen 24 h / gesamt: {q.reports_24h} / {q.reports_total}",
+        f"KI-Prüfung Sanitizer-Flags (24 h neu / gesamt): {q.ai_flags_24h} / {q.ai_flags_total}",
         "Meistgemeldet (7 Tage):",
         *(top or ["  -"]),
     ]

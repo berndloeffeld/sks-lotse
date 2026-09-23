@@ -9,3 +9,7 @@ import '@testing-library/jest-dom/vitest'
 afterEach(() => {
   cleanup()
 })
+
+// jsdom doesn't implement layout, so it has no scrollIntoView; stub it so
+// components that scroll an element into view don't crash under test.
+Element.prototype.scrollIntoView = () => {}

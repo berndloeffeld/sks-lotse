@@ -84,7 +84,8 @@ describe('AiAnswerCheck', () => {
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(13)
-    // The suggestion takes the button's place.
+    // The suggestion takes the button's place; the caller (via onSuggest) is responsible for
+    // scrolling it into view, since only it knows where the "Weiter" button ended up.
     expect(screen.queryByRole('button', ROW)).not.toBeInTheDocument()
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toMatch(/\/api\/v1\/questions\/7\/ai-grade$/)

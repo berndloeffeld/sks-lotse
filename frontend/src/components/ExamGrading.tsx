@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
+import { scrollBelowIntoView } from '../scroll'
+import { AiAnswerCheck } from './AiAnswerCheck'
 import { formStyles } from './formStyles'
 import { ReportQuestion } from './ReportQuestion'
 import { QuestionImages } from './QuestionImages'
@@ -25,21 +28,41 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
+  const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
+  const continueRef = useRef<HTMLButtonElement>(null)
 
   const graded = exam.questions.filter((q) => q.outcome !== null).length
   const question = exam.questions.find((q) => q.outcome === null)
   const position = question?.position
 
+  // A new question shows everything at once (answer, official answer, Lotse row), which can
+  // already overflow a short viewport, so scroll down until "Weiter" clears the fold too.
   useEffect(() => {
-    if (position !== undefined) groupRef.current?.focus()
+    if (position !== undefined) {
+      scrollBelowIntoView(continueRef.current)
+      groupRef.current?.focus({ preventScroll: true })
+    }
   }, [position])
 
   if (!question) return null
 
-  function cycleFocus(from: number, backwards: boolean) {
-    const count = OUTCOMES.length
-    radioRefs.current[(from + (backwards ? count - 1 : 1)) % count]?.focus()
+  // Tab cycles through the grade radios and, when usable, the Lotse row (focus only, no selection).
+  function cycleFocus(from: HTMLElement, backwards: boolean) {
+    const stops = [...radioRefs.current, askRef.current].filter(
+      (el): el is HTMLInputElement | HTMLButtonElement => el !== null && !el.disabled,
+    )
+    const at = stops.indexOf(from as HTMLInputElement | HTMLButtonElement)
+    stops[(at + (backwards ? stops.length - 1 : 1)) % stops.length]?.focus()
+  }
+
+  // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
+  // and Tab keeps cycling through the radios like in the manual loop. Its suggestion box can
+  // push "Weiter" further down than the question-change scroll reached, so scroll again.
+  function suggestOutcome(suggested: GradingOutcome) {
+    flushSync(() => setOutcome(suggested))
+    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus({ preventScroll: true })
+    scrollBelowIntoView(continueRef.current)
   }
 
   async function save(chosen: GradingOutcome | null) {
@@ -66,7 +89,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         {exam.timed_out ? 'Die Zeit ist abgelaufen. ' : ''}Selbsteinschätzung: {graded} von {exam.question_count}{' '}
         bewertet · Frage {question.position} · {SUBJECT_GROUP_LABELS[question.subject_group]}
       </p>
-      <p className="font-serif text-xl whitespace-pre-line text-ink">
+      <p className="font-serif text-base leading-snug whitespace-pre-line text-ink">
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}
       </p>
       <QuestionImages images={question.question_images} part="question" />
@@ -108,7 +131,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
               onKeyDown={(event) => {
                 if (event.key === 'Tab') {
                   event.preventDefault()
-                  cycleFocus(i, event.shiftKey)
+                  cycleFocus(event.currentTarget, event.shiftKey)
                 } else if (event.key === 'Enter') {
                   event.preventDefault()
                   setOutcome(o)
@@ -121,12 +144,28 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
           </label>
         ))}
       </fieldset>
+      {question.official_answer && question.question_id !== null ? (
+        <AiAnswerCheck
+          key={question.question_id}
+          questionId={question.question_id}
+          answer={question.answer_text ?? ''}
+          onSuggest={suggestOutcome}
+          buttonRef={askRef}
+          onButtonKeyDown={(event) => {
+            if (event.key === 'Tab') {
+              event.preventDefault()
+              cycleFocus(event.currentTarget, event.shiftKey)
+            }
+          }}
+        />
+      ) : null}
       {error ? (
         <p role="alert" className={styles.error}>
           {error}
         </p>
       ) : null}
       <button
+        ref={continueRef}
         type="button"
         className={styles.button}
         disabled={!outcome || isSaving}

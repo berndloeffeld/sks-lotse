@@ -15,6 +15,7 @@ import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
 import { OUTCOME_LABELS } from '../labels'
+import { scrollBelowIntoView } from '../scroll'
 
 type Phase = 'answer' | 'assess'
 
@@ -117,13 +118,20 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const askRef = useRef<HTMLButtonElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
+  const continueRef = useRef<HTMLButtonElement>(null)
   const styles = formStyles('light')
 
   // Keyboard flow: each phase hands focus to the control the learner needs
   // next, so the whole loop works without a mouse (see the key handlers below).
+  // Revealing the answer also scrolls down until the "Weiter" button clears the
+  // fold, since focusing the fieldset above it only scrolls that fieldset into view.
   useEffect(() => {
-    if (phase === 'answer') noteRef.current?.focus()
-    else groupRef.current?.focus()
+    if (phase === 'answer') {
+      noteRef.current?.focus()
+    } else {
+      scrollBelowIntoView(continueRef.current)
+      groupRef.current?.focus({ preventScroll: true })
+    }
   }, [phase, index, run])
 
   // Tab cycles through the grade radios and, when usable, the Lotse row (focus only, no selection).
@@ -137,10 +145,12 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   }
 
   // The AI check only *suggests*: preselect its grade and put focus on it, so Enter confirms
-  // and Tab keeps cycling through the radios like in the manual loop.
+  // and Tab keeps cycling through the radios like in the manual loop. Its suggestion box can
+  // push "Weiter" further down than the initial reveal scrolled for, so scroll again.
   const suggestOutcome = (suggested: GradingOutcome) => {
     flushSync(() => setOutcome(suggested))
-    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus()
+    radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus({ preventScroll: true })
+    scrollBelowIntoView(continueRef.current)
   }
 
   const startRun = (includeLearned: boolean) => {
@@ -267,7 +277,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
         </div>
       </div>
 
-      <h2 className="font-serif text-lg whitespace-pre-line text-ink outline-none">
+      <h2 className="font-serif text-base leading-snug whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
       </h2>
       <QuestionImages images={question.question_images} part="question" />
@@ -378,6 +388,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
           ) : null}
 
           <button
+            ref={continueRef}
             type="button"
             className={styles.button}
             disabled={!outcome || isSaving}

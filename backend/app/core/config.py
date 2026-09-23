@@ -99,6 +99,12 @@ class Settings(BaseSettings):
     # and overrides per account on /admin. At ~0.13 cent per check, 100/week is ~13 cent per account and week.
     grading_max_per_week: int = 100
     grading_max_per_question_per_day: int = 2
+    # Sanitizer backstop (ADR-0040): normal feedback is "höchstens 3 kurze Sätze", so this cap is
+    # generous headroom that only trips on injected/off-topic content the model echoed back.
+    grading_feedback_max_chars: int = 500
+    # After this many sanitizer trips, subsequent ai-grade calls for that account log extra detail
+    # (question id, outcome, timestamp) — never the answer or feedback text (ADR-0040).
+    grading_sanitizer_log_threshold: int = 3
 
     catalog_cache_ttl_seconds: int = 3600  # 1 hour
 

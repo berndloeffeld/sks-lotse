@@ -157,21 +157,19 @@ services:
     # api.sks-lotse.de; without these, sks-lotse.de (incl. /profile's
     # "Konto löschen") could be framed by another site for clickjacking.
     headers:
-      # Enforced: the directives that can't break a third-party integration.
-      # (Render sends one header per name, so this is a single combined value.)
+      # Enforced (ADR-0027 addendum): ran as Content-Security-Policy-Report-Only
+      # first since Google's ad stack pulls in many hosts and an incomplete
+      # enforced list would silently break ads or the consent dialog. Checked
+      # the browser console on the live site on 2026-09-22 for "[Report Only]"
+      # violations: the only one was gateway.umami.is missing from connect-src
+      # (the Umami SDK's script and send-beacon endpoints are different
+      # subdomains) — added below, then promoted to enforced. 'unsafe-inline'
+      # for styles is needed for the style="" attributes React's prerender
+      # emits. (Render sends one header per name, so this is a single
+      # combined value.)
       - path: /*
         name: Content-Security-Policy
-        value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
-      # The full allowlist (script/connect/img/frame for Umami, AdSense and its
-      # consent message) runs report-only first: Google's ad stack pulls in
-      # many hosts, and an incomplete enforced list would silently break ads
-      # or the consent dialog. Check the browser console on the live site for
-      # "[Report Only]" violations, extend the list, then move it into the
-      # enforced header above (ADR-0027 addendum). 'unsafe-inline' for styles
-      # is needed for the style="" attributes React's prerender emits.
-      - path: /*
-        name: Content-Security-Policy-Report-Only
-        value: "default-src 'self'; script-src 'self' https://cloud.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://www.googletagservices.com https://partner.googleadservices.com https://tpc.googlesyndication.com; connect-src 'self' https://api.sks-lotse.de https://cloud.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://ep1.adtrafficquality.google https://*.g.doubleclick.net; img-src 'self' data: https://*.googlesyndication.com https://*.g.doubleclick.net https://*.google.com https://*.google.de; frame-src https://*.googlesyndication.com https://googleads.g.doubleclick.net https://fundingchoicesmessages.google.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'"
+        value: "default-src 'self'; script-src 'self' https://cloud.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://www.googletagservices.com https://partner.googleadservices.com https://tpc.googlesyndication.com; connect-src 'self' https://api.sks-lotse.de https://cloud.umami.is https://gateway.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://ep1.adtrafficquality.google https://*.g.doubleclick.net; img-src 'self' data: https://*.googlesyndication.com https://*.g.doubleclick.net https://*.google.com https://*.google.de; frame-src https://*.googlesyndication.com https://googleads.g.doubleclick.net https://fundingchoicesmessages.google.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
       # Legacy counterpart of frame-ancestors, for browsers that predate it.
       - path: /*
         name: X-Frame-Options

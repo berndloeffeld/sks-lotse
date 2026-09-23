@@ -15,7 +15,8 @@
     "src/hooks/useExam.ts",
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",
-    "src/contact.ts"
+    "src/contact.ts",
+    "src/scroll.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

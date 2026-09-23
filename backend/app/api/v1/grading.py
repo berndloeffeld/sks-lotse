@@ -20,6 +20,25 @@ _DAY_SECONDS = 24 * 3600
 router = APIRouter(prefix="/questions", tags=["grading"], dependencies=[Depends(get_current_user)])
 
 
+def _record_and_log_if_flagged(
+    db: Session, user: User, *, question_id: int, outcome: str, sanitized: bool
+) -> None:
+    """Bump the abuse-monitoring counter and, past the threshold, log extra detail (ADR-0040).
+
+    Never logs the learner's answer or the model's feedback text — only metadata.
+    """
+    flags = ai_quota.record_sanitizer_flag(db, user.id) if sanitized else user.ai_flags_count
+    if flags >= settings.grading_sanitizer_log_threshold:
+        logger.warning(
+            "ai-grade flagged-account activity: user=%s question=%s outcome=%s sanitized=%s flags=%s",
+            user.id,
+            question_id,
+            outcome,
+            sanitized,
+            flags,
+        )
+
+
 @router.post("/{question_id}/ai-grade", response_model=AiGradeRead)
 def ai_grade_answer(
     request: Request,
@@ -46,6 +65,9 @@ def ai_grade_answer(
         settings.grading_max_per_question_per_day,
         _DAY_SECONDS,
     ):
+        logger.warning(
+            "ai-grade rate limit: user=%s question=%s bucket=per_question_day", current_user.id, question_id
+        )
         raise HTTPException(status_code=429, detail="Too many checks for this question today")
     if not check_and_record(
         request.app,
@@ -54,18 +76,24 @@ def ai_grade_answer(
         settings.grading_max_per_window,
         settings.grading_window_seconds,
     ):
+        logger.warning("ai-grade rate limit: user=%s bucket=per_hour", current_user.id)
         raise HTTPException(status_code=429, detail="Too many answer checks")
     reserved = ai_quota.reserve(db, current_user.id)
     if reserved is None:
+        logger.warning("ai-grade rate limit: user=%s bucket=weekly_budget", current_user.id)
         raise HTTPException(status_code=429, detail="Weekly limit for answer checks reached")
     remaining_this_week, booked_on = reserved
     try:
-        result = grade_answer(question.question_text, question.answer_text, payload.answer)
+        graded = grade_answer(question.question_text, question.answer_text, payload.answer)
     except GradingUnavailable as exc:
         ai_quota.refund(db, current_user.id, booked_on)
         # Reason only — the learner's answer is never logged.
         logger.warning("AI answer check unavailable: %s", exc)
         raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc
+    result = graded.result
+    _record_and_log_if_flagged(
+        db, current_user, question_id=question.id, outcome=result.outcome, sanitized=graded.sanitized
+    )
     return AiGradeRead(
         outcome=result.outcome, feedback=result.feedback, remaining_this_week=remaining_this_week
     )
