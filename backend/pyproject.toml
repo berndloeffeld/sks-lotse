@@ -24,7 +24,7 @@ max-branches = 10
 # Asserts are what tests are made of; the full-width digits and dummy tokens are test data.
 "tests/**" = ["S101", "S105", "RUF001"]
 
-# Mutation testing (required CI check `mutation-testing`, `./scripts/run_mutation_tests.sh gate`); see docs/mutation-testing.md.
+# Mutation testing (weekly workflow .github/workflows/mutation-testing.yml, `./scripts/run_mutation_tests.sh gate`); see docs/mutation-testing.md.
 # (mutmut copies only source_paths into mutants/, hence all of app/ there and the scope in only_mutate.)
 # Scoped to the pure business-logic modules, where a surviving mutant means a real gap in the
 # tests; wiring, config and the catalog importer would only produce noise and hours of runtime.

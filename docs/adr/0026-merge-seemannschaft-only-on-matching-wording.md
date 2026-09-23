@@ -22,7 +22,7 @@ Un-merging a pair raises a second problem. `seemannschaft_allgemein` numbers are
   - an un-merged pair's segeln half takes over the old merged row, including its id and progress;
   - the motor half gets a new row with a *copy* of that progress, so learners keep it in either exam variant;
   - a row whose official question no longer exists in that form is deleted, as ADR-0022 already does.
-  
+
   `seemannschaft_allgemein` stays numbered 1..n without gaps.
 - The split rows' topics were proposed by `manage_topics.py --missing` (classifies only questions with no assignment, leaves reviewed ones untouched) and reviewed by hand. The `topic_assignments/seemannschaft_allgemein.yaml` keys were remapped to the new numbering.
 
