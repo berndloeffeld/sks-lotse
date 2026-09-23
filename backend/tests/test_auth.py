@@ -5,6 +5,7 @@ import pytest
 
 from app.core.config import settings
 from app.core.jwt import create_access_token
+from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import OTP_PURPOSE_LOGIN
 from app.models import OtpCode, Question, QuestionProgress, User
 from tests.helpers import progress_state
@@ -306,6 +307,30 @@ def test_verify_otp_reuses_existing_user(client, db_session, monkeypatch):
     assert len(users) == 1
 
 
+def test_verify_otp_sets_last_login_at(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    assert response.status_code == 200
+    user = db_session.query(User).filter_by(email="learner@example.com").one()
+    assert user.last_login_at is not None
+
+
+def test_verify_otp_updates_last_login_at_on_each_login(client, db_session, monkeypatch):
+    code1 = _request_and_get_code(client, db_session, monkeypatch)
+    client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code1})
+    first_login = db_session.query(User).filter_by(email="learner@example.com").one().last_login_at
+
+    monkeypatch.setattr(settings, "otp_resend_cooldown_seconds", 0)
+    code2 = _request_and_get_code(client, db_session, monkeypatch)
+    client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code2})
+    db_session.expire_all()
+    second_login = db_session.query(User).filter_by(email="learner@example.com").one().last_login_at
+
+    assert second_login >= first_login
+
+
 def test_verify_otp_is_case_insensitive_and_creates_one_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch, email="Learner@Example.com")
 
@@ -599,6 +624,29 @@ def test_update_me_empty_body_is_a_noop(client, auth_headers):
 
     assert response.status_code == 200
     assert response.json()["exam_variant"] == "motor"
+
+
+def test_me_reports_no_agb_acceptance_by_default(client, auth_headers):
+    response = client.get("/api/v1/auth/me", headers=auth_headers)
+
+    assert response.json()["agb_accepted_version"] is None
+
+
+def test_accept_agb_requires_auth(client):
+    response = client.post("/api/v1/auth/me/agb-accept")
+
+    assert response.status_code == 401
+
+
+def test_accept_agb_sets_version_and_timestamp(client, db_session, auth_headers):
+    response = client.post("/api/v1/auth/me/agb-accept", headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["agb_accepted_version"] == CURRENT_AGB_VERSION
+
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    assert user.agb_accepted_version == CURRENT_AGB_VERSION
+    assert user.agb_accepted_at is not None
 
 
 def test_delete_me_removes_user_and_cascades_progress(client, db_session, auth_headers):

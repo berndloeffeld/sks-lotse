@@ -100,6 +100,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
 - **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. The token must carry `exp`, `sub` and `tv`. Logout invalidates all of a user's tokens by bumping a per-user `token_version` — that is also how a learner evicts a session someone else holds.
 - **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
+- **AGB acceptance**: every login stamps `users.last_login_at`. Consent to the AGB currently in force (`users.agb_accepted_version`/`agb_accepted_at`, set only by `POST /auth/me/agb-accept`) is asked for once per version, not on every login: the frontend's `AgbGate` blocks the protected routes with a confirmation screen only when the account's stored version doesn't match the current one ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md)).
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
   - the per-IP limiter, with tighter rules for requesting and verifying a code;
@@ -115,7 +116,7 @@ PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 | Table | Kind | Written by |
 |---|---|---|
 | `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
-| `users` | Account and profile, the two entitlement flags, this week's AI-check counter and override, the sanitizer flag count | Auth and admin flows, the AI check |
+| `users` | Account and profile, the two entitlement flags, this week's AI-check counter and override, the sanitizer flag count, AGB acceptance version/timestamp, last-login timestamp ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md)) | Auth and admin flows, the AI check |
 | `app_settings` | Operator-tuned app-wide values (today: the default weekly AI-check budget) | `/admin/settings` ([ADR-0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md)) |
 | `question_progress` | Per-user, per-question memory half-life, last grading, last "Richtig", start of the current "Richtig" streak ([ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)) and resurface time | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
 | `focus_topics` | Per-user topics marked as Fokus | `PUT`/`DELETE /progress/focus/...`; deleted automatically once every question of the topic is learned ([ADR-0028](adr/0028-focus-topics.md)) |
@@ -167,5 +168,6 @@ All of them except the integration tests are required status checks on `main`, a
 - Entitlements via payment: the "ads removed" (`users.ads_removed`) and "AI grading unlocked" flags exist and are set by the operator on `/admin` ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
 - Ad units: none are rendered yet. The AdSense script and the consent management are in ([ADR-0027](adr/0027-adsense-with-google-consent-management.md))
+- Automatic deletion of accounts inactive for 12+ months: the AGB reserve this right and `users.last_login_at` exists for it, but there is no cron job or reminder email yet ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md))
 
 This section should shrink as each piece lands. Keep it accurate rather than aspirational.

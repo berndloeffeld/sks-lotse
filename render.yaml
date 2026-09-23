@@ -166,6 +166,9 @@ services:
       - type: rewrite
         source: /privacy
         destination: /privacy.html
+      - type: rewrite
+        source: /agb
+        destination: /agb.html
       # SPA fallback: routes like /login and /start have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the

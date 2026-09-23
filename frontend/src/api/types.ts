@@ -15,6 +15,9 @@ export interface User {
   ads_removed: boolean
   // This week's AI-check budget left (see backend/app/core/ai_quota.py).
   ai_checks_remaining: number
+  // The AGB version last confirmed via POST /auth/me/agb-accept, or null
+  // before the first confirmation — see routes/AgbGate.tsx.
+  agb_accepted_version: string | null
 }
 
 type Named = Pick<User, 'first_name' | 'last_name'>
@@ -67,6 +70,9 @@ export interface AdminUser {
   // Read-only abuse-monitoring signal (ADR-0040): how often the sanitizer backstop fired.
   ai_flags_count: number
   ai_flags_last_at: string | null
+  agb_accepted_version: string | null
+  agb_accepted_at: string | null
+  last_login_at: string | null
   question_progress_count: number
 }
 

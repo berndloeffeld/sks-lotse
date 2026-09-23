@@ -42,6 +42,7 @@ function baseUser(overrides: Partial<Record<string, unknown>> = {}) {
     ads_removed: false,
     ai_checks_remaining: 20,
     is_admin: false,
+    agb_accepted_version: null,
     ...overrides,
   }
 }

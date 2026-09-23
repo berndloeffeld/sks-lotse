@@ -35,7 +35,7 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0029](0029-exam-simulation.md) | Exam simulation | Accepted — the "separate from the Lernstand" bullet is superseded by [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md). |
 | [0030](0030-question-reports-and-feedback-channels.md) | Question reports and lightweight feedback channels | Accepted |
 | [0031](0031-ai-answer-check-with-claude-haiku.md) | AI answer check with Claude Haiku | Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md)) |
-| [0032](0032-daily-kpi-report.md) | Daily KPI report by email | Accepted |
+| [0032](0032-daily-kpi-report.md) | Daily KPI report by email | Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report |
 | [0033](0033-catalog-images-as-static-files.md) | Catalog images as static files of the frontend | Accepted |
 | [0034](0034-half-life-model-for-gelernt.md) | Half-life model for "gelernt" (replaces the 3-streak rule) | Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start). |
 | [0035](0035-vitest-pinned-to-4x-for-stryker.md) | Vitest pinned to 4.x so Stryker mutation testing works | Accepted |
@@ -44,3 +44,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0038](0038-tip-reveal-caps-grading-outcome.md) | Tip reveal caps grading outcome to "Teilweise Richtig" | Accepted — restates the tip rule of [ADR-0018](0018-learning-progress-model-and-gelernt-streak-rule.md) as its own decision; not enforced yet, since tips aren't built. |
 | [0039](0039-cumulative-spacing-for-richtig-streaks.md) | Cumulative spacing for unbroken "Richtig" streaks | Accepted — amends the spacing effect of [ADR-0034](0034-half-life-model-for-gelernt.md). |
 | [0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) | AI-grading sanitizer and abuse monitoring | Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring). |
+| [0041](0041-agb-acceptance-and-inactivity-retention.md) | AGB acceptance tracking and inactivity-based retention reservation | Accepted — amends [ADR-0032](0032-daily-kpi-report.md) (adds `last_login_at`, not used for KPIs). |

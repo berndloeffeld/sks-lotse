@@ -74,6 +74,9 @@ def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         ai_checks_limit=user.ai_checks_limit,
         ai_flags_count=user.ai_flags_count,
         ai_flags_last_at=user.ai_flags_last_at,
+        agb_accepted_version=user.agb_accepted_version,
+        agb_accepted_at=user.agb_accepted_at,
+        last_login_at=user.last_login_at,
         question_progress_count=question_progress_count,
     )
 

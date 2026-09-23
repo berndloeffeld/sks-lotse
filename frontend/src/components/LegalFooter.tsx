@@ -22,6 +22,9 @@ export function LegalFooter() {
           <Link to="/privacy" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             Datenschutz
           </Link>
+          <Link to="/agb" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
+            AGB
+          </Link>
           <a
             href={FEEDBACK_MAILTO}
             className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface"

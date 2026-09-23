@@ -18,6 +18,7 @@ const user: User = {
   ai_grading_enabled: true,
   ads_removed: false,
   ai_checks_remaining: 14,
+  agb_accepted_version: null,
 }
 
 function jsonResponse(body: unknown, status = 200) {

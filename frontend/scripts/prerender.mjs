@@ -9,8 +9,9 @@
 //                       ADR-0027 addendum 2026-09-23).
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<name>.html  — likewise for /faq, /imprint and /privacy; render.yaml
-//                       rewrites each of those paths to its file explicitly.
+//   dist/<name>.html  — likewise for /faq, /imprint, /privacy and /agb;
+//                       render.yaml rewrites each of those paths to its file
+//                       explicitly.
 //
 // The rendered root is tagged data-prerendered="<path>" so main.tsx only
 // hydrates markup that belongs to the route it is actually showing.
@@ -34,6 +35,7 @@ const PAGES = {
   '/faq': 'faq.html',
   '/imprint': 'imprint.html',
   '/privacy': 'privacy.html',
+  '/agb': 'agb.html',
 }
 
 // The only ad-related tag the build emits (vite.config.ts, adsense-snippet). The public pages keep

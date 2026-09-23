@@ -1,6 +1,6 @@
 # 0032. Daily KPI report by email
 
-Status: Accepted
+Status: Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report
 
 ## Context
 
@@ -21,3 +21,4 @@ With real learners arriving, the operator needs a few numbers without opening th
 - The report mail goes only to allowlisted operators and has no personal data, so it needs no extra mention beyond the existing Datenschutzerklärung; the Resend processor is already listed.
 - OTP-request volume is not reported: `otp_codes` rows are deleted after expiry ([ADR-0010](0010-opportunistic-otp-code-cleanup.md)), so they say nothing about the day.
 - Not covered yet: conversion and LLM cost (there is no payment), Umami visitors (open the dashboard).
+- Addendum (2026-09-23, [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md)): `users.last_login_at` now exists after all, added for AGB-driven inactivity retention, not for this report — the KPI figures above stay defined purely by learning activity.
