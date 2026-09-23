@@ -31,7 +31,7 @@ export function LegalFooter() {
           {showAds && (
             <button
               type="button"
-              onClick={openConsentSettings}
+              onClick={() => openConsentSettings()}
               className="border-b-2 border-transparent pb-1 font-mono tracking-wide uppercase hover:border-surface hover:text-surface"
             >
               Cookie-Einstellungen
