@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { useAuthStore } from '../store/authStore'
 import { AdminSettingsPage } from './AdminSettingsPage'
 
 function jsonResponse(body: unknown, status = 200) {
@@ -15,48 +14,18 @@ function renderPage() {
     <MemoryRouter initialEntries={['/admin/settings']}>
       <Routes>
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
-        <Route path="/admin" element={<p>Admin page</p>} />
-        <Route path="/start" element={<p>Start page</p>} />
       </Routes>
     </MemoryRouter>,
   )
 }
 
-function setSession(isAdmin: boolean) {
-  useAuthStore.setState({
-    user: {
-      id: 1,
-      email: 'admin@example.com',
-      created_at: '2026-01-01T00:00:00Z',
-      exam_variant: null,
-      first_name: null,
-      last_name: null,
-      gender: null,
-      ai_grading_enabled: false,
-      ads_removed: false,
-      ai_checks_remaining: 20,
-      is_admin: isAdmin,
-    },
-    isAuthenticated: true,
-    isLoading: false,
-  })
-}
-
 describe('AdminSettingsPage', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
-    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
-  })
-
-  it('redirects a non-admin to /start', () => {
-    setSession(false)
-    renderPage()
-    expect(screen.getByText('Start page')).toBeInTheDocument()
   })
 
   it('loads the default and saves a changed one', async () => {
     const user = userEvent.setup()
-    setSession(true)
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
       jsonResponse({ ai_checks_weekly_default: init?.method === 'PUT' ? 40 : 100 }),
     )
@@ -77,7 +46,6 @@ describe('AdminSettingsPage', () => {
 
   it('rejects a blank or negative number without calling the API', async () => {
     const user = userEvent.setup()
-    setSession(true)
     const fetchMock = vi.fn(async () => jsonResponse({ ai_checks_weekly_default: 100 }))
     vi.stubGlobal('fetch', fetchMock)
 
@@ -92,7 +60,6 @@ describe('AdminSettingsPage', () => {
 
   it('shows an error when loading or saving fails', async () => {
     const user = userEvent.setup()
-    setSession(true)
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
@@ -107,7 +74,6 @@ describe('AdminSettingsPage', () => {
   })
 
   it('shows an error when the settings cannot be loaded', async () => {
-    setSession(true)
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => jsonResponse({}, 500)),

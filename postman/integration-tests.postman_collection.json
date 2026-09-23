@@ -6175,6 +6175,127 @@
           }
         },
         {
+          "name": "Admin API - a non-admin is rejected (list users)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - a non-admin is rejected (user detail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{profileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{profileId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - a non-admin is rejected (question search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Admin API - a non-admin is rejected (settings read)",
           "event": [
             {
@@ -6724,6 +6845,112 @@
           }
         },
         {
+          "name": "Admin API - without a token is rejected (list users)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - without a token is rejected (user detail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "1"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin API - without a token is rejected (question search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Admin API - without a token is rejected (settings read)",
           "event": [
             {
@@ -7104,6 +7331,435 @@
                   "language": "json"
                 }
               }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var page = pm.response.json();",
+                  "pm.test('a page of accounts with the total', function () {",
+                  "    pm.expect(page).to.have.all.keys('items', 'total');",
+                  "    pm.expect(page.total).to.be.at.least(2);",
+                  "    pm.expect(page.items[0]).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'created_at', 'ai_grading_enabled', 'ads_removed');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List users - search by an email fragment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var page = pm.response.json();",
+                  "pm.test('finds exactly the main test account', function () {",
+                  "    pm.expect(page.total).to.eql(1);",
+                  "    pm.expect(page.items[0].id).to.eql(Number(pm.collectionVariables.get('testUserId')));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users?q={{testEmailUpper}}&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{{testEmailUpper}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "description": "Upper-cased on purpose: the search is case-insensitive.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "List users - a zero limit is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users?limit=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Get a user by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('is the main test account', function () {",
+                  "    pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{testUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{testUserId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Get a user - unknown id is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "999999999"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var questions = pm.response.json();",
+                  "pm.test('without a term, returns the whole catalog', function () {",
+                  "    pm.expect(questions.length).to.be.above(0);",
+                  "    pm.expect(questions[0]).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'question_images', 'answer_images', 'topic');",
+                  "});",
+                  "pm.collectionVariables.set('adminSearchQuestionNumber', questions[0].number);",
+                  "pm.collectionVariables.set('adminSearchQuestionSubject', questions[0].subject);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search questions - by subject and catalog number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var questions = pm.response.json();",
+                  "pm.test('finds that question, only in that subject', function () {",
+                  "    var subject = pm.collectionVariables.get('adminSearchQuestionSubject');",
+                  "    var number = Number(pm.collectionVariables.get('adminSearchQuestionNumber'));",
+                  "    pm.expect(questions.every(function (q) { return q.subject === subject; })).to.be.true;",
+                  "    pm.expect(questions.map(function (q) { return q.number; })).to.include(number);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions?q={{adminSearchQuestionNumber}}&subject={{adminSearchQuestionSubject}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{{adminSearchQuestionNumber}}"
+                },
+                {
+                  "key": "subject",
+                  "value": "{{adminSearchQuestionSubject}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search questions - no match is an empty list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('nothing found', function () { pm.expect(pm.response.json()).to.eql([]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions?q=kein-treffer-xyzzy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "kein-treffer-xyzzy"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search questions - an overlong term is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions?q=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ]
             }
           },
           "description": "",

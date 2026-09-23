@@ -49,7 +49,7 @@ export interface TopicProgress {
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminUserRead.
-export interface AdminUserSearchResult {
+export interface AdminUser {
   id: number
   email: string
   created_at: string
@@ -68,6 +68,24 @@ export interface AdminUserSearchResult {
   ai_flags_count: number
   ai_flags_last_at: string | null
   question_progress_count: number
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminUserListItem.
+export interface AdminUserListItem {
+  id: number
+  email: string
+  first_name: string | null
+  last_name: string | null
+  created_at: string
+  ai_grading_enabled: boolean
+  ads_removed: boolean
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminUserListPage.
+export interface AdminUserListPage {
+  items: AdminUserListItem[]
+  // Matches for the search, across all pages.
+  total: number
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminSettingsRead.
@@ -130,7 +148,7 @@ export interface AdminQuestionReportExport {
 
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
-  user: AdminUserSearchResult
+  user: AdminUser
   question_progress: AdminQuestionProgressExport[]
   focus_topics: AdminFocusTopicExport[]
   question_reports: AdminQuestionReportExport[]

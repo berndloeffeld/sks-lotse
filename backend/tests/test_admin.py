@@ -23,6 +23,9 @@ def _make_admin(monkeypatch) -> None:
 
 
 def test_admin_routes_require_authentication(client):
+    assert client.get("/api/v1/admin/users").status_code == 401
+    assert client.get("/api/v1/admin/users/1").status_code == 401
+    assert client.get("/api/v1/admin/questions").status_code == 401
     assert client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}).status_code == 401
     assert client.get("/api/v1/admin/users/1/export").status_code == 401
     assert client.delete("/api/v1/admin/users/1").status_code == 401
@@ -31,6 +34,8 @@ def test_admin_routes_require_authentication(client):
 
 def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
     # No admin_emails set at all — the fixture user is logged in but not an admin.
+    for path in ("/api/v1/admin/users", "/api/v1/admin/users/1", "/api/v1/admin/questions"):
+        assert client.get(path, headers=auth_headers).status_code == 403
     response = client.post("/api/v1/admin/users/search", json={"email": _FIXTURE_EMAIL}, headers=auth_headers)
     assert response.status_code == 403
     response = client.get("/api/v1/admin/users/1/export", headers=auth_headers)
@@ -396,6 +401,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     target_id = target.id
 
     with caplog.at_level("INFO", logger="app.api.v1.admin"):
+        client.get("/api/v1/admin/users", params={"q": "target@example"}, headers=auth_headers)
         client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
         client.put("/api/v1/admin/settings", json={"ai_checks_weekly_default": 7}, headers=auth_headers)
         client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
@@ -403,9 +409,153 @@ def test_admin_actions_are_audit_logged_without_personal_data(
 
     messages = [r.getMessage() for r in caplog.records if r.name == "app.api.v1.admin"]
     assert messages == [
+        f"admin action: admin={admin.id} action=list_users offset=0 results=1",
         f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
         f"admin action: admin={admin.id} action=update_settings ai_checks_weekly_default=7",
         f"admin action: admin={admin.id} action=export_user target_user={target_id}",
         f"admin action: admin={admin.id} action=delete_user target_user={target_id}",
     ]
     assert not any("@" in m for m in messages)
+
+
+def _add_users(db_session, *users: tuple[str, str | None, str | None]) -> list[User]:
+    # Created one day apart, oldest first, so the list's newest-first order is deterministic.
+    base = datetime(2026, 1, 1, tzinfo=UTC)
+    rows = [
+        User(email=email, first_name=first, last_name=last, created_at=base + timedelta(days=i))
+        for i, (email, first, last) in enumerate(users)
+    ]
+    db_session.add_all(rows)
+    db_session.commit()
+    return rows
+
+
+def _list(client, auth_headers, **params) -> dict:
+    response = client.get("/api/v1/admin/users", params=params, headers=auth_headers)
+    assert response.status_code == 200
+    return response.json()
+
+
+def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    _add_users(db_session, ("old@example.com", None, None), ("new@example.com", "Nina", "Neu"))
+    body = _list(client, auth_headers)
+    assert body["total"] == 3
+    emails = [item["email"] for item in body["items"]]
+    # The fixture user was created "now", after both.
+    assert emails == [_FIXTURE_EMAIL, "new@example.com", "old@example.com"]
+    assert body["items"][1] == {
+        "id": body["items"][1]["id"],
+        "email": "new@example.com",
+        "first_name": "Nina",
+        "last_name": "Neu",
+        "created_at": body["items"][1]["created_at"],
+        "ai_grading_enabled": False,
+        "ads_removed": False,
+    }
+
+
+@pytest.mark.parametrize(
+    ("q", "expected"),
+    [
+        ("anna", ["anna@example.com"]),  # email
+        ("SCHMI", ["anna@example.com"]),  # last name, case-insensitive
+        ("  bert ", ["b@example.com"]),  # first name, surrounding blanks stripped
+        ("example.com", ["b@example.com", "anna@example.com"]),
+        ("nobody", []),
+    ],
+)
+def test_admin_user_list_searches_email_and_names(client, db_session, auth_headers, monkeypatch, q, expected):
+    _make_admin(monkeypatch)
+    db_session.query(User).filter_by(email=_FIXTURE_EMAIL).update({"email": "admin@admin.test"})
+    db_session.commit()
+    monkeypatch.setattr(settings, "admin_emails", "admin@admin.test")
+    _add_users(db_session, ("anna@example.com", "Anna", "Schmidt"), ("b@example.com", "Bert", None))
+    body = _list(client, auth_headers, q=q)
+    assert [item["email"] for item in body["items"]] == expected
+    assert body["total"] == len(expected)
+
+
+def test_admin_user_list_takes_wildcards_literally(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    _add_users(db_session, ("a_b@example.com", None, None), ("axb@example.com", None, "100%"))
+    assert [i["email"] for i in _list(client, auth_headers, q="a_b")["items"]] == ["a_b@example.com"]
+    assert [i["email"] for i in _list(client, auth_headers, q="%")["items"]] == ["axb@example.com"]
+
+
+def test_admin_user_list_pages(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    _add_users(db_session, *((f"u{n}@example.com", None, None) for n in range(3)))
+    body = _list(client, auth_headers, q="@example.com", offset=1, limit=1)
+    assert body["total"] == 4
+    assert [item["email"] for item in body["items"]] == ["u2@example.com"]
+    assert _list(client, auth_headers, q="@example.com", offset=4)["items"] == []
+
+
+@pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 201}, {"offset": -1}, {"q": "x" * 255}])
+def test_admin_user_list_rejects_bad_parameters(client, db_session, auth_headers, monkeypatch, params):
+    _make_admin(monkeypatch)
+    response = client.get("/api/v1/admin/users", params=params, headers=auth_headers)
+    assert response.status_code == 422
+
+
+def test_admin_user_detail(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("detail@example.com", "Dora", None))
+    question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
+    db_session.add(question)
+    db_session.flush()
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
+    db_session.commit()
+
+    response = client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers)
+    assert response.status_code == 200
+    body = response.json()
+    assert (body["email"], body["first_name"]) == ("detail@example.com", "Dora")
+    assert body["question_progress_count"] == 1
+    assert client.get("/api/v1/admin/users/999999", headers=auth_headers).status_code == 404
+
+
+def _add_questions(db_session) -> list[Question]:
+    texts = [
+        ("navigation", 1, "Was ist ein Kompass?", "Ein Gerät."),
+        ("navigation", 12, "Was ist Ebbe?", "Fallendes Wasser."),
+        ("seemannschaft", 3, "Wie ankert man?", "Mit dem ANKER."),
+    ]
+    rows = [Question(subject=s, number=n, question_text=q, answer_text=a) for s, n, q, a in texts]
+    db_session.add_all(rows)
+    db_session.commit()
+    return rows
+
+
+def _search(client, auth_headers, **params) -> list[tuple[str, int]]:
+    response = client.get("/api/v1/admin/questions", params=params, headers=auth_headers)
+    assert response.status_code == 200
+    return [(q["subject"], q["number"]) for q in response.json()]
+
+
+@pytest.mark.parametrize(
+    ("params", "expected"),
+    [
+        ({}, [("navigation", 1), ("navigation", 12), ("seemannschaft", 3)]),
+        ({"subject": "navigation"}, [("navigation", 1), ("navigation", 12)]),
+        ({"q": "KOMPASS"}, [("navigation", 1)]),  # question text, case-insensitive
+        ({"q": "anker"}, [("seemannschaft", 3)]),  # question and answer text
+        ({"q": "wasser"}, [("navigation", 12)]),  # answer text only
+        ({"q": "12"}, [("navigation", 12)]),  # catalog number
+        ({"q": "3", "subject": "navigation"}, []),
+        ({"q": "gibt es nicht"}, []),
+    ],
+)
+def test_admin_question_search(client, db_session, auth_headers, monkeypatch, params, expected):
+    _make_admin(monkeypatch)
+    _add_questions(db_session)
+    assert _search(client, auth_headers, **params) == expected
+
+
+def test_admin_question_search_finds_by_id(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    rows = _add_questions(db_session)
+    body = client.get("/api/v1/admin/questions", params={"q": str(rows[2].id)}, headers=auth_headers).json()
+    assert rows[2].id in [q["id"] for q in body]
+    assert body[-1]["answer_text"] == "Mit dem ANKER."

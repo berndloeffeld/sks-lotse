@@ -1,15 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { AdminSettings } from '../api/types'
-import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../store/authStore'
 
+// App-wide admin settings (/admin/settings); AdminLayout does the admin check.
 export function AdminSettingsPage() {
-  const user = useAuthStore((state) => state.user)
-  const isAdmin = user?.is_admin ?? false
-
   const [weeklyDefault, setWeeklyDefault] = useState('')
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -17,7 +12,6 @@ export function AdminSettingsPage() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    if (!isAdmin) return
     apiClient
       .get<AdminSettings>('/admin/settings')
       .then((settings) => {
@@ -25,11 +19,7 @@ export function AdminSettingsPage() {
         setIsLoaded(true)
       })
       .catch(() => setError('Die Einstellungen konnten nicht geladen werden.'))
-  }, [isAdmin])
-
-  if (!isAdmin) {
-    return <Navigate to="/start" replace />
-  }
+  }, [])
 
   async function handleSave(event: FormEvent) {
     event.preventDefault()
@@ -53,11 +43,10 @@ export function AdminSettingsPage() {
   }
 
   return (
-    <PageLayout
-      title="Admin: Einstellungen"
-      backTo="/admin"
-      subtitle="Gilt für alle Accounts ohne eigenes Limit. Die Woche beginnt montags um 0 Uhr (deutsche Zeit)."
-    >
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-ink-soft">
+        Gilt für alle Accounts ohne eigenes Limit. Die Woche beginnt montags um 0 Uhr (deutsche Zeit).
+      </p>
       <form className="flex flex-col gap-4" onSubmit={handleSave}>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="weekly-default">
           KI-Prüfungen pro Woche (Standard)
@@ -81,6 +70,6 @@ export function AdminSettingsPage() {
           Speichern
         </button>
       </form>
-    </PageLayout>
+    </div>
   )
 }
