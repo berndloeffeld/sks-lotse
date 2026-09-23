@@ -12,6 +12,7 @@
     "src/api/client.ts",
     "src/store/authStore.ts",
     "src/hooks/useExamCountdown.ts",
+    "src/hooks/useApiQuery.ts",
     "src/hooks/useExam.ts",
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",

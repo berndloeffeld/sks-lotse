@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { User } from '../api/types'
 import { useAuthStore } from '../store/authStore'
-import { AiAnswerCheck } from './AiAnswerCheck'
+import { AI_CHECK_MAX_ANSWER_CHARS, AiAnswerCheck } from './AiAnswerCheck'
 
 const user: User = {
   id: 1,
@@ -54,6 +54,38 @@ describe('AiAnswerCheck', () => {
     rerender(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
     expect(screen.getByRole('button', ROW)).toBeEnabled()
     expect(screen.getByRole('button', ROW)).toHaveTextContent('noch 14 diese Woche')
+  })
+
+  it('is disabled for an answer longer than the check accepts, and says so', () => {
+    useAuthStore.setState({ user })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(AI_CHECK_MAX_ANSWER_CHARS + 1)} onSuggest={vi.fn()} />)
+
+    const row = screen.getByRole('button', ROW)
+    expect(row).toBeDisabled()
+    expect(row).toHaveTextContent('Nur für Antworten bis 1000 Zeichen')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('accepts an answer of exactly the maximum length', () => {
+    useAuthStore.setState({ user })
+    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(AI_CHECK_MAX_ANSWER_CHARS)} onSuggest={vi.fn()} />)
+
+    expect(screen.getByRole('button', ROW)).toBeEnabled()
+  })
+
+  it('explains a rejected answer instead of claiming the Lotse is unreachable', async () => {
+    useAuthStore.setState({ user })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ detail: 'too long' }, 422)),
+    )
+    render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
+
+    await userEvent.setup().click(screen.getByRole('button', ROW))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Diese Antwort kann der Lotse nicht prüfen.')
   })
 
   it('is disabled with "ab Montag wieder" once the week is used up', () => {

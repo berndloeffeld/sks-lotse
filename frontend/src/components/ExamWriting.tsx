@@ -55,26 +55,35 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
     if (view === 'question') answerRef.current?.focus()
   }, [view, index])
 
-  const flush = useCallback(async () => {
+  // One save run at a time: the timer, moving to another question, the retry and submit can all
+  // ask for one. Run in parallel, an older text could reach the server after a newer one and
+  // overwrite it, or the submit could overtake a save still in flight. Each run reads what's
+  // dirty only when it starts, so one queued behind another picks up the latest text.
+  const saving = useRef<Promise<void>>(Promise.resolve())
+  const flush = useCallback(() => {
     window.clearTimeout(timer.current)
-    const positions = [...dirty.current]
-    dirty.current.clear()
-    for (const position of positions) {
-      try {
-        await apiClient.put(`/exams/${exam.id}/questions/${position}/answer`, {
-          answer_text: answersRef.current[position],
-        })
-        setSaveError(null)
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 409) {
-          // The exam ended meanwhile — show the server's state.
-          onChangeRef.current(null)
-          return
+    const run = saving.current.then(async () => {
+      const positions = [...dirty.current]
+      dirty.current.clear()
+      for (const position of positions) {
+        try {
+          await apiClient.put(`/exams/${exam.id}/questions/${position}/answer`, {
+            answer_text: answersRef.current[position],
+          })
+          setSaveError(null)
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 409) {
+            // The exam ended meanwhile — show the server's state.
+            onChangeRef.current(null)
+            return
+          }
+          dirty.current.add(position)
+          setSaveError('Die Antwort konnte nicht gespeichert werden. Wir versuchen es erneut.')
         }
-        dirty.current.add(position)
-        setSaveError('Die Antwort konnte nicht gespeichert werden. Wir versuchen es erneut.')
       }
-    }
+    })
+    saving.current = run
+    return run
   }, [exam.id])
 
   // Retry saves that failed, and never lose the last edit when leaving the page.
