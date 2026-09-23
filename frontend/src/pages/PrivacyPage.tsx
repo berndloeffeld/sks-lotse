@@ -22,8 +22,11 @@ export function PrivacyPage() {
           Diese Website sowie die zugehörige Datenbank werden bei Render (Frankfurt, EU) gehostet. Render verarbeitet
           dabei in unserem Auftrag personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse
           verarbeitet, u. a. um Missbrauch durch übermäßig viele Anfragen zu begrenzen (Rate-Limiting). Schriftarten
-          werden von unserem eigenen Server ausgeliefert, nicht von Google oder anderen Dritten. Rechtsgrundlage ist
-          Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am zuverlässigen, sicheren Betrieb der Website).
+          werden von unserem eigenen Server ausgeliefert, nicht von Google oder anderen Dritten. Server- und
+          Zugriffslogs (u. a. mit Ihrer IP-Adresse) leiten wir zur Fehlersuche und Verfügbarkeitsüberwachung an den
+          Logging- und Monitoring-Dienst Better Stack weiter, der die Logs für einen begrenzten Zeitraum speichert und
+          zudem die Erreichbarkeit unserer Website überwacht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
+          (berechtigtes Interesse am zuverlässigen, sicheren Betrieb der Website).
         </p>
       </section>
 
@@ -110,12 +113,17 @@ export function PrivacyPage() {
           lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort und Ihre
           eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine kurze
           Rückmeldung erzeugt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt und frühere Antworten werden nicht
-          übermittelt. Wir speichern Ihre Antwort und das Ergebnis nicht; die Bewertung übernehmen Sie selbst. Bitte
-          geben Sie in Ihre Antwort keine personenbezogenen Daten ein. Rechtsgrundlage ist die Erfüllung des Nutzungs-
-          vertrags (Art. 6 Abs. 1 lit. b DSGVO), da Sie die Funktion aktiv auslösen. Anthropic verarbeitet die Daten in
-          unserem Auftrag auf Grundlage eines Auftragsverarbeitungsvertrags; die Übermittlung in die USA stützt sich auf
-          EU-Standardvertragsklauseln (Art. 44 ff. DSGVO). Die Aufbewahrung bei Anthropic richtet sich nach deren
-          Vertragsbedingungen für die API-Nutzung.
+          übermittelt. Ihre eingegebene Antwort sowie die KI-Rückmeldung speichern oder protokollieren wir nicht; die
+          Bewertung übernehmen Sie selbst. Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige Antworten
+          automatisiert; löst dieser Schutzmechanismus bei einem Konto wiederholt aus, protokollieren wir ab diesem
+          Zeitpunkt zusätzlich Frage und Ergebnis (richtig/falsch) weiterer Prüfungen dieses Kontos — niemals den
+          Antworttext oder die KI-Rückmeldung — und speichern kontobezogen, wie oft und wann dieser Mechanismus
+          ausgelöst wurde. Bitte geben Sie in Ihre Antwort keine personenbezogenen Daten ein. Rechtsgrundlage für die
+          KI-Prüfung ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO), da Sie die Funktion aktiv
+          auslösen; für die Missbrauchserkennung Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
+          Missbrauchsabwehr). Anthropic verarbeitet die Daten in unserem Auftrag auf Grundlage eines
+          Auftragsverarbeitungsvertrags; die Übermittlung in die USA stützt sich auf EU-Standardvertragsklauseln (Art.
+          44 ff. DSGVO). Die Aufbewahrung bei Anthropic richtet sich nach deren Vertragsbedingungen für die API-Nutzung.
         </p>
       </section>
 
@@ -135,12 +143,12 @@ export function PrivacyPage() {
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">Empfänger und Drittlandübermittlung</h2>
         <p className="text-ink-soft">
-          Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Resend
-          (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung), Umami (Webanalyse) und Google (Werbung). Mit den
-          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
-          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
-          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
-          (Art. 44 ff. DSGVO).
+          Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Better Stack
+          (Logging und Verfügbarkeitsüberwachung), Resend (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung),
+          Umami (Webanalyse) und Google (Werbung). Mit den Dienstleistern, die in unserem Auftrag Daten verarbeiten,
+          bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben oder Daten dorthin
+          übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der EU-Kommission (EU-US Data
+          Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
         </p>
       </section>
 
