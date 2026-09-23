@@ -14,7 +14,11 @@ class QuestionReport(Base):
     """
 
     __tablename__ = "question_reports"
-    __table_args__ = (Index("ix_question_reports_question_id", "question_id"),)
+    __table_args__ = (
+        Index("ix_question_reports_question_id", "question_id"),
+        # The account's own reports: DSGVO export and account deletion (app/services/user.py).
+        Index("ix_question_reports_user_id", "user_id"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

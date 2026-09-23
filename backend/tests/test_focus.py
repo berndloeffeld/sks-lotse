@@ -320,3 +320,82 @@ def test_learned_topic_only_loses_the_focus_mark_of_the_learner_who_learned_it(d
 
     remaining = {(f.user_id, f.topic_id) for f in db_session.query(FocusTopic)}
     assert remaining == {(other.id, topic.id), (me.id, elsewhere[0].topic_id)}
+
+
+def test_crediting_an_exam_grades_every_question_in_one_go_and_checks_each_topic_once(
+    db_session, auth_headers, monkeypatch
+):
+    from datetime import UTC, datetime
+
+    from app.services import progress as progress_service
+
+    topic, questions = _topic_with_questions(db_session, count=3)
+    user = _fixture_user(db_session)
+    # One question already has progress, two don't — both paths in one batch.
+    db_session.add(
+        QuestionProgress(user_id=user.id, question_id=questions[0].id, **progress_state(1, graded_days_ago=3))
+    )
+    db_session.add(FocusTopic(user_id=user.id, topic_id=topic.id))
+    db_session.commit()
+    checked = []
+    real_remove = progress_service.remove_focus_if_topic_learned
+    monkeypatch.setattr(
+        progress_service,
+        "remove_focus_if_topic_learned",
+        lambda db, uid, tid: checked.append(tid) or real_remove(db, uid, tid),
+    )
+    # Pretend every graded question is now learned, so the topic check must run — once.
+    monkeypatch.setattr(progress_service, "is_learned", lambda row, now: True)
+
+    progress_service.credit_correct_answers(
+        db_session, user.id, [q.id for q in questions] + [questions[0].id, 999_999], datetime.now(UTC)
+    )
+
+    rows = db_session.query(QuestionProgress).filter_by(user_id=user.id).all()
+    assert sorted(r.question_id for r in rows) == sorted(q.id for q in questions)
+    assert all(r.last_correct_at is not None for r in rows)
+    assert checked == [topic.id]
+
+
+def test_crediting_nothing_touches_nothing(db_session, auth_headers):
+    from datetime import UTC, datetime
+
+    from app.services.progress import credit_correct_answers
+
+    credit_correct_answers(db_session, _fixture_user(db_session).id, [], datetime.now(UTC))
+
+    assert db_session.query(QuestionProgress).count() == 0
+
+
+def test_crediting_falls_back_to_one_by_one_when_a_row_appeared_concurrently(
+    db_session, auth_headers, monkeypatch
+):
+    from datetime import UTC, datetime
+
+    from sqlalchemy.exc import IntegrityError
+
+    from app.services import progress as progress_service
+
+    _, questions = _topic_with_questions(db_session, count=2)
+    user = _fixture_user(db_session)
+    real_flush = db_session.flush
+    flushes = []
+
+    def racing_flush(*args, **kwargs):
+        # Only the flush that writes the new progress rows loses the race (not the autoflushes
+        # of the queries before it).
+        if not flushes and any(isinstance(obj, QuestionProgress) for obj in db_session.new):
+            flushes.append(True)
+            raise IntegrityError("INSERT", {}, Exception("duplicate key"))
+        return real_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db_session, "flush", racing_flush)
+    graded = []
+    monkeypatch.setattr(
+        progress_service, "record_grading", lambda db, uid, q, outcome, now: graded.append((q.id, outcome))
+    )
+
+    progress_service.credit_correct_answers(db_session, user.id, [q.id for q in questions], datetime.now(UTC))
+
+    assert flushes == [True]
+    assert sorted(graded) == sorted((q.id, "richtig") for q in questions)

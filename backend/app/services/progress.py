@@ -49,3 +49,43 @@ def record_grading(
     if is_learned(row, now) and question.topic_id is not None:
         remove_focus_if_topic_learned(db, user_id, question.topic_id)
     return row
+
+
+def credit_correct_answers(db: Session, user_id: int, question_ids: list[int], now: datetime) -> None:
+    """Record a "Richtig" for each question in one transaction (a finished exam, ADR-0037).
+
+    One query for the questions, one for the learner's existing progress rows and one commit —
+    instead of a lookup and a commit per question. Only if a concurrent grading created one of the
+    rows in between does it fall back to `record_grading` question by question.
+    """
+    ids = sorted(set(question_ids))
+    if not ids:
+        return
+    questions = list(db.execute(select(Question).where(Question.id.in_(ids))).scalars())
+    existing = {
+        row.question_id: row
+        for row in db.execute(
+            select(QuestionProgress).where(
+                QuestionProgress.user_id == user_id, QuestionProgress.question_id.in_(ids)
+            )
+        ).scalars()
+    }
+    missing = [q.id for q in questions if q.id not in existing]
+    new = {qid: QuestionProgress(user_id=user_id, question_id=qid) for qid in missing}
+    rows = existing | new
+    db.add_all(new.values())
+    try:
+        # New rows get their column defaults here, before the grading is applied to them.
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        for question in questions:
+            record_grading(db, user_id, question, "richtig", now)
+        return
+    for question in questions:
+        apply_grading(rows[question.id], "richtig", now, is_new=question.id not in existing)
+    db.commit()
+    # Several learned questions can share a topic — check each topic once.
+    learned_topics = {q.topic_id for q in questions if q.topic_id is not None and is_learned(rows[q.id], now)}
+    for topic_id in sorted(learned_topics):
+        remove_focus_if_topic_learned(db, user_id, topic_id)

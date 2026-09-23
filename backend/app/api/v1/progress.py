@@ -5,7 +5,6 @@ from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.v1.questions import _catalog_by_id
 from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
@@ -22,6 +21,7 @@ from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.progress import QuestionGradeCreate, QuestionProgressRead, TopicProgressRead
 from app.schemas.question import QuestionRead
+from app.services.catalog import catalog_by_id
 from app.services.focus import is_topic_fully_learned
 from app.services.progress import record_grading
 
@@ -155,7 +155,7 @@ def focus_session_questions(
     if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
         stmt = stmt.where(Question.subject.in_(allowed))
 
-    catalog = _catalog_by_id(request, db)
+    catalog = catalog_by_id(request, db)
     return [catalog[question_id] for question_id in db.execute(stmt).scalars()]
 
 

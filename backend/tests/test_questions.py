@@ -3,6 +3,7 @@ from app.main import app
 from app.models.question import Question
 from app.models.topic import Topic
 from app.models.user import User
+from app.services.catalog import CATALOG_CACHE_KEY
 
 
 def test_questions_require_auth(client):
@@ -96,7 +97,7 @@ def test_list_questions_is_served_from_cache(client, db_session, auth_headers):
     second = client.get("/api/v1/questions", headers=auth_headers)
     assert len(second.json()) == 1
 
-    cache.invalidate(app, "questions:catalog")
+    cache.invalidate(app, CATALOG_CACHE_KEY)
     third = client.get("/api/v1/questions", headers=auth_headers)
     assert len(third.json()) == 2
 

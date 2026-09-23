@@ -1,7 +1,8 @@
 from datetime import UTC, datetime, timedelta, timezone
 
 from app.core.config import settings
-from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, as_utc, result_for
+from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, result_for
+from app.core.timeutil import as_utc
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -135,11 +136,12 @@ def test_only_one_exam_in_progress(client, db_session, auth_headers):
 def test_parallel_start_is_rejected_by_the_database(client, db_session, auth_headers, monkeypatch):
     # Simulates two parallel starts: the application-level check sees no running
     # exam (as it would for the second request), so only the unique index stops it.
-    from app.api.v1 import exams as exams_api
+    from app.services import exam as exam_service
 
     _seed(db_session)
     _start(client, auth_headers)
-    monkeypatch.setattr(exams_api, "_own_attempts", lambda db, user: [])
+    # The check start_exam actually makes; with it blinded, only the partial unique index is left.
+    monkeypatch.setattr(exam_service, "running_attempts", lambda db, user: [])
 
     response = client.post("/api/v1/exams", headers=auth_headers)
 
