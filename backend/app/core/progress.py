@@ -12,11 +12,12 @@ spacing-for-richtig-streaks.md) — see ``apply_grading()``.
 """
 
 import math
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Literal
 
 from sqlalchemy import ColumnElement, and_
 
+from app.core.timeutil import as_utc
 from app.models.question_progress import QuestionProgress
 
 # The three outcomes of the self-assessment control (ADR-0014), in the
@@ -39,11 +40,6 @@ RECALL_THRESHOLD = 0.7
 # grading (spacing effect: re-answering right away proves little).
 FULL_GAIN = 2.5
 _SETBACK_FACTORS = {"teilweise_richtig": 0.5, "falsch": 0.25}
-
-
-def _aware(moment: datetime) -> datetime:
-    # SQLite (the test DB) hands timezone-aware columns back naive.
-    return moment if moment.tzinfo is not None else moment.replace(tzinfo=UTC)
 
 
 def recall_probability(half_life_days: float, elapsed_days: float) -> float:
@@ -81,7 +77,7 @@ def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime,
     else:
         continuing_streak = False
         since = row.last_graded_at
-    elapsed = None if is_new else (now - _aware(since)).total_seconds() / 86400
+    elapsed = None if is_new else (now - as_utc(since)).total_seconds() / 86400
     row.half_life_days = next_half_life(row.half_life_days, elapsed, outcome)
     if outcome == "richtig":
         row.streak_start_at = row.streak_start_at if continuing_streak else now
@@ -93,7 +89,7 @@ def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime,
 
 
 def is_learned(row: QuestionProgress, now: datetime) -> bool:
-    return row.half_life_days >= LEARNED_HALF_LIFE_DAYS and _aware(row.review_due_at) > now
+    return row.half_life_days >= LEARNED_HALF_LIFE_DAYS and as_utc(row.review_due_at) > now
 
 
 def learned_clause(now: datetime) -> ColumnElement[bool]:

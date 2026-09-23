@@ -7,7 +7,6 @@ layout, the Richtlinien only demand a "wohlausgewogener Querschnitt".
 """
 
 import random
-from datetime import UTC, datetime
 from typing import Literal
 
 from app.core.exam_variant import ExamVariant
@@ -67,8 +66,3 @@ def result_for(points: int) -> ExamResult:
     if points >= ORAL_MIN_POINTS:
         return "muendliche_nachpruefung"
     return "nicht_bestanden"
-
-
-def as_utc(value: datetime) -> datetime:
-    """SQLite (tests) returns naive datetimes; Postgres returns aware ones."""
-    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)

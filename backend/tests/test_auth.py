@@ -972,16 +972,6 @@ def test_the_resend_cooldown_is_per_address(client, monkeypatch):
     assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
 
 
-def test_auth_as_utc_treats_naive_as_utc_and_leaves_aware_values_alone():
-    from datetime import UTC, datetime, timedelta, timezone
-
-    from app.api.v1.auth import _as_utc
-
-    assert _as_utc(datetime(2026, 1, 1, 12, 0)) == datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
-    aware = datetime(2026, 1, 1, 12, 0, tzinfo=timezone(timedelta(hours=2)))
-    assert _as_utc(aware) is aware
-
-
 def test_the_email_change_cap_is_per_user(client, db_session, monkeypatch, auth_headers):
     monkeypatch.setattr(settings, "email_change_max_requests_per_window", 1)
     _capture_email_change_otp(monkeypatch)

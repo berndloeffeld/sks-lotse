@@ -18,7 +18,7 @@ class OtpCode(Base):
         # left out of the index: the per-address hourly cap bounds the rows per
         # email to a handful, so filtering those in place costs nothing.
         Index("ix_otp_codes_email_created_at", "email", "created_at"),
-        # The cleanup sweep (backend/app/api/v1/auth.py, _cleanup_expired_otp_codes)
+        # The cleanup sweep (backend/app/services/otp_codes.py, _cleanup_expired_codes)
         # filters on expires_at alone, with no email predicate — the composite
         # index above can't help it, since email is neither filtered nor its
         # leftmost column here.

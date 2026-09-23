@@ -1,0 +1,154 @@
+"""What the GDPR admin tools show and export about one account (ADR-0019).
+
+`build_user_export` is the Art. 15/20 DSGVO export: every row stored for the account, with catalog
+references resolved to subject and number so the export reads without the database.
+"""
+
+from datetime import UTC, datetime
+
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
+from app.models.exam_attempt import ExamAttempt
+from app.models.focus_topic import FocusTopic
+from app.models.question import Question
+from app.models.question_progress import QuestionProgress
+from app.models.question_report import QuestionReport
+from app.models.topic import Topic
+from app.models.user import User
+from app.schemas.admin import (
+    AdminExamAttemptExport,
+    AdminExamQuestionExport,
+    AdminFocusTopicExport,
+    AdminQuestionProgressExport,
+    AdminQuestionReportExport,
+    AdminUserExport,
+    AdminUserRead,
+)
+
+
+def question_progress_count(db: Session, user_id: int) -> int:
+    return db.execute(
+        select(func.count()).select_from(QuestionProgress).where(QuestionProgress.user_id == user_id)
+    ).scalar_one()
+
+
+def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
+    return AdminUserRead(
+        id=user.id,
+        email=user.email,
+        created_at=user.created_at,
+        exam_variant=user.exam_variant,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        gender=user.gender,
+        ai_grading_enabled=user.ai_grading_enabled,
+        ads_removed=user.ads_removed,
+        ai_checks_week=user.ai_checks_week,
+        ai_checks_used=user.ai_checks_used,
+        ai_checks_weekly_limit=user.ai_checks_weekly_limit,
+        ai_checks_limit=user.ai_checks_limit,
+        ai_flags_count=user.ai_flags_count,
+        ai_flags_last_at=user.ai_flags_last_at,
+        question_progress_count=question_progress_count,
+    )
+
+
+def build_user_export(db: Session, user: User) -> AdminUserExport:
+    rows = db.execute(
+        select(QuestionProgress, Question.subject, Question.number)
+        .join(Question, Question.id == QuestionProgress.question_id)
+        .where(QuestionProgress.user_id == user.id)
+    ).all()
+
+    focus_rows = db.execute(
+        select(FocusTopic, Topic)
+        .join(Topic, Topic.id == FocusTopic.topic_id)
+        .where(FocusTopic.user_id == user.id)
+        .order_by(Topic.subject, Topic.display_order)
+    ).all()
+
+    report_rows = db.execute(
+        select(QuestionReport, Question.subject, Question.number)
+        .join(Question, Question.id == QuestionReport.question_id)
+        .where(QuestionReport.user_id == user.id)
+        .order_by(QuestionReport.created_at)
+    ).all()
+
+    attempts = list(
+        db.execute(
+            select(ExamAttempt).where(ExamAttempt.user_id == user.id).order_by(ExamAttempt.started_at)
+        ).scalars()
+    )
+    # One catalog lookup for all attempts, not one per attempt.
+    question_ids = {q.question_id for a in attempts for q in a.questions if q.question_id is not None}
+    catalog = (
+        {q.id: q for q in db.execute(select(Question).where(Question.id.in_(question_ids))).scalars()}
+        if question_ids
+        else {}
+    )
+    exam_attempts = []
+    for attempt in attempts:
+        exam_attempts.append(
+            AdminExamAttemptExport(
+                exam_id=attempt.id,
+                exam_variant=attempt.exam_variant,
+                started_at=attempt.started_at,
+                deadline_at=attempt.deadline_at,
+                submitted_at=attempt.submitted_at,
+                graded_at=attempt.graded_at,
+                timed_out=attempt.timed_out,
+                questions=[
+                    AdminExamQuestionExport(
+                        position=q.position,
+                        subject_group=q.subject_group,
+                        subject=catalog[q.question_id].subject if q.question_id in catalog else None,
+                        question_number=catalog[q.question_id].number if q.question_id in catalog else None,
+                        answer_text=q.answer_text,
+                        outcome=q.outcome,
+                    )
+                    for q in attempt.questions
+                ],
+            )
+        )
+
+    return AdminUserExport(
+        user=admin_user_read(user, len(rows)),
+        exam_attempts=exam_attempts,
+        focus_topics=[
+            AdminFocusTopicExport(
+                subject=topic.subject,
+                topic_slug=topic.slug,
+                topic_name=topic.name,
+                created_at=focus.created_at,
+            )
+            for focus, topic in focus_rows
+        ],
+        question_reports=[
+            AdminQuestionReportExport(
+                question_id=report.question_id,
+                subject=subject,
+                question_number=number,
+                category=report.category,
+                comment=report.comment,
+                created_at=report.created_at,
+            )
+            for report, subject, number in report_rows
+        ],
+        question_progress=[
+            AdminQuestionProgressExport(
+                question_id=progress.question_id,
+                subject=subject,
+                question_number=number,
+                half_life_days=progress.half_life_days,
+                last_graded_at=progress.last_graded_at,
+                last_correct_at=progress.last_correct_at,
+                streak_start_at=progress.streak_start_at,
+                review_due_at=progress.review_due_at,
+                created_at=progress.created_at,
+                updated_at=progress.updated_at,
+            )
+            for progress, subject, number in rows
+        ],
+        exported_at=datetime.now(UTC),
+    )

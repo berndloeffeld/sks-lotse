@@ -3,7 +3,6 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from app.api.v1.questions import _catalog_by_id
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
@@ -11,6 +10,7 @@ from app.core.rate_limit import check_and_record, forget_last
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
 from app.services import ai_quota
+from app.services.catalog import catalog_by_id
 from app.services.grader import GradingUnavailable, grade_answer
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def ai_grade_answer(
     """Suggest a grade + feedback for the learner's answer (ADR-0031). Stateless, saves no progress."""
     if not current_user.ai_grading_enabled:
         raise HTTPException(status_code=403, detail="AI answer check is not unlocked for this account")
-    question = _catalog_by_id(request, db).get(question_id)
+    question = catalog_by_id(request, db).get(question_id)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
     if not question.answer_text.strip():
