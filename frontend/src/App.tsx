@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { AdminPage } from './pages/AdminPage'
+import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
+import { AdminUserPage } from './pages/AdminUserPage'
+import { AdminUsersPage } from './pages/AdminUsersPage'
 import { ExamPage } from './pages/ExamPage'
 import { ExamRunPage } from './pages/ExamRunPage'
 import { FaqPage } from './pages/FaqPage'
@@ -17,6 +19,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
 import { AdScriptGate } from './routes/AdScriptGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
+import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAuthStore } from './store/authStore'
 
@@ -52,8 +55,13 @@ export function AppRoutes() {
             <Route path="/exam" element={<ExamPage />} />
             <Route path="/exam/:id" element={<ExamRunPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="users" replace />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="users/:id" element={<AdminUserPage />} />
+              <Route path="questions" element={<AdminQuestionsPage />} />
+              <Route path="settings" element={<AdminSettingsPage />} />
+            </Route>
           </Route>
         </Route>
         {/* Dev-only: throws on purpose to preview the ErrorBoundary's error

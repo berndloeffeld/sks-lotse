@@ -44,3 +44,20 @@ def catalog_by_id(request: Request, db: Session) -> dict[int, QuestionRead]:
         settings.catalog_cache_ttl_seconds,
         lambda: {q.id: q for q in catalog(request, db)},
     )
+
+
+def search_catalog(questions: list[QuestionRead], q: str, subject: str | None) -> list[QuestionRead]:
+    """The admin's question lookup: `q` is a case-insensitive substring of the question or the
+    official answer; a number also finds the question with that catalog number or id. Empty `q`
+    keeps everything (of `subject`, if given)."""
+    needle = q.strip().casefold()
+    number = int(needle) if needle.isdecimal() else None
+
+    def matches(question: QuestionRead) -> bool:
+        if subject is not None and question.subject != subject:
+            return False
+        if not needle or number in (question.number, question.id):
+            return True
+        return needle in question.question_text.casefold() or needle in question.answer_text.casefold()
+
+    return [question for question in questions if matches(question)]

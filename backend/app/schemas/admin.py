@@ -38,6 +38,24 @@ class AdminSettingsUpdate(BaseModel):
     ai_checks_weekly_default: int = Field(ge=0, le=MAX_WEEKLY_LIMIT)
 
 
+class AdminUserListItem(BaseModel):
+    # One row of the admin user list — just what the table shows; the detail is AdminUserRead.
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    first_name: str | None
+    last_name: str | None
+    created_at: datetime
+    ai_grading_enabled: bool
+    ads_removed: bool
+
+
+class AdminUserListPage(BaseModel):
+    items: list[AdminUserListItem]
+    total: int  # matches for the search, across all pages
+
+
 class AdminUserRead(BaseModel):
     # Doubles as the "user" part of the Art. 15/20 DSGVO export below, so it
     # has to cover every personal-data column on User — add new ones here.

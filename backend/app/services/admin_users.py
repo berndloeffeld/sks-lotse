@@ -1,4 +1,4 @@
-"""What the GDPR admin tools show and export about one account (ADR-0019).
+"""What the GDPR admin tools list, show and export about accounts (ADR-0019).
 
 `build_user_export` is the Art. 15/20 DSGVO export: every row stored for the account, with catalog
 references resolved to subject and number so the export reads without the database.
@@ -6,7 +6,7 @@ references resolved to subject and number so the export reads without the databa
 
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.exam_attempt import ExamAttempt
@@ -31,6 +31,30 @@ def question_progress_count(db: Session, user_id: int) -> int:
     return db.execute(
         select(func.count()).select_from(QuestionProgress).where(QuestionProgress.user_id == user_id)
     ).scalar_one()
+
+
+def list_users(db: Session, q: str, offset: int, limit: int) -> tuple[list[User], int]:
+    """One page of accounts, newest first, and how many match in total.
+
+    `q` matches a case-insensitive substring of the email or either name; `%`/`_` in it are
+    taken literally. An empty `q` lists everyone.
+    """
+    stmt = select(User)
+    needle = q.strip().lower()
+    if needle:
+        stmt = stmt.where(
+            or_(
+                *(
+                    func.lower(column).contains(needle, autoescape=True)
+                    for column in (User.email, User.first_name, User.last_name)
+                )
+            )
+        )
+    total = db.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
+    page = db.execute(
+        stmt.order_by(User.created_at.desc(), User.id.desc()).offset(offset).limit(limit)
+    ).scalars()
+    return list(page), total
 
 
 def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
