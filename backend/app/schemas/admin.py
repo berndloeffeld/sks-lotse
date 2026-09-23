@@ -2,13 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.schemas.auth import NormalizedEmail
-
 MAX_WEEKLY_LIMIT = 10_000
-
-
-class AdminUserSearchRequest(BaseModel):
-    email: NormalizedEmail
 
 
 class AdminUserUpdate(BaseModel):

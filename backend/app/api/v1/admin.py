@@ -19,7 +19,6 @@ from app.schemas.admin import (
     AdminUserListItem,
     AdminUserListPage,
     AdminUserRead,
-    AdminUserSearchRequest,
     AdminUserUpdate,
 )
 from app.schemas.kpis import KpiReport
@@ -68,14 +67,6 @@ def list_users(
 @router.get("/users/{user_id}", response_model=AdminUserRead)
 def get_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserRead:
     user = _get_user_or_404(db, user_id)
-    return admin_users.admin_user_read(user, admin_users.question_progress_count(db, user.id))
-
-
-@router.post("/users/search", response_model=AdminUserRead)
-def search_user(payload: AdminUserSearchRequest, db: Session = Depends(get_db)) -> AdminUserRead:
-    user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
-    if user is None:
-        raise _NOT_FOUND
     return admin_users.admin_user_read(user, admin_users.question_progress_count(db, user.id))
 
 

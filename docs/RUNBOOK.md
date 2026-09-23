@@ -40,8 +40,14 @@ How to operate SKS Lotse in production: where to look, what to do when something
 
 - `sks-lotse-db`, PostgreSQL 18 (pinned via `postgresMajorVersion` in `render.yaml`), plan `basic-256mb`.
 - **Backups**: paid Render Postgres has point-in-time recovery. The retention window depends on the Render workspace plan. Check it in the database's "Recovery" tab and note it here once confirmed.
-- **Restore drill** (do it once, and after plan changes): in the Recovery tab, restore to a point in time into a *new* database, connect to it read-only, and check that `users`, `question_progress` and `exam_attempts` look plausible. Then delete it. A real restore means pointing the backend's `DATABASE_URL` at the restored database, or restoring over the original per Render's instructions. Plan for the gap between the restore point and now.
-- **External access** is currently open (no `ipAllowList`, a deliberate choice, ADR-0005 addendum), protected by the generated password only. The plan is to close it (`ipAllowList` in `render.yaml`) now that the admin UI covers the lookups that needed direct SQL: finding accounts (`/admin/users`) and reading question texts (`/admin/questions`).
+- **Restore drill** (do it once, and after plan changes): in the Recovery tab, restore to a point in time into a *new* database, connect to it read-only, and check that `users`, `question_progress` and `exam_attempts` look plausible. Then delete it. A real restore means pointing the backend's `DATABASE_URL` at the restored database, or restoring over the original per Render's instructions. Plan for the gap between the restore point and now. The restored copy is a separate, ad hoc database, not the one declared in `render.yaml` — it isn't covered by `ipAllowList` below, so connect to it directly as before; if Render ever changes that, use the Render Shell approach instead (see External access).
+- **External access** is closed (`ipAllowList: []` in `render.yaml`, ADR-0005 addendum 2026-09-23): the database only accepts connections from services in the same Render account over its internal network (the backend, the cron job), not from a local `psql`. The admin UI (`/admin/users`, `/admin/questions`) covers the lookups that used to need direct SQL. For anything it doesn't cover, open a **Shell** on the `sks-lotse-backend` service in the Render dashboard — it runs inside the account's internal network, so it reaches the database despite the allow list — and query it with the app's own SQLAlchemy session, e.g.:
+  ```python
+  from app.core.database import get_session_factory
+  from app.models.user import User
+  with get_session_factory()() as db:
+      db.query(User).filter_by(email="...").first()
+  ```
 - **Catalog**: rows come only from the data migrations ([catalog-pipeline.md](catalog-pipeline.md)); never edit `questions`/`topics` by hand.
 
 ## Rotating secrets

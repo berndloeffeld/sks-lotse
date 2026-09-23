@@ -5904,60 +5904,6 @@
           }
         },
         {
-          "name": "Admin API - a non-admin is rejected (search)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{profileToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "search"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{profileNewEmail}}\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
           "name": "Admin API - a non-admin is rejected (export)",
           "event": [
             {
@@ -6602,56 +6548,6 @@
       "name": "Admin (GDPR tools)",
       "item": [
         {
-          "name": "Admin API - without a token is rejected (search)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "search"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{testEmail}}\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
           "name": "Admin API - without a token is rejected (export)",
           "event": [
             {
@@ -7225,121 +7121,6 @@
           }
         },
         {
-          "name": "Search a user by email (case-insensitive)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "var u = pm.response.json();",
-                  "pm.test('finds the main test account with the documented shape', function () {",
-                  "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ads_removed', 'ai_checks_week', 'ai_checks_used', 'ai_checks_weekly_limit', 'ai_checks_limit', 'ai_flags_count', 'ai_flags_last_at', 'question_progress_count');",
-                  "    pm.expect(u.question_progress_count).to.be.a('number');",
-                  "});",
-                  "pm.collectionVariables.set('testUserId', u.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "search"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{testEmailUpper}}\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "testEmailUpper is set by the Auth Flow's 'Verify OTP' pre-request script.",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Search a user - unknown email is a 404",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "search"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"no-such-user@example.com\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
           "name": "List users",
           "event": [
             {
@@ -7395,10 +7176,11 @@
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var page = pm.response.json();",
-                  "pm.test('finds exactly the main test account', function () {",
+                  "pm.test('finds exactly the main test account, case-insensitively', function () {",
                   "    pm.expect(page.total).to.eql(1);",
-                  "    pm.expect(page.items[0].id).to.eql(Number(pm.collectionVariables.get('testUserId')));",
-                  "});"
+                  "    pm.expect(page.items[0].email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "});",
+                  "pm.collectionVariables.set('testUserId', page.items[0].id);"
                 ]
               }
             }
@@ -7495,8 +7277,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('is the main test account', function () {",
-                  "    pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "pm.test('is the main test account with the documented shape', function () {",
+                  "    var u = pm.response.json();",
+                  "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ads_removed', 'ai_checks_week', 'ai_checks_used', 'ai_checks_weekly_limit', 'ai_checks_limit', 'ai_flags_count', 'ai_flags_last_at', 'question_progress_count');",
+                  "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
               }
@@ -8177,19 +7962,15 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{adminToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{profileId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -8198,17 +7979,8 @@
                 "v1",
                 "admin",
                 "users",
-                "search"
+                "{{profileId}}"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{profileNewEmail}}\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
           "description": "Cross-checks 'Delete own account' from the previous folder.",
@@ -8887,19 +8659,15 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{adminToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/search",
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -8908,17 +8676,8 @@
                 "v1",
                 "admin",
                 "users",
-                "search"
+                "{{victimId}}"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"email\": \"{{victimEmail}}\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
           "description": "",
