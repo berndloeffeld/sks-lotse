@@ -8,6 +8,7 @@ import { HeroBand } from '../components/HeroBand'
 import { AnswerIcon, CatalogIcon, FeedbackIcon } from '../components/icons/FeatureIcons'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
+import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
 import { useAuthStore } from '../store/authStore'
 
@@ -273,6 +274,9 @@ export function LandingPage() {
             <p className="mt-3 max-w-xl text-sm text-surface-alt">
               Zwei unabhängige Erweiterungen lassen sich später einzeln freischalten – Preise folgen in Kürze.
             </p>
+            <div className="mt-8">
+              <ShareLinks />
+            </div>
           </div>
         </section>
 
