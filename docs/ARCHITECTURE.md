@@ -16,7 +16,7 @@ graph LR
     subgraph "Render · Frankfurt EU"
         Static[Static site<br/>sks-lotse.de]
         API[Backend API<br/>FastAPI · api.sks-lotse.de]
-        DB[(PostgreSQL 16)]
+        DB[(PostgreSQL 18)]
     end
 
     Resend[Resend<br/>OTP email]
@@ -78,11 +78,11 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 
 ### Auth
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
-- **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. Logout invalidates all of a user's tokens by bumping a per-user `token_version`.
+- **Session**: a successful login issues a JWT in an httpOnly cookie. Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. The token must carry `exp`, `sub` and `tv`. Logout invalidates all of a user's tokens by bumping a per-user `token_version` — that is also how a learner evicts a session someone else holds.
 - **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS`.
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
-  - the per-IP limiter;
+  - the per-IP limiter, with tighter rules for requesting and verifying a code;
   - per-email quotas on code requests, plus a per-user quota on email changes;
   - blocking of disposable email domains;
   - an optional `ALLOWED_EMAILS` allowlist for the private beta.
@@ -90,7 +90,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
   Anonymous endpoints answer uniformly, so they don't reveal which addresses exist.
 
 ### Data
-PostgreSQL 16, with the schema managed by Alembic (`backend/alembic/versions/`).
+PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 
 | Table | Kind | Written by |
 |---|---|---|
@@ -114,9 +114,10 @@ The official catalog PDF becomes database rows in two phases:
 Everything is declared in `render.yaml`:
 
 - **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
-- **Deploys**: every push to `main` deploys. The backend runs migrations before it starts and only receives traffic once `/health` passes.
+- **Deploys**: a push to `main` deploys once its GitHub checks have passed (`autoDeployTrigger: checksPass`). The backend migrates in a pre-deploy step (a failed migration aborts the deploy, the old instance keeps serving), runs exactly one uvicorn worker (the in-process limiter and cache assume a single process) and only receives traffic once `/health` passes.
 - **Monitoring**: Better Stack checks availability of the website and `/health` and hosts the public status page at [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) (configured in the Better Stack dashboard, not in this repo).
-- **Security headers**: the frontend's come from `render.yaml` (an enforced CSP for framing/objects/base/forms, and the full script/connect allowlist report-only until the live console is clean, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum), the backend's from middleware.
+- **Logs**: the backend and the cron job write one JSON object per line (`LOG_FORMAT=json`, `backend/app/core/log_config.py`). Render's log stream forwards them to Better Stack via syslog-ng. Every line logged during a request carries its `request_id`, which the response also returns as `X-Request-ID`. An unhandled exception becomes a single `level=ERROR` record with its traceback. Error alerts match on those fields. The daily-report cron pings a Better Stack heartbeat after a fully successful run, so a failed or skipped run alerts as well.
+- **Security headers**: the frontend's come from `render.yaml` (an enforced CSP including the full script/connect allowlist, [ADR-0027](adr/0027-adsense-with-google-consent-management.md) addendum; hashed `/assets/*` are cached as immutable), the backend's from middleware.
 
 | Domain | Served by |
 |---|---|

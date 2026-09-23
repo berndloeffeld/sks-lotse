@@ -35,3 +35,7 @@ The external integration-test Postman collection (`postman/integration-tests.pos
 ## Addendum (2026-09-17)
 
 The gate described above was `settings.is_production` (a string equality on `ENVIRONMENT`), which failed *open*: any value other than exactly `production` — a `prod` typo on Render — would have enabled this endpoint, i.e. the login-bypass scenario named under Consequences. Two changes close that: `ENVIRONMENT` is now a closed set (`development`/`test`/`production`) validated at startup, and the endpoint (like the docs) is gated on an opt-in allowlist, `settings.exposes_dev_tooling` (`development`/`test` only), rather than on "not production".
+
+## Addendum (2026-09-22)
+
+One gap remained: `ENVIRONMENT` itself defaults to `development`, so a Render service where the variable was forgotten (a new or cloned service, an edited dashboard) would have enabled this endpoint again. `exposes_dev_tooling` is therefore also false whenever `RENDER` is set (Render sets it on every service itself), and `is_production` is true there — so the `Secure` cookie flag and the production CORS origins can't be lost the same way.

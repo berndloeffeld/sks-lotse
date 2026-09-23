@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:18
     container_name: sks-lotse-db
     restart: unless-stopped
     environment:
@@ -12,7 +12,11 @@ services:
       # from the local network.
       - "127.0.0.1:5432:5432"
     volumes:
-      - sks-lotse-db-data:/var/lib/postgresql/data
+      # Postgres 18+ images keep their data under a version subdirectory of /var/lib/postgresql
+      # and refuse to start with a mount at the old .../data path. A new volume name, because an
+      # existing Postgres 16 data directory can't be opened by 18 (the old volume stays untouched;
+      # `docker volume rm sks-lotse-db-data` once it's no longer needed).
+      - sks-lotse-db-data-18:/var/lib/postgresql
 
 volumes:
-  sks-lotse-db-data:
+  sks-lotse-db-data-18:

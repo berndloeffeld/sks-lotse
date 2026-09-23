@@ -39,3 +39,13 @@ A frontend service (`sks-lotse-frontend`, Static Site) has since been added to `
 ## Addendum (2026-09-20, paid plans)
 
 The backend moved to the `starter` plan and the database to `basic-256mb` (`render.yaml`), ahead of real use: a free Postgres expires after 30 days and has no backups, and a free web service spins down when idle. `ALLOWED_EMAILS` is no longer set in production (the private beta is over). Migrations still run inline in `startCommand`; `preDeployCommand` is now available and would abort a deploy on a failed migration instead of crash-looping — a candidate for a follow-up. Operations: Render's log stream forwards to Better Stack (log-based error alert, uptime monitors on `/health` and the frontend); the database has no connection pool (single backend instance, SQLAlchemy pool is enough).
+
+## Addendum (2026-09-22)
+
+- **Migrations moved to `preDeployCommand`**, and `startCommand` runs only uvicorn: a failed migration now aborts the deploy while the old instance keeps serving, instead of the new one crash-looping.
+- **Exactly one uvicorn worker** (`--workers 1`, explicit so `WEB_CONCURRENCY` can't raise it), with a 25 s graceful-shutdown window. The in-memory rate limiter, catalog cache and AI-check caps assume one process (ADR-0007, ADR-0009).
+- **`autoDeployTrigger: checksPass`** on all services: a commit deploys only once its GitHub checks passed, not while CI for it is still running.
+- `OPENAI_API_KEY` and `ADSENSE_CLIENT_ID` are removed from the backend. Grading went to Anthropic (ADR-0031, `ANTHROPIC_GRADING_API_KEY`), and the AdSense id is only needed at frontend build time (`VITE_ADSENSE_CLIENT_ID`). The secrets list above is historical.
+- **Structured logs**: `LOG_FORMAT=json` on the backend and the cron job, for Better Stack (see `docs/ARCHITECTURE.md` → Deployment → Logs).
+- The database keeps accepting external connections (no `ipAllowList`), a deliberate choice so the operator can reach it directly. Access is protected by the generated password only.
+- **PostgreSQL 18** is what production actually runs (Render's default when the database was created). CI and docker-compose had tested against 16, so migrations were never exercised on the production version. All three now use 18, and `render.yaml` pins `postgresMajorVersion: "18"`.

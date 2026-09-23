@@ -5,6 +5,7 @@ learner's answer — and nothing else (no subject, topic, account or history): t
 the prompt around 400 tokens, which is what makes the check fast and cheap.
 """
 
+import threading
 from dataclasses import dataclass
 
 import anthropic
@@ -56,7 +57,19 @@ class GradedAnswer:
 
 
 class GradingUnavailable(Exception):
-    """The check could not be performed (no API key, network/API error, unusable reply)."""
+    """The check could not be performed (no API key, network/API error, unusable reply, too busy)."""
+
+
+# The call is synchronous and holds a server worker thread for up to the timeout, so the number in
+# flight is capped process-wide; a check past the cap fails fast rather than queueing for a thread.
+_call_slots = threading.BoundedSemaphore(settings.grading_max_concurrent_calls)
+
+
+def _escape_tags(text: str) -> str:
+    # The learner's answer sits between <antwort> tags — escaping angle brackets means it can't close
+    # that tag and open a fake <musterantwort> of its own. Only the learner's text needs it: question
+    # and model answer come from the official catalog.
+    return text.replace("<", "&lt;").replace(">", "&gt;")
 
 
 def _looks_injected(feedback: str, learner_answer: str) -> bool:
@@ -77,8 +90,10 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         raise GradingUnavailable("ANTHROPIC_GRADING_API_KEY is not configured")
     user_prompt = (
         f"<frage>{question_text}</frage>\n<musterantwort>{model_answer}</musterantwort>\n"
-        f"<antwort>{learner_answer}</antwort>"
+        f"<antwort>{_escape_tags(learner_answer)}</antwort>"
     )
+    if not _call_slots.acquire(blocking=False):
+        raise GradingUnavailable("too many concurrent checks")
     try:
         response = _client().messages.parse(
             model=settings.anthropic_grading_model,
@@ -89,6 +104,8 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         )
     except anthropic.APIError as exc:
         raise GradingUnavailable(type(exc).__name__) from exc
+    finally:
+        _call_slots.release()
     if response.parsed_output is None:
         raise GradingUnavailable("unparseable reply")
     parsed = response.parsed_output

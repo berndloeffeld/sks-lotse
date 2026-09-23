@@ -293,3 +293,62 @@ def test_signup_windows_and_the_retention_cohort_are_1_7_and_7_to_14_days(db_ses
     assert (report.growth.variant_motor, report.growth.variant_segeln_und_motor) == (0, 0)
     assert report.engagement.retention_cohort_size == 3  # cohort-early, cohort-late, exactly-14d
     assert report.engagement.retention_rate == pytest.approx(2 / 3)  # early wasn't back
+
+
+def test_daily_report_script_keeps_sending_after_a_failure_and_then_fails(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "admin_emails", "one@example.com, two@example.com")
+    monkeypatch.setattr(settings, "betterstack_heartbeat_url", "https://heartbeat.example/x")
+    monkeypatch.setattr(send_daily_report, "SessionLocal", lambda: db_session)
+    sent = []
+
+    def flaky(recipient, *args):
+        if recipient == "one@example.com":
+            raise RuntimeError("Resend down")
+        sent.append(recipient)
+
+    monkeypatch.setattr(send_daily_report, "send_kpi_report_email", flaky)
+    pinged = []
+    monkeypatch.setattr(send_daily_report, "_ping_heartbeat", lambda: pinged.append(True))
+
+    assert send_daily_report.main() == 1
+    assert sent == ["two@example.com"]
+    # A partial failure must not tell Better Stack the run was fine.
+    assert pinged == []
+
+
+def test_daily_report_script_pings_the_heartbeat_after_success(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "admin_emails", "one@example.com")
+    monkeypatch.setattr(settings, "betterstack_heartbeat_url", "https://heartbeat.example/x")
+    monkeypatch.setattr(send_daily_report, "SessionLocal", lambda: db_session)
+    monkeypatch.setattr(send_daily_report, "send_kpi_report_email", lambda *args: None)
+    opened = []
+
+    class _Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def fake_urlopen(url, timeout):
+        opened.append((url, timeout))
+        return _Response()
+
+    monkeypatch.setattr(send_daily_report.urllib.request, "urlopen", fake_urlopen)
+
+    assert send_daily_report.main() == 0
+    assert opened == [("https://heartbeat.example/x", 10)]
+
+
+def test_heartbeat_is_skipped_without_url_and_its_failure_is_only_logged(monkeypatch, caplog):
+    def fail(*args, **kwargs):
+        raise OSError("unreachable")
+
+    monkeypatch.setattr(send_daily_report.urllib.request, "urlopen", fail)
+    monkeypatch.setattr(settings, "betterstack_heartbeat_url", "")
+    send_daily_report._ping_heartbeat()
+    assert caplog.records == []
+
+    monkeypatch.setattr(settings, "betterstack_heartbeat_url", "https://heartbeat.example/x")
+    send_daily_report._ping_heartbeat()
+    assert [r.getMessage() for r in caplog.records] == ["Heartbeat ping failed"]

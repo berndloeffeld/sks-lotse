@@ -240,3 +240,36 @@ def test_sweep_treats_a_key_without_a_remembered_window_as_window_zero():
 
 def test_sweep_without_any_store_is_a_noop():
     rate_limit._sweep_idle(Starlette(), time.monotonic())
+
+
+def test_store_survives_concurrent_writers_during_a_sweep():
+    # Sync route handlers call check_and_record from FastAPI's threadpool while the middleware
+    # sweeps on the event loop — without the module lock, the sweep's iteration over the store
+    # raises "dictionary changed size during iteration" once a writer adds a key mid-loop.
+    import threading
+
+    app = Starlette()
+    errors: list[BaseException] = []
+    stop = threading.Event()
+
+    def writer(prefix: str) -> None:
+        i = 0
+        while not stop.is_set():
+            rate_limit.check_and_record(app, "bucket", f"{prefix}-{i}", 5, 0)
+            i += 1
+
+    threads = [threading.Thread(target=writer, args=(str(n),)) for n in range(4)]
+    for t in threads:
+        t.start()
+    try:
+        for _ in range(2000):
+            try:
+                rate_limit._sweep_idle(app, rate_limit.time.monotonic() + 1)
+            except RuntimeError as exc:  # pragma: no cover - only reached on a regression
+                errors.append(exc)
+                break
+    finally:
+        stop.set()
+        for t in threads:
+            t.join()
+    assert errors == []
