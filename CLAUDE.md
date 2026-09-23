@@ -51,7 +51,7 @@ sks-lotse/
 │   ├── src/
 │   │   ├── api/        # Thin typed fetch wrapper + shared response types
 │   │   ├── components/ # Shared UI (e.g. ChartTile, per ADR-0014)
-│   │   ├── hooks/      # Shared React hooks (e.g. useExamVariantUpdate)
+│   │   ├── hooks/      # Shared React hooks (useApiQuery for fetch-on-mount, useExamVariantUpdate, …)
 │   │   ├── pages/      # LandingPage, LoginPage, StartPage, LearnPage, PracticePage, FocusPracticePage, ExamPage, ExamRunPage, ProfilePage, AdminPage, ImprintPage, PrivacyPage
 │   │   ├── routes/     # ProtectedRoute
 │   │   └── store/      # Zustand auth store

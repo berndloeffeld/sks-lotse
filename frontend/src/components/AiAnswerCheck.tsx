@@ -10,6 +10,11 @@ import { CompassIcon } from './icons/FeatureIcons'
 
 const styles = formStyles('light')
 
+// Mirrors GRADING_MAX_ANSWER_CHARS in the backend (app/core/config.py): a longer answer is rejected
+// with 422 before the model sees it. Exam answers may be much longer (up to 10,000 characters),
+// so the button says so up front instead of failing with "nicht erreichbar".
+export const AI_CHECK_MAX_ANSWER_CHARS = 1000
+
 interface AiAnswerCheckProps {
   questionId: number
   answer: string
@@ -23,6 +28,9 @@ interface AiAnswerCheckProps {
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 429) {
     return 'Der Lotse ist für diese Frage oder für heute ausgelastet. Bewerte dich bitte selbst.'
+  }
+  if (error instanceof ApiError && error.status === 422) {
+    return 'Diese Antwort kann der Lotse nicht prüfen. Bewerte dich bitte selbst.'
   }
   return 'Der Lotse ist gerade nicht erreichbar. Bewerte dich bitte selbst.'
 }
@@ -55,14 +63,16 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
   const isUnlocked = user?.ai_grading_enabled ?? false
   const remaining = user?.ai_checks_remaining ?? 0
   const hasAnswer = answer.trim().length > 0
+  const tooLong = answer.length > AI_CHECK_MAX_ANSWER_CHARS
 
   let hint = `Die KI schlägt dir eine Bewertung vor · noch ${remaining} diese Woche`
   if (!isUnlocked) hint = 'bald verfügbar'
   else if (isChecking) hint = 'Lotse prüft…'
   else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
+  else if (tooLong) hint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
   else if (remaining <= 0) hint = 'ab Montag wieder'
 
-  const isDisabled = !isUnlocked || isChecking || !hasAnswer || remaining <= 0
+  const isDisabled = !isUnlocked || isChecking || !hasAnswer || tooLong || remaining <= 0
 
   async function check() {
     setIsChecking(true)

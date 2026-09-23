@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
 import type { ProgressSlice } from '../components/ProgressPie'
+import { useApiQuery } from './useApiQuery'
 
 export const SUBJECT_LABELS: Record<string, string> = {
   navigation: 'Navigation',
@@ -33,34 +34,17 @@ const CATEGORY_LABELS: Record<string, string> = {
 // topics grouped by subject, plus the Fokus topics with their combined
 // counts and the toggle that marks/unmarks one.
 export function useProgressSummary() {
-  const [progress, setProgress] = useState<TopicProgress[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    data,
+    isLoading,
+    failed,
+    reload: fetchProgress,
+  } = useApiQuery('progress-summary', () => apiClient.get<TopicProgress[]>('/progress/summary'))
+  const progress = data ?? []
+  const error = failed ? 'Der Lernstand konnte nicht geladen werden.' : null
   // Separate from `error`: a failed mark/unmark must not replace the whole
   // Lernstand with an error message.
   const [focusError, setFocusError] = useState<string | null>(null)
-
-  // No setState before the first `await` here — the initial "loading" state
-  // is covered by useState(true) above, not by a synchronous call in the
-  // effect body (react-hooks/set-state-in-effect).
-  const fetchProgress = useCallback(async () => {
-    try {
-      const data = await apiClient.get<TopicProgress[]>('/progress/summary')
-      setProgress(data)
-    } catch {
-      setError('Der Lernstand konnte nicht geladen werden.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    // Standard fetch-on-mount: no external store for this component-local
-    // data, and nothing else ever triggers a second concurrent call, so the
-    // stricter "no setState from an effect" pattern doesn't apply here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchProgress()
-  }, [fetchProgress])
 
   // Marks or unmarks a topic as Fokus, then reloads the summary so every
   // derived view (Fokus band, stars) reflects the server's state — which also

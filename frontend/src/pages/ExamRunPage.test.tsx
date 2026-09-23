@@ -114,6 +114,38 @@ describe('ExamRunPage', () => {
     expect(await screen.findByRole('heading', { name: 'Selbsteinschätzung' })).toBeInTheDocument()
   })
 
+  it('saves one answer at a time, so a slow older save can never overwrite a newer text', async () => {
+    const user = userEvent.setup()
+    const puts: string[] = []
+    let releaseFirst!: () => void
+    const firstHeld = new Promise<void>((resolve) => {
+      releaseFirst = resolve
+    })
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'PUT') {
+        puts.push(JSON.parse(String(init.body)).answer_text)
+        // The first save hangs until released; any later one answers at once.
+        if (puts.length === 1) await firstHeld
+        return new Response(null, { status: 204 })
+      }
+      return jsonResponse(makeExam())
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    renderRun()
+    const field = await screen.findByLabelText('Deine Antwort')
+
+    await user.type(field, 'Kom')
+    await waitFor(() => expect(puts).toEqual(['Kom']))
+    await user.type(field, 'pass')
+    // Moving on asks for another save while the first is still in flight: it has to wait.
+    await user.keyboard('{Enter}')
+    await screen.findByText('Frage 2?')
+    expect(puts).toEqual(['Kom'])
+
+    releaseFirst()
+    await waitFor(() => expect(puts).toEqual(['Kom', 'Kompass']))
+  })
+
   it('shows an error when saving fails and reloads when the exam has ended', async () => {
     const user = userEvent.setup()
     let putStatus = 500
