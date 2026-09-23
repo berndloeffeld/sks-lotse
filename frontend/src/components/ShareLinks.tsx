@@ -18,7 +18,7 @@ const ICON_SIZE = 32
 export function ShareLinks() {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="font-mono text-xs tracking-wide text-surface-alt uppercase">SKS Lotse weitersagen</span>
+      <span className="font-mono text-xs tracking-wide text-surface-alt uppercase">Sag&apos;s weiter</span>
       <div className="flex items-center gap-3">
         <WhatsappShareButton url={SHARE_URL} title={SHARE_TITLE} aria-label="Auf WhatsApp teilen">
           <WhatsappIcon size={ICON_SIZE} round />

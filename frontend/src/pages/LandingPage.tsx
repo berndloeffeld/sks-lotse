@@ -269,14 +269,14 @@ export function LandingPage() {
         </section>
 
         <section className="bg-primary-dark py-14 text-surface">
-          <div className={CONTENT}>
-            <h2 className="font-serif text-3xl">Kostenlos starten</h2>
-            <p className="mt-3 max-w-xl text-sm text-surface-alt">
-              Zwei unabhängige Erweiterungen lassen sich später einzeln freischalten – Preise folgen in Kürze.
-            </p>
-            <div className="mt-8">
-              <ShareLinks />
+          <div className={`${CONTENT} grid gap-10 sm:grid-cols-2 sm:items-center`}>
+            <div>
+              <h2 className="font-serif text-3xl">Kostenlos starten</h2>
+              <p className="mt-3 max-w-xl text-sm text-surface-alt">
+                Zwei unabhängige Erweiterungen lassen sich später einzeln freischalten – Preise folgen in Kürze.
+              </p>
             </div>
+            <ShareLinks />
           </div>
         </section>
 
