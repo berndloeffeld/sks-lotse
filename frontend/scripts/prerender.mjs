@@ -51,4 +51,6 @@ for (const [path, file] of Object.entries(PAGES)) {
 }
 rmSync(ssrDir, { recursive: true, force: true })
 
-console.log(`prerender: wrote ${Object.values(PAGES).join(', ')} and app.html (SPA shell, without the static ad script)`)
+console.log(
+  `prerender: wrote ${Object.values(PAGES).join(', ')} and app.html (SPA shell, without the static ad script)`,
+)
