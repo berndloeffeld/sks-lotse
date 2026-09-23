@@ -1,6 +1,6 @@
 # 0038. Tip reveal caps grading outcome to "Teilweise Richtig"
 
-Status: Accepted
+Status: Accepted — restates the tip rule of [ADR-0018](0018-learning-progress-model-and-gelernt-streak-rule.md) as its own decision; not enforced yet, since tips aren't built.
 
 ## Context
 

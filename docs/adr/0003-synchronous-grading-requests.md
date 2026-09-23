@@ -1,6 +1,6 @@
 # 0003. Synchronous grading requests
 
-Status: Accepted
+Status: Accepted — the provider changed from OpenAI to Anthropic in [ADR-0031](0031-ai-answer-check-with-claude-haiku.md); the synchronous request/response decision stands.
 
 ## Context
 

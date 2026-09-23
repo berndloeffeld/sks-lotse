@@ -1,6 +1,6 @@
 # 0037. Correct exam answers feed the Lernstand
 
-Status: Accepted
+Status: Accepted — supersedes the "separate from the Lernstand" bullet of [ADR-0029](0029-exam-simulation.md).
 
 ## Context
 

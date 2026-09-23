@@ -1,6 +1,24 @@
 # Architecture
 
-Current-state overview: which parts the system consists of, how they relate, and where each responsibility lives. This document describes *what exists*. The reasons behind it are in the [ADRs](adr/), the rules for adding code are in `CLAUDE.md`, and behavioral detail is in the code and its tests.
+Current-state overview: what the product does, which parts the system consists of, how they relate, and where each responsibility lives. This document describes *what exists*. The reasons behind it are in the [ADRs](adr/) ([index](adr/README.md)), the rules for adding code are in `CLAUDE.md`, operating it is in the [runbook](RUNBOOK.md), the catalog import in [catalog-pipeline.md](catalog-pipeline.md), and behavioral detail is in the code and its tests.
+
+## Product
+
+The official SKS exam catalog is free text, not multiple choice: the learner writes an answer and judges it against the official model answer. SKS Lotse is web-only (no app store).
+
+1. **Login is required** (email + one-time code; SSO is planned). Progress is always stored server-side against the account.
+2. **Learning by topic** (`/learn`): a question, an optional scratchpad answer (never sent unless the learner asks for the AI check), then the official answer, and the learner grades themselves: Richtig / Teilweise Richtig / Falsch ([ADR-0023](adr/0023-self-assessed-learning-flow.md)).
+3. **"Gelernt" is a half-life estimate, not a streak** ([ADR-0034](adr/0034-half-life-model-for-gelernt.md), [ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)): each grading re-estimates the question's memory half-life. A question is gelernt while the half-life is ≥ 7 days and the estimated recall probability is ≥ 0.7, and it resurfaces once that decays. The UI never shows the numbers ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)); the constants are in `backend/app/core/progress.py`.
+4. **Lotsen-Check** ("Antwort vom Lotsen bewerten lassen", [ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)): for accounts with `ai_grading_enabled`, Claude Haiku *suggests* a grade plus feedback, and the learner still confirms. Limited to a weekly budget (week starts Monday; the default is set on `/admin/settings`, overridable per account, [ADR-0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md)), hardened against prompt injection ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md)).
+5. **Fokus topics** ([ADR-0028](adr/0028-focus-topics.md)): starred topics on `/learn`. The Fokus session (`/learn/fokus`) runs all their not-yet-gelernt questions, the one whose last "Richtig" is longest ago first. A Fokus topic drops out for good once all its questions are learned.
+6. **Prüfungssimulation** (`/exam`, [ADR-0029](adr/0029-exam-simulation.md)): a random Fragebogen (30 questions, 9/7/5/9 by subject group, 90 minutes enforced server-side, no tips), answered in full, then self-assessed question by question with the same Lotsen-Check. "Richtig" answers then count for the Lernstand ([ADR-0037](adr/0037-exam-richtig-answers-feed-the-lernstand.md)). History and statistics are on `/profile`. The Kartenaufgabe isn't simulated.
+7. **Exam variant** is an account attribute (`users.exam_variant`: "Segeln und Motor" or "Motor"), settable on `/learn` and `/profile`. Question lists are filtered to its subjects unless a subject is requested explicitly.
+8. **Profile** (`/profile`): optional name and gender (the name then replaces the email wherever the learner's own identity is shown), exam variant, Lernstand and exam statistics, email change (a code to the *new* address confirms it; purpose-bound, so it never works as a login code), and self-service account deletion.
+9. **Feedback** ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)): a "Feedback" `mailto:` link, "Frage melden" under every question (read by the operator on `/admin`), and coarse Umami funnel events (fixed keys only, never free text).
+
+**Monetization** is freemium with two independent add-ons ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md)): remove ads (`users.ads_removed`) and unlock the Lotsen-Check (`users.ai_grading_enabled`). All four combinations are valid. Payment isn't built: the operator sets both flags on `/admin`. Pricing is still open.
+
+**Operator tools** (`/admin`, gated by the `ADMIN_EMAILS` allowlist, [ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)): look an account up by email, export its data as JSON, delete it, set its flags and AI budget, read question reports and KPIs. Data-subject requests are fulfilled by hand with these ([runbook](RUNBOOK.md#data-subject-requests-dsgvo)).
 
 ## System context
 
@@ -37,7 +55,7 @@ graph LR
 
 Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU, except the Anthropic API (US, see ADR-0031). Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
-Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo) and the Anthropic API when used offline for topic classification of the catalog (see [Question catalog](#question-catalog)); the runtime answer check also calls it ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)).
+Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, checked by hand before merging) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
 ## Components
 
@@ -60,7 +78,7 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | Layer | Role |
 |---|---|
 | `api/v1/` | HTTP routes, one module per area (below) |
-| `services/` | Business logic that spans routes, external integrations (email, catalog seeding, user deletion) |
+| `services/` | Business logic the routes share: the cached catalog, OTP codes, exam read models, progress and the batched exam credit, the AI check and its quota, the admin export, user deletion, KPIs, email, catalog seeding |
 | `models/`, `schemas/` | SQLAlchemy persistence, Pydantic request/response contracts |
 | `core/` | Cross-cutting concerns: config, JWT/OTP, cache, middleware |
 
@@ -69,11 +87,12 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | `auth` | Login, session, own profile, email change, self-deletion | [0006](adr/0006-mandatory-login-and-feature-gated-monetization.md), [0008](adr/0008-token-version-based-logout.md), [0011](adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md), [0012](adr/0012-httponly-cookie-for-frontend-session-token.md) |
 | `questions` | Read-only catalog (incl. the images of image questions) and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md), [0033](adr/0033-catalog-images-as-static-files.md) |
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question memory half-lives ("gelernt" while recall probability is high), recording a self-assessed grading, marking topics as Fokus, the Fokus session's ordered question list (`GET /progress/focus/questions`) | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0034](adr/0034-half-life-model-for-gelernt.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md) |
+| `grading` | The Lotsen-Check (`POST /questions/{id}/ai-grade`): per-question/day and per-hour caps, the persisted weekly budget, a process-wide cap on concurrent LLM calls, the sanitizer | [0031](adr/0031-ai-answer-check-with-claude-haiku.md), [0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md), [0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md) |
 | `question_reports` (in `questions`) | "Frage melden": learners flag faulty catalog questions; the operator reads them via `GET /admin/question-reports` | [0030](adr/0030-question-reports-and-feedback-channels.md) |
 | `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment ("Richtig" answers feed the Lernstand once the exam is complete), history and statistics | [0029](adr/0029-exam-simulation.md), [0037](adr/0037-exam-richtig-answers-feed-the-lernstand.md) |
 | `admin` | GDPR lookup/export/delete, question reports, aggregate KPIs (`GET /admin/kpis`), weekly AI-check budget (per-user override, app-wide default in `app_settings` via `/admin/settings`), read-only AI-grading abuse signal (`ai_flags_count`), allowlist-gated | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md), [0032](adr/0032-daily-kpi-report.md), [0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md), [0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md) |
 
-Every request passes through a middleware stack: redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
+Every request passes through a middleware stack: a request id for the logs (`X-Request-ID`), redirect of secondary domains to `sks-lotse.de`, per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers, and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
 
 API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `ENVIRONMENT` is `development` or `test`.
 
@@ -96,20 +115,23 @@ PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 | Table | Kind | Written by |
 |---|---|---|
 | `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
-| `users` | Account and profile | Auth and admin flows |
-| `question_progress` | Per-user, per-question memory half-life, last grading, last "Richtig" and resurface time | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
+| `users` | Account and profile, the two entitlement flags, this week's AI-check counter and override, the sanitizer flag count | Auth and admin flows, the AI check |
+| `app_settings` | Operator-tuned app-wide values (today: the default weekly AI-check budget) | `/admin/settings` ([ADR-0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md)) |
+| `question_progress` | Per-user, per-question memory half-life, last grading, last "Richtig", start of the current "Richtig" streak ([ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)) and resurface time | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
 | `focus_topics` | Per-user topics marked as Fokus | `PUT`/`DELETE /progress/focus/...`; deleted automatically once every question of the topic is learned ([ADR-0028](adr/0028-focus-topics.md)) |
 | `question_reports` | Per-user reports of faulty questions (category + optional comment) | `POST /questions/{id}/report`; deleted with the account ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)) |
 | `exam_attempts`, `exam_attempt_questions` | Per-user exam simulation runs: the drawn questions, the learner's answers and self-assessment | `/exams` endpoints; deleted with the account or one by one ([ADR-0029](adr/0029-exam-simulation.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
-Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data.
+Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data: progress, Fokus marks, question reports, exams and pending codes, then the account.
 
 ### Question catalog
 The official catalog PDF becomes database rows in two phases:
 
 1. **Offline, on a developer machine.** Scripts parse the PDF and propose Seemannschaft I/II merges (text similarity) and topic assignments (LLM). A human then reviews the proposals, which are committed as YAML fixtures. The LLM only picks from the topics transcribed from the catalog's own table of contents, never invents new ones ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md), [ADR-0020](adr/0020-merge-sparse-topics-into-collective-groups.md)).
 2. **Every deploy.** An Alembic data migration builds the catalog from the PDF plus those committed fixtures. No external calls are made, so every environment ends up with the same catalog and nobody has to remember a manual import step.
+
+The details (subjects, the Seemannschaft merge, images, the three stages and how to change the catalog) are in [catalog-pipeline.md](catalog-pipeline.md).
 
 ### Deployment
 Everything is declared in `render.yaml`:
@@ -126,22 +148,24 @@ Everything is declared in `render.yaml`:
 | `api.sks-lotse.de` | Backend API |
 | `sks-lotse.com`, `www.` | Backend, which 301-redirects to `sks-lotse.de` |
 
+`sks-lotse.global` and `sks-lotse.store` are registered but unused. How to operate all of this (logs, rollback, backups, secrets, DSGVO requests) is in the [runbook](RUNBOOK.md).
+
 ### Quality gates
 GitHub Actions runs on every PR and every push to `main`:
 
 - **Backend**: lint, unit tests with a 95% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
-- **Frontend**: lint, type check, and tests with a 90%/85% (lines/branches) coverage gate.
+- **Frontend**: lint, type check, tests with a 90%/85% (lines/branches) coverage gate, and the production build including the prerender.
+- **Mutation testing**: weekly, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
 - **Security**: Aikido scans the repo; findings are checked by hand before merging (no CI job).
 
 All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
 
 ## Not yet built
 
-- Payment for the unlocks. The AI answer check itself exists ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)), gated by `users.ai_grading_enabled`, which the operator sets on `/admin` for now.
 - Tips per question (text or image), and enforcing the rule that a revealed tip caps that attempt's grading to "Teilweise Richtig" ([ADR-0038](adr/0038-tip-reveal-caps-grading-outcome.md))
 - SSO login (Google/Facebook/X)
-- Entitlements via payment: the "ads removed" (`users.ads_removed`) and "AI grading unlocked" flags exist and are set by the operator on `/admin`; the ad UI honours `ads_removed` via `useShowAds()`, the AdSense script in the `<head>` does not ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
+- Entitlements via payment: the "ads removed" (`users.ads_removed`) and "AI grading unlocked" flags exist and are set by the operator on `/admin` ([ADR-0006](adr/0006-mandatory-login-and-feature-gated-monetization.md))
 - Speech-to-text (Web Speech API)
-- Ad units beyond the landing page placeholder (AdSense script + consent are in, [ADR-0027](adr/0027-adsense-with-google-consent-management.md))
+- Ad units: none are rendered yet. The AdSense script and the consent management are in ([ADR-0027](adr/0027-adsense-with-google-consent-management.md))
 
 This section should shrink as each piece lands. Keep it accurate rather than aspirational.

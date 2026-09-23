@@ -1,6 +1,6 @@
 # 0039. Cumulative spacing for unbroken "Richtig" streaks
 
-Status: Accepted
+Status: Accepted — amends the spacing effect of [ADR-0034](0034-half-life-model-for-gelernt.md).
 
 ## Context
 

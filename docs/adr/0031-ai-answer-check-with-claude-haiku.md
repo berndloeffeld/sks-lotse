@@ -1,6 +1,6 @@
 # 0031. AI answer check with Claude Haiku
 
-Status: Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable)
+Status: Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md))
 
 ## Context
 
@@ -23,3 +23,7 @@ Learners without AI grading self-assess against the official answer ([ADR-0023](
 - Questions that refer to charts can only be judged against the answer text, since images aren't extracted yet.
 - Rejected: sending subject/topic/history (cost, privacy, little gain); auto-saving the LLM's grade (a wrong verdict would silently move a streak); streaming (short answers, not worth the complexity).
 - Payment, and thus who gets the flag, is still open.
+
+## Addendum (2026-09-23): data processing agreement
+
+Anthropic's data processing agreement (as of 2026-09-20) is kept in the repo: [docs/anthropic-dpa-2026-09-20.pdf](../anthropic-dpa-2026-09-20.pdf). The Datenschutzerklärung lists Anthropic as a processor for the Lotsen-Check.

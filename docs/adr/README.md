@@ -1,0 +1,46 @@
+# Architecture Decision Records
+
+One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decision-records.md) explains why, [template.md](template.md) is the format). A decision is never edited away: a later ADR supersedes or amends it, and both status lines say so. The status column below is copied from each file's `Status:` line; keep it in sync when adding or amending an ADR.
+
+| # | Decision | Status |
+|---|---|---|
+| [0001](0001-use-architecture-decision-records.md) | Use Architecture Decision Records | Accepted |
+| [0002](0002-modulith-over-microservices.md) | Modulith over microservices | Accepted |
+| [0003](0003-synchronous-grading-requests.md) | Synchronous grading requests | Accepted — the provider changed from OpenAI to Anthropic in [ADR-0031](0031-ai-answer-check-with-claude-haiku.md); the synchronous request/response decision stands. |
+| [0004](0004-anonymous-device-id-rate-limiting.md) | Anonymous device-ID rate limiting for grading requests | Superseded by [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) |
+| [0005](0005-render-deployment-topology.md) | Render deployment topology | Accepted — the "no frontend service yet" part is superseded by [ADR-0015](0015-frontend-deployment-topology.md) |
+| [0006](0006-mandatory-login-and-feature-gated-monetization.md) | Mandatory login and feature-gated monetization | Accepted |
+| [0007](0007-in-memory-per-ip-rate-limiting.md) | In-memory, per-IP rate limiting instead of Redis or a reverse proxy | Accepted |
+| [0008](0008-token-version-based-logout.md) | Token-version counter for logout, instead of a blacklist or short-lived tokens | Accepted |
+| [0009](0009-in-process-cache-for-question-catalog.md) | In-process cache for the question catalog | Accepted |
+| [0010](0010-opportunistic-otp-code-cleanup.md) | Opportunistic OTP-code cleanup, throttled and run as a background task | Accepted |
+| [0011](0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md) | A dev-only OTP peek endpoint, to let external integration tests complete the login flow | Accepted |
+| [0012](0012-httponly-cookie-for-frontend-session-token.md) | httpOnly cookie for the frontend's session token, not localStorage | Accepted |
+| [0013](0013-frontend-architecture-and-tooling.md) | Frontend architecture and tooling | Accepted |
+| [0014](0014-visual-design-system.md) | Visual design system: palette, typography, and core UI patterns | Accepted — the "Lot gauge" bullet is superseded by [ADR-0024](0024-course-gauge-without-visible-step-count.md) |
+| [0015](0015-frontend-deployment-topology.md) | Frontend deployment topology: subdomain split on Render | Accepted |
+| [0016](0016-umami-cloud-analytics-without-consent-banner.md) | Umami Cloud for analytics, no consent banner | Accepted (consent for AdSense is decided in [ADR-0027](0027-adsense-with-google-consent-management.md); the Umami part stands) |
+| [0017](0017-official-topic-taxonomy-and-seemannschaft-merge.md) | Official topic taxonomy, LLM-assisted assignment only, and merging Seemannschaft I/II | Accepted — seeding mechanics (delete + insert, per-stage `apply` scripts) superseded by [ADR-0022](0022-catalog-sync-by-upsert.md); merge criterion (question similarity only) superseded by [ADR-0026](0026-merge-seemannschaft-only-on-matching-wording.md) |
+| [0018](0018-learning-progress-model-and-gelernt-streak-rule.md) | Learning-progress data model and the "gelernt" streak rule | Accepted; the "gelernt" streak rule (and `correct_streak`) is superseded by [ADR-0034](0034-half-life-model-for-gelernt.md). The table layout, the tip rule (restated as its own decision in [ADR-0038](0038-tip-reveal-caps-grading-outcome.md)) and the summary endpoint stand. |
+| [0019](0019-admin-allowlist-and-manual-gdpr-fulfillment.md) | Admin email allowlist and manual GDPR fulfillment | Accepted |
+| [0020](0020-merge-sparse-topics-into-collective-groups.md) | Merge/split sparse topics into new collective names, sized 10-35 questions | Accepted — seeding mechanics (delete + insert, per-stage `apply` scripts) superseded by [ADR-0022](0022-catalog-sync-by-upsert.md) |
+| [0021](0021-self-hosted-web-fonts.md) | Self-host web fonts instead of loading them from Google Fonts | Accepted |
+| [0022](0022-catalog-sync-by-upsert.md) | Sync the question catalog by upsert, through frozen table definitions | Accepted |
+| [0023](0023-self-assessed-learning-flow.md) | Self-assessed learning flow as the first write path to progress | Accepted |
+| [0024](0024-course-gauge-without-visible-step-count.md) | Course gauge: per-question progress without a visible step count | Accepted |
+| [0025](0025-build-time-prerender-of-the-landing-page.md) | Build-time prerender of the landing page | Accepted |
+| [0026](0026-merge-seemannschaft-only-on-matching-wording.md) | Merge Seemannschaft I/II pairs only on matching wording; key Seemannschaft rows by official number | Accepted — supersedes the merge criterion ("near word-for-word identical questions") of [ADR-0017](0017-official-topic-taxonomy-and-seemannschaft-merge.md) and refines the upsert key of [ADR-0022](0022-catalog-sync-by-upsert.md) for the three Seemannschaft subjects |
+| [0027](0027-adsense-with-google-consent-management.md) | Google AdSense behind Google's own consent management | Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries the script" is amended by the addendum of 2026-09-23 (only where ads are shown, never on `/admin`). |
+| [0028](0028-focus-topics.md) | Focus topics | Accepted |
+| [0029](0029-exam-simulation.md) | Exam simulation | Accepted — the "separate from the Lernstand" bullet is superseded by [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md). |
+| [0030](0030-question-reports-and-feedback-channels.md) | Question reports and lightweight feedback channels | Accepted |
+| [0031](0031-ai-answer-check-with-claude-haiku.md) | AI answer check with Claude Haiku | Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md)) |
+| [0032](0032-daily-kpi-report.md) | Daily KPI report by email | Accepted |
+| [0033](0033-catalog-images-as-static-files.md) | Catalog images as static files of the frontend | Accepted |
+| [0034](0034-half-life-model-for-gelernt.md) | Half-life model for "gelernt" (replaces the 3-streak rule) | Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start). |
+| [0035](0035-vitest-pinned-to-4x-for-stryker.md) | Vitest pinned to 4.x so Stryker mutation testing works | Accepted |
+| [0036](0036-weekly-ai-check-budget-with-admin-overrides.md) | Weekly AI-check budget with admin-tunable default and per-user override | Accepted — amends the budget bullet of [ADR-0031](0031-ai-answer-check-with-claude-haiku.md). |
+| [0037](0037-exam-richtig-answers-feed-the-lernstand.md) | Correct exam answers feed the Lernstand | Accepted — supersedes the "separate from the Lernstand" bullet of [ADR-0029](0029-exam-simulation.md). |
+| [0038](0038-tip-reveal-caps-grading-outcome.md) | Tip reveal caps grading outcome to "Teilweise Richtig" | Accepted — restates the tip rule of [ADR-0018](0018-learning-progress-model-and-gelernt-streak-rule.md) as its own decision; not enforced yet, since tips aren't built. |
+| [0039](0039-cumulative-spacing-for-richtig-streaks.md) | Cumulative spacing for unbroken "Richtig" streaks | Accepted — amends the spacing effect of [ADR-0034](0034-half-life-model-for-gelernt.md). |
+| [0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) | AI-grading sanitizer and abuse monitoring | Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring). |
