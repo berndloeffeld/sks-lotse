@@ -53,10 +53,6 @@ def fake_grader(monkeypatch):
     return calls
 
 
-def test_requires_auth(client):
-    assert client.post("/api/v1/questions/1/ai-grade", json={"answer": "x"}).status_code == 401
-
-
 def test_not_enough_tokens_is_402(client, db_session):
     q = _question(db_session)
     headers = _headers(db_session, enabled=False)

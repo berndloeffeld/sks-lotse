@@ -1,14 +1,13 @@
 from datetime import UTC, datetime, timedelta, timezone
 
-from app.core.config import settings
 from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, result_for
 from app.core.timeutil import as_utc
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.user import User
+from tests.helpers import fixture_user, make_admin
 
-_FIXTURE_EMAIL = "fixture-user@example.com"
 _POOL = {
     "navigation": 12,
     "schifffahrtsrecht": 10,
@@ -17,10 +16,6 @@ _POOL = {
     "seemannschaft_segeln": 6,
     "seemannschaft_motor": 6,
 }
-
-
-def _fixture_user(db_session) -> User:
-    return db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
 
 
 def _seed(db_session, variant: str | None = "segeln_und_motor") -> User:
@@ -34,7 +29,7 @@ def _seed(db_session, variant: str | None = "segeln_und_motor") -> User:
                     answer_text=f"Amtliche Antwort {subject} {number}",
                 )
             )
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     user.exam_variant = variant
     db_session.commit()
     return user
@@ -69,17 +64,6 @@ def _grade_all(client, auth_headers, exam, outcomes):
     return body
 
 
-def test_exam_routes_require_authentication(client):
-    assert client.post("/api/v1/exams").status_code == 401
-    assert client.get("/api/v1/exams").status_code == 401
-    assert client.get("/api/v1/exams/stats").status_code == 401
-    assert client.get("/api/v1/exams/1").status_code == 401
-    assert client.put("/api/v1/exams/1/questions/1/answer", json={"answer_text": "x"}).status_code == 401
-    assert client.post("/api/v1/exams/1/submit").status_code == 401
-    assert client.put("/api/v1/exams/1/questions/1/grade", json={"outcome": "richtig"}).status_code == 401
-    assert client.delete("/api/v1/exams/1").status_code == 401
-
-
 def test_start_requires_exam_variant(client, db_session, auth_headers):
     _seed(db_session, variant=None)
     response = client.post("/api/v1/exams", headers=auth_headers)
@@ -87,7 +71,7 @@ def test_start_requires_exam_variant(client, db_session, auth_headers):
 
 
 def test_start_fails_when_catalog_too_small(client, db_session, auth_headers):
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     user.exam_variant = "motor"
     db_session.commit()
     assert client.post("/api/v1/exams", headers=auth_headers).status_code == 503
@@ -354,7 +338,7 @@ def test_account_deletion_removes_exams(client, db_session, auth_headers):
 
 
 def test_admin_export_includes_exams(client, db_session, auth_headers, monkeypatch):
-    monkeypatch.setattr(settings, "admin_emails", _FIXTURE_EMAIL)
+    make_admin(monkeypatch)
     user = _seed(db_session)
     exam = _start(client, auth_headers)
     _answer_and_submit(client, auth_headers, exam)

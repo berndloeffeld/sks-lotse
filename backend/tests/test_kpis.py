@@ -16,7 +16,6 @@ from scripts import send_daily_report
 from tests.helpers import progress_state
 
 NOW = datetime(2026, 9, 20, 12, 0, tzinfo=UTC)
-_FIXTURE_EMAIL = "fixture-user@example.com"
 
 
 def _ago(**delta) -> datetime:
