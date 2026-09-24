@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'
 
@@ -9,7 +7,9 @@ import { useAuthStore } from '../store/authStore'
 // Instead, "Erneut prüfen" re-runs checkSession (same idea as ProtectedRoute's
 // retry for sessionError): every non-exempt route is unmounted while this page
 // shows, so nothing else would ever call the API again to notice maintenance
-// mode has ended.
+// mode has ended. No separate links to the legal pages either — PageLayout's
+// LegalFooter already links Impressum/Datenschutz/AGB on every page, this one
+// included.
 export function MaintenancePage() {
   const checkSession = useAuthStore((state) => state.checkSession)
 
@@ -22,19 +22,6 @@ export function MaintenancePage() {
       <button type="button" onClick={() => void checkSession()} className="self-start underline">
         Erneut prüfen
       </button>
-      <p className="text-ink-soft">
-        <Link to="/imprint" className="underline hover:text-primary">
-          Impressum
-        </Link>
-        {' · '}
-        <Link to="/privacy" className="underline hover:text-primary">
-          Datenschutzerklärung
-        </Link>
-        {' · '}
-        <Link to="/agb" className="underline hover:text-primary">
-          AGB
-        </Link>
-      </p>
     </PageLayout>
   )
 }
