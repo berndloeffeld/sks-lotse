@@ -54,7 +54,7 @@ export function AgbGate() {
             </h2>
             <p className="text-ink-soft">
               Bitte bestätige, dass du unsere{' '}
-              <Link to="/agb" className="text-primary underline">
+              <Link to="/terms" className="text-primary underline">
                 AGB
               </Link>{' '}
               akzeptierst, um SKS Lotse weiter zu nutzen.

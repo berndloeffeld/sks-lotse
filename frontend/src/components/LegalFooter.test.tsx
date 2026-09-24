@@ -18,7 +18,7 @@ describe('LegalFooter', () => {
 
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
-    expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/agb')
+    expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/terms')
   })
 
   it('leaves the content links (FAQ, Ablauf, Preise) to the header', () => {

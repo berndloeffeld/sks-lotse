@@ -57,7 +57,7 @@ function Ribbon() {
 // "Antwort vom Lotsen bewerten lassen" (ADR-0031, ADR-0043, ADR-0044): the fourth choice under
 // the grade radios. A stateless LLM check of the written answer that only *suggests* a grade, 1
 // token each — the token balance is the sole spending control. The learner who is sure just
-// grades. Accounts with no tokens see it dimmed with "bald verfügbar" (prices live on /preise).
+// grades. Accounts with no tokens see it dimmed with "bald verfügbar" (prices live on /pricing).
 // Keyed by question in the parent.
 export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
   const user = useAuthStore((s) => s.user)

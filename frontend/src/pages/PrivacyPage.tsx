@@ -38,7 +38,7 @@ export function PrivacyPage() {
           den Versand der Login-Codes per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig
           wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
           unserer{' '}
-          <Link to="/agb" className="underline hover:text-primary">
+          <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}
           Sie zuletzt zugestimmt haben und wann. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO

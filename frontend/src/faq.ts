@@ -36,7 +36,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'tokens',
     question: 'Was ist ein Token?',
     answer:
-      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token = 1 automatisch bewertete Antwort. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich künftig in Paketen nachkaufen (Kauf startet demnächst); die aktuellen Pakete stehen unter [Preise](/preise). Tokens verfallen nicht.',
+      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token = 1 automatisch bewertete Antwort. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich künftig in Paketen nachkaufen (Kauf startet demnächst); die aktuellen Pakete stehen unter [Preise](/pricing). Tokens verfallen nicht.',
   },
   {
     id: 'ki-pruefung',
@@ -66,13 +66,13 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'sbf-see',
     question: 'Brauche ich den SBF See, bevor ich mit der SKS anfangen kann?',
     answer:
-      'Ja. Der Sportbootführerschein See (SBF See) ist Voraussetzung für die SKS. SKS Lotse deckt nur die SKS-Theorie ab – den kompletten Ablauf von SBF See über die SKS-Theorie- bis zur Praxisprüfung erklären wir unter [So läuft die SKS-Prüfung ab](/ablauf).',
+      'Ja. Der Sportbootführerschein See (SBF See) ist Voraussetzung für die SKS. SKS Lotse deckt nur die SKS-Theorie ab – den kompletten Ablauf von SBF See über die SKS-Theorie- bis zur Praxisprüfung erklären wir unter [So läuft die SKS-Prüfung ab](/exam-process).',
   },
   {
     id: 'praxis',
     question: 'Bereitet SKS Lotse auch auf die praktische Prüfung vor?',
     answer:
-      'Nein, SKS Lotse deckt ausschließlich den amtlichen Fragenkatalog für die SKS-Theorieprüfung ab. Die praktische Ausbildung und Prüfung – zum Beispiel für Manöver auf einer Segelyacht – holst du dir bei einer Segelschule. Mehr dazu unter [So läuft die SKS-Prüfung ab](/ablauf).',
+      'Nein, SKS Lotse deckt ausschließlich den amtlichen Fragenkatalog für die SKS-Theorieprüfung ab. Die praktische Ausbildung und Prüfung – zum Beispiel für Manöver auf einer Segelyacht – holst du dir bei einer Segelschule. Mehr dazu unter [So läuft die SKS-Prüfung ab](/exam-process).',
   },
 ]
 

@@ -14,11 +14,11 @@ describe('FAQ', () => {
     }
   })
   it('splits an answer into text and site-relative links', () => {
-    expect(faqAnswerParts('Siehe [Preise](/preise) und [Ablauf](/ablauf#sbf).')).toEqual([
+    expect(faqAnswerParts('Siehe [Preise](/pricing) und [Ablauf](/exam-process#sbf).')).toEqual([
       { text: 'Siehe ' },
-      { text: 'Preise', to: '/preise' },
+      { text: 'Preise', to: '/pricing' },
       { text: ' und ' },
-      { text: 'Ablauf', to: '/ablauf#sbf' },
+      { text: 'Ablauf', to: '/exam-process#sbf' },
       { text: '.' },
     ])
     expect(faqAnswerParts('[Profil](/profile)')).toEqual([{ text: 'Profil', to: '/profile' }])
@@ -26,8 +26,8 @@ describe('FAQ', () => {
   })
 
   it('leaves anything that is not a site-relative link as text', () => {
-    expect(faqAnswerParts('[extern](https://example.com) (/ablauf) [leer]()')).toEqual([
-      { text: '[extern](https://example.com) (/ablauf) [leer]()' },
+    expect(faqAnswerParts('[extern](https://example.com) (/exam-process) [leer]()')).toEqual([
+      { text: '[extern](https://example.com) (/exam-process) [leer]()' },
     ])
   })
 
@@ -40,6 +40,6 @@ describe('FAQ', () => {
       expect(text).not.toMatch(/\(\/|Fußzeile|\]\(/)
     }
     const links = FAQ.flatMap(({ answer }) => faqAnswerParts(answer).filter((part) => part.to))
-    expect(links.map((part) => part.to)).toEqual(expect.arrayContaining(['/preise', '/ablauf', '/privacy']))
+    expect(links.map((part) => part.to)).toEqual(expect.arrayContaining(['/pricing', '/exam-process', '/privacy']))
   })
 })

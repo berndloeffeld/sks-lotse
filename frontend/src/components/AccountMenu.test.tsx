@@ -46,9 +46,9 @@ describe('AccountMenu', () => {
     expect(menuButton()).toHaveAttribute('aria-controls', 'account-menu')
     expect(document.getElementById('account-menu')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/profile')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
+    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/pricing')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
-    expect(screen.getByRole('link', { name: 'Ablauf' })).toHaveAttribute('href', '/ablauf')
+    expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
     expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(
       'href',
       expect.stringMatching(/^mailto:kontakt@sks-lotse\.de/),

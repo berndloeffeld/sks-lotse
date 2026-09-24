@@ -228,7 +228,7 @@ export function LandingPage() {
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
             Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
             der Theorie weitergeht?{' '}
-            <Link to="/ablauf" className="text-primary underline hover:no-underline">
+            <Link to="/exam-process" className="text-primary underline hover:no-underline">
               So läuft die SKS-Prüfung ab
             </Link>
             .

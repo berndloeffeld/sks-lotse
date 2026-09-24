@@ -34,7 +34,7 @@ describe('AccountNav', () => {
   })
 
   it('marks the current section, including its sub-pages', () => {
-    const { unmount } = renderAt('/learn/fokus')
+    const { unmount } = renderAt('/learn/focus')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Prüfung' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-surface')

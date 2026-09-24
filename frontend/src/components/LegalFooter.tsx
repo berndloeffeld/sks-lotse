@@ -29,7 +29,7 @@ export function LegalFooter() {
           <Link to="/privacy" className={FOOTER_LINK}>
             Datenschutz
           </Link>
-          <Link to="/agb" className={FOOTER_LINK}>
+          <Link to="/terms" className={FOOTER_LINK}>
             AGB
           </Link>
           <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>

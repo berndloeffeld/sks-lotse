@@ -12,7 +12,7 @@ function renderGate() {
   return render(
     <MemoryRouter initialEntries={['/learn']}>
       <Routes>
-        <Route path="/agb" element={<p>AGB page</p>} />
+        <Route path="/terms" element={<p>AGB page</p>} />
         <Route element={<AgbGate />}>
           <Route path="/learn" element={<p>Learn page</p>} />
         </Route>

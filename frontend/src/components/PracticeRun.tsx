@@ -192,8 +192,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
             {index + 1} / {run.length}
           </span>
           <span>
-            Nr. {question.number}
-            {contextLabel ? ` · ${contextLabel(question)}` : ''}
+            {contextLabel ? `${contextLabel(question)} – ` : ''}Nr. {question.number}
           </span>
         </p>
         {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the

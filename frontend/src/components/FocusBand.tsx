@@ -30,7 +30,7 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
         <h2 className="font-serif text-3xl text-primary">Fokus</h2>
         {/* Everything not yet gelernt (offen + teilweise) is in the session, oldest correct answer first. */}
         {topics.length > 0 && totals.total > totals.learned ? (
-          <Link to="/learn/fokus" className={formStyles('light').button}>
+          <Link to="/learn/focus" className={formStyles('light').button}>
             Fokus-Lernen starten
           </Link>
         ) : null}

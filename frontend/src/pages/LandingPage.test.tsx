@@ -61,7 +61,7 @@ describe('LandingPage', () => {
   it('links to the exam process overview page', () => {
     renderLandingPage()
 
-    expect(screen.getByRole('link', { name: 'So läuft die SKS-Prüfung ab' })).toHaveAttribute('href', '/ablauf')
+    expect(screen.getByRole('link', { name: 'So läuft die SKS-Prüfung ab' })).toHaveAttribute('href', '/exam-process')
   })
 
   it('offers share buttons after the "Kostenlos starten" pitch', () => {

@@ -38,7 +38,7 @@ describe('FocusBand', () => {
   it('links to the Fokus session while questions are not yet learned', () => {
     renderBand()
 
-    expect(screen.getByRole('link', { name: 'Fokus-Lernen starten' })).toHaveAttribute('href', '/learn/fokus')
+    expect(screen.getByRole('link', { name: 'Fokus-Lernen starten' })).toHaveAttribute('href', '/learn/focus')
   })
 
   it('offers no Fokus session once everything is learned', () => {

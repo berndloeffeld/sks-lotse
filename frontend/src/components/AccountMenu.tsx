@@ -105,7 +105,7 @@ export function AccountMenu() {
               </li>
             ) : null}
             <li>
-              <Link to="/preise" className={ITEM} onClick={close}>
+              <Link to="/pricing" className={ITEM} onClick={close}>
                 Preise
               </Link>
             </li>
@@ -115,8 +115,8 @@ export function AccountMenu() {
               </Link>
             </li>
             <li>
-              <Link to="/ablauf" className={ITEM} onClick={close}>
-                Ablauf
+              <Link to="/exam-process" className={ITEM} onClick={close}>
+                Prüfungsablauf
               </Link>
             </li>
             <li>

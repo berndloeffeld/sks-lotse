@@ -26,7 +26,7 @@ function Section({ icon, title, children }: SectionProps) {
   )
 }
 
-export function AblaufPage() {
+export function ExamProcessPage() {
   return (
     <PageLayout title="So läuft die SKS-Prüfung ab" nav="public">
       <Section title="Der Weg zum Sportküstenschifferschein auf einen Blick">

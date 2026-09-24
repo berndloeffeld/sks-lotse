@@ -67,4 +67,19 @@ describe('App', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
   })
+
+  it.each([
+    ['/ablauf', 'So läuft die SKS-Prüfung ab'],
+    ['/preise', 'Preise'],
+  ])('sends the retired German path %s to its English one', async (path, heading) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeInTheDocument()
+  })
 })

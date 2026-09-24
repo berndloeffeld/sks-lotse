@@ -41,7 +41,7 @@ How to operate SKS Lotse in production: where to look, what to do when something
 A manual kill switch for an ongoing malfunction, deliberately not wired through the app's own `/admin` UI — that might be affected by the same malfunction. While `MAINTENANCE_MODE` is `true` on `sks-lotse-backend`:
 
 - Every `/api/v1/*` request gets a `503` with an `X-Maintenance-Mode: 1` header (`app/core/maintenance.py`). `/health` is unaffected — Render's own reachability check and the uptime monitor keep working.
-- The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/agb`, which stay reachable (§5 DDG Impressumspflicht).
+- The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/terms`, which stay reachable (§5 DDG Impressumspflicht).
 - Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/pages/MaintenancePage.tsx`).
 - No live reload (`backend/app/core/config.py`): flipping it always costs a redeploy of the backend, on the order of a minute.
 

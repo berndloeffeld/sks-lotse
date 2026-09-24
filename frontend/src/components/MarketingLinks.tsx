@@ -10,10 +10,10 @@ export function MarketingLinks() {
       <Link to="/faq" className={HEADER_LINK}>
         FAQ
       </Link>
-      <Link to="/ablauf" className={HEADER_LINK}>
+      <Link to="/exam-process" className={HEADER_LINK}>
         Ablauf
       </Link>
-      <Link to="/preise" className={HEADER_LINK}>
+      <Link to="/pricing" className={HEADER_LINK}>
         Preise
       </Link>
     </>

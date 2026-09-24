@@ -2,19 +2,19 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
-import { AblaufPage } from './AblaufPage'
+import { ExamProcessPage } from './ExamProcessPage'
 
-function renderAblaufPage() {
+function renderExamProcessPage() {
   return render(
     <MemoryRouter>
-      <AblaufPage />
+      <ExamProcessPage />
     </MemoryRouter>,
   )
 }
 
-describe('AblaufPage', () => {
+describe('ExamProcessPage', () => {
   it('renders the process overview without requiring a login', () => {
-    renderAblaufPage()
+    renderExamProcessPage()
 
     expect(screen.getByRole('heading', { level: 1, name: 'So läuft die SKS-Prüfung ab' })).toBeInTheDocument()
     expect(
@@ -30,14 +30,14 @@ describe('AblaufPage', () => {
   })
 
   it('is honest that SKS Lotse only covers the theory question sheet, not the chart task or the practical exam', () => {
-    renderAblaufPage()
+    renderExamProcessPage()
 
     expect(screen.getByText(/SKS Lotse hilft dir dabei bisher nicht/)).toBeInTheDocument()
     expect(screen.getByText(/SKS Lotse deckt ausschließlich die Theorie ab/)).toBeInTheDocument()
   })
 
   it('links back into the app', () => {
-    renderAblaufPage()
+    renderExamProcessPage()
 
     expect(screen.getByRole('link', { name: 'Jetzt kostenlos lernen' })).toHaveAttribute('href', '/#anmelden')
   })
