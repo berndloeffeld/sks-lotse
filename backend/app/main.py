@@ -12,6 +12,7 @@ from app.core.canonical_domain import RedirectSecondaryDomainsMiddleware
 from app.core.config import settings
 from app.core.database import get_session_factory
 from app.core.log_config import RequestIdMiddleware, configure_logging
+from app.core.maintenance import MAINTENANCE_HEADER, MaintenanceModeMiddleware
 from app.core.rate_limit import RateLimitMiddleware
 from app.core.security_headers import SecurityHeadersMiddleware
 
@@ -30,6 +31,10 @@ def _docs_kwargs() -> dict:
 
 app = FastAPI(title="SKS Lotse API", **_docs_kwargs())
 app.add_middleware(RedirectSecondaryDomainsMiddleware)
+# Ahead of the rate limiter, so a request blocked here never burns a rate-limit
+# counter during an incident. Still inside CORSMiddleware/RequestIdMiddleware
+# below, so its 503 gets CORS headers and a request id like any other response.
+app.add_middleware(MaintenanceModeMiddleware, enabled=settings.maintenance_mode)
 app.add_middleware(
     RateLimitMiddleware,
     # OTP requests get their own tighter cap (bounds cost/spam per IP,
@@ -69,6 +74,12 @@ app.add_middleware(
     allow_origins=settings.cors_allowed_origins,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
+    # Browsers hide all but a handful of "simple" response headers from
+    # cross-origin JS unless the server explicitly exposes them — the frontend
+    # and API are on different origins even in production (ADR-0015), so
+    # without this the maintenance-mode header (app/core/maintenance.py) would
+    # never reach frontend/src/api/client.ts.
+    expose_headers=[MAINTENANCE_HEADER],
     # The frontend's session cookie (ADR-0012) needs this to ride along on
     # cross-origin fetches (e.g. the Vite dev server on :5173 calling the
     # API on :8000); safe alongside an explicit origin allowlist, never `*`.

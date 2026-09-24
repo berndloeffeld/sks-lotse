@@ -11,6 +11,7 @@
     "src/labels.ts",
     "src/api/client.ts",
     "src/store/authStore.ts",
+    "src/store/maintenanceStore.ts",
     "src/hooks/useExamCountdown.ts",
     "src/hooks/useApiQuery.ts",
     "src/hooks/useExam.ts",

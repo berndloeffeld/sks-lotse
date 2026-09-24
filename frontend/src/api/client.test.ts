@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, apiClient, setUnauthorizedHandler } from './client'
+import { ApiError, apiClient, setMaintenanceHandler, setUnauthorizedHandler } from './client'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -10,6 +10,7 @@ describe('apiClient', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     setUnauthorizedHandler(() => {})
+    setMaintenanceHandler(() => {})
   })
 
   it('GET sends credentials and returns parsed JSON', async () => {
@@ -90,6 +91,34 @@ describe('apiClient', () => {
     await apiClient.get('/auth/me').catch(() => {})
 
     expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('calls the registered maintenance handler with true on the maintenance header', async () => {
+    const handler = vi.fn()
+    setMaintenanceHandler(handler)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ detail: 'SKS Lotse befindet sich aktuell im Wartungsmodus.' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json', 'X-Maintenance-Mode': '1' },
+        }),
+      ),
+    )
+
+    await apiClient.get('/questions').catch(() => {})
+
+    expect(handler).toHaveBeenCalledWith(true)
+  })
+
+  it('calls the registered maintenance handler with false on a normal response', async () => {
+    const handler = vi.fn()
+    setMaintenanceHandler(handler)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ status: 'ok' })))
+
+    await apiClient.get('/health')
+
+    expect(handler).toHaveBeenCalledWith(false)
   })
 
   it.each([

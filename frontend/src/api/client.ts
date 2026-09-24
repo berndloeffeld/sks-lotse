@@ -25,6 +25,20 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {
   unauthorizedHandler = handler
 }
 
+// Same rationale as the unauthorized handler above: the backend marks a
+// maintenance-mode response with this header (app/core/maintenance.py) rather
+// than a body shape, so it can't be confused with the app's other legitimate
+// 503s (the DB-down health check, the AI check when its key is unset). Called
+// on every response, not just 503s, so the flag clears itself the moment a
+// normal response comes back — no reload needed once maintenance mode ends.
+const MAINTENANCE_HEADER = 'X-Maintenance-Mode'
+type MaintenanceHandler = (isMaintenance: boolean) => void
+let maintenanceHandler: MaintenanceHandler | null = null
+
+export function setMaintenanceHandler(handler: MaintenanceHandler): void {
+  maintenanceHandler = handler
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
     ...init,
@@ -42,6 +56,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (response.status === 401) {
     unauthorizedHandler?.()
   }
+
+  maintenanceHandler?.(response.headers.get(MAINTENANCE_HEADER) === '1')
 
   if (!response.ok) {
     const body: unknown = await response.json().catch(() => null)

@@ -36,6 +36,19 @@ How to operate SKS Lotse in production: where to look, what to do when something
 - The backend starts with exactly one uvicorn worker. Never scale it out or add workers without first moving the in-process rate limiter and cache to a shared store (ADR-0007, ADR-0009).
 - **Rollback**: prefer reverting the PR on `main` (a new squash commit), which goes through CI like everything else. Render's "Rollback" to an earlier deploy is the emergency lever, but it doesn't undo migrations: only use it when the bad deploy didn't change the schema, or the old code still works with the new schema.
 
+## Maintenance mode
+
+A manual kill switch for an ongoing malfunction, deliberately not wired through the app's own `/admin` UI — that might be affected by the same malfunction. While `MAINTENANCE_MODE` is `true` on `sks-lotse-backend`:
+
+- Every `/api/v1/*` request gets a `503` with an `X-Maintenance-Mode: 1` header (`app/core/maintenance.py`). `/health` is unaffected — Render's own reachability check and the uptime monitor keep working.
+- The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/agb`, which stay reachable (§5 DDG Impressumspflicht).
+- Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/pages/MaintenancePage.tsx`).
+- No live reload (`backend/app/core/config.py`): flipping it always costs a redeploy of the backend, on the order of a minute.
+
+**Fast path — Render dashboard**: `sks-lotse-backend` → Environment → set `MAINTENANCE_MODE` to `true` (or `false` to turn it back off) → Save. Redeploys automatically.
+
+**Alternate path — GitHub Action**: Actions tab → "Maintenance mode toggle" → Run workflow → choose `on`/`off`. Useful when Render dashboard access isn't at hand. Needs the one-time setup below done once.
+
 ## Database
 
 - `sks-lotse-db`, PostgreSQL 18 (pinned via `postgresMajorVersion` in `render.yaml`), plan `basic-256mb`.
@@ -62,6 +75,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
 | `VITE_UMAMI_WEBSITE_ID`, `VITE_ADSENSE_CLIENT_ID` | frontend | Build-time values: changing them triggers a rebuild of the static site. |
+| `MAINTENANCE_MODE` | backend | Not a secret, but dashboard-only like `ADMIN_EMAILS` above. `true`/`false`, unset = `false`. See [Maintenance mode](#maintenance-mode). |
 
 ## Data-subject requests (DSGVO)
 
@@ -108,3 +122,4 @@ Account-level steps, done by the project owner:
    - `sks-lotse.global` and `sks-lotse.store` are registered but unused: no DNS, no Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` if ever needed.
 4. Better Stack: monitors on `https://sks-lotse.de` and `https://api.sks-lotse.de/health`, a log source for Render's log stream, the error alert, and the daily-report heartbeat.
 5. Resend: verify the sending domain via the DNS records Resend lists (IONOS).
+6. [Maintenance mode](#maintenance-mode)'s GitHub Action path (optional — the Render dashboard path needs none of this): create a Render API key (Account Settings → API Keys), add it as the GitHub Actions secret `RENDER_API_KEY` (repo → Settings → Secrets and variables → Actions), and add the backend service's id (`srv-...`, from its Render dashboard URL) as the repo variable `RENDER_BACKEND_SERVICE_ID` (same page, "Variables" tab).
