@@ -44,7 +44,7 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
-    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
 
     await user.type(await screen.findByLabelText('Login-Code'), '123456')
     await user.click(screen.getByRole('button', { name: 'Anmelden' }))
@@ -67,7 +67,7 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
-    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
 
     await user.type(await screen.findByLabelText('Login-Code'), '000000')
     await user.click(screen.getByRole('button', { name: 'Anmelden' }))
@@ -82,7 +82,7 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
-    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
     await screen.findByLabelText('Login-Code')
 
     await user.click(screen.getByRole('button', { name: 'Andere E-Mail-Adresse verwenden' }))
