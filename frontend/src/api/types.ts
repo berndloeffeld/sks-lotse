@@ -1,302 +1,46 @@
+// The API's shapes, generated from the backend's OpenAPI schema into schema.gen.ts by
+// scripts/generate_postman_collection.sh (ADR-0046) — never edit that file by hand. What the
+// schema can't say lives here: the fixed values the backend accepts and returns as plain strings
+// (backend/app/schemas/common.py::one_of explains why), narrowed to their literal types.
+import type { components } from './schema.gen'
+
+type Schemas = components['schemas']
+// `T` with the fields in `N` replaced by narrower types.
+type Narrow<T, N extends { [K in keyof N]: K extends keyof T ? unknown : never }> = Omit<T, keyof N> & N
+
 // Mirrors ExamVariant in backend/app/core/exam_variant.py.
 export type ExamVariant = 'motor' | 'segeln_und_motor'
-
-// Mirrors backend/app/schemas/auth.py::UserRead.
-export interface User {
-  id: number
-  email: string
-  created_at: string
-  exam_variant: string | null
-  first_name: string | null
-  last_name: string | null
-  gender: string | null
-  is_admin: boolean
-  // Pay-per-use balance for the Lotsen-Check, 1 token = 1 check (ADR-0043).
-  token_balance: number
-  ads_removed: boolean
-  // The AGB version last confirmed via POST /auth/me/agb-accept, or null
-  // before the first confirmation — see routes/AgbGate.tsx.
-  agb_accepted_version: string | null
-}
-
-// Mirrors backend/app/schemas/grading.py::AiGradeRead.
-export interface AiGrade {
-  outcome: GradingOutcome
-  feedback: string
-  // Tokens left in the account's balance after this one (ADR-0043).
-  tokens_remaining: number
-}
-
-// Mirrors backend/app/schemas/progress.py::TopicProgressRead.
-export interface TopicProgress {
-  subject: string
-  topic_slug: string
-  topic_name: string
-  display_order: number
-  total_questions: number
-  learned_questions: number
-  // Answered right at least once, but not (or no longer) "gelernt".
-  learning_questions: number
-  is_focus: boolean
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminUserRead.
-export interface AdminUser {
-  id: number
-  email: string
-  created_at: string
-  exam_variant: string | null
-  first_name: string | null
-  last_name: string | null
-  gender: string | null
-  token_balance: number
-  ads_removed: boolean
-  // Read-only abuse-monitoring signal (ADR-0040): how often the sanitizer backstop fired.
-  ai_flags_count: number
-  ai_flags_last_at: string | null
-  agb_accepted_version: string | null
-  agb_accepted_at: string | null
-  last_login_at: string | null
-  question_progress_count: number
-  // Derived from the blocklist table, not a stored User field — see ADR-0045.
-  is_blocked: boolean
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminUserListItem.
-export interface AdminUserListItem {
-  id: number
-  email: string
-  first_name: string | null
-  last_name: string | null
-  created_at: string
-  token_balance: number
-  ads_removed: boolean
-  // Derived from the blocklist table, not a stored User field — see ADR-0045.
-  is_blocked: boolean
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminUserListPage.
-export interface AdminUserListPage {
-  items: AdminUserListItem[]
-  // Matches for the search, across all pages.
-  total: number
-}
-
-// Mirrors backend/app/schemas/admin.py::TokenPackageSettings.
-export interface TokenPackageSettings {
-  tokens: number
-  price_cents: number
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminSettingsRead / AdminSettingsUpdate.
-export interface AdminSettings {
-  price_ads_removed_cents: number
-  signup_bonus_tokens: number
-  tokens_s: TokenPackageSettings
-  tokens_m: TokenPackageSettings
-  tokens_l: TokenPackageSettings
-  tokens_xl: TokenPackageSettings
-}
-
-// Mirrors backend/app/schemas/pricing.py::PublicTokenPackage.
-export interface PublicTokenPackage {
-  product: string
-  tokens: number
-  price_cents: number
-}
-
-// Mirrors backend/app/schemas/pricing.py::PublicPricing.
-export interface PublicPricing {
-  ads_removed_price_cents: number
-  signup_bonus_tokens: number
-  packages: PublicTokenPackage[]
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminQuestionProgressExport.
-export interface AdminQuestionProgressExport {
-  question_id: number
-  subject: string
-  question_number: number
-  half_life_days: number
-  last_graded_at: string
-  streak_start_at: string | null
-  review_due_at: string
-  created_at: string
-  updated_at: string
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminFocusTopicExport.
-export interface AdminFocusTopicExport {
-  subject: string
-  topic_slug: string
-  topic_name: string
-  created_at: string
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminExamQuestionExport.
-export interface AdminExamQuestionExport {
-  position: number
-  subject_group: string
-  subject: string | null
-  question_number: number | null
-  answer_text: string | null
-  outcome: string | null
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminExamAttemptExport.
-export interface AdminExamAttemptExport {
-  exam_id: number
-  exam_variant: string
-  started_at: string
-  deadline_at: string
-  submitted_at: string | null
-  graded_at: string | null
-  timed_out: boolean
-  questions: AdminExamQuestionExport[]
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminQuestionReportExport.
-export interface AdminQuestionReportExport {
-  question_id: number
-  subject: string
-  question_number: number
-  category: string
-  comment: string | null
-  created_at: string
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminPurchaseExport.
-export interface AdminPurchaseExport {
-  product: string
-  tokens_granted: number | null
-  amount_eur_cents: number | null
-  granted_by: string
-  created_at: string
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminBlockedEmailRead (ADR-0045).
-export interface AdminBlockedEmail {
-  id: number
-  kind: 'email' | 'domain'
-  value: string
-  reason: string | null
-  created_at: string
-  created_by: string
-}
-
-// Mirrors backend/app/schemas/admin.py::AdminUserExport.
-export interface AdminUserExport {
-  user: AdminUser
-  question_progress: AdminQuestionProgressExport[]
-  focus_topics: AdminFocusTopicExport[]
-  question_reports: AdminQuestionReportExport[]
-  exam_attempts: AdminExamAttemptExport[]
-  purchases: AdminPurchaseExport[]
-  exported_at: string
-}
-
-// Mirrors backend/app/schemas/question.py::QuestionImage. `src` is a file in /catalog/.
-export interface QuestionImage {
-  src: string
-  width: number
-  height: number
-}
-
-// Mirrors backend/app/schemas/question.py::QuestionRead.
-export interface Question {
-  id: number
-  subject: string
-  number: number
-  question_text: string
-  answer_text: string
-  question_images: QuestionImage[]
-  answer_images: QuestionImage[]
-  topic: string | null
-}
-
-// Mirrors backend/app/schemas/question.py::TopicRead.
-export interface Topic {
-  subject: string
-  slug: string
-  name: string
-  display_order: number
-}
-
 // Mirrors GradingOutcome in backend/app/core/progress.py.
 export type GradingOutcome = 'richtig' | 'teilweise_richtig' | 'falsch'
-
-// Mirrors backend/app/schemas/progress.py::QuestionProgressRead.
-export interface QuestionProgress {
-  question_id: number
-  // 0–1 position for the course gauge — not a step count (ADR-0024).
-  progress: number
-  learned: boolean
-}
-
 // Mirrors ExamStatus / ExamResult in backend/app/core/exam.py.
 export type ExamStatus = 'in_progress' | 'grading' | 'completed'
 export type ExamResult = 'bestanden' | 'muendliche_nachpruefung' | 'nicht_bestanden'
 
-// Mirrors backend/app/schemas/exam.py::ExamSummary.
-export interface ExamSummary {
-  id: number
-  status: ExamStatus
-  exam_variant: string
-  started_at: string
-  submitted_at: string | null
-  timed_out: boolean
-  answered_count: number
-  question_count: number
-  points: number | null
-  max_points: number
-  result: ExamResult | null
-}
+export type User = Schemas['UserRead']
+export type AiGrade = Narrow<Schemas['AiGradeRead'], { outcome: GradingOutcome }>
+export type TopicProgress = Schemas['TopicProgressRead']
+export type Question = Schemas['QuestionRead']
+export type QuestionImage = Schemas['QuestionImage']
+export type Topic = Schemas['TopicRead']
+export type QuestionProgress = Schemas['QuestionProgressRead']
+export type PublicPricing = Schemas['PublicPricing']
+export type PublicTokenPackage = Schemas['PublicTokenPackage']
 
-// Mirrors backend/app/schemas/exam.py::ExamQuestionRead.
-export interface ExamQuestion {
-  position: number
-  subject_group: string
-  question_id: number | null
-  subject: string | null
-  number: number | null
-  question_text: string | null
-  question_images: QuestionImage[]
-  answer_text: string | null
-  official_answer: string | null
-  official_answer_images: QuestionImage[]
-  outcome: GradingOutcome | null
-  points: number | null
-}
+export type ExamSummary = Narrow<Schemas['ExamSummary'], { status: ExamStatus; result: ExamResult | null }>
+export type ExamQuestion = Narrow<Schemas['ExamQuestionRead'], { outcome: GradingOutcome | null }>
+export type Exam = Narrow<
+  Schemas['ExamRead'],
+  { status: ExamStatus; result: ExamResult | null; questions: ExamQuestion[] }
+>
+export type ExamStats = Narrow<
+  Schemas['ExamStats'],
+  { recent: Narrow<Schemas['ExamStatsPoint'], { result: ExamResult }>[] }
+>
 
-// Mirrors backend/app/schemas/exam.py::ExamGroupScore.
-export interface ExamGroupScore {
-  subject_group: string
-  points: number
-  max_points: number
-}
-
-// Mirrors backend/app/schemas/exam.py::ExamRead.
-export interface Exam extends ExamSummary {
-  deadline_at: string
-  server_now: string
-  group_scores: ExamGroupScore[] | null
-  questions: ExamQuestion[]
-}
-
-// Mirrors backend/app/schemas/exam.py::ExamStatsPoint / ExamStats.
-export interface ExamStatsPoint {
-  exam_id: number
-  submitted_at: string
-  points: number
-  result: ExamResult
-}
-
-export interface ExamStats {
-  completed_count: number
-  passed_count: number
-  average_points: number | null
-  best_points: number | null
-  max_points: number
-  recent: ExamStatsPoint[]
-  group_scores: ExamGroupScore[]
-}
+export type AdminUser = Schemas['AdminUserRead']
+export type AdminUserListItem = Schemas['AdminUserListItem']
+export type AdminUserListPage = Schemas['AdminUserListPage']
+export type AdminUserExport = Schemas['AdminUserExport']
+export type AdminSettings = Schemas['AdminSettings']
+export type TokenPackageSettings = Schemas['TokenPackageSettings']
+export type AdminBlockedEmail = Narrow<Schemas['AdminBlockedEmailRead'], { kind: 'email' | 'domain' }>
