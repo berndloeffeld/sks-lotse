@@ -1,6 +1,6 @@
 # 0032. Daily KPI report by email
 
-Status: Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report
+Status: Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report; addendum of 2026-09-24: `GET /admin/kpis` removed, the mail is the only door
 
 ## Context
 
@@ -22,3 +22,7 @@ With real learners arriving, the operator needs a few numbers without opening th
 - OTP-request volume is not reported: `otp_codes` rows are deleted after expiry ([ADR-0010](0010-opportunistic-otp-code-cleanup.md)), so they say nothing about the day.
 - Not covered yet: conversion and LLM cost (there is no payment), Umami visitors (open the dashboard).
 - Addendum (2026-09-23, [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md)): `users.last_login_at` now exists after all, added for AGB-driven inactivity retention, not for this report — the KPI figures above stay defined purely by learning activity.
+
+## Addendum 2026-09-24: the mail is the only door
+
+`GET /api/v1/admin/kpis` is removed; no admin page ever called it. The daily mail (`backend/scripts/send_daily_report.py`, calling `compute_kpis` directly) is now the only way the report is delivered.

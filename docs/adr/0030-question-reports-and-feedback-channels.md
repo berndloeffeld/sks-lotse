@@ -1,6 +1,6 @@
 # 0030. Question reports and lightweight feedback channels
 
-Status: Accepted
+Status: Accepted; amended by the addendum of 2026-09-24 (no `GET /admin/question-reports` any more).
 
 ## Context
 
@@ -20,3 +20,7 @@ Three channels, ordered by effort:
 - The catalog is upserted by `(subject, number)` ([ADR-0022](0022-catalog-sync-by-upsert.md)), so a report keeps pointing at the right question across re-syncs; if a question vanishes its reports go with it via the FK cascade.
 - Events stay cookieless and unlinked to a person, so ADR-0016's "no consent banner" reasoning holds. They count against the Hobby plan's 100k events/month — fine at the current scale; revisit if traffic grows.
 - Rejected for now: a general feedback form/NPS widget (the mail link covers it until it demonstrably doesn't), an admin UI for reports (an endpoint plus SQL is enough at this volume), and third-party survey tools (extra processor to disclose).
+
+## Addendum 2026-09-24: no admin endpoint for the reports
+
+`GET /api/v1/admin/question-reports` is removed. No admin page ever called it, so it was an API surface without a user. The operator learns about reports from the daily KPI report (ADR-0032), which lists the most-reported questions of the last 7 days, and reads the comments in a Render Shell ([runbook](../RUNBOOK.md#daily-kpi-report)). Every report stays part of its author's DSGVO export and is deleted with the account, as before.

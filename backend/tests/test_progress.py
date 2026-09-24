@@ -17,7 +17,6 @@ from app.core.progress import (
     learning_clause,
     next_half_life,
     progress_fraction,
-    recall_probability,
 )
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
@@ -154,13 +153,6 @@ def test_progress_summary_ignores_untopiced_questions(client, db_session, auth_h
     response = client.get("/api/v1/progress/summary", headers=auth_headers)
     assert response.status_code == 200
     assert response.json() == []
-
-
-def test_recall_probability_halves_every_half_life():
-    assert recall_probability(4.0, 0) == 1.0
-    assert recall_probability(4.0, 4) == pytest.approx(0.5)
-    assert recall_probability(4.0, 8) == pytest.approx(0.25)
-    assert recall_probability(4.0, -1) == 1.0
 
 
 def test_next_half_life_first_richtig_gets_the_full_gain():

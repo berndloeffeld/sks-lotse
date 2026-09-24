@@ -161,20 +161,6 @@ def test_format_report_lists_the_numbers(db_session):
     assert "KI-Prüfung Sanitizer-Flags (24 h neu / gesamt): 1 / 3" in text
 
 
-def test_admin_kpis_endpoint(client, db_session, auth_headers, monkeypatch):
-    monkeypatch.setattr(settings, "admin_emails", _FIXTURE_EMAIL)
-
-    response = client.get("/api/v1/admin/kpis", headers=auth_headers)
-
-    assert response.status_code == 200
-    assert response.json()["growth"]["users_total"] == 1
-
-
-def test_admin_kpis_endpoint_requires_an_admin(client, db_session, auth_headers):
-    assert client.get("/api/v1/admin/kpis").status_code == 401
-    assert client.get("/api/v1/admin/kpis", headers=auth_headers).status_code == 403
-
-
 def test_send_kpi_report_email(monkeypatch):
     calls = []
     monkeypatch.setattr(email_service.resend.Emails, "send", lambda params: calls.append(params))

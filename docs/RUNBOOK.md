@@ -97,6 +97,7 @@ Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr
 
 - The `sks-lotse-daily-report` cron runs daily at 06:00 UTC ([ADR-0032](adr/0032-daily-kpi-report.md)) and mails aggregates to `ADMIN_EMAILS`.
 - Locally: `cd backend && python -m scripts.send_daily_report` (needs a `.env` with a database and `RESEND_API_KEY`).
+- It lists the most-reported questions of the last 7 days ("Frage melden"). There is no admin page for the reports themselves (ADR-0030 addendum 2026-09-24); read their comments in a Render Shell (see Database → External access), e.g. `db.query(QuestionReport).order_by(QuestionReport.created_at.desc()).limit(20).all()` with `from app.models.question_report import QuestionReport`.
 - A failing recipient doesn't stop the others. The run exits 1 on any failure (visible in Render) and then skips the heartbeat, so Better Stack alerts too.
 
 ## Settings that live only in dashboards

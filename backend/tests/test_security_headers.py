@@ -7,7 +7,7 @@ def test_security_headers_present_on_every_response(client):
 
 
 def test_security_headers_present_on_error_responses(client):
-    response = client.get("/api/v1/questions/999999")
+    response = client.get("/api/v1/questions")
     assert response.status_code == 401
     assert response.headers["x-content-type-options"] == "nosniff"
 

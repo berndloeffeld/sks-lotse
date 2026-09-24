@@ -88,7 +88,7 @@ def test_the_report_cap_is_per_user(client, db_session, auth_headers, monkeypatc
     assert client.post(url, json={"category": "typo"}, headers=other_headers).status_code == 201
 
 
-def test_admin_lists_and_exports_reports(client, db_session, auth_headers, monkeypatch):
+def test_admin_export_includes_the_reports(client, db_session, auth_headers, monkeypatch):
     monkeypatch.setattr(settings, "admin_emails", _FIXTURE_EMAIL)
     question = _question(db_session)
     user = _fixture_user(db_session)
@@ -98,20 +98,10 @@ def test_admin_lists_and_exports_reports(client, db_session, auth_headers, monke
         headers=auth_headers,
     )
 
-    listing = client.get("/api/v1/admin/question-reports", headers=auth_headers)
-    assert listing.status_code == 200
-    row = listing.json()[0]
+    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers).json()
+    [row] = export["question_reports"]
     assert (row["subject"], row["question_number"], row["category"]) == ("navigation", 1, "answer_text")
     assert row["comment"] == "Antwort unvollständig"
-    assert row["user_email"] == _FIXTURE_EMAIL
-
-    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers).json()
-    assert [r["comment"] for r in export["question_reports"]] == ["Antwort unvollständig"]
-
-
-def test_admin_report_list_is_admin_only(client, auth_headers):
-    assert client.get("/api/v1/admin/question-reports").status_code == 401
-    assert client.get("/api/v1/admin/question-reports", headers=auth_headers).status_code == 403
 
 
 def test_deleting_the_account_deletes_its_reports(client, db_session, auth_headers):

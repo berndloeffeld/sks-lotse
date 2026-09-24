@@ -1,5 +1,3 @@
-import random
-
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,7 +13,7 @@ from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.question import QuestionRead, TopicRead
 from app.schemas.question_report import QuestionReportCreate, QuestionReportRead
-from app.services.catalog import catalog, catalog_by_id
+from app.services.catalog import catalog
 
 router = APIRouter(prefix="/questions", tags=["questions"], dependencies=[Depends(get_current_user)])
 
@@ -25,7 +23,7 @@ def _filtered_catalog(
     db: Session,
     current_user: User,
     subject: str | None,
-    topic: str | None = None,
+    topic: str | None,
 ) -> list[QuestionRead]:
     questions = catalog(request, db)
     if subject is not None:
@@ -47,27 +45,6 @@ def list_questions(
     current_user: User = Depends(get_current_user),
 ):
     return _filtered_catalog(request, db, current_user, subject, topic)
-
-
-@router.get("/random", response_model=QuestionRead)
-def random_question(
-    request: Request,
-    subject: str | None = None,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    questions = _filtered_catalog(request, db, current_user, subject)
-    if not questions:
-        raise HTTPException(status_code=404, detail="No questions found")
-    return random.choice(questions)  # noqa: S311 - picking a practice question, not a secret
-
-
-@router.get("/{question_id}", response_model=QuestionRead)
-def get_question(request: Request, question_id: int, db: Session = Depends(get_db)):
-    question = catalog_by_id(request, db).get(question_id)
-    if question is None:
-        raise HTTPException(status_code=404, detail="Question not found")
-    return question
 
 
 @router.post("/{question_id}/report", response_model=QuestionReportRead, status_code=status.HTTP_201_CREATED)
