@@ -66,6 +66,9 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   const [isToggling, setIsToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
 
+  const [isBlocking, setIsBlocking] = useState(false)
+  const [blockError, setBlockError] = useState<string | null>(null)
+
   const [grantTokensInput, setGrantTokensInput] = useState('')
   const [grantAmountInput, setGrantAmountInput] = useState('')
   const [grantError, setGrantError] = useState<string | null>(null)
@@ -99,6 +102,23 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       setToggleError(errorMessage)
     } finally {
       setIsToggling(false)
+    }
+  }
+
+  // Blocking ends the account's current session immediately (ADR-0045); unblocking just lets it
+  // log back in, so it doesn't need the same confirmation as the irreversible delete below.
+  async function handleBlockToggle() {
+    setBlockError(null)
+    setIsBlocking(true)
+    try {
+      const updated = user.is_blocked
+        ? await apiClient.delete<AdminUser>(`/admin/users/${user.id}/block`)
+        : await apiClient.post<AdminUser>(`/admin/users/${user.id}/block`)
+      onChange(updated)
+    } catch {
+      setBlockError('Die Sperre konnte nicht geändert werden.')
+    } finally {
+      setIsBlocking(false)
     }
   }
 
@@ -192,6 +212,8 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         </dd>
         <dt className="text-ink-soft">Werbung</dt>
         <dd className="text-ink">{user.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>
+        <dt className="text-ink-soft">Zugang</dt>
+        <dd className="text-ink">{user.is_blocked ? 'Gesperrt' : 'Aktiv'}</dd>
       </dl>
 
       <div className="flex flex-col gap-2">
@@ -203,6 +225,18 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           {user.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {blockError ? <p className="text-sm text-danger">{blockError}</p> : null}
+        <button
+          type="button"
+          onClick={handleBlockToggle}
+          disabled={isBlocking}
+          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+        >
+          {user.is_blocked ? 'Sperre aufheben' : 'Nutzer sperren'}
         </button>
       </div>
 

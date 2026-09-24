@@ -1,11 +1,27 @@
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
 
 MAX_GRANT_TOKENS = 100_000
 MAX_GRANT_AMOUNT_EUR_CENTS = 1_000_000
 MAX_PRICE_CENTS = 1_000_000
 MAX_PACKAGE_TOKENS = 100_000
+
+BLOCK_KINDS = {"email", "domain"}
+
+
+def _require_known_block_kind(value: str) -> str:
+    if value not in BLOCK_KINDS:
+        raise ValueError(f"kind must be one of: {', '.join(sorted(BLOCK_KINDS))}")
+    return value
+
+
+# A plain str + validator, not `Literal["email", "domain"]`: a Literal renders as an OpenAPI
+# `enum`, and openapi-to-postmanv2 picks a random member of it as the example on every
+# generation — non-reproducible, breaks the committed-collection CI check (see
+# app/schemas/auth.py::ExamVariantField for the same reasoning).
+BlockKindField = Annotated[str, AfterValidator(_require_known_block_kind)]
 
 
 class AdminUserUpdate(BaseModel):
@@ -58,6 +74,9 @@ class AdminUserListItem(BaseModel):
     created_at: datetime
     token_balance: int
     ads_removed: bool
+    # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
+    # docs/adr/0045.
+    is_blocked: bool = False
 
 
 class AdminUserListPage(BaseModel):
@@ -87,6 +106,9 @@ class AdminUserRead(BaseModel):
     agb_accepted_at: datetime | None
     last_login_at: datetime | None
     question_progress_count: int
+    # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
+    # docs/adr/0045.
+    is_blocked: bool = False
 
 
 class AdminQuestionProgressExport(BaseModel):
@@ -163,3 +185,20 @@ class AdminUserExport(BaseModel):
     exam_attempts: list[AdminExamAttemptExport]
     purchases: list[AdminPurchaseExport]
     exported_at: datetime
+
+
+class AdminBlockedEmailCreate(BaseModel):
+    kind: BlockKindField
+    value: str = Field(min_length=1, max_length=255)
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class AdminBlockedEmailRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    kind: str
+    value: str
+    reason: str | None
+    created_at: datetime
+    created_by: str

@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.core.config import settings
+from app.core.jwt import create_access_token
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.purchase import Purchase
@@ -41,6 +42,12 @@ def test_admin_routes_require_authentication(client):
     assert client.get("/api/v1/admin/users/1/export").status_code == 401
     assert client.delete("/api/v1/admin/users/1").status_code == 401
     assert client.patch("/api/v1/admin/users/1", json={"ads_removed": True}).status_code == 401
+    assert client.post("/api/v1/admin/users/1/block").status_code == 401
+    assert client.delete("/api/v1/admin/users/1/block").status_code == 401
+    assert client.get("/api/v1/admin/blocklist").status_code == 401
+    create_body = {"kind": "email", "value": "x@example.com"}
+    assert client.post("/api/v1/admin/blocklist", json=create_body).status_code == 401
+    assert client.delete("/api/v1/admin/blocklist/1").status_code == 401
 
 
 def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
@@ -53,6 +60,14 @@ def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
     assert response.status_code == 403
     response = client.patch("/api/v1/admin/users/1", json={"ads_removed": True}, headers=auth_headers)
     assert response.status_code == 403
+    assert client.post("/api/v1/admin/users/1/block", headers=auth_headers).status_code == 403
+    assert client.delete("/api/v1/admin/users/1/block", headers=auth_headers).status_code == 403
+    assert client.get("/api/v1/admin/blocklist", headers=auth_headers).status_code == 403
+    response = client.post(
+        "/api/v1/admin/blocklist", json={"kind": "email", "value": "x@example.com"}, headers=auth_headers
+    )
+    assert response.status_code == 403
+    assert client.delete("/api/v1/admin/blocklist/1", headers=auth_headers).status_code == 403
 
 
 def test_admin_export_includes_denormalized_question_progress(client, db_session, auth_headers, monkeypatch):
@@ -523,6 +538,7 @@ def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monke
         "created_at": body["items"][1]["created_at"],
         "token_balance": 0,
         "ads_removed": False,
+        "is_blocked": False,
     }
 
 
@@ -630,3 +646,175 @@ def test_admin_question_search_finds_by_id(client, db_session, auth_headers, mon
     body = client.get("/api/v1/admin/questions", params={"q": str(rows[2].id)}, headers=auth_headers).json()
     assert rows[2].id in [q["id"] for q in body]
     assert body[-1]["answer_text"] == "Mit dem ANKER."
+
+
+def test_admin_user_detail_and_list_report_is_blocked_false_by_default(
+    client, db_session, auth_headers, monkeypatch
+):
+    _make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("target@example.com", None, None))
+    assert client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers).json()["is_blocked"] is False
+    body = _list(client, auth_headers)
+    [item] = [i for i in body["items"] if i["email"] == "target@example.com"]
+    assert item["is_blocked"] is False
+
+
+def test_admin_can_block_and_unblock_a_user(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("target@example.com", None, None))
+    original_token_version = user.token_version
+
+    response = client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["is_blocked"] is True
+    db_session.refresh(user)
+    assert user.token_version == original_token_version + 1
+
+    assert client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers).json()["is_blocked"] is True
+    body = _list(client, auth_headers)
+    [item] = [i for i in body["items"] if i["email"] == "target@example.com"]
+    assert item["is_blocked"] is True
+
+    response = client.delete(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["is_blocked"] is False
+    db_session.refresh(user)
+    # Unblocking doesn't force another re-login on top of the one blocking already caused.
+    assert user.token_version == original_token_version + 1
+
+
+def test_blocking_a_user_invalidates_their_current_session(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("target@example.com", None, None))
+    target_headers = {"Authorization": f"Bearer {create_access_token(user.id, user.token_version)}"}
+    assert client.get("/api/v1/auth/me", headers=target_headers).status_code == 200
+
+    client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+
+    assert client.get("/api/v1/auth/me", headers=target_headers).status_code == 401
+
+
+def test_block_user_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    assert client.post("/api/v1/admin/users/999999/block", headers=auth_headers).status_code == 404
+    assert client.delete("/api/v1/admin/users/999999/block", headers=auth_headers).status_code == 404
+
+
+def test_blocking_a_user_is_idempotent(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("target@example.com", None, None))
+    client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+    db_session.refresh(user)
+    version_after_first_block = user.token_version
+
+    response = client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+
+    assert response.status_code == 200
+    db_session.refresh(user)
+    # A second click on an already-blocked user doesn't add a duplicate row or force yet another
+    # re-login (see blocklist.add_block's idempotency).
+    assert user.token_version == version_after_first_block + 1
+
+
+def test_admin_blocklist_starts_empty(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    assert client.get("/api/v1/admin/blocklist", headers=auth_headers).json() == []
+
+
+def test_admin_can_add_and_remove_a_blocked_email(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+
+    response = client.post(
+        "/api/v1/admin/blocklist",
+        json={"kind": "email", "value": "Spam+x@Gmail.com", "reason": "abuse"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["kind"] == "email"
+    assert body["value"] == "spam@gmail.com"
+    assert body["reason"] == "abuse"
+    assert body["created_by"] == _FIXTURE_EMAIL
+
+    listed = client.get("/api/v1/admin/blocklist", headers=auth_headers).json()
+    assert [entry["value"] for entry in listed] == ["spam@gmail.com"]
+
+    response = client.delete(f"/api/v1/admin/blocklist/{body['id']}", headers=auth_headers)
+    assert response.status_code == 204
+    assert client.get("/api/v1/admin/blocklist", headers=auth_headers).json() == []
+
+
+def test_admin_can_add_a_blocked_domain(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+
+    response = client.post(
+        "/api/v1/admin/blocklist",
+        json={"kind": "domain", "value": "  Spammy.EXAMPLE.com  "},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 201
+    assert response.json()["value"] == "spammy.example.com"
+    assert response.json()["reason"] is None
+
+
+def test_admin_blocklist_rejects_a_domain_containing_an_at_sign(
+    client, db_session, auth_headers, monkeypatch
+):
+    _make_admin(monkeypatch)
+    response = client.post(
+        "/api/v1/admin/blocklist",
+        json={"kind": "domain", "value": "someone@spammy.example.com"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 400
+
+
+def test_admin_blocklist_rejects_unknown_kind(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    response = client.post(
+        "/api/v1/admin/blocklist", json={"kind": "ip", "value": "1.2.3.4"}, headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_admin_blocklist_add_is_idempotent(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    payload = {"kind": "email", "value": "spam@example.com"}
+    first = client.post("/api/v1/admin/blocklist", json=payload, headers=auth_headers).json()
+    second = client.post("/api/v1/admin/blocklist", json=payload, headers=auth_headers).json()
+    assert first["id"] == second["id"]
+    assert len(client.get("/api/v1/admin/blocklist", headers=auth_headers).json()) == 1
+
+
+def test_admin_blocklist_delete_returns_404_for_unknown_id(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    assert client.delete("/api/v1/admin/blocklist/999999", headers=auth_headers).status_code == 404
+
+
+def test_blocklist_actions_are_audit_logged_without_the_address(
+    client, db_session, auth_headers, monkeypatch, caplog
+):
+    _make_admin(monkeypatch)
+    admin = _fixture_user(db_session)
+    (target,) = _add_users(db_session, ("target@example.com", None, None))
+
+    with caplog.at_level("INFO", logger="app.api.v1.admin"):
+        created = client.post(
+            "/api/v1/admin/blocklist",
+            json={"kind": "email", "value": "spam@example.com"},
+            headers=auth_headers,
+        ).json()
+        client.delete(f"/api/v1/admin/blocklist/{created['id']}", headers=auth_headers)
+        client.post(f"/api/v1/admin/users/{target.id}/block", headers=auth_headers)
+        client.delete(f"/api/v1/admin/users/{target.id}/block", headers=auth_headers)
+
+    messages = [r.getMessage() for r in caplog.records if r.name == "app.api.v1.admin"]
+    assert messages == [
+        f"admin action: admin={admin.id} action=create_block block_id={created['id']} kind=email",
+        f"admin action: admin={admin.id} action=delete_block block_id={created['id']}",
+        f"admin action: admin={admin.id} action=block_user target_user={target.id}",
+        f"admin action: admin={admin.id} action=unblock_user target_user={target.id}",
+    ]
+    assert "spam@example.com" not in " ".join(messages)
+    assert "target@example.com" not in " ".join(messages)

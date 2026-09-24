@@ -10,6 +10,7 @@ from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import OTP_PURPOSE_LOGIN
 from app.models import OtpCode, Question, QuestionProgress, User
 from app.models.purchase import Purchase
+from app.services import blocklist
 from tests.helpers import progress_state
 
 
@@ -125,6 +126,28 @@ def test_request_otp_skips_disposable_domain(client, monkeypatch):
     sent = _capture_otp(monkeypatch)
 
     response = client.post("/api/v1/auth/otp/request", json={"email": "someone@mailinator.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 0
+
+
+def test_request_otp_skips_a_manually_blocked_email(client, db_session, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    blocklist.add_block(db_session, "email", "blocked@example.com", None, "admin@example.com")
+    db_session.commit()
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "blocked@example.com"})
+
+    assert response.status_code == 202
+    assert len(sent) == 0
+
+
+def test_request_otp_skips_a_manually_blocked_domain(client, db_session, monkeypatch):
+    sent = _capture_otp(monkeypatch)
+    blocklist.add_block(db_session, "domain", "spammy.example", None, "admin@example.com")
+    db_session.commit()
+
+    response = client.post("/api/v1/auth/otp/request", json={"email": "someone@spammy.example"})
 
     assert response.status_code == 202
     assert len(sent) == 0
@@ -781,6 +804,34 @@ def test_request_email_change_rejects_a_disposable_address(client, db_session, m
     assert response.status_code == 400
     assert sent == []
     assert db_session.query(OtpCode).count() == 0
+
+
+def test_request_email_change_rejects_a_manually_blocked_email(client, db_session, monkeypatch, auth_headers):
+    sent = _capture_email_change_otp(monkeypatch)
+    blocklist.add_block(db_session, "email", "blocked@example.com", None, "admin@example.com")
+    db_session.commit()
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "blocked@example.com"}, headers=auth_headers
+    )
+
+    assert response.status_code == 400
+    assert sent == []
+
+
+def test_request_email_change_rejects_a_manually_blocked_domain(
+    client, db_session, monkeypatch, auth_headers
+):
+    sent = _capture_email_change_otp(monkeypatch)
+    blocklist.add_block(db_session, "domain", "spammy.example", None, "admin@example.com")
+    db_session.commit()
+
+    response = client.post(
+        "/api/v1/auth/me/email/request", json={"new_email": "someone@spammy.example"}, headers=auth_headers
+    )
+
+    assert response.status_code == 400
+    assert sent == []
 
 
 def test_request_email_change_rejects_email_already_taken_by_another_user(client, db_session, auth_headers):

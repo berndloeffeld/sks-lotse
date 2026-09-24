@@ -12,6 +12,8 @@ from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.user import User
 from app.schemas.admin import (
+    AdminBlockedEmailCreate,
+    AdminBlockedEmailRead,
     AdminQuestionReportRead,
     AdminSettingsRead,
     AdminSettingsUpdate,
@@ -24,7 +26,7 @@ from app.schemas.admin import (
 )
 from app.schemas.kpis import KpiReport
 from app.schemas.question import QuestionRead
-from app.services import admin_users, token_wallet
+from app.services import admin_users, blocklist, token_wallet
 from app.services import catalog as catalog_service
 from app.services import pricing as pricing_service
 from app.services.kpis import compute_kpis
@@ -62,13 +64,19 @@ def list_users(
     """Accounts, newest first; `q` searches email and name. The term isn't logged (may be an address)."""
     users, total = admin_users.list_users(db, q, offset, limit)
     _audit(admin, "list_users", offset=offset, results=len(users))
-    return AdminUserListPage(items=[AdminUserListItem.model_validate(u) for u in users], total=total)
+    emails, domains = blocklist.blocked_sets(db)
+    items = []
+    for user in users:
+        item = AdminUserListItem.model_validate(user)
+        item.is_blocked = blocklist.is_blocked(user.email, emails, domains)
+        items.append(item)
+    return AdminUserListPage(items=items, total=total)
 
 
 @router.get("/users/{user_id}", response_model=AdminUserRead)
 def get_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserRead:
     user = _get_user_or_404(db, user_id)
-    return admin_users.admin_user_read(user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
 
 
 @router.patch("/users/{user_id}", response_model=AdminUserRead)
@@ -115,7 +123,7 @@ def update_user(
         target_user=user.id,
         **payload.model_dump(exclude_unset=True, exclude={"grant_amount_eur_cents"}),
     )
-    return admin_users.admin_user_read(user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
 
 
 def _package_settings(db: Session, product: str) -> TokenPackageSettings:
@@ -225,3 +233,64 @@ def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depen
     user = _get_user_or_404(db, user_id)
     delete_user_and_progress(db, user)
     _audit(admin, "delete_user", target_user=user_id)
+
+
+@router.post("/users/{user_id}/block", response_model=AdminUserRead)
+def block_user(
+    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminUserRead:
+    """Add the account's own address to the blocklist and end its current session immediately
+    (ADR-0045) — a domain-wide block, by contrast, only stops future OTP requests."""
+    user = _get_user_or_404(db, user_id)
+    blocklist.block_user(db, user, admin.email)
+    db.commit()
+    blocklist.invalidate_cache(request.app)
+    _audit(admin, "block_user", target_user=user_id)
+    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+
+
+@router.delete("/users/{user_id}/block", response_model=AdminUserRead)
+def unblock_user(
+    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminUserRead:
+    user = _get_user_or_404(db, user_id)
+    blocklist.unblock_user(db, user)
+    db.commit()
+    blocklist.invalidate_cache(request.app)
+    _audit(admin, "unblock_user", target_user=user_id)
+    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+
+
+@router.get("/blocklist", response_model=list[AdminBlockedEmailRead])
+def list_blocklist(db: Session = Depends(get_db)) -> list[AdminBlockedEmailRead]:
+    """Every manually blocked address/domain (ADR-0045), newest first."""
+    return [AdminBlockedEmailRead.model_validate(entry) for entry in blocklist.list_blocks(db)]
+
+
+@router.post("/blocklist", response_model=AdminBlockedEmailRead, status_code=status.HTTP_201_CREATED)
+def create_blocklist_entry(
+    payload: AdminBlockedEmailCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+) -> AdminBlockedEmailRead:
+    try:
+        entry = blocklist.add_block(db, payload.kind, payload.value, payload.reason, admin.email)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    db.commit()
+    blocklist.invalidate_cache(request.app)
+    # Never the address itself (see the module docstring on _audit) — it stays retrievable via GET.
+    _audit(admin, "create_block", block_id=entry.id, kind=entry.kind)
+    return AdminBlockedEmailRead.model_validate(entry)
+
+
+@router.delete("/blocklist/{block_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_blocklist_entry(
+    block_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> None:
+    if not blocklist.remove_block(db, block_id):
+        raise _NOT_FOUND
+    db.commit()
+    blocklist.invalidate_cache(request.app)
+    _audit(admin, "delete_block", block_id=block_id)

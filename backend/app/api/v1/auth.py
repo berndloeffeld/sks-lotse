@@ -30,7 +30,7 @@ from app.schemas.auth import (
     UserRead,
     UserUpdate,
 )
-from app.services import otp_codes, token_wallet
+from app.services import blocklist, otp_codes, token_wallet
 from app.services.user import delete_user_and_progress
 
 logger = logging.getLogger(__name__)
@@ -65,6 +65,11 @@ def request_otp(
         return OtpRequestAccepted()
 
     if is_disposable_email(payload.email):
+        return OtpRequestAccepted()
+
+    if blocklist.is_email_blocked(request.app, db, payload.email):
+        # Same generic 202 as every other rejected case above — a manually blocked address
+        # (ADR-0045) gets no different a response than one outside the allowlist.
         return OtpRequestAccepted()
 
     otp_codes.issue_code(
@@ -243,6 +248,11 @@ def request_email_change(
     if is_disposable_email(new_email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Disposable email addresses are not supported"
+        )
+
+    if blocklist.is_email_blocked(request.app, db, new_email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="This email address is not allowed"
         )
 
     existing = db.execute(select(User).where(User.email == new_email)).scalar_one_or_none()

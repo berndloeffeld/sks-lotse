@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AblaufPage } from './pages/AblaufPage'
+import { AdminBlocklistPage } from './pages/AdminBlocklistPage'
 import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
 import { AdminUserPage } from './pages/AdminUserPage'
@@ -84,6 +85,7 @@ export function AppRoutes() {
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="users/:id" element={<AdminUserPage />} />
                 <Route path="questions" element={<AdminQuestionsPage />} />
+                <Route path="blocklist" element={<AdminBlocklistPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
             </Route>

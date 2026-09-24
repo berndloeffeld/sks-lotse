@@ -2,13 +2,16 @@ import { useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
-import { getFullName, type AdminUserListPage } from '../api/types'
+import { getFullName, type AdminUserListItem, type AdminUserListPage } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 
 const PAGE_SIZE = 50
 
 const BUTTON =
   'border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60'
+
+const ROW_BUTTON =
+  'shrink-0 border border-ink px-2 py-1 font-mono text-xs tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60'
 
 function fetchPage(q: string, offset: number) {
   const params = new URLSearchParams({ q, offset: String(offset), limit: String(PAGE_SIZE) })
@@ -25,6 +28,28 @@ export function AdminUsersPage() {
   const query = useApiQuery(`admin-users?q=${q}`, () => fetchPage(q, 0))
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [moreFailed, setMoreFailed] = useState(false)
+  const [blockingId, setBlockingId] = useState<number | null>(null)
+  const [blockError, setBlockError] = useState<string | null>(null)
+
+  // Toggled inline from the list, unlike the detail page's confirmed delete — reversible, so no
+  // confirmation dance (ADR-0045).
+  async function handleBlockToggle(user: AdminUserListItem) {
+    setBlockError(null)
+    setBlockingId(user.id)
+    try {
+      const updated = user.is_blocked
+        ? await apiClient.delete<AdminUserListItem>(`/admin/users/${user.id}/block`)
+        : await apiClient.post<AdminUserListItem>(`/admin/users/${user.id}/block`)
+      query.setData((current) => ({
+        ...current,
+        items: current.items.map((item) => (item.id === user.id ? updated : item)),
+      }))
+    } catch {
+      setBlockError('Die Sperre konnte nicht geändert werden.')
+    } finally {
+      setBlockingId(null)
+    }
+  }
 
   function handleSearch(event: FormEvent) {
     event.preventDefault()
@@ -79,13 +104,14 @@ export function AdminUsersPage() {
             {page.total === 1 ? '1 Benutzer' : `${page.total} Benutzer`}
             {q ? ` für „${q}“` : ''}
           </p>
+          {blockError ? <p className="text-sm text-danger">{blockError}</p> : null}
           {page.items.length > 0 ? (
             <ul className="flex flex-col divide-y divide-border border-y border-border">
               {page.items.map((user) => (
-                <li key={user.id}>
+                <li key={user.id} className="flex items-center gap-2 px-1 py-1">
                   <Link
                     to={`/admin/users/${user.id}`}
-                    className="flex flex-col gap-1 px-1 py-3 hover:bg-surface-alt sm:flex-row sm:items-baseline sm:gap-4"
+                    className="flex min-w-0 flex-1 flex-col gap-1 px-1 py-2 hover:bg-surface-alt sm:flex-row sm:items-baseline sm:gap-4"
                   >
                     <span className="min-w-0 flex-1 font-mono text-sm break-all text-ink">{user.email}</span>
                     <span className="text-sm text-ink-soft">{getFullName(user) || '—'}</span>
@@ -94,9 +120,18 @@ export function AdminUsersPage() {
                         <span className="border border-border px-1">{user.token_balance} Token(s)</span>
                       ) : null}
                       {user.ads_removed ? <span className="border border-border px-1">Werbefrei</span> : null}
+                      {user.is_blocked ? <span className="border border-danger px-1 text-danger">Gesperrt</span> : null}
                       <span>seit {new Date(user.created_at).toLocaleDateString('de-DE')}</span>
                     </span>
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleBlockToggle(user)}
+                    disabled={blockingId === user.id}
+                    className={ROW_BUTTON}
+                  >
+                    {user.is_blocked ? 'Entsperren' : 'Sperren'}
+                  </button>
                 </li>
               ))}
             </ul>

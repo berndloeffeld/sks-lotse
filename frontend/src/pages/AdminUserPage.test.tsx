@@ -236,13 +236,15 @@ describe('AdminUserPage', () => {
     const user = userEvent.setup()
     stubFetch(echoPatch)
     renderUserPage()
-    await screen.findByText('Aktiv')
+    await screen.findByText('learner@example.com')
+    expect(screen.getByText('Werbung').nextElementSibling).toHaveTextContent('Aktiv')
 
     await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
     expect(await screen.findByText('Entfernt')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Werbung wieder aktivieren' }))
-    expect(await screen.findByText('Aktiv')).toBeInTheDocument()
+    await screen.findByRole('button', { name: 'Werbung entfernen' })
+    expect(screen.getByText('Werbung').nextElementSibling).toHaveTextContent('Aktiv')
   })
 
   it("syncs the admin's own session when they remove ads on their own account", async () => {
@@ -256,7 +258,7 @@ describe('AdminUserPage', () => {
     })
     stubFetch(echoPatch)
     renderUserPage()
-    await screen.findByText('Aktiv')
+    await screen.findByText('learner@example.com')
 
     await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
     expect(await screen.findByText('Entfernt')).toBeInTheDocument()
@@ -270,6 +272,39 @@ describe('AdminUserPage', () => {
     await user.click(await screen.findByRole('button', { name: 'Werbung entfernen' }))
 
     expect(await screen.findByText('Die Werbung konnte nicht geändert werden.')).toBeInTheDocument()
+  })
+
+  it('blocks and unblocks the account', async () => {
+    const user = userEvent.setup()
+    stubFetch((url, init) => {
+      if (!url.endsWith(`/admin/users/${foundUser.id}/block`)) return undefined
+      if (init?.method === 'POST') return jsonResponse({ ...foundUser, is_blocked: true })
+      if (init?.method === 'DELETE') return jsonResponse({ ...foundUser, is_blocked: false })
+      return undefined
+    })
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+    expect(screen.getByText('Zugang').nextElementSibling).toHaveTextContent('Aktiv')
+
+    await user.click(screen.getByRole('button', { name: 'Nutzer sperren' }))
+    expect(await screen.findByText('Gesperrt')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Sperre aufheben' }))
+    await screen.findByRole('button', { name: 'Nutzer sperren' })
+    expect(screen.getByText('Zugang').nextElementSibling).toHaveTextContent('Aktiv')
+  })
+
+  it('shows an error when blocking fails', async () => {
+    const user = userEvent.setup()
+    stubFetch((url, init) =>
+      url.endsWith(`/admin/users/${foundUser.id}/block`) && init?.method === 'POST'
+        ? new Response(null, { status: 500 })
+        : undefined,
+    )
+    renderUserPage()
+    await user.click(await screen.findByRole('button', { name: 'Nutzer sperren' }))
+
+    expect(await screen.findByText('Die Sperre konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
   it('shows an error when granting tokens fails', async () => {

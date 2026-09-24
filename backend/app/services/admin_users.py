@@ -27,6 +27,7 @@ from app.schemas.admin import (
     AdminUserExport,
     AdminUserRead,
 )
+from app.services import blocklist
 
 
 def question_progress_count(db: Session, user_id: int) -> int:
@@ -59,7 +60,8 @@ def list_users(db: Session, q: str, offset: int, limit: int) -> tuple[list[User]
     return list(page), total
 
 
-def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
+def admin_user_read(db: Session, user: User, question_progress_count: int) -> AdminUserRead:
+    emails, domains = blocklist.blocked_sets(db)
     return AdminUserRead(
         id=user.id,
         email=user.email,
@@ -76,6 +78,7 @@ def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         agb_accepted_at=user.agb_accepted_at,
         last_login_at=user.last_login_at,
         question_progress_count=question_progress_count,
+        is_blocked=blocklist.is_blocked(user.email, emails, domains),
     )
 
 
@@ -144,7 +147,7 @@ def build_user_export(db: Session, user: User) -> AdminUserExport:
         )
 
     return AdminUserExport(
-        user=admin_user_read(user, len(rows)),
+        user=admin_user_read(db, user, len(rows)),
         exam_attempts=exam_attempts,
         focus_topics=[
             AdminFocusTopicExport(
