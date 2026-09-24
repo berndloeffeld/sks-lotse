@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AdminUserPage } from './AdminUserPage'
+import { useAuthStore } from '../store/authStore'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -68,6 +69,7 @@ const failPatch = (_url: string, init?: RequestInit) =>
 describe('AdminUserPage', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
   it('loads the account and shows its data', async () => {
@@ -170,6 +172,54 @@ describe('AdminUserPage', () => {
     expect(screen.getByLabelText(/Tokens gutschreiben/)).toHaveValue(null)
   })
 
+  it("syncs the admin's own session when they credit tokens to their own account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch((url, init) => {
+      if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+      const body = JSON.parse(String(init.body)) as { grant_tokens: number }
+      return jsonResponse({ ...foundUser, token_balance: foundUser.token_balance + body.grant_tokens })
+    })
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
+
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 20)')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.token_balance).toBe(20)
+  })
+
+  it("leaves the admin's own session untouched when they edit a different account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, id: 999, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch((url, init) => {
+      if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+      const body = JSON.parse(String(init.body)) as { grant_tokens: number }
+      return jsonResponse({ ...foundUser, token_balance: foundUser.token_balance + body.grant_tokens })
+    })
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
+
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 20)')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.token_balance).toBe(0)
+  })
+
   it('rejects an invalid token amount without calling the backend', async () => {
     const user = userEvent.setup()
     const fetchMock = stubFetch()
@@ -193,6 +243,24 @@ describe('AdminUserPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Werbung wieder aktivieren' }))
     expect(await screen.findByText('Aktiv')).toBeInTheDocument()
+  })
+
+  it("syncs the admin's own session when they remove ads on their own account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch(echoPatch)
+    renderUserPage()
+    await screen.findByText('Aktiv')
+
+    await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
+    expect(await screen.findByText('Entfernt')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.ads_removed).toBe(true)
   })
 
   it('shows an error when changing the ads setting fails', async () => {

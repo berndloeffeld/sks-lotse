@@ -5,6 +5,7 @@ import { ApiError, apiClient } from '../api/client'
 import { getFullName, type AdminUser, type AdminUserExport, type ExamVariant } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
+import { useAuthStore } from '../store/authStore'
 
 function downloadJson(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -47,6 +48,17 @@ export function AdminUserPage() {
 
 function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user: AdminUser) => void }) {
   const navigate = useNavigate()
+  const currentUser = useAuthStore((s) => s.user)
+  const setCurrentUser = useAuthStore((s) => s.setUser)
+
+  // An admin editing their own account (self-testing ads/tokens) otherwise sees no effect
+  // outside /admin until the next full page load: the logged-in session's own User is a
+  // separate copy in authStore, not touched by this page's AdminUser state.
+  function syncIfSelf(updated: AdminUser) {
+    if (currentUser && currentUser.id === updated.id) {
+      setCurrentUser({ ...currentUser, ads_removed: updated.ads_removed, token_balance: updated.token_balance })
+    }
+  }
 
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
@@ -80,7 +92,9 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     setToggleError(null)
     setIsToggling(true)
     try {
-      onChange(await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { [field]: !user[field] }))
+      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { [field]: !user[field] })
+      onChange(updated)
+      syncIfSelf(updated)
     } catch {
       setToggleError(errorMessage)
     } finally {
@@ -110,12 +124,12 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }
     setIsToggling(true)
     try {
-      onChange(
-        await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
-          grant_tokens: tokens,
-          ...(amountEurCents === undefined ? {} : { grant_amount_eur_cents: amountEurCents }),
-        }),
-      )
+      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
+        grant_tokens: tokens,
+        ...(amountEurCents === undefined ? {} : { grant_amount_eur_cents: amountEurCents }),
+      })
+      onChange(updated)
+      syncIfSelf(updated)
       setGrantTokensInput('')
       setGrantAmountInput('')
     } catch {
