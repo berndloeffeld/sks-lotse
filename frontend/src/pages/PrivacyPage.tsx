@@ -92,12 +92,12 @@ export function PrivacyPage() {
           Rückfragen antworten können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
           Korrektur und Qualitätssicherung des Fragenkatalogs). Die Meldungen werden gespeichert, solange Ihr Konto
           besteht, und mit dem Konto gelöscht. Bitte geben Sie in der Anmerkung keine personenbezogenen Daten ein.
-          Feedback per E-Mail über den Link „Feedback“ geht direkt an die oben genannte Adresse und wird nur zur
-          Beantwortung und Verbesserung des Angebots verwendet.
+          Feedback per E-Mail über den Link „Kontakt“ am Seitenende oder „Feedback“ im Menü geht direkt an die oben
+          genannte Adresse und wird nur zur Beantwortung und Verbesserung des Angebots verwendet.
         </p>
       </ProseSection>
 
-      <ProseSection title="Werbung (Google AdSense)">
+      <ProseSection id="werbung" title="Werbung (Google AdSense)">
         <p>
           Zur Finanzierung des kostenlosen Angebots blenden wir Werbung des Dienstes Google AdSense ein (Google Ireland
           Limited, Gordon House, Barrow Street, Dublin 4, Irland; Muttergesellschaft Google LLC, USA). Dabei werden auf
@@ -110,7 +110,7 @@ export function PrivacyPage() {
           a DSGVO, § 25 Abs. 1 TDDDG). Diese holen wir über die von Google bereitgestellte Consent-Lösung ein, die dem
           Transparency &amp; Consent Framework (TCF) der IAB Europe entspricht. Ihre Einwilligung ist freiwillig; ohne
           sie können Sie SKS Lotse weiterhin vollständig nutzen. Sie können Ihre Entscheidung jederzeit mit Wirkung für
-          die Zukunft ändern oder widerrufen, über den Link „Cookie-Einstellungen“ am Seitenende. Weitere Informationen:{' '}
+          die Zukunft ändern oder widerrufen, über den Link „Cookies“ am Seitenende. Weitere Informationen:{' '}
           <a
             href="https://policies.google.com/technologies/partner-sites"
             target="_blank"

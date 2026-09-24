@@ -133,7 +133,6 @@ export function ProfilePage() {
   return (
     <PageLayout
       title="Profil"
-      backTo="/start"
       subtitle={
         <>
           Angemeldet als <span className="font-mono text-surface">{getDisplayName(user)}</span> · Mitglied seit{' '}

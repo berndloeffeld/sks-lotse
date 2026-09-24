@@ -23,10 +23,10 @@ describe('LandingPage', () => {
     renderLandingPage()
 
     const banner = screen.getByRole('banner')
-    expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/start')
+    expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/learn')
     expect(within(banner).queryByRole('link', { name: 'Anmelden' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '/start')
-    expect(screen.getByRole('link', { name: 'Zur Übersicht' })).toHaveAttribute('href', '/start')
+    expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Zum Lernen' })).toHaveAttribute('href', '/learn')
     expect(screen.queryByLabelText('E-Mail-Adresse')).not.toBeInTheDocument()
   })
 

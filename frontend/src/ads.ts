@@ -56,33 +56,54 @@ export function injectAdScript(clientId: string, doc: Document = document) {
   doc.head.append(script)
 }
 
-// The page that re-opens the consent dialog on arrival, for documents without the script.
-export const CONSENT_SETTINGS_URL = '/privacy?cookie-einstellungen'
+// The page that re-opens the consent dialog on arrival, for documents without the script — at
+// the privacy policy's ad section, so it still says what's going on if the dialog doesn't come up.
+export const CONSENT_SETTINGS_URL = '/privacy?cookie-einstellungen#werbung'
+
+// How long a click waits for Google's consent dialog before saying it can't be shown.
+export const CONSENT_DIALOG_TIMEOUT_MS = 2000
+
+// Queues a callback for Google's CMP: it runs them once it has loaded (and right away after that),
+// so this works while the script is still loading, too.
+function queueForConsentApi(callback: () => void) {
+  const fc = (window.googlefc ??= {})
+  fc.callbackQueue ??= []
+  fc.callbackQueue.push(callback)
+}
 
 // Re-opens Google's consent dialog so a visitor can change or withdraw their
 // choice at any time — withdrawing must be as easy as giving it (Art. 7(3)
 // DSGVO). Where this document has no consent API (the admin tools), it goes to
-// a public page that loads it and opens the dialog there.
+// a public page that loads it and opens the dialog there. Where the script is
+// here but Google's CMP never comes up (an ad blocker or a network filter drops
+// it, or AdSense has no EU message published), `onUnavailable` runs after
+// CONSENT_DIALOG_TIMEOUT_MS so the click never silently does nothing.
 export function openConsentSettings(
+  onUnavailable: () => void = () => {},
   navigate: (url: string) => void = (url) => window.location.assign(url),
   doc: Document = document,
 ) {
-  const fc = window.googlefc
-  if (fc?.callbackQueue && fc.showRevocationMessage) {
-    fc.callbackQueue.push(fc.showRevocationMessage)
-  } else if (!adScriptLoaded(doc)) {
+  if (!adScriptLoaded(doc)) {
     navigate(CONSENT_SETTINGS_URL)
+    return
   }
+  let shown = false
+  queueForConsentApi(() => {
+    const show = window.googlefc?.showRevocationMessage
+    if (!show) return
+    shown = true
+    show()
+  })
+  setTimeout(() => {
+    if (!shown) onUnavailable()
+  }, CONSENT_DIALOG_TIMEOUT_MS)
 }
 
 // Counterpart of the redirect above, run once at startup: on a page that has the script and was
-// asked to, queue the dialog. Google's CMP runs queued callbacks once it has loaded, so this works
-// before the script has finished loading, too.
+// asked to, queue the dialog.
 export function openConsentSettingsIfRequested(search: string = window.location.search, doc: Document = document) {
   if (!new URLSearchParams(search).has('cookie-einstellungen') || !adScriptLoaded(doc)) return
-  const fc = (window.googlefc ??= {})
-  fc.callbackQueue ??= []
-  fc.callbackQueue.push(() => window.googlefc?.showRevocationMessage?.())
+  queueForConsentApi(() => window.googlefc?.showRevocationMessage?.())
 }
 
 const AD_FREE_RELOAD_KEY = 'sks-lotse:ad-free-reload'

@@ -17,7 +17,7 @@ import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
 
 initAnalytics()
-// Arriving from "Cookie-Einstellungen" on a page without the consent API (ads.ts).
+// Arriving from "Cookies" (footer) on a page without the consent API (ads.ts).
 openConsentSettingsIfRequested()
 
 const container = document.getElementById('root')!
@@ -30,7 +30,7 @@ const app = (
 // The public pages are prerendered (ADR-0025), each tagged with the path it
 // was rendered for; every other route is served the empty app.html shell. Only
 // hydrate when the markup actually belongs to this route — e.g. `vite preview`
-// falls back to index.html for /start too — otherwise start from a clean
+// falls back to index.html for /learn too — otherwise start from a clean
 // container.
 const path = window.location.pathname.replace(/(.)\/$/, '$1')
 if (container.hasChildNodes() && container.dataset.prerendered === path) {

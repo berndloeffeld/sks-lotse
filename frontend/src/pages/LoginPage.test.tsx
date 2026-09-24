@@ -12,7 +12,7 @@ function renderLoginPage() {
     <MemoryRouter initialEntries={['/login']}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/start" element={<p>Start page</p>} />
+        <Route path="/learn" element={<p>Learn page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -45,7 +45,7 @@ describe('LoginPage', () => {
     await user.type(await screen.findByLabelText('Login-Code'), '123456')
     await user.click(screen.getByRole('button', { name: 'Anmelden' }))
 
-    expect(await screen.findByText('Start page')).toBeInTheDocument()
+    expect(await screen.findByText('Learn page')).toBeInTheDocument()
   })
 
   it('shows an inline error when the code is rejected', async () => {
@@ -86,11 +86,11 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
   })
 
-  it('redirects to /start immediately when already authenticated', () => {
+  it('redirects to /learn immediately when already authenticated', () => {
     useAuthStore.setState({ isAuthenticated: true })
 
     renderLoginPage()
 
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
   })
 })

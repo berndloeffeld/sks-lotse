@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 
 import { HEADER_LINK } from './headerLink'
 
-// Content links every page's header carries, logged in or out (Header's default nav,
-// AccountNav) — keeps the footer (LegalFooter) down to just the legally required links.
+// Content links in the logged-out header (Header's default nav); logged in, the same pages sit
+// in the "Menü" (AccountMenu). Keeps the footer (LegalFooter) down to the legal links.
 export function MarketingLinks() {
   return (
     <>

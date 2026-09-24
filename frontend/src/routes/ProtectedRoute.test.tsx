@@ -8,11 +8,11 @@ import { ProtectedRoute } from './ProtectedRoute'
 
 function renderProtected() {
   return render(
-    <MemoryRouter initialEntries={['/start']}>
+    <MemoryRouter initialEntries={['/learn']}>
       <Routes>
         <Route path="/login" element={<p>Login page</p>} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/start" element={<p>Start page</p>} />
+          <Route path="/learn" element={<p>Learn page</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -45,7 +45,7 @@ describe('ProtectedRoute', () => {
 
     renderProtected()
 
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
   })
 
   it('offers a retry instead of redirecting when the session check failed', async () => {

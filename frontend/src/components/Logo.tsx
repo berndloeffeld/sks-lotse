@@ -30,8 +30,10 @@ interface LogoProps {
 
 export function Logo({ className, inverted = false }: LogoProps) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className ?? ''}`}>
-      <LogoMark className="h-8 w-8 shrink-0" />
+    // Baseline-aligned with the mark centered: the wordmark's baseline is the whole logo's, so
+    // the header can line it up with its nav text.
+    <span className={`inline-flex items-baseline gap-2 ${className ?? ''}`}>
+      <LogoMark className="h-8 w-8 shrink-0 self-center" />
       <span className={`font-serif text-xl ${inverted ? 'text-surface' : 'text-ink'}`}>SKS Lotse</span>
     </span>
   )

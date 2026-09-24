@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 
 import App, { AppRoutes } from './App'
 import { useMaintenanceStore } from './store/maintenanceStore'
-import { jsonResponse } from './test/fixtures'
+import { jsonResponse, makeUser } from './test/fixtures'
 
 describe('App', () => {
   afterEach(() => {
@@ -51,5 +51,20 @@ describe('App', () => {
 
     expect(await screen.findByRole('heading', { name: 'Impressum' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Wartungsarbeiten' })).not.toBeInTheDocument()
+  })
+
+  it('sends the old /start overview to /learn, which took its place', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => Promise.resolve(url.includes('/auth/me') ? jsonResponse(makeUser()) : jsonResponse([]))),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/start']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
   })
 })

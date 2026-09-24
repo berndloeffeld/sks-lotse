@@ -21,7 +21,6 @@ import { LoginPage } from './pages/LoginPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
-import { StartPage } from './pages/StartPage'
 import { AdScriptGate } from './routes/AdScriptGate'
 import { AgbGate } from './routes/AgbGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -73,7 +72,6 @@ export function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AgbGate />}>
-              <Route path="/start" element={<StartPage />} />
               <Route path="/learn" element={<LearnPage />} />
               <Route path="/learn/fokus" element={<FocusPracticePage />} />
               <Route path="/learn/:subject/:topic" element={<PracticePage />} />
@@ -95,6 +93,8 @@ export function AppRoutes() {
             page. import.meta.env.DEV is false in production builds, so this
             route isn't registered there. */}
         {import.meta.env.DEV ? <Route path="/_dev/error" element={<ThrowForPreview />} /> : null}
+        {/* The old post-login overview; /learn took its place. Kept for bookmarks and old links. */}
+        <Route path="/start" element={<Navigate to="/learn" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ErrorBoundary>

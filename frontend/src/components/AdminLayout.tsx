@@ -21,7 +21,7 @@ export function AdminLayout() {
   // Admin status comes from the already-loaded session (ProtectedRoute has already waited for
   // checkSession) — no separate loading state needed here.
   if (!user?.is_admin) {
-    return <Navigate to="/start" replace />
+    return <Navigate to="/learn" replace />
   }
 
   return (

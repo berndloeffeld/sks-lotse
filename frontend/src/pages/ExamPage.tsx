@@ -48,7 +48,7 @@ export function ExamPage() {
   const hasVariant = Boolean(user?.exam_variant)
 
   return (
-    <PageLayout title="Prüfungssimulation" backTo="/start" compact>
+    <PageLayout title="Prüfungssimulation" compact>
       <section className="flex flex-col gap-3">
         <p className="text-ink">
           Eine zufällige Prüfung aus dem Fragenkatalog, wie im Fragebogen der echten Prüfung: 30 Fragen (9 Navigation, 7

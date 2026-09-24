@@ -6,50 +6,43 @@ import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
 import { makeUser } from '../test/fixtures'
 
-const baseUser = makeUser()
+function renderAt(path: string) {
+  useAuthStore.setState({ user: makeUser() })
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <AccountNav />
+    </MemoryRouter>,
+  )
+}
 
 describe('AccountNav', () => {
-  it('shows the Admin link only to admins', () => {
-    useAuthStore.setState({ user: { ...baseUser, is_admin: false } })
-    const { unmount } = render(
-      <MemoryRouter>
-        <AccountNav />
-      </MemoryRouter>,
-    )
-    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument()
+  it('leads with the two learning destinations and the Menü button', () => {
+    renderAt('/profile')
+
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('href', '/exam')
+    expect(screen.getByRole('button', { name: 'Menü' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('keeps everything else in the menu, not in the bar', () => {
+    renderAt('/profile')
+
+    for (const name of ['FAQ', 'Ablauf', 'Preise', 'Profil', 'Feedback']) {
+      expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
+    }
+    expect(screen.queryByRole('button', { name: 'Abmelden' })).not.toBeInTheDocument()
+  })
+
+  it('marks the current section, including its sub-pages', () => {
+    const { unmount } = renderAt('/learn/fokus')
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Prüfung' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-surface')
     unmount()
 
-    useAuthStore.setState({ user: { ...baseUser, is_admin: true } })
-    render(
-      <MemoryRouter>
-        <AccountNav />
-      </MemoryRouter>,
-    )
-    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
-  })
-
-  it('links to the feedback mail', () => {
-    useAuthStore.setState({ user: { ...baseUser, is_admin: false } })
-    render(
-      <MemoryRouter>
-        <AccountNav />
-      </MemoryRouter>,
-    )
-    expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(
-      'href',
-      expect.stringMatching(/^mailto:kontakt@sks-lotse\.de/),
-    )
-  })
-
-  it('carries the content links too, so logged-in visitors keep reaching them', () => {
-    useAuthStore.setState({ user: { ...baseUser, is_admin: false } })
-    render(
-      <MemoryRouter>
-        <AccountNav />
-      </MemoryRouter>,
-    )
-    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
-    expect(screen.getByRole('link', { name: 'Ablauf' })).toHaveAttribute('href', '/ablauf')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
+    renderAt('/exam/7')
+    expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Lernen' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-transparent')
   })
 })

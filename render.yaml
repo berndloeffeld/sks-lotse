@@ -179,11 +179,11 @@ services:
       - type: rewrite
         source: /ablauf
         destination: /ablauf.html
-      # SPA fallback: routes like /login and /start have no matching static
+      # SPA fallback: routes like /login and /learn have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
       # empty shell — index.html carries the prerendered landing page
-      # (ADR-0025), which must not flash up on /start. Render only rewrites
+      # (ADR-0025), which must not flash up on /learn. Render only rewrites
       # paths with no matching file, so / still serves index.html.
       - type: rewrite
         source: /*

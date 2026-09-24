@@ -12,7 +12,7 @@ interface PageLayoutProps {
   subtitle?: ReactNode
   // Renders a "← Zurück" link above the title.
   backTo?: string
-  // Logged-in pages get the account nav and a brand link to /start;
+  // Logged-in pages get the account nav and a brand link to /learn;
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
   width?: 'sm' | 'md'
@@ -46,7 +46,7 @@ export function PageLayout({
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <Header
-        homeTo={showAccountNav ? '/start' : '/'}
+        homeTo={showAccountNav ? '/learn' : '/'}
         nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}
       />
       <main className="flex-1">

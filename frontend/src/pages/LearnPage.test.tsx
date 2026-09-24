@@ -17,7 +17,6 @@ function renderLearnPage() {
         <Route element={<ProtectedRoute />}>
           <Route path="/learn" element={<LearnPage />} />
         </Route>
-        <Route path="/start" element={<p>Start page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -203,7 +202,7 @@ describe('LearnPage', () => {
     expect(screen.getByText('Ankern')).toBeInTheDocument()
   })
 
-  it('links back to /start', async () => {
+  it('has no back link: Lernen is a top-level destination in the header', async () => {
     useAuthStore.setState({
       user: makeUser(),
       isAuthenticated: true,
@@ -213,6 +212,7 @@ describe('LearnPage', () => {
 
     renderLearnPage()
 
-    expect(screen.getByRole('link', { name: /Zurück/ })).toHaveAttribute('href', '/start')
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Zurück/ })).not.toBeInTheDocument()
   })
 })

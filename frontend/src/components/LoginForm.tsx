@@ -55,7 +55,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         await apiClient.post('/auth/otp/verify', { email, code })
         await checkSession()
         trackEvent('login')
-        navigate('/start')
+        navigate('/learn')
       },
       (err) =>
         err instanceof ApiError && err.status === 401

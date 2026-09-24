@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
+
+const FOOTER_LINK = 'border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface'
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
@@ -9,35 +12,49 @@ import { FEEDBACK_MAILTO } from '../contact'
 // template's footer.
 export function LegalFooter() {
   const showAds = useShowAds()
+  const [consentUnavailable, setConsentUnavailable] = useState(false)
+
+  function handleConsentClick() {
+    setConsentUnavailable(false)
+    openConsentSettings(() => setConsentUnavailable(true))
+  }
+
   return (
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
-          <Link to="/imprint" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
+          <Link to="/imprint" className={FOOTER_LINK}>
             Impressum
           </Link>
-          <Link to="/privacy" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
+          <Link to="/privacy" className={FOOTER_LINK}>
             Datenschutz
           </Link>
-          <Link to="/agb" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
+          <Link to="/agb" className={FOOTER_LINK}>
             AGB
           </Link>
-          <a
-            href={FEEDBACK_MAILTO}
-            className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface"
-          >
-            Feedback
+          <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>
+            Kontakt
           </a>
           {showAds && (
             <button
               type="button"
-              onClick={() => openConsentSettings()}
-              className="border-b-2 border-transparent pb-1 font-mono tracking-wide uppercase hover:border-surface hover:text-surface"
+              onClick={handleConsentClick}
+              className={`${FOOTER_LINK} font-mono tracking-wide uppercase`}
             >
-              Cookie-Einstellungen
+              Cookies
             </button>
           )}
         </nav>
+        {consentUnavailable ? (
+          <p role="status" className="max-w-md text-xs text-surface">
+            Googles Einstellungsdialog lässt sich gerade nicht laden, z. B. wegen eines Werbeblockers. Solange er nicht
+            lädt, setzt Google auch keine Cookies. Mehr dazu in der{' '}
+            <Link to="/privacy#werbung" className="underline hover:text-surface-alt">
+              Datenschutzerklärung
+            </Link>
+            .
+          </p>
+        ) : null}
         <p className="font-mono text-[11px]">© {new Date().getFullYear()} SKS Lotse</p>
         <p className="max-w-md text-xs">
           Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS, Wasserstraßen- und
