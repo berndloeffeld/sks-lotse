@@ -180,7 +180,8 @@ export function LandingPage() {
               Sicher durch die SKS-Theorie
             </h1>
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
-              Online für die SKS-Theorieprüfung lernen – mit den Originalfragen des amtlichen Katalogs
+              Die SKS App, um online für die SKS-Theorieprüfung zu lernen – mit den Originalfragen des amtlichen
+              Katalogs
             </p>
             {isAuthenticated ? (
               <Link to="/start" className={HERO_CTA}>
@@ -225,7 +226,10 @@ export function LandingPage() {
             <Columns>
               {[
                 ['Freitext', 'So wie in der echten Prüfung – kein Rätselraten zwischen vorgegebenen Antworten.'],
-                ['Ohne App', 'Läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download.'],
+                [
+                  'Kein Download',
+                  'Die SKS App läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download nötig.',
+                ],
                 ['Offener Katalog', 'Der amtliche Fragenkatalog und die Musterantworten stehen von Anfang an offen.'],
               ].map(([title, text]) => (
                 <div key={title} className="flex flex-col gap-6">
@@ -264,6 +268,14 @@ export function LandingPage() {
           <Link to="/faq" className="mt-4 inline-block text-sm text-primary underline hover:no-underline">
             Mehr zum Fragenkatalog in den häufigen Fragen
           </Link>
+          <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+            Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
+            der Theorie weitergeht?{' '}
+            <Link to="/ablauf" className="text-primary underline hover:no-underline">
+              So läuft die SKS-Prüfung ab
+            </Link>
+            .
+          </p>
         </section>
 
         <section className={`${CONTENT} py-16`}>

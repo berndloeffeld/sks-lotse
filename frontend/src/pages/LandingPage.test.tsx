@@ -87,6 +87,12 @@ describe('LandingPage', () => {
     expect(screen.getByText(/20 Tokens: 2,99 €/)).toBeInTheDocument()
   })
 
+  it('links to the exam process overview page', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('link', { name: 'So läuft die SKS-Prüfung ab' })).toHaveAttribute('href', '/ablauf')
+  })
+
   it('offers share buttons after the "Kostenlos starten" pitch', () => {
     renderLandingPage()
 

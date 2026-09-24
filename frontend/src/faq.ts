@@ -60,4 +60,16 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     question: 'Was passiert mit meinen Daten?',
     answer: 'Details stehen in der Datenschutzerklärung. Du kannst dein Konto jederzeit im Profil löschen.',
   },
+  {
+    id: 'sbf-see',
+    question: 'Brauche ich den SBF See, bevor ich mit der SKS anfangen kann?',
+    answer:
+      'Ja. Der Sportbootführerschein See (SBF See) ist Voraussetzung für die SKS. SKS Lotse deckt nur die SKS-Theorie ab – den kompletten Ablauf von SBF See über die SKS-Theorie- bis zur Praxisprüfung erklären wir unter „So läuft die SKS-Prüfung ab" (/ablauf).',
+  },
+  {
+    id: 'praxis',
+    question: 'Bereitet SKS Lotse auch auf die praktische Prüfung vor?',
+    answer:
+      'Nein, SKS Lotse deckt ausschließlich den amtlichen Fragenkatalog für die SKS-Theorieprüfung ab. Die praktische Ausbildung und Prüfung – zum Beispiel für Manöver auf einer Segelyacht – holst du dir bei einer Segelschule. Mehr dazu unter „So läuft die SKS-Prüfung ab" (/ablauf).',
+  },
 ]

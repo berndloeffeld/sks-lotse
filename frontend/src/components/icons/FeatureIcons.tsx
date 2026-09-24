@@ -75,3 +75,38 @@ export function CompassIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+// A certificate with a ribbon seal — the SBF See prerequisite/licence itself.
+export function CertificateIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <rect x="4" y="6" width="24" height="16" rx="1" />
+      <path d="M8 11h16M8 15h10" />
+      <circle cx="12" cy="23" r="4" />
+      <path d="m9.5 26.5-1.5 5 4-2 4 2-1.5-5" />
+    </svg>
+  )
+}
+
+// A chart corner under a pair of dividers — the Karten- und Gezeitenaufgabe.
+export function ChartDividersIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <path d="M4 6h24v20H4z" />
+      <path d="M4 12h24M10 6v6M10 26l4-9M18 6l-4 11" />
+      <path d="M13 15 25 4M25 4l-5 1M25 4l-1 5" />
+    </svg>
+  )
+}
+
+// A sailboat over a wave line — the practical exam, and chartering a yacht.
+export function BoatIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <path d="M16 5v14" />
+      <path d="M16 6l7 11H16Z" />
+      <path d="M13 19H8l-1 2 2-2h18l2 2-1-2h-4" />
+      <path d="M4 26q3-3 6 0t6 0 6 0 6 0" />
+    </svg>
+  )
+}

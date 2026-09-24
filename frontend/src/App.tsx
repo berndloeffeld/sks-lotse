@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
+import { AblaufPage } from './pages/AblaufPage'
 import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
 import { AdminUserPage } from './pages/AdminUserPage'
@@ -63,6 +64,7 @@ export function AppRoutes() {
         <Route path="/imprint" element={<ImprintPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/agb" element={<AgbPage />} />
+        <Route path="/ablauf" element={<AblaufPage />} />
         <Route path="/preise" element={<PricingPage />} />
         {/* The prerendered public pages above carry the ad script statically; these load it
             only where wanted — not for ads-removed accounts, never on /admin (ads.ts). */}
