@@ -2,10 +2,11 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
-import { getFullName, type AdminUser, type AdminUserExport, type ExamVariant } from '../api/types'
+import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
+import { formatDate, formatDateTime, getFullName } from '../format'
 
 function downloadJson(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -186,14 +187,14 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         <dt className="text-ink-soft">Geschlecht</dt>
         <dd className="text-ink">{user.gender ? (GENDER_LABELS[user.gender] ?? user.gender) : '—'}</dd>
         <dt className="text-ink-soft">Angemeldet seit</dt>
-        <dd className="text-ink">{new Date(user.created_at).toLocaleDateString('de-DE')}</dd>
+        <dd className="text-ink">{formatDate(user.created_at)}</dd>
         <dt className="text-ink-soft">Letzter Login</dt>
-        <dd className="text-ink">{user.last_login_at ? new Date(user.last_login_at).toLocaleString('de-DE') : '—'}</dd>
+        <dd className="text-ink">{user.last_login_at ? formatDateTime(user.last_login_at) : '—'}</dd>
         <dt className="text-ink-soft">AGB akzeptiert</dt>
         <dd className="text-ink">
           {user.agb_accepted_version
             ? `Version ${user.agb_accepted_version}${
-                user.agb_accepted_at ? ` (${new Date(user.agb_accepted_at).toLocaleString('de-DE')})` : ''
+                user.agb_accepted_at ? ` (${formatDateTime(user.agb_accepted_at)})` : ''
               }`
             : 'Noch nicht'}
         </dd>
@@ -208,7 +209,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         <dt className="text-ink-soft">Sanitizer-Flags</dt>
         <dd className="text-ink">
           {user.ai_flags_count}
-          {user.ai_flags_last_at ? ` (zuletzt ${new Date(user.ai_flags_last_at).toLocaleString('de-DE')})` : ''}
+          {user.ai_flags_last_at ? ` (zuletzt ${formatDateTime(user.ai_flags_last_at)})` : ''}
         </dd>
         <dt className="text-ink-soft">Werbung</dt>
         <dd className="text-ink">{user.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>

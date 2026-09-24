@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { getDisplayName } from '../api/types'
+import { getDisplayName } from '../format'
 import { ChartTile } from '../components/ChartTile'
 import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'

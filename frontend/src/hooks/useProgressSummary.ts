@@ -4,28 +4,13 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
 import type { ProgressSlice } from '../components/ProgressPie'
+import { SUBJECT_GROUP_LABELS } from '../labels'
 import { useApiQuery } from './useApiQuery'
-
-export const SUBJECT_LABELS: Record<string, string> = {
-  navigation: 'Navigation',
-  schifffahrtsrecht: 'Schifffahrtsrecht',
-  wetterkunde: 'Wetterkunde',
-  seemannschaft_allgemein: 'Seemannschaft',
-  seemannschaft_motor: 'Seemannschaft (Motor)',
-  seemannschaft_segeln: 'Seemannschaft (Segeln)',
-}
 
 const CATEGORY_BY_SUBJECT: Record<string, string> = {
   seemannschaft_allgemein: 'seemannschaft',
   seemannschaft_motor: 'seemannschaft',
   seemannschaft_segeln: 'seemannschaft',
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  navigation: 'Navigation',
-  schifffahrtsrecht: 'Schifffahrtsrecht',
-  wetterkunde: 'Wetterkunde',
-  seemannschaft: 'Seemannschaft',
 }
 
 // Loads GET /progress/summary once on mount and derives the three views
@@ -95,7 +80,7 @@ export function useProgressSummary() {
   const categoryMap = new Map<string, ProgressSlice>()
   for (const topic of progress) {
     const key = CATEGORY_BY_SUBJECT[topic.subject] ?? topic.subject
-    const slice = categoryMap.get(key) ?? { key, label: CATEGORY_LABELS[key] ?? key, learned: 0, total: 0 }
+    const slice = categoryMap.get(key) ?? { key, label: SUBJECT_GROUP_LABELS[key] ?? key, learned: 0, total: 0 }
     slice.learned += topic.learned_questions
     slice.total += topic.total_questions
     categoryMap.set(key, slice)

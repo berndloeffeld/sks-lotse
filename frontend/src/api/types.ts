@@ -19,17 +19,6 @@ export interface User {
   agb_accepted_version: string | null
 }
 
-type Named = Pick<User, 'first_name' | 'last_name'>
-
-// "Vorname Nachname", or '' when neither is set.
-export function getFullName(person: Named): string {
-  return `${person.first_name ?? ''} ${person.last_name ?? ''}`.trim()
-}
-
-export function getDisplayName(user: Named & Pick<User, 'email'>): string {
-  return getFullName(user) || user.email
-}
-
 // Mirrors backend/app/schemas/grading.py::AiGradeRead.
 export interface AiGrade {
   outcome: GradingOutcome

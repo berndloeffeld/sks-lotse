@@ -6,7 +6,7 @@ import type { Question, QuestionProgress, Topic } from '../api/types'
 import { PageLayout } from '../components/PageLayout'
 import { PracticeRun } from '../components/PracticeRun'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
+import { SUBJECT_LABELS } from '../labels'
 
 interface PracticeData {
   questions: Question[]

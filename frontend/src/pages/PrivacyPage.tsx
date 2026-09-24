@@ -1,24 +1,21 @@
+import { Link } from 'react-router-dom'
+import { CONTACT_EMAIL } from '../contact'
 import { PageLayout } from '../components/PageLayout'
+import { OperatorAddress, ProseSection } from '../components/ProseSection'
 
 export function PrivacyPage() {
   return (
     <PageLayout title="Datenschutzerklärung" nav="public">
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Verantwortlicher</h2>
-        <p className="text-ink-soft">
-          Bernd Löffeld
+      <ProseSection title="Verantwortlicher">
+        <p>
+          <OperatorAddress />
           <br />
-          Gleyeweg 61
-          <br />
-          10318 Berlin
-          <br />
-          E-Mail: kontakt@sks-lotse.de
+          E-Mail: {CONTACT_EMAIL}
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Hosting</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Hosting">
+        <p>
           Diese Website sowie die zugehörige Datenbank werden bei Render (Frankfurt, EU) gehostet. Render verarbeitet
           dabei in unserem Auftrag personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse
           verarbeitet, u. a. um Missbrauch durch übermäßig viele Anfragen zu begrenzen (Rate-Limiting). Schriftarten
@@ -28,11 +25,10 @@ export function PrivacyPage() {
           zudem die Erreichbarkeit unserer Website überwacht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
           (berechtigtes Interesse am zuverlässigen, sicheren Betrieb der Website).
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Konto und Anmeldung</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Konto und Anmeldung">
+        <p>
           Die Nutzung von SKS Lotse setzt ein Konto voraus. Bei der Anmeldung per E-Mail und Login-Code (OTP)
           verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code. Der Code ist nur kurze Zeit gültig und wird
           danach automatisch gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie (JWT) in Ihrem Browser
@@ -42,19 +38,18 @@ export function PrivacyPage() {
           den Versand der Login-Codes per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig
           wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
           unserer{' '}
-          <a href="/agb" className="underline hover:text-primary">
+          <Link to="/agb" className="underline hover:text-primary">
             AGB
-          </a>{' '}
+          </Link>{' '}
           Sie zuletzt zugestimmt haben und wann. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
           (Vertragserfüllung/Zustimmungsnachweis) bzw. lit. f DSGVO (berechtigtes Interesse an einer begrenzten
           Speicherdauer). Bleibt ein Konto länger als zwölf Monate ohne Login, behalten wir uns vor, es und die
           zugehörigen Daten zu löschen; wir kündigen dies nach Möglichkeit vorher per E-Mail an.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Lernfortschritt und Profil</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Lernfortschritt und Profil">
+        <p>
           Wir speichern Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete Lernstand)
           sowie die von Ihnen gewählte Prüfungsvariante und die Themen, die Sie als Fokus markiert haben. Optional
           können Sie in Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig.
@@ -64,7 +59,7 @@ export function PrivacyPage() {
           vollständig gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art.
           22 DSGVO statt.
         </p>
-        <p className="text-ink-soft">
+        <p>
           Wenn Sie die Prüfungssimulation nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen,
           die von Ihnen eingegebenen Antworttexte, Ihre Selbsteinschätzung je Frage, Start-, Abgabe- und
           Bewertungszeitpunkt sowie die daraus berechnete Punktzahl. Daraus erstellen wir die Statistik in Ihrem Profil.
@@ -72,11 +67,10 @@ export function PrivacyPage() {
           besteht; einzelne Prüfungen können Sie jederzeit selbst löschen, mit dem Konto werden alle Prüfungen gelöscht.
           Bitte geben Sie in Ihren Antworten keine personenbezogenen Daten ein.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Käufe (Werbefrei, Tokens)</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Käufe (Werbefrei, Tokens)">
+        <p>
           Wenn Sie „Werbefrei“ oder ein Token-Paket erwerben oder Ihnen bei der Anmeldung Tokens geschenkt werden,
           speichern wir dazu: welches Produkt, wie viele Tokens, den gezahlten Betrag (falls vorhanden), wer die
           Gutschrift veranlasst hat und den Zeitpunkt. Der Kauf selbst wird derzeit außerhalb der App abgewickelt; eine
@@ -89,11 +83,10 @@ export function PrivacyPage() {
           hierfür ist Art. 6 Abs. 1 lit. c DSGVO (rechtliche Verpflichtung). Einträge ohne Geldbetrag, etwa der
           Anmeldebonus, werden bei einer Kontolöschung vollständig gelöscht.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Fragen melden und Feedback</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Fragen melden und Feedback">
+        <p>
           Wenn Sie über „Fehler in dieser Frage melden“ eine Frage melden, speichern wir die Frage, die gewählte
           Kategorie, Ihre optionale Anmerkung, den Zeitpunkt sowie die Verknüpfung mit Ihrem Konto, damit wir bei
           Rückfragen antworten können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
@@ -102,18 +95,17 @@ export function PrivacyPage() {
           Feedback per E-Mail über den Link „Feedback“ geht direkt an die oben genannte Adresse und wird nur zur
           Beantwortung und Verbesserung des Angebots verwendet.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Werbung (Google AdSense)</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Werbung (Google AdSense)">
+        <p>
           Zur Finanzierung des kostenlosen Angebots blenden wir Werbung des Dienstes Google AdSense ein (Google Ireland
           Limited, Gordon House, Barrow Street, Dublin 4, Irland; Muttergesellschaft Google LLC, USA). Dabei werden auf
           Ihrem Gerät Cookies oder ähnliche Technologien gespeichert bzw. ausgelesen, und Daten wie Ihre IP-Adresse,
           Browser- und Geräteinformationen sowie die aufgerufene Seite an Google übermittelt. Google kann diese Daten in
           die USA übermitteln und mit weiteren Daten verknüpfen.
         </p>
-        <p className="text-ink-soft">
+        <p>
           Werbung und die zugehörigen Zugriffe auf Ihr Endgerät erfolgen nur mit Ihrer Einwilligung (Art. 6 Abs. 1 lit.
           a DSGVO, § 25 Abs. 1 TDDDG). Diese holen wir über die von Google bereitgestellte Consent-Lösung ein, die dem
           Transparency &amp; Consent Framework (TCF) der IAB Europe entspricht. Ihre Einwilligung ist freiwillig; ohne
@@ -129,11 +121,10 @@ export function PrivacyPage() {
           </a>
           .
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">KI-Prüfung Ihrer Antwort (Anthropic)</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="KI-Prüfung Ihrer Antwort (Anthropic)">
+        <p>
           Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie Ihre geschriebene Antwort per Klick von einer KI
           prüfen lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort
           und Ihre eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine
@@ -150,11 +141,10 @@ export function PrivacyPage() {
           Auftragsverarbeitungsvertrags; die Übermittlung in die USA stützt sich auf EU-Standardvertragsklauseln (Art.
           44 ff. DSGVO). Die Aufbewahrung bei Anthropic richtet sich nach deren Vertragsbedingungen für die API-Nutzung.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Webanalyse</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Webanalyse">
+        <p>
           Wir nutzen den Analysedienst Umami Cloud, um die Nutzung dieser Website statistisch auszuwerten (z. B.
           Seitenaufrufe sowie grobe Nutzungsereignisse wie Anmeldung, Start einer Prüfung oder Bewertung einer Frage,
           ohne Inhalte Ihrer Antworten). Umami arbeitet cookielos: Es werden keine Cookies gesetzt und keine dauerhafte,
@@ -163,11 +153,10 @@ export function PrivacyPage() {
           bedarfsgerechten Weiterentwicklung des Angebots. Da keine Wiedererkennung stattfindet, ist hierfür keine
           Einwilligung nach § 25 TDDDG erforderlich.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Empfänger und Drittlandübermittlung</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Empfänger und Drittlandübermittlung">
+        <p>
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Better Stack
           (Logging und Verfügbarkeitsüberwachung), Resend (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung),
           Umami (Webanalyse) und Google (Werbung). Mit den Dienstleistern, die in unserem Auftrag Daten verarbeiten,
@@ -175,27 +164,25 @@ export function PrivacyPage() {
           übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der EU-Kommission (EU-US Data
           Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Ihre Rechte</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Ihre Rechte">
+        <p>
           Sie haben das Recht auf Auskunft über die zu Ihrer Person gespeicherten Daten (Art. 15 DSGVO) sowie auf
           Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO),
           Datenübertragbarkeit (Art. 20 DSGVO) und Widerspruch gegen die Verarbeitung (Art. 21 DSGVO). Eine erteilte
           Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3 DSGVO). Wenden Sie
           sich hierzu an die oben genannte E-Mail-Adresse.
         </p>
-      </section>
+      </ProseSection>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">Beschwerderecht</h2>
-        <p className="text-ink-soft">
+      <ProseSection title="Beschwerderecht">
+        <p>
           Sie haben das Recht, sich bei einer Datenschutzaufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen
           Daten zu beschweren. Zuständig für uns ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit,
           Alt-Moabit 59–61, 10555 Berlin.
         </p>
-      </section>
+      </ProseSection>
 
       <p className="text-xs text-ink-soft">Stand: 24. September 2026</p>
     </PageLayout>

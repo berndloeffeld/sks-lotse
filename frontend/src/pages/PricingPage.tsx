@@ -3,13 +3,7 @@ import type { PublicPricing, PublicTokenPackage } from '../api/types'
 import { PageLayout } from '../components/PageLayout'
 import { formatEurCents } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
-
-const PACKAGE_LABELS: Record<string, string> = {
-  tokens_s: 'Paket S',
-  tokens_m: 'Paket M',
-  tokens_l: 'Paket L',
-  tokens_xl: 'Paket XL',
-}
+import { PACKAGE_LABELS, type PackageProduct } from '../labels'
 
 // The "bald verfügbar" kicker used throughout the app (LandingPage's PLANS cards, AiAnswerCheck's
 // teaser) for a feature that's designed but not purchasable yet — repeated above every price here
@@ -24,7 +18,7 @@ function PackageCard({ pkg }: { pkg: PublicTokenPackage }) {
     <div className="flex flex-col gap-2 rounded-tile border border-dashed border-accent bg-surface p-4">
       <SoonKicker />
       <span className="font-mono text-xs tracking-wide text-ink-soft uppercase">
-        {PACKAGE_LABELS[pkg.product] ?? pkg.product}
+        {PACKAGE_LABELS[pkg.product as PackageProduct] ?? pkg.product}
       </span>
       <span className="font-serif text-2xl text-primary">{pkg.tokens} Tokens</span>
       <span className="text-lg text-ink">{formatEurCents(pkg.price_cents)}</span>

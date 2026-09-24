@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
-import { SUBJECT_LABELS, useProgressSummary } from './useProgressSummary'
+import { useProgressSummary } from './useProgressSummary'
 
 vi.mock('../api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn(), delete: vi.fn() } }))
 vi.mock('../analytics', () => ({ trackEvent: vi.fn() }))
@@ -123,17 +123,6 @@ describe('useProgressSummary', () => {
     const { result } = await load()
     expect(result.current.focusTopics.map((t) => t.topic_slug)).toEqual(['a', 'c'])
     expect(result.current.focusTotals).toEqual({ learned: 7, learning: 3, total: 18 })
-  })
-
-  it('names every subject', () => {
-    expect(SUBJECT_LABELS).toEqual({
-      navigation: 'Navigation',
-      schifffahrtsrecht: 'Schifffahrtsrecht',
-      wetterkunde: 'Wetterkunde',
-      seemannschaft_allgemein: 'Seemannschaft',
-      seemannschaft_motor: 'Seemannschaft (Motor)',
-      seemannschaft_segeln: 'Seemannschaft (Segeln)',
-    })
   })
 
   it('toggleFocus marks a topic (PUT), tracks it and reloads the summary', async () => {
