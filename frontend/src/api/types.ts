@@ -69,6 +69,8 @@ export interface AdminUser {
   agb_accepted_at: string | null
   last_login_at: string | null
   question_progress_count: number
+  // Derived from the blocklist table, not a stored User field — see ADR-0045.
+  is_blocked: boolean
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminUserListItem.
@@ -80,6 +82,8 @@ export interface AdminUserListItem {
   created_at: string
   token_balance: number
   ads_removed: boolean
+  // Derived from the blocklist table, not a stored User field — see ADR-0045.
+  is_blocked: boolean
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminUserListPage.
@@ -179,6 +183,16 @@ export interface AdminPurchaseExport {
   amount_eur_cents: number | null
   granted_by: string
   created_at: string
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminBlockedEmailRead (ADR-0045).
+export interface AdminBlockedEmail {
+  id: number
+  kind: 'email' | 'domain'
+  value: string
+  reason: string | null
+  created_at: string
+  created_by: string
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.

@@ -18,6 +18,7 @@ function listItem(id: number, overrides: object = {}) {
     created_at: '2026-01-01T00:00:00Z',
     token_balance: 0,
     ads_removed: false,
+    is_blocked: false,
     ...overrides,
   }
 }
@@ -32,9 +33,14 @@ function renderPage(state?: unknown) {
   )
 }
 
-function stubFetch(respond: (params: URLSearchParams) => Response) {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+function stubFetch(
+  respond: (params: URLSearchParams) => Response,
+  onBlock?: (id: string, init?: RequestInit) => Response,
+) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input), 'http://localhost')
+    const blockMatch = /\/admin\/users\/(\d+)\/block$/.exec(url.pathname)
+    if (blockMatch && onBlock) return onBlock(blockMatch[1], init)
     if (url.pathname.endsWith('/admin/users')) return respond(url.searchParams)
     throw new Error(`unexpected fetch to ${url}`)
   })
@@ -136,6 +142,37 @@ describe('AdminUsersPage', () => {
     renderPage()
 
     expect(await screen.findByText('Die Benutzerliste konnte nicht geladen werden.')).toBeInTheDocument()
+  })
+
+  it('blocks and unblocks an account inline, without navigating away', async () => {
+    const user = userEvent.setup()
+    stubFetch(
+      () => jsonResponse({ items: [listItem(1)], total: 1 }),
+      (id, init) => jsonResponse(listItem(Number(id), { is_blocked: init?.method === 'POST' })),
+    )
+    renderPage()
+    await screen.findByText('1 Benutzer')
+
+    await user.click(screen.getByRole('button', { name: 'Sperren' }))
+    expect(await screen.findByText('Gesperrt')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entsperren' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Entsperren' }))
+    expect(screen.queryByText('Gesperrt')).not.toBeInTheDocument()
+    // Still on the list, not navigated to the detail page.
+    expect(screen.getByRole('link', { name: /user1@example\.com/ })).toBeInTheDocument()
+  })
+
+  it('shows an error when blocking an account fails', async () => {
+    const user = userEvent.setup()
+    stubFetch(
+      () => jsonResponse({ items: [listItem(1)], total: 1 }),
+      () => new Response(null, { status: 500 }),
+    )
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Sperren' }))
+
+    expect(await screen.findByText('Die Sperre konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
   it('confirms an account deleted on its detail page', async () => {

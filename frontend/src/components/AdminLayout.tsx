@@ -7,6 +7,7 @@ import { PageLayout } from './PageLayout'
 const SECTIONS = [
   { to: '/admin/users', label: 'Benutzer' },
   { to: '/admin/questions', label: 'Fragen' },
+  { to: '/admin/blocklist', label: 'Sperrliste' },
   { to: '/admin/settings', label: 'Einstellungen' },
 ]
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -58,6 +59,9 @@ class AdminUserListItem(BaseModel):
     created_at: datetime
     token_balance: int
     ads_removed: bool
+    # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
+    # docs/adr/0045.
+    is_blocked: bool = False
 
 
 class AdminUserListPage(BaseModel):
@@ -87,6 +91,9 @@ class AdminUserRead(BaseModel):
     agb_accepted_at: datetime | None
     last_login_at: datetime | None
     question_progress_count: int
+    # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
+    # docs/adr/0045.
+    is_blocked: bool = False
 
 
 class AdminQuestionProgressExport(BaseModel):
@@ -163,3 +170,20 @@ class AdminUserExport(BaseModel):
     exam_attempts: list[AdminExamAttemptExport]
     purchases: list[AdminPurchaseExport]
     exported_at: datetime
+
+
+class AdminBlockedEmailCreate(BaseModel):
+    kind: Literal["email", "domain"]
+    value: str = Field(min_length=1, max_length=255)
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class AdminBlockedEmailRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    kind: str
+    value: str
+    reason: str | None
+    created_at: datetime
+    created_by: str
