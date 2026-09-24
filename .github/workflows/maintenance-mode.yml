@@ -13,7 +13,9 @@ on:
         description: "Turn maintenance mode on or off"
         required: true
         type: choice
-        options: [on, off]
+        # Quoted: unquoted on/off is YAML 1.1 boolean shorthand for true/false — GitHub's
+        # workflow_dispatch UI would show "true"/"false" instead of "on"/"off" without this.
+        options: ["on", "off"]
 
 permissions:
   contents: read
