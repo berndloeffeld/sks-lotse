@@ -1,12 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { AdminBlocklistPage } from './AdminBlocklistPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 function entry(id: number, overrides: object = {}) {
   return {
@@ -40,10 +37,6 @@ function stubFetch(
 }
 
 describe('AdminBlocklistPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('lists the blocked entries', async () => {
     stubFetch(() => jsonResponse([entry(1), entry(2, { kind: 'domain', value: 'spammy.example', reason: 'abuse' })]))
     render(<AdminBlocklistPage />)

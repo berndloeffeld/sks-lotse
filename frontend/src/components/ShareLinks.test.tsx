@@ -1,15 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ShareLinks } from './ShareLinks'
 
 describe('ShareLinks', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-    vi.unstubAllGlobals()
-  })
-
   it('opens a WhatsApp share dialog for the site', async () => {
     const open = vi.spyOn(window, 'open').mockReturnValue(null)
     render(<ShareLinks />)

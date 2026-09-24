@@ -1,12 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { AdminQuestionsPage } from './AdminQuestionsPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 const anchorQuestion = {
   id: 301,
@@ -30,10 +27,6 @@ function stubFetch(respond: (params: URLSearchParams) => Response) {
 }
 
 describe('AdminQuestionsPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('loads nothing until a term or a subject is given', async () => {
     const fetchMock = stubFetch(() => jsonResponse([]))
     render(<AdminQuestionsPage />)

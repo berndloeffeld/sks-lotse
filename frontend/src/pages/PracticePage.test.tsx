@@ -1,15 +1,12 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { Question, QuestionProgress } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { PracticePage } from './PracticePage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse, makeUser } from '../test/fixtures'
 
 function question(id: number, number: number): Question {
   return {
@@ -86,12 +83,6 @@ describe('PracticePage', () => {
     mockReducedMotion(true)
   })
 
-  afterEach(() => {
-    cleanup()
-    vi.unstubAllGlobals()
-    vi.restoreAllMocks()
-  })
-
   it('loads the topic and asks the scoped questions', async () => {
     const fetchMock = mockBackend({})
 
@@ -123,19 +114,7 @@ describe('PracticePage', () => {
   it('preselects the AI suggestion, which the learner still saves', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'a@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        is_admin: false,
-        token_balance: 1,
-        ads_removed: false,
-        agb_accepted_version: null,
-      },
+      user: makeUser({ email: 'a@example.com', token_balance: 1 }),
     })
     mockBackend({
       aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.' }),
@@ -153,19 +132,7 @@ describe('PracticePage', () => {
   it('Tab loops through the grade radios and then the Lotse row', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'a@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        is_admin: false,
-        token_balance: 1,
-        ads_removed: false,
-        agb_accepted_version: null,
-      },
+      user: makeUser({ email: 'a@example.com', token_balance: 1 }),
     })
     mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.' }) })
     renderPracticePage()
@@ -193,19 +160,7 @@ describe('PracticePage', () => {
   it('Enter on the Lotsen-Check suggestion saves it and moves to the next question', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'a@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        is_admin: false,
-        token_balance: 1,
-        ads_removed: false,
-        agb_accepted_version: null,
-      },
+      user: makeUser({ email: 'a@example.com', token_balance: 1 }),
     })
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],

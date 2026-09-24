@@ -28,7 +28,6 @@ describe('ads', () => {
   afterEach(() => {
     delete window.googlefc
     window.sessionStorage.clear()
-    vi.unstubAllEnvs()
   })
 
   it('is off without a publisher id and on with one', () => {

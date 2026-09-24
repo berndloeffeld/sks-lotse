@@ -1,13 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { AdminSettingsPage } from './AdminSettingsPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 const SETTINGS = {
   price_ads_removed_cents: 500,
@@ -29,10 +26,6 @@ function renderPage() {
 }
 
 describe('AdminSettingsPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('loads the current settings, prices included', async () => {
     vi.stubGlobal(
       'fetch',

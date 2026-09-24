@@ -1,12 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { PricingPage } from './PricingPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 const PRICING = {
   ads_removed_price_cents: 500,
@@ -28,10 +25,6 @@ function renderPage() {
 }
 
 describe('PricingPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('shows every package with its price, no buy button, and the preview notice', async () => {
     vi.stubGlobal(
       'fetch',

@@ -1,9 +1,9 @@
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import type { ExamStats } from '../api/types'
-import { jsonResponse } from '../test/examFixtures'
+import { jsonResponse } from '../test/fixtures'
 import { ExamStatsPanel } from './ExamStatsPanel'
 
 const stats: ExamStats = {
@@ -31,11 +31,6 @@ function renderPanel() {
 }
 
 describe('ExamStatsPanel', () => {
-  afterEach(() => {
-    cleanup()
-    vi.unstubAllGlobals()
-  })
-
   it('summarises completed exams', async () => {
     vi.stubGlobal(
       'fetch',

@@ -2,34 +2,17 @@ import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { User } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { AI_CHECK_MAX_ANSWER_CHARS, AiAnswerCheck } from './AiAnswerCheck'
+import { jsonResponse, makeUser } from '../test/fixtures'
 
-const user: User = {
-  id: 1,
-  email: 'learner@example.com',
-  created_at: '2026-01-01T00:00:00Z',
-  exam_variant: null,
-  first_name: null,
-  last_name: null,
-  gender: null,
-  is_admin: false,
-  token_balance: 1,
-  ads_removed: false,
-  agb_accepted_version: null,
-}
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+const user = makeUser({ token_balance: 1 })
 
 const ROW = { name: /Antwort vom Lotsen bewerten lassen/ }
 
 describe('AiAnswerCheck', () => {
   afterEach(() => {
     cleanup()
-    vi.unstubAllGlobals()
     delete window.umami
   })
 

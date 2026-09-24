@@ -1,14 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError, apiClient, setMaintenanceHandler, setUnauthorizedHandler } from './client'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 describe('apiClient', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     setUnauthorizedHandler(() => {})
     setMaintenanceHandler(() => {})
   })

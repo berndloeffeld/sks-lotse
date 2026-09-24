@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { createElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { useScrollToHash } from './useScrollToHash'
 
@@ -12,8 +12,6 @@ function renderAt(path: string) {
 }
 
 describe('useScrollToHash', () => {
-  afterEach(() => vi.restoreAllMocks())
-
   it('scrolls the element matching the hash into view', () => {
     const target = document.createElement('div')
     target.id = 'quelle'
