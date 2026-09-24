@@ -1,6 +1,6 @@
 # 0046. Frontend API types generated from the OpenAPI schema
 
-Status: Accepted (amends the "API client" choice of [ADR-0013](0013-frontend-architecture-and-tooling.md): the types are generated now, the client stays hand-written)
+Status: Accepted — amends [ADR-0013](0013-frontend-architecture-and-tooling.md): the API types are generated now, the client stays hand-written
 
 ## Context
 
