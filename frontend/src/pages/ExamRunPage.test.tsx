@@ -78,6 +78,7 @@ describe('ExamRunPage', () => {
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
     expect(screen.queryByRole('img', { name: /Frage|gelernt/i })).not.toBeInTheDocument()
     expect(screen.getByRole('timer')).toHaveTextContent('90:00')
+    expect(screen.getByText('Verbleibende Zeit')).toBeInTheDocument()
 
     // Shift+Enter is a line break, Enter moves on to the next question.
     await user.type(screen.getByLabelText('Deine Antwort'), 'Kom{Shift>}{Enter}{/Shift}pass')

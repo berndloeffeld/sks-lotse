@@ -159,16 +159,19 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
             </span>
           </p>
         ) : (
-          <p className="font-mono text-sm text-ink">
+          <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
             Übersicht: {answered} von {total} beantwortet
           </p>
         )}
-        <p
-          className={lowTime ? 'font-mono text-sm font-bold text-danger' : 'font-mono text-sm text-ink'}
-          role="timer"
-          aria-label={`Verbleibende Zeit: ${formatCountdown(remainingMs)} Minuten`}
-        >
-          {formatCountdown(remainingMs)}
+        <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
+          <span aria-hidden="true">Verbleibende Zeit </span>
+          <span
+            className={lowTime ? 'font-bold text-danger' : 'text-ink'}
+            role="timer"
+            aria-label={`Verbleibende Zeit: ${formatCountdown(remainingMs)} Minuten`}
+          >
+            {formatCountdown(remainingMs)}
+          </span>
         </p>
       </div>
 
