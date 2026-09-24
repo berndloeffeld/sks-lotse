@@ -32,10 +32,16 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
       'Was man nicht wiederholt, vergisst man. Wir schätzen für jede Frage, wie lange du sie voraussichtlich behältst. Läuft diese Zeit ab, gilt die Frage wieder als offen und kommt in der Übung zurück – so bleibt dein Lernstand ein ehrlicher Hinweis auf die Prüfungsreife.',
   },
   {
+    id: 'tokens',
+    question: 'Was ist ein Token?',
+    answer:
+      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token = 1 automatisch bewertete Antwort. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich künftig in Paketen nachkaufen – aktuelle Pakete und Preise siehe „Preise" in der Fußzeile (Kauf startet demnächst). Tokens verfallen nicht.',
+  },
+  {
     id: 'ki-pruefung',
     question: 'Was ist die KI-Antwortprüfung?',
     answer:
-      'Für freigeschaltete Konten schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
+      'Solange dein Token-Guthaben reicht (1 Token pro Antwort), schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
   },
   {
     id: 'fokus-themen',

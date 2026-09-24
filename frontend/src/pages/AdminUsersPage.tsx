@@ -90,7 +90,9 @@ export function AdminUsersPage() {
                     <span className="min-w-0 flex-1 font-mono text-sm break-all text-ink">{user.email}</span>
                     <span className="text-sm text-ink-soft">{getFullName(user) || '—'}</span>
                     <span className="flex gap-2 text-xs text-ink-soft">
-                      {user.ai_grading_enabled ? <span className="border border-border px-1">KI</span> : null}
+                      {user.token_balance > 0 ? (
+                        <span className="border border-border px-1">{user.token_balance} Token(s)</span>
+                      ) : null}
                       {user.ads_removed ? <span className="border border-border px-1">Werbefrei</span> : null}
                       <span>seit {new Date(user.created_at).toLocaleDateString('de-DE')}</span>
                     </span>

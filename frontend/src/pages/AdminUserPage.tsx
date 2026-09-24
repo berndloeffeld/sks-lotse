@@ -54,6 +54,10 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   const [isToggling, setIsToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
 
+  const [grantTokensInput, setGrantTokensInput] = useState('')
+  const [grantAmountInput, setGrantAmountInput] = useState('')
+  const [grantError, setGrantError] = useState<string | null>(null)
+
   const [limitInput, setLimitInput] = useState(
     user.ai_checks_weekly_limit === null ? '' : String(user.ai_checks_weekly_limit),
   )
@@ -77,13 +81,50 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }
   }
 
-  async function handleToggle(field: 'ai_grading_enabled' | 'ads_removed', errorMessage: string) {
+  async function handleToggle(field: 'ads_removed', errorMessage: string) {
     setToggleError(null)
     setIsToggling(true)
     try {
       onChange(await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { [field]: !user[field] }))
     } catch {
       setToggleError(errorMessage)
+    } finally {
+      setIsToggling(false)
+    }
+  }
+
+  // Manual token top-up (ADR-0043) — an off-platform payment until a payment provider exists.
+  // grantAmountInput is optional: it records what the account actually paid (in €), so the
+  // resulting purchases row is kept (anonymized) rather than deleted on account deletion.
+  async function handleGrantTokens(event: FormEvent) {
+    event.preventDefault()
+    setGrantError(null)
+    const tokens = Number(grantTokensInput)
+    if (grantTokensInput.trim() === '' || !Number.isInteger(tokens) || tokens < 1) {
+      setGrantError('Bitte eine ganze Zahl ab 1 eingeben.')
+      return
+    }
+    let amountEurCents: number | undefined
+    if (grantAmountInput.trim() !== '') {
+      const amount = Number(grantAmountInput)
+      if (!Number.isFinite(amount) || amount < 0) {
+        setGrantError('Bitte einen gültigen Betrag ab 0 eingeben.')
+        return
+      }
+      amountEurCents = Math.round(amount * 100)
+    }
+    setIsToggling(true)
+    try {
+      onChange(
+        await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
+          grant_tokens: tokens,
+          ...(amountEurCents === undefined ? {} : { grant_amount_eur_cents: amountEurCents }),
+        }),
+      )
+      setGrantTokensInput('')
+      setGrantAmountInput('')
+    } catch {
+      setGrantError('Die Tokens konnten nicht gutgeschrieben werden.')
     } finally {
       setIsToggling(false)
     }
@@ -150,8 +191,8 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         </dd>
         <dt className="text-ink-soft">Beantwortete Fragen</dt>
         <dd className="text-ink">{user.question_progress_count}</dd>
-        <dt className="text-ink-soft">KI-Prüfung</dt>
-        <dd className="text-ink">{user.ai_grading_enabled ? 'Freigeschaltet' : 'Nicht freigeschaltet'}</dd>
+        <dt className="text-ink-soft">Tokens</dt>
+        <dd className="text-ink">{user.token_balance}</dd>
         <dt className="text-ink-soft">KI-Prüfungen diese Woche</dt>
         <dd className="text-ink">
           {user.ai_checks_used} von {user.ai_checks_limit}
@@ -170,14 +211,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         {toggleError ? <p className="text-sm text-danger">{toggleError}</p> : null}
         <button
           type="button"
-          onClick={() => handleToggle('ai_grading_enabled', 'Die KI-Prüfung konnte nicht geändert werden.')}
-          disabled={isToggling}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-        >
-          {user.ai_grading_enabled ? 'KI-Prüfung entziehen' : 'KI-Prüfung freischalten'}
-        </button>
-        <button
-          type="button"
           onClick={() => handleToggle('ads_removed', 'Die Werbung konnte nicht geändert werden.')}
           disabled={isToggling}
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
@@ -185,6 +218,40 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
           {user.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
         </button>
       </div>
+
+      <form className="flex flex-col gap-2" onSubmit={handleGrantTokens}>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="grant-tokens">
+          Tokens gutschreiben (aktuell: {user.token_balance})
+          <input
+            id="grant-tokens"
+            type="number"
+            min={1}
+            value={grantTokensInput}
+            onChange={(event) => setGrantTokensInput(event.target.value)}
+            className="border border-border bg-surface px-3 py-2 text-ink"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="grant-amount">
+          Erhaltener Betrag in € (optional, für die Kaufhistorie)
+          <input
+            id="grant-amount"
+            type="number"
+            min={0}
+            step="0.01"
+            value={grantAmountInput}
+            onChange={(event) => setGrantAmountInput(event.target.value)}
+            className="border border-border bg-surface px-3 py-2 text-ink"
+          />
+        </label>
+        {grantError ? <p className="text-sm text-danger">{grantError}</p> : null}
+        <button
+          type="submit"
+          disabled={isToggling}
+          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+        >
+          Tokens gutschreiben
+        </button>
+      </form>
 
       <form
         className="flex flex-col gap-2"

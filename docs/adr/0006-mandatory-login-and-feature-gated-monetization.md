@@ -1,6 +1,6 @@
 # 0006. Mandatory login and feature-gated monetization
 
-Status: Accepted
+Status: Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); the rest stands
 
 ## Context
 

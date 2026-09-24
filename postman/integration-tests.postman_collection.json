@@ -124,6 +124,49 @@
       "description": "Basic reachability and the always-on security headers (SecurityHeadersMiddleware)."
     },
     {
+      "name": "Pricing (public)",
+      "item": [
+        {
+          "name": "Get current prices - no auth needed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('has every package and no purchase flow yet', function () {",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages');",
+                  "    pm.expect(body.packages).to.have.lengthOf(4);",
+                  "    pm.expect(body.packages.map(function (p) { return p.product; })).to.eql(['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pricing",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pricing"
+              ]
+            }
+          },
+          "description": "Deliberately unauthenticated (ADR-0043) - the landing page reads this before login.",
+          "response": []
+        }
+      ],
+      "description": "The teaser prices the (unauthenticated) landing page and the in-app upsell show - no purchase flow yet, see ADR-0043."
+    },
+    {
       "name": "CORS",
       "item": [
         {
@@ -2327,14 +2370,14 @@
           }
         },
         {
-          "name": "AI answer check - account without the unlock is rejected",
+          "name": "AI answer check - unavailable without a configured grading key",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                  "pm.test('status 503', function () { pm.response.to.have.status(503); });"
                 ]
               }
             }
@@ -2374,7 +2417,47 @@
               }
             }
           },
-          "description": "Test accounts don't have ai_grading_enabled, so the check is refused before any LLM call.",
+          "description": "A fresh signup has a few free tokens (ADR-0043), so it clears the token/weekly-budget gates and reaches the grader itself - which this environment's server runs with no ANTHROPIC_GRADING_API_KEY, the same as the account-without-the-unlock case before token-based pricing. The 402 (not enough tokens) path is covered in backend/tests/test_grading.py instead, since reproducing a genuinely empty balance here would need a real payment or a second admin round-trip this collection's run order doesn't have at this point.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Me - token balance is refunded after the unavailable check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('token_balance is unaffected by the failed check', function () { pm.expect(pm.response.json().token_balance).to.eql(6); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "6 is the default signup_bonus_tokens (ADR-0043) - a check that never reached the LLM must cost nothing.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -6107,7 +6190,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_grading_enabled\": true}",
+              "raw": "{\"ads_removed\": true}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6401,7 +6484,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 5}",
+              "raw": "{\"ai_checks_weekly_default\": 5, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6737,7 +6820,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_grading_enabled\": true}",
+              "raw": "{\"ads_removed\": true}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6997,7 +7080,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 5}",
+              "raw": "{\"ai_checks_weekly_default\": 5, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7214,7 +7297,7 @@
                   "pm.test('a page of accounts with the total', function () {",
                   "    pm.expect(page).to.have.all.keys('items', 'total');",
                   "    pm.expect(page.total).to.be.at.least(2);",
-                  "    pm.expect(page.items[0]).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'created_at', 'ai_grading_enabled', 'ads_removed');",
+                  "    pm.expect(page.items[0]).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'created_at', 'token_balance', 'ads_removed');",
                   "});"
                 ]
               }
@@ -7361,7 +7444,7 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'ai_grading_enabled', 'ads_removed', 'ai_checks_week', 'ai_checks_used', 'ai_checks_weekly_limit', 'ai_checks_limit', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'question_progress_count');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_checks_week', 'ai_checks_used', 'ai_checks_weekly_limit', 'ai_checks_limit', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'question_progress_count');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
@@ -7645,7 +7728,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var e = pm.response.json();",
                   "pm.test('user, progress rows and export timestamp', function () {",
-                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'focus_topics', 'question_reports', 'exam_attempts', 'exported_at');",
+                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'focus_topics', 'question_reports', 'exam_attempts', 'purchases', 'exported_at');",
                   "    pm.expect(e.user.email).to.eql(pm.collectionVariables.get('testEmail'));",
                   "    pm.expect(e.question_progress).to.be.an('array');",
                   "    pm.expect(e.question_progress.length).to.eql(e.user.question_progress_count);",
@@ -7867,7 +7950,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 42}",
+              "raw": "{\"ai_checks_weekly_default\": 42, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7875,7 +7958,7 @@
               }
             }
           },
-          "description": "",
+          "description": "PUT replaces every price/package at once (ADR-0043), not just the weekly default.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -7920,7 +8003,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": -1}",
+              "raw": "{\"ai_checks_weekly_default\": -1, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7973,7 +8056,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": {{originalWeeklyDefault}}}",
+              "raw": "{\"ai_checks_weekly_default\": {{originalWeeklyDefault}}, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -8260,7 +8343,7 @@
           }
         },
         {
-          "name": "Unlock the AI check for a user",
+          "name": "Grant tokens for a user",
           "event": [
             {
               "listen": "test",
@@ -8268,7 +8351,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('ai_grading_enabled is now true', function () { pm.expect(pm.response.json().ai_grading_enabled).to.eql(true); });"
+                  "pm.test('token_balance reflects the grant on top of the signup bonus', function () { pm.expect(pm.response.json().token_balance).to.eql(26); });"
                 ]
               }
             }
@@ -8300,7 +8383,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_grading_enabled\": true}",
+              "raw": "{\"grant_tokens\": 20, \"grant_amount_eur_cents\": 299}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -8308,14 +8391,14 @@
               }
             }
           },
-          "description": "",
+          "description": "victimId is a fresh signup, so it already holds the 6-token signup bonus (ADR-0043) before this grant.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
           }
         },
         {
-          "name": "Remove ads for a user (leaves the AI check untouched)",
+          "name": "Remove ads for a user (leaves the token balance untouched)",
           "event": [
             {
               "listen": "test",
@@ -8323,7 +8406,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('ads_removed is now true and ai_grading_enabled unchanged', function () { var u = pm.response.json(); pm.expect(u.ads_removed).to.eql(true); pm.expect(u.ai_grading_enabled).to.eql(true); });"
+                  "pm.test('ads_removed is now true and token_balance unchanged', function () { var u = pm.response.json(); pm.expect(u.ads_removed).to.eql(true); pm.expect(u.token_balance).to.eql(26); });"
                 ]
               }
             }
@@ -8848,7 +8931,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_grading_enabled\": true}",
+              "raw": "{\"ads_removed\": true}",
               "options": {
                 "raw": {
                   "language": "json"

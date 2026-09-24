@@ -14,8 +14,11 @@ from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import Question, User
 from app.services import ai_quota as ai_quota_service
-from app.services import grader
+from app.services import grader, token_wallet
 from app.services.grader import GradedAnswer, GradeResult, GradingUnavailable
+
+# A balance big enough that no test below runs out of tokens by accident.
+_PLENTY_OF_TOKENS = 1000
 
 
 def _question(db_session, answer_text="Backbord ist links.") -> Question:
@@ -26,7 +29,7 @@ def _question(db_session, answer_text="Backbord ist links.") -> Question:
 
 
 def _headers(db_session, *, enabled: bool, email="grader@example.com") -> dict[str, str]:
-    user = User(email=email, ai_grading_enabled=enabled)
+    user = User(email=email, token_balance=_PLENTY_OF_TOKENS if enabled else 0)
     db_session.add(user)
     db_session.commit()
     return {"Authorization": f"Bearer {create_access_token(user.id, user.token_version)}"}
@@ -54,10 +57,10 @@ def test_requires_auth(client):
     assert client.post("/api/v1/questions/1/ai-grade", json={"answer": "x"}).status_code == 401
 
 
-def test_not_unlocked_is_403(client, db_session):
+def test_not_enough_tokens_is_402(client, db_session):
     q = _question(db_session)
     headers = _headers(db_session, enabled=False)
-    assert _post(client, q.id, headers, "links").status_code == 403
+    assert _post(client, q.id, headers, "links").status_code == 402
 
 
 def test_happy_path_sends_only_question_and_answers(client, db_session, fake_grader):
@@ -69,8 +72,37 @@ def test_happy_path_sends_only_question_and_answers(client, db_session, fake_gra
         "outcome": "teilweise_richtig",
         "feedback": "Es fehlt die Seite.",
         "remaining_this_week": settings.grading_max_per_week - 1,
+        "tokens_remaining": _PLENTY_OF_TOKENS - 1,
     }
     assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links")]
+
+
+def test_a_successful_check_spends_exactly_one_token(client, db_session, fake_grader):
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True, email="one-token@example.com")
+    _post(client, q.id, headers, "links")
+    assert _user(db_session, "one-token@example.com").token_balance == _PLENTY_OF_TOKENS - 1
+
+
+def test_a_failed_call_refunds_the_token(client, db_session, monkeypatch):
+    def boom(*args):
+        raise GradingUnavailable("APIError")
+
+    monkeypatch.setattr(grading_api, "grade_answer", boom)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True, email="refund@example.com")
+    assert _post(client, q.id, headers).status_code == 503
+    assert _user(db_session, "refund@example.com").token_balance == _PLENTY_OF_TOKENS
+
+
+def test_running_out_of_tokens_mid_stream_refunds_the_weekly_budget(client, db_session):
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=False)
+    user = _user(db_session)
+    # ai_quota.reserve() would succeed (weekly budget is fresh) but token_wallet.reserve() must
+    # not, so the weekly reservation has to be given back rather than silently spent for nothing.
+    assert _post(client, q.id, headers).status_code == 402
+    assert user.ai_checks_used == 0
 
 
 def test_validation_and_missing_question(client, db_session, fake_grader):
@@ -339,6 +371,57 @@ def test_the_week_starts_on_monday_in_berlin(monkeypatch, berlin_now, monday):
 
     monkeypatch.setattr(ai_quota_core, "datetime", _Clock)
     assert ai_quota_core.current_week() == monday
+
+
+# --- token wallet (ADR-0043) ------------------------------------------------
+
+
+def test_reserve_returns_none_when_balance_is_too_low(db_session):
+    user = User(email="empty@example.com", token_balance=0)
+    db_session.add(user)
+    db_session.commit()
+    assert token_wallet.reserve(db_session, user.id) is None
+    assert user.token_balance == 0
+
+
+def test_reserve_then_refund_round_trips(db_session):
+    user = User(email="wallet@example.com", token_balance=3)
+    db_session.add(user)
+    db_session.commit()
+    assert token_wallet.reserve(db_session, user.id) == 2
+    token_wallet.refund(db_session, user.id)
+    assert user.token_balance == 3
+
+
+def test_grant_credits_the_balance_and_records_a_purchase(db_session):
+    user = User(email="grantee@example.com", token_balance=0)
+    db_session.add(user)
+    db_session.commit()
+    purchase = token_wallet.grant(
+        db_session,
+        user.id,
+        product="tokens_s",
+        tokens=20,
+        amount_eur_cents=299,
+        granted_by="admin_manual",
+        admin_user_id=None,
+    )
+    assert user.token_balance == 20
+    assert (purchase.product, purchase.tokens_granted, purchase.amount_eur_cents) == (
+        "tokens_s",
+        20,
+        299,
+    )
+
+
+def test_grant_with_no_tokens_only_records_the_ledger_row(db_session):
+    user = User(email="ads-only@example.com", token_balance=5)
+    db_session.add(user)
+    db_session.commit()
+    token_wallet.grant(
+        db_session, user.id, product="ads_removed", tokens=None, amount_eur_cents=500, granted_by="signup"
+    )
+    assert user.token_balance == 5
 
 
 # --- service ---

@@ -32,10 +32,10 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     gender: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    # Entitlement "AI answer check unlocked" (ADR-0031). Flipped by hand until payment exists.
-    ai_grading_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default=false()
-    )
+    # Pay-per-use balance for the AI answer check (ADR-0043, superseding the old boolean
+    # ai_grading_enabled entitlement): 1 token = 1 check. Credited by the signup bonus and by
+    # admin grants (app/services/token_wallet.py) until a real payment provider is wired up.
+    token_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     # Entitlement "ads removed" — flipped by hand until payment exists. Hides the UI's ad elements; the
     # AdSense script in the frontend's <head> stays (ADR-0027).
     ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())

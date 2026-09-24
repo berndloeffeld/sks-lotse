@@ -25,6 +25,9 @@ export function LegalFooter() {
           <Link to="/agb" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             AGB
           </Link>
+          <Link to="/preise" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
+            Preise
+          </Link>
           <a
             href={FEEDBACK_MAILTO}
             className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface"

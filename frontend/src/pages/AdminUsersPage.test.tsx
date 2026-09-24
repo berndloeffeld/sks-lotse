@@ -16,7 +16,7 @@ function listItem(id: number, overrides: object = {}) {
     first_name: null,
     last_name: null,
     created_at: '2026-01-01T00:00:00Z',
-    ai_grading_enabled: false,
+    token_balance: 0,
     ads_removed: false,
     ...overrides,
   }
@@ -51,7 +51,7 @@ describe('AdminUsersPage', () => {
     const fetchMock = stubFetch(() =>
       jsonResponse({
         items: [
-          listItem(2, { first_name: 'Anna', last_name: 'Schmidt', ai_grading_enabled: true, ads_removed: true }),
+          listItem(2, { first_name: 'Anna', last_name: 'Schmidt', token_balance: 20, ads_removed: true }),
           listItem(1),
         ],
         total: 2,
@@ -63,11 +63,11 @@ describe('AdminUsersPage', () => {
     const first = screen.getByRole('link', { name: /user2@example\.com/ })
     expect(first).toHaveAttribute('href', '/admin/users/2')
     expect(within(first).getByText('Anna Schmidt')).toBeInTheDocument()
-    expect(within(first).getByText('KI')).toBeInTheDocument()
+    expect(within(first).getByText('20 Token(s)')).toBeInTheDocument()
     expect(within(first).getByText('Werbefrei')).toBeInTheDocument()
     const second = screen.getByRole('link', { name: /user1@example\.com/ })
     expect(within(second).getByText('—')).toBeInTheDocument()
-    expect(within(second).queryByText('KI')).not.toBeInTheDocument()
+    expect(within(second).queryByText(/Token\(s\)/)).not.toBeInTheDocument()
     // Everything fits one page: no "load more".
     expect(screen.queryByRole('button', { name: 'Mehr laden' })).not.toBeInTheDocument()
     const params = new URL(String(fetchMock.mock.calls[0][0]), 'http://localhost').searchParams

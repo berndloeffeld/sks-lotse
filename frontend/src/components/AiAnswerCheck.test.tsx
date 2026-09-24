@@ -15,7 +15,7 @@ const user: User = {
   last_name: null,
   gender: null,
   is_admin: false,
-  ai_grading_enabled: true,
+  token_balance: 1,
   ads_removed: false,
   ai_checks_remaining: 14,
   agb_accepted_version: null,
@@ -34,16 +34,27 @@ describe('AiAnswerCheck', () => {
     delete window.umami
   })
 
-  it('is dimmed with "bald verfügbar" without the unlock and never calls the backend', () => {
-    useAuthStore.setState({ user: { ...user, ai_grading_enabled: false } })
-    const fetchMock = vi.fn()
+  it('is dimmed with "bald verfügbar", shows package prices, and never calls the grading endpoint', async () => {
+    useAuthStore.setState({ user: { ...user, token_balance: 0 } })
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({
+        ads_removed_price_cents: 500,
+        signup_bonus_tokens: 6,
+        packages: [
+          { product: 'tokens_s', tokens: 20, price_cents: 299 },
+          { product: 'tokens_m', tokens: 50, price_cents: 599 },
+        ],
+      }),
+    )
     vi.stubGlobal('fetch', fetchMock)
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
     const row = screen.getByRole('button', ROW)
     expect(row).toBeDisabled()
     expect(row).toHaveTextContent('bald verfügbar')
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(await screen.findByText(/20 für 2,99/)).toBeInTheDocument()
+    const [url] = fetchMock.mock.calls[0] as unknown as [string]
+    expect(url).toMatch(/\/api\/v1\/pricing$/)
   })
 
   it('shows the remaining budget and needs a written answer', () => {
@@ -100,7 +111,12 @@ describe('AiAnswerCheck', () => {
   it('sends only the answer, shows the feedback, suggests the grade and updates the budget', async () => {
     useAuthStore.setState({ user })
     const fetchMock = vi.fn(async () =>
-      jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Es fehlt die Seite.', remaining_this_week: 13 }),
+      jsonResponse({
+        outcome: 'teilweise_richtig',
+        feedback: 'Es fehlt die Seite.',
+        remaining_this_week: 13,
+        tokens_remaining: 0,
+      }),
     )
     vi.stubGlobal('fetch', fetchMock)
     const track = vi.fn()
@@ -117,6 +133,7 @@ describe('AiAnswerCheck', () => {
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(13)
+    expect(useAuthStore.getState().user?.token_balance).toBe(0)
     // The suggestion takes the button's place; the caller (via onSuggest) is responsible for
     // scrolling it into view, since only it knows where the "Weiter" button ended up.
     expect(screen.queryByRole('button', ROW)).not.toBeInTheDocument()

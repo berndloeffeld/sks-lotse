@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core import ai_quota as ai_quota_core
+from app.core import pricing as pricing_core
 from app.core.database import get_db
 from app.core.jwt import require_admin
 from app.models.question import Question
@@ -20,12 +21,14 @@ from app.schemas.admin import (
     AdminUserListPage,
     AdminUserRead,
     AdminUserUpdate,
+    TokenPackageSettings,
 )
 from app.schemas.kpis import KpiReport
 from app.schemas.question import QuestionRead
-from app.services import admin_users
+from app.services import admin_users, token_wallet
 from app.services import ai_quota as ai_quota_service
 from app.services import catalog as catalog_service
+from app.services import pricing as pricing_service
 from app.services.kpis import compute_kpis
 from app.services.user import delete_user_and_progress
 
@@ -77,32 +80,103 @@ def update_user(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
-    """Unlock/revoke the AI check (ADR-0031), remove ads, set the weekly check limit (null = default)."""
+    """Remove ads, set the weekly check limit (null = default), or grant tokens (ADR-0043) — an
+    off-platform payment the operator credits by hand until a payment provider exists."""
     user = _get_user_or_404(db, user_id)
-    if payload.ai_grading_enabled is not None:
-        user.ai_grading_enabled = payload.ai_grading_enabled
+    turning_ads_removed_on = payload.ads_removed is not None and payload.ads_removed and not user.ads_removed
     if payload.ads_removed is not None:
         user.ads_removed = payload.ads_removed
     if "ai_checks_weekly_limit" in payload.model_fields_set:
         user.ai_checks_weekly_limit = payload.ai_checks_weekly_limit
+    # token_wallet.grant() below re-fetches this row with populate_existing=True (it must, to lock
+    # it) — with the session's autoflush off, that would silently overwrite the plain attribute
+    # assignments above with their still-unflushed-to-the-DB old values unless flushed first.
+    db.flush()
+    if turning_ads_removed_on:
+        token_wallet.grant(
+            db,
+            user.id,
+            product="ads_removed",
+            tokens=None,
+            amount_eur_cents=payload.grant_amount_eur_cents,
+            granted_by="admin_manual",
+            admin_user_id=admin.id,
+        )
+    if payload.grant_tokens is not None:
+        token_wallet.grant(
+            db,
+            user.id,
+            product="admin_grant",
+            tokens=payload.grant_tokens,
+            amount_eur_cents=payload.grant_amount_eur_cents,
+            granted_by="admin_manual",
+            admin_user_id=admin.id,
+        )
     db.commit()
-    _audit(admin, "update_user", target_user=user.id, **payload.model_dump(exclude_unset=True))
+    _audit(
+        admin,
+        "update_user",
+        target_user=user.id,
+        **payload.model_dump(exclude_unset=True, exclude={"grant_amount_eur_cents"}),
+    )
     return admin_users.admin_user_read(user, admin_users.question_progress_count(db, user.id))
+
+
+def _package_settings(db: Session, product: str) -> TokenPackageSettings:
+    package = pricing_core.token_package(db, product)
+    return TokenPackageSettings(tokens=package.tokens, price_cents=package.price_cents)
+
+
+def _settings_read(db: Session) -> AdminSettingsRead:
+    return AdminSettingsRead(
+        ai_checks_weekly_default=ai_quota_core.weekly_default(db),
+        price_ads_removed_cents=pricing_core.ads_removed_price_cents(db),
+        signup_bonus_tokens=pricing_core.signup_bonus_tokens(db),
+        tokens_s=_package_settings(db, "tokens_s"),
+        tokens_m=_package_settings(db, "tokens_m"),
+        tokens_l=_package_settings(db, "tokens_l"),
+        tokens_xl=_package_settings(db, "tokens_xl"),
+    )
 
 
 @router.get("/settings", response_model=AdminSettingsRead)
 def get_settings(db: Session = Depends(get_db)) -> AdminSettingsRead:
-    return AdminSettingsRead(ai_checks_weekly_default=ai_quota_core.weekly_default(db))
+    return _settings_read(db)
 
 
 @router.put("/settings", response_model=AdminSettingsRead)
 def update_settings(
     payload: AdminSettingsUpdate, db: Session = Depends(get_db), admin: User = Depends(require_admin)
 ) -> AdminSettingsRead:
-    """Set the app-wide default weekly AI-check budget (accounts without their own override follow it)."""
+    """Set the weekly AI-check budget default, the signup bonus and every price (ADR-0043) at once —
+    accounts without their own weekly-limit override follow the new default immediately."""
     ai_quota_service.set_weekly_default(db, payload.ai_checks_weekly_default)
-    _audit(admin, "update_settings", ai_checks_weekly_default=payload.ai_checks_weekly_default)
-    return AdminSettingsRead(ai_checks_weekly_default=payload.ai_checks_weekly_default)
+    pricing_service.set_prices(
+        db,
+        price_ads_removed_cents=payload.price_ads_removed_cents,
+        signup_bonus_tokens=payload.signup_bonus_tokens,
+        packages={
+            product: pricing_core.TokenPackage(product, package.tokens, package.price_cents)
+            for product, package in (
+                ("tokens_s", payload.tokens_s),
+                ("tokens_m", payload.tokens_m),
+                ("tokens_l", payload.tokens_l),
+                ("tokens_xl", payload.tokens_xl),
+            )
+        },
+    )
+    _audit(
+        admin,
+        "update_settings",
+        ai_checks_weekly_default=payload.ai_checks_weekly_default,
+        price_ads_removed_cents=payload.price_ads_removed_cents,
+        signup_bonus_tokens=payload.signup_bonus_tokens,
+        tokens_s=(payload.tokens_s.tokens, payload.tokens_s.price_cents),
+        tokens_m=(payload.tokens_m.tokens, payload.tokens_m.price_cents),
+        tokens_l=(payload.tokens_l.tokens, payload.tokens_l.price_cents),
+        tokens_xl=(payload.tokens_xl.tokens, payload.tokens_xl.price_cents),
+    )
+    return _settings_read(db)
 
 
 @router.get("/kpis", response_model=KpiReport)

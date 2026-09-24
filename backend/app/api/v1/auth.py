@@ -16,6 +16,7 @@ from app.core.otp import (
     OTP_PURPOSE_LOGIN,
     is_disposable_email,
 )
+from app.core.pricing import signup_bonus_tokens
 from app.core.rate_limit import check_and_record
 from app.models import User
 from app.schemas.auth import (
@@ -29,7 +30,7 @@ from app.schemas.auth import (
     UserRead,
     UserUpdate,
 )
-from app.services import otp_codes
+from app.services import otp_codes, token_wallet
 from app.services.user import delete_user_and_progress
 
 logger = logging.getLogger(__name__)
@@ -91,11 +92,22 @@ def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depe
             db.commit()
         except IntegrityError:
             # A concurrent first login for the same email created the row
-            # between our lookup and this insert — use that one.
+            # between our lookup and this insert — use that one; it already
+            # got its own signup bonus from that request.
             db.rollback()
             user = db.execute(select(User).where(User.email == payload.email)).scalar_one()
         else:
             db.refresh(user)
+            # ADR-0043: a few free tokens so a new account can try the AI check, deliberately
+            # too few to make re-registering worth it instead of buying more.
+            token_wallet.grant(
+                db,
+                user.id,
+                product="signup_bonus",
+                tokens=signup_bonus_tokens(db),
+                amount_eur_cents=None,
+                granted_by="signup",
+            )
 
     user.last_login_at = datetime.now(UTC)
     db.commit()

@@ -11,7 +11,8 @@ export interface User {
   last_name: string | null
   gender: string | null
   is_admin: boolean
-  ai_grading_enabled: boolean
+  // Pay-per-use balance for the Lotsen-Check, 1 token = 1 check (ADR-0043).
+  token_balance: number
   ads_removed: boolean
   // This week's AI-check budget left (see backend/app/core/ai_quota.py).
   ai_checks_remaining: number
@@ -36,6 +37,8 @@ export interface AiGrade {
   outcome: GradingOutcome
   feedback: string
   remaining_this_week: number
+  // Tokens left in the account's balance after this one (ADR-0043).
+  tokens_remaining: number
 }
 
 // Mirrors backend/app/schemas/progress.py::TopicProgressRead.
@@ -60,7 +63,7 @@ export interface AdminUser {
   first_name: string | null
   last_name: string | null
   gender: string | null
-  ai_grading_enabled: boolean
+  token_balance: number
   ads_removed: boolean
   ai_checks_used: number
   // The account's override of the weekly budget; null = the app-wide default.
@@ -83,7 +86,7 @@ export interface AdminUserListItem {
   first_name: string | null
   last_name: string | null
   created_at: string
-  ai_grading_enabled: boolean
+  token_balance: number
   ads_removed: boolean
 }
 
@@ -94,9 +97,35 @@ export interface AdminUserListPage {
   total: number
 }
 
-// Mirrors backend/app/schemas/admin.py::AdminSettingsRead.
+// Mirrors backend/app/schemas/admin.py::TokenPackageSettings.
+export interface TokenPackageSettings {
+  tokens: number
+  price_cents: number
+}
+
+// Mirrors backend/app/schemas/admin.py::AdminSettingsRead / AdminSettingsUpdate.
 export interface AdminSettings {
   ai_checks_weekly_default: number
+  price_ads_removed_cents: number
+  signup_bonus_tokens: number
+  tokens_s: TokenPackageSettings
+  tokens_m: TokenPackageSettings
+  tokens_l: TokenPackageSettings
+  tokens_xl: TokenPackageSettings
+}
+
+// Mirrors backend/app/schemas/pricing.py::PublicTokenPackage.
+export interface PublicTokenPackage {
+  product: string
+  tokens: number
+  price_cents: number
+}
+
+// Mirrors backend/app/schemas/pricing.py::PublicPricing.
+export interface PublicPricing {
+  ads_removed_price_cents: number
+  signup_bonus_tokens: number
+  packages: PublicTokenPackage[]
 }
 
 // Mirrors backend/app/schemas/admin.py::AdminQuestionProgressExport.
@@ -152,6 +181,15 @@ export interface AdminQuestionReportExport {
   created_at: string
 }
 
+// Mirrors backend/app/schemas/admin.py::AdminPurchaseExport.
+export interface AdminPurchaseExport {
+  product: string
+  tokens_granted: number | null
+  amount_eur_cents: number | null
+  granted_by: string
+  created_at: string
+}
+
 // Mirrors backend/app/schemas/admin.py::AdminUserExport.
 export interface AdminUserExport {
   user: AdminUser
@@ -159,6 +197,7 @@ export interface AdminUserExport {
   focus_topics: AdminFocusTopicExport[]
   question_reports: AdminQuestionReportExport[]
   exam_attempts: AdminExamAttemptExport[]
+  purchases: AdminPurchaseExport[]
   exported_at: string
 }
 

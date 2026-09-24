@@ -75,6 +75,23 @@ export function PrivacyPage() {
       </section>
 
       <section className="flex flex-col gap-2">
+        <h2 className="font-serif text-xl text-primary">Käufe (Werbefrei, Tokens)</h2>
+        <p className="text-ink-soft">
+          Wenn Sie „Werbefrei“ oder ein Token-Paket erwerben oder Ihnen bei der Anmeldung Tokens geschenkt werden,
+          speichern wir dazu: welches Produkt, wie viele Tokens, den gezahlten Betrag (falls vorhanden), wer die
+          Gutschrift veranlasst hat und den Zeitpunkt. Der Kauf selbst wird derzeit außerhalb der App abgewickelt; eine
+          Zahlungsanbieter-Anbindung besteht noch nicht, daher fallen hierbei aktuell keine Daten an einen
+          Zahlungsdienstleister an. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags), für den
+          Anmeldebonus Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung des Nutzungsvertrags). Einträge zu einem
+          tatsächlich bezahlten Betrag löschen wir bei einer Kontolöschung nicht sofort, sondern anonymisieren sie (der
+          Bezug zu Ihrem Konto wird entfernt, Produkt/Betrag/Datum bleiben bestehen), da handels- und steuerrechtliche
+          Aufbewahrungspflichten (§ 147 AO, § 257 HGB) dies für Zahlungsbelege vorschreiben können; Rechtsgrundlage
+          hierfür ist Art. 6 Abs. 1 lit. c DSGVO (rechtliche Verpflichtung). Einträge ohne Geldbetrag, etwa der
+          Anmeldebonus, werden bei einer Kontolöschung vollständig gelöscht.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">Fragen melden und Feedback</h2>
         <p className="text-ink-soft">
           Wenn Sie über „Fehler in dieser Frage melden“ eine Frage melden, speichern wir die Frage, die gewählte
@@ -117,14 +134,14 @@ export function PrivacyPage() {
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-xl text-primary">KI-Prüfung Ihrer Antwort (Anthropic)</h2>
         <p className="text-ink-soft">
-          Sofern für Ihr Konto freigeschaltet, können Sie Ihre geschriebene Antwort per Klick von einer KI prüfen
-          lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort und Ihre
-          eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine kurze
-          Rückmeldung erzeugt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt und frühere Antworten werden nicht
-          übermittelt. Ihre eingegebene Antwort sowie die KI-Rückmeldung speichern oder protokollieren wir nicht; die
-          Bewertung übernehmen Sie selbst. Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige Antworten
-          automatisiert; löst dieser Schutzmechanismus bei einem Konto wiederholt aus, protokollieren wir ab diesem
-          Zeitpunkt zusätzlich Frage und Ergebnis (richtig/falsch) weiterer Prüfungen dieses Kontos — niemals den
+          Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie Ihre geschriebene Antwort per Klick von einer KI
+          prüfen lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort
+          und Ihre eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine
+          kurze Rückmeldung erzeugt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt und frühere Antworten werden
+          nicht übermittelt. Ihre eingegebene Antwort sowie die KI-Rückmeldung speichern oder protokollieren wir nicht;
+          die Bewertung übernehmen Sie selbst. Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige
+          Antworten automatisiert; löst dieser Schutzmechanismus bei einem Konto wiederholt aus, protokollieren wir ab
+          diesem Zeitpunkt zusätzlich Frage und Ergebnis (richtig/falsch) weiterer Prüfungen dieses Kontos — niemals den
           Antworttext oder die KI-Rückmeldung — und speichern kontobezogen, wie oft und wann dieser Mechanismus
           ausgelöst wurde. Bitte geben Sie in Ihre Antwort keine personenbezogenen Daten ein. Rechtsgrundlage für die
           KI-Prüfung ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO), da Sie die Funktion aktiv
@@ -179,6 +196,8 @@ export function PrivacyPage() {
           Alt-Moabit 59–61, 10555 Berlin.
         </p>
       </section>
+
+      <p className="text-xs text-ink-soft">Stand: 24. September 2026</p>
     </PageLayout>
   )
 }

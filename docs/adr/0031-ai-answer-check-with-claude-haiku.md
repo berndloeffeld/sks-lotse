@@ -1,6 +1,6 @@
 # 0031. AI answer check with Claude Haiku
 
-Status: Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md))
+Status: Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md)); the `ai_grading_enabled` boolean entitlement is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md)
 
 ## Context
 

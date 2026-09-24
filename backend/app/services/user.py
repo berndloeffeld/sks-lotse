@@ -1,9 +1,10 @@
-from sqlalchemy import delete, or_, select
+from sqlalchemy import delete, or_, select, update
 from sqlalchemy.orm import Session
 
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
+from app.models.purchase import Purchase
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.user import User
@@ -30,5 +31,20 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # erasure request. (user_id's FK cascade would cover the latter on
     # Postgres, but not on SQLite — same reasoning as above.)
     db.execute(delete(OtpCode).where(or_(OtpCode.email == user.email, OtpCode.user_id == user.id)))
+    # Purchases tied to real money (Werbefrei, Token-Pakete) are kept for the statutory bookkeeping
+    # retention period (§147 AO/§257 HGB can forbid deleting payment records) but anonymized: the
+    # account link is severed, the product/amount/date stay. Grants that involved no money (the
+    # signup bonus, a goodwill admin correction) carry no such obligation and are deleted normally,
+    # like the rest of the account's data. See ADR-0043 — not legal advice, review with counsel.
+    db.execute(
+        update(Purchase)
+        .where(Purchase.user_id == user.id, Purchase.amount_eur_cents.is_not(None))
+        .values(user_id=None)
+    )
+    db.execute(delete(Purchase).where(Purchase.user_id == user.id, Purchase.amount_eur_cents.is_(None)))
+    # This account may itself be the admin who granted other users' purchases — sever that
+    # reference too (the granting admin's identity isn't personal data worth keeping for its
+    # own sake, and the FK would otherwise block deleting this row).
+    db.execute(update(Purchase).where(Purchase.admin_user_id == user.id).values(admin_user_id=None))
     db.delete(user)
     db.commit()

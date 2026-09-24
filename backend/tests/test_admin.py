@@ -5,6 +5,7 @@ import pytest
 from app.core.config import settings
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
+from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
@@ -12,6 +13,18 @@ from app.models.user import User
 from tests.helpers import progress_state
 
 _FIXTURE_EMAIL = "fixture-user@example.com"
+
+# A full, valid settings payload — PUT replaces every price/package at once, so tests that don't
+# care about a specific value still have to send one.
+_SETTINGS_PAYLOAD = {
+    "ai_checks_weekly_default": 100,
+    "price_ads_removed_cents": 500,
+    "signup_bonus_tokens": 6,
+    "tokens_s": {"tokens": 20, "price_cents": 299},
+    "tokens_m": {"tokens": 50, "price_cents": 599},
+    "tokens_l": {"tokens": 100, "price_cents": 999},
+    "tokens_xl": {"tokens": 200, "price_cents": 1699},
+}
 
 
 def _fixture_user(db_session) -> User:
@@ -28,7 +41,7 @@ def test_admin_routes_require_authentication(client):
     assert client.get("/api/v1/admin/questions").status_code == 401
     assert client.get("/api/v1/admin/users/1/export").status_code == 401
     assert client.delete("/api/v1/admin/users/1").status_code == 401
-    assert client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}).status_code == 401
+    assert client.patch("/api/v1/admin/users/1", json={"ads_removed": True}).status_code == 401
 
 
 def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
@@ -39,7 +52,7 @@ def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
     assert response.status_code == 403
     response = client.delete("/api/v1/admin/users/1", headers=auth_headers)
     assert response.status_code == 403
-    response = client.patch("/api/v1/admin/users/1", json={"ai_grading_enabled": True}, headers=auth_headers)
+    response = client.patch("/api/v1/admin/users/1", json={"ads_removed": True}, headers=auth_headers)
     assert response.status_code == 403
 
 
@@ -141,6 +154,36 @@ def test_admin_delete_removes_user_and_cascades_progress(client, db_session, aut
     assert db_session.query(QuestionProgress).filter_by(user_id=user_id).count() == 0
 
 
+def test_admin_delete_severs_purchases_the_admin_granted_to_others(
+    client, db_session, auth_headers, monkeypatch
+):
+    # The deleted account may itself have been an admin who granted another user's tokens —
+    # that reference must not block the delete (see services/user.py).
+    _make_admin(monkeypatch)
+    admin = _fixture_user(db_session)
+    beneficiary = User(email="beneficiary@example.com")
+    db_session.add(beneficiary)
+    db_session.commit()
+    db_session.add(
+        Purchase(
+            user_id=beneficiary.id,
+            product="admin_grant",
+            tokens_granted=10,
+            amount_eur_cents=None,
+            granted_by="admin_manual",
+            admin_user_id=admin.id,
+        )
+    )
+    db_session.commit()
+
+    response = client.delete(f"/api/v1/admin/users/{admin.id}", headers=auth_headers)
+    assert response.status_code == 204
+
+    db_session.expire_all()
+    purchase = db_session.query(Purchase).filter_by(user_id=beneficiary.id).one()
+    assert purchase.admin_user_id is None
+
+
 def test_admin_delete_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     response = client.delete("/api/v1/admin/users/999999", headers=auth_headers)
@@ -177,23 +220,58 @@ def test_admin_export_includes_focus_topics(client, db_session, auth_headers, mo
     ]
 
 
-def test_admin_can_toggle_ai_grading(client, db_session, auth_headers, monkeypatch):
+def test_admin_export_includes_purchase_history(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     user = _fixture_user(db_session)
-    assert user.ai_grading_enabled is False
+    db_session.add(
+        Purchase(
+            user_id=user.id,
+            product="tokens_m",
+            tokens_granted=50,
+            amount_eur_cents=599,
+            granted_by="admin_manual",
+            admin_user_id=user.id,
+        )
+    )
+    db_session.commit()
+
+    response = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
+    assert response.status_code == 200
+    [purchase] = response.json()["purchases"]
+    assert (purchase["product"], purchase["tokens_granted"], purchase["amount_eur_cents"]) == (
+        "tokens_m",
+        50,
+        599,
+    )
+    assert purchase["granted_by"] == "admin_manual"
+
+
+def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    user = _fixture_user(db_session)
+    assert user.token_balance == 0
 
     response = client.patch(
-        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": True}, headers=auth_headers
+        f"/api/v1/admin/users/{user.id}",
+        json={"grant_tokens": 50, "grant_amount_eur_cents": 599},
+        headers=auth_headers,
     )
     assert response.status_code == 200
-    assert response.json()["ai_grading_enabled"] is True
+    assert response.json()["token_balance"] == 50
     db_session.refresh(user)
-    assert user.ai_grading_enabled is True
+    assert user.token_balance == 50
 
-    response = client.patch(
-        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": False}, headers=auth_headers
+    purchase = db_session.query(Purchase).filter_by(user_id=user.id, product="admin_grant").one()
+    assert (purchase.tokens_granted, purchase.amount_eur_cents, purchase.granted_by) == (
+        50,
+        599,
+        "admin_manual",
     )
-    assert response.json()["ai_grading_enabled"] is False
+    assert purchase.admin_user_id == _fixture_user(db_session).id
+
+    # A second grant adds on top, it doesn't replace the balance.
+    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"grant_tokens": 10}, headers=auth_headers)
+    assert response.json()["token_balance"] == 60
 
 
 def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_headers, monkeypatch):
@@ -202,34 +280,36 @@ def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_hea
     assert user.ads_removed is False
 
     response = client.patch(
-        f"/api/v1/admin/users/{user.id}", json={"ads_removed": True}, headers=auth_headers
+        f"/api/v1/admin/users/{user.id}",
+        json={"ads_removed": True, "grant_amount_eur_cents": 500},
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert response.json()["ads_removed"] is True
-    assert response.json()["ai_grading_enabled"] is False
+    assert response.json()["token_balance"] == 0
     db_session.refresh(user)
     assert user.ads_removed is True
+    purchase = db_session.query(Purchase).filter_by(user_id=user.id, product="ads_removed").one()
+    assert (purchase.tokens_granted, purchase.amount_eur_cents) == (None, 500)
 
-    response = client.patch(
-        f"/api/v1/admin/users/{user.id}", json={"ai_grading_enabled": True}, headers=auth_headers
-    )
+    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"grant_tokens": 20}, headers=auth_headers)
     assert response.json()["ads_removed"] is True
-    assert response.json()["ai_grading_enabled"] is True
+    assert response.json()["token_balance"] == 20
 
+    # Turning ads_removed off again doesn't record a second (refund) purchase row.
     response = client.patch(
         f"/api/v1/admin/users/{user.id}", json={"ads_removed": False}, headers=auth_headers
     )
     assert response.json()["ads_removed"] is False
-    assert response.json()["ai_grading_enabled"] is True
+    assert response.json()["token_balance"] == 20
+    assert db_session.query(Purchase).filter_by(user_id=user.id, product="ads_removed").count() == 1
 
 
 def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     user = _fixture_user(db_session)
     assert client.patch(f"/api/v1/admin/users/{user.id}", json={}, headers=auth_headers).status_code == 422
-    response = client.patch(
-        "/api/v1/admin/users/999999", json={"ai_grading_enabled": True}, headers=auth_headers
-    )
+    response = client.patch("/api/v1/admin/users/999999", json={"grant_tokens": 5}, headers=auth_headers)
     assert response.status_code == 404
 
 
@@ -317,37 +397,56 @@ def test_admin_export_contains_every_stored_exam_and_progress_field(
 
 def test_settings_routes_require_admin(client, auth_headers):
     assert client.get("/api/v1/admin/settings").status_code == 401
-    assert client.put("/api/v1/admin/settings", json={"ai_checks_weekly_default": 5}).status_code == 401
+    assert client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD).status_code == 401
     assert client.get("/api/v1/admin/settings", headers=auth_headers).status_code == 403
-    response = client.put(
-        "/api/v1/admin/settings", json={"ai_checks_weekly_default": 5}, headers=auth_headers
-    )
+    response = client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD, headers=auth_headers)
     assert response.status_code == 403
 
 
 def test_admin_can_read_and_change_the_weekly_default(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
     monkeypatch.setattr(settings, "grading_max_per_week", 100)
-    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == {
-        "ai_checks_weekly_default": 100
-    }
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == _SETTINGS_PAYLOAD
 
-    response = client.put(
-        "/api/v1/admin/settings", json={"ai_checks_weekly_default": 40}, headers=auth_headers
-    )
+    changed = {**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": 40}
+    response = client.put("/api/v1/admin/settings", json=changed, headers=auth_headers)
     assert response.status_code == 200
-    assert response.json() == {"ai_checks_weekly_default": 40}
-    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == {
-        "ai_checks_weekly_default": 40
-    }
+    assert response.json() == changed
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == changed
     assert client.get("/api/v1/auth/me", headers=auth_headers).json()["ai_checks_remaining"] == 40
+
+
+def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, monkeypatch):
+    _make_admin(monkeypatch)
+    changed = {
+        **_SETTINGS_PAYLOAD,
+        "price_ads_removed_cents": 799,
+        "signup_bonus_tokens": 3,
+        "tokens_s": {"tokens": 15, "price_cents": 249},
+    }
+    response = client.put("/api/v1/admin/settings", json=changed, headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json() == changed
+    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == changed
+    assert client.get("/api/v1/pricing").json() == {
+        "ads_removed_price_cents": 799,
+        "signup_bonus_tokens": 3,
+        "packages": [
+            {"product": "tokens_s", "tokens": 15, "price_cents": 249},
+            {"product": "tokens_m", "tokens": 50, "price_cents": 599},
+            {"product": "tokens_l", "tokens": 100, "price_cents": 999},
+            {"product": "tokens_xl", "tokens": 200, "price_cents": 1699},
+        ],
+    }
 
 
 @pytest.mark.parametrize("value", [-1, 10_001, "x", None])
 def test_admin_settings_reject_invalid_default(client, db_session, auth_headers, monkeypatch, value):
     _make_admin(monkeypatch)
     response = client.put(
-        "/api/v1/admin/settings", json={"ai_checks_weekly_default": value}, headers=auth_headers
+        "/api/v1/admin/settings",
+        json={**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": value},
+        headers=auth_headers,
     )
     assert response.status_code == 422
 
@@ -378,7 +477,7 @@ def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth
 
     response = client.patch(
         f"/api/v1/admin/users/{user.id}",
-        json={"ai_grading_enabled": True, "ai_flags_count": 0},
+        json={"ads_removed": True, "ai_flags_count": 0},
         headers=auth_headers,
     )
     assert response.status_code == 200
@@ -398,7 +497,11 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     with caplog.at_level("INFO", logger="app.api.v1.admin"):
         client.get("/api/v1/admin/users", params={"q": "target@example"}, headers=auth_headers)
         client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
-        client.put("/api/v1/admin/settings", json={"ai_checks_weekly_default": 7}, headers=auth_headers)
+        client.put(
+            "/api/v1/admin/settings",
+            json={**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": 7},
+            headers=auth_headers,
+        )
         client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
         client.delete(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
 
@@ -406,7 +509,9 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     assert messages == [
         f"admin action: admin={admin.id} action=list_users offset=0 results=1",
         f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
-        f"admin action: admin={admin.id} action=update_settings ai_checks_weekly_default=7",
+        f"admin action: admin={admin.id} action=update_settings ai_checks_weekly_default=7 "
+        "price_ads_removed_cents=500 signup_bonus_tokens=6 tokens_s=(20, 299) tokens_m=(50, 599) "
+        "tokens_l=(100, 999) tokens_xl=(200, 1699)",
         f"admin action: admin={admin.id} action=export_user target_user={target_id}",
         f"admin action: admin={admin.id} action=delete_user target_user={target_id}",
     ]
@@ -445,7 +550,7 @@ def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monke
         "first_name": "Nina",
         "last_name": "Neu",
         "created_at": body["items"][1]["created_at"],
-        "ai_grading_enabled": False,
+        "token_balance": 0,
         "ads_removed": False,
     }
 
