@@ -6,7 +6,6 @@ import type { Exam } from '../api/types'
 import { useExamCountdown } from '../hooks/useExamCountdown'
 import { formatCountdown } from '../format'
 import { SUBJECT_GROUP_LABELS } from '../labels'
-import { CourseGauge } from './CourseGauge'
 import { formStyles } from './formStyles'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
@@ -149,15 +148,16 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
     <div className="flex flex-col gap-6">
       <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3">
         {view === 'question' ? (
-          <div className="flex items-center gap-3">
-            <CourseGauge
-              progress={total > 1 ? index / (total - 1) : 1}
-              label={`Frage ${question.position} von ${total}`}
-            />
-            <p className="font-mono text-sm text-ink">
+          // Same boxed count as the practice run (PracticeRun). No boat here: it stands for a
+          // question's learning progress, not for the position in a questionnaire.
+          <p className="font-mono text-xs tracking-wide uppercase">
+            <span className="sr-only">
               Frage {question.position} von {total}
-            </p>
-          </div>
+            </span>
+            <span aria-hidden="true" className="rounded-tile border border-primary px-2 py-0.5 text-primary">
+              {question.position} / {total}
+            </span>
+          </p>
         ) : (
           <p className="font-mono text-sm text-ink">
             Übersicht: {answered} von {total} beantwortet

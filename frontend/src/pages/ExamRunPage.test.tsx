@@ -74,8 +74,9 @@ describe('ExamRunPage', () => {
     expect(focusedOnShow()).toBe(screen.getByLabelText('Deine Antwort'))
     expect(screen.queryByText(/tipp/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/amtliche antwort/i)).not.toBeInTheDocument()
-    expect(screen.getByText('Frage 1 von 2', { selector: 'p' })).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Frage 1 von 2' })).toBeInTheDocument()
+    expect(screen.getByText('Frage 1 von 2')).toBeInTheDocument()
+    expect(screen.getByText('1 / 2')).toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: /Frage|gelernt/i })).not.toBeInTheDocument()
     expect(screen.getByRole('timer')).toHaveTextContent('90:00')
 
     // Shift+Enter is a line break, Enter moves on to the next question.
@@ -83,7 +84,7 @@ describe('ExamRunPage', () => {
     expect(screen.getByLabelText('Deine Antwort')).toHaveValue('Kom\npass')
     await user.keyboard('{Enter}')
     expect(await screen.findByText('Frage 2?')).toBeInTheDocument()
-    expect(screen.getByText('Frage 2 von 2', { selector: 'p' })).toBeInTheDocument()
+    expect(screen.getByText('Frage 2 von 2')).toBeInTheDocument()
     expect(screen.getByLabelText('Deine Antwort')).toHaveFocus()
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
