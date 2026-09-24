@@ -6,7 +6,6 @@ import { ReportQuestion } from './ReportQuestion'
 
 describe('ReportQuestion', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     delete window.umami
   })
 

@@ -9,6 +9,17 @@ from app.core.config import MIN_JWT_SECRET_LENGTH, Settings
 _LONG_ENOUGH_SECRET = "a" * MIN_JWT_SECRET_LENGTH
 
 
+@pytest.fixture(autouse=True)
+def _defaults_only(monkeypatch):
+    # These tests pin what Settings does with the values passed in and its own
+    # defaults. A developer's backend/.env (e.g. a real ADMIN_EMAILS) or the
+    # shell's environment (CI's DATABASE_URL/JWT_SECRET) would otherwise
+    # override those defaults, so neither source is read here.
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    for name in Settings.model_fields:
+        monkeypatch.delenv(name.upper(), raising=False)
+
+
 @pytest.mark.parametrize("environment", ["development", "test", "production"])
 @pytest.mark.parametrize("secret", ["", "change-me", "test-secret-not-for-production"])
 def test_rejects_empty_or_short_secret_in_every_environment(environment, secret):

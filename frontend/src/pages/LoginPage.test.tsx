@@ -5,10 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { LoginPage } from './LoginPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 function renderLoginPage() {
   return render(
@@ -23,7 +20,6 @@ function renderLoginPage() {
 
 describe('LoginPage', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 

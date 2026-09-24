@@ -35,6 +35,11 @@ export default defineConfig(({ mode }) => ({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // Reset before every test, so a test's teardown (the DOM cleanup in
+    // setup.ts) still runs with its own stubs in place.
+    unstubGlobals: true,
+    unstubEnvs: true,
+    restoreMocks: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

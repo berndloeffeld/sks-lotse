@@ -6,10 +6,7 @@ import { MemoryRouter } from 'react-router-dom'
 import type { Question, TopicProgress } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { FocusPracticePage } from './FocusPracticePage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 function question(id: number, number: number, subject: string, topic: string): Question {
   return {
@@ -65,7 +62,6 @@ function renderPage() {
 describe('FocusPracticePage', () => {
   afterEach(() => {
     cleanup()
-    vi.unstubAllGlobals()
     useAuthStore.setState({ user: null })
   })
 

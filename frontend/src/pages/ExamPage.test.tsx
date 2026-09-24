@@ -1,11 +1,11 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { ExamSummary } from '../api/types'
 import { useAuthStore } from '../store/authStore'
-import { jsonResponse } from '../test/examFixtures'
+import { jsonResponse, makeUser } from '../test/fixtures'
 import { ExamPage } from './ExamPage'
 
 function summary(overrides: Partial<ExamSummary>): ExamSummary {
@@ -27,19 +27,7 @@ function summary(overrides: Partial<ExamSummary>): ExamSummary {
 
 function setUser(examVariant: string | null) {
   useAuthStore.setState({
-    user: {
-      id: 1,
-      email: 'a@example.com',
-      created_at: '2026-01-01T00:00:00Z',
-      exam_variant: examVariant,
-      first_name: null,
-      last_name: null,
-      gender: null,
-      token_balance: 0,
-      ads_removed: false,
-      agb_accepted_version: null,
-      is_admin: false,
-    },
+    user: makeUser({ exam_variant: examVariant }),
     isAuthenticated: true,
     isLoading: false,
   })
@@ -58,11 +46,6 @@ function renderPage() {
 }
 
 describe('ExamPage', () => {
-  afterEach(() => {
-    cleanup()
-    vi.unstubAllGlobals()
-  })
-
   it('states the rules and lists earlier exams with their result', async () => {
     setUser('motor')
     vi.stubGlobal(

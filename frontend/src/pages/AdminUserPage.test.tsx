@@ -5,10 +5,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AdminUserPage } from './AdminUserPage'
 import { useAuthStore } from '../store/authStore'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 function UsersListStub() {
   const state = useLocation().state as { deleted?: string } | null
@@ -68,7 +65,6 @@ const failPatch = (_url: string, init?: RequestInit) =>
 
 describe('AdminUserPage', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 

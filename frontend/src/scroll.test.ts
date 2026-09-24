@@ -1,12 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { scrollBelowIntoView } from './scroll'
 
 describe('scrollBelowIntoView', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it('does nothing without an element', () => {
     const scrollBy = vi.spyOn(window, 'scrollBy').mockImplementation(() => {})
     scrollBelowIntoView(null)

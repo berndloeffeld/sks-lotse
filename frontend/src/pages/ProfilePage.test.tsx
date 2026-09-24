@@ -6,10 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '../routes/ProtectedRoute'
 import { useAuthStore } from '../store/authStore'
 import { ProfilePage } from './ProfilePage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse, makeUser } from '../test/fixtures'
 
 // Same nesting as App.tsx — ProfilePage sits behind ProtectedRoute there, so a
 // session refresh that flips the store's isLoading would unmount it (and drop
@@ -29,23 +26,6 @@ function renderProfilePage() {
   )
 }
 
-function baseUser(overrides: Partial<Record<string, unknown>> = {}) {
-  return {
-    id: 1,
-    email: 'learner@example.com',
-    created_at: '2026-01-01T00:00:00Z',
-    exam_variant: null,
-    first_name: null,
-    last_name: null,
-    gender: null,
-    token_balance: 0,
-    ads_removed: false,
-    is_admin: false,
-    agb_accepted_version: null,
-    ...overrides,
-  }
-}
-
 const emptyProgress: unknown[] = []
 
 function calledSessionRefresh(fetchMock: ReturnType<typeof vi.fn>) {
@@ -57,17 +37,15 @@ function calledSessionRefresh(fetchMock: ReturnType<typeof vi.fn>) {
 describe('ProfilePage', () => {
   afterEach(() => {
     // Unmount first: resetting the store below changes the user, which keys
-    // (and so remounts) ProgressSummarySection — with fetch already unstubbed,
-    // that remount would hit the real network and its late 401 would clear the
-    // next test's user via the unauthorized handler.
+    // (and so remounts) ProgressSummarySection, and that remount's late fetch
+    // would land in the next test.
     cleanup()
-    vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
   it('shows the current display name and "Mitglied seit"', () => {
     useAuthStore.setState({
-      user: baseUser({ first_name: 'Anna', last_name: 'Beispiel' }),
+      user: makeUser({ first_name: 'Anna', last_name: 'Beispiel' }),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -80,7 +58,7 @@ describe('ProfilePage', () => {
   })
 
   it('shows the Lernstand overview with a link to the topics on /learn', async () => {
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
 
     renderProfilePage()
@@ -91,7 +69,7 @@ describe('ProfilePage', () => {
   })
 
   it('shows an error when the Lernstand fails to load', async () => {
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 500)))
 
     renderProfilePage()
@@ -101,8 +79,8 @@ describe('ProfilePage', () => {
 
   it('saves personal info, keeps the success message and updates the store from the PATCH response', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
-    const updatedUser = baseUser({ first_name: 'Anna', last_name: 'Beispiel', gender: 'weiblich' })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ first_name: 'Anna', last_name: 'Beispiel', gender: 'weiblich' })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -135,7 +113,7 @@ describe('ProfilePage', () => {
 
   it('shows an error message when saving personal info fails', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -152,8 +130,8 @@ describe('ProfilePage', () => {
 
   it('saves a picked exam variant', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
-    const updatedUser = baseUser({ exam_variant: 'motor' })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ exam_variant: 'motor' })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -172,7 +150,7 @@ describe('ProfilePage', () => {
 
   it('requests an email change and shows the code step', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -190,7 +168,7 @@ describe('ProfilePage', () => {
 
   it('shows an error when the new email address is already taken', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -208,7 +186,7 @@ describe('ProfilePage', () => {
 
   it('explains when the new email address is not allowed to sign in', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -228,7 +206,7 @@ describe('ProfilePage', () => {
 
   it('explains when the new email address is a disposable one', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -246,7 +224,7 @@ describe('ProfilePage', () => {
 
   it('rejects the current address without asking the backend', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -264,8 +242,8 @@ describe('ProfilePage', () => {
 
   it('verifies an email change, updates the store and keeps the success message', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
-    const updatedUser = baseUser({ email: 'new@example.com' })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ email: 'new@example.com' })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -289,7 +267,7 @@ describe('ProfilePage', () => {
 
   it('shows an error when the verification code is invalid', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
@@ -311,7 +289,7 @@ describe('ProfilePage', () => {
 
   it('gates the delete-confirm button until the email matches', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
 
     renderProfilePage()
@@ -326,7 +304,7 @@ describe('ProfilePage', () => {
 
   it('deletes the account and navigates to the landing page', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)

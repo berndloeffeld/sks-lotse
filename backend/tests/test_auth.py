@@ -153,6 +153,19 @@ def test_request_otp_skips_a_manually_blocked_domain(client, db_session, monkeyp
     assert len(sent) == 0
 
 
+@pytest.mark.parametrize(("kind", "value"), [("email", "late@spammy.example"), ("domain", "spammy.example")])
+def test_verify_otp_rejects_a_code_requested_before_the_block(client, db_session, monkeypatch, kind, value):
+    code = _request_and_get_code(client, db_session, monkeypatch, email="late@spammy.example")
+    blocklist.add_block(db_session, kind, value, None, "admin@example.com")
+    blocklist.commit(db_session, client.app)
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "late@spammy.example", "code": code})
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or expired code"
+    assert db_session.query(User).filter_by(email="late@spammy.example").count() == 0
+
+
 def test_request_otp_within_cooldown_skips_second_send(client, monkeypatch):
     sent = _capture_otp(monkeypatch)
 

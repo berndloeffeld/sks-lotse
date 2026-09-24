@@ -1,15 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { LoginForm } from './LoginForm'
 
 describe('LoginForm', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('renders outlined light fields on the dark band variant', () => {
     render(
       <MemoryRouter>

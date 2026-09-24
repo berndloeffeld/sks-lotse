@@ -1,15 +1,11 @@
 import { render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { MaintenancePage } from './MaintenancePage'
 import { useAuthStore } from '../store/authStore'
 
 describe('MaintenancePage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('renders the heading, with the legal pages reachable only once via the shared footer', () => {
     render(
       <MemoryRouter>

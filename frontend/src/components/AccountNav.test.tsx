@@ -4,19 +4,9 @@ import { MemoryRouter } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
+import { makeUser } from '../test/fixtures'
 
-const baseUser = {
-  id: 1,
-  email: 'learner@example.com',
-  created_at: '2026-01-01T00:00:00Z',
-  exam_variant: null,
-  first_name: null,
-  last_name: null,
-  gender: null,
-  token_balance: 0,
-  ads_removed: false,
-  agb_accepted_version: null,
-}
+const baseUser = makeUser()
 
 describe('AccountNav', () => {
   it('shows the Admin link only to admins', () => {

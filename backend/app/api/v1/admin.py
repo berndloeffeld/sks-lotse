@@ -55,6 +55,7 @@ def _get_user_or_404(db: Session, user_id: int) -> User:
 
 @router.get("/users", response_model=AdminUserListPage)
 def list_users(
+    request: Request,
     q: str = Query(default="", max_length=254),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=200),
@@ -64,25 +65,26 @@ def list_users(
     """Accounts, newest first; `q` searches email and name. The term isn't logged (may be an address)."""
     users, total = admin_users.list_users(db, q, offset, limit)
     _audit(admin, "list_users", offset=offset, results=len(users))
-    emails, domains = blocklist.blocked_sets(db)
-    items = []
-    for user in users:
-        item = AdminUserListItem.model_validate(user)
-        item.is_blocked = blocklist.is_blocked(user.email, emails, domains)
-        items.append(item)
+    items = [
+        AdminUserListItem.model_validate(user).model_copy(
+            update={"is_blocked": blocklist.is_email_blocked(request.app, db, user.email)}
+        )
+        for user in users
+    ]
     return AdminUserListPage(items=items, total=total)
 
 
 @router.get("/users/{user_id}", response_model=AdminUserRead)
-def get_user(user_id: int, db: Session = Depends(get_db)) -> AdminUserRead:
+def get_user(user_id: int, request: Request, db: Session = Depends(get_db)) -> AdminUserRead:
     user = _get_user_or_404(db, user_id)
-    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(request.app, db, user)
 
 
 @router.patch("/users/{user_id}", response_model=AdminUserRead)
 def update_user(
     user_id: int,
     payload: AdminUserUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
@@ -123,7 +125,7 @@ def update_user(
         target_user=user.id,
         **payload.model_dump(exclude_unset=True, exclude={"grant_amount_eur_cents"}),
     )
-    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(request.app, db, user)
 
 
 def _package_settings(db: Session, product: str) -> TokenPackageSettings:
@@ -221,11 +223,11 @@ def list_question_reports(db: Session = Depends(get_db)) -> list[AdminQuestionRe
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)
 def export_user(
-    user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
 ) -> AdminUserExport:
     user = _get_user_or_404(db, user_id)
     _audit(admin, "export_user", target_user=user.id)
-    return admin_users.build_user_export(db, user)
+    return admin_users.build_user_export(request.app, db, user)
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -240,13 +242,12 @@ def block_user(
     user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
 ) -> AdminUserRead:
     """Add the account's own address to the blocklist and end its current session immediately
-    (ADR-0045) — a domain-wide block, by contrast, only stops future OTP requests."""
+    (ADR-0045) — a domain-wide block, by contrast, only stops future logins."""
     user = _get_user_or_404(db, user_id)
     blocklist.block_user(db, user, admin.email)
-    db.commit()
-    blocklist.invalidate_cache(request.app)
+    blocklist.commit(db, request.app)
     _audit(admin, "block_user", target_user=user_id)
-    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(request.app, db, user)
 
 
 @router.delete("/users/{user_id}/block", response_model=AdminUserRead)
@@ -255,10 +256,9 @@ def unblock_user(
 ) -> AdminUserRead:
     user = _get_user_or_404(db, user_id)
     blocklist.unblock_user(db, user)
-    db.commit()
-    blocklist.invalidate_cache(request.app)
+    blocklist.commit(db, request.app)
     _audit(admin, "unblock_user", target_user=user_id)
-    return admin_users.admin_user_read(db, user, admin_users.question_progress_count(db, user.id))
+    return admin_users.admin_user_read(request.app, db, user)
 
 
 @router.get("/blocklist", response_model=list[AdminBlockedEmailRead])
@@ -278,8 +278,7 @@ def create_blocklist_entry(
         entry = blocklist.add_block(db, payload.kind, payload.value, payload.reason, admin.email)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    db.commit()
-    blocklist.invalidate_cache(request.app)
+    blocklist.commit(db, request.app)
     # Never the address itself (see the module docstring on _audit) — it stays retrievable via GET.
     _audit(admin, "create_block", block_id=entry.id, kind=entry.kind)
     return AdminBlockedEmailRead.model_validate(entry)
@@ -291,6 +290,5 @@ def delete_blocklist_entry(
 ) -> None:
     if not blocklist.remove_block(db, block_id):
         raise _NOT_FOUND
-    db.commit()
-    blocklist.invalidate_cache(request.app)
+    blocklist.commit(db, request.app)
     _audit(admin, "delete_block", block_id=block_id)
