@@ -37,50 +37,6 @@ def test_list_and_filter_questions(client, db_session, auth_headers):
     assert data[0]["subject"] == "navigation"
 
 
-def test_get_question_found(client, db_session, auth_headers):
-    question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
-    db_session.add(question)
-    db_session.commit()
-    db_session.refresh(question)
-
-    response = client.get(f"/api/v1/questions/{question.id}", headers=auth_headers)
-    assert response.status_code == 200
-    assert response.json()["question_text"] == "Q?"
-
-
-def test_get_question_not_found(client, auth_headers):
-    response = client.get("/api/v1/questions/999", headers=auth_headers)
-    assert response.status_code == 404
-
-
-def test_random_question_not_found(client, auth_headers):
-    response = client.get("/api/v1/questions/random", headers=auth_headers)
-    assert response.status_code == 404
-
-
-def test_random_question_found(client, db_session, auth_headers):
-    db_session.add(Question(subject="navigation", number=1, question_text="Q?", answer_text="A"))
-    db_session.commit()
-
-    response = client.get("/api/v1/questions/random", headers=auth_headers)
-    assert response.status_code == 200
-    assert response.json()["subject"] == "navigation"
-
-
-def test_random_question_filtered_by_subject(client, db_session, auth_headers):
-    db_session.add_all(
-        [
-            Question(subject="navigation", number=1, question_text="Q1?", answer_text="A1"),
-            Question(subject="wetterkunde", number=1, question_text="Q2?", answer_text="A2"),
-        ]
-    )
-    db_session.commit()
-
-    response = client.get("/api/v1/questions/random", params={"subject": "wetterkunde"}, headers=auth_headers)
-    assert response.status_code == 200
-    assert response.json()["subject"] == "wetterkunde"
-
-
 def test_list_questions_is_served_from_cache(client, db_session, auth_headers):
     db_session.add(Question(subject="navigation", number=1, question_text="Q1?", answer_text="A1"))
     db_session.commit()
@@ -251,6 +207,8 @@ def test_question_carries_its_images(client, db_session, auth_headers):
     db_session.commit()
     db_session.refresh(question)
 
-    data = client.get(f"/api/v1/questions/{question.id}", headers=auth_headers).json()
+    [data] = client.get(
+        "/api/v1/questions", params={"subject": "schifffahrtsrecht"}, headers=auth_headers
+    ).json()
     assert data["question_images"] == [image]
     assert data["answer_images"] == []

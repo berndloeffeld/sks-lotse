@@ -110,12 +110,6 @@ class AdminQuestionReportExport(BaseModel):
     created_at: datetime
 
 
-class AdminQuestionReportRead(AdminQuestionReportExport):
-    # The reporting account, so the operator can reply — only ever shown to admins.
-    user_id: int
-    user_email: str
-
-
 class AdminExamQuestionExport(BaseModel):
     position: int
     subject_group: str

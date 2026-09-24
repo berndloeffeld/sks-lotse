@@ -9,8 +9,8 @@ from app.core.database import Base
 class QuestionReport(Base):
     """A learner's "Frage melden" note about a catalog question (docs/adr/0030-...).
 
-    Written by POST /questions/{id}/report, read by the operator via
-    GET /admin/question-reports. Deleted with the account.
+    Written by POST /questions/{id}/report; counted in the daily KPI report, part of the
+    reporter's DSGVO export. Deleted with the account.
     """
 
     __tablename__ = "question_reports"

@@ -1,20 +1,15 @@
 import logging
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core import pricing as pricing_core
 from app.core.database import get_db
 from app.core.jwt import require_admin
-from app.models.question import Question
-from app.models.question_report import QuestionReport
 from app.models.user import User
 from app.schemas.admin import (
     AdminBlockedEmailCreate,
     AdminBlockedEmailRead,
-    AdminQuestionReportRead,
     AdminSettings,
     AdminUserExport,
     AdminUserListItem,
@@ -23,12 +18,10 @@ from app.schemas.admin import (
     AdminUserUpdate,
     TokenPackageSettings,
 )
-from app.schemas.kpis import KpiReport
 from app.schemas.question import QuestionRead
 from app.services import admin_users, blocklist, token_wallet
 from app.services import catalog as catalog_service
 from app.services import pricing as pricing_service
-from app.services.kpis import compute_kpis
 from app.services.user import delete_user_and_progress
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -174,11 +167,6 @@ def update_settings(
     return _settings_read(db)
 
 
-@router.get("/kpis", response_model=KpiReport)
-def get_kpis(db: Session = Depends(get_db)):
-    return compute_kpis(db, datetime.now(UTC))
-
-
 @router.get("/questions", response_model=list[QuestionRead])
 def search_questions(
     request: Request,
@@ -188,30 +176,6 @@ def search_questions(
 ) -> list[QuestionRead]:
     """Look up question and official answer texts across all subjects, from the cached catalog."""
     return catalog_service.search_catalog(catalog_service.catalog(request, db), q, subject)
-
-
-@router.get("/question-reports", response_model=list[AdminQuestionReportRead])
-def list_question_reports(db: Session = Depends(get_db)) -> list[AdminQuestionReportRead]:
-    """All "Frage melden" notes, newest first (ADR-0030)."""
-    rows = db.execute(
-        select(QuestionReport, Question.subject, Question.number, User.email)
-        .join(Question, Question.id == QuestionReport.question_id)
-        .join(User, User.id == QuestionReport.user_id)
-        .order_by(QuestionReport.created_at.desc(), QuestionReport.id.desc())
-    ).all()
-    return [
-        AdminQuestionReportRead(
-            question_id=report.question_id,
-            subject=subject,
-            question_number=number,
-            category=report.category,
-            comment=report.comment,
-            created_at=report.created_at,
-            user_id=report.user_id,
-            user_email=email,
-        )
-        for report, subject, number, email in rows
-    ]
 
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)

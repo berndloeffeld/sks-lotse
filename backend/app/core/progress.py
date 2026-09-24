@@ -42,10 +42,6 @@ FULL_GAIN = 2.5
 _SETBACK_FACTORS = {"teilweise_richtig": 0.5, "falsch": 0.25}
 
 
-def recall_probability(half_life_days: float, elapsed_days: float) -> float:
-    return 2 ** (-max(elapsed_days, 0.0) / half_life_days)
-
-
 def next_half_life(half_life_days: float, elapsed_days: float | None, outcome: GradingOutcome) -> float:
     """The half-life after one grading; ``elapsed_days`` is None for a first grading."""
     if outcome == "richtig":
