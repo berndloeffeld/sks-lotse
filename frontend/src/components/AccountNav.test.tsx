@@ -50,4 +50,16 @@ describe('AccountNav', () => {
       expect.stringMatching(/^mailto:kontakt@sks-lotse\.de/),
     )
   })
+
+  it('carries the content links too, so logged-in visitors keep reaching them', () => {
+    useAuthStore.setState({ user: { ...baseUser, is_admin: false } })
+    render(
+      <MemoryRouter>
+        <AccountNav />
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
+    expect(screen.getByRole('link', { name: 'Ablauf' })).toHaveAttribute('href', '/ablauf')
+    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
+  })
 })

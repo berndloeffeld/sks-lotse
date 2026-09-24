@@ -1,37 +1,14 @@
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
-import type { PublicPricing } from '../api/types'
 import { AccountNav } from '../components/AccountNav'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
-import { ContourBackground } from '../components/ContourBackground'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
-import { AnswerIcon, CatalogIcon, FeedbackIcon } from '../components/icons/FeatureIcons'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
 import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
-import { formatEurCents } from '../format'
-import { useApiQuery } from '../hooks/useApiQuery'
 import { useAuthStore } from '../store/authStore'
-
-// Teaser prices for the not-yet-purchasable token packages and Werbefrei (ADR-0043) — public,
-// unauthenticated, and cached briefly server-side, so this is safe to call from the landing page.
-function PricingTeaser() {
-  const { data } = useApiQuery('landing-pricing', () => apiClient.get<PublicPricing>('/pricing'))
-  if (!data?.packages) return null
-  return (
-    <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-surface-alt">
-      <li>Werbefrei: {formatEurCents(data.ads_removed_price_cents)} einmalig</li>
-      {data.packages.map((p) => (
-        <li key={p.product}>
-          {p.tokens} Tokens: {formatEurCents(p.price_cents)}
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
 // preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
@@ -40,29 +17,8 @@ const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 
 // Banded layout after a website template: full-width color bands (light
 // bg / primary / primary-dark) alternating down the page, a slanted hero
-// edge, three-column text blocks, image-topped cards and a sign-up form
-// band. Palette, type and square-cornered chrome stay per ADR-0014.
-
-const PLANS = [
-  {
-    kicker: 'Standard',
-    title: 'Musterantwort',
-    icon: <CatalogIcon className="h-16 w-16" />,
-    text: 'Fragen üben und die amtliche Musterantwort direkt zum Vergleich sehen – mit Werbung finanziert.',
-  },
-  {
-    kicker: 'Erweiterung · demnächst',
-    title: 'KI-Bewertung',
-    icon: <AnswerIcon className="h-16 w-16" />,
-    text: 'Lass deine Antwort vom Lotsen prüfen und erhalte einen Bewertungsvorschlag mit Erklärung, was gefehlt hat.',
-  },
-  {
-    kicker: 'Erweiterung · demnächst',
-    title: 'Werbefrei',
-    icon: <FeedbackIcon className="h-16 w-16" />,
-    text: 'Lernen ganz ohne Anzeigen – ruhig und konzentriert.',
-  },
-]
+// edge, three-column text blocks and a sign-up form band. Palette, type and
+// square-cornered chrome stay per ADR-0014.
 
 // Real screenshots of the running app (public/screenshots), cropped to the
 // content column; the demo account's data is made up.
@@ -180,7 +136,8 @@ export function LandingPage() {
               Sicher durch die SKS-Theorie
             </h1>
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
-              Online für die SKS-Theorieprüfung lernen – mit den Originalfragen des amtlichen Katalogs
+              Die SKS App, um online für die SKS-Theorieprüfung zu lernen – mit den Originalfragen des amtlichen
+              Katalogs
             </p>
             {isAuthenticated ? (
               <Link to="/start" className={HERO_CTA}>
@@ -225,7 +182,10 @@ export function LandingPage() {
             <Columns>
               {[
                 ['Freitext', 'So wie in der echten Prüfung – kein Rätselraten zwischen vorgegebenen Antworten.'],
-                ['Ohne App', 'Läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download.'],
+                [
+                  'Kein Download',
+                  'Die SKS App läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download nötig.',
+                ],
                 ['Offener Katalog', 'Der amtliche Fragenkatalog und die Musterantworten stehen von Anfang an offen.'],
               ].map(([title, text]) => (
                 <div key={title} className="flex flex-col gap-6">
@@ -264,6 +224,27 @@ export function LandingPage() {
           <Link to="/faq" className="mt-4 inline-block text-sm text-primary underline hover:no-underline">
             Mehr zum Fragenkatalog in den häufigen Fragen
           </Link>
+          <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+            Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
+            der Theorie weitergeht?{' '}
+            <Link to="/ablauf" className="text-primary underline hover:no-underline">
+              So läuft die SKS-Prüfung ab
+            </Link>
+            .
+          </p>
+        </section>
+
+        <section className="bg-primary-dark py-14 text-surface">
+          <div className={`${CONTENT} grid gap-10 sm:grid-cols-2 sm:items-center`}>
+            <div>
+              <h2 className="font-serif text-3xl">Kostenlos starten</h2>
+              <p className="mt-3 max-w-xl text-sm text-surface-alt">
+                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
+                einzeln freischalten – Kauf demnächst möglich.
+              </p>
+            </div>
+            <ShareLinks />
+          </div>
         </section>
 
         <section className={`${CONTENT} py-16`}>
@@ -287,36 +268,6 @@ export function LandingPage() {
           >
             Alle Fragen ansehen →
           </Link>
-        </section>
-
-        <section className="bg-primary-dark py-14 text-surface">
-          <div className={`${CONTENT} grid gap-10 sm:grid-cols-2 sm:items-center`}>
-            <div>
-              <h2 className="font-serif text-3xl">Kostenlos starten</h2>
-              <p className="mt-3 max-w-xl text-sm text-surface-alt">
-                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
-                einzeln freischalten – Kauf demnächst möglich, hier schon die geplanten Preise:
-              </p>
-              <PricingTeaser />
-            </div>
-            <ShareLinks />
-          </div>
-        </section>
-
-        <section className={`${CONTENT} py-16`}>
-          <Columns>
-            {PLANS.map(({ kicker, title, icon, text }) => (
-              <div key={title} className="flex flex-col gap-4">
-                <div className="relative flex h-40 items-center justify-center overflow-hidden bg-surface-alt text-primary">
-                  <ContourBackground className="h-full" />
-                  <div className="relative">{icon}</div>
-                </div>
-                <span className="mt-2 font-mono text-xs tracking-wide text-ink-soft uppercase">{kicker}</span>
-                <h3 className="font-serif text-2xl text-primary">{title}</h3>
-                <p className="text-sm leading-relaxed text-ink-soft">{text}</p>
-              </div>
-            ))}
-          </Columns>
         </section>
 
         <section id="anmelden" className="scroll-mt-4 bg-primary py-16 text-surface">

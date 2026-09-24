@@ -1,19 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { LandingPage } from './LandingPage'
-
-function jsonResponse(body: unknown) {
-  return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })
-}
-
-const PRICING = {
-  ads_removed_price_cents: 500,
-  signup_bonus_tokens: 6,
-  packages: [{ product: 'tokens_s', tokens: 20, price_cents: 299 }],
-}
 
 function renderLandingPage() {
   return render(
@@ -24,17 +14,8 @@ function renderLandingPage() {
 }
 
 describe('LandingPage', () => {
-  beforeEach(() => {
-    // The "Kostenlos starten" band's price teaser (ADR-0043) fetches the public prices.
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => jsonResponse(PRICING)),
-    )
-  })
-
   afterEach(() => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
-    vi.unstubAllGlobals()
   })
 
   it('sends logged-in visitors into the app instead of showing the sign-up form', () => {
@@ -75,16 +56,12 @@ describe('LandingPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Kostenlos starten' })).toBeInTheDocument()
     expect(screen.queryByText('Anzeige')).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'KI-Bewertung' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })
 
-  it('shows the teaser prices for the not-yet-purchasable packages', async () => {
+  it('links to the exam process overview page', () => {
     renderLandingPage()
 
-    // getByText normalizes whitespace (incl. the currency formatter's non-breaking space) to ' '.
-    expect(await screen.findByText(/Werbefrei: 5,00 € einmalig/)).toBeInTheDocument()
-    expect(screen.getByText(/20 Tokens: 2,99 €/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'So läuft die SKS-Prüfung ab' })).toHaveAttribute('href', '/ablauf')
   })
 
   it('offers share buttons after the "Kostenlos starten" pitch', () => {

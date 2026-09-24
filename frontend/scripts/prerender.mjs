@@ -9,9 +9,13 @@
 //                       ADR-0027 addendum 2026-09-23).
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<name>.html  — likewise for /faq, /imprint, /privacy and /agb;
-//                       render.yaml rewrites each of those paths to its file
-//                       explicitly.
+//   dist/<name>.html  — likewise for /faq, /imprint, /privacy, /agb and
+//                       /ablauf; render.yaml rewrites each of those paths to
+//                       its file explicitly. Each of these (everything but
+//                       "/") also gets its own <title>/description/OG/
+//                       Twitter/canonical via applyMeta below, and drops the
+//                       "/"-scoped JSON-LD block — see ADR-0025's
+//                       2026-09-24 update.
 //
 // The rendered root is tagged data-prerendered="<path>" so main.tsx only
 // hydrates markup that belongs to the route it is actually showing.
@@ -29,13 +33,90 @@ if (!shell.includes(ROOT)) {
   throw new Error(`prerender: ${ROOT} not found in dist/index.html`)
 }
 
-// path -> file in dist/. Keep in sync with the public routes in render.yaml.
+// path -> { file, meta? } in dist/. Keep in sync with the public routes in render.yaml.
+// "/" carries no `meta`: its head is index.html's own, untouched by applyMeta.
 const PAGES = {
-  '/': 'index.html',
-  '/faq': 'faq.html',
-  '/imprint': 'imprint.html',
-  '/privacy': 'privacy.html',
-  '/agb': 'agb.html',
+  '/': { file: 'index.html' },
+  '/faq': {
+    file: 'faq.html',
+    meta: {
+      title: 'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
+      description:
+        'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Prüfungssimulation der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
+      canonical: 'https://sks-lotse.de/faq',
+    },
+  },
+  '/imprint': {
+    file: 'imprint.html',
+    meta: {
+      title: 'Impressum – SKS Lotse',
+      description: 'Impressum und Anbieterkennzeichnung von SKS Lotse, der App zum Lernen für die SKS-Theorieprüfung.',
+      canonical: 'https://sks-lotse.de/imprint',
+    },
+  },
+  '/privacy': {
+    file: 'privacy.html',
+    meta: {
+      title: 'Datenschutz – SKS Lotse',
+      description:
+        'Datenschutzerklärung von SKS Lotse: welche Daten beim Lernen für die SKS-Theorieprüfung verarbeitet werden und wie du sie löschen kannst.',
+      canonical: 'https://sks-lotse.de/privacy',
+    },
+  },
+  '/agb': {
+    file: 'agb.html',
+    meta: {
+      title: 'AGB – SKS Lotse',
+      description:
+        'Allgemeine Geschäftsbedingungen von SKS Lotse, der Online-App für die Vorbereitung auf die SKS-Theorieprüfung.',
+      canonical: 'https://sks-lotse.de/agb',
+    },
+  },
+  '/ablauf': {
+    file: 'ablauf.html',
+    meta: {
+      title: 'So läuft die SKS-Prüfung ab – SBF See, Theorie und Praxis',
+      description:
+        'Der komplette Weg zum Sportküstenschifferschein: vom Bootsführerschein SBF See über die SKS-Theorieprüfung bis zur Praxisprüfung – kompakt erklärt.',
+      canonical: 'https://sks-lotse.de/ablauf',
+    },
+  },
+}
+
+// Gives a prerendered page its own title/description/OG/Twitter/canonical instead of
+// index.html's, via targeted replacement on the shared shell. The "/"-scoped WebApplication
+// JSON-LD block (index.html) doesn't fit any of these pages, so it's dropped rather than
+// duplicated per page — a page that later earns its own structured data (e.g. an FAQPage
+// schema for /faq) can add one deliberately.
+function applyMeta(html, { title, description, canonical }) {
+  html = html.replace(/<title>.*?<\/title>/s, `<title>${title}</title>`)
+  html = html.replace(
+    /<meta\s+name="description"\s+content="[^"]*"\s*\/>/,
+    `<meta name="description" content="${description}" />`,
+  )
+  html = html.replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${canonical}" />`)
+  html = html.replace(
+    /<meta property="og:url" content="[^"]*" \/>/,
+    `<meta property="og:url" content="${canonical}" />`,
+  )
+  html = html.replace(
+    /<meta property="og:title" content="[^"]*" \/>/,
+    `<meta property="og:title" content="${title}" />`,
+  )
+  html = html.replace(
+    /<meta\s+property="og:description"\s+content="[^"]*"\s*\/>/,
+    `<meta property="og:description" content="${description}" />`,
+  )
+  html = html.replace(
+    /<meta name="twitter:title" content="[^"]*" \/>/,
+    `<meta name="twitter:title" content="${title}" />`,
+  )
+  html = html.replace(
+    /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/,
+    `<meta name="twitter:description" content="${description}" />`,
+  )
+  html = html.replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
+  return html
 }
 
 // The only ad-related tag the build emits (vite.config.ts, adsense-snippet). The public pages keep
@@ -47,12 +128,16 @@ if (appShell.includes('adsbygoogle')) {
   throw new Error('prerender: Google ad script still present in app.html')
 }
 writeFileSync(`${dist}app.html`, appShell)
-for (const [path, file] of Object.entries(PAGES)) {
+for (const [path, { file, meta }] of Object.entries(PAGES)) {
   const root = `<div id="root" data-prerendered="${path}">${render(path)}</div>`
-  writeFileSync(`${dist}${file}`, shell.replace(ROOT, root))
+  let html = shell.replace(ROOT, root)
+  if (meta) html = applyMeta(html, meta)
+  writeFileSync(`${dist}${file}`, html)
 }
 rmSync(ssrDir, { recursive: true, force: true })
 
 console.log(
-  `prerender: wrote ${Object.values(PAGES).join(', ')} and app.html (SPA shell, without the static ad script)`,
+  `prerender: wrote ${Object.values(PAGES)
+    .map((p) => p.file)
+    .join(', ')} and app.html (SPA shell, without the static ad script)`,
 )
