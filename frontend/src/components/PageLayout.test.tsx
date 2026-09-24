@@ -16,13 +16,14 @@ function renderLayout(props: Partial<Parameters<typeof PageLayout>[0]> = {}) {
 }
 
 describe('PageLayout', () => {
-  it('renders title, subtitle, back link, content and the legal footer', () => {
+  it('renders title, subtitle, content and the legal footer, without a back link', () => {
     useAuthStore.setState({ user: null })
-    renderLayout({ subtitle: 'Untertitel', backTo: '/learn' })
+    renderLayout({ subtitle: 'Untertitel' })
 
     expect(screen.getByRole('heading', { level: 1, name: 'Titel' })).toBeInTheDocument()
     expect(screen.getByText('Untertitel')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Zurück/ })).toHaveAttribute('href', '/learn')
+    // Every page is reachable from the header, so no page carries a "← Zurück" link.
+    expect(screen.queryByRole('link', { name: /Zurück/ })).not.toBeInTheDocument()
     expect(screen.getByText('Inhalt')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
   })

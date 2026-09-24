@@ -16,7 +16,7 @@ export function ExamRunPage() {
     exam?.status === 'in_progress' ? 'Prüfung' : exam?.status === 'grading' ? 'Selbsteinschätzung' : 'Prüfungsergebnis'
 
   return (
-    <PageLayout title={title} backTo="/exam" compact>
+    <PageLayout title={title} compact>
       {isLoading ? <p className="text-ink-soft">Prüfung wird geladen…</p> : null}
       {error ? (
         <p role="alert" className="text-danger">

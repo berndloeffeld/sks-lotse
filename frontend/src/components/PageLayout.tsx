@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
@@ -10,8 +9,6 @@ import { LegalFooter } from './LegalFooter'
 interface PageLayoutProps {
   title: string
   subtitle?: ReactNode
-  // Renders a "← Zurück" link above the title.
-  backTo?: string
   // Logged-in pages get the account nav and a brand link to /learn;
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
@@ -31,7 +28,6 @@ const WIDTH = { sm: 'max-w-sm', md: 'max-w-2xl', bands: 'max-w-4xl' }
 export function PageLayout({
   title,
   subtitle,
-  backTo,
   nav = 'account',
   width = 'md',
   compact = false,
@@ -52,14 +48,6 @@ export function PageLayout({
       <main className="flex-1">
         <HeroBand className={`${compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
           <div className={column}>
-            {backTo ? (
-              <Link
-                to={backTo}
-                className="block text-left font-mono text-xs tracking-wide text-surface-alt uppercase hover:text-surface"
-              >
-                ← Zurück
-              </Link>
-            ) : null}
             <h1
               className={`font-serif tracking-wide break-words uppercase ${
                 compact ? 'mt-2 text-2xl sm:text-3xl' : 'mt-4 text-3xl sm:text-4xl'
