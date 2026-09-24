@@ -6640,7 +6640,7 @@
                         "method": "POST",
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n  \"kind\": \"domain\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
+                          "raw": "{\n  \"kind\": \"<string>\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
                           "options": {
                             "raw": {
                               "headerFamily": "json",
@@ -6696,7 +6696,7 @@
                             "method": "POST",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"kind\": \"domain\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
+                              "raw": "{\n  \"kind\": \"<string>\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
@@ -6754,7 +6754,7 @@
                             "method": "POST",
                             "body": {
                               "mode": "raw",
-                              "raw": "{\n  \"kind\": \"domain\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
+                              "raw": "{\n  \"kind\": \"<string>\",\n  \"value\": \"<string>\",\n  \"reason\": \"<string>\"\n}",
                               "options": {
                                 "raw": {
                                   "headerFamily": "json",
