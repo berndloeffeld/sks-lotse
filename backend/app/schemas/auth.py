@@ -6,6 +6,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, Str
 from app.core.config import settings
 from app.core.email_address import canonicalize_email
 from app.core.exam_variant import EXAM_VARIANTS
+from app.schemas.common import one_of
 
 # EmailStr only lowercases the domain, not the local part. Canonicalize the
 # whole address once, here (see app/core/email_address.py), so every per-email
@@ -27,16 +28,7 @@ def _require_digits(value: str) -> str:
 DigitsCode = Annotated[str, Field(min_length=4, max_length=10), AfterValidator(_require_digits)]
 
 
-def _require_known_exam_variant(value: str) -> str:
-    if value not in EXAM_VARIANTS:
-        raise ValueError(f"exam_variant must be one of: {', '.join(sorted(EXAM_VARIANTS))}")
-    return value
-
-
-# Same reasoning as DigitsCode above: a `Literal["motor", "segeln_und_motor"]` renders as an
-# `enum` in the OpenAPI schema, and openapi-to-postmanv2 picks a random member of it as the
-# example on every generation — non-reproducible, breaks the committed-collection CI check.
-ExamVariantField = Annotated[str, AfterValidator(_require_known_exam_variant)]
+ExamVariantField = Annotated[str, one_of("exam_variant", sorted(EXAM_VARIANTS))]
 
 GENDERS = {"maennlich", "weiblich", "divers"}
 
@@ -56,15 +48,8 @@ NameField = Annotated[
 ]
 
 
-def _require_known_gender(value: str) -> str:
-    if value not in GENDERS:
-        raise ValueError(f"gender must be one of: {', '.join(sorted(GENDERS))}")
-    return value
-
-
-# Same Literal-vs-AfterValidator reasoning as ExamVariantField above. Blank/"keine
-# Angabe" is represented by the field being null, not a stored member of GENDERS.
-GenderField = Annotated[str, AfterValidator(_require_known_gender)]
+# Blank/"keine Angabe" is represented by the field being null, not a stored member of GENDERS.
+GenderField = Annotated[str, one_of("gender", sorted(GENDERS))]
 
 
 class OtpRequestCreate(BaseModel):

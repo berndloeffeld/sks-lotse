@@ -6,7 +6,7 @@ themselves live in app/core/exam.py.
 
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from app.core.exam import (
@@ -21,7 +21,7 @@ from app.core.timeutil import as_utc
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.user import User
-from app.schemas.exam import ExamGroupScore, ExamQuestionRead, ExamRead
+from app.schemas.exam import ExamGroupScore, ExamQuestionRead, ExamRead, ExamStats, ExamStatsPoint
 from app.schemas.question import QuestionImage
 
 
@@ -70,14 +70,57 @@ def total_points(attempt: ExamAttempt) -> int:
     return sum(points(q) or 0 for q in attempt.questions)
 
 
-def group_scores(attempts: list[ExamAttempt]) -> list[ExamGroupScore]:
+def group_scores(attempt: ExamAttempt) -> list[ExamGroupScore]:
     earned = dict.fromkeys(SUBJECT_GROUPS, 0)
     possible = dict.fromkeys(SUBJECT_GROUPS, 0)
-    for attempt in attempts:
-        for question in attempt.questions:
-            earned[question.subject_group] += points(question) or 0
-            possible[question.subject_group] += POINTS_PER_QUESTION
+    for question in attempt.questions:
+        earned[question.subject_group] += points(question) or 0
+        possible[question.subject_group] += POINTS_PER_QUESTION
     return [ExamGroupScore(subject_group=g, points=earned[g], max_points=possible[g]) for g in SUBJECT_GROUPS]
+
+
+def stats(db: Session, user: User) -> ExamStats:
+    """The learner's statistics over their completed exams (ADR-0029)."""
+    running_attempts(db, user)
+    # Aggregated in SQL: the statistics never need the answers, only the points.
+    points_case = case(*((ExamAttemptQuestion.outcome == o, p) for o, p in OUTCOME_POINTS.items()), else_=0)
+    earned = func.coalesce(func.sum(points_case), 0)
+    completed = ExamAttempt.user_id == user.id, ExamAttempt.graded_at.is_not(None)
+
+    per_attempt = db.execute(
+        select(ExamAttempt.id, ExamAttempt.submitted_at, earned)
+        .join(ExamAttemptQuestion, ExamAttemptQuestion.attempt_id == ExamAttempt.id)
+        .where(*completed)
+        .group_by(ExamAttempt.id, ExamAttempt.submitted_at, ExamAttempt.started_at)
+        .order_by(ExamAttempt.started_at)
+    ).all()
+    totals = [int(total) for _, _, total in per_attempt]
+
+    # Every group in exam order, (0, 0) for one no completed exam had yet.
+    per_group = dict.fromkeys(SUBJECT_GROUPS, (0, 0)) | {
+        group: (int(group_earned), count * POINTS_PER_QUESTION)
+        for group, group_earned, count in db.execute(
+            select(ExamAttemptQuestion.subject_group, earned, func.count())
+            .join(ExamAttempt, ExamAttempt.id == ExamAttemptQuestion.attempt_id)
+            .where(*completed)
+            .group_by(ExamAttemptQuestion.subject_group)
+        )
+    }
+    return ExamStats(
+        completed_count=len(per_attempt),
+        passed_count=sum(1 for t in totals if result_for(t) == "bestanden"),
+        average_points=round(sum(totals) / len(totals), 1) if totals else None,
+        best_points=max(totals) if totals else None,
+        max_points=MAX_POINTS,
+        recent=[
+            ExamStatsPoint(exam_id=exam_id, submitted_at=submitted_at, points=total, result=result_for(total))
+            for (exam_id, submitted_at, _), total in list(zip(per_attempt, totals, strict=True))[-10:]
+        ],
+        group_scores=[
+            ExamGroupScore(subject_group=g, points=got, max_points=possible)
+            for g, (got, possible) in per_group.items()
+        ],
+    )
 
 
 def summary_fields(attempt: ExamAttempt) -> dict:
@@ -136,6 +179,6 @@ def read_exam(db: Session, attempt: ExamAttempt) -> ExamRead:
         **summary_fields(attempt),
         deadline_at=attempt.deadline_at,
         server_now=now(),
-        group_scores=group_scores([attempt]) if completed else None,
+        group_scores=group_scores(attempt) if completed else None,
         questions=questions,
     )

@@ -1,21 +1,15 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.schemas.common import one_of
 
 REPORT_CATEGORIES = ("question_text", "answer_text", "typo", "missing_image", "other")
 MAX_COMMENT_LENGTH = 1000
 
 
-def _require_known_category(value: str) -> str:
-    if value not in REPORT_CATEGORIES:
-        raise ValueError(f"category must be one of: {', '.join(REPORT_CATEGORIES)}")
-    return value
-
-
-# Validated here rather than typed as a Literal — see GradingOutcomeField in
-# app/schemas/progress.py (an enum makes the generated Postman collection non-deterministic).
-ReportCategoryField = Annotated[str, AfterValidator(_require_known_category)]
+ReportCategoryField = Annotated[str, one_of("category", REPORT_CATEGORIES)]
 
 
 class QuestionReportCreate(BaseModel):

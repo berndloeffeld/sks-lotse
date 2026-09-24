@@ -43,10 +43,10 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   `app/api/v1/`, ~1 minute. Its baseline (2026-09-21): **1503 of 1811 killed (83%)**. Most of the ~300 survivors are
   message wording (`detail=`), rate-limit bucket *names* (`'ai_grade:user'` → `None`; harmless as long as the keys
   differ) and SQL shape (`order_by`, join conditions SQLAlchemy infers anyway). The real ones — statistics, the DSGVO
-  export, per-user limit keys, the hourly code quota — are tested. Two handlers are big enough that logic inline
-  is a smell: `export_user` (~100 lines) and `exam_stats` (~40); splitting them into helpers would let the normal run
-  cover them.
-- **Score (2026-09-21): about 1550 of 1754 mutants killed (88.5%)**, ~200 survivors, ~1 minute per run (±1–2 between
+  export, per-user limit keys, the hourly code quota — are tested. The two handlers that used to be big enough for
+  inline logic to be a smell are split now: the DSGVO export lives in `services/admin_users.py`, the exam statistics
+  in `services/exam.py::stats`, so the normal run covers both.
+- **Score (2026-09-24): 2555 of 2868 mutants killed (89.1%)**, ~310 survivors, ~1 minute per run (±1–2 between
   runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
   tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants
   and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`
@@ -55,7 +55,7 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   timestamps that never compare equal, log and `detail=` message wording, the text of the KPI report and e-mails
   (`kpis.format_report` alone is ~33 of the survivors), `86401` vs `86400`, `partition` vs `rpartition` on validated single-`@`
   addresses, `call_next(None)` (Starlette ignores the argument), renamed throttle/log keys, `XXXX` as an unused
-  default, the HMAC label of the OTP key (a pure constant), and `populate_existing` in `ai_quota._locked_user`
+  default, the HMAC label of the OTP key (a pure constant), and `populate_existing` in `services/user.locked_user`
   (needs a stale-session race to observe). A new survivor in a module not on this list deserves a look.
 - The two test files that read files outside `backend/` (`test_catalog_seed.py`,
   `test_integration_collection.py`) are ignored in the mutation run; they cover none of the scoped modules.

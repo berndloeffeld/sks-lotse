@@ -9,8 +9,6 @@ layout, the Richtlinien only demand a "wohlausgewogener Querschnitt".
 import random
 from typing import Literal
 
-from app.core.exam_variant import ExamVariant
-
 EXAM_DURATION_MINUTES = 90
 POINTS_PER_QUESTION = 2
 MAX_POINTS = 60
@@ -41,9 +39,7 @@ def subject_group(subject: str) -> str:
     return "seemannschaft" if subject.startswith("seemannschaft") else subject
 
 
-def compose_exam(
-    questions: list[tuple[int, str]], variant: ExamVariant, rng: random.Random | None = None
-) -> list[tuple[int, str]]:
+def compose_exam(questions: list[tuple[int, str]], rng: random.Random | None = None) -> list[tuple[int, str]]:
     """Randomly picks the exam's questions as (question_id, subject_group), in exam order.
 
     `questions` are (id, subject) pairs already restricted to the variant's subjects.
