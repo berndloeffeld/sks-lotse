@@ -88,8 +88,8 @@ export function AblaufPage() {
           Sportbooten in Küstengewässern.
         </p>
         <p>
-          Willst du privat eine größere Segelyacht chartern, kommst du trotzdem kaum an ihm vorbei: Viele Vercharterer,
-          besonders im Mittelmeerraum, verlangen den SKS als Befähigungsnachweis, bevor sie dir eine Yacht anvertrauen.
+          Willst du privat eine Segelyacht chartern, kommst du trotzdem kaum an ihm vorbei: Viele Vercharterer verlangen
+          den SKS als Befähigungsnachweis, bevor sie dir eine Yacht anvertrauen.
         </p>
       </Section>
 
