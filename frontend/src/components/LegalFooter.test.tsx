@@ -17,7 +17,18 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/agb')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
+  })
+
+  it('leaves the content links (FAQ, Ablauf, Preise) to the header nav', () => {
+    render(
+      <MemoryRouter>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+
+    expect(screen.queryByRole('link', { name: 'FAQ' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Ablauf' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Preise' })).not.toBeInTheDocument()
   })
 
   it('offers a feedback mail link', () => {

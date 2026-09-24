@@ -37,3 +37,15 @@ Option 3.
 The FAQ is public content that should be findable, and the legal pages are public too, so `scripts/prerender.mjs` now writes `faq.html`, `imprint.html` and `privacy.html` next to `index.html`. Whether Render maps `/faq` to a file on its own stayed unverified, so `render.yaml` rewrites each of the three paths to its file explicitly, ahead of the `/app.html` fallback. The list of pages exists twice (`PAGES` in the script and the rewrites); adding a public page means touching both.
 
 Each prerendered root carries `data-prerendered="<path>"`, and `main.tsx` hydrates only when that equals the current path (trailing slash ignored). That replaces the old `pathname === '/'` check and keeps the `vite preview` case working: it serves `index.html` for every route, and the mismatch makes the client render from scratch.
+
+## Update 2026-09-24: per-page meta, `/agb` and `/ablauf`
+
+`/agb` had already been added to `PAGES` (`scripts/prerender.mjs`) and to `render.yaml`'s rewrites, following the same pattern as the 2026-09-21 update above, without a matching ADR note — recorded here to close that gap. `/ablauf` (a new page explaining the full licensing path — SBF See, SKS theory, SKS practice — for SEO reach beyond the app itself) was added the same way.
+
+Adding `/ablauf` also exposed a real bug: every prerendered page reused `index.html`'s exact `<title>`, description, canonical, OG/Twitter tags and `WebApplication` JSON-LD — none of `/faq`, `/imprint`, `/privacy` or `/agb` had its own. A new page with borrowed metadata couldn't rank on its own terms, so this is fixed as part of the same change:
+
+- `PAGES` entries now carry an optional `meta: { title, description, canonical }`. `/` has none — its head stays exactly what's in `index.html`, edited directly like any other content change, with zero risk of the substitution logic ever touching it.
+- A new `applyMeta(html, meta)` does targeted regex substitution on the shared shell for `<title>`, the description meta, canonical `href`, and the OG/Twitter title, description and url, before the rendered root is written to each page's file.
+- The `WebApplication` JSON-LD block is scoped to `/` (`url: "https://sks-lotse.de/"`) and doesn't fit any other page, so `applyMeta` strips it rather than maintaining a near-duplicate schema per page. A page that later earns its own structured data (e.g. an `FAQPage` schema for `/faq`) can add one deliberately.
+
+This stays inside the original decision (a small build-time `renderToString` prerender, no new dependency) — only its per-page reach changed — so no new ADR.

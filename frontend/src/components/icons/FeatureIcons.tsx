@@ -23,29 +23,6 @@ export function CatalogIcon({ className }: IconProps) {
   )
 }
 
-// A speech bubble with a waveform — typing or speaking the answer both lead
-// here.
-export function AnswerIcon({ className }: IconProps) {
-  return (
-    <svg {...shared} className={className} aria-hidden="true" focusable="false">
-      <path d="M6 8h20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H14l-6 5v-5H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z" />
-      <path d="M10 15v2M14 13v6M18 12v8M22 15v2" />
-    </svg>
-  )
-}
-
-// The logomark's course-line-and-fix-dot motif, reused at feature-icon
-// scale for "you get graded feedback".
-export function FeedbackIcon({ className }: IconProps) {
-  return (
-    <svg {...shared} className={className} aria-hidden="true" focusable="false">
-      <path d="M8 22 22 8" />
-      <rect x="6.5" y="20.5" width="3" height="3" fill="currentColor" stroke="none" />
-      <circle cx="22" cy="8" r="3" fill="var(--color-primary)" stroke="none" />
-    </svg>
-  )
-}
-
 // An envelope with a warning triangle at its corner — "Fehler melden" (mail + problem). The
 // triangle is cut out of the envelope with a mask, so it reads on any background.
 export function ReportIcon({ className }: IconProps) {
@@ -72,6 +49,41 @@ export function CompassIcon({ className }: IconProps) {
     <svg {...shared} className={className} aria-hidden="true" focusable="false">
       <circle cx="16" cy="16" r="12" />
       <path d="m20.5 11.5-3 6-6 3 3-6 6-3Z" />
+    </svg>
+  )
+}
+
+// A certificate with a ribbon seal — the SBF See prerequisite/licence itself.
+export function CertificateIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <rect x="4" y="6" width="24" height="16" rx="1" />
+      <path d="M8 11h16M8 15h10" />
+      <circle cx="12" cy="23" r="4" />
+      <path d="m9.5 26.5-1.5 5 4-2 4 2-1.5-5" />
+    </svg>
+  )
+}
+
+// A chart corner under a pair of dividers — the Karten- und Gezeitenaufgabe.
+export function ChartDividersIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <path d="M4 6h24v20H4z" />
+      <path d="M4 12h24M10 6v6M10 26l4-9M18 6l-4 11" />
+      <path d="M13 15 25 4M25 4l-5 1M25 4l-1 5" />
+    </svg>
+  )
+}
+
+// A sailboat over a wave line — the practical exam, and chartering a yacht.
+export function BoatIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <path d="M16 5v14" />
+      <path d="M16 6l7 11H16Z" />
+      <path d="M13 19H8l-1 2 2-2h18l2 2-1-2h-4" />
+      <path d="M4 26q3-3 6 0t6 0 6 0 6 0" />
     </svg>
   )
 }

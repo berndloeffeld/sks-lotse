@@ -34,7 +34,7 @@ function PackageCard({ pkg }: { pkg: PublicTokenPackage }) {
 }
 
 // A standalone page for the token/Werbefrei prices (ADR-0043) — a preview only, since there is no
-// purchase flow yet (no buy buttons); linked from the footer so it's reachable from every page.
+// purchase flow yet (no buy buttons); linked from the header nav so it's reachable from every page.
 // The "bald verfügbar" framing repeats at three levels (subtitle banner, section kicker, each
 // card) so it can't be skimmed past as a live price list.
 export function PricingPage() {

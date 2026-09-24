@@ -13,9 +13,6 @@ export function LegalFooter() {
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
-          <Link to="/faq" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
-            FAQ
-          </Link>
           <Link to="/imprint" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             Impressum
           </Link>
@@ -24,9 +21,6 @@ export function LegalFooter() {
           </Link>
           <Link to="/agb" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
             AGB
-          </Link>
-          <Link to="/preise" className="border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface">
-            Preise
           </Link>
           <a
             href={FEEDBACK_MAILTO}
