@@ -6,10 +6,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import settings
 from app.core.database import Base, get_db, get_session_factory
 from app.core.jwt import create_access_token
 from app.main import app
 from app.models import User
+
+
+@pytest.fixture(autouse=True)
+def _disable_real_emails(monkeypatch):
+    # A developer's local backend/.env may carry a real RESEND_API_KEY for
+    # manually testing email delivery. Force it empty for every test run so
+    # a test that doesn't mock the send (e.g. test_security_headers.py, via
+    # the OTP background task) can never fire a real email.
+    monkeypatch.setattr(settings, "resend_api_key", "")
 
 
 @pytest.fixture(autouse=True)

@@ -41,7 +41,7 @@ describe('LandingPage', () => {
     expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '#anmelden')
     expect(screen.getByRole('heading', { name: 'Jetzt loslegen' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Code anfordern' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Jetzt starten' })).toBeInTheDocument()
   })
 
   it('explains how the app works and the free/premium split', () => {
