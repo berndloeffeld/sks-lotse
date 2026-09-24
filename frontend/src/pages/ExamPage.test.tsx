@@ -95,7 +95,40 @@ describe('ExamPage', () => {
       vi.fn(async () => jsonResponse([])),
     )
     renderPage()
-    expect(await screen.findByText(/Wähle zuerst in deinem/)).toBeInTheDocument()
+    expect(await screen.findByText(/Wähle zuerst, ob du die Prüfung/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Prüfung starten' })).not.toBeInTheDocument()
+  })
+
+  it('lets the variant be chosen right on the page, then offers the start', async () => {
+    setUser(null)
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === 'PATCH' ? jsonResponse(makeUser({ exam_variant: 'motor' })) : jsonResponse([]),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: /Variante/ }), 'motor')
+
+    expect(await screen.findByRole('button', { name: 'Prüfung starten' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/me'),
+      expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ exam_variant: 'motor' }) }),
+    )
+  })
+
+  it('says so when saving the chosen variant fails', async () => {
+    setUser(null)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+        init?.method === 'PATCH' ? jsonResponse({ detail: 'x' }, 500) : jsonResponse([]),
+      ),
+    )
+    renderPage()
+
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: /Variante/ }), 'motor')
+
+    expect(await screen.findByText('Die Prüfungsvariante konnte nicht gespeichert werden.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Prüfung starten' })).not.toBeInTheDocument()
   })
 

@@ -36,10 +36,9 @@ describe('AblaufPage', () => {
     expect(screen.getByText(/SKS Lotse deckt ausschließlich die Theorie ab/)).toBeInTheDocument()
   })
 
-  it('links back into the app and to the FAQ', () => {
+  it('links back into the app', () => {
     renderAblaufPage()
 
     expect(screen.getByRole('link', { name: 'Jetzt kostenlos lernen' })).toHaveAttribute('href', '/#anmelden')
-    expect(screen.getByRole('link', { name: 'Häufige Fragen ansehen' })).toHaveAttribute('href', '/faq')
   })
 })

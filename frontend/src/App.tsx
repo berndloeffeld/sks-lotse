@@ -26,7 +26,7 @@ import { AgbGate } from './routes/AgbGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { useScrollToHash } from './hooks/useScrollToHash'
+import { useNavigationScroll } from './hooks/useNavigationScroll'
 import { useAuthStore } from './store/authStore'
 import { useMaintenanceStore } from './store/maintenanceStore'
 
@@ -50,7 +50,7 @@ export function AppRoutes() {
     checkSession()
   }, [checkSession])
 
-  useScrollToHash()
+  useNavigationScroll()
 
   if (maintenanceMode && !MAINTENANCE_EXEMPT_PATHS.has(pathname)) {
     return <MaintenancePage />

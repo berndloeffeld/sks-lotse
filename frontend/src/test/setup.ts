@@ -13,3 +13,7 @@ afterEach(() => {
 // jsdom doesn't implement layout, so it has no scrollIntoView; stub it so
 // components that scroll an element into view don't crash under test.
 Element.prototype.scrollIntoView = () => {}
+
+// Nor window.scrollTo (it logs "Not implemented" and does nothing); useNavigationScroll calls it
+// on every in-app navigation.
+window.scrollTo = () => {}

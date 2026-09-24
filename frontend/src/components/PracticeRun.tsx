@@ -182,9 +182,19 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
       </p>
       {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
       <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
-        <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
-          Frage {index + 1} von {run.length} · Nr. {question.number}
-          {contextLabel ? ` · ${contextLabel(question)}` : ''}
+        {/* Where the learner is in this run (the boxed count) is set apart from which question this
+            is (number and topic), so the two never read as one string. */}
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
+          <span className="sr-only">
+            Frage {index + 1} von {run.length}
+          </span>
+          <span aria-hidden="true" className="rounded-tile border border-primary px-2 py-0.5 text-primary">
+            {index + 1} / {run.length}
+          </span>
+          <span>
+            Nr. {question.number}
+            {contextLabel ? ` · ${contextLabel(question)}` : ''}
+          </span>
         </p>
         {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
             previous question's gauge standing): a new question starts where it stands, only a

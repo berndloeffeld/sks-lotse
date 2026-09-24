@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { AccountNav } from '../components/AccountNav'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
+import { FaqAnswer } from '../components/FaqAnswer'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
 import { LegalFooter } from '../components/LegalFooter'
@@ -258,7 +259,9 @@ export function LandingPage() {
                     {question}
                   </Link>
                 </h3>
-                <p className="text-sm leading-relaxed text-ink-soft">{answer}</p>
+                <p className="text-sm leading-relaxed text-ink-soft">
+                  <FaqAnswer answer={answer} linkClassName="underline hover:text-primary" />
+                </p>
               </div>
             ))}
           </div>

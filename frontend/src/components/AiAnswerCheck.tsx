@@ -100,7 +100,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
             Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
           <p className="text-sm text-ink-soft">{result.feedback}</p>
-          <p className="text-xs text-ink-soft">
+          <p className="mt-2 text-xs text-ink-soft">
             Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
           </p>
         </section>

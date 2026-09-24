@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import type { Exam, ExamSummary } from '../api/types'
+import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { formatDateTime } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { EXAM_RESULT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
@@ -26,6 +28,7 @@ export function ExamPage() {
   const user = useAuthStore((state) => state.user)
   const examsQuery = useApiQuery('exams', () => apiClient.get<ExamSummary[]>('/exams'))
   const exams = examsQuery.data ?? null
+  const variantUpdate = useExamVariantUpdate()
   const startAction = useAsyncAction()
   const isStarting = startAction.isPending
   const error = examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : startAction.error
@@ -65,13 +68,17 @@ export function ExamPage() {
           </p>
         ) : null}
         {!hasVariant ? (
-          <p className="text-ink">
-            Wähle zuerst in deinem{' '}
-            <Link to="/profile" className="underline">
-              Profil
-            </Link>{' '}
-            aus, ob du die Prüfung für „Motor“ oder „Motor und Segeln“ ablegst.
-          </p>
+          // Picked right here the first time (the same setting as on /learn and /profile), so the
+          // first exam doesn't start with a detour.
+          <div className="flex flex-col gap-2">
+            <p className="text-ink">Wähle zuerst, ob du die Prüfung für „Motor“ oder „Motor und Segeln“ ablegst.</p>
+            <ExamVariantDropdown
+              value={null}
+              onChange={variantUpdate.changeVariant}
+              disabled={variantUpdate.isSaving}
+            />
+            {variantUpdate.error ? <p className="text-sm text-danger">{variantUpdate.error}</p> : null}
+          </div>
         ) : running ? (
           <Link to={`/exam/${running.id}`} className={`${styles.button} self-start`}>
             Laufende Prüfung fortsetzen

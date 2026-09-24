@@ -72,7 +72,8 @@ describe('FocusPracticePage', () => {
     renderPage()
 
     expect(await screen.findByText('Frage 9?')).toBeInTheDocument()
-    expect(screen.getByText(/Frage 1 von 2 · Nr\. 9 · Wetterkunde: Wind/)).toBeInTheDocument()
+    expect(screen.getByText('Frage 1 von 2')).toBeInTheDocument()
+    expect(screen.getByText('Nr. 9 · Wetterkunde: Wind')).toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))

@@ -93,7 +93,9 @@ describe('PracticePage', () => {
     // The cursor is in the answer field the moment the question appears.
     expect(focusedOnShow()).toBe(screen.getByLabelText(/Deine Antwort/))
     expect(screen.getByRole('heading', { level: 1, name: 'Ankern' })).toBeInTheDocument()
-    expect(screen.getByText('Frage 1 von 1 · Nr. 7')).toBeInTheDocument()
+    expect(screen.getByText('Frage 1 von 1')).toBeInTheDocument()
+    expect(screen.getByText('1 / 1')).toBeInTheDocument()
+    expect(screen.getByText('Nr. 7')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/questions?subject=navigation&topic=ankern'))).toBe(
       true,
     )
@@ -181,7 +183,8 @@ describe('PracticePage', () => {
 
     await user.keyboard('{Enter}')
 
-    expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
+    expect(await screen.findByText('Frage 2 von 2')).toBeInTheDocument()
+    expect(screen.getByText('Nr. 7')).toBeInTheDocument()
     const post = fetchMock.mock.calls.find(([u]) => String(u).includes('/progress/questions/'))
     expect(JSON.parse(String((post?.[1] as RequestInit).body))).toEqual({ outcome: 'richtig' })
   })
@@ -354,9 +357,11 @@ describe('PracticePage', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     renderPracticePage()
 
-    expect(await screen.findByText('Frage 1 von 2 · Nr. 8')).toBeInTheDocument()
+    expect(await screen.findByText('Frage 1 von 2')).toBeInTheDocument()
+    expect(screen.getByText('Nr. 8')).toBeInTheDocument()
     await revealAndGrade('Falsch')
-    await waitFor(() => expect(screen.getByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Frage 2 von 2')).toBeInTheDocument())
+    expect(screen.getByText('Nr. 7')).toBeInTheDocument()
     expect(screen.getByRole('textbox')).toHaveFocus()
     await revealAndGrade('Richtig')
     expect(await screen.findByRole('status')).toHaveTextContent('Gelernt.')
@@ -411,7 +416,8 @@ describe('PracticePage', () => {
     await user.tab()
     await user.keyboard('{Enter}')
     // Enter on an option saves it and goes straight to the next question, answer field focused.
-    expect(await screen.findByText('Frage 2 von 2 · Nr. 7')).toBeInTheDocument()
+    expect(await screen.findByText('Frage 2 von 2')).toBeInTheDocument()
+    expect(screen.getByText('Nr. 7')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('textbox')).toHaveFocus())
     expect(fetchMock).toHaveBeenCalled()
   })

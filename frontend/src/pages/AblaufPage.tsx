@@ -99,15 +99,12 @@ export function AblaufPage() {
           Musterantworten und einer Prüfungssimulation unter realistischen Bedingungen. Leg direkt los und lerne
           kostenlos für deine Theorieprüfung.
         </p>
-        <div className="flex flex-wrap items-center gap-4 pt-2">
+        <div className="pt-2">
           <Link
             to="/#anmelden"
             className="rounded-tile bg-primary px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
           >
             Jetzt kostenlos lernen
-          </Link>
-          <Link to="/faq" className="text-sm text-primary underline hover:no-underline">
-            Häufige Fragen ansehen
           </Link>
         </div>
       </Section>
