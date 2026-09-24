@@ -70,16 +70,11 @@ def _from_row[M: BaseModel](model: type[M], row: object, **joined: object) -> M:
     )
 
 
-def admin_user_read(
-    app, db: Session, user: User, question_progress_count: int | None = None
-) -> AdminUserRead:
-    """`question_progress_count` is counted here unless the caller already has it (the export)."""
-    if question_progress_count is None:
-        question_progress_count = _question_progress_count(db, user.id)
+def admin_user_read(app, db: Session, user: User) -> AdminUserRead:
     return _from_row(
         AdminUserRead,
         user,
-        question_progress_count=question_progress_count,
+        question_progress_count=_question_progress_count(db, user.id),
         is_blocked=blocklist.is_email_blocked(app, db, user.email),
     )
 
@@ -139,7 +134,7 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
     ).scalars()
 
     return AdminUserExport(
-        user=admin_user_read(app, db, user, len(progress_rows)),
+        user=admin_user_read(app, db, user),
         exam_attempts=_exam_attempts(db, user),
         focus_topics=[
             _from_row(
