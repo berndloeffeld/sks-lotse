@@ -20,7 +20,6 @@ interface PackageForm {
 }
 
 interface SettingsForm {
-  weeklyDefault: string
   priceAdsRemoved: string
   signupBonusTokens: string
   packages: Record<PackageProduct, PackageForm>
@@ -34,7 +33,6 @@ function toForm(settings: AdminSettings): SettingsForm {
     ]),
   ) as Record<PackageProduct, PackageForm>
   return {
-    weeklyDefault: String(settings.ai_checks_weekly_default),
     priceAdsRemoved: (settings.price_ads_removed_cents / 100).toFixed(2),
     signupBonusTokens: String(settings.signup_bonus_tokens),
     packages,
@@ -54,7 +52,6 @@ function parseEurCents(value: string): number | null {
 }
 
 function buildPayload(form: SettingsForm): AdminSettings | null {
-  const weeklyDefault = parseWholeNumber(form.weeklyDefault)
   const priceAdsRemovedCents = parseEurCents(form.priceAdsRemoved)
   const signupBonusTokens = parseWholeNumber(form.signupBonusTokens)
   const packages: Partial<Record<PackageProduct, TokenPackageSettings>> = {}
@@ -64,9 +61,8 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
     if (tokens === null || priceCents === null) return null
     packages[product] = { tokens, price_cents: priceCents }
   }
-  if (weeklyDefault === null || priceAdsRemovedCents === null || signupBonusTokens === null) return null
+  if (priceAdsRemovedCents === null || signupBonusTokens === null) return null
   return {
-    ai_checks_weekly_default: weeklyDefault,
     price_ads_removed_cents: priceAdsRemovedCents,
     signup_bonus_tokens: signupBonusTokens,
     tokens_s: packages.tokens_s!,
@@ -79,9 +75,9 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
 const INPUT = 'border border-border bg-surface px-3 py-2 text-ink'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 
-// App-wide admin settings (/admin/settings): the weekly AI-check default and every token-package/
-// Werbefrei price (ADR-0043). AdminLayout does the admin check. PUT replaces all of it at once, so
-// the form always submits the full set, not just the field the operator touched.
+// App-wide admin settings (/admin/settings): every token-package/Werbefrei price (ADR-0043).
+// AdminLayout does the admin check. PUT replaces all of it at once, so the form always submits
+// the full set, not just the field the operator touched.
 export function AdminSettingsPage() {
   const [form, setForm] = useState<SettingsForm | null>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -132,23 +128,6 @@ export function AdminSettingsPage() {
   return (
     <form className="flex flex-col gap-6" onSubmit={handleSave}>
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-ink-soft">
-          Gilt für alle Accounts ohne eigenes Limit. Die Woche beginnt montags um 0 Uhr (deutsche Zeit).
-        </p>
-        <label className={LABEL} htmlFor="weekly-default">
-          KI-Prüfungen pro Woche (Standard)
-          <input
-            id="weekly-default"
-            type="number"
-            min={0}
-            value={form.weeklyDefault}
-            onChange={(event) => setForm({ ...form, weeklyDefault: event.target.value })}
-            className={INPUT}
-          />
-        </label>
-      </div>
-
-      <div className="flex flex-col gap-4 border-t border-border pt-4">
         <p className="text-sm text-ink-soft">Preise (ADR-0043) — noch kein Kauf-Flow, nur die Anzeige/Beträge.</p>
         <label className={LABEL} htmlFor="price-ads-removed">
           Werbefrei, einmalig (€)

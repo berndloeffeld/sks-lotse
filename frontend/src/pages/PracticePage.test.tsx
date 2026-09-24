@@ -107,7 +107,7 @@ describe('PracticePage', () => {
     expect(screen.queryByText('Antwort 7.')).not.toBeInTheDocument()
   })
 
-  it('offers the AI check only as a teaser without the unlock', async () => {
+  it('offers the AI check only as a teaser without tokens', async () => {
     const user = userEvent.setup()
     mockBackend({})
     renderPracticePage()
@@ -134,12 +134,11 @@ describe('PracticePage', () => {
         is_admin: false,
         token_balance: 1,
         ads_removed: false,
-        ai_checks_remaining: 20,
         agb_accepted_version: null,
       },
     })
     mockBackend({
-      aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.', remaining_this_week: 19 }),
+      aiGrade: jsonResponse({ outcome: 'falsch', feedback: 'Das stimmt nicht.' }),
     })
     renderPracticePage()
 
@@ -165,11 +164,10 @@ describe('PracticePage', () => {
         is_admin: false,
         token_balance: 1,
         ads_removed: false,
-        ai_checks_remaining: 20,
         agb_accepted_version: null,
       },
     })
-    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.', remaining_this_week: 19 }) })
+    mockBackend({ aiGrade: jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast.' }) })
     renderPracticePage()
 
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
@@ -206,13 +204,12 @@ describe('PracticePage', () => {
         is_admin: false,
         token_balance: 1,
         ads_removed: false,
-        ai_checks_remaining: 20,
         agb_accepted_version: null,
       },
     })
     const fetchMock = mockBackend({
       questions: [question(1, 7), question(2, 8)],
-      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.', remaining_this_week: 19 }),
+      aiGrade: jsonResponse({ outcome: 'richtig', feedback: 'Passt.' }),
       grades: [jsonResponse({ question_id: 1, progress: 0.4, learned: false })],
     })
     vi.spyOn(Math, 'random').mockReturnValue(0)

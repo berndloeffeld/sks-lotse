@@ -10,7 +10,6 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 const SETTINGS = {
-  ai_checks_weekly_default: 100,
   price_ads_removed_cents: 500,
   signup_bonus_tokens: 6,
   tokens_s: { tokens: 20, price_cents: 299 },
@@ -41,31 +40,12 @@ describe('AdminSettingsPage', () => {
     )
     renderPage()
 
-    expect(await screen.findByLabelText('KI-Prüfungen pro Woche (Standard)')).toHaveValue(100)
-    expect(screen.getByLabelText('Werbefrei, einmalig (€)')).toHaveValue(5)
+    expect(await screen.findByLabelText('Werbefrei, einmalig (€)')).toHaveValue(5)
     expect(screen.getByLabelText('Geschenkte Tokens bei Anmeldung')).toHaveValue(6)
     expect(screen.getByLabelText('Tokens', { selector: '#tokens_s-tokens' })).toHaveValue(20)
     expect(screen.getByLabelText('Preis (€)', { selector: '#tokens_s-price' })).toHaveValue(2.99)
     expect(screen.getByLabelText('Tokens', { selector: '#tokens_xl-tokens' })).toHaveValue(200)
     expect(screen.getByLabelText('Preis (€)', { selector: '#tokens_xl-price' })).toHaveValue(16.99)
-  })
-
-  it('saves a changed weekly default together with the unchanged prices', async () => {
-    const user = userEvent.setup()
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
-      jsonResponse(init?.method === 'PUT' ? { ...SETTINGS, ai_checks_weekly_default: 40 } : SETTINGS),
-    )
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderPage()
-    const input = await screen.findByLabelText('KI-Prüfungen pro Woche (Standard)')
-    await user.clear(input)
-    await user.type(input, '40')
-    await user.click(screen.getByRole('button', { name: 'Speichern' }))
-
-    expect(await screen.findByText('Gespeichert.')).toBeInTheDocument()
-    const put = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
-    expect(JSON.parse(String(put?.[1]?.body))).toEqual({ ...SETTINGS, ai_checks_weekly_default: 40 })
   })
 
   it('saves a changed package price, converted to whole cents', async () => {
@@ -103,8 +83,7 @@ describe('AdminSettingsPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderPage()
-    await screen.findByLabelText('KI-Prüfungen pro Woche (Standard)')
-    const adsPrice = screen.getByLabelText('Werbefrei, einmalig (€)')
+    const adsPrice = await screen.findByLabelText('Werbefrei, einmalig (€)')
     await user.clear(adsPrice)
     await user.type(adsPrice, '7.99')
     const bonus = screen.getByLabelText('Geschenkte Tokens bei Anmeldung')
@@ -131,7 +110,7 @@ describe('AdminSettingsPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderPage()
-    const input = await screen.findByLabelText('KI-Prüfungen pro Woche (Standard)')
+    const input = await screen.findByLabelText('Werbefrei, einmalig (€)')
     await user.clear(input)
     await user.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(screen.getByText('Bitte bei jedem Feld eine gültige, nicht-negative Zahl eingeben.')).toBeInTheDocument()
@@ -147,7 +126,7 @@ describe('AdminSettingsPage', () => {
       ),
     )
     renderPage()
-    await screen.findByLabelText('KI-Prüfungen pro Woche (Standard)')
+    await screen.findByLabelText('Werbefrei, einmalig (€)')
     await user.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(await screen.findByText('Die Einstellungen konnten nicht gespeichert werden.')).toBeInTheDocument()
   })

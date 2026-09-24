@@ -21,7 +21,7 @@ function downloadJson(data: unknown, filename: string) {
 const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
 
 // One account in the admin area (/admin/users/:id): view, export or delete it
-// (Art. 15/17/20 DSGVO), unlock the AI check, remove ads, set its weekly limit.
+// (Art. 15/17/20 DSGVO), remove ads, credit AI-check tokens (ADR-0043).
 export function AdminUserPage() {
   const { id } = useParams()
   // An unknown id is a normal answer here (null), not a failed load.
@@ -57,11 +57,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   const [grantTokensInput, setGrantTokensInput] = useState('')
   const [grantAmountInput, setGrantAmountInput] = useState('')
   const [grantError, setGrantError] = useState<string | null>(null)
-
-  const [limitInput, setLimitInput] = useState(
-    user.ai_checks_weekly_limit === null ? '' : String(user.ai_checks_weekly_limit),
-  )
-  const [limitError, setLimitError] = useState<string | null>(null)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
@@ -130,23 +125,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }
   }
 
-  // limit = null resets the account to the app-wide default.
-  async function handleSaveLimit(limit: number | null) {
-    setLimitError(null)
-    setIsToggling(true)
-    try {
-      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
-        ai_checks_weekly_limit: limit,
-      })
-      onChange(updated)
-      setLimitInput(updated.ai_checks_weekly_limit === null ? '' : String(updated.ai_checks_weekly_limit))
-    } catch {
-      setLimitError('Das Wochenlimit konnte nicht geändert werden.')
-    } finally {
-      setIsToggling(false)
-    }
-  }
-
   async function handleDelete(event: FormEvent) {
     event.preventDefault()
     setDeleteError(null)
@@ -193,11 +171,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         <dd className="text-ink">{user.question_progress_count}</dd>
         <dt className="text-ink-soft">Tokens</dt>
         <dd className="text-ink">{user.token_balance}</dd>
-        <dt className="text-ink-soft">KI-Prüfungen diese Woche</dt>
-        <dd className="text-ink">
-          {user.ai_checks_used} von {user.ai_checks_limit}
-          {user.ai_checks_weekly_limit === null ? ' (Standard)' : ' (eigenes Limit)'}
-        </dd>
         <dt className="text-ink-soft">Sanitizer-Flags</dt>
         <dd className="text-ink">
           {user.ai_flags_count}
@@ -251,50 +224,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
         >
           Tokens gutschreiben
         </button>
-      </form>
-
-      <form
-        className="flex flex-col gap-2"
-        onSubmit={(event) => {
-          event.preventDefault()
-          const limit = Number(limitInput)
-          if (limitInput.trim() === '' || !Number.isInteger(limit) || limit < 0) {
-            setLimitError('Bitte eine ganze Zahl ab 0 eingeben.')
-            return
-          }
-          handleSaveLimit(limit)
-        }}
-      >
-        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="weekly-limit">
-          KI-Prüfungen pro Woche (Montag bis Sonntag)
-          <input
-            id="weekly-limit"
-            type="number"
-            min={0}
-            value={limitInput}
-            placeholder="Standard"
-            onChange={(event) => setLimitInput(event.target.value)}
-            className="border border-border bg-surface px-3 py-2 text-ink"
-          />
-        </label>
-        {limitError ? <p className="text-sm text-danger">{limitError}</p> : null}
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={isToggling}
-            className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-          >
-            Limit speichern
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSaveLimit(null)}
-            disabled={isToggling || user.ai_checks_weekly_limit === null}
-            className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-          >
-            Standard verwenden
-          </button>
-        </div>
       </form>
 
       <div className="flex flex-col gap-2">

@@ -9,7 +9,7 @@ from app.core.jwt import get_current_user
 from app.core.rate_limit import check_and_record, forget_last
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
-from app.services import ai_quota, token_wallet
+from app.services import ai_abuse_monitoring, token_wallet
 from app.services.catalog import catalog_by_id
 from app.services.grader import GradingUnavailable, grade_answer
 
@@ -27,7 +27,7 @@ def _record_and_log_if_flagged(
 
     Never logs the learner's answer or the model's feedback text — only metadata.
     """
-    flags = ai_quota.record_sanitizer_flag(db, user.id) if sanitized else user.ai_flags_count
+    flags = ai_abuse_monitoring.record_sanitizer_flag(db, user.id) if sanitized else user.ai_flags_count
     if flags >= settings.grading_sanitizer_log_threshold:
         logger.warning(
             "ai-grade flagged-account activity: user=%s question=%s outcome=%s sanitized=%s flags=%s",
@@ -56,8 +56,9 @@ def ai_grade_answer(
     if not question.answer_text.strip():
         # The official answer is only a sketch (image not extracted) — nothing to compare against.
         raise HTTPException(status_code=409, detail="This question has no text answer to check against")
-    # Three caps, cheapest first: per question and day (no rephrasing until it says "richtig"), per hour
-    # (a brake on rapid-fire clicking), then the persisted daily budget, which is only spent on success.
+    # Two caps, cheapest first: per question and day (no rephrasing until it says "richtig"), then
+    # per hour (a brake on rapid-fire clicking) — on top of the token balance itself (ADR-0044:
+    # tokens are the sole spending control, no separate weekly budget anymore).
     question_key = f"{current_user.id}:{question_id}"
     if not check_and_record(
         request.app,
@@ -79,22 +80,14 @@ def ai_grade_answer(
     ):
         logger.warning("ai-grade rate limit: user=%s bucket=per_hour", current_user.id)
         raise HTTPException(status_code=429, detail="Too many answer checks")
-    reserved = ai_quota.reserve(db, current_user.id)
-    if reserved is None:
-        logger.warning("ai-grade rate limit: user=%s bucket=weekly_budget", current_user.id)
-        raise HTTPException(status_code=429, detail="Weekly limit for answer checks reached")
-    remaining_this_week, booked_on = reserved
     tokens_remaining = token_wallet.reserve(db, current_user.id)
     if tokens_remaining is None:
         # Someone else spent the account's last token between the check above and here.
-        ai_quota.refund(db, current_user.id, booked_on)
         raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
     try:
         graded = grade_answer(question.question_text, question.answer_text, payload.answer)
     except GradingUnavailable as exc:
-        # A check that never happened costs the learner nothing: budget, tokens and both caps are
-        # given back.
-        ai_quota.refund(db, current_user.id, booked_on)
+        # A check that never happened costs the learner nothing: the token and both caps are given back.
         token_wallet.refund(db, current_user.id)
         forget_last(request.app, "ai_grade:question", question_key)
         forget_last(request.app, "ai_grade:user", str(current_user.id))
@@ -108,6 +101,5 @@ def ai_grade_answer(
     return AiGradeRead(
         outcome=result.outcome,
         feedback=result.feedback,
-        remaining_this_week=remaining_this_week,
         tokens_remaining=tokens_remaining,
     )

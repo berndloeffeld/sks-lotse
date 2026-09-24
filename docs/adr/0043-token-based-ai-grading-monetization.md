@@ -1,6 +1,6 @@
 # 0043. Token-based AI-grading monetization, with fixed prices
 
-Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (the AI-grading add-on is now pay-per-use, not a boolean unlock) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (drops the `ai_grading_enabled` entitlement it introduced); both stand otherwise.
+Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (the AI-grading add-on is now pay-per-use, not a boolean unlock) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (drops the `ai_grading_enabled` entitlement it introduced); both stand otherwise. Its "keep the weekly budget alongside tokens" decision is reversed by [ADR-0044](0044-drop-weekly-ai-check-budget.md).
 
 ## Context
 

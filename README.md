@@ -5,11 +5,11 @@
 
 A web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text, not multiple choice — the learner writes an answer and has to judge for themselves whether it's close enough to the model answer. SKS Lotse uses an LLM to grade the learner's free-text answer against the official model answer and explain what was missing or wrong.
 
-**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), and speech-to-text as an alternative to typing an answer. Monetization is freemium — two independent paid add-ons (remove ads, unlock AI-based grading) — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) for the reasoning.
+**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), and speech-to-text as an alternative to typing an answer. Monetization is freemium — remove ads for a one-time fee, pay per use for AI-based grading with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
 
 ## Status
 
-Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, unlocked per account by the operator) and GDPR admin tooling are live; payment for the unlocks, SSO and speech-to-text aren't built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
+Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, 1 token per check, credited per account by the operator until payment exists) and GDPR admin tooling are live; a payment provider, SSO and speech-to-text aren't built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
 
 ## Tech stack
 
@@ -83,7 +83,7 @@ npm run dev           # http://localhost:5173
 curl "http://localhost:8000/api/v1/auth/otp/_dev-peek?email=you@example.com"
 ```
 
-To reach `/admin`, put your address into `ADMIN_EMAILS` in `backend/.env` and restart the API. To try the Lotsen-Check, set `ANTHROPIC_GRADING_API_KEY` and unlock your account on `/admin` (without the key the check answers 503).
+To reach `/admin`, put your address into `ADMIN_EMAILS` in `backend/.env` and restart the API. To try the Lotsen-Check, set `ANTHROPIC_GRADING_API_KEY` and credit your account some tokens on `/admin` (without the key the check answers 503).
 
 API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](postman/sks-lotse.postman_collection.json) is also generated from the live OpenAPI schema — see below.
 

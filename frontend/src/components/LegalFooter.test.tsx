@@ -75,7 +75,6 @@ describe('LegalFooter', () => {
           is_admin: false,
           token_balance: 0,
           ads_removed: true,
-          ai_checks_remaining: 20,
           agb_accepted_version: null,
         },
         isAuthenticated: true,

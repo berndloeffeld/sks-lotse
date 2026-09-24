@@ -35,9 +35,6 @@ const foundUser = {
   gender: 'weiblich',
   token_balance: 0,
   ads_removed: false,
-  ai_checks_used: 4,
-  ai_checks_weekly_limit: null,
-  ai_checks_limit: 100,
   ai_flags_count: 0,
   ai_flags_last_at: null,
   question_progress_count: 3,
@@ -251,47 +248,5 @@ describe('AdminUserPage', () => {
     await user.click(await screen.findByRole('button', { name: 'Daten exportieren' }))
 
     expect(await screen.findByText('Der Export konnte nicht erstellt werden.')).toBeInTheDocument()
-  })
-
-  it('sets a per-user weekly limit and resets it to the default', async () => {
-    const user = userEvent.setup()
-    const bodies: unknown[] = []
-    stubFetch((url, init) => {
-      if (init?.method === 'PATCH') bodies.push(JSON.parse(String(init.body)))
-      return echoPatch(url, init)
-    })
-    renderUserPage()
-    expect(await screen.findByText('4 von 100 (Standard)')).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '7')
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(await screen.findByText(/\(eigenes Limit\)/)).toBeInTheDocument()
-    expect(bodies[0]).toEqual({ ai_checks_weekly_limit: 7 })
-
-    await user.click(screen.getByRole('button', { name: 'Standard verwenden' }))
-    expect(await screen.findByText(/\(Standard\)/)).toBeInTheDocument()
-    expect(bodies[1]).toEqual({ ai_checks_weekly_limit: null })
-    expect(screen.getByLabelText(/KI-Prüfungen pro Woche/)).toHaveValue(null)
-  })
-
-  it("prefills the account's own weekly limit", async () => {
-    stubFetch(undefined, { ...foundUser, ai_checks_weekly_limit: 9, ai_checks_limit: 9 })
-    renderUserPage()
-
-    expect(await screen.findByLabelText(/KI-Prüfungen pro Woche/)).toHaveValue(9)
-  })
-
-  it('rejects an invalid weekly limit and reports a failed save', async () => {
-    const user = userEvent.setup()
-    stubFetch(failPatch)
-    renderUserPage()
-    await screen.findByText('learner@example.com')
-
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(screen.getByText('Bitte eine ganze Zahl ab 0 eingeben.')).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '5')
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(await screen.findByText('Das Wochenlimit konnte nicht geändert werden.')).toBeInTheDocument()
   })
 })

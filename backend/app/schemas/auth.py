@@ -111,7 +111,6 @@ class UserRead(BaseModel):
     gender: str | None
     token_balance: int
     ads_removed: bool
-    ai_checks_remaining: int
     agb_accepted_version: str | None
 
     @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern

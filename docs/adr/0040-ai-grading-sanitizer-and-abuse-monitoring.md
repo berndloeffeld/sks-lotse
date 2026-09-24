@@ -1,6 +1,6 @@
 # 0040. AI-grading sanitizer and abuse monitoring
 
-Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring).
+Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring). The sanitizer/flag mechanism described here stands; its mentions of the `ai_grading_enabled` gate are historical (superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md)) and its mentions of the weekly budget are historical (dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md)).
 
 ## Context
 

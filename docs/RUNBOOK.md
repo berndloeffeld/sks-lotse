@@ -71,7 +71,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 |---|---|---|
 | `JWT_SECRET` | backend **and** cron | Every session and every pending OTP code becomes invalid; everyone logs in again. Generate with `openssl rand -hex 32`, set it on both services in one go (the cron only needs it to pass config validation). |
 | `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives, then revoke the old key. |
-| `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the budget is refunded. |
+| `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the reserved token is refunded. |
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
 | `VITE_UMAMI_WEBSITE_ID`, `VITE_ADSENSE_CLIENT_ID` | frontend | Build-time values: changing them triggers a rebuild of the static site. |
@@ -90,8 +90,8 @@ Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr
 ## AI-check abuse
 
 - `/admin` shows each account's "Sanitizer-Flags" (`ai_flags_count`). Past `GRADING_SANITIZER_LOG_THRESHOLD`, every further check of that account is logged with question id and outcome, never the text ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md)).
-- To stop an account: `/admin` → "KI-Prüfung entziehen", or set its weekly limit to 0 ("Limit speichern"). The app-wide default budget is on `/admin/settings` ([ADR-0036](adr/0036-weekly-ai-check-budget-with-admin-overrides.md)).
-- Cost ceiling: the Anthropic workspace's own spend limit backs up the per-account budget.
+- The token balance is the only spending control ([ADR-0044](adr/0044-drop-weekly-ai-check-budget.md)): an account runs out on its own once its tokens are spent, and stays blocked until an admin credits more on `/admin`.
+- Cost ceiling: the Anthropic workspace's own spend limit backs up the per-account token balance.
 
 ## Daily KPI report
 

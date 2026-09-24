@@ -1,8 +1,8 @@
 """Reserving/refunding tokens against a user's balance, and granting new ones (ADR-0043).
 
-Mirrors `app/services/ai_quota.py`'s reserve/refund shape for the (still separate) weekly
-budget — the two brakes are independent and a check must clear both (see
-`app/api/v1/grading.py`).
+The token balance is the sole spending control for the AI answer check (ADR-0044 dropped the
+separate weekly budget this used to sit alongside) — `app/api/v1/grading.py` reserves one token
+per check and refunds it if the LLM call fails.
 """
 
 from sqlalchemy import select

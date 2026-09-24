@@ -19,7 +19,5 @@ class AiGradeRead(BaseModel):
     # A plain str, not the GradingOutcome Literal — see GradingOutcomeField in app/schemas/progress.py.
     outcome: str
     feedback: str
-    # Checks left this week after this one — the learner sees it under the Lotse button.
-    remaining_this_week: int
     # Tokens left in the account's balance after this one (ADR-0043).
     tokens_remaining: int

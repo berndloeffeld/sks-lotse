@@ -1,8 +1,7 @@
-from datetime import date, datetime
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-MAX_WEEKLY_LIMIT = 10_000
 MAX_GRANT_TOKENS = 100_000
 MAX_GRANT_AMOUNT_EUR_CENTS = 1_000_000
 MAX_PRICE_CENTS = 1_000_000
@@ -11,8 +10,6 @@ MAX_PACKAGE_TOKENS = 100_000
 
 class AdminUserUpdate(BaseModel):
     ads_removed: bool | None = None
-    # Explicit null resets the account to the app-wide default; "absent" is told apart via model_fields_set.
-    ai_checks_weekly_limit: int | None = Field(default=None, ge=0, le=MAX_WEEKLY_LIMIT)
     # A manual token top-up (ADR-0043) — off-platform payment until a payment provider exists.
     # Optional: how much the account actually paid for it, so it's kept (anonymized) rather than
     # deleted on account deletion, like a real purchase (see services/user.py). None for a
@@ -22,12 +19,8 @@ class AdminUserUpdate(BaseModel):
 
     @model_validator(mode="after")
     def _require_a_field(self) -> "AdminUserUpdate":
-        if (
-            self.ads_removed is None
-            and "ai_checks_weekly_limit" not in self.model_fields_set
-            and self.grant_tokens is None
-        ):
-            raise ValueError("at least one of ads_removed, ai_checks_weekly_limit, grant_tokens required")
+        if self.ads_removed is None and self.grant_tokens is None:
+            raise ValueError("at least one of ads_removed, grant_tokens required")
         return self
 
 
@@ -37,7 +30,6 @@ class TokenPackageSettings(BaseModel):
 
 
 class AdminSettingsRead(BaseModel):
-    ai_checks_weekly_default: int
     price_ads_removed_cents: int
     signup_bonus_tokens: int
     tokens_s: TokenPackageSettings
@@ -47,7 +39,6 @@ class AdminSettingsRead(BaseModel):
 
 
 class AdminSettingsUpdate(BaseModel):
-    ai_checks_weekly_default: int = Field(ge=0, le=MAX_WEEKLY_LIMIT)
     price_ads_removed_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
     signup_bonus_tokens: int = Field(ge=0, le=1_000)
     tokens_s: TokenPackageSettings
@@ -88,10 +79,6 @@ class AdminUserRead(BaseModel):
     gender: str | None
     token_balance: int
     ads_removed: bool
-    ai_checks_week: date | None
-    ai_checks_used: int
-    ai_checks_weekly_limit: int | None  # the account's override; null = the app-wide default
-    ai_checks_limit: int  # what actually applies to the account this week
     # Read-only diagnostic signal (ADR-0040): how often the sanitizer backstop fired for this
     # account. No admin control to reset it — it's a symptom to investigate, not an entitlement.
     ai_flags_count: int

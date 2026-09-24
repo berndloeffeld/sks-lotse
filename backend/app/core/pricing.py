@@ -1,9 +1,10 @@
 """Token-package and ads-removal prices (ADR-0043): operator-tunable via `/admin/settings`.
 
-Same shape as `app/core/ai_quota.py`'s weekly default: an `app_settings` row if the operator has
-set one, else the code default below. There is no per-user override — prices are the same for
-everyone. A package's identifier (`tokens_s`/`tokens_m`/`tokens_l`/`tokens_xl`) doubles as a
-`Purchase.product` value (app/models/purchase.py) — keep both in sync if a package is renamed.
+An `app_settings` row if the operator has set one, else the code default below (the same
+resolution shape the now-removed weekly AI-check default used, ADR-0036/ADR-0044). There is no
+per-user override — prices are the same for everyone. A package's identifier
+(`tokens_s`/`tokens_m`/`tokens_l`/`tokens_xl`) doubles as a `Purchase.product` value
+(app/models/purchase.py) — keep both in sync if a package is renamed.
 """
 
 from dataclasses import dataclass
