@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
-from app.core.rate_limit import check_and_record
+from app.core.rate_limit import enforce_limit
 from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
@@ -81,14 +81,14 @@ def report_question(
     """Flag a question as faulty ("Frage melden", ADR-0030)."""
     # A second, per-user cap on top of the blanket per-IP one (app/main.py): the free text
     # ends up in front of the operator, so one account must not be able to flood it.
-    if not check_and_record(
+    enforce_limit(
         request.app,
         "question_report:user",
         str(current_user.id),
         settings.question_report_max_per_window,
         settings.question_report_window_seconds,
-    ):
-        raise HTTPException(status_code=429, detail="Too many reports")
+        "Too many reports",
+    )
     if db.get(Question, question_id) is None:
         raise HTTPException(status_code=404, detail="Question not found")
     report = QuestionReport(
@@ -99,7 +99,6 @@ def report_question(
     )
     db.add(report)
     db.commit()
-    db.refresh(report)
     return report
 
 

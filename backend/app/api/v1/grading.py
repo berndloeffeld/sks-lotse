@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
-from app.core.rate_limit import check_and_record, forget_last
+from app.core.rate_limit import enforce_limit, forget_last
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
 from app.services import ai_abuse_monitoring, token_wallet
@@ -60,26 +60,24 @@ def ai_grade_answer(
     # per hour (a brake on rapid-fire clicking) — on top of the token balance itself (ADR-0044:
     # tokens are the sole spending control, no separate weekly budget anymore).
     question_key = f"{current_user.id}:{question_id}"
-    if not check_and_record(
+    enforce_limit(
         request.app,
         "ai_grade:question",
         question_key,
         settings.grading_max_per_question_per_day,
         _DAY_SECONDS,
-    ):
-        logger.warning(
-            "ai-grade rate limit: user=%s question=%s bucket=per_question_day", current_user.id, question_id
-        )
-        raise HTTPException(status_code=429, detail="Too many checks for this question today")
-    if not check_and_record(
+        "Too many checks for this question today",
+        f"ai-grade rate limit: user={current_user.id} question={question_id} bucket=per_question_day",
+    )
+    enforce_limit(
         request.app,
         "ai_grade:user",
         str(current_user.id),
         settings.grading_max_per_window,
         settings.grading_window_seconds,
-    ):
-        logger.warning("ai-grade rate limit: user=%s bucket=per_hour", current_user.id)
-        raise HTTPException(status_code=429, detail="Too many answer checks")
+        "Too many answer checks",
+        f"ai-grade rate limit: user={current_user.id} bucket=per_hour",
+    )
     tokens_remaining = token_wallet.reserve(db, current_user.id)
     if tokens_remaining is None:
         # Someone else spent the account's last token between the check above and here.

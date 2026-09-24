@@ -29,15 +29,19 @@ of it holds `_lock`. The critical sections are a few deque operations, short
 enough to take on the event loop.
 """
 
+import logging
 import threading
 import time
 from collections import defaultdict, deque
 
+from fastapi import HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from app.core import cache
+
+logger = logging.getLogger(__name__)
 
 Rule = tuple[int, int]
 
@@ -129,6 +133,18 @@ def check_and_record(app, bucket: str, key: str, limit: int, window_seconds: int
             return False
         hits.append(now)
         return True
+
+
+def enforce_limit(
+    app, bucket: str, key: str, limit: int, window_seconds: int, detail: str, log_message: str | None = None
+) -> None:
+    """`check_and_record` for a route handler: raises a 429 with `detail` once `key` is over its
+    limit, logging `log_message` (if any) first."""
+    if check_and_record(app, bucket, key, limit, window_seconds):
+        return
+    if log_message:
+        logger.warning(log_message)
+    raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=detail)
 
 
 def forget_last(app, bucket: str, key: str) -> None:

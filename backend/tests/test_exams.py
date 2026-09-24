@@ -207,8 +207,12 @@ def test_answers_are_saved_and_rejected_after_submit(client, db_session, auth_he
     assert client.put(missing, json={"answer_text": "x"}, headers=auth_headers).status_code == 404
 
     client.post(f"/api/v1/exams/{exam['id']}/submit", headers=auth_headers)
-    assert client.put(url, json={"answer_text": "zu spät"}, headers=auth_headers).status_code == 409
-    assert client.post(f"/api/v1/exams/{exam['id']}/submit", headers=auth_headers).status_code == 409
+    for late in (
+        client.put(url, json={"answer_text": "zu spät"}, headers=auth_headers),
+        client.post(f"/api/v1/exams/{exam['id']}/submit", headers=auth_headers),
+    ):
+        assert late.status_code == 409
+        assert late.json()["detail"] == "The exam is already submitted"
 
 
 def test_deadline_auto_submits_exam(client, db_session, auth_headers):
