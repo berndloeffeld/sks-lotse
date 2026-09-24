@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Regenerates postman/sks-lotse.postman_collection.json from the FastAPI app's
-# live OpenAPI schema, so the collection can never drift from the actual API.
+# Regenerates postman/sks-lotse.postman_collection.json and the frontend's API
+# types (frontend/src/api/schema.gen.ts, ADR-0046) from the FastAPI app's live
+# OpenAPI schema, so neither can drift from the actual API.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -34,3 +35,12 @@ jq 'walk(if type == "object" then del(.id, ._postman_id) else . end)' "$POSTMAN_
   > postman/sks-lotse.postman_collection.json
 
 echo "Wrote postman/sks-lotse.postman_collection.json"
+
+# Only the component schemas: the frontend types its calls by hand (api/client.ts), and the
+# paths would triple the file. openapi-typescript's output is committed and not prettier-
+# formatted (frontend/.prettierignore), so the drift check compares it byte for byte.
+SCHEMAS_TMP=$(mktemp)
+trap 'rm -f "$OPENAPI_TMP" "$POSTMAN_TMP" "$SCHEMAS_TMP"' EXIT
+jq '.paths = {}' "$OPENAPI_TMP" > "$SCHEMAS_TMP"
+npx --yes openapi-typescript@7.13.0 "$SCHEMAS_TMP" -o frontend/src/api/schema.gen.ts
+echo "Wrote frontend/src/api/schema.gen.ts"

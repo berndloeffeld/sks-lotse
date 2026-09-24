@@ -11,6 +11,7 @@ const SOURCES = import.meta.glob(['/src/*.ts', '/src/api/*.ts', '/src/store/*.ts
 // Deliberately not mutated (CLAUDE.md → Mutation testing).
 const EXCLUDED = new Set([
   'src/api/types.ts', // types only, no runtime code
+  'src/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
 ])
 
 function mutateScope(): Set<string> {
