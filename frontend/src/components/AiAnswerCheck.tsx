@@ -7,6 +7,7 @@ import { OUTCOME_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formStyles } from './formStyles'
 import { CompassIcon } from './icons/FeatureIcons'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 
 const styles = formStyles('light')
 
@@ -61,9 +62,8 @@ function Ribbon() {
 export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
-  const [isChecking, setIsChecking] = useState(false)
+  const { run, isPending: isChecking, error } = useAsyncAction()
   const [result, setResult] = useState<AiGrade | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const hasTokens = (user?.token_balance ?? 0) > 0
   const hasAnswer = answer.trim().length > 0
@@ -76,20 +76,14 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
 
   const isDisabled = !hasTokens || isChecking || !hasAnswer || tooLong
 
-  async function check() {
-    setIsChecking(true)
-    setError(null)
-    try {
+  function check() {
+    return run(async () => {
       const grade = await apiClient.post<AiGrade>(`/questions/${questionId}/ai-grade`, { answer })
       trackEvent('ai_check_used')
       if (user) setUser({ ...user, token_balance: grade.tokens_remaining })
       setResult(grade)
       onSuggest(grade.outcome)
-    } catch (e) {
-      setError(errorMessage(e))
-    } finally {
-      setIsChecking(false)
-    }
+    }, errorMessage)
   }
 
   return (

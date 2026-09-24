@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatDateTime, getFullName } from '../format'
@@ -61,66 +62,44 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }
   }
 
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportError, setExportError] = useState<string | null>(null)
-
-  const [isToggling, setIsToggling] = useState(false)
-  const [toggleError, setToggleError] = useState<string | null>(null)
-
-  const [isBlocking, setIsBlocking] = useState(false)
-  const [blockError, setBlockError] = useState<string | null>(null)
+  const exportAction = useAsyncAction()
+  const toggleAction = useAsyncAction()
+  const blockAction = useAsyncAction()
+  const grantAction = useAsyncAction()
+  const deleteAction = useAsyncAction()
+  // A toggle and a token grant both PATCH the account; neither starts while the other runs.
+  const isUpdating = toggleAction.isPending || grantAction.isPending
 
   const [grantTokensInput, setGrantTokensInput] = useState('')
   const [grantAmountInput, setGrantAmountInput] = useState('')
-  const [grantError, setGrantError] = useState<string | null>(null)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  async function handleExport() {
-    setExportError(null)
-    setIsExporting(true)
-    try {
+  function handleExport() {
+    return exportAction.run(async () => {
       const data = await apiClient.get<AdminUserExport>(`/admin/users/${user.id}/export`)
       downloadJson(data, `sks-lotse-export-${user.id}.json`)
-    } catch {
-      setExportError('Der Export konnte nicht erstellt werden.')
-    } finally {
-      setIsExporting(false)
-    }
+    }, 'Der Export konnte nicht erstellt werden.')
   }
 
-  async function handleToggle(field: 'ads_removed', errorMessage: string) {
-    setToggleError(null)
-    setIsToggling(true)
-    try {
+  function handleToggle(field: 'ads_removed', errorMessage: string) {
+    return toggleAction.run(async () => {
       const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { [field]: !user[field] })
       onChange(updated)
       syncIfSelf(updated)
-    } catch {
-      setToggleError(errorMessage)
-    } finally {
-      setIsToggling(false)
-    }
+    }, errorMessage)
   }
 
   // Blocking ends the account's current session immediately (ADR-0045); unblocking just lets it
   // log back in, so it doesn't need the same confirmation as the irreversible delete below.
-  async function handleBlockToggle() {
-    setBlockError(null)
-    setIsBlocking(true)
-    try {
+  function handleBlockToggle() {
+    return blockAction.run(async () => {
       const updated = user.is_blocked
         ? await apiClient.delete<AdminUser>(`/admin/users/${user.id}/block`)
         : await apiClient.post<AdminUser>(`/admin/users/${user.id}/block`)
       onChange(updated)
-    } catch {
-      setBlockError('Die Sperre konnte nicht geändert werden.')
-    } finally {
-      setIsBlocking(false)
-    }
+    }, 'Die Sperre konnte nicht geändert werden.')
   }
 
   // Manual token top-up (ADR-0043) — an off-platform payment until a payment provider exists.
@@ -128,23 +107,22 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   // resulting purchases row is kept (anonymized) rather than deleted on account deletion.
   async function handleGrantTokens(event: FormEvent) {
     event.preventDefault()
-    setGrantError(null)
+    grantAction.setError(null)
     const tokens = Number(grantTokensInput)
     if (grantTokensInput.trim() === '' || !Number.isInteger(tokens) || tokens < 1) {
-      setGrantError('Bitte eine ganze Zahl ab 1 eingeben.')
+      grantAction.setError('Bitte eine ganze Zahl ab 1 eingeben.')
       return
     }
     let amountEurCents: number | undefined
     if (grantAmountInput.trim() !== '') {
       const amount = Number(grantAmountInput)
       if (!Number.isFinite(amount) || amount < 0) {
-        setGrantError('Bitte einen gültigen Betrag ab 0 eingeben.')
+        grantAction.setError('Bitte einen gültigen Betrag ab 0 eingeben.')
         return
       }
       amountEurCents = Math.round(amount * 100)
     }
-    setIsToggling(true)
-    try {
+    await grantAction.run(async () => {
       const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
         grant_tokens: tokens,
         ...(amountEurCents === undefined ? {} : { grant_amount_eur_cents: amountEurCents }),
@@ -153,24 +131,15 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       syncIfSelf(updated)
       setGrantTokensInput('')
       setGrantAmountInput('')
-    } catch {
-      setGrantError('Die Tokens konnten nicht gutgeschrieben werden.')
-    } finally {
-      setIsToggling(false)
-    }
+    }, 'Die Tokens konnten nicht gutgeschrieben werden.')
   }
 
-  async function handleDelete(event: FormEvent) {
+  function handleDelete(event: FormEvent) {
     event.preventDefault()
-    setDeleteError(null)
-    setIsDeleting(true)
-    try {
+    return deleteAction.run(async () => {
       await apiClient.delete(`/admin/users/${user.id}`)
       navigate('/admin/users', { state: { deleted: user.email } })
-    } catch {
-      setDeleteError('Der Account konnte nicht gelöscht werden.')
-      setIsDeleting(false)
-    }
+    }, 'Der Account konnte nicht gelöscht werden.')
   }
 
   const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()
@@ -218,11 +187,11 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       </dl>
 
       <div className="flex flex-col gap-2">
-        {toggleError ? <p className="text-sm text-danger">{toggleError}</p> : null}
+        {toggleAction.error ? <p className="text-sm text-danger">{toggleAction.error}</p> : null}
         <button
           type="button"
           onClick={() => handleToggle('ads_removed', 'Die Werbung konnte nicht geändert werden.')}
-          disabled={isToggling}
+          disabled={isUpdating}
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           {user.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
@@ -230,11 +199,11 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       </div>
 
       <div className="flex flex-col gap-2">
-        {blockError ? <p className="text-sm text-danger">{blockError}</p> : null}
+        {blockAction.error ? <p className="text-sm text-danger">{blockAction.error}</p> : null}
         <button
           type="button"
           onClick={handleBlockToggle}
-          disabled={isBlocking}
+          disabled={blockAction.isPending}
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           {user.is_blocked ? 'Sperre aufheben' : 'Nutzer sperren'}
@@ -265,10 +234,10 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             className="border border-border bg-surface px-3 py-2 text-ink"
           />
         </label>
-        {grantError ? <p className="text-sm text-danger">{grantError}</p> : null}
+        {grantAction.error ? <p className="text-sm text-danger">{grantAction.error}</p> : null}
         <button
           type="submit"
-          disabled={isToggling}
+          disabled={isUpdating}
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           Tokens gutschreiben
@@ -276,11 +245,11 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       </form>
 
       <div className="flex flex-col gap-2">
-        {exportError ? <p className="text-sm text-danger">{exportError}</p> : null}
+        {exportAction.error ? <p className="text-sm text-danger">{exportAction.error}</p> : null}
         <button
           type="button"
           onClick={handleExport}
-          disabled={isExporting}
+          disabled={exportAction.isPending}
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           Daten exportieren
@@ -308,10 +277,10 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
                 className="border border-border bg-surface px-3 py-2 text-ink"
               />
             </label>
-            {deleteError ? <p className="text-sm text-danger">{deleteError}</p> : null}
+            {deleteAction.error ? <p className="text-sm text-danger">{deleteAction.error}</p> : null}
             <button
               type="submit"
-              disabled={!canConfirmDelete || isDeleting}
+              disabled={!canConfirmDelete || deleteAction.isPending}
               className="border border-danger bg-danger px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
             >
               Endgültig löschen
