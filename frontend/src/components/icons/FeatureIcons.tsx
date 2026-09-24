@@ -23,29 +23,6 @@ export function CatalogIcon({ className }: IconProps) {
   )
 }
 
-// A speech bubble with a waveform — typing or speaking the answer both lead
-// here.
-export function AnswerIcon({ className }: IconProps) {
-  return (
-    <svg {...shared} className={className} aria-hidden="true" focusable="false">
-      <path d="M6 8h20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H14l-6 5v-5H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z" />
-      <path d="M10 15v2M14 13v6M18 12v8M22 15v2" />
-    </svg>
-  )
-}
-
-// The logomark's course-line-and-fix-dot motif, reused at feature-icon
-// scale for "you get graded feedback".
-export function FeedbackIcon({ className }: IconProps) {
-  return (
-    <svg {...shared} className={className} aria-hidden="true" focusable="false">
-      <path d="M8 22 22 8" />
-      <rect x="6.5" y="20.5" width="3" height="3" fill="currentColor" stroke="none" />
-      <circle cx="22" cy="8" r="3" fill="var(--color-primary)" stroke="none" />
-    </svg>
-  )
-}
-
 // An envelope with a warning triangle at its corner — "Fehler melden" (mail + problem). The
 // triangle is cut out of the envelope with a mask, so it reads on any background.
 export function ReportIcon({ className }: IconProps) {

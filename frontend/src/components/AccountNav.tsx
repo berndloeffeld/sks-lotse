@@ -2,9 +2,10 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { FEEDBACK_MAILTO } from '../contact'
 import { useAuthStore } from '../store/authStore'
-import { HEADER_LINK } from './Header'
+import { HEADER_LINK } from './headerLink'
+import { MarketingLinks } from './MarketingLinks'
 
-// Header nav for logged-in pages: Profil, Admin (admins only), Abmelden.
+// Header nav for logged-in pages: the marketing links, Profil, Admin (admins only), Abmelden.
 export function AccountNav() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
@@ -17,6 +18,7 @@ export function AccountNav() {
 
   return (
     <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <MarketingLinks />
       <Link to="/profile" className={HEADER_LINK}>
         Profil
       </Link>

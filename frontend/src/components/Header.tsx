@@ -1,16 +1,14 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { HEADER_LINK } from './headerLink'
 import { Logo } from './Logo'
-
-// Shared style for text links/buttons sitting on the header's dark band.
-export const HEADER_LINK =
-  'border-b-2 border-transparent pb-1 font-mono text-xs tracking-wide text-surface-alt uppercase hover:border-surface hover:text-surface'
+import { MarketingLinks } from './MarketingLinks'
 
 interface HeaderProps {
   // Where the brand links to: `/` when logged out, `/start` when logged in.
   homeTo?: string
-  // Right-hand side; defaults to an "Anmelden" link (logged-out pages).
+  // Right-hand side; defaults to the marketing links plus "Anmelden" (logged-out pages).
   // Pass `null` for none (the login page itself).
   nav?: ReactNode
 }
@@ -26,9 +24,12 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
           </Link>
         </div>
         {nav === undefined ? (
-          <Link to="/login" className={HEADER_LINK}>
-            Anmelden
-          </Link>
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <MarketingLinks />
+            <Link to="/login" className={HEADER_LINK}>
+              Anmelden
+            </Link>
+          </nav>
         ) : (
           nav
         )}
