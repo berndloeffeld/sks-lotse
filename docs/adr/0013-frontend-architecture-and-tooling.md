@@ -1,6 +1,6 @@
 # 0013. Frontend architecture and tooling
 
-Status: Accepted
+Status: Accepted; the hand-written API types are amended by [ADR-0046](0046-api-types-generated-from-openapi.md) (generated from the OpenAPI schema now; the client stays hand-written)
 
 ## Context
 

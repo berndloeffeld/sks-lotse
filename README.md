@@ -108,7 +108,7 @@ npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
 ```
 
-These run in CI on every push to `main` and every PR (`.github/workflows/backend-ci.yml`, `.github/workflows/frontend-ci.yml`). Backend CI additionally checks the Alembic migrations against a real Postgres, checks that the committed Postman collection is still in sync with the API (`scripts/generate_postman_collection.sh`), and runs the integration tests below.
+These run in CI on every push to `main` and every PR (`.github/workflows/backend-ci.yml`, `.github/workflows/frontend-ci.yml`). Backend CI additionally checks the Alembic migrations against a real Postgres, checks that the committed Postman collection and frontend API types are still in sync with the API (`scripts/generate_postman_collection.sh`), and runs the integration tests below.
 
 Optional but recommended: `pre-commit install -t pre-commit -t pre-push` (from the venv). On commit it runs ruff, ESLint, Prettier and a few hygiene checks (merge markers, YAML/JSON syntax, private keys, large files) on staged files, and blocks commits directly on `main`. On push it also runs `mypy app` and `tsc -b`.
 

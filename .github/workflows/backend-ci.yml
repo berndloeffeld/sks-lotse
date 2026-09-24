@@ -182,5 +182,5 @@ jobs:
           node-version-file: frontend/.nvmrc
       - run: pip install -r backend/requirements.txt
       - run: ./scripts/generate_postman_collection.sh
-      - run: git diff --exit-code postman/
-        name: Fail if the committed collection is out of date (run scripts/generate_postman_collection.sh and commit the result)
+      - run: test -z "$(git status --porcelain postman/ frontend/src/api/schema.gen.ts)" || { git status --porcelain postman/ frontend/src/api/schema.gen.ts; git diff postman/ frontend/src/api/schema.gen.ts; exit 1; }
+        name: Fail if the committed collection or frontend API types are out of date (run scripts/generate_postman_collection.sh and commit the result)
