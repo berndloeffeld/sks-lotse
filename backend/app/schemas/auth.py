@@ -109,7 +109,7 @@ class UserRead(BaseModel):
     first_name: str | None
     last_name: str | None
     gender: str | None
-    ai_grading_enabled: bool
+    token_balance: int
     ads_removed: bool
     ai_checks_remaining: int
     agb_accepted_version: str | None

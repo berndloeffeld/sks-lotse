@@ -16,6 +16,7 @@ import { LearnPage } from './pages/LearnPage'
 import { MaintenancePage } from './pages/MaintenancePage'
 import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
+import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { StartPage } from './pages/StartPage'
@@ -62,6 +63,7 @@ export function AppRoutes() {
         <Route path="/imprint" element={<ImprintPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/agb" element={<AgbPage />} />
+        <Route path="/preise" element={<PricingPage />} />
         {/* The prerendered public pages above carry the ad script statically; these load it
             only where wanted — not for ads-removed accounts, never on /admin (ads.ts). */}
         <Route element={<AdScriptGate />}>

@@ -13,7 +13,7 @@ const baseUser = {
   first_name: null,
   last_name: null,
   gender: null,
-  ai_grading_enabled: false,
+  token_balance: 0,
   ads_removed: false,
   ai_checks_remaining: 20,
   agb_accepted_version: null,

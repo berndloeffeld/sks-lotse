@@ -41,11 +41,23 @@ export function AgbPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-serif text-xl text-primary">4. Kostenlose Nutzung und künftige Zusatzfunktionen</h2>
+        <h2 className="font-serif text-xl text-primary">4. Kostenpflichtige Zusatzfunktionen</h2>
         <p className="text-ink-soft">
-          Die Nutzung von SKS Lotse ist derzeit vollständig kostenlos und mit keiner Zahlungspflicht verbunden. Sollten
-          künftig kostenpflichtige Zusatzfunktionen eingeführt werden, gelten dafür Preise und Zahlungsbedingungen, die
-          den Nutzern vor Abschluss klar mitgeteilt werden, sowie die Kündigungsregelung aus Ziffer 8.
+          Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Musterantwort, Lernfortschritt) ist dauerhaft
+          kostenlos. Zwei unabhängige, einmalig erwerbbare Erweiterungen stehen optional zur Verfügung:
+        </p>
+        <ul className="list-disc pl-5 text-ink-soft">
+          <li>„Werbefrei" (einmalige Zahlung) entfernt die Werbeeinblendungen dauerhaft für das Konto.</li>
+          <li>
+            „Tokens" für den Lotsen-Check: ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine
+            Antwort. Jedes neu angelegte Konto erhält einmalig eine kleine Anzahl Tokens geschenkt; weitere Tokens
+            lassen sich in Paketen nachkaufen.
+          </li>
+        </ul>
+        <p className="text-ink-soft">
+          Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Der Kauf
+          wird derzeit außerhalb der App abgewickelt und nach Zahlungseingang manuell durch den Betreiber
+          gutgeschrieben, bis eine Zahlungsanbieter-Anbindung besteht. Alle genannten Preise sind Endpreise in Euro.
         </p>
       </section>
 
@@ -88,9 +100,12 @@ export function AgbPage() {
           kündigen dies nach Möglichkeit vorher per E-Mail an die hinterlegte Adresse an.
         </p>
         <p className="text-ink-soft">
-          Für künftige kostenpflichtige Abonnements gilt: ordentliche Kündigung ist zum Ende der jeweiligen
-          Abrechnungsperiode mit einer Frist von einem Monat möglich. Stellen wir den Dienst während einer bereits
-          bezahlten Laufzeit vorzeitig ein, erstatten wir den nicht genutzten Zeitraum anteilig.
+          „Werbefrei" und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
+          keine wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort
+          nach Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
+          ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das
+          Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf gesondert eingeholt. Geschenkte
+          Tokens (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen.
         </p>
       </section>
 

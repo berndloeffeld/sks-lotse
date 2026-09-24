@@ -33,7 +33,7 @@ const foundUser = {
   first_name: 'Anna',
   last_name: 'Beispiel',
   gender: 'weiblich',
-  ai_grading_enabled: false,
+  token_balance: 0,
   ads_removed: false,
   ai_checks_used: 4,
   ai_checks_weekly_limit: null,
@@ -48,16 +48,15 @@ function stubFetch(
   other: (url: string, init?: RequestInit) => Response | undefined = () => undefined,
   user: unknown = foundUser,
 ) {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
-      if (url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === undefined) return jsonResponse(user)
-      const response = other(url, init)
-      if (response) return response
-      throw new Error(`unexpected fetch to ${url}`)
-    }),
-  )
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input)
+    if (url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === undefined) return jsonResponse(user)
+    const response = other(url, init)
+    if (response) return response
+    throw new Error(`unexpected fetch to ${url}`)
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
 }
 
 // PATCH echoes the change back, like the backend does.
@@ -152,17 +151,38 @@ describe('AdminUserPage', () => {
     expect(screen.getByRole('button', { name: 'Endgültig löschen' })).toBeEnabled()
   })
 
-  it('unlocks and revokes the AI check', async () => {
+  it('grants tokens to the account, optionally recording what they paid', async () => {
     const user = userEvent.setup()
-    stubFetch(echoPatch)
+    const bodies: unknown[] = []
+    stubFetch((url, init) => {
+      if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+      const body = JSON.parse(String(init.body)) as { grant_tokens: number }
+      bodies.push(body)
+      return jsonResponse({ ...foundUser, token_balance: foundUser.token_balance + body.grant_tokens })
+    })
     renderUserPage()
-    await screen.findByText('Nicht freigeschaltet')
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 0)')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'KI-Prüfung freischalten' }))
-    expect(await screen.findByText('Freigeschaltet')).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.type(screen.getByLabelText(/Erhaltener Betrag/), '2.99')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
 
-    await user.click(screen.getByRole('button', { name: 'KI-Prüfung entziehen' }))
-    expect(await screen.findByText('Nicht freigeschaltet')).toBeInTheDocument()
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 20)')).toBeInTheDocument()
+    expect(bodies).toEqual([{ grant_tokens: 20, grant_amount_eur_cents: 299 }])
+    // The inputs reset so a second grant doesn't accidentally resubmit the same amount.
+    expect(screen.getByLabelText(/Tokens gutschreiben/)).toHaveValue(null)
+  })
+
+  it('rejects an invalid token amount without calling the backend', async () => {
+    const user = userEvent.setup()
+    const fetchMock = stubFetch()
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+    fetchMock.mockClear()
+
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
+    expect(screen.getByText('Bitte eine ganze Zahl ab 1 eingeben.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('removes and restores ads', async () => {
@@ -187,13 +207,15 @@ describe('AdminUserPage', () => {
     expect(await screen.findByText('Die Werbung konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
-  it('shows an error when changing the AI check fails', async () => {
+  it('shows an error when granting tokens fails', async () => {
     const user = userEvent.setup()
     stubFetch(failPatch)
     renderUserPage()
-    await user.click(await screen.findByRole('button', { name: 'KI-Prüfung freischalten' }))
+    await screen.findByText('learner@example.com')
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
 
-    expect(await screen.findByText('Die KI-Prüfung konnte nicht geändert werden.')).toBeInTheDocument()
+    expect(await screen.findByText('Die Tokens konnten nicht gutgeschrieben werden.')).toBeInTheDocument()
   })
 
   it('shows the sanitizer flags with the time of the last one', async () => {

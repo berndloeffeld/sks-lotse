@@ -16,3 +16,8 @@ export function formatCountdown(ms: number): string {
   const seconds = totalSeconds % 60
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
+
+// Integer cents (as the API sends prices, ADR-0043) as "2,99 €".
+export function formatEurCents(cents: number): string {
+  return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+}

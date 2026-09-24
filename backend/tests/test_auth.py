@@ -3,11 +3,13 @@ from datetime import UTC, datetime, timedelta
 import jwt
 import pytest
 
+from app.core import pricing as pricing_core
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import OTP_PURPOSE_LOGIN
 from app.models import OtpCode, Question, QuestionProgress, User
+from app.models.purchase import Purchase
 from tests.helpers import progress_state
 
 
@@ -291,6 +293,15 @@ def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session,
 
     user = db_session.query(User).filter_by(email="learner@example.com").one()
     assert user.email == "learner@example.com"
+    # ADR-0043: a new account gets a few free tokens to try the AI check.
+    assert user.token_balance == pricing_core.DEFAULT_SIGNUP_BONUS_TOKENS
+    purchase = db_session.query(Purchase).filter_by(user_id=user.id).one()
+    assert (purchase.product, purchase.granted_by, purchase.tokens_granted) == (
+        "signup_bonus",
+        "signup",
+        pricing_core.DEFAULT_SIGNUP_BONUS_TOKENS,
+    )
+    assert purchase.amount_eur_cents is None
 
 
 def test_verify_otp_reuses_existing_user(client, db_session, monkeypatch):
@@ -305,6 +316,8 @@ def test_verify_otp_reuses_existing_user(client, db_session, monkeypatch):
 
     users = db_session.query(User).filter_by(email="learner@example.com").all()
     assert len(users) == 1
+    # Only the first login grants the signup bonus, not every subsequent one.
+    assert db_session.query(Purchase).filter_by(user_id=users[0].id, product="signup_bonus").count() == 1
 
 
 def test_verify_otp_sets_last_login_at(client, db_session, monkeypatch):
@@ -664,6 +677,43 @@ def test_delete_me_removes_user_and_cascades_progress(client, db_session, auth_h
     db_session.expire_all()
     assert db_session.get(User, user_id) is None
     assert db_session.query(QuestionProgress).filter_by(user_id=user_id).count() == 0
+
+
+def test_delete_me_anonymizes_paid_purchases_but_deletes_free_grants(client, db_session, auth_headers):
+    # ADR-0043 / CLAUDE.md → Data Layer Conventions: a purchase tied to real money is kept
+    # (anonymized) for the statutory bookkeeping retention period; one with no money behind it
+    # (the signup bonus, a goodwill admin correction) is deleted like the rest of the account.
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    user_id = user.id
+    db_session.add_all(
+        [
+            Purchase(
+                user_id=user_id,
+                product="tokens_s",
+                tokens_granted=20,
+                amount_eur_cents=299,
+                granted_by="admin_manual",
+            ),
+            Purchase(
+                user_id=user_id,
+                product="signup_bonus",
+                tokens_granted=6,
+                amount_eur_cents=None,
+                granted_by="signup",
+            ),
+        ]
+    )
+    db_session.commit()
+
+    response = client.delete("/api/v1/auth/me", headers=auth_headers)
+    assert response.status_code == 204
+
+    db_session.expire_all()
+    remaining = db_session.query(Purchase).all()
+    assert len(remaining) == 1
+    assert remaining[0].product == "tokens_s"
+    assert remaining[0].user_id is None
+    assert remaining[0].amount_eur_cents == 299
 
 
 def test_delete_me_clears_the_session_cookie(client, db_session, monkeypatch):

@@ -17,6 +17,7 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/agb')
+    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
   })
 
   it('offers a feedback mail link', () => {
@@ -72,7 +73,7 @@ describe('LegalFooter', () => {
           last_name: null,
           gender: null,
           is_admin: false,
-          ai_grading_enabled: false,
+          token_balance: 0,
           ads_removed: true,
           ai_checks_remaining: 20,
           agb_accepted_version: null,

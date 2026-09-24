@@ -9,7 +9,7 @@ from app.core.jwt import get_current_user
 from app.core.rate_limit import check_and_record, forget_last
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
-from app.services import ai_quota
+from app.services import ai_quota, token_wallet
 from app.services.catalog import catalog_by_id
 from app.services.grader import GradingUnavailable, grade_answer
 
@@ -47,9 +47,9 @@ def ai_grade_answer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Suggest a grade + feedback for the learner's answer (ADR-0031). Stateless, saves no progress."""
-    if not current_user.ai_grading_enabled:
-        raise HTTPException(status_code=403, detail="AI answer check is not unlocked for this account")
+    """Suggest a grade + feedback for the answer (ADR-0031, ADR-0043). Stateless, saves no progress."""
+    if current_user.token_balance < token_wallet.TOKENS_PER_ANSWER_CHECK:
+        raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
     question = catalog_by_id(request, db).get(question_id)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -84,11 +84,18 @@ def ai_grade_answer(
         logger.warning("ai-grade rate limit: user=%s bucket=weekly_budget", current_user.id)
         raise HTTPException(status_code=429, detail="Weekly limit for answer checks reached")
     remaining_this_week, booked_on = reserved
+    tokens_remaining = token_wallet.reserve(db, current_user.id)
+    if tokens_remaining is None:
+        # Someone else spent the account's last token between the check above and here.
+        ai_quota.refund(db, current_user.id, booked_on)
+        raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
     try:
         graded = grade_answer(question.question_text, question.answer_text, payload.answer)
     except GradingUnavailable as exc:
-        # A check that never happened costs the learner nothing: budget and both caps are given back.
+        # A check that never happened costs the learner nothing: budget, tokens and both caps are
+        # given back.
         ai_quota.refund(db, current_user.id, booked_on)
+        token_wallet.refund(db, current_user.id)
         forget_last(request.app, "ai_grade:question", question_key)
         forget_last(request.app, "ai_grade:user", str(current_user.id))
         # Reason only — the learner's answer is never logged.
@@ -99,5 +106,8 @@ def ai_grade_answer(
         db, current_user, question_id=question.id, outcome=result.outcome, sanitized=graded.sanitized
     )
     return AiGradeRead(
-        outcome=result.outcome, feedback=result.feedback, remaining_this_week=remaining_this_week
+        outcome=result.outcome,
+        feedback=result.feedback,
+        remaining_this_week=remaining_this_week,
+        tokens_remaining=tokens_remaining,
     )

@@ -273,7 +273,7 @@ describe('ExamRunPage', () => {
         last_name: null,
         gender: null,
         is_admin: false,
-        ai_grading_enabled: true,
+        token_balance: 1,
         ads_removed: false,
         ai_checks_remaining: 20,
         agb_accepted_version: null,

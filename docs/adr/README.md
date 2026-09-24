@@ -9,7 +9,7 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0003](0003-synchronous-grading-requests.md) | Synchronous grading requests | Accepted — the provider changed from OpenAI to Anthropic in [ADR-0031](0031-ai-answer-check-with-claude-haiku.md); the synchronous request/response decision stands. |
 | [0004](0004-anonymous-device-id-rate-limiting.md) | Anonymous device-ID rate limiting for grading requests | Superseded by [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) |
 | [0005](0005-render-deployment-topology.md) | Render deployment topology | Accepted — the "no frontend service yet" part is superseded by [ADR-0015](0015-frontend-deployment-topology.md) |
-| [0006](0006-mandatory-login-and-feature-gated-monetization.md) | Mandatory login and feature-gated monetization | Accepted |
+| [0006](0006-mandatory-login-and-feature-gated-monetization.md) | Mandatory login and feature-gated monetization | Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); the rest stands |
 | [0007](0007-in-memory-per-ip-rate-limiting.md) | In-memory, per-IP rate limiting instead of Redis or a reverse proxy | Accepted |
 | [0008](0008-token-version-based-logout.md) | Token-version counter for logout, instead of a blacklist or short-lived tokens | Accepted |
 | [0009](0009-in-process-cache-for-question-catalog.md) | In-process cache for the question catalog | Accepted |
@@ -34,7 +34,7 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0028](0028-focus-topics.md) | Focus topics | Accepted |
 | [0029](0029-exam-simulation.md) | Exam simulation | Accepted — the "separate from the Lernstand" bullet is superseded by [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md). |
 | [0030](0030-question-reports-and-feedback-channels.md) | Question reports and lightweight feedback channels | Accepted |
-| [0031](0031-ai-answer-check-with-claude-haiku.md) | AI answer check with Claude Haiku | Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md)) |
+| [0031](0031-ai-answer-check-with-claude-haiku.md) | AI answer check with Claude Haiku | Accepted (the daily budget is amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md): now per week, admin-tunable; prompt-injection hardening and abuse monitoring added by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md)); the `ai_grading_enabled` boolean entitlement is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) |
 | [0032](0032-daily-kpi-report.md) | Daily KPI report by email | Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report |
 | [0033](0033-catalog-images-as-static-files.md) | Catalog images as static files of the frontend | Accepted |
 | [0034](0034-half-life-model-for-gelernt.md) | Half-life model for "gelernt" (replaces the 3-streak rule) | Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start). |
@@ -46,3 +46,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) | AI-grading sanitizer and abuse monitoring | Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring). |
 | [0041](0041-agb-acceptance-and-inactivity-retention.md) | AGB acceptance tracking and inactivity-based retention reservation | Accepted — amends [ADR-0032](0032-daily-kpi-report.md) (adds `last_login_at`, not used for KPIs). |
 | [0042](0042-manual-maintenance-mode.md) | Manual maintenance mode via a Render-only env var toggle | Accepted |
+| [0043](0043-token-based-ai-grading-monetization.md) | Token-based AI-grading monetization, with fixed prices | Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (the AI-grading add-on is now pay-per-use, not a boolean unlock) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (drops the `ai_grading_enabled` entitlement it introduced); both stand otherwise. |

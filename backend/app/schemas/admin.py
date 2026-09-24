@@ -3,33 +3,57 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 MAX_WEEKLY_LIMIT = 10_000
+MAX_GRANT_TOKENS = 100_000
+MAX_GRANT_AMOUNT_EUR_CENTS = 1_000_000
+MAX_PRICE_CENTS = 1_000_000
+MAX_PACKAGE_TOKENS = 100_000
 
 
 class AdminUserUpdate(BaseModel):
-    ai_grading_enabled: bool | None = None
     ads_removed: bool | None = None
     # Explicit null resets the account to the app-wide default; "absent" is told apart via model_fields_set.
     ai_checks_weekly_limit: int | None = Field(default=None, ge=0, le=MAX_WEEKLY_LIMIT)
+    # A manual token top-up (ADR-0043) — off-platform payment until a payment provider exists.
+    # Optional: how much the account actually paid for it, so it's kept (anonymized) rather than
+    # deleted on account deletion, like a real purchase (see services/user.py). None for a
+    # goodwill grant with no payment behind it.
+    grant_tokens: int | None = Field(default=None, ge=1, le=MAX_GRANT_TOKENS)
+    grant_amount_eur_cents: int | None = Field(default=None, ge=0, le=MAX_GRANT_AMOUNT_EUR_CENTS)
 
     @model_validator(mode="after")
     def _require_a_field(self) -> "AdminUserUpdate":
         if (
-            self.ai_grading_enabled is None
-            and self.ads_removed is None
+            self.ads_removed is None
             and "ai_checks_weekly_limit" not in self.model_fields_set
+            and self.grant_tokens is None
         ):
-            raise ValueError(
-                "at least one of ai_grading_enabled, ads_removed, ai_checks_weekly_limit required"
-            )
+            raise ValueError("at least one of ads_removed, ai_checks_weekly_limit, grant_tokens required")
         return self
+
+
+class TokenPackageSettings(BaseModel):
+    tokens: int = Field(ge=1, le=MAX_PACKAGE_TOKENS)
+    price_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
 
 
 class AdminSettingsRead(BaseModel):
     ai_checks_weekly_default: int
+    price_ads_removed_cents: int
+    signup_bonus_tokens: int
+    tokens_s: TokenPackageSettings
+    tokens_m: TokenPackageSettings
+    tokens_l: TokenPackageSettings
+    tokens_xl: TokenPackageSettings
 
 
 class AdminSettingsUpdate(BaseModel):
     ai_checks_weekly_default: int = Field(ge=0, le=MAX_WEEKLY_LIMIT)
+    price_ads_removed_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
+    signup_bonus_tokens: int = Field(ge=0, le=1_000)
+    tokens_s: TokenPackageSettings
+    tokens_m: TokenPackageSettings
+    tokens_l: TokenPackageSettings
+    tokens_xl: TokenPackageSettings
 
 
 class AdminUserListItem(BaseModel):
@@ -41,7 +65,7 @@ class AdminUserListItem(BaseModel):
     first_name: str | None
     last_name: str | None
     created_at: datetime
-    ai_grading_enabled: bool
+    token_balance: int
     ads_removed: bool
 
 
@@ -62,7 +86,7 @@ class AdminUserRead(BaseModel):
     first_name: str | None
     last_name: str | None
     gender: str | None
-    ai_grading_enabled: bool
+    token_balance: int
     ads_removed: bool
     ai_checks_week: date | None
     ai_checks_used: int
@@ -134,10 +158,21 @@ class AdminExamAttemptExport(BaseModel):
     questions: list[AdminExamQuestionExport]
 
 
+class AdminPurchaseExport(BaseModel):
+    # Never NULL here: a row this account's own export can see still has its user_id set — an
+    # anonymized row (services/user.py) only exists after that same account is already gone.
+    product: str
+    tokens_granted: int | None
+    amount_eur_cents: int | None
+    granted_by: str
+    created_at: datetime
+
+
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
     focus_topics: list[AdminFocusTopicExport]
     question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
+    purchases: list[AdminPurchaseExport]
     exported_at: datetime

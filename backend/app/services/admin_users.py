@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
+from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
@@ -20,6 +21,7 @@ from app.schemas.admin import (
     AdminExamAttemptExport,
     AdminExamQuestionExport,
     AdminFocusTopicExport,
+    AdminPurchaseExport,
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
     AdminUserExport,
@@ -66,7 +68,7 @@ def admin_user_read(user: User, question_progress_count: int) -> AdminUserRead:
         first_name=user.first_name,
         last_name=user.last_name,
         gender=user.gender,
-        ai_grading_enabled=user.ai_grading_enabled,
+        token_balance=user.token_balance,
         ads_removed=user.ads_removed,
         ai_checks_week=user.ai_checks_week,
         ai_checks_used=user.ai_checks_used,
@@ -101,6 +103,12 @@ def build_user_export(db: Session, user: User) -> AdminUserExport:
         .where(QuestionReport.user_id == user.id)
         .order_by(QuestionReport.created_at)
     ).all()
+
+    purchase_rows = list(
+        db.execute(
+            select(Purchase).where(Purchase.user_id == user.id).order_by(Purchase.created_at)
+        ).scalars()
+    )
 
     attempts = list(
         db.execute(
@@ -176,6 +184,16 @@ def build_user_export(db: Session, user: User) -> AdminUserExport:
                 updated_at=progress.updated_at,
             )
             for progress, subject, number in rows
+        ],
+        purchases=[
+            AdminPurchaseExport(
+                product=purchase.product,
+                tokens_granted=purchase.tokens_granted,
+                amount_eur_cents=purchase.amount_eur_cents,
+                granted_by=purchase.granted_by,
+                created_at=purchase.created_at,
+            )
+            for purchase in purchase_rows
         ],
         exported_at=datetime.now(UTC),
     )
