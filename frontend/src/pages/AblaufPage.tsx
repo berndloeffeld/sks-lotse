@@ -47,15 +47,26 @@ export function AblaufPage() {
         </p>
       </Section>
 
-      <Section icon={<ChartDividersIcon className="h-8 w-8" />} title="So läuft die SKS-Theorieprüfung ab">
+      <Section icon={<CatalogIcon className="h-8 w-8" />} title="So läuft die SKS-Theorieprüfung ab">
         <p>
           Die Theorieprüfung besteht aus einem Fragebogen mit 30 Fragen in 90 Minuten, aufgeteilt auf Navigation (9),
-          Rechtskunde (7), Wetterkunde (5) und Seemannschaft (9). Dazu kommt eine separate Karten- und Gezeitenaufgabe
-          mit ebenfalls 90 Minuten Bearbeitungszeit.
+          Rechtskunde (7), Wetterkunde (5) und Seemannschaft (9).
         </p>
         <p>
-          SKS Lotse bereitet dich mit dem kompletten amtlichen Fragenkatalog auf genau diesen Fragebogen vor – die
-          Karten- und Gezeitenaufgabe übst du gesondert, zum Beispiel bei einer Segelschule.
+          SKS Lotse bereitet dich mit dem kompletten amtlichen Fragenkatalog auf genau diesen Fragebogen vor – mit
+          Originalfragen und Musterantworten.
+        </p>
+      </Section>
+
+      <Section icon={<ChartDividersIcon className="h-8 w-8" />} title="Die Karten- und Gezeitenaufgabe">
+        <p>
+          Zusätzlich zum Fragebogen gehört eine separate Karten- und Gezeitenaufgabe zur Theorieprüfung: Auf einer
+          Seekarte bestimmst du mit Kursdreieck und Zirkel Kurse, Distanzen und Gezeitenzeiten – in weiteren 90 Minuten,
+          getrennt vom Fragebogen bewertet.
+        </p>
+        <p>
+          SKS Lotse hilft dir dabei bisher nicht – die Kartenaufgabe übst du am besten mit einer echten Seekarte, zum
+          Beispiel im Vorbereitungskurs einer Segelschule.
         </p>
       </Section>
 

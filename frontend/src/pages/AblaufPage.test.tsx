@@ -24,13 +24,15 @@ describe('AblaufPage', () => {
       screen.getByRole('heading', { level: 2, name: 'Was du vor der SKS-Prüfung schon mitbringen musst' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'So läuft die SKS-Theorieprüfung ab' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Die Karten- und Gezeitenaufgabe' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'So läuft die SKS-Praxisprüfung ab' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Warum sich der SKS lohnt' })).toBeInTheDocument()
   })
 
-  it('is honest that SKS Lotse only covers the theory, not the practical exam', () => {
+  it('is honest that SKS Lotse only covers the theory question sheet, not the chart task or the practical exam', () => {
     renderAblaufPage()
 
+    expect(screen.getByText(/SKS Lotse hilft dir dabei bisher nicht/)).toBeInTheDocument()
     expect(screen.getByText(/SKS Lotse deckt ausschließlich die Theorie ab/)).toBeInTheDocument()
   })
 
