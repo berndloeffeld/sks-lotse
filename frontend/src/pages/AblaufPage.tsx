@@ -83,9 +83,13 @@ export function AblaufPage() {
 
       <Section title="Warum sich der SKS lohnt">
         <p>
-          Der SBF See reicht nur für kleinere Boote nah an der Küste. Willst du eine größere Segelyacht chartern oder
-          dich auf Törns weniger einschränken lassen, kommst du am Sportküstenschifferschein kaum vorbei – viele
-          Vercharterer verlangen ihn, sobald Yacht oder Revier über das mit dem SBF See Erlaubte hinausgehen.
+          Für private Skipper ist der SKS gesetzlich nicht vorgeschrieben – außerhalb der SBF-See-pflichtigen Zone
+          brauchst du zum Fahren an sich keinen Schein. Vorgeschrieben ist er nur für die gewerbliche Nutzung von
+          Sportbooten in Küstengewässern.
+        </p>
+        <p>
+          Willst du privat eine größere Segelyacht chartern, kommst du trotzdem kaum an ihm vorbei: Viele Vercharterer,
+          besonders im Mittelmeerraum, verlangen den SKS als Befähigungsnachweis, bevor sie dir eine Yacht anvertrauen.
         </p>
       </Section>
 
