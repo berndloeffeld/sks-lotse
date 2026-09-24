@@ -1,0 +1,54 @@
+name: Maintenance mode toggle
+
+# Manual, alternate/slower path to flip MAINTENANCE_MODE on sks-lotse-backend — the fast path is
+# editing the env var directly in the Render dashboard (docs/RUNBOOK.md -> Maintenance mode),
+# which redeploys itself. This workflow calls Render's API to set the same var and trigger a
+# deploy, so the switch can also be flipped without opening the Render dashboard (e.g. from a
+# phone via the GitHub Actions app). One-time setup: docs/RUNBOOK.md -> One-time setup.
+
+on:
+  workflow_dispatch:
+    inputs:
+      state:
+        description: "Turn maintenance mode on or off"
+        required: true
+        type: choice
+        options: [on, off]
+
+permissions:
+  contents: read
+
+jobs:
+  toggle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Set MAINTENANCE_MODE and trigger a deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ vars.RENDER_BACKEND_SERVICE_ID }}
+          VALUE: ${{ inputs.state == 'on' && 'true' || 'false' }}
+        run: |
+          if [ -z "$SERVICE_ID" ]; then
+            echo "RENDER_BACKEND_SERVICE_ID repo variable is not set — see docs/RUNBOOK.md -> One-time setup." >&2
+            exit 1
+          fi
+
+          # NOTE for implementation/maintenance: verify these two endpoints and their exact
+          # request/response shapes against Render's current API docs (https://api-docs.render.com)
+          # if this workflow ever needs to change — written from Render's documented API shape at
+          # the time this was added, not guaranteed to stay accurate forever.
+
+          # 1. Update the env var on the backend service.
+          curl -sf -X PUT "https://api.render.com/v1/services/${SERVICE_ID}/env-vars/MAINTENANCE_MODE" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"value\": \"${VALUE}\"}"
+
+          # 2. Trigger a deploy so the new value actually takes effect (Settings has no live
+          #    reload, see backend/app/core/config.py) — if step 1 already triggers one as a side
+          #    effect, this is a redundant safety net, not a bug.
+          curl -sf -X POST "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache": "do_not_clear"}'

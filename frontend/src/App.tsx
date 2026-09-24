@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
@@ -13,6 +13,7 @@ import { FocusPracticePage } from './pages/FocusPracticePage'
 import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
+import { MaintenancePage } from './pages/MaintenancePage'
 import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -25,21 +26,33 @@ import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useScrollToHash } from './hooks/useScrollToHash'
 import { useAuthStore } from './store/authStore'
+import { useMaintenanceStore } from './store/maintenanceStore'
 
 function ThrowForPreview(): never {
   throw new Error('Error page preview')
 }
 
+// Legal pages stay reachable during maintenance mode (§5 DDG Impressumspflicht) —
+// everything else, including the landing page, shows MaintenancePage instead.
+// Paths taken verbatim from the <Routes> below.
+const MAINTENANCE_EXEMPT_PATHS = new Set(['/imprint', '/privacy', '/agb'])
+
 // Everything below the router, so the build-time prerender
 // (entry-server.tsx) can render the same tree under a StaticRouter.
 export function AppRoutes() {
   const checkSession = useAuthStore((state) => state.checkSession)
+  const maintenanceMode = useMaintenanceStore((state) => state.maintenanceMode)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     checkSession()
   }, [checkSession])
 
   useScrollToHash()
+
+  if (maintenanceMode && !MAINTENANCE_EXEMPT_PATHS.has(pathname)) {
+    return <MaintenancePage />
+  }
 
   return (
     <ErrorBoundary>

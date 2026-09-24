@@ -40,6 +40,7 @@ only_mutate = [
     "app/core/jwt.py",
     "app/core/security_headers.py",
     "app/core/canonical_domain.py",
+    "app/core/maintenance.py",
     "app/core/ai_quota.py",
     "app/core/log_config.py",
     "app/core/timeutil.py",

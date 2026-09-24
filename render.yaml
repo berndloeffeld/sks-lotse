@@ -77,6 +77,13 @@ services:
       # (see backend/app/core/config.py).
       - key: ADMIN_EMAILS
         sync: false
+      # Manual maintenance-mode kill switch (docs/RUNBOOK.md → Maintenance mode).
+      # sync: false so it can be flipped directly in this dashboard (the fast
+      # path, redeploys on save) and survives a Blueprint Sync; the
+      # maintenance-mode GitHub Action is the alternate path, calling Render's
+      # API to set this same var. Unset/false = normal operation.
+      - key: MAINTENANCE_MODE
+        sync: false
 
   # Daily KPI mail to ADMIN_EMAILS (ADR-0032). Same code and database as the
   # backend, no HTTP. The sync: false values are entered once in the Render

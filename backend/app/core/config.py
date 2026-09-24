@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # Means Cloudflare/Render's proxy is in front of the app, so its
     # client-IP headers can be trusted for rate limiting (app/main.py).
     render: bool = False
+    # Manual kill switch (docs/RUNBOOK.md → Maintenance mode). Flipped only from
+    # outside the running app — the Render dashboard or the maintenance-mode
+    # GitHub Action — never from /admin, which might itself be broken during the
+    # malfunction that prompted this. No live reload: a flip takes a redeploy.
+    maintenance_mode: bool = False
     # No insecure fallback: this signs JWTs and (via a derived key, see
     # app/core/otp.py) hashes OTP codes, so an unset or weak value must fail
     # loudly, not silently run with a known secret.

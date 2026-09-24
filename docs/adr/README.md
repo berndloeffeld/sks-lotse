@@ -45,3 +45,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0039](0039-cumulative-spacing-for-richtig-streaks.md) | Cumulative spacing for unbroken "Richtig" streaks | Accepted — amends the spacing effect of [ADR-0034](0034-half-life-model-for-gelernt.md). |
 | [0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) | AI-grading sanitizer and abuse monitoring | Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (prompt-injection hardening, abuse monitoring). |
 | [0041](0041-agb-acceptance-and-inactivity-retention.md) | AGB acceptance tracking and inactivity-based retention reservation | Accepted — amends [ADR-0032](0032-daily-kpi-report.md) (adds `last_login_at`, not used for KPIs). |
+| [0042](0042-manual-maintenance-mode.md) | Manual maintenance mode via a Render-only env var toggle | Accepted |
