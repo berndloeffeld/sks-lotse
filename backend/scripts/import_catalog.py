@@ -15,12 +15,9 @@ Re-running is safe: questions are upserted by (subject, number), so ids and
 learners' progress survive; only a question that disappeared from the
 catalog is deleted (see ADR-0022).
 
-Known limitations:
-- Chart/diagram images referenced by ~6 questions are not extracted —
-  image_ref is left null for all rows.
-- The official answer to Seemannschaft I 79 / II 65 (seemannschaft_allgemein
-  38) and Seemannschaft I 104 (seemannschaft_segeln 104) is only a sketch, so
-  their answer_text is empty; the learning page says so instead.
+Known limitation: the official answer to Seemannschaft I 79 / II 65 (seemannschaft_allgemein
+38) and Seemannschaft I 104 (seemannschaft_segeln 104) is only a sketch, so
+their answer_text is empty (the sketch itself is in answer_images, ADR-0033).
 
 Question and answer are told apart by typesetting (questions bold, answers
 regular — see extract_marked_text), not by punctuation.
