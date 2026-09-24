@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
-import type { PublicPricing } from '../api/types'
 import { AccountNav } from '../components/AccountNav'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { ContourBackground } from '../components/ContourBackground'
@@ -12,26 +10,7 @@ import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
 import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
-import { formatEurCents } from '../format'
-import { useApiQuery } from '../hooks/useApiQuery'
 import { useAuthStore } from '../store/authStore'
-
-// Teaser prices for the not-yet-purchasable token packages and Werbefrei (ADR-0043) — public,
-// unauthenticated, and cached briefly server-side, so this is safe to call from the landing page.
-function PricingTeaser() {
-  const { data } = useApiQuery('landing-pricing', () => apiClient.get<PublicPricing>('/pricing'))
-  if (!data?.packages) return null
-  return (
-    <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-surface-alt">
-      <li>Werbefrei: {formatEurCents(data.ads_removed_price_cents)} einmalig</li>
-      {data.packages.map((p) => (
-        <li key={p.product}>
-          {p.tokens} Tokens: {formatEurCents(p.price_cents)}
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
 // preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
@@ -307,9 +286,8 @@ export function LandingPage() {
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
                 Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
-                einzeln freischalten – Kauf demnächst möglich, hier schon die geplanten Preise:
+                einzeln freischalten – Kauf demnächst möglich.
               </p>
-              <PricingTeaser />
             </div>
             <ShareLinks />
           </div>
