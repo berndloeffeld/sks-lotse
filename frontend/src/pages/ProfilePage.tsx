@@ -8,6 +8,7 @@ import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useProgressSummary } from '../hooks/useProgressSummary'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
@@ -26,23 +27,20 @@ export function ProfilePage() {
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
   const [lastName, setLastName] = useState(user?.last_name ?? '')
   const [gender, setGender] = useState(user?.gender ?? '')
-  const [isSavingPersonalInfo, setIsSavingPersonalInfo] = useState(false)
-  const [personalInfoError, setPersonalInfoError] = useState<string | null>(null)
+  const personalInfoAction = useAsyncAction()
   const [personalInfoSuccess, setPersonalInfoSuccess] = useState<string | null>(null)
 
   // E-Mail-Adresse ändern
   const [emailStep, setEmailStep] = useState<EmailChangeStep>('email')
   const [newEmail, setNewEmail] = useState('')
   const [emailCode, setEmailCode] = useState('')
-  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
-  const [emailError, setEmailError] = useState<string | null>(null)
+  const emailAction = useAsyncAction()
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null)
 
   // Konto löschen
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const deleteAction = useAsyncAction()
   const [isAccountDeleted, setIsAccountDeleted] = useState(false)
 
   // Once the account is gone, clear the (already dead) session only when this
@@ -61,39 +59,32 @@ export function ProfilePage() {
 
   async function handleSavePersonalInfo(event: FormEvent) {
     event.preventDefault()
-    setPersonalInfoError(null)
     setPersonalInfoSuccess(null)
-    setIsSavingPersonalInfo(true)
-    try {
+    await personalInfoAction.run(async () => {
       await updateUser({
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         gender: gender || null,
       })
       setPersonalInfoSuccess('Gespeichert.')
-    } catch {
-      setPersonalInfoError('Die Angaben konnten nicht gespeichert werden.')
-    } finally {
-      setIsSavingPersonalInfo(false)
-    }
+    }, 'Die Angaben konnten nicht gespeichert werden.')
   }
 
   async function handleRequestEmailChange(event: FormEvent) {
     event.preventDefault()
-    setEmailError(null)
     setEmailSuccess(null)
     // Caught here rather than via the backend's 400, which this page can't
     // tell apart from the disposable-address 400 below by status alone.
     if (user && newEmail.trim().toLowerCase() === user.email.toLowerCase()) {
-      setEmailError('Das ist bereits deine E-Mail-Adresse.')
+      emailAction.setError('Das ist bereits deine E-Mail-Adresse.')
       return
     }
-    setIsSubmittingEmail(true)
-    try {
-      await apiClient.post('/auth/me/email/request', { new_email: newEmail })
-      setEmailStep('code')
-    } catch (err) {
-      setEmailError(
+    await emailAction.run(
+      async () => {
+        await apiClient.post('/auth/me/email/request', { new_email: newEmail })
+        setEmailStep('code')
+      },
+      (err) =>
         err instanceof ApiError && err.status === 409
           ? 'Diese E-Mail-Adresse wird bereits verwendet.'
           : err instanceof ApiError && err.status === 403
@@ -101,50 +92,38 @@ export function ProfilePage() {
             : err instanceof ApiError && err.status === 400
               ? 'Wegwerf-E-Mail-Adressen werden nicht unterstützt.'
               : 'Der Code konnte nicht angefordert werden.',
-      )
-    } finally {
-      setIsSubmittingEmail(false)
-    }
+    )
   }
 
   async function handleVerifyEmailChange(event: FormEvent) {
     event.preventDefault()
-    setEmailError(null)
-    setIsSubmittingEmail(true)
-    try {
-      setUser(await apiClient.post<User>('/auth/me/email/verify', { new_email: newEmail, code: emailCode }))
-      setEmailStep('email')
-      setNewEmail('')
-      setEmailCode('')
-      setEmailSuccess('E-Mail-Adresse geändert.')
-    } catch (err) {
-      setEmailError(
+    await emailAction.run(
+      async () => {
+        setUser(await apiClient.post<User>('/auth/me/email/verify', { new_email: newEmail, code: emailCode }))
+        setEmailStep('email')
+        setNewEmail('')
+        setEmailCode('')
+        setEmailSuccess('E-Mail-Adresse geändert.')
+      },
+      (err) =>
         err instanceof ApiError && err.status === 409
           ? 'Diese E-Mail-Adresse wird bereits verwendet.'
           : 'Der Code ist ungültig oder abgelaufen.',
-      )
-    } finally {
-      setIsSubmittingEmail(false)
-    }
+    )
   }
 
   const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()
 
   async function handleDeleteAccount(event: FormEvent) {
     event.preventDefault()
-    setDeleteError(null)
-    setIsDeleting(true)
-    try {
+    await deleteAction.run(async () => {
       await apiClient.delete('/auth/me')
       // Not logout(): the backend already dropped the account and cleared the
       // cookie, so POST /auth/logout could only 401. The local session is
       // cleared by the effect above once this navigation lands.
       setIsAccountDeleted(true)
       navigate('/', { replace: true })
-    } catch {
-      setDeleteError('Der Account konnte nicht gelöscht werden.')
-      setIsDeleting(false)
-    }
+    }, 'Der Account konnte nicht gelöscht werden.')
   }
 
   const dark = formStyles('dark')
@@ -223,9 +202,9 @@ export function ProfilePage() {
                   ))}
                 </select>
               </label>
-              {personalInfoError ? <p className={dark.error}>{personalInfoError}</p> : null}
+              {personalInfoAction.error ? <p className={dark.error}>{personalInfoAction.error}</p> : null}
               {personalInfoSuccess ? <p className={successClass}>{personalInfoSuccess}</p> : null}
-              <button type="submit" disabled={isSavingPersonalInfo} className={dark.button}>
+              <button type="submit" disabled={personalInfoAction.isPending} className={dark.button}>
                 Speichern
               </button>
             </form>
@@ -250,9 +229,9 @@ export function ProfilePage() {
                   />
                 </label>
                 <p className={`text-xs ${dark.note}`}>Wir senden dir einen Bestätigungscode an die neue Adresse.</p>
-                {emailError ? <p className={dark.error}>{emailError}</p> : null}
+                {emailAction.error ? <p className={dark.error}>{emailAction.error}</p> : null}
                 {emailSuccess ? <p className={successClass}>{emailSuccess}</p> : null}
-                <button type="submit" disabled={isSubmittingEmail} className={dark.button}>
+                <button type="submit" disabled={emailAction.isPending} className={dark.button}>
                   Code anfordern
                 </button>
               </form>
@@ -271,8 +250,8 @@ export function ProfilePage() {
                     className={`${dark.input} font-mono`}
                   />
                 </label>
-                {emailError ? <p className={dark.error}>{emailError}</p> : null}
-                <button type="submit" disabled={isSubmittingEmail} className={dark.button}>
+                {emailAction.error ? <p className={dark.error}>{emailAction.error}</p> : null}
+                <button type="submit" disabled={emailAction.isPending} className={dark.button}>
                   Bestätigen
                 </button>
                 <button
@@ -280,7 +259,7 @@ export function ProfilePage() {
                   onClick={() => {
                     setEmailStep('email')
                     setEmailCode('')
-                    setEmailError(null)
+                    emailAction.setError(null)
                   }}
                   className={dark.link}
                 >
@@ -318,10 +297,10 @@ export function ProfilePage() {
                   className={`${light.input} border-danger`}
                 />
               </label>
-              {deleteError ? <p className={light.error}>{deleteError}</p> : null}
+              {deleteAction.error ? <p className={light.error}>{deleteAction.error}</p> : null}
               <button
                 type="submit"
-                disabled={!canConfirmDelete || isDeleting}
+                disabled={!canConfirmDelete || deleteAction.isPending}
                 className="rounded-tile bg-danger px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
               >
                 Endgültig löschen

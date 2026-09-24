@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { ExamStats } from '../api/types'
 import { formatDateTime, percentOf } from '../format'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { EXAM_RESULT_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
 
 function Figure({ label, value }: { label: string; value: string }) {
@@ -17,23 +17,9 @@ function Figure({ label, value }: { label: string; value: string }) {
 
 // Statistics over the learner's completed exams, for the profile.
 export function ExamStatsPanel() {
-  const [stats, setStats] = useState<ExamStats | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    apiClient
-      .get<ExamStats>('/exams/stats')
-      .then((data) => {
-        if (!cancelled) setStats(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('Die Prüfungsstatistik konnte nicht geladen werden.')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const query = useApiQuery('exam-stats', () => apiClient.get<ExamStats>('/exams/stats'))
+  const stats = query.data ?? null
+  const error = query.failed ? 'Die Prüfungsstatistik konnte nicht geladen werden.' : null
 
   return (
     <div className="flex flex-col gap-6">

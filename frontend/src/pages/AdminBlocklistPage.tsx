@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { apiClient } from '../api/client'
 import type { AdminBlockedEmail } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 
 const INPUT = 'border border-border bg-surface px-3 py-2 text-ink'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
@@ -21,8 +22,7 @@ export function AdminBlocklistPage() {
   const [kind, setKind] = useState<'email' | 'domain'>('email')
   const [value, setValue] = useState('')
   const [reason, setReason] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { run, isPending: isSaving, error } = useAsyncAction()
 
   const [removingId, setRemovingId] = useState<number | null>(null)
   const [removeError, setRemoveError] = useState<string | null>(null)
@@ -30,9 +30,7 @@ export function AdminBlocklistPage() {
   async function handleAdd(event: FormEvent) {
     event.preventDefault()
     if (!value.trim()) return
-    setError(null)
-    setIsSaving(true)
-    try {
+    await run(async () => {
       const entry = await apiClient.post<AdminBlockedEmail>('/admin/blocklist', {
         kind,
         value: value.trim(),
@@ -41,11 +39,7 @@ export function AdminBlocklistPage() {
       query.setData((current) => [entry, ...current.filter((e) => e.id !== entry.id)])
       setValue('')
       setReason('')
-    } catch {
-      setError('Der Eintrag konnte nicht gespeichert werden.')
-    } finally {
-      setIsSaving(false)
-    }
+    }, 'Der Eintrag konnte nicht gespeichert werden.')
   }
 
   async function handleRemove(entry: AdminBlockedEmail) {

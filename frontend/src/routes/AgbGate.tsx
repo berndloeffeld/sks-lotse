@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { AGB_VERSION } from '../legal'
 import { useAuthStore } from '../store/authStore'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 
 // Sits inside ProtectedRoute (only reached once authenticated). The protected
 // page always renders (via Outlet) so the app doesn't visually disappear;
@@ -15,8 +16,7 @@ import { useAuthStore } from '../store/authStore'
 export function AgbGate() {
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { run, isPending: isSubmitting, error } = useAsyncAction()
 
   const needsAcceptance = user !== null && user.agb_accepted_version !== AGB_VERSION
 
@@ -31,16 +31,11 @@ export function AgbGate() {
     }
   }, [needsAcceptance])
 
-  async function handleAccept() {
-    setError(null)
-    setIsSubmitting(true)
-    try {
-      setUser(await apiClient.post<User>('/auth/me/agb-accept'))
-    } catch {
-      setError('Das hat nicht geklappt. Bitte erneut versuchen.')
-    } finally {
-      setIsSubmitting(false)
-    }
+  function handleAccept() {
+    return run(
+      async () => setUser(await apiClient.post<User>('/auth/me/agb-accept')),
+      'Das hat nicht geklappt. Bitte erneut versuchen.',
+    )
   }
 
   return (

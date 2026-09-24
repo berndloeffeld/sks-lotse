@@ -4,6 +4,7 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import { ReportIcon } from './icons/FeatureIcons'
 import { formStyles } from './formStyles'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 
 // Mirrors REPORT_CATEGORIES in backend/app/schemas/question_report.py.
 const CATEGORIES = {
@@ -25,9 +26,8 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [category, setCategory] = useState<Category>('answer_text')
   const [comment, setComment] = useState('')
-  const [isSending, setIsSending] = useState(false)
+  const { run, isPending: isSending, error } = useAsyncAction()
   const [isSent, setIsSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const firstFieldRef = useRef<HTMLSelectElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -41,18 +41,12 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
     buttonRef.current?.focus()
   }
 
-  async function send() {
-    setIsSending(true)
-    setError(null)
-    try {
+  function send() {
+    return run(async () => {
       await apiClient.post(`/questions/${questionId}/report`, { category, comment })
       trackEvent('question_reported', { category })
       setIsSent(true)
-    } catch {
-      setError('Die Meldung konnte nicht gesendet werden. Bitte versuche es später erneut.')
-    } finally {
-      setIsSending(false)
-    }
+    }, 'Die Meldung konnte nicht gesendet werden. Bitte versuche es später erneut.')
   }
 
   return (

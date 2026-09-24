@@ -5,6 +5,7 @@ import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 
 type Step = 'email' | 'code'
 
@@ -24,8 +25,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { run, isPending: isSubmitting, error, setError } = useAsyncAction()
 
   const f = formStyles(tone)
   const labelClass = f.label
@@ -39,39 +39,29 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
 
   async function handleRequestCode(event: FormEvent) {
     event.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-    try {
+    // The backend always returns 202 here, even for a rejected address
+    // (see backend/app/api/v1/auth.py) — a thrown error means something
+    // else went wrong (network, malformed input).
+    await run(async () => {
       await apiClient.post('/auth/otp/request', { email })
       setStep('code')
-    } catch {
-      // The backend always returns 202 here, even for a rejected address
-      // (see backend/app/api/v1/auth.py) — a thrown error means something
-      // else went wrong (network, malformed input).
-      setError('Der Code konnte nicht angefordert werden. Bitte E-Mail-Adresse prüfen.')
-    } finally {
-      setIsSubmitting(false)
-    }
+    }, 'Der Code konnte nicht angefordert werden. Bitte E-Mail-Adresse prüfen.')
   }
 
   async function handleVerifyCode(event: FormEvent) {
     event.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-    try {
-      await apiClient.post('/auth/otp/verify', { email, code })
-      await checkSession()
-      trackEvent('login')
-      navigate('/start')
-    } catch (err) {
-      setError(
+    await run(
+      async () => {
+        await apiClient.post('/auth/otp/verify', { email, code })
+        await checkSession()
+        trackEvent('login')
+        navigate('/start')
+      },
+      (err) =>
         err instanceof ApiError && err.status === 401
           ? 'Der Code ist ungültig oder abgelaufen.'
           : 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+    )
   }
 
   if (step === 'email') {

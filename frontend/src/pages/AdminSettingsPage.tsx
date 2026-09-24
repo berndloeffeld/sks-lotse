@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 
 import { apiClient } from '../api/client'
 import type { AdminSettings, TokenPackageSettings } from '../api/types'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { PACKAGE_LABELS, PACKAGE_PRODUCTS, type PackageProduct } from '../labels'
 
 // Euro-and-cent input as a plain string, e.g. "2.99" — kept as text (not a number) so a half-typed
@@ -57,10 +59,7 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
   return {
     price_ads_removed_cents: priceAdsRemovedCents,
     signup_bonus_tokens: signupBonusTokens,
-    tokens_s: packages.tokens_s!,
-    tokens_m: packages.tokens_m!,
-    tokens_l: packages.tokens_l!,
-    tokens_xl: packages.tokens_xl!,
+    ...(packages as Record<PackageProduct, TokenPackageSettings>),
   }
 }
 
@@ -71,50 +70,36 @@ const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 // AdminLayout does the admin check. PUT replaces all of it at once, so the form always submits
 // the full set, not just the field the operator touched.
 export function AdminSettingsPage() {
-  const [form, setForm] = useState<SettingsForm | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const query = useApiQuery('admin-settings', () => apiClient.get<AdminSettings>('/admin/settings'))
+  if (query.failed) return <p className="text-sm text-danger">Die Einstellungen konnten nicht geladen werden.</p>
+  if (!query.data) return <p className="text-sm text-ink-soft">Lädt …</p>
+  return <SettingsEditor initial={query.data} />
+}
+
+function SettingsEditor({ initial }: { initial: AdminSettings }) {
+  const [form, setForm] = useState(() => toForm(initial))
+  const { run, isPending: isSaving, error, setError } = useAsyncAction()
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    apiClient
-      .get<AdminSettings>('/admin/settings')
-      .then((settings) => setForm(toForm(settings)))
-      .catch(() => setError('Die Einstellungen konnten nicht geladen werden.'))
-  }, [])
-
   function updatePackage(product: PackageProduct, patch: Partial<PackageForm>) {
-    setForm((current) =>
-      current
-        ? { ...current, packages: { ...current.packages, [product]: { ...current.packages[product], ...patch } } }
-        : current,
-    )
+    setForm((current) => ({
+      ...current,
+      packages: { ...current.packages, [product]: { ...current.packages[product], ...patch } },
+    }))
   }
 
   async function handleSave(event: FormEvent) {
     event.preventDefault()
     setSaved(false)
-    if (!form) return
     const payload = buildPayload(form)
     if (!payload) {
       setError('Bitte bei jedem Feld eine gültige, nicht-negative Zahl eingeben.')
       return
     }
-    setError(null)
-    setIsSaving(true)
-    try {
-      const updated = await apiClient.put<AdminSettings>('/admin/settings', payload)
-      setForm(toForm(updated))
+    await run(async () => {
+      setForm(toForm(await apiClient.put<AdminSettings>('/admin/settings', payload)))
       setSaved(true)
-    } catch {
-      setError('Die Einstellungen konnten nicht gespeichert werden.')
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  if (!form) {
-    return error ? <p className="text-sm text-danger">{error}</p> : <p className="text-sm text-ink-soft">Lädt …</p>
+    }, 'Die Einstellungen konnten nicht gespeichert werden.')
   }
 
   return (

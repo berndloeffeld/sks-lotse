@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
@@ -7,6 +6,8 @@ import type { Exam, ExamSummary } from '../api/types'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { formatDateTime } from '../format'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { EXAM_RESULT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
@@ -23,40 +24,24 @@ const STATUS_LABELS = {
 export function ExamPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const [exams, setExams] = useState<ExamSummary[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isStarting, setIsStarting] = useState(false)
+  const examsQuery = useApiQuery('exams', () => apiClient.get<ExamSummary[]>('/exams'))
+  const exams = examsQuery.data ?? null
+  const startAction = useAsyncAction()
+  const isStarting = startAction.isPending
+  const error = examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : startAction.error
 
-  useEffect(() => {
-    let cancelled = false
-    apiClient
-      .get<ExamSummary[]>('/exams')
-      .then((data) => {
-        if (!cancelled) setExams(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('Die Prüfungen konnten nicht geladen werden.')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  async function start() {
-    setIsStarting(true)
-    setError(null)
-    try {
-      const exam = await apiClient.post<Exam>('/exams')
-      trackEvent('exam_started')
-      navigate(`/exam/${exam.id}`)
-    } catch (e) {
-      setError(
+  function start() {
+    return startAction.run(
+      async () => {
+        const exam = await apiClient.post<Exam>('/exams')
+        trackEvent('exam_started')
+        navigate(`/exam/${exam.id}`)
+      },
+      (e) =>
         e instanceof ApiError && e.status === 409
           ? 'Es läuft bereits eine Prüfung. Setze sie unten fort.'
           : 'Die Prüfung konnte nicht gestartet werden.',
-      )
-      setIsStarting(false)
-    }
+    )
   }
 
   const running = exams?.find((e) => e.status === 'in_progress')

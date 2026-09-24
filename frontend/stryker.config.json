@@ -14,6 +14,7 @@
     "src/store/maintenanceStore.ts",
     "src/hooks/useExamCountdown.ts",
     "src/hooks/useApiQuery.ts",
+    "src/hooks/useAsyncAction.ts",
     "src/hooks/useExam.ts",
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",
