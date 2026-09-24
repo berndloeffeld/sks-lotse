@@ -2,8 +2,9 @@ import { useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
-import { getFullName, type AdminUserListItem, type AdminUserListPage } from '../api/types'
+import type { AdminUserListItem, AdminUserListPage } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { formatDate, getFullName } from '../format'
 
 const PAGE_SIZE = 50
 
@@ -121,7 +122,7 @@ export function AdminUsersPage() {
                       ) : null}
                       {user.ads_removed ? <span className="border border-border px-1">Werbefrei</span> : null}
                       {user.is_blocked ? <span className="border border-danger px-1 text-danger">Gesperrt</span> : null}
-                      <span>seit {new Date(user.created_at).toLocaleDateString('de-DE')}</span>
+                      <span>seit {formatDate(user.created_at)}</span>
                     </span>
                   </Link>
                   <button

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import type { TopicProgress } from '../api/types'
 import { percentOf } from '../format'
-import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
+import { SUBJECT_LABELS } from '../labels'
 import { formStyles } from './formStyles'
 import { Band } from './Bands'
 import { LedgerRow } from './LedgerRow'

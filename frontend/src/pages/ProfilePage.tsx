@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
-import { getDisplayName, type User } from '../api/types'
+import type { User } from '../api/types'
 import { Band, Columns } from '../components/Bands'
 import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { formStyles } from '../components/formStyles'
@@ -11,6 +11,7 @@ import { ProgressOverview } from '../components/ProgressOverview'
 import { useProgressSummary } from '../hooks/useProgressSummary'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
+import { formatDate, getDisplayName } from '../format'
 
 type EmailChangeStep = 'email' | 'code'
 
@@ -157,7 +158,7 @@ export function ProfilePage() {
       subtitle={
         <>
           Angemeldet als <span className="font-mono text-surface">{getDisplayName(user)}</span> · Mitglied seit{' '}
-          {new Date(user.created_at).toLocaleDateString('de-DE')}
+          {formatDate(user.created_at)}
         </>
       }
       bands

@@ -2,15 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { apiClient } from '../api/client'
 import type { AdminSettings, TokenPackageSettings } from '../api/types'
-
-const PACKAGE_PRODUCTS = ['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl'] as const
-type PackageProduct = (typeof PACKAGE_PRODUCTS)[number]
-const PACKAGE_LABELS: Record<PackageProduct, string> = {
-  tokens_s: 'Paket S',
-  tokens_m: 'Paket M',
-  tokens_l: 'Paket L',
-  tokens_xl: 'Paket XL',
-}
+import { PACKAGE_LABELS, PACKAGE_PRODUCTS, type PackageProduct } from '../labels'
 
 // Euro-and-cent input as a plain string, e.g. "2.99" — kept as text (not a number) so a half-typed
 // value ("2.") doesn't get silently mangled while the operator is still typing.

@@ -9,14 +9,12 @@ const TONES = {
     input: 'border-primary bg-surface text-ink',
     note: 'text-ink-soft',
     link: 'text-primary',
-    heading: 'text-primary',
   },
   dark: {
     label: 'text-surface',
     input: 'border-surface bg-transparent text-surface [&>option]:text-ink',
     note: 'text-surface-alt',
     link: 'text-surface',
-    heading: 'text-surface',
   },
 }
 
@@ -27,7 +25,6 @@ export function formStyles(tone: FormTone) {
     input: `rounded-tile border-2 px-3 py-2 ${t.input}`,
     note: t.note,
     link: `text-sm underline ${t.link}`,
-    heading: t.heading,
     button:
       'rounded-tile bg-accent px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink disabled:opacity-60',
     error: 'rounded-tile bg-danger px-3 py-2 text-sm text-surface',

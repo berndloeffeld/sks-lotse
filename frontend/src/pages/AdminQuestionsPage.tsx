@@ -4,7 +4,7 @@ import { apiClient } from '../api/client'
 import type { Question } from '../api/types'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
-import { SUBJECT_LABELS } from '../hooks/useProgressSummary'
+import { SUBJECT_LABELS } from '../labels'
 import { useApiQuery } from '../hooks/useApiQuery'
 
 interface Search {

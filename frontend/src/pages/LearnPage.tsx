@@ -3,7 +3,8 @@ import { FocusBand } from '../components/FocusBand'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
-import { SUBJECT_LABELS, useProgressSummary } from '../hooks/useProgressSummary'
+import { useProgressSummary } from '../hooks/useProgressSummary'
+import { SUBJECT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
 // The Lernstand, banded like the landing page: overall progress, the
