@@ -17,7 +17,7 @@ from app.core.otp import (
     is_disposable_email,
 )
 from app.core.pricing import signup_bonus_tokens
-from app.core.rate_limit import check_and_record
+from app.core.rate_limit import enforce_limit
 from app.models import User
 from app.schemas.auth import (
     EmailChangeRequestCreate,
@@ -50,6 +50,32 @@ _INVALID_EMAIL_CHANGE_CODE = HTTPException(
 _NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 
+def _admission_error(app, db: Session, email: str) -> HTTPException | None:
+    """Why `email` may not sign in, as the error an authenticated caller gets, or None if it may.
+
+    Checked in this order: the private-beta ALLOWED_EMAILS allowlist, disposable domains, the
+    manual blocklist (ADR-0045). Anonymous login (request_otp) answers every one of them with the
+    same silent 202, so it doesn't reveal which addresses exist or are listed. The email change
+    (request_email_change) has an authenticated caller who would otherwise wait for a code that
+    never comes, so it says why. There, an address outside the allowlist would also be a trap: the
+    change would go through, but the learner could never log in with it again.
+    """
+    allowed_emails = settings.allowed_emails_set
+    if allowed_emails is not None and email not in allowed_emails:
+        return HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="This email address is not allowed to sign in"
+        )
+    if is_disposable_email(email):
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Disposable email addresses are not supported"
+        )
+    if blocklist.is_email_blocked(app, db, email):
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="This email address is not allowed"
+        )
+    return None
+
+
 @router.post("/otp/request", response_model=OtpRequestAccepted, status_code=status.HTTP_202_ACCEPTED)
 def request_otp(
     payload: OtpRequestCreate,
@@ -58,18 +84,8 @@ def request_otp(
     db: Session = Depends(get_db),
     session_factory: sessionmaker[Session] = Depends(get_session_factory),
 ):
-    allowed_emails = settings.allowed_emails_set
-    if allowed_emails is not None and payload.email not in allowed_emails:
-        # Same generic response as every other throttled/rejected case below —
-        # doesn't leak whether this email is on the allowlist.
-        return OtpRequestAccepted()
-
-    if is_disposable_email(payload.email):
-        return OtpRequestAccepted()
-
-    if blocklist.is_email_blocked(request.app, db, payload.email):
-        # Same generic 202 as every other rejected case above — a manually blocked address
-        # (ADR-0045) gets no different a response than one outside the allowlist.
+    if _admission_error(request.app, db, payload.email) is not None:
+        # The same generic 202 as a throttled or accepted request.
         return OtpRequestAccepted()
 
     otp_codes.issue_code(
@@ -108,7 +124,6 @@ def verify_otp(
             db.rollback()
             user = db.execute(select(User).where(User.email == payload.email)).scalar_one()
         else:
-            db.refresh(user)
             # ADR-0043: a few free tokens so a new account can try the AI check, deliberately
             # too few to make re-registering worth it instead of buying more.
             token_wallet.grant(
@@ -176,7 +191,6 @@ def update_current_user(
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(current_user, field, value)
     db.commit()
-    db.refresh(current_user)
     return current_user
 
 
@@ -201,7 +215,6 @@ def accept_agb(current_user: User = Depends(get_current_user), db: Session = Dep
     current_user.agb_accepted_version = CURRENT_AGB_VERSION
     current_user.agb_accepted_at = datetime.now(UTC)
     db.commit()
-    db.refresh(current_user)
     return current_user
 
 
@@ -225,42 +238,22 @@ def request_email_change(
     # many target addresses from multiple IPs to learn which are taken.
     # Checked before anything that reveals something about the target address
     # (allowlist, taken) — a probe that gets a 403/409 must use up quota too.
-    if not check_and_record(
+    enforce_limit(
         request.app,
         "email_change_request:user",
         str(current_user.id),
         settings.email_change_max_requests_per_window,
         settings.email_change_window_seconds,
-    ):
-        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests")
+        "Too many requests",
+    )
 
-    # During a private beta, an address outside ALLOWED_EMAILS would be a trap:
-    # the change would go through, but /otp/request silently ignores that
-    # address, so the learner could never log in again once this session ends.
-    allowed_emails = settings.allowed_emails_set
-    if allowed_emails is not None and new_email not in allowed_emails:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="This email address is not allowed to sign in"
-        )
+    if (error := _admission_error(request.app, db, new_email)) is not None:
+        raise error
 
     # Unlike request_otp's anonymous-login flow, the caller here is already
     # authenticated — telling them a target address is taken isn't the same
     # enumeration surface as anonymous login OTP, and the product requirement
     # is a clear "already taken" error rather than a silent generic 202.
-    # Unlike login, where a disposable address gets the same silent 202 as
-    # every other rejection (no enumeration signal for anonymous callers),
-    # this caller is authenticated and would otherwise wait for a code that
-    # never comes — say so instead.
-    if is_disposable_email(new_email):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Disposable email addresses are not supported"
-        )
-
-    if blocklist.is_email_blocked(request.app, db, new_email):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="This email address is not allowed"
-        )
-
     existing = db.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
     if existing is not None:
         raise HTTPException(
@@ -302,7 +295,6 @@ def verify_email_change(
             status_code=status.HTTP_409_CONFLICT, detail="This email address is already in use"
         ) from None
 
-    db.refresh(current_user)
     # No token_version bump / re-login needed: the JWT doesn't embed the
     # email, so the existing session stays valid after this change.
     return current_user

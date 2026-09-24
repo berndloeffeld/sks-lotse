@@ -10,6 +10,16 @@ from app.models.question_report import QuestionReport
 from app.models.user import User
 
 
+def locked_user(db: Session, user_id: int) -> User:
+    """The user's row, locked for a read-modify-write of its counters (token balance, flags).
+
+    FOR UPDATE (a no-op on SQLite) serializes parallel updates, so e.g. two checks can't both spend
+    the last token; populate_existing because the caller's own copy of the row may already be stale.
+    """
+    stmt = select(User).where(User.id == user_id).with_for_update().execution_options(populate_existing=True)
+    return db.execute(stmt).scalar_one()
+
+
 def delete_user_and_progress(db: Session, user: User) -> None:
     # Deleted explicitly rather than relying on the question_progress.user_id
     # FK's ondelete="CASCADE": that fires reliably on Postgres (production),

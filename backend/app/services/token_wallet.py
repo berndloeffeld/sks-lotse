@@ -5,25 +5,17 @@ separate weekly budget this used to sit alongside) — `app/api/v1/grading.py` r
 per check and refunds it if the LLM call fails.
 """
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.purchase import Purchase
-from app.models.user import User
+from app.services.user import locked_user
 
 TOKENS_PER_ANSWER_CHECK = 1
 
 
-def _locked_user(db: Session, user_id: int) -> User:
-    # FOR UPDATE (a no-op on SQLite) serializes parallel spends/grants so two can't both spend the
-    # last token; populate_existing because the caller's own copy of the row may already be stale.
-    stmt = select(User).where(User.id == user_id).with_for_update().execution_options(populate_existing=True)
-    return db.execute(stmt).scalar_one()
-
-
 def reserve(db: Session, user_id: int) -> int | None:
     """Spend one answer check's worth of tokens. Returns tokens left, or None if the balance is too low."""
-    user = _locked_user(db, user_id)
+    user = locked_user(db, user_id)
     if user.token_balance < TOKENS_PER_ANSWER_CHECK:
         db.commit()
         return None
@@ -34,7 +26,7 @@ def reserve(db: Session, user_id: int) -> int | None:
 
 def refund(db: Session, user_id: int) -> None:
     """Give back a reserved token (the LLM call failed) — a check that never happened costs nothing."""
-    user = _locked_user(db, user_id)
+    user = locked_user(db, user_id)
     user.token_balance += TOKENS_PER_ANSWER_CHECK
     db.commit()
 
@@ -55,7 +47,7 @@ def grant(
     stays `None` for grants that involved no money — see `app/models/purchase.py` on why that
     distinction matters for account deletion.
     """
-    user = _locked_user(db, user_id)
+    user = locked_user(db, user_id)
     if tokens:
         user.token_balance += tokens
     purchase = Purchase(
@@ -68,5 +60,4 @@ def grant(
     )
     db.add(purchase)
     db.commit()
-    db.refresh(purchase)
     return purchase

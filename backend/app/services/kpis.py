@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import distinct, exists, func, select, union
 from sqlalchemy.orm import Session
 
-from app.core.exam import OUTCOME_POINTS, PASS_MIN_POINTS
+from app.core.exam import result_for
 from app.core.progress import learned_clause
 from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
@@ -20,6 +20,7 @@ from app.schemas.kpis import (
     ReportedQuestion,
     SubjectLearned,
 )
+from app.services import exam as exam_service
 
 TOP_REPORTED_LIMIT = 5
 
@@ -100,11 +101,7 @@ def _engagement(db: Session, now: datetime) -> EngagementKpis:
 
 def _exams_passed(db: Session, since: datetime) -> tuple[int, int]:
     attempts = db.execute(select(ExamAttempt).where(ExamAttempt.graded_at >= since)).scalars().all()
-    passed = sum(
-        1
-        for attempt in attempts
-        if sum(OUTCOME_POINTS.get(q.outcome or "", 0) for q in attempt.questions) >= PASS_MIN_POINTS
-    )
+    passed = sum(1 for attempt in attempts if result_for(exam_service.total_points(attempt)) == "bestanden")
     return len(attempts), passed
 
 

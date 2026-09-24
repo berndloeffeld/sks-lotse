@@ -50,7 +50,7 @@ class ExamAttempt(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     questions: Mapped[list["ExamAttemptQuestion"]] = relationship(
-        order_by="ExamAttemptQuestion.position", lazy="selectin"
+        order_by="ExamAttemptQuestion.position", lazy="selectin", cascade="all, delete-orphan"
     )
 
 

@@ -815,6 +815,7 @@ def test_request_email_change_rejects_a_disposable_address(client, db_session, m
     )
 
     assert response.status_code == 400
+    assert response.json()["detail"] == "Disposable email addresses are not supported"
     assert sent == []
     assert db_session.query(OtpCode).count() == 0
 
@@ -829,6 +830,7 @@ def test_request_email_change_rejects_a_manually_blocked_email(client, db_sessio
     )
 
     assert response.status_code == 400
+    assert response.json()["detail"] == "This email address is not allowed"
     assert sent == []
 
 
@@ -844,6 +846,7 @@ def test_request_email_change_rejects_a_manually_blocked_domain(
     )
 
     assert response.status_code == 400
+    assert response.json()["detail"] == "This email address is not allowed"
     assert sent == []
 
 
@@ -987,6 +990,7 @@ def test_request_email_change_rejects_address_outside_the_allowlist(client, monk
         "/api/v1/auth/me/email/request", json={"new_email": "outsider@example.com"}, headers=auth_headers
     )
     assert response.status_code == 403
+    assert response.json()["detail"] == "This email address is not allowed to sign in"
     assert sent == []
 
     response = client.post(
