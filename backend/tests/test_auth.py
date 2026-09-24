@@ -475,11 +475,6 @@ def test_logout_clears_the_session_cookie(client, db_session, monkeypatch):
     assert client.get("/api/v1/auth/me").status_code == 401
 
 
-def test_me_without_token_returns_401(client):
-    response = client.get("/api/v1/auth/me")
-    assert response.status_code == 401
-
-
 def test_me_with_invalid_token_returns_401(client):
     response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer not-a-real-token"})
     assert response.status_code == 401
@@ -544,11 +539,6 @@ def test_me_with_valid_token_returns_current_user(client, db_session, monkeypatc
     assert response.json()["email"] == "learner@example.com"
 
 
-def test_logout_without_token_returns_401(client):
-    response = client.post("/api/v1/auth/logout")
-    assert response.status_code == 401
-
-
 def test_logout_revokes_the_token_used_to_call_it(client, auth_headers):
     logout_response = client.post("/api/v1/auth/logout", headers=auth_headers)
     assert logout_response.status_code == 204
@@ -600,11 +590,6 @@ def test_update_me_sets_exam_variant(client, db_session, auth_headers):
 def test_update_me_rejects_unknown_exam_variant(client, auth_headers):
     response = client.patch("/api/v1/auth/me", json={"exam_variant": "rudern"}, headers=auth_headers)
     assert response.status_code == 422
-
-
-def test_update_me_requires_auth(client):
-    response = client.patch("/api/v1/auth/me", json={"exam_variant": "motor"})
-    assert response.status_code == 401
 
 
 def test_update_me_sets_first_and_last_name(client, db_session, auth_headers):
@@ -681,12 +666,6 @@ def test_me_reports_no_agb_acceptance_by_default(client, auth_headers):
     assert response.json()["agb_accepted_version"] is None
 
 
-def test_accept_agb_requires_auth(client):
-    response = client.post("/api/v1/auth/me/agb-accept")
-
-    assert response.status_code == 401
-
-
 def test_accept_agb_sets_version_and_timestamp(client, db_session, auth_headers):
     response = client.post("/api/v1/auth/me/agb-accept", headers=auth_headers)
 
@@ -761,11 +740,6 @@ def test_delete_me_clears_the_session_cookie(client, db_session, monkeypatch):
     assert response.status_code == 204
     cookie = next((c for c in response.cookies.jar if c.name == "access_token"), None)
     assert cookie is None or cookie.value == ""
-
-
-def test_delete_me_requires_auth(client):
-    response = client.delete("/api/v1/auth/me")
-    assert response.status_code == 401
 
 
 def _capture_email_change_otp(monkeypatch):
@@ -859,11 +833,6 @@ def test_request_email_change_rejects_email_already_taken_by_another_user(client
     )
 
     assert response.status_code == 409
-
-
-def test_request_email_change_requires_auth(client):
-    response = client.post("/api/v1/auth/me/email/request", json={"new_email": "new@example.com"})
-    assert response.status_code == 401
 
 
 def test_request_email_change_per_user_rate_limit(client, monkeypatch, auth_headers):

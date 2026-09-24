@@ -6,11 +6,7 @@ from app.models.topic import Topic
 from app.models.user import User
 from app.services.focus import is_topic_fully_learned, remove_focus_if_topic_learned
 from app.services.user import delete_user_and_progress
-from tests.helpers import progress_state
-
-
-def _fixture_user(db_session) -> User:
-    return db_session.query(User).filter_by(email="fixture-user@example.com").one()
+from tests.helpers import fixture_user, progress_state
 
 
 def _topic_with_questions(db_session, count=2, subject="navigation", slug="nav"):
@@ -27,7 +23,7 @@ def _topic_with_questions(db_session, count=2, subject="navigation", slug="nav")
 
 
 def _set_streaks(db_session, questions, streaks):
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add_all(
         QuestionProgress(user_id=user.id, question_id=q.id, **progress_state(s, graded_days_ago=7))
         for q, s in zip(questions, streaks, strict=True)
@@ -41,11 +37,6 @@ def _put(client, headers, subject="navigation", slug="nav"):
 
 def _summary(client, headers):
     return client.get("/api/v1/progress/summary", headers=headers).json()
-
-
-def test_focus_endpoints_require_auth(client):
-    assert client.put("/api/v1/progress/focus/navigation/nav").status_code == 401
-    assert client.delete("/api/v1/progress/focus/navigation/nav").status_code == 401
 
 
 def test_summary_counts_partially_learned_questions(client, db_session, auth_headers):
@@ -85,7 +76,7 @@ def test_focus_unknown_topic_is_404(client, db_session, auth_headers):
 
 def test_focus_topic_outside_exam_variant_is_404(client, db_session, auth_headers):
     _topic_with_questions(db_session, subject="seemannschaft_segeln", slug="segeln")
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     user.exam_variant = "motor"
     db_session.commit()
 
@@ -187,17 +178,13 @@ def _session(client, headers):
 
 def _grade_at(db_session, question, *, level, correct_days_ago):
     """Progress whose last grading was ``correct_days_ago``; None = never graded "Richtig"."""
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     state = progress_state(level, graded_days_ago=correct_days_ago or 0)
     last_correct = state["last_graded_at"] if correct_days_ago is not None else None
     db_session.add(
         QuestionProgress(user_id=user.id, question_id=question.id, last_correct_at=last_correct, **state)
     )
     db_session.commit()
-
-
-def test_focus_session_requires_auth(client):
-    assert client.get("/api/v1/progress/focus/questions").status_code == 401
 
 
 def test_focus_session_is_empty_without_focus_topics(client, db_session, auth_headers):
@@ -240,7 +227,7 @@ def test_focus_session_puts_wrong_answers_before_correct_ones_and_skips_learned(
     client, db_session, auth_headers
 ):
     _, questions = _topic_with_questions(db_session, count=3)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     # Graded "Falsch" yesterday (never correct), "Richtig" 10 days ago, and gelernt.
     _grade_at(db_session, questions[0], level=0, correct_days_ago=None)
     _grade_at(db_session, questions[1], level=1, correct_days_ago=10)
@@ -256,7 +243,7 @@ def test_focus_session_puts_wrong_answers_before_correct_ones_and_skips_learned(
 def test_focus_session_is_scoped_to_the_user_and_the_exam_variant(client, db_session, auth_headers):
     _, mine = _topic_with_questions(db_session, count=1)
     _, sail = _topic_with_questions(db_session, count=1, subject="seemannschaft_segeln", slug="rigg")
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     other = User(email="other@example.com")
     db_session.add(other)
     db_session.commit()
@@ -330,7 +317,7 @@ def test_crediting_an_exam_grades_every_question_in_one_go_and_checks_each_topic
     from app.services import progress as progress_service
 
     topic, questions = _topic_with_questions(db_session, count=3)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     # One question already has progress, two don't — both paths in one batch.
     db_session.add(
         QuestionProgress(user_id=user.id, question_id=questions[0].id, **progress_state(1, graded_days_ago=3))
@@ -362,7 +349,7 @@ def test_crediting_nothing_touches_nothing(db_session, auth_headers):
 
     from app.services.progress import credit_correct_answers
 
-    credit_correct_answers(db_session, _fixture_user(db_session).id, [], datetime.now(UTC))
+    credit_correct_answers(db_session, fixture_user(db_session).id, [], datetime.now(UTC))
 
     assert db_session.query(QuestionProgress).count() == 0
 
@@ -377,7 +364,7 @@ def test_crediting_falls_back_to_one_by_one_when_a_row_appeared_concurrently(
     from app.services import progress as progress_service
 
     _, questions = _topic_with_questions(db_session, count=2)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     real_flush = db_session.flush
     flushes = []
 

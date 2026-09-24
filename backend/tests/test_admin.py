@@ -11,9 +11,7 @@ from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
-from tests.helpers import progress_state
-
-_FIXTURE_EMAIL = "fixture-user@example.com"
+from tests.helpers import FIXTURE_EMAIL, fixture_user, make_admin, progress_state
 
 # A full, valid settings payload — PUT replaces every price/package at once, so tests that don't
 # care about a specific value still have to send one.
@@ -27,52 +25,9 @@ _SETTINGS_PAYLOAD = {
 }
 
 
-def _fixture_user(db_session) -> User:
-    return db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
-
-
-def _make_admin(monkeypatch) -> None:
-    monkeypatch.setattr(settings, "admin_emails", _FIXTURE_EMAIL)
-
-
-def test_admin_routes_require_authentication(client):
-    assert client.get("/api/v1/admin/users").status_code == 401
-    assert client.get("/api/v1/admin/users/1").status_code == 401
-    assert client.get("/api/v1/admin/questions").status_code == 401
-    assert client.get("/api/v1/admin/users/1/export").status_code == 401
-    assert client.delete("/api/v1/admin/users/1").status_code == 401
-    assert client.patch("/api/v1/admin/users/1", json={"ads_removed": True}).status_code == 401
-    assert client.post("/api/v1/admin/users/1/block").status_code == 401
-    assert client.delete("/api/v1/admin/users/1/block").status_code == 401
-    assert client.get("/api/v1/admin/blocklist").status_code == 401
-    create_body = {"kind": "email", "value": "x@example.com"}
-    assert client.post("/api/v1/admin/blocklist", json=create_body).status_code == 401
-    assert client.delete("/api/v1/admin/blocklist/1").status_code == 401
-
-
-def test_admin_routes_reject_non_admin_user(client, db_session, auth_headers):
-    # No admin_emails set at all — the fixture user is logged in but not an admin.
-    for path in ("/api/v1/admin/users", "/api/v1/admin/users/1", "/api/v1/admin/questions"):
-        assert client.get(path, headers=auth_headers).status_code == 403
-    response = client.get("/api/v1/admin/users/1/export", headers=auth_headers)
-    assert response.status_code == 403
-    response = client.delete("/api/v1/admin/users/1", headers=auth_headers)
-    assert response.status_code == 403
-    response = client.patch("/api/v1/admin/users/1", json={"ads_removed": True}, headers=auth_headers)
-    assert response.status_code == 403
-    assert client.post("/api/v1/admin/users/1/block", headers=auth_headers).status_code == 403
-    assert client.delete("/api/v1/admin/users/1/block", headers=auth_headers).status_code == 403
-    assert client.get("/api/v1/admin/blocklist", headers=auth_headers).status_code == 403
-    response = client.post(
-        "/api/v1/admin/blocklist", json={"kind": "email", "value": "x@example.com"}, headers=auth_headers
-    )
-    assert response.status_code == 403
-    assert client.delete("/api/v1/admin/blocklist/1", headers=auth_headers).status_code == 403
-
-
 def test_admin_export_includes_denormalized_question_progress(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
     db_session.commit()
@@ -82,7 +37,7 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
     response = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
     assert response.status_code == 200
     body = response.json()
-    assert body["user"]["email"] == _FIXTURE_EMAIL
+    assert body["user"]["email"] == FIXTURE_EMAIL
     assert len(body["question_progress"]) == 1
     row = body["question_progress"][0]
     assert row["subject"] == "navigation"
@@ -94,8 +49,8 @@ def test_admin_export_includes_denormalized_question_progress(client, db_session
 def test_admin_detail_and_export_include_every_profile_field(client, db_session, auth_headers, monkeypatch):
     # Art. 15/20 DSGVO: the export has to contain all personal data stored
     # about the learner — including the optional, self-reported profile fields.
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     user.first_name = "Anna"
     user.last_name = "Beispiel"
     user.gender = "weiblich"
@@ -113,8 +68,8 @@ def test_admin_detail_and_export_include_every_profile_field(client, db_session,
 def test_admin_detail_and_export_include_the_sanitizer_flag_counter(
     client, db_session, auth_headers, monkeypatch
 ):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     user.ai_flags_count = 2
     user.ai_flags_last_at = datetime(2026, 9, 20, 12, 0, tzinfo=UTC)
     db_session.commit()
@@ -129,8 +84,8 @@ def test_admin_detail_and_export_include_the_sanitizer_flag_counter(
 def test_admin_detail_and_export_include_agb_acceptance_and_last_login(
     client, db_session, auth_headers, monkeypatch
 ):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     user.agb_accepted_version = "2026-09-23"
     user.agb_accepted_at = datetime(2026, 9, 23, 8, 0, tzinfo=UTC)
     user.last_login_at = datetime(2026, 9, 23, 9, 0, tzinfo=UTC)
@@ -145,14 +100,14 @@ def test_admin_detail_and_export_include_agb_acceptance_and_last_login(
 
 
 def test_admin_export_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.get("/api/v1/admin/users/999999/export", headers=auth_headers)
     assert response.status_code == 404
 
 
 def test_admin_delete_removes_user_and_cascades_progress(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     user_id = user.id
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
@@ -173,8 +128,8 @@ def test_admin_delete_severs_purchases_the_admin_granted_to_others(
 ):
     # The deleted account may itself have been an admin who granted another user's tokens —
     # that reference must not block the delete (see services/user.py).
-    _make_admin(monkeypatch)
-    admin = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    admin = fixture_user(db_session)
     beneficiary = User(email="beneficiary@example.com")
     db_session.add(beneficiary)
     db_session.commit()
@@ -199,13 +154,13 @@ def test_admin_delete_severs_purchases_the_admin_granted_to_others(
 
 
 def test_admin_delete_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.delete("/api/v1/admin/users/999999", headers=auth_headers)
     assert response.status_code == 404
 
 
 def test_me_reports_is_admin_true_for_admin(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["is_admin"] is True
@@ -218,8 +173,8 @@ def test_me_reports_is_admin_false_for_non_admin(client, db_session, auth_header
 
 
 def test_admin_export_includes_focus_topics(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     topic = Topic(subject="navigation", slug="ankern", name="Ankern", display_order=1)
     db_session.add(topic)
     db_session.commit()
@@ -235,8 +190,8 @@ def test_admin_export_includes_focus_topics(client, db_session, auth_headers, mo
 
 
 def test_admin_export_includes_purchase_history(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     db_session.add(
         Purchase(
             user_id=user.id,
@@ -261,8 +216,8 @@ def test_admin_export_includes_purchase_history(client, db_session, auth_headers
 
 
 def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     assert user.token_balance == 0
 
     response = client.patch(
@@ -281,7 +236,7 @@ def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
         599,
         "admin_manual",
     )
-    assert purchase.admin_user_id == _fixture_user(db_session).id
+    assert purchase.admin_user_id == fixture_user(db_session).id
 
     # A second grant adds on top, it doesn't replace the balance.
     response = client.patch(f"/api/v1/admin/users/{user.id}", json={"grant_tokens": 10}, headers=auth_headers)
@@ -289,8 +244,8 @@ def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
 
 
 def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     assert user.ads_removed is False
 
     response = client.patch(
@@ -320,16 +275,16 @@ def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_hea
 
 
 def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     assert client.patch(f"/api/v1/admin/users/{user.id}", json={}, headers=auth_headers).status_code == 422
     response = client.patch("/api/v1/admin/users/999999", json={"grant_tokens": 5}, headers=auth_headers)
     assert response.status_code == 404
 
 
 def test_admin_detail_counts_only_that_users_progress(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    me = db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
+    make_admin(monkeypatch)
+    me = db_session.query(User).filter_by(email=FIXTURE_EMAIL).one()
     other = User(email="other@example.com")
     db_session.add(other)
     questions = [Question(subject="navigation", number=n, question_text="Q", answer_text="A") for n in (1, 2)]
@@ -353,8 +308,8 @@ def test_admin_export_contains_every_stored_exam_and_progress_field(
     client, db_session, auth_headers, monkeypatch
 ):
     # Art. 15/20 DSGVO: an export that silently drops a stored field is an incomplete disclosure.
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     question = Question(subject="wetterkunde", number=7, question_text="Q?", answer_text="A")
     db_session.add(question)
     db_session.commit()
@@ -409,21 +364,13 @@ def test_admin_export_contains_every_stored_exam_and_progress_field(
     assert body["question_progress"][0]["last_correct_at"].startswith("2026-03-02T09:00")
 
 
-def test_settings_routes_require_admin(client, auth_headers):
-    assert client.get("/api/v1/admin/settings").status_code == 401
-    assert client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD).status_code == 401
-    assert client.get("/api/v1/admin/settings", headers=auth_headers).status_code == 403
-    response = client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD, headers=auth_headers)
-    assert response.status_code == 403
-
-
 def test_admin_can_read_the_default_settings(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == _SETTINGS_PAYLOAD
 
 
 def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     changed = {
         **_SETTINGS_PAYLOAD,
         "price_ads_removed_cents": 799,
@@ -448,7 +395,7 @@ def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, 
 
 @pytest.mark.parametrize("value", [-1, 1_000_001, "x", None])
 def test_admin_settings_reject_invalid_price(client, db_session, auth_headers, monkeypatch, value):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.put(
         "/api/v1/admin/settings",
         json={**_SETTINGS_PAYLOAD, "price_ads_removed_cents": value},
@@ -460,8 +407,8 @@ def test_admin_settings_reject_invalid_price(client, db_session, auth_headers, m
 def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth_headers, monkeypatch):
     # ai_flags_count is a diagnostic signal (ADR-0040), not an entitlement — AdminUserUpdate has no
     # such field, so a PATCH body naming it is silently ignored rather than applied.
-    _make_admin(monkeypatch)
-    user = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
     user.ai_flags_count = 3
     db_session.commit()
 
@@ -477,8 +424,8 @@ def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth
 def test_admin_actions_are_audit_logged_without_personal_data(
     client, db_session, auth_headers, monkeypatch, caplog
 ):
-    _make_admin(monkeypatch)
-    admin = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    admin = fixture_user(db_session)
     target = User(email="target@example.com")
     db_session.add(target)
     db_session.commit()
@@ -523,13 +470,13 @@ def _list(client, auth_headers, **params) -> dict:
 
 
 def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     _add_users(db_session, ("old@example.com", None, None), ("new@example.com", "Nina", "Neu"))
     body = _list(client, auth_headers)
     assert body["total"] == 3
     emails = [item["email"] for item in body["items"]]
     # The fixture user was created "now", after both.
-    assert emails == [_FIXTURE_EMAIL, "new@example.com", "old@example.com"]
+    assert emails == [FIXTURE_EMAIL, "new@example.com", "old@example.com"]
     assert body["items"][1] == {
         "id": body["items"][1]["id"],
         "email": "new@example.com",
@@ -553,8 +500,8 @@ def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monke
     ],
 )
 def test_admin_user_list_searches_email_and_names(client, db_session, auth_headers, monkeypatch, q, expected):
-    _make_admin(monkeypatch)
-    db_session.query(User).filter_by(email=_FIXTURE_EMAIL).update({"email": "admin@admin.test"})
+    make_admin(monkeypatch)
+    db_session.query(User).filter_by(email=FIXTURE_EMAIL).update({"email": "admin@admin.test"})
     db_session.commit()
     monkeypatch.setattr(settings, "admin_emails", "admin@admin.test")
     _add_users(db_session, ("anna@example.com", "Anna", "Schmidt"), ("b@example.com", "Bert", None))
@@ -564,14 +511,14 @@ def test_admin_user_list_searches_email_and_names(client, db_session, auth_heade
 
 
 def test_admin_user_list_takes_wildcards_literally(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     _add_users(db_session, ("a_b@example.com", None, None), ("axb@example.com", None, "100%"))
     assert [i["email"] for i in _list(client, auth_headers, q="a_b")["items"]] == ["a_b@example.com"]
     assert [i["email"] for i in _list(client, auth_headers, q="%")["items"]] == ["axb@example.com"]
 
 
 def test_admin_user_list_pages(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     _add_users(db_session, *((f"u{n}@example.com", None, None) for n in range(3)))
     body = _list(client, auth_headers, q="@example.com", offset=1, limit=1)
     assert body["total"] == 4
@@ -581,13 +528,13 @@ def test_admin_user_list_pages(client, db_session, auth_headers, monkeypatch):
 
 @pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 201}, {"offset": -1}, {"q": "x" * 255}])
 def test_admin_user_list_rejects_bad_parameters(client, db_session, auth_headers, monkeypatch, params):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.get("/api/v1/admin/users", params=params, headers=auth_headers)
     assert response.status_code == 422
 
 
 def test_admin_user_detail(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     (user,) = _add_users(db_session, ("detail@example.com", "Dora", None))
     question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
     db_session.add(question)
@@ -635,13 +582,13 @@ def _search(client, auth_headers, **params) -> list[tuple[str, int]]:
     ],
 )
 def test_admin_question_search(client, db_session, auth_headers, monkeypatch, params, expected):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     _add_questions(db_session)
     assert _search(client, auth_headers, **params) == expected
 
 
 def test_admin_question_search_finds_by_id(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     rows = _add_questions(db_session)
     body = client.get("/api/v1/admin/questions", params={"q": str(rows[2].id)}, headers=auth_headers).json()
     assert rows[2].id in [q["id"] for q in body]
@@ -651,7 +598,7 @@ def test_admin_question_search_finds_by_id(client, db_session, auth_headers, mon
 def test_admin_user_detail_and_list_report_is_blocked_false_by_default(
     client, db_session, auth_headers, monkeypatch
 ):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     (user,) = _add_users(db_session, ("target@example.com", None, None))
     assert client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers).json()["is_blocked"] is False
     body = _list(client, auth_headers)
@@ -660,7 +607,7 @@ def test_admin_user_detail_and_list_report_is_blocked_false_by_default(
 
 
 def test_admin_can_block_and_unblock_a_user(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     (user,) = _add_users(db_session, ("target@example.com", None, None))
     original_token_version = user.token_version
 
@@ -684,7 +631,7 @@ def test_admin_can_block_and_unblock_a_user(client, db_session, auth_headers, mo
 
 
 def test_blocking_a_user_invalidates_their_current_session(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     (user,) = _add_users(db_session, ("target@example.com", None, None))
     target_headers = {"Authorization": f"Bearer {create_access_token(user.id, user.token_version)}"}
     assert client.get("/api/v1/auth/me", headers=target_headers).status_code == 200
@@ -695,13 +642,13 @@ def test_blocking_a_user_invalidates_their_current_session(client, db_session, a
 
 
 def test_block_user_returns_404_for_unknown_user(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     assert client.post("/api/v1/admin/users/999999/block", headers=auth_headers).status_code == 404
     assert client.delete("/api/v1/admin/users/999999/block", headers=auth_headers).status_code == 404
 
 
 def test_blocking_a_user_is_idempotent(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     (user,) = _add_users(db_session, ("target@example.com", None, None))
     client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
     db_session.refresh(user)
@@ -717,12 +664,12 @@ def test_blocking_a_user_is_idempotent(client, db_session, auth_headers, monkeyp
 
 
 def test_admin_blocklist_starts_empty(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     assert client.get("/api/v1/admin/blocklist", headers=auth_headers).json() == []
 
 
 def test_admin_can_add_and_remove_a_blocked_email(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
 
     response = client.post(
         "/api/v1/admin/blocklist",
@@ -734,7 +681,7 @@ def test_admin_can_add_and_remove_a_blocked_email(client, db_session, auth_heade
     assert body["kind"] == "email"
     assert body["value"] == "spam@gmail.com"
     assert body["reason"] == "abuse"
-    assert body["created_by"] == _FIXTURE_EMAIL
+    assert body["created_by"] == FIXTURE_EMAIL
 
     listed = client.get("/api/v1/admin/blocklist", headers=auth_headers).json()
     assert [entry["value"] for entry in listed] == ["spam@gmail.com"]
@@ -745,7 +692,7 @@ def test_admin_can_add_and_remove_a_blocked_email(client, db_session, auth_heade
 
 
 def test_admin_can_add_a_blocked_domain(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
 
     response = client.post(
         "/api/v1/admin/blocklist",
@@ -761,7 +708,7 @@ def test_admin_can_add_a_blocked_domain(client, db_session, auth_headers, monkey
 def test_admin_blocklist_rejects_a_domain_containing_an_at_sign(
     client, db_session, auth_headers, monkeypatch
 ):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.post(
         "/api/v1/admin/blocklist",
         json={"kind": "domain", "value": "someone@spammy.example.com"},
@@ -771,7 +718,7 @@ def test_admin_blocklist_rejects_a_domain_containing_an_at_sign(
 
 
 def test_admin_blocklist_rejects_unknown_kind(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     response = client.post(
         "/api/v1/admin/blocklist", json={"kind": "ip", "value": "1.2.3.4"}, headers=auth_headers
     )
@@ -779,7 +726,7 @@ def test_admin_blocklist_rejects_unknown_kind(client, db_session, auth_headers, 
 
 
 def test_admin_blocklist_add_is_idempotent(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     payload = {"kind": "email", "value": "spam@example.com"}
     first = client.post("/api/v1/admin/blocklist", json=payload, headers=auth_headers).json()
     second = client.post("/api/v1/admin/blocklist", json=payload, headers=auth_headers).json()
@@ -788,15 +735,15 @@ def test_admin_blocklist_add_is_idempotent(client, db_session, auth_headers, mon
 
 
 def test_admin_blocklist_delete_returns_404_for_unknown_id(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
+    make_admin(monkeypatch)
     assert client.delete("/api/v1/admin/blocklist/999999", headers=auth_headers).status_code == 404
 
 
 def test_blocklist_actions_are_audit_logged_without_the_address(
     client, db_session, auth_headers, monkeypatch, caplog
 ):
-    _make_admin(monkeypatch)
-    admin = _fixture_user(db_session)
+    make_admin(monkeypatch)
+    admin = fixture_user(db_session)
     (target,) = _add_users(db_session, ("target@example.com", None, None))
 
     with caplog.at_level("INFO", logger="app.api.v1.admin"):

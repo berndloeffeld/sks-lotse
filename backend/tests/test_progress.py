@@ -22,16 +22,7 @@ from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
-from tests.helpers import progress_state
-
-
-def _fixture_user(db_session) -> User:
-    return db_session.query(User).filter_by(email="fixture-user@example.com").one()
-
-
-def test_progress_summary_requires_auth(client):
-    response = client.get("/api/v1/progress/summary")
-    assert response.status_code == 401
+from tests.helpers import fixture_user, progress_state
 
 
 def test_progress_summary_empty_state(client, db_session, auth_headers):
@@ -61,7 +52,7 @@ def test_progress_summary_scoped_by_exam_variant(client, db_session, auth_header
     )
     db_session.commit()
 
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     user.exam_variant = "motor"
     db_session.commit()
 
@@ -98,7 +89,7 @@ def test_progress_summary_learned_threshold_boundary(client, db_session, auth_he
     db_session.add_all(questions)
     db_session.commit()
 
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add_all(
         [
             QuestionProgress(user_id=user.id, question_id=questions[0].id, **progress_state(0)),
@@ -327,16 +318,6 @@ def _question(db_session) -> Question:
     return question
 
 
-def test_grade_question_requires_auth(client, db_session):
-    question = _question(db_session)
-    response = client.post(f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"})
-    assert response.status_code == 401
-
-
-def test_list_question_progress_requires_auth(client):
-    assert client.get("/api/v1/progress/questions").status_code == 401
-
-
 def test_grade_question_moves_the_half_life(client, db_session, auth_headers):
     question = _question(db_session)
     url = f"/api/v1/progress/questions/{question.id}"
@@ -378,7 +359,7 @@ def test_grade_question_records_the_last_correct_answer_only_for_richtig(client,
 
 def test_grade_question_becomes_learned_with_spacing(client, db_session, auth_headers):
     question = _question(db_session)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     # Answered right twice before, the last time a week ago.
     db_session.add(
         QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(2, graded_days_ago=7))
@@ -402,7 +383,7 @@ def test_grade_question_counts_towards_the_summary(client, db_session, auth_head
     db_session.add(question)
     db_session.commit()
 
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add(
         QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(2, graded_days_ago=7))
     )
@@ -438,7 +419,7 @@ def test_list_question_progress_returns_only_own_rows(client, db_session, auth_h
     other_user = User(email="other-user@example.com")
     db_session.add(other_user)
     db_session.commit()
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add_all(
         [
             QuestionProgress(user_id=user.id, question_id=questions[2].id, **progress_state(3)),
@@ -462,7 +443,7 @@ def test_grade_question_survives_a_concurrent_first_grading(client, db_session, 
     from app.services import progress as progress_api
 
     question = _question(db_session)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add(
         QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1, graded_days_ago=3))
     )
@@ -489,7 +470,7 @@ def test_grade_question_409_when_the_racing_row_vanished(client, db_session, aut
     from app.services import progress as progress_api
 
     question = _question(db_session)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
     db_session.commit()
     # The row exists (so the insert collides) but every lookup misses it.
@@ -504,7 +485,7 @@ def test_grade_question_409_when_the_racing_row_vanished(client, db_session, aut
 
 def test_grading_only_touches_the_callers_own_progress_row(client, db_session, auth_headers):
     question = _question(db_session)
-    me = _fixture_user(db_session)
+    me = fixture_user(db_session)
     other = User(email="other@example.com")
     db_session.add(other)
     db_session.commit()

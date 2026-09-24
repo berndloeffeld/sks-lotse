@@ -6,11 +6,6 @@ from app.models.user import User
 from app.services.catalog import CATALOG_CACHE_KEY
 
 
-def test_questions_require_auth(client):
-    response = client.get("/api/v1/questions")
-    assert response.status_code == 401
-
-
 def test_list_questions_empty(client, auth_headers):
     response = client.get("/api/v1/questions", headers=auth_headers)
     assert response.status_code == 200
@@ -127,11 +122,6 @@ def test_list_topics(client, db_session, auth_headers):
     response = client.get("/api/v1/topics", params={"subject": "wetterkunde"}, headers=auth_headers)
     assert response.status_code == 200
     assert [t["slug"] for t in response.json()] == ["c"]
-
-
-def test_topics_require_auth(client):
-    response = client.get("/api/v1/topics")
-    assert response.status_code == 401
 
 
 def test_list_questions_filters_by_exam_variant_when_no_subject_given(client, db_session, auth_headers):

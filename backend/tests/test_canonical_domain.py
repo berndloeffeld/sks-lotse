@@ -1,44 +1,34 @@
-def test_secondary_domain_redirects_to_canonical(client):
-    response = client.get(
-        "/api/v1/questions",
-        headers={"host": "sks-lotse.com"},
-        follow_redirects=False,
-    )
+import pytest
+
+
+@pytest.mark.parametrize(
+    ("host", "path", "location"),
+    [
+        ("sks-lotse.com", "/api/v1/questions", "https://sks-lotse.de/api/v1/questions"),
+        (
+            "www.sks-lotse.com",
+            "/api/v1/questions?subject=navigation",
+            "https://sks-lotse.de/api/v1/questions?subject=navigation",
+        ),
+    ],
+)
+def test_secondary_domain_redirects_to_canonical_keeping_path_and_query(client, host, path, location):
+    response = client.get(path, headers={"host": host}, follow_redirects=False)
     assert response.status_code == 301
-    assert response.headers["location"] == "https://sks-lotse.de/api/v1/questions"
+    assert response.headers["location"] == location
 
 
-def test_health_never_redirected(client):
-    for host in ("sks-lotse.com", "www.sks-lotse.com"):
-        response = client.get(
-            "/health",
-            headers={"host": host},
-            follow_redirects=False,
-        )
-        assert response.status_code == 200
-
-
-def test_secondary_domain_with_query_preserves_it(client):
-    response = client.get(
-        "/api/v1/questions?subject=navigation",
-        headers={"host": "www.sks-lotse.com"},
-        follow_redirects=False,
-    )
-    assert response.status_code == 301
-    assert response.headers["location"] == "https://sks-lotse.de/api/v1/questions?subject=navigation"
-
-
-def test_canonical_domain_not_redirected(client):
-    response = client.get("/health", headers={"host": "sks-lotse.de"})
+@pytest.mark.parametrize(
+    "host",
+    [
+        "sks-lotse.com",  # /health is never redirected, even on a secondary domain
+        "www.sks-lotse.com",
+        "sks-lotse.de",  # canonical
+        "localhost:8000",  # unrelated
+        "sks-lotse.global",  # registered, not wired up yet
+        "sks-lotse.store",
+    ],
+)
+def test_health_is_served_without_redirect(client, host):
+    response = client.get("/health", headers={"host": host}, follow_redirects=False)
     assert response.status_code == 200
-
-
-def test_unrelated_host_not_redirected(client):
-    response = client.get("/health", headers={"host": "localhost:8000"})
-    assert response.status_code == 200
-
-
-def test_not_yet_wired_domains_not_redirected(client):
-    for host in ("sks-lotse.global", "sks-lotse.store"):
-        response = client.get("/health", headers={"host": host})
-        assert response.status_code == 200

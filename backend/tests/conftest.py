@@ -11,6 +11,7 @@ from app.core.database import Base, get_db, get_session_factory
 from app.core.jwt import create_access_token
 from app.main import app
 from app.models import User
+from tests.helpers import FIXTURE_EMAIL
 
 
 @pytest.fixture(autouse=True)
@@ -77,7 +78,7 @@ def client(db_session):
 
 @pytest.fixture()
 def auth_headers(db_session):
-    user = User(email="fixture-user@example.com")
+    user = User(email=FIXTURE_EMAIL)
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)

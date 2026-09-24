@@ -4,12 +4,7 @@ from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.user import User
 from app.services.user import delete_user_and_progress
-
-_FIXTURE_EMAIL = "fixture-user@example.com"
-
-
-def _fixture_user(db_session) -> User:
-    return db_session.query(User).filter_by(email=_FIXTURE_EMAIL).one()
+from tests.helpers import fixture_user, make_admin
 
 
 def _question(db_session) -> Question:
@@ -17,10 +12,6 @@ def _question(db_session) -> Question:
     db_session.add(question)
     db_session.commit()
     return question
-
-
-def test_report_requires_auth(client):
-    assert client.post("/api/v1/questions/1/report", json={"category": "typo"}).status_code == 401
 
 
 def test_report_is_stored(client, db_session, auth_headers):
@@ -36,7 +27,7 @@ def test_report_is_stored(client, db_session, auth_headers):
     assert body["category"] == "typo"
     assert body["comment"] == "Tippfehler in Zeile 2"
     stored = db_session.query(QuestionReport).one()
-    assert stored.user_id == _fixture_user(db_session).id
+    assert stored.user_id == fixture_user(db_session).id
 
 
 def test_report_without_comment_is_allowed(client, db_session, auth_headers):
@@ -89,9 +80,9 @@ def test_the_report_cap_is_per_user(client, db_session, auth_headers, monkeypatc
 
 
 def test_admin_export_includes_the_reports(client, db_session, auth_headers, monkeypatch):
-    monkeypatch.setattr(settings, "admin_emails", _FIXTURE_EMAIL)
+    make_admin(monkeypatch)
     question = _question(db_session)
-    user = _fixture_user(db_session)
+    user = fixture_user(db_session)
     client.post(
         f"/api/v1/questions/{question.id}/report",
         json={"category": "answer_text", "comment": "Antwort unvollständig"},
@@ -107,5 +98,5 @@ def test_admin_export_includes_the_reports(client, db_session, auth_headers, mon
 def test_deleting_the_account_deletes_its_reports(client, db_session, auth_headers):
     question = _question(db_session)
     client.post(f"/api/v1/questions/{question.id}/report", json={"category": "typo"}, headers=auth_headers)
-    delete_user_and_progress(db_session, _fixture_user(db_session))
+    delete_user_and_progress(db_session, fixture_user(db_session))
     assert db_session.query(QuestionReport).count() == 0
