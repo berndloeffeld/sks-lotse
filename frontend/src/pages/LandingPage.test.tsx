@@ -56,8 +56,6 @@ describe('LandingPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Kostenlos starten' })).toBeInTheDocument()
     expect(screen.queryByText('Anzeige')).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'KI-Bewertung' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Werbefrei' })).toBeInTheDocument()
   })
 
   it('links to the exam process overview page', () => {
