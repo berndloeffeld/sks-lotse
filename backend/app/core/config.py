@@ -100,11 +100,8 @@ class Settings(BaseSettings):
     grading_max_answer_chars: int = 1000
     grading_max_per_window: int = 30
     grading_window_seconds: int = 3600  # 1 hour
-    # The real budget (ADR-0036): checks per account and week (Monday start, Europe/Berlin), persisted on
-    # the user so a deploy doesn't reset it, plus a cap per question and day so nobody rephrases
-    # until it says "richtig". This is only the fallback: the operator sets the default on /admin/settings
-    # and overrides per account on /admin. At ~0.13 cent per check, 100/week is ~13 cent per account and week.
-    grading_max_per_week: int = 100
+    # Per question and day, so nobody rephrases until it says "richtig" (ADR-0043: the token
+    # balance itself is the spending control, this is just an abuse guard).
     grading_max_per_question_per_day: int = 2
     # LLM calls in flight at once, across all accounts. The endpoint is sync, so each call holds one of
     # the server's worker threads for up to the timeout — without a cap a few accounts could starve the

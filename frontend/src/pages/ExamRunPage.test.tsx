@@ -275,7 +275,6 @@ describe('ExamRunPage', () => {
         is_admin: false,
         token_balance: 1,
         ads_removed: false,
-        ai_checks_remaining: 20,
         agb_accepted_version: null,
       },
     })
@@ -295,7 +294,7 @@ describe('ExamRunPage', () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (init?.method === 'POST' && url.includes('/ai-grade')) {
-        return jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast richtig.', remaining_this_week: 19 })
+        return jsonResponse({ outcome: 'teilweise_richtig', feedback: 'Fast richtig.' })
       }
       return jsonResponse(grading)
     })

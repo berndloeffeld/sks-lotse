@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AdminUserPage } from './AdminUserPage'
+import { useAuthStore } from '../store/authStore'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -35,9 +36,6 @@ const foundUser = {
   gender: 'weiblich',
   token_balance: 0,
   ads_removed: false,
-  ai_checks_used: 4,
-  ai_checks_weekly_limit: null,
-  ai_checks_limit: 100,
   ai_flags_count: 0,
   ai_flags_last_at: null,
   question_progress_count: 3,
@@ -71,6 +69,7 @@ const failPatch = (_url: string, init?: RequestInit) =>
 describe('AdminUserPage', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
   it('loads the account and shows its data', async () => {
@@ -173,6 +172,54 @@ describe('AdminUserPage', () => {
     expect(screen.getByLabelText(/Tokens gutschreiben/)).toHaveValue(null)
   })
 
+  it("syncs the admin's own session when they credit tokens to their own account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch((url, init) => {
+      if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+      const body = JSON.parse(String(init.body)) as { grant_tokens: number }
+      return jsonResponse({ ...foundUser, token_balance: foundUser.token_balance + body.grant_tokens })
+    })
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
+
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 20)')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.token_balance).toBe(20)
+  })
+
+  it("leaves the admin's own session untouched when they edit a different account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, id: 999, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch((url, init) => {
+      if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+      const body = JSON.parse(String(init.body)) as { grant_tokens: number }
+      return jsonResponse({ ...foundUser, token_balance: foundUser.token_balance + body.grant_tokens })
+    })
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+
+    await user.type(screen.getByLabelText(/Tokens gutschreiben/), '20')
+    await user.click(screen.getByRole('button', { name: 'Tokens gutschreiben' }))
+
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 20)')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.token_balance).toBe(0)
+  })
+
   it('rejects an invalid token amount without calling the backend', async () => {
     const user = userEvent.setup()
     const fetchMock = stubFetch()
@@ -196,6 +243,24 @@ describe('AdminUserPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Werbung wieder aktivieren' }))
     expect(await screen.findByText('Aktiv')).toBeInTheDocument()
+  })
+
+  it("syncs the admin's own session when they remove ads on their own account", async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: { ...foundUser, is_admin: true, agb_accepted_version: null } as ReturnType<
+        typeof useAuthStore.getState
+      >['user'],
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    stubFetch(echoPatch)
+    renderUserPage()
+    await screen.findByText('Aktiv')
+
+    await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
+    expect(await screen.findByText('Entfernt')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.ads_removed).toBe(true)
   })
 
   it('shows an error when changing the ads setting fails', async () => {
@@ -251,47 +316,5 @@ describe('AdminUserPage', () => {
     await user.click(await screen.findByRole('button', { name: 'Daten exportieren' }))
 
     expect(await screen.findByText('Der Export konnte nicht erstellt werden.')).toBeInTheDocument()
-  })
-
-  it('sets a per-user weekly limit and resets it to the default', async () => {
-    const user = userEvent.setup()
-    const bodies: unknown[] = []
-    stubFetch((url, init) => {
-      if (init?.method === 'PATCH') bodies.push(JSON.parse(String(init.body)))
-      return echoPatch(url, init)
-    })
-    renderUserPage()
-    expect(await screen.findByText('4 von 100 (Standard)')).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '7')
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(await screen.findByText(/\(eigenes Limit\)/)).toBeInTheDocument()
-    expect(bodies[0]).toEqual({ ai_checks_weekly_limit: 7 })
-
-    await user.click(screen.getByRole('button', { name: 'Standard verwenden' }))
-    expect(await screen.findByText(/\(Standard\)/)).toBeInTheDocument()
-    expect(bodies[1]).toEqual({ ai_checks_weekly_limit: null })
-    expect(screen.getByLabelText(/KI-Prüfungen pro Woche/)).toHaveValue(null)
-  })
-
-  it("prefills the account's own weekly limit", async () => {
-    stubFetch(undefined, { ...foundUser, ai_checks_weekly_limit: 9, ai_checks_limit: 9 })
-    renderUserPage()
-
-    expect(await screen.findByLabelText(/KI-Prüfungen pro Woche/)).toHaveValue(9)
-  })
-
-  it('rejects an invalid weekly limit and reports a failed save', async () => {
-    const user = userEvent.setup()
-    stubFetch(failPatch)
-    renderUserPage()
-    await screen.findByText('learner@example.com')
-
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(screen.getByText('Bitte eine ganze Zahl ab 0 eingeben.')).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText(/KI-Prüfungen pro Woche/), '5')
-    await user.click(screen.getByRole('button', { name: 'Limit speichern' }))
-    expect(await screen.findByText('Das Wochenlimit konnte nicht geändert werden.')).toBeInTheDocument()
   })
 })

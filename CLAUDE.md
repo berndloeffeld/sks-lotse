@@ -32,7 +32,7 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 - **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand. Topic names are transcribed from the catalog, never invented by a script or an LLM.
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
-- **Monetization flags are independent**: `ads_removed` and `ai_grading_enabled`, all four combinations valid (ADR-0006). The ad script runs only where ads are shown and never on `/admin` (ADR-0027 addendum 2026-09-23).
+- **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/admin` (ADR-0027 addendum 2026-09-23).
 - **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung.
 
 ---
@@ -168,7 +168,7 @@ Apply these four checks whenever adding or changing a database table — going f
 - **`RESEND_API_KEY`** — the sending domain must be verified at Resend via IONOS DNS records before OTP emails go out. Locally it can stay empty: the API still returns 202 and logs the failed send.
 - **`ALLOWED_EMAILS`** — comma-separated allowlist for the private beta; unset = open to everyone. Non-listed addresses get the same generic 202 with no code and no email.
 - **`ADMIN_EMAILS`** — comma-separated allowlist gating the GDPR admin tools (`/admin`, ADR-0019). Unlike `ALLOWED_EMAILS`, unset/empty = **no admins** (fails closed) — the inverse default, since an unset var here must never grant access.
-- **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `GRADING_*` — incl. the fallback weekly AI-check budget `GRADING_MAX_PER_WEEK` (the operator overrides it on `/admin` and `/admin/settings`, [ADR-0036](docs/adr/0036-weekly-ai-check-budget-with-admin-overrides.md)), `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
+- **Tuning knobs** (`OTP_*`, `RATE_LIMIT_*`, `GRADING_*`, `CATALOG_CACHE_TTL_SECONDS`, `JWT_ACCESS_TOKEN_EXPIRES_MINUTES`) — optional; defaults are the production values, the env vars exist so local dev/CI can loosen them.
 - **Not an env var:** the disposable-email-domain blocklist is bundled data (`disposable-email-domains` in `requirements.in`) — Dependabot bumps it.
 - **Frontend `VITE_ADSENSE_CLIENT_ID`** — Google AdSense publisher id (`ca-pub-…`), set on the frontend service only; unset = the ad script and the "Cookie-Einstellungen" footer button are absent ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
 - **Planned, not yet read by the app:** `GOOGLE_OAUTH_CLIENT_ID`/`_SECRET`, `FACEBOOK_OAUTH_CLIENT_ID`/`_SECRET`, `X_OAUTH_CLIENT_ID`/`_SECRET` (SSO isn't built).

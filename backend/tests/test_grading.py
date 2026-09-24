@@ -1,19 +1,15 @@
 import inspect
 import logging
 import threading
-from datetime import date, datetime, timedelta
-from zoneinfo import ZoneInfo
 
 import anthropic
 import httpx
 import pytest
 
 from app.api.v1 import grading as grading_api
-from app.core import ai_quota as ai_quota_core
 from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.models import Question, User
-from app.services import ai_quota as ai_quota_service
 from app.services import grader, token_wallet
 from app.services.grader import GradedAnswer, GradeResult, GradingUnavailable
 
@@ -37,6 +33,10 @@ def _headers(db_session, *, enabled: bool, email="grader@example.com") -> dict[s
 
 def _post(client, question_id, headers, answer="a"):
     return client.post(f"/api/v1/questions/{question_id}/ai-grade", json={"answer": answer}, headers=headers)
+
+
+def _user(db_session, email="grader@example.com") -> User:
+    return db_session.query(User).filter_by(email=email).one()
 
 
 @pytest.fixture()
@@ -63,6 +63,15 @@ def test_not_enough_tokens_is_402(client, db_session):
     assert _post(client, q.id, headers, "links").status_code == 402
 
 
+def test_token_spent_between_the_gate_check_and_the_reserve_is_402(client, db_session, monkeypatch):
+    # The balance check up front is just a quick reject; token_wallet.reserve() is what's
+    # authoritative (row-locked) and can still say no if the balance changed in between.
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id: None)
+    assert _post(client, q.id, headers).status_code == 402
+
+
 def test_happy_path_sends_only_question_and_answers(client, db_session, fake_grader):
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
@@ -71,7 +80,6 @@ def test_happy_path_sends_only_question_and_answers(client, db_session, fake_gra
     assert response.json() == {
         "outcome": "teilweise_richtig",
         "feedback": "Es fehlt die Seite.",
-        "remaining_this_week": settings.grading_max_per_week - 1,
         "tokens_remaining": _PLENTY_OF_TOKENS - 1,
     }
     assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links")]
@@ -93,16 +101,6 @@ def test_a_failed_call_refunds_the_token(client, db_session, monkeypatch):
     headers = _headers(db_session, enabled=True, email="refund@example.com")
     assert _post(client, q.id, headers).status_code == 503
     assert _user(db_session, "refund@example.com").token_balance == _PLENTY_OF_TOKENS
-
-
-def test_running_out_of_tokens_mid_stream_refunds_the_weekly_budget(client, db_session):
-    q = _question(db_session)
-    headers = _headers(db_session, enabled=False)
-    user = _user(db_session)
-    # ai_quota.reserve() would succeed (weekly budget is fresh) but token_wallet.reserve() must
-    # not, so the weekly reservation has to be given back rather than silently spent for nothing.
-    assert _post(client, q.id, headers).status_code == 402
-    assert user.ai_checks_used == 0
 
 
 def test_validation_and_missing_question(client, db_session, fake_grader):
@@ -196,44 +194,7 @@ def test_below_threshold_no_extra_logging(client, db_session, monkeypatch, caplo
     assert not any("flagged-account activity" in m for m in messages)
 
 
-# --- budget ----------------------------------------------------------------
-
-
-def _user(db_session, email="grader@example.com") -> User:
-    return db_session.query(User).filter_by(email=email).one()
-
-
-def test_weekly_budget_counts_down_and_then_blocks(client, db_session, fake_grader, monkeypatch, caplog):
-    monkeypatch.setattr(settings, "grading_max_per_week", 2)
-    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
-    q = _question(db_session)
-    headers = _headers(db_session, enabled=True)
-
-    assert _post(client, q.id, headers).json()["remaining_this_week"] == 1
-    assert _post(client, q.id, headers).json()["remaining_this_week"] == 0
-    caplog.set_level(logging.WARNING)
-    blocked = _post(client, q.id, headers)
-    assert blocked.status_code == 429
-    assert "Weekly limit" in blocked.json()["detail"]
-    assert len(fake_grader) == 2
-    assert _user(db_session).ai_checks_remaining == 0
-    messages = [r.getMessage() for r in caplog.records]
-    assert any("bucket=weekly_budget" in m for m in messages)
-
-
-def test_budget_is_full_again_in_the_next_week(client, db_session, fake_grader, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_week", 1)
-    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
-    q = _question(db_session)
-    headers = _headers(db_session, enabled=True)
-    assert _post(client, q.id, headers).status_code == 200
-    assert _post(client, q.id, headers).status_code == 429
-
-    user = _user(db_session)
-    user.ai_checks_week = user.ai_checks_week - timedelta(days=7)
-    db_session.commit()
-    assert user.ai_checks_remaining == 1
-    assert _post(client, q.id, headers).status_code == 200
+# --- abuse guards: per-question/day and per-hour caps -----------------------
 
 
 def test_the_hourly_check_limit_is_per_user(client, db_session, fake_grader, monkeypatch):
@@ -273,17 +234,6 @@ def test_per_question_cap_is_429_but_other_questions_still_work(
     assert any("bucket=per_question_day" in m for m in messages)
 
 
-def test_failed_call_gives_the_check_back(client, db_session, monkeypatch):
-    def boom(*args):
-        raise GradingUnavailable("APIError")
-
-    monkeypatch.setattr(grading_api, "grade_answer", boom)
-    q = _question(db_session)
-    headers = _headers(db_session, enabled=True)
-    assert _post(client, q.id, headers).status_code == 503
-    assert _user(db_session).ai_checks_used == 0
-
-
 def test_failed_call_does_not_use_up_the_per_question_cap(client, db_session, monkeypatch):
     monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
     monkeypatch.setattr(settings, "grading_max_per_window", 1)
@@ -300,77 +250,6 @@ def test_failed_call_does_not_use_up_the_per_question_cap(client, db_session, mo
     headers = _headers(db_session, enabled=True)
     assert _post(client, q.id, headers).status_code == 503
     assert _post(client, q.id, headers).status_code == 200
-
-
-def test_refund_ignores_a_counter_that_moved_on(db_session):
-    user = User(email="r@example.com", ai_checks_week=date(2020, 1, 1), ai_checks_used=1)
-    db_session.add(user)
-    db_session.commit()
-    ai_quota_service.refund(db_session, user.id, date(2020, 1, 2))
-    assert user.ai_checks_used == 1
-
-
-def test_refund_never_goes_below_zero(db_session):
-    day = date(2020, 1, 1)
-    user = User(email="r0@example.com", ai_checks_week=day, ai_checks_used=0)
-    db_session.add(user)
-    db_session.commit()
-    ai_quota_service.refund(db_session, user.id, day)
-    assert user.ai_checks_used == 0
-
-
-def test_me_reports_the_remaining_budget(client, db_session, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_week", 5)
-    headers = _headers(db_session, enabled=True)
-    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 5
-
-
-def test_a_per_user_limit_beats_the_default(client, db_session, fake_grader, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_week", 5)
-    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 99)
-    q = _question(db_session)
-    headers = _headers(db_session, enabled=True)
-    _user(db_session).ai_checks_weekly_limit = 1
-    db_session.commit()
-
-    assert _post(client, q.id, headers).json()["remaining_this_week"] == 0
-    assert _post(client, q.id, headers).status_code == 429
-
-
-def test_zero_blocks_and_the_db_default_beats_the_env_default(client, db_session, monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_week", 5)
-    headers = _headers(db_session, enabled=True)
-    ai_quota_service.set_weekly_default(db_session, 7)
-    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 7
-    ai_quota_service.set_weekly_default(db_session, 3)  # update of the existing row
-    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 3
-    _user(db_session).ai_checks_weekly_limit = 0
-    db_session.commit()
-    assert client.get("/api/v1/auth/me", headers=headers).json()["ai_checks_remaining"] == 0
-
-
-def test_limit_of_a_user_outside_a_session_falls_back_to_the_env_default(monkeypatch):
-    monkeypatch.setattr(settings, "grading_max_per_week", 9)
-    assert User(email="t@example.com").ai_checks_limit == 9
-    assert User(email="t@example.com", ai_checks_weekly_limit=2).ai_checks_limit == 2
-
-
-@pytest.mark.parametrize(
-    ("berlin_now", "monday"),
-    [
-        (datetime(2026, 9, 21, 0, 0, 1, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 21)),
-        (datetime(2026, 9, 20, 23, 59, 59, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 14)),
-        (datetime(2026, 9, 24, 12, 0, tzinfo=ZoneInfo("Europe/Berlin")), date(2026, 9, 21)),
-    ],
-)
-def test_the_week_starts_on_monday_in_berlin(monkeypatch, berlin_now, monday):
-    class _Clock(datetime):
-        @classmethod
-        def now(cls, tz=None):
-            return berlin_now.astimezone(tz)
-
-    monkeypatch.setattr(ai_quota_core, "datetime", _Clock)
-    assert ai_quota_core.current_week() == monday
 
 
 # --- token wallet (ADR-0043) ------------------------------------------------

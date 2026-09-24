@@ -14,7 +14,6 @@ const mockUser: User = {
   gender: null,
   token_balance: 0,
   ads_removed: false,
-  ai_checks_remaining: 20,
   agb_accepted_version: null,
   is_admin: false,
 }

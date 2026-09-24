@@ -17,7 +17,6 @@ const user: User = {
   is_admin: false,
   token_balance: 1,
   ads_removed: false,
-  ai_checks_remaining: 14,
   agb_accepted_version: null,
 }
 
@@ -34,30 +33,19 @@ describe('AiAnswerCheck', () => {
     delete window.umami
   })
 
-  it('is dimmed with "bald verfügbar", shows package prices, and never calls the grading endpoint', async () => {
+  it('is dimmed with "bald verfügbar" without tokens and never calls the grading endpoint', () => {
     useAuthStore.setState({ user: { ...user, token_balance: 0 } })
-    const fetchMock = vi.fn(async () =>
-      jsonResponse({
-        ads_removed_price_cents: 500,
-        signup_bonus_tokens: 6,
-        packages: [
-          { product: 'tokens_s', tokens: 20, price_cents: 299 },
-          { product: 'tokens_m', tokens: 50, price_cents: 599 },
-        ],
-      }),
-    )
+    const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
 
     const row = screen.getByRole('button', ROW)
     expect(row).toBeDisabled()
     expect(row).toHaveTextContent('bald verfügbar')
-    expect(await screen.findByText(/20 für 2,99/)).toBeInTheDocument()
-    const [url] = fetchMock.mock.calls[0] as unknown as [string]
-    expect(url).toMatch(/\/api\/v1\/pricing$/)
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('shows the remaining budget and needs a written answer', () => {
+  it('shows the token balance and needs a written answer', () => {
     useAuthStore.setState({ user })
     const { rerender } = render(<AiAnswerCheck questionId={7} answer="  " onSuggest={vi.fn()} />)
     expect(screen.getByRole('button', ROW)).toBeDisabled()
@@ -65,7 +53,7 @@ describe('AiAnswerCheck', () => {
 
     rerender(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
     expect(screen.getByRole('button', ROW)).toBeEnabled()
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('noch 14 diese Woche')
+    expect(screen.getByRole('button', ROW)).toHaveTextContent('1 Token(s)')
   })
 
   it('is disabled for an answer longer than the check accepts, and says so', () => {
@@ -100,21 +88,12 @@ describe('AiAnswerCheck', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Diese Antwort kann der Lotse nicht prüfen.')
   })
 
-  it('is disabled with "ab Montag wieder" once the week is used up', () => {
-    useAuthStore.setState({ user: { ...user, ai_checks_remaining: 0 } })
-    render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
-
-    expect(screen.getByRole('button', ROW)).toBeDisabled()
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('ab Montag wieder')
-  })
-
-  it('sends only the answer, shows the feedback, suggests the grade and updates the budget', async () => {
+  it('sends only the answer, shows the feedback, suggests the grade and updates the token balance', async () => {
     useAuthStore.setState({ user })
     const fetchMock = vi.fn(async () =>
       jsonResponse({
         outcome: 'teilweise_richtig',
         feedback: 'Es fehlt die Seite.',
-        remaining_this_week: 13,
         tokens_remaining: 0,
       }),
     )
@@ -132,7 +111,6 @@ describe('AiAnswerCheck', () => {
     expect(screen.getByText('Lotsen-Vorschlag: Teilweise Richtig')).toBeInTheDocument()
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
-    expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(13)
     expect(useAuthStore.getState().user?.token_balance).toBe(0)
     // The suggestion takes the button's place; the caller (via onSuggest) is responsible for
     // scrolling it into view, since only it knows where the "Weiter" button ended up.
@@ -158,6 +136,6 @@ describe('AiAnswerCheck', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
     expect(onSuggest).not.toHaveBeenCalled()
-    expect(useAuthStore.getState().user?.ai_checks_remaining).toBe(14)
+    expect(useAuthStore.getState().user?.token_balance).toBe(1)
   })
 })

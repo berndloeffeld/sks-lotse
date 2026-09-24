@@ -28,10 +28,15 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
 
   return (
     <article className="flex flex-col gap-4">
-      <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
-        {exam.timed_out ? 'Die Zeit ist abgelaufen. ' : ''}Selbsteinschätzung: {graded} von {exam.question_count}{' '}
-        bewertet · Frage {question.position} · {SUBJECT_GROUP_LABELS[question.subject_group]}
-      </p>
+      <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
+        <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
+          {exam.timed_out ? 'Die Zeit ist abgelaufen. ' : ''}Selbsteinschätzung: {graded} von {exam.question_count}{' '}
+          bewertet · Frage {question.position} · {SUBJECT_GROUP_LABELS[question.subject_group]}
+        </p>
+        {question.question_id !== null ? (
+          <ReportQuestion key={question.question_id} questionId={question.question_id} />
+        ) : null}
+      </div>
       <p className="font-serif text-base leading-snug whitespace-pre-line text-ink">
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}
       </p>
@@ -55,9 +60,6 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         </p>
         <QuestionImages images={question.official_answer_images} part="answer" />
       </section>
-      {question.question_id !== null ? (
-        <ReportQuestion key={question.question_id} questionId={question.question_id} />
-      ) : null}
       <SelfAssessment
         key={question.position}
         name="exam-outcome"

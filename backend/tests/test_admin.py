@@ -17,7 +17,6 @@ _FIXTURE_EMAIL = "fixture-user@example.com"
 # A full, valid settings payload — PUT replaces every price/package at once, so tests that don't
 # care about a specific value still have to send one.
 _SETTINGS_PAYLOAD = {
-    "ai_checks_weekly_default": 100,
     "price_ads_removed_cents": 500,
     "signup_bonus_tokens": 6,
     "tokens_s": {"tokens": 20, "price_cents": 299},
@@ -403,17 +402,9 @@ def test_settings_routes_require_admin(client, auth_headers):
     assert response.status_code == 403
 
 
-def test_admin_can_read_and_change_the_weekly_default(client, db_session, auth_headers, monkeypatch):
+def test_admin_can_read_the_default_settings(client, db_session, auth_headers, monkeypatch):
     _make_admin(monkeypatch)
-    monkeypatch.setattr(settings, "grading_max_per_week", 100)
     assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == _SETTINGS_PAYLOAD
-
-    changed = {**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": 40}
-    response = client.put("/api/v1/admin/settings", json=changed, headers=auth_headers)
-    assert response.status_code == 200
-    assert response.json() == changed
-    assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == changed
-    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["ai_checks_remaining"] == 40
 
 
 def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, monkeypatch):
@@ -440,31 +431,15 @@ def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, 
     }
 
 
-@pytest.mark.parametrize("value", [-1, 10_001, "x", None])
-def test_admin_settings_reject_invalid_default(client, db_session, auth_headers, monkeypatch, value):
+@pytest.mark.parametrize("value", [-1, 1_000_001, "x", None])
+def test_admin_settings_reject_invalid_price(client, db_session, auth_headers, monkeypatch, value):
     _make_admin(monkeypatch)
     response = client.put(
         "/api/v1/admin/settings",
-        json={**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": value},
+        json={**_SETTINGS_PAYLOAD, "price_ads_removed_cents": value},
         headers=auth_headers,
     )
     assert response.status_code == 422
-
-
-def test_admin_can_set_and_reset_a_per_user_weekly_limit(client, db_session, auth_headers, monkeypatch):
-    _make_admin(monkeypatch)
-    monkeypatch.setattr(settings, "grading_max_per_week", 100)
-    user_id = _fixture_user(db_session).id
-    url = f"/api/v1/admin/users/{user_id}"
-
-    body = client.patch(url, json={"ai_checks_weekly_limit": 7}, headers=auth_headers).json()
-    assert (body["ai_checks_weekly_limit"], body["ai_checks_limit"]) == (7, 7)
-    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["ai_checks_remaining"] == 7
-
-    body = client.patch(url, json={"ai_checks_weekly_limit": None}, headers=auth_headers).json()
-    assert (body["ai_checks_weekly_limit"], body["ai_checks_limit"]) == (None, 100)
-
-    assert client.patch(url, json={"ai_checks_weekly_limit": -1}, headers=auth_headers).status_code == 422
 
 
 def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth_headers, monkeypatch):
@@ -497,11 +472,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     with caplog.at_level("INFO", logger="app.api.v1.admin"):
         client.get("/api/v1/admin/users", params={"q": "target@example"}, headers=auth_headers)
         client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
-        client.put(
-            "/api/v1/admin/settings",
-            json={**_SETTINGS_PAYLOAD, "ai_checks_weekly_default": 7},
-            headers=auth_headers,
-        )
+        client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD, headers=auth_headers)
         client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
         client.delete(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
 
@@ -509,7 +480,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     assert messages == [
         f"admin action: admin={admin.id} action=list_users offset=0 results=1",
         f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
-        f"admin action: admin={admin.id} action=update_settings ai_checks_weekly_default=7 "
+        f"admin action: admin={admin.id} action=update_settings "
         "price_ads_removed_cents=500 signup_bonus_tokens=6 tokens_s=(20, 299) tokens_m=(50, 599) "
         "tokens_l=(100, 999) tokens_xl=(200, 1699)",
         f"admin action: admin={admin.id} action=export_user target_user={target_id}",

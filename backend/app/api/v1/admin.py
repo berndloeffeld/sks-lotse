@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core import ai_quota as ai_quota_core
 from app.core import pricing as pricing_core
 from app.core.database import get_db
 from app.core.jwt import require_admin
@@ -26,7 +25,6 @@ from app.schemas.admin import (
 from app.schemas.kpis import KpiReport
 from app.schemas.question import QuestionRead
 from app.services import admin_users, token_wallet
-from app.services import ai_quota as ai_quota_service
 from app.services import catalog as catalog_service
 from app.services import pricing as pricing_service
 from app.services.kpis import compute_kpis
@@ -80,14 +78,12 @@ def update_user(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
-    """Remove ads, set the weekly check limit (null = default), or grant tokens (ADR-0043) — an
-    off-platform payment the operator credits by hand until a payment provider exists."""
+    """Remove ads or grant tokens (ADR-0043) — an off-platform payment the operator credits by
+    hand until a payment provider exists."""
     user = _get_user_or_404(db, user_id)
     turning_ads_removed_on = payload.ads_removed is not None and payload.ads_removed and not user.ads_removed
     if payload.ads_removed is not None:
         user.ads_removed = payload.ads_removed
-    if "ai_checks_weekly_limit" in payload.model_fields_set:
-        user.ai_checks_weekly_limit = payload.ai_checks_weekly_limit
     # token_wallet.grant() below re-fetches this row with populate_existing=True (it must, to lock
     # it) — with the session's autoflush off, that would silently overwrite the plain attribute
     # assignments above with their still-unflushed-to-the-DB old values unless flushed first.
@@ -129,7 +125,6 @@ def _package_settings(db: Session, product: str) -> TokenPackageSettings:
 
 def _settings_read(db: Session) -> AdminSettingsRead:
     return AdminSettingsRead(
-        ai_checks_weekly_default=ai_quota_core.weekly_default(db),
         price_ads_removed_cents=pricing_core.ads_removed_price_cents(db),
         signup_bonus_tokens=pricing_core.signup_bonus_tokens(db),
         tokens_s=_package_settings(db, "tokens_s"),
@@ -148,9 +143,7 @@ def get_settings(db: Session = Depends(get_db)) -> AdminSettingsRead:
 def update_settings(
     payload: AdminSettingsUpdate, db: Session = Depends(get_db), admin: User = Depends(require_admin)
 ) -> AdminSettingsRead:
-    """Set the weekly AI-check budget default, the signup bonus and every price (ADR-0043) at once —
-    accounts without their own weekly-limit override follow the new default immediately."""
-    ai_quota_service.set_weekly_default(db, payload.ai_checks_weekly_default)
+    """Set the signup bonus and every price (ADR-0043) at once."""
     pricing_service.set_prices(
         db,
         price_ads_removed_cents=payload.price_ads_removed_cents,
@@ -168,7 +161,6 @@ def update_settings(
     _audit(
         admin,
         "update_settings",
-        ai_checks_weekly_default=payload.ai_checks_weekly_default,
         price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
         tokens_s=(payload.tokens_s.tokens, payload.tokens_s.price_cents),

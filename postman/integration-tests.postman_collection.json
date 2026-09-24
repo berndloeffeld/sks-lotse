@@ -2417,7 +2417,7 @@
               }
             }
           },
-          "description": "A fresh signup has a few free tokens (ADR-0043), so it clears the token/weekly-budget gates and reaches the grader itself - which this environment's server runs with no ANTHROPIC_GRADING_API_KEY, the same as the account-without-the-unlock case before token-based pricing. The 402 (not enough tokens) path is covered in backend/tests/test_grading.py instead, since reproducing a genuinely empty balance here would need a real payment or a second admin round-trip this collection's run order doesn't have at this point.",
+          "description": "A fresh signup has a few free tokens (ADR-0043), so it clears the token gate and reaches the grader itself - which this environment's server runs with no ANTHROPIC_GRADING_API_KEY, the same as the account-without-the-unlock case before token-based pricing. The 402 (not enough tokens) path is covered in backend/tests/test_grading.py instead, since reproducing a genuinely empty balance here would need a real payment or a second admin round-trip this collection's run order doesn't have at this point.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -6484,7 +6484,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 5, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
+              "raw": "{\"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7080,7 +7080,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 5, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
+              "raw": "{\"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7444,7 +7444,7 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_checks_week', 'ai_checks_used', 'ai_checks_weekly_limit', 'ai_checks_limit', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'question_progress_count');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'question_progress_count');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
@@ -7869,208 +7869,6 @@
           }
         },
         {
-          "name": "Get the weekly AI-check default",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('has an integer default', function () { pm.expect(pm.response.json().ai_checks_weekly_default).to.be.a('number'); });",
-                  "pm.collectionVariables.set('originalWeeklyDefault', pm.response.json().ai_checks_weekly_default);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/settings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "settings"
-              ]
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Set the weekly AI-check default",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('the new default is echoed', function () { pm.expect(pm.response.json().ai_checks_weekly_default).to.eql(42); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/settings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "settings"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": 42, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "PUT replaces every price/package at once (ADR-0043), not just the weekly default.",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Set the weekly AI-check default - a negative number is a 422",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/settings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "settings"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": -1, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Restore the weekly AI-check default",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/settings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "settings"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_default\": {{originalWeeklyDefault}}, \"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
           "name": "Export a user - unknown id is a 404",
           "event": [
             {
@@ -8439,174 +8237,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\"ads_removed\": true}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Set a per-user weekly AI-check limit",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('override and effective limit are 7', function () {",
-                  "    var u = pm.response.json();",
-                  "    pm.expect(u.ai_checks_weekly_limit).to.eql(7);",
-                  "    pm.expect(u.ai_checks_limit).to.eql(7);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{{victimId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_limit\": 7}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Reset a per-user weekly AI-check limit to the default",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('override is cleared', function () { pm.expect(pm.response.json().ai_checks_weekly_limit).to.eql(null); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{{victimId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_limit\": null}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Set a per-user weekly AI-check limit - a negative number is a 422",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{{victimId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ai_checks_weekly_limit\": -1}",
               "options": {
                 "raw": {
                   "language": "json"

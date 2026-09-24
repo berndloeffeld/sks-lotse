@@ -14,8 +14,6 @@ export interface User {
   // Pay-per-use balance for the Lotsen-Check, 1 token = 1 check (ADR-0043).
   token_balance: number
   ads_removed: boolean
-  // This week's AI-check budget left (see backend/app/core/ai_quota.py).
-  ai_checks_remaining: number
   // The AGB version last confirmed via POST /auth/me/agb-accept, or null
   // before the first confirmation — see routes/AgbGate.tsx.
   agb_accepted_version: string | null
@@ -36,7 +34,6 @@ export function getDisplayName(user: Named & Pick<User, 'email'>): string {
 export interface AiGrade {
   outcome: GradingOutcome
   feedback: string
-  remaining_this_week: number
   // Tokens left in the account's balance after this one (ADR-0043).
   tokens_remaining: number
 }
@@ -65,11 +62,6 @@ export interface AdminUser {
   gender: string | null
   token_balance: number
   ads_removed: boolean
-  ai_checks_used: number
-  // The account's override of the weekly budget; null = the app-wide default.
-  ai_checks_weekly_limit: number | null
-  // What actually applies to the account this week.
-  ai_checks_limit: number
   // Read-only abuse-monitoring signal (ADR-0040): how often the sanitizer backstop fired.
   ai_flags_count: number
   ai_flags_last_at: string | null
@@ -105,7 +97,6 @@ export interface TokenPackageSettings {
 
 // Mirrors backend/app/schemas/admin.py::AdminSettingsRead / AdminSettingsUpdate.
 export interface AdminSettings {
-  ai_checks_weekly_default: number
   price_ads_removed_cents: number
   signup_bonus_tokens: number
   tokens_s: TokenPackageSettings
