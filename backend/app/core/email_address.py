@@ -14,6 +14,11 @@ GMAIL_DOMAINS = {"gmail.com", "googlemail.com"}
 CANONICAL_GMAIL_DOMAIN = "gmail.com"
 
 
+def domain_of(email: str) -> str:
+    """The lowercased part after the last `@` (the whole string if there is none)."""
+    return email.rpartition("@")[2].lower()
+
+
 def canonicalize_email(email: str) -> str:
     """Lowercase; for Gmail/Googlemail also drop dots and a `+tag`, and use gmail.com."""
     email = email.strip().lower()
