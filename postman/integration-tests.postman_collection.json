@@ -9200,7 +9200,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('a code is present', function () { pm.expect(pm.response.json().code).to.have.lengthOf(6); });"
+                  "pm.test('a code is present', function () { pm.expect(pm.response.json().code).to.have.lengthOf(6); });",
+                  "pm.collectionVariables.set('blockedEmailOtpCode', pm.response.json().code);"
                 ]
               }
             }
@@ -9230,6 +9231,152 @@
           },
           "description": "",
           "response": []
+        },
+        {
+          "name": "Block the email again after its code was sent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('blockEntryId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/blocklist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "blocklist"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"kind\": \"email\", \"value\": \"{{blockedEmail}}\", \"reason\": \"integration test\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify OTP - a code sent before the block is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('same answer as a wrong code', function () { pm.expect(pm.response.json().detail).to.eql('Invalid or expired code'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{blockedEmail}}\", \"code\": \"{{blockedEmailOtpCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Remove the blocklist entry again",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/blocklist/{{blockEntryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "blocklist",
+                "{{blockEntryId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         },
         {
           "name": "Grant tokens for a user",
@@ -9905,6 +10052,11 @@
     },
     {
       "key": "blockEntryId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "blockedEmailOtpCode",
       "value": "",
       "type": "default"
     }

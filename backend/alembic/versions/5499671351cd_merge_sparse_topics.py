@@ -22,9 +22,6 @@ no external API; this is a pure data migration over already-committed fixtures.
 
 from collections.abc import Sequence
 
-from alembic import op
-from app.services.catalog_seed import build_catalog, sync_catalog
-
 # revision identifiers, used by Alembic.
 revision: str = "5499671351cd"
 down_revision: str | None = "90df5aade4fe"
@@ -33,7 +30,11 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    sync_catalog(op.get_bind(), build_catalog())
+    # Superseded: e5b3a9c1d720 is the oldest migration that still syncs the catalog. Every sync
+    # runs today's build_catalog(), not the one of its revision, so on a fresh database this one
+    # would only write what e5b3a9c1d720 writes again. Databases past this revision (production)
+    # already ran it.
+    pass
 
 
 def downgrade() -> None:

@@ -257,11 +257,11 @@ def test_sync_updates_changed_rows_and_removes_vanished_ones(db_session):
     assert db_session.query(Question).filter_by(subject=removed.subject, number=removed.number).count() == 0
 
 
-def test_sync_only_needs_the_columns_that_existed_when_the_seed_migration_ran():
+def test_sync_only_needs_the_columns_that_existed_when_the_oldest_syncing_migration_ran():
     # The data migrations run sync_catalog against the schema of *their*
     # revision, not head's. Tables with exactly the columns as of revision
-    # 16af6f481bf6 must be enough — a column the ORM models gained later
-    # must never end up in its statements.
+    # e5b3a9c1d720 (the oldest one that still syncs) must be enough — a
+    # column the ORM models gained later must never end up in its statements.
     engine = create_engine("sqlite:///:memory:")
     with engine.begin() as connection:
         connection.execute(
@@ -274,8 +274,8 @@ def test_sync_only_needs_the_columns_that_existed_when_the_seed_migration_ran():
             text(
                 "CREATE TABLE questions (id INTEGER PRIMARY KEY, subject VARCHAR NOT NULL,"
                 " number INTEGER NOT NULL, question_text TEXT NOT NULL, answer_text TEXT NOT NULL,"
-                " image_ref VARCHAR, topic_id INTEGER,"
-                " seemannschaft_1_number INTEGER, seemannschaft_2_number INTEGER)"
+                " topic_id INTEGER, seemannschaft_1_number INTEGER, seemannschaft_2_number INTEGER,"
+                " question_images JSON NOT NULL DEFAULT '[]', answer_images JSON NOT NULL DEFAULT '[]')"
             )
         )
         sync_catalog(connection, build_catalog())

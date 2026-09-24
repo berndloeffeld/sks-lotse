@@ -5507,7 +5507,7 @@
                               "request": {
                                 "name": "Block User",
                                 "description": {
-                                  "content": "Add the account's own address to the blocklist and end its current session immediately\n(ADR-0045) — a domain-wide block, by contrast, only stops future OTP requests.",
+                                  "content": "Add the account's own address to the blocklist and end its current session immediately\n(ADR-0045) — a domain-wide block, by contrast, only stops future logins.",
                                   "type": "text/plain"
                                 },
                                 "url": {

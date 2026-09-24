@@ -5,6 +5,7 @@ import secrets
 from disposable_email_domains import blocklist as disposable_email_domains
 
 from app.core.config import settings
+from app.core.email_address import domain_of
 
 # What an otp_codes row can be redeemed for. A code is only ever accepted by
 # the flow it was issued for: an email-change confirmation code must not work
@@ -35,5 +36,4 @@ def verify_code(code: str, code_hash: str) -> bool:
 
 
 def is_disposable_email(email: str) -> bool:
-    _, _, domain = email.rpartition("@")
-    return domain.lower() in disposable_email_domains
+    return domain_of(email) in disposable_email_domains

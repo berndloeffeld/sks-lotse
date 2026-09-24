@@ -13,21 +13,24 @@ and `topics` rows. It runs in two halves:
   question that really disappeared from the catalog gets deleted (and its
   progress with it, via the FK cascade). See ADR-0022.
 
-`seed_catalog()` runs both. It's used by the Alembic data migrations that
-seed every environment automatically (including Render's `alembic upgrade
-head` before every deploy — see CLAUDE.md → Question Catalog) and by
-`backend/scripts/import_catalog.py`. The *proposing* half of the pipeline
-(LLM classification, duplicate-similarity matching) stays CLI-only and
-produces the reviewed YAML files this module just applies.
+The Alembic data migrations call both (`sync_catalog(op.get_bind(),
+build_catalog())`), which seeds every environment automatically, including
+Render's `alembic upgrade head` before every deploy (docs/catalog-pipeline.md).
+`seed_catalog()` runs both on a Session, for `backend/scripts/import_catalog.py`.
+The *proposing* half of the pipeline (LLM classification, duplicate-similarity
+matching) stays CLI-only and produces the reviewed YAML files this module just
+applies.
 
 `sync_catalog()` deliberately writes through the frozen table definitions
 below, never the ORM models: those always describe the schema at head,
-while an old data migration runs against the schema of *its* revision. A
-column added to `Question` later would otherwise end up in the INSERT of a
+while a data migration runs against the schema of *its* revision. A column
+added to `Question` later would otherwise end up in the INSERT of a
 migration that runs before the column exists, breaking every fresh
-`alembic upgrade head`. If a later migration renames or drops one of the
-columns listed below, the older data migrations need their own copy of
-this module's logic.
+`alembic upgrade head`. The oldest migration that still syncs is
+e5b3a9c1d720 (the earlier ones are no-ops now), so the columns below are
+the ones `questions`/`topics` have as of that revision. If a later migration
+renames or drops one of them, the older data migrations need their own copy
+of this module's logic.
 """
 
 import dataclasses
@@ -102,26 +105,16 @@ _topics = sa.table(
 )
 
 
-def _question_columns() -> list[sa.ColumnClause]:
-    return [
-        sa.column("id", sa.Integer),
-        sa.column("subject", sa.String),
-        sa.column("number", sa.Integer),
-        sa.column("question_text", sa.Text),
-        sa.column("answer_text", sa.Text),
-        sa.column("topic_id", sa.Integer),
-        sa.column("seemannschaft_1_number", sa.Integer),
-        sa.column("seemannschaft_2_number", sa.Integer),
-    ]
-
-
-_questions = sa.table("questions", *_question_columns())
-
-# Added by the migration that introduced image support. Older data migrations run
-# sync_catalog against a schema that doesn't have them yet — see `_image_columns_exist`.
-_questions_with_images = sa.table(
+_questions = sa.table(
     "questions",
-    *_question_columns(),
+    sa.column("id", sa.Integer),
+    sa.column("subject", sa.String),
+    sa.column("number", sa.Integer),
+    sa.column("question_text", sa.Text),
+    sa.column("answer_text", sa.Text),
+    sa.column("topic_id", sa.Integer),
+    sa.column("seemannschaft_1_number", sa.Integer),
+    sa.column("seemannschaft_2_number", sa.Integer),
     sa.column("question_images", sa.JSON),
     sa.column("answer_images", sa.JSON),
 )
@@ -524,11 +517,6 @@ def _copy_taken_rows(connection: Connection, copies: list[tuple[CatalogQuestion,
         )
 
 
-def _image_columns_exist(connection: Connection) -> bool:
-    columns = {column["name"] for column in sa.inspect(connection).get_columns("questions")}
-    return {"question_images", "answer_images"} <= columns
-
-
 def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> None:
     """Make `topics`/`questions` match topics.yaml and `questions` by upsert.
 
@@ -561,9 +549,6 @@ def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> No
     # question_progress row pointing at them — survive a re-sync. Seemannschaft
     # rows are first moved to their new key by official number.
     _rekey_seemannschaft(connection, questions)
-    # The revisions before image support seed against a schema without the image columns.
-    with_images = _image_columns_exist(connection)
-    questions_table = _questions_with_images if with_images else _questions
     existing_questions = {
         (row.subject, row.number): row.id
         for row in connection.execute(sa.select(_questions.c.id, _questions.c.subject, _questions.c.number))
@@ -580,19 +565,14 @@ def sync_catalog(connection: Connection, questions: list[CatalogQuestion]) -> No
             "topic_id": topic_ids.get((q.subject, q.topic_slug)) if q.topic_slug else None,
             "seemannschaft_1_number": q.seemannschaft_1_number,
             "seemannschaft_2_number": q.seemannschaft_2_number,
+            "question_images": [dataclasses.asdict(i) for i in q.question_images],
+            "answer_images": [dataclasses.asdict(i) for i in q.answer_images],
         }
-        if with_images:
-            values["question_images"] = [dataclasses.asdict(i) for i in q.question_images]
-            values["answer_images"] = [dataclasses.asdict(i) for i in q.answer_images]
         question_id = existing_questions.get((q.subject, q.number))
         if question_id is None:
-            connection.execute(
-                sa.insert(questions_table).values(subject=q.subject, number=q.number, **values)
-            )
+            connection.execute(sa.insert(_questions).values(subject=q.subject, number=q.number, **values))
         else:
-            connection.execute(
-                sa.update(questions_table).where(questions_table.c.id == question_id).values(**values)
-            )
+            connection.execute(sa.update(_questions).where(_questions.c.id == question_id).values(**values))
 
     for subject, topics in topics_by_subject.items():
         current_slugs = {t["slug"] for t in topics}
