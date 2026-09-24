@@ -2897,7 +2897,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('records the current AGB version', function () {",
                   "    var me = pm.response.json();",
-                  "    pm.expect(me.agb_accepted_version).to.eql('2026-09-23');",
+                  "    pm.expect(me.agb_accepted_version).to.eql('2026-09-24');",
                   "});"
                 ]
               }
