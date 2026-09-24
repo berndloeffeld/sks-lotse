@@ -66,7 +66,7 @@ export function AblaufPage() {
         </p>
         <p>
           SKS Lotse hilft dir dabei bisher nicht – die Kartenaufgabe übst du am besten mit einer echten Seekarte, zum
-          Beispiel im Vorbereitungskurs einer Segelschule.
+          Beispiel im Vorbereitungskurs einer Segelschule oder bei Online-Kursen.
         </p>
       </Section>
 
