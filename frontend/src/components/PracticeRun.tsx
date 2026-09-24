@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
@@ -76,7 +76,8 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
 
   // Keyboard flow: each phase hands focus to the control the learner needs next, so the whole
   // loop works without a mouse — the answer field here, the grade group once SelfAssessment mounts.
-  useEffect(() => {
+  // A layout effect, so the question never shows up without the cursor in the field.
+  useLayoutEffect(() => {
     if (phase === 'answer') noteRef.current?.focus()
   }, [phase, index, run])
 
