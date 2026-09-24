@@ -30,7 +30,7 @@ from app.schemas.admin import (
 from app.services import blocklist
 
 
-def question_progress_count(db: Session, user_id: int) -> int:
+def _question_progress_count(db: Session, user_id: int) -> int:
     return db.execute(
         select(func.count()).select_from(QuestionProgress).where(QuestionProgress.user_id == user_id)
     ).scalar_one()
@@ -60,8 +60,12 @@ def list_users(db: Session, q: str, offset: int, limit: int) -> tuple[list[User]
     return list(page), total
 
 
-def admin_user_read(db: Session, user: User, question_progress_count: int) -> AdminUserRead:
-    emails, domains = blocklist.blocked_sets(db)
+def admin_user_read(
+    app, db: Session, user: User, question_progress_count: int | None = None
+) -> AdminUserRead:
+    """`question_progress_count` is counted here unless the caller already has it (the export)."""
+    if question_progress_count is None:
+        question_progress_count = _question_progress_count(db, user.id)
     return AdminUserRead(
         id=user.id,
         email=user.email,
@@ -78,11 +82,11 @@ def admin_user_read(db: Session, user: User, question_progress_count: int) -> Ad
         agb_accepted_at=user.agb_accepted_at,
         last_login_at=user.last_login_at,
         question_progress_count=question_progress_count,
-        is_blocked=blocklist.is_blocked(user.email, emails, domains),
+        is_blocked=blocklist.is_email_blocked(app, db, user.email),
     )
 
 
-def build_user_export(db: Session, user: User) -> AdminUserExport:
+def build_user_export(app, db: Session, user: User) -> AdminUserExport:
     rows = db.execute(
         select(QuestionProgress, Question.subject, Question.number)
         .join(Question, Question.id == QuestionProgress.question_id)
@@ -147,7 +151,7 @@ def build_user_export(db: Session, user: User) -> AdminUserExport:
         )
 
     return AdminUserExport(
-        user=admin_user_read(db, user, len(rows)),
+        user=admin_user_read(app, db, user, len(rows)),
         exam_attempts=exam_attempts,
         focus_topics=[
             AdminFocusTopicExport(

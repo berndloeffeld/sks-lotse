@@ -1,6 +1,6 @@
 # 0045. Manual email/domain blocklist for spam and abuse
 
-Status: Accepted
+Status: Accepted; amended by the addendum of 2026-09-24 (verifying a code checks the blocklist too).
 
 ## Context
 
@@ -37,3 +37,7 @@ New admin endpoints: `GET/POST /admin/blocklist`, `DELETE /admin/blocklist/{id}`
 **Rejected alternative — extend `ALLOWED_EMAILS`/a new blocklist env var:** would need a redeploy for every change and couldn't name an address with no account yet; also doesn't fit the "block this user" one-click action, which needs a live endpoint to call, not a config edit.
 
 **Rejected alternative — `is_blocked` column on `User`:** doesn't work for domain blocks (would require writing every matching row, and still wouldn't cover an address that never signed up) and duplicates state that's already derivable from the blocklist table — the same reasoning ADR-0019 used to reject an `is_admin` column, for the same underlying concern (a second place authorization-adjacent state can drift from its source of truth).
+
+## Addendum 2026-09-24: a block also stops codes already sent
+
+`POST /auth/otp/verify` now checks the blocklist too, after consuming the code, and answers a blocked address exactly like a wrong code (`401 Invalid or expired code`). Before that, a code requested just before the block still opened a new session for up to `OTP_TTL_MINUTES`. This applies to email and domain entries alike; a domain block still leaves sessions that already exist on that domain alone.

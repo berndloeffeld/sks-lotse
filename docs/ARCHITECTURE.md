@@ -107,6 +107,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
   - the per-IP limiter, with tighter rules for requesting and verifying a code;
   - per-email quotas on code requests, plus a per-user quota on email changes;
   - blocking of disposable email domains;
+  - a manual email/domain blocklist, checked on requesting and on verifying a code ([ADR-0045](adr/0045-manual-email-domain-blocklist.md));
   - an optional `ALLOWED_EMAILS` allowlist for the private beta.
 
   Anonymous endpoints answer uniformly, so they don't reveal which addresses exist.

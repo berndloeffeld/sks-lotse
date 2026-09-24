@@ -85,8 +85,14 @@ def request_otp(
 
 
 @router.post("/otp/verify", response_model=TokenRead)
-def verify_otp(payload: OtpVerifyRequest, response: Response, db: Session = Depends(get_db)):
+def verify_otp(
+    payload: OtpVerifyRequest, request: Request, response: Response, db: Session = Depends(get_db)
+):
     if not otp_codes.consume_code(db, payload.email, OTP_PURPOSE_LOGIN, payload.code):
+        raise _INVALID_CODE
+    if blocklist.is_email_blocked(request.app, db, payload.email):
+        # A code requested before the block (ADR-0045) must not still open a session. Same
+        # answer as a wrong code, so the caller learns nothing about the block.
         raise _INVALID_CODE
 
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
