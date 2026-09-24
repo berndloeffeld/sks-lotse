@@ -26,11 +26,11 @@ jobs:
       - name: Set MAINTENANCE_MODE and trigger a deploy
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          SERVICE_ID: ${{ vars.RENDER_BACKEND_SERVICE_ID }}
+          SERVICE_ID: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
           VALUE: ${{ inputs.state == 'on' && 'true' || 'false' }}
         run: |
           if [ -z "$SERVICE_ID" ]; then
-            echo "RENDER_BACKEND_SERVICE_ID repo variable is not set — see docs/RUNBOOK.md -> One-time setup." >&2
+            echo "RENDER_BACKEND_SERVICE_ID secret is not set — see docs/RUNBOOK.md -> One-time setup." >&2
             exit 1
           fi
 
