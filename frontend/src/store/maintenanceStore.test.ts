@@ -2,14 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { apiClient } from '../api/client'
 import { useMaintenanceStore } from './maintenanceStore'
-
-function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 describe('maintenanceStore', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     useMaintenanceStore.setState({ maintenanceMode: false })
   })
 

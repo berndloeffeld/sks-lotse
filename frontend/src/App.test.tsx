@@ -4,14 +4,10 @@ import { MemoryRouter } from 'react-router-dom'
 
 import App, { AppRoutes } from './App'
 import { useMaintenanceStore } from './store/maintenanceStore'
-
-function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
-}
+import { jsonResponse } from './test/fixtures'
 
 describe('App', () => {
   afterEach(() => {
-    vi.unstubAllGlobals()
     useMaintenanceStore.setState({ maintenanceMode: false })
   })
 

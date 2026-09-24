@@ -4,22 +4,11 @@ import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { AdminLayout } from './AdminLayout'
+import { makeUser } from '../test/fixtures'
 
 function setSession(isAdmin: boolean) {
   useAuthStore.setState({
-    user: {
-      id: 1,
-      email: 'admin@example.com',
-      created_at: '2026-01-01T00:00:00Z',
-      exam_variant: null,
-      first_name: null,
-      last_name: null,
-      gender: null,
-      token_balance: 0,
-      ads_removed: false,
-      agb_accepted_version: null,
-      is_admin: isAdmin,
-    },
+    user: makeUser({ is_admin: isAdmin }),
     isAuthenticated: true,
     isLoading: false,
   })

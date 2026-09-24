@@ -9,7 +9,6 @@ function umamiScript() {
 describe('initAnalytics', () => {
   afterEach(() => {
     umamiScript()?.remove()
-    vi.unstubAllEnvs()
   })
 
   it('does nothing when no website id is configured', () => {

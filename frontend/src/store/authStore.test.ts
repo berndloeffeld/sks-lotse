@@ -1,34 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apiClient } from '../api/client'
-import type { User } from '../api/types'
 import { useAuthStore } from './authStore'
+import { jsonResponse, makeUser } from '../test/fixtures'
 
-const mockUser: User = {
-  id: 1,
-  email: 'learner@example.com',
-  created_at: '2026-01-01T00:00:00Z',
-  exam_variant: null,
-  first_name: null,
-  last_name: null,
-  gender: null,
-  token_balance: 0,
-  ads_removed: false,
-  agb_accepted_version: null,
-  is_admin: false,
-}
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+const mockUser = makeUser()
 
 describe('authStore', () => {
   beforeEach(() => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: true, sessionError: false })
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
   })
 
   it('checkSession sets the user on a successful /auth/me call', async () => {

@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { Exam } from '../api/types'
 import { useAuthStore } from '../store/authStore'
-import { examQuestion, jsonResponse, makeExam } from '../test/examFixtures'
+import { examQuestion, jsonResponse, makeExam, makeUser } from '../test/fixtures'
 import { ExamRunPage } from './ExamRunPage'
 
 function renderRun() {
@@ -38,7 +38,6 @@ describe('ExamRunPage', () => {
   })
   afterEach(() => {
     cleanup()
-    vi.unstubAllGlobals()
     vi.useRealTimers()
   })
 
@@ -264,19 +263,7 @@ describe('ExamRunPage', () => {
     useAuthStore.setState({
       isAuthenticated: true,
       isLoading: false,
-      user: {
-        id: 1,
-        email: 'a@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        is_admin: false,
-        token_balance: 1,
-        ads_removed: false,
-        agb_accepted_version: null,
-      },
+      user: makeUser({ token_balance: 1 }),
     })
   }
 

@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { StartPage } from './StartPage'
+import { makeUser } from '../test/fixtures'
 
 function renderStartPage() {
   return render(
@@ -18,25 +19,9 @@ function renderStartPage() {
 }
 
 describe('StartPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it("shows the logged-in learner's email and the nav tiles", () => {
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        token_balance: 0,
-        ads_removed: false,
-        agb_accepted_version: null,
-        is_admin: false,
-      },
+      user: makeUser(),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -52,19 +37,7 @@ describe('StartPage', () => {
 
   it('shows the display name instead of the email once one is set, and links to /profile', () => {
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: 'Anna',
-        last_name: 'Beispiel',
-        gender: null,
-        token_balance: 0,
-        ads_removed: false,
-        agb_accepted_version: null,
-        is_admin: false,
-      },
+      user: makeUser({ first_name: 'Anna', last_name: 'Beispiel' }),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -79,19 +52,7 @@ describe('StartPage', () => {
   it('logs out and returns to the landing page', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: {
-        id: 1,
-        email: 'learner@example.com',
-        created_at: '2026-01-01T00:00:00Z',
-        exam_variant: null,
-        first_name: null,
-        last_name: null,
-        gender: null,
-        token_balance: 0,
-        ads_removed: false,
-        agb_accepted_version: null,
-        is_admin: false,
-      },
+      user: makeUser(),
       isAuthenticated: true,
       isLoading: false,
     })

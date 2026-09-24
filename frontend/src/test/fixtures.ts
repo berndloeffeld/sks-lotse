@@ -1,7 +1,7 @@
-import type { Exam, ExamQuestion } from '../api/types'
+import type { Exam, ExamQuestion, User } from '../api/types'
 
-export function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
 }
 
 export function examQuestion(position: number, overrides: Partial<ExamQuestion> = {}): ExamQuestion {
@@ -40,6 +40,23 @@ export function makeExam(overrides: Partial<Exam> = {}): Exam {
     result: null,
     group_scores: null,
     questions: [examQuestion(1), examQuestion(2, { subject_group: 'wetterkunde' })],
+    ...overrides,
+  }
+}
+
+export function makeUser(overrides: Partial<User> = {}): User {
+  return {
+    id: 1,
+    email: 'learner@example.com',
+    created_at: '2026-01-01T00:00:00Z',
+    exam_variant: null,
+    first_name: null,
+    last_name: null,
+    gender: null,
+    is_admin: false,
+    token_balance: 0,
+    ads_removed: false,
+    agb_accepted_version: null,
     ...overrides,
   }
 }

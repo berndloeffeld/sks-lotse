@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { ErrorBoundary } from './ErrorBoundary'
@@ -18,11 +18,6 @@ function renderWithBoundary(child: React.ReactNode) {
 }
 
 describe('ErrorBoundary', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-    vi.unstubAllGlobals()
-  })
-
   it('renders its children when nothing fails', () => {
     renderWithBoundary(<p>Alles gut</p>)
 

@@ -6,10 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '../routes/ProtectedRoute'
 import { useAuthStore } from '../store/authStore'
 import { LearnPage } from './LearnPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse, makeUser } from '../test/fixtures'
 
 function renderLearnPage() {
   return render(
@@ -39,37 +36,18 @@ const progressSummary = [
   },
 ]
 
-function baseUser(overrides: Partial<{ exam_variant: string | null }> = {}) {
-  return {
-    id: 1,
-    email: 'learner@example.com',
-    created_at: '2026-01-01T00:00:00Z',
-    exam_variant: null,
-    first_name: null,
-    last_name: null,
-    gender: null,
-    token_balance: 0,
-    ads_removed: false,
-    is_admin: false,
-    agb_accepted_version: null,
-    ...overrides,
-  }
-}
-
 describe('LearnPage', () => {
   afterEach(() => {
     // Unmount first: resetting the store below changes the user, which keys
-    // (and so remounts) ProgressSummarySection — with fetch already unstubbed,
-    // that remount would hit the real network and its late 401 would clear the
-    // next test's user via the unauthorized handler.
+    // (and so remounts) ProgressSummarySection, and that remount's late fetch
+    // would land in the next test.
     cleanup()
-    vi.unstubAllGlobals()
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
   it('shows the current exam variant and the Lernstand', async () => {
     useAuthStore.setState({
-      user: baseUser({ exam_variant: 'motor' }),
+      user: makeUser({ exam_variant: 'motor' }),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -82,7 +60,7 @@ describe('LearnPage', () => {
   })
 
   it('shows the category pie and the topics grouped by subject', async () => {
-    useAuthStore.setState({ user: baseUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(progressSummary)))
 
     renderLearnPage()
@@ -95,7 +73,7 @@ describe('LearnPage', () => {
   })
 
   it('shows an error instead of the topics when the Lernstand fails to load', async () => {
-    useAuthStore.setState({ user: baseUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser({ exam_variant: 'motor' }), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 500)))
 
     renderLearnPage()
@@ -106,11 +84,11 @@ describe('LearnPage', () => {
   it('saves a picked exam variant', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: baseUser(),
+      user: makeUser(),
       isAuthenticated: true,
       isLoading: false,
     })
-    const updatedUser = baseUser({ exam_variant: 'motor' })
+    const updatedUser = makeUser({ exam_variant: 'motor' })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.endsWith('/progress/summary')) return jsonResponse(progressSummary)
@@ -139,7 +117,7 @@ describe('LearnPage', () => {
   it('shows an error message when the exam-variant update fails', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: baseUser(),
+      user: makeUser(),
       isAuthenticated: true,
       isLoading: false,
     })
@@ -161,7 +139,7 @@ describe('LearnPage', () => {
 
   it('marks a topic as Fokus with the star and reloads the Lernstand', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     let focused = false
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
@@ -188,7 +166,7 @@ describe('LearnPage', () => {
 
   it('removes a Fokus topic with the star', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     let focused = true
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
@@ -209,7 +187,7 @@ describe('LearnPage', () => {
 
   it('keeps the Lernstand and shows an error when the Fokus cannot be saved', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: baseUser(), isAuthenticated: true, isLoading: false })
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.includes('/progress/focus/')) return jsonResponse({ detail: 'Topic is already fully learned' }, 409)
@@ -227,7 +205,7 @@ describe('LearnPage', () => {
 
   it('links back to /start', async () => {
     useAuthStore.setState({
-      user: baseUser(),
+      user: makeUser(),
       isAuthenticated: true,
       isLoading: false,
     })

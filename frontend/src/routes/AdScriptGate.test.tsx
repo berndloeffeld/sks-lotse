@@ -57,7 +57,6 @@ describe('AdScriptGate', () => {
   afterEach(() => {
     document.head.querySelectorAll('script').forEach((script) => script.remove())
     window.sessionStorage.clear()
-    vi.unstubAllEnvs()
     useAuthStore.setState({ isLoading: true, isAuthenticated: false, user: null })
   })
 

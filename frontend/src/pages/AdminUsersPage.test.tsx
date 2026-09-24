@@ -1,13 +1,10 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { AdminUsersPage } from './AdminUsersPage'
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
-}
+import { jsonResponse } from '../test/fixtures'
 
 function listItem(id: number, overrides: object = {}) {
   return {
@@ -49,10 +46,6 @@ function stubFetch(
 }
 
 describe('AdminUsersPage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
   it('lists the accounts, each linking to its detail page', async () => {
     const fetchMock = stubFetch(() =>
       jsonResponse({
