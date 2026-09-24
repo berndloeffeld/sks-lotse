@@ -92,7 +92,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         <p className={`text-xs ${f.note}`}>Wir senden dir einen Login-Code per E-Mail – ganz ohne Passwort.</p>
         {errorMessage}
         <button type="submit" disabled={isSubmitting} className={buttonClass}>
-          Code anfordern
+          Jetzt starten
         </button>
       </form>
     )
