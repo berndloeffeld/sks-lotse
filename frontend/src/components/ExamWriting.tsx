@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
@@ -50,8 +50,9 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
 
   const remainingMs = useExamCountdown(exam.deadline_at, exam.server_now, () => onChangeRef.current(null))
 
-  // The cursor belongs in the answer field whenever a question comes up.
-  useEffect(() => {
+  // The cursor belongs in the answer field whenever a question comes up — in the same commit
+  // that shows the question (a layout effect), so it is never on screen without the cursor.
+  useLayoutEffect(() => {
     if (view === 'question') answerRef.current?.focus()
   }, [view, index])
 

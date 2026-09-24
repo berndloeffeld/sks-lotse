@@ -60,3 +60,18 @@ export function makeUser(overrides: Partial<User> = {}): User {
     ...overrides,
   }
 }
+
+// Records which element had focus the moment `text` first appeared in the document. Call it before
+// rendering and read the result once the text is there: a screen that places the cursor in an effect
+// shows up briefly without it, which a plain toHaveFocus() after findBy… only catches by timing.
+export function focusWhenShown(text: string): () => Element | null | undefined {
+  let focused: Element | null | undefined
+  const observer = new MutationObserver(() => {
+    if (focused === undefined && document.body.textContent?.includes(text)) focused = document.activeElement
+  })
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+  return () => {
+    observer.disconnect()
+    return focused
+  }
+}

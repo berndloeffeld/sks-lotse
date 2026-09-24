@@ -6,7 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import type { Question, QuestionProgress } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { PracticePage } from './PracticePage'
-import { jsonResponse, makeUser } from '../test/fixtures'
+import { focusWhenShown, jsonResponse, makeUser } from '../test/fixtures'
 
 function question(id: number, number: number): Question {
   return {
@@ -85,10 +85,13 @@ describe('PracticePage', () => {
 
   it('loads the topic and asks the scoped questions', async () => {
     const fetchMock = mockBackend({})
+    const focusedOnShow = focusWhenShown('Frage 7?')
 
     renderPracticePage()
 
     expect(await screen.findByRole('heading', { name: 'Frage 7?' })).toBeInTheDocument()
+    // The cursor is in the answer field the moment the question appears.
+    expect(focusedOnShow()).toBe(screen.getByLabelText(/Deine Antwort/))
     expect(screen.getByRole('heading', { level: 1, name: 'Ankern' })).toBeInTheDocument()
     expect(screen.getByText('Frage 1 von 1 · Nr. 7')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/questions?subject=navigation&topic=ankern'))).toBe(

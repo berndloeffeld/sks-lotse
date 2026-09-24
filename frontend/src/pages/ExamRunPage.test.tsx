@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { Exam } from '../api/types'
 import { useAuthStore } from '../store/authStore'
-import { examQuestion, jsonResponse, makeExam, makeUser } from '../test/fixtures'
+import { examQuestion, focusWhenShown, jsonResponse, makeExam, makeUser } from '../test/fixtures'
 import { ExamRunPage } from './ExamRunPage'
 
 function renderRun() {
@@ -66,10 +66,12 @@ describe('ExamRunPage', () => {
       return jsonResponse(makeExam())
     })
     vi.stubGlobal('fetch', fetchMock)
+    const focusedOnShow = focusWhenShown('Frage 1?')
     renderRun()
 
     expect(await screen.findByText('Frage 1?')).toBeInTheDocument()
-    expect(screen.getByLabelText('Deine Antwort')).toHaveFocus()
+    // Already there when the question appears, not an effect later (this used to be flaky in CI).
+    expect(focusedOnShow()).toBe(screen.getByLabelText('Deine Antwort'))
     expect(screen.queryByText(/tipp/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/amtliche antwort/i)).not.toBeInTheDocument()
     expect(screen.getByText('Frage 1 von 2', { selector: 'p' })).toBeInTheDocument()
