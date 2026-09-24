@@ -19,7 +19,6 @@ function renderProfilePage() {
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
         <Route path="/login" element={<p>Login page</p>} />
-        <Route path="/start" element={<p>Start page</p>} />
         <Route path="/" element={<p>Landing page</p>} />
       </Routes>
     </MemoryRouter>,

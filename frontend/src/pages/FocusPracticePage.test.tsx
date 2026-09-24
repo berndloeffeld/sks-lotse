@@ -72,7 +72,8 @@ describe('FocusPracticePage', () => {
     renderPage()
 
     expect(await screen.findByText('Frage 9?')).toBeInTheDocument()
-    expect(screen.getByText(/Frage 1 von 2 · Nr\. 9 · Wetterkunde: Wind/)).toBeInTheDocument()
+    expect(screen.getByText('Frage 1 von 2')).toBeInTheDocument()
+    expect(screen.getByText('Wetterkunde (Wind) – Nr. 9')).toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
@@ -80,7 +81,7 @@ describe('FocusPracticePage', () => {
     await user.click(screen.getByRole('button', { name: 'Weiter' }))
 
     expect(await screen.findByText('Frage 7?')).toBeInTheDocument()
-    expect(screen.getByText(/Nr\. 7 · Navigation: Ankern/)).toBeInTheDocument()
+    expect(screen.getByText('Navigation (Ankern) – Nr. 7')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/progress/questions/2'),
       expect.objectContaining({ method: 'POST' }),
@@ -107,6 +108,6 @@ describe('FocusPracticePage', () => {
     mockBackend([question(3, 4, 'navigation', 'unbekannt')])
     renderPage()
 
-    expect(await screen.findByText(/Nr\. 4 · Navigation: unbekannt/)).toBeInTheDocument()
+    expect(await screen.findByText('Navigation (unbekannt) – Nr. 4')).toBeInTheDocument()
   })
 })

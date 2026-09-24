@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
@@ -10,9 +9,7 @@ import { LegalFooter } from './LegalFooter'
 interface PageLayoutProps {
   title: string
   subtitle?: ReactNode
-  // Renders a "← Zurück" link above the title.
-  backTo?: string
-  // Logged-in pages get the account nav and a brand link to /start;
+  // Logged-in pages get the account nav and a brand link to /learn;
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
   width?: 'sm' | 'md'
@@ -31,7 +28,6 @@ const WIDTH = { sm: 'max-w-sm', md: 'max-w-2xl', bands: 'max-w-4xl' }
 export function PageLayout({
   title,
   subtitle,
-  backTo,
   nav = 'account',
   width = 'md',
   compact = false,
@@ -46,20 +42,12 @@ export function PageLayout({
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <Header
-        homeTo={showAccountNav ? '/start' : '/'}
+        homeTo={showAccountNav ? '/learn' : '/'}
         nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}
       />
       <main className="flex-1">
         <HeroBand className={`${compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
           <div className={column}>
-            {backTo ? (
-              <Link
-                to={backTo}
-                className="block text-left font-mono text-xs tracking-wide text-surface-alt uppercase hover:text-surface"
-              >
-                ← Zurück
-              </Link>
-            ) : null}
             <h1
               className={`font-serif tracking-wide break-words uppercase ${
                 compact ? 'mt-2 text-2xl sm:text-3xl' : 'mt-4 text-3xl sm:text-4xl'

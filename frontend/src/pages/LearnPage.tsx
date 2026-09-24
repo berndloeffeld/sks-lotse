@@ -82,12 +82,7 @@ export function LearnPage() {
   const user = useAuthStore((state) => state.user)
 
   return (
-    <PageLayout
-      title="Lernen"
-      backTo="/start"
-      subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog."
-      bands
-    >
+    <PageLayout title="Lernen" subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog." bands>
       {/* Keyed on exam_variant so a change remounts (and refetches) the
           Lernstand for the new variant's subjects. */}
       <LearnContent key={user?.exam_variant ?? 'none'} />

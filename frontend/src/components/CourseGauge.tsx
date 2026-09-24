@@ -25,13 +25,10 @@ function label(progress: number): string {
 const SAILING_HINT =
   'Der Kurs berücksichtigt deine bisherigen Antworten und wie viel Zeit dazwischen lag – regelmäßiges Wiederholen bringt das Schiff näher zum Anker.'
 
-// `label` replaces the spoken status where "gelernt" isn't what the boat means
-// (the exam simulation uses it as a "question x of n" indicator); that usage
-// keeps the tooltip identical to the label instead of the learning hint.
-export function CourseGauge({ progress, label: labelOverride }: { progress: number; label?: string }) {
+export function CourseGauge({ progress }: { progress: number }) {
   const learned = progress >= 1
-  const text = labelOverride ?? label(progress)
-  const tooltip = labelOverride || learned ? text : SAILING_HINT
+  const text = label(progress)
+  const tooltip = learned ? text : SAILING_HINT
   const x = learned ? BOAT_MAX_X : Math.max(progress, 0) * BOAT_SAILING_MAX_X
   const motion = 'transition-[transform,color] duration-700 ease-in-out motion-reduce:transition-none'
 

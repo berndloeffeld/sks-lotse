@@ -39,18 +39,15 @@ export function FocusPracticePage() {
   const contextLabel = useCallback(
     (question: Question) => {
       const topic = topics?.find((t) => t.subject === question.subject && t.topic_slug === question.topic)
-      return `${SUBJECT_LABELS[question.subject] ?? question.subject}: ${topic?.topic_name ?? question.topic ?? ''}`
+      const subject = SUBJECT_LABELS[question.subject] ?? question.subject
+      const topicName = topic?.topic_name ?? question.topic
+      return topicName ? `${subject} (${topicName})` : subject
     },
     [topics],
   )
 
   return (
-    <PageLayout
-      title="Fokus-Lernen"
-      subtitle="Alle Fokus-Themen, die älteste richtige Antwort zuerst"
-      backTo="/learn"
-      compact
-    >
+    <PageLayout title="Fokus-Lernen" subtitle="Alle Fokus-Themen, die älteste richtige Antwort zuerst" compact>
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : failed || !data ? (

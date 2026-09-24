@@ -25,10 +25,4 @@ describe('CourseGauge', () => {
     expect(screen.getByTestId('course-boat')).toHaveStyle({ transform: 'translate(78px, 1px)' })
     expect(container.querySelector('title')?.textContent).toBe('Gelernt')
   })
-
-  it('keeps the tooltip identical to the label when used as an exam position indicator', () => {
-    const { container } = render(<CourseGauge progress={0.5} label="Frage 3 von 10" />)
-    expect(screen.getByRole('img', { name: 'Frage 3 von 10' })).toBeInTheDocument()
-    expect(container.querySelector('title')?.textContent).toBe('Frage 3 von 10')
-  })
 })

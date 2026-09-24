@@ -9,7 +9,7 @@ export function LoginPage() {
 
   // Already signed in (e.g. back button after a prior login) — skip the form.
   if (isAuthenticated) {
-    return <Navigate to="/start" replace />
+    return <Navigate to="/learn" replace />
   }
 
   return (

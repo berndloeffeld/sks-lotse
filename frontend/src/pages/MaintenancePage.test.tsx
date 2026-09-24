@@ -18,7 +18,7 @@ describe('MaintenancePage', () => {
     // duplicate them (regression guard for a duplicate-links bug caught after shipping).
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy')
-    expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/agb')
+    expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/terms')
   })
 
   it('"Erneut prüfen" re-checks the session, the only way the flag can clear while gated', async () => {

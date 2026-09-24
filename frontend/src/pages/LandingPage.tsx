@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { AccountNav } from '../components/AccountNav'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
+import { FaqAnswer } from '../components/FaqAnswer'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
 import { LegalFooter } from '../components/LegalFooter'
@@ -127,7 +128,7 @@ export function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
-      {isAuthenticated ? <Header homeTo="/start" nav={<AccountNav />} /> : <Header />}
+      {isAuthenticated ? <Header homeTo="/learn" nav={<AccountNav />} /> : <Header />}
 
       <main className="flex-1">
         <HeroBand className="pt-20 pb-36 text-center sm:pb-44">
@@ -140,7 +141,7 @@ export function LandingPage() {
               Katalogs
             </p>
             {isAuthenticated ? (
-              <Link to="/start" className={HERO_CTA}>
+              <Link to="/learn" className={HERO_CTA}>
                 Jetzt loslegen
               </Link>
             ) : (
@@ -227,7 +228,7 @@ export function LandingPage() {
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
             Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
             der Theorie weitergeht?{' '}
-            <Link to="/ablauf" className="text-primary underline hover:no-underline">
+            <Link to="/exam-process" className="text-primary underline hover:no-underline">
               So läuft die SKS-Prüfung ab
             </Link>
             .
@@ -258,7 +259,9 @@ export function LandingPage() {
                     {question}
                   </Link>
                 </h3>
-                <p className="text-sm leading-relaxed text-ink-soft">{answer}</p>
+                <p className="text-sm leading-relaxed text-ink-soft">
+                  <FaqAnswer answer={answer} linkClassName="underline hover:text-primary" />
+                </p>
               </div>
             ))}
           </div>
@@ -291,10 +294,10 @@ export function LandingPage() {
               <div className="flex flex-col justify-center gap-4">
                 <p className="text-sm text-surface-alt">Du bist bereits angemeldet.</p>
                 <Link
-                  to="/start"
+                  to="/learn"
                   className="rounded-tile bg-accent px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
                 >
-                  Zur Übersicht
+                  Zum Lernen
                 </Link>
               </div>
             ) : (

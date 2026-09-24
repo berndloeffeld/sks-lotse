@@ -161,6 +161,18 @@ services:
       - key: VITE_ADSENSE_CLIENT_ID
         sync: false
     routes:
+      # Public pages that moved from German to English paths: a permanent
+      # redirect keeps bookmarks and search results working. Before the
+      # rewrites, which would otherwise serve the SPA shell for them.
+      - type: redirect
+        source: /agb
+        destination: /terms
+      - type: redirect
+        source: /ablauf
+        destination: /exam-process
+      - type: redirect
+        source: /preise
+        destination: /pricing
       # Prerendered public pages (ADR-0025): each path serves its own
       # prerendered file. Listed explicitly because Render doesn't map /faq
       # to faq.html on its own. Must match PAGES in scripts/prerender.mjs.
@@ -174,16 +186,16 @@ services:
         source: /privacy
         destination: /privacy.html
       - type: rewrite
-        source: /agb
-        destination: /agb.html
+        source: /terms
+        destination: /terms.html
       - type: rewrite
-        source: /ablauf
-        destination: /ablauf.html
-      # SPA fallback: routes like /login and /start have no matching static
+        source: /exam-process
+        destination: /exam-process.html
+      # SPA fallback: routes like /login and /learn have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
       # empty shell — index.html carries the prerendered landing page
-      # (ADR-0025), which must not flash up on /start. Render only rewrites
+      # (ADR-0025), which must not flash up on /learn. Render only rewrites
       # paths with no matching file, so / still serves index.html.
       - type: rewrite
         source: /*

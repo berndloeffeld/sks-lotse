@@ -10,11 +10,11 @@ import { jsonResponse, makeUser } from '../test/fixtures'
 
 function renderGate() {
   return render(
-    <MemoryRouter initialEntries={['/start']}>
+    <MemoryRouter initialEntries={['/learn']}>
       <Routes>
-        <Route path="/agb" element={<p>AGB page</p>} />
+        <Route path="/terms" element={<p>AGB page</p>} />
         <Route element={<AgbGate />}>
-          <Route path="/start" element={<p>Start page</p>} />
+          <Route path="/learn" element={<p>Learn page</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -27,7 +27,7 @@ describe('AgbGate', () => {
 
     renderGate()
 
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
@@ -37,7 +37,7 @@ describe('AgbGate', () => {
     renderGate()
 
     // The page underneath stays rendered — no jarring full-page swap.
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Ich akzeptiere die AGB' })).toBeInTheDocument()
   })
@@ -59,7 +59,7 @@ describe('AgbGate', () => {
     renderGate()
     await user.click(screen.getByRole('button', { name: 'Ich akzeptiere die AGB' }))
 
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/auth/me/agb-accept'),

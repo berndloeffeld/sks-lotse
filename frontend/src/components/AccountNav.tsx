@@ -1,38 +1,24 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-import { FEEDBACK_MAILTO } from '../contact'
-import { useAuthStore } from '../store/authStore'
-import { HEADER_LINK } from './headerLink'
-import { MarketingLinks } from './MarketingLinks'
+import { AccountMenu } from './AccountMenu'
+import { HEADER_LINK, HEADER_LINK_ACTIVE } from './headerLink'
 
-// Header nav for logged-in pages: the marketing links, Profil, Admin (admins only), Abmelden.
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return isActive ? HEADER_LINK_ACTIVE : HEADER_LINK
+}
+
+// Header nav for logged-in pages: the two learning destinations, then everything else behind
+// the "Menü" button (AccountMenu).
 export function AccountNav() {
-  const navigate = useNavigate()
-  const user = useAuthStore((state) => state.user)
-  const logout = useAuthStore((state) => state.logout)
-
-  async function handleLogout() {
-    await logout()
-    navigate('/')
-  }
-
   return (
-    <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <MarketingLinks />
-      <Link to="/profile" className={HEADER_LINK}>
-        Profil
-      </Link>
-      {user?.is_admin ? (
-        <Link to="/admin" className={HEADER_LINK}>
-          Admin
-        </Link>
-      ) : null}
-      <a href={FEEDBACK_MAILTO} className={HEADER_LINK}>
-        Feedback
-      </a>
-      <button type="button" onClick={handleLogout} className={HEADER_LINK}>
-        Abmelden
-      </button>
+    <nav className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+      <NavLink to="/learn" className={navLinkClass}>
+        Lernen
+      </NavLink>
+      <NavLink to="/exam" className={navLinkClass}>
+        Prüfung
+      </NavLink>
+      <AccountMenu />
     </nav>
   )
 }

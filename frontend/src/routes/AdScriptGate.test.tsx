@@ -32,7 +32,7 @@ async function renderAt(
       <Routes>
         <Route element={<AdScriptGate reload={reload} />}>
           <Route path="/login" element={<p>Login page</p>} />
-          <Route path="/start" element={<p>Start page</p>} />
+          <Route path="/learn" element={<p>Learn page</p>} />
           <Route path="/admin" element={<p>Admin page</p>} />
         </Route>
       </Routes>
@@ -61,19 +61,19 @@ describe('AdScriptGate', () => {
   })
 
   it('waits for the session check before deciding', async () => {
-    const { reload } = await renderAt('/start', { staticTag: false })
+    const { reload } = await renderAt('/learn', { staticTag: false })
 
     expect(adScripts()).toHaveLength(0)
     expect(reload).not.toHaveBeenCalled()
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
   })
 
   it('loads the script for an account that sees ads', async () => {
-    const { store } = await renderAt('/start')
+    const { store } = await renderAt('/learn')
     signedIn(false, store)
 
     await vi.waitFor(() => expect(adScripts()).toHaveLength(1))
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
   })
 
   it('loads the script on the login page for anonymous visitors', async () => {
@@ -84,10 +84,10 @@ describe('AdScriptGate', () => {
   })
 
   it('never loads the script for an account that removed ads', async () => {
-    const { store, reload } = await renderAt('/start')
+    const { store, reload } = await renderAt('/learn')
     signedIn(true, store)
 
-    await screen.findByText('Start page')
+    await screen.findByText('Learn page')
     expect(adScripts()).toHaveLength(0)
     expect(reload).not.toHaveBeenCalled()
   })
@@ -102,10 +102,10 @@ describe('AdScriptGate', () => {
 
   it('does nothing when no publisher id is configured', async () => {
     vi.stubEnv('VITE_ADSENSE_CLIENT_ID', '')
-    const { store } = await renderAt('/start')
+    const { store } = await renderAt('/learn')
     signedIn(false, store)
 
-    await screen.findByText('Start page')
+    await screen.findByText('Learn page')
     expect(adScripts()).toHaveLength(0)
   })
 
@@ -119,7 +119,7 @@ describe('AdScriptGate', () => {
   })
 
   it('leaves a document with the script when the account removed ads', async () => {
-    const { store, reload } = await renderAt('/start', { staticTag: true })
+    const { store, reload } = await renderAt('/learn', { staticTag: true })
     signedIn(true, store)
 
     await vi.waitFor(() => expect(reload).toHaveBeenCalledOnce())
@@ -137,7 +137,7 @@ describe('AdScriptGate', () => {
   it('still leaves a script it injected itself after an earlier reload', async () => {
     // Earlier reload landed here without a static tag; then the learner used the app (script
     // injected) and now opens /admin — that must reload again, the loop guard doesn't apply.
-    const { store, reload, view } = await renderAt('/start', { arrivedByReload: true })
+    const { store, reload, view } = await renderAt('/learn', { arrivedByReload: true })
     signedIn(false, store)
     await vi.waitFor(() => expect(adScripts()).toHaveLength(1))
     view.unmount()

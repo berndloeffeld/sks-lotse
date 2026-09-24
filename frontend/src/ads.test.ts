@@ -4,6 +4,7 @@ import {
   adScriptLoaded,
   adsEnabled,
   consumeAdFreeReload,
+  CONSENT_DIALOG_TIMEOUT_MS,
   CONSENT_SETTINGS_URL,
   injectAdScript,
   markAdFreeReload,
@@ -28,6 +29,7 @@ describe('ads', () => {
   afterEach(() => {
     delete window.googlefc
     window.sessionStorage.clear()
+    vi.useRealTimers()
   })
 
   it('is off without a publisher id and on with one', () => {
@@ -39,12 +41,12 @@ describe('ads', () => {
   })
 
   it('wants the script wherever ads are shown, except on the admin tools', () => {
-    expect(wantsAdScript(true, '/start')).toBe(true)
+    expect(wantsAdScript(true, '/learn')).toBe(true)
     expect(wantsAdScript(true, '/login')).toBe(true)
     expect(wantsAdScript(true, '/administration-guide')).toBe(true)
     expect(wantsAdScript(true, '/admin')).toBe(false)
     expect(wantsAdScript(true, '/admin/settings')).toBe(false)
-    expect(wantsAdScript(false, '/start')).toBe(false)
+    expect(wantsAdScript(false, '/learn')).toBe(false)
   })
 
   it('injects the same tag the build writes into the public pages, once', () => {
@@ -76,31 +78,92 @@ describe('ads', () => {
     expect(adScriptLoaded()).toBe(false)
   })
 
-  it('queues the revocation message once Google’s consent API is present', () => {
+  // Runs whatever the page queued for Google's CMP, as the CMP does once it has loaded.
+  function runConsentQueue() {
+    for (const callback of window.googlefc!.callbackQueue as Array<() => void>) callback()
+  }
+
+  it('opens the dialog once Google’s consent API is present, without reporting it unavailable', () => {
+    vi.useFakeTimers()
     const showRevocationMessage = vi.fn()
     const navigate = vi.fn()
+    const onUnavailable = vi.fn()
     window.googlefc = { callbackQueue: [], showRevocationMessage }
 
-    openConsentSettings(navigate)
+    openConsentSettings(onUnavailable, navigate, documentWithScript(ADSENSE_SRC))
+    runConsentQueue()
+    vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS)
 
-    expect(window.googlefc.callbackQueue).toEqual([showRevocationMessage])
+    expect(showRevocationMessage).toHaveBeenCalledOnce()
+    expect(onUnavailable).not.toHaveBeenCalled()
     expect(navigate).not.toHaveBeenCalled()
   })
 
-  it('goes to a public page that can open the dialog when this document has no consent API', () => {
-    const navigate = vi.fn()
+  it('still opens the dialog when the consent API finishes loading after the click', () => {
+    vi.useFakeTimers()
+    const onUnavailable = vi.fn()
 
-    openConsentSettings(navigate, documentWithScript(null))
+    openConsentSettings(onUnavailable, vi.fn(), documentWithScript(ADSENSE_SRC))
+    vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS - 1)
+    const showRevocationMessage = vi.fn()
+    window.googlefc!.showRevocationMessage = showRevocationMessage
+    runConsentQueue()
+    vi.advanceTimersByTime(1)
 
-    expect(navigate).toHaveBeenCalledExactlyOnceWith(CONSENT_SETTINGS_URL)
+    expect(showRevocationMessage).toHaveBeenCalledOnce()
+    expect(onUnavailable).not.toHaveBeenCalled()
   })
 
-  it('waits for the consent API instead of navigating when the script is still loading', () => {
+  it('reports the dialog unavailable when the consent API never loads', () => {
+    vi.useFakeTimers()
+    const onUnavailable = vi.fn()
     const navigate = vi.fn()
 
-    openConsentSettings(navigate, documentWithScript(ADSENSE_SRC))
+    openConsentSettings(onUnavailable, navigate, documentWithScript(ADSENSE_SRC))
+    vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS - 1)
+    expect(onUnavailable).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
 
+    expect(onUnavailable).toHaveBeenCalledOnce()
     expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it('reports the dialog unavailable when the consent API loads without a revocation message', () => {
+    vi.useFakeTimers()
+    const onUnavailable = vi.fn()
+
+    openConsentSettings(onUnavailable, vi.fn(), documentWithScript(ADSENSE_SRC))
+    runConsentQueue()
+    vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS)
+
+    expect(onUnavailable).toHaveBeenCalledOnce()
+  })
+
+  it('keeps an existing consent queue when a click queues the dialog', () => {
+    const earlier = vi.fn()
+    window.googlefc = { callbackQueue: [earlier] }
+
+    openConsentSettings(vi.fn(), vi.fn(), documentWithScript(ADSENSE_SRC))
+
+    expect(window.googlefc.callbackQueue).toHaveLength(2)
+    expect(window.googlefc.callbackQueue![0]).toBe(earlier)
+  })
+
+  it('goes to the privacy policy’s ad section, which opens the dialog, when this document has no consent API', () => {
+    const navigate = vi.fn()
+    const onUnavailable = vi.fn()
+
+    openConsentSettings(onUnavailable, navigate, documentWithScript(null))
+
+    expect(navigate).toHaveBeenCalledExactlyOnceWith('/privacy?cookie-einstellungen#werbung')
+    expect(CONSENT_SETTINGS_URL).toBe('/privacy?cookie-einstellungen#werbung')
+    expect(window.googlefc).toBeUndefined()
+  })
+
+  it('does nothing visible by default when the dialog stays away', () => {
+    vi.useFakeTimers()
+    openConsentSettings(undefined, vi.fn(), documentWithScript(ADSENSE_SRC))
+    expect(() => vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS)).not.toThrow()
   })
 
   it('opens the dialog on arrival once the consent API is ready', () => {
@@ -112,7 +175,6 @@ describe('ads', () => {
     queued()
 
     expect(showRevocationMessage).toHaveBeenCalledOnce()
-    expect(CONSENT_SETTINGS_URL).toBe('/privacy?cookie-einstellungen')
   })
 
   it('keeps an existing consent queue when asked to open the dialog', () => {

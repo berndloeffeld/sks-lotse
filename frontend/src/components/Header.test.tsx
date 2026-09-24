@@ -24,8 +24,8 @@ describe('Header', () => {
     )
 
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
-    expect(screen.getByRole('link', { name: 'Ablauf' })).toHaveAttribute('href', '/ablauf')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/preise')
+    expect(screen.getByRole('link', { name: 'Ablauf' })).toHaveAttribute('href', '/exam-process')
+    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/pricing')
   })
 
   it('renders nothing but the brand when nav is explicitly null', () => {

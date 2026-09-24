@@ -44,12 +44,7 @@ export function PracticePage() {
   )
 
   return (
-    <PageLayout
-      title={data?.topic?.name ?? 'Lernen'}
-      subtitle={SUBJECT_LABELS[subject] ?? subject}
-      backTo="/learn"
-      compact
-    >
+    <PageLayout title={data?.topic?.name ?? 'Lernen'} subtitle={SUBJECT_LABELS[subject] ?? subject} compact>
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : error ? (

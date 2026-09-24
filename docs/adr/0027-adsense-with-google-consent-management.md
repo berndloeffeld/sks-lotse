@@ -1,6 +1,6 @@
 # 0027. Google AdSense behind Google's own consent management
 
-Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries the script" is amended by the addendum of 2026-09-23 (only where ads are shown, never on `/admin`).
+Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries the script" is amended by the addendum of 2026-09-23 (only where ads are shown, never on `/admin`); the addendum of 2026-09-24 renames the footer button to "Cookies" and adds a hint when the dialog can't load.
 
 ## Context
 
@@ -52,3 +52,7 @@ Ads stay for every logged-in account that hasn't removed them (a stricter "publi
 - "Cookie-Einstellungen" keeps working everywhere (Art. 7(3) DSGVO). Where the page has no consent API, it opens `/privacy?cookie-einstellungen`, which queues Google's revocation dialog on arrival.
 
 Accepted risk: for accounts that see ads, the script still runs next to their session, including on `/login` while the code is typed. That's the price of in-app ads, and it's bounded by the account's own rights. Ads-removed accounts now get what they pay for: no Google script while using the app.
+
+## Addendum (2026-09-24): "Cookies", and never a silent click
+
+The footer button is now labelled "Cookies" (was "Cookie-Einstellungen"), still on every page where ads are shown. A click used to do nothing when the page had Google's script but its CMP never came up — an ad blocker or network filter dropping `fundingchoicesmessages.google.com`, a click before the CMP finished loading, or no EU message published in AdSense. `openConsentSettings()` now always queues the dialog (so an early click still opens it once the CMP loads), and if it hasn't opened after two seconds the footer says why and links to the privacy policy's ad section. That's also where the no-consent-API redirect lands now: `/privacy?cookie-einstellungen#werbung`.

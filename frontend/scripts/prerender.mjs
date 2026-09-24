@@ -9,8 +9,8 @@
 //                       ADR-0027 addendum 2026-09-23).
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<name>.html  — likewise for /faq, /imprint, /privacy, /agb and
-//                       /ablauf; render.yaml rewrites each of those paths to
+//   dist/<name>.html  — likewise for /faq, /imprint, /privacy, /terms and
+//                       /exam-process; render.yaml rewrites each of those paths to
 //                       its file explicitly. Each of these (everything but
 //                       "/") also gets its own <title>/description/OG/
 //                       Twitter/canonical via applyMeta below, and drops the
@@ -63,22 +63,22 @@ const PAGES = {
       canonical: 'https://sks-lotse.de/privacy',
     },
   },
-  '/agb': {
-    file: 'agb.html',
+  '/terms': {
+    file: 'terms.html',
     meta: {
       title: 'AGB – SKS Lotse',
       description:
         'Allgemeine Geschäftsbedingungen von SKS Lotse, der Online-App für die Vorbereitung auf die SKS-Theorieprüfung.',
-      canonical: 'https://sks-lotse.de/agb',
+      canonical: 'https://sks-lotse.de/terms',
     },
   },
-  '/ablauf': {
-    file: 'ablauf.html',
+  '/exam-process': {
+    file: 'exam-process.html',
     meta: {
       title: 'So läuft die SKS-Prüfung ab – SBF See, Theorie und Praxis',
       description:
         'Der komplette Weg zum Sportküstenschifferschein: vom Bootsführerschein SBF See über die SKS-Theorieprüfung bis zur Praxisprüfung – kompakt erklärt.',
-      canonical: 'https://sks-lotse.de/ablauf',
+      canonical: 'https://sks-lotse.de/exam-process',
     },
   },
 }

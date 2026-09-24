@@ -25,7 +25,7 @@ function renderAdmin(path: string) {
           <Route path="users/:id" element={<p>User page</p>} />
           <Route path="questions" element={<p>Questions page</p>} />
         </Route>
-        <Route path="/start" element={<p>Start page</p>} />
+        <Route path="/learn" element={<p>Learn page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -36,10 +36,10 @@ describe('AdminLayout', () => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
-  it('redirects a non-admin to /start', () => {
+  it('redirects a non-admin to /learn', () => {
     setSession(false)
     renderAdmin('/admin/users')
-    expect(screen.getByText('Start page')).toBeInTheDocument()
+    expect(screen.getByText('Learn page')).toBeInTheDocument()
     expect(screen.queryByText('Users page')).not.toBeInTheDocument()
   })
 

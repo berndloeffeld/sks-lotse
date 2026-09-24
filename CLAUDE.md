@@ -72,6 +72,9 @@ Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Cod
 #### Avoid pipeline overkill for rare tasks
 For infrequent/one-off operations (e.g. importing the SKS question catalog from PDF, which runs once or a few times total), do not build infrastructure — use a plain script instead. No pipelines, queues, task runners, or extra abstraction layers are needed for tasks that run rarely. This aligns with the general principle of avoiding premature abstraction: match the infrastructure to the actual problem, not hypothetical future complexity.
 
+### Naming: English in code and URLs, German in the UI
+Route paths, file and component names and code identifiers are English (`/pricing`, `/terms`, `/learn/focus`, `PricingPage`); only what the learner reads is German (labels, copy, page titles). A path that has to change keeps working: add it to `RETIRED_PATHS` in `frontend/src/App.tsx`, and a public one also gets a `type: redirect` in `render.yaml`. Domain terms from the catalog or the law stay as they are: subject keys like `navigation`, the exam variants, and AGB (`AgbPage`, `AgbGate`, `agb_accepted_*`).
+
 ### Security Scanning (Aikido)
 Aikido Security is connected to this GitHub repo.
 
