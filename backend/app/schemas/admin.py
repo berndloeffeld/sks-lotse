@@ -1,27 +1,17 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from app.schemas.common import one_of
 
 MAX_GRANT_TOKENS = 100_000
 MAX_GRANT_AMOUNT_EUR_CENTS = 1_000_000
 MAX_PRICE_CENTS = 1_000_000
 MAX_PACKAGE_TOKENS = 100_000
 
-BLOCK_KINDS = {"email", "domain"}
-
-
-def _require_known_block_kind(value: str) -> str:
-    if value not in BLOCK_KINDS:
-        raise ValueError(f"kind must be one of: {', '.join(sorted(BLOCK_KINDS))}")
-    return value
-
-
-# A plain str + validator, not `Literal["email", "domain"]`: a Literal renders as an OpenAPI
-# `enum`, and openapi-to-postmanv2 picks a random member of it as the example on every
-# generation — non-reproducible, breaks the committed-collection CI check (see
-# app/schemas/auth.py::ExamVariantField for the same reasoning).
-BlockKindField = Annotated[str, AfterValidator(_require_known_block_kind)]
+BLOCK_KINDS = ("domain", "email")
+BlockKindField = Annotated[str, one_of("kind", BLOCK_KINDS)]
 
 
 class AdminUserUpdate(BaseModel):
@@ -45,16 +35,8 @@ class TokenPackageSettings(BaseModel):
     price_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
 
 
-class AdminSettingsRead(BaseModel):
-    price_ads_removed_cents: int
-    signup_bonus_tokens: int
-    tokens_s: TokenPackageSettings
-    tokens_m: TokenPackageSettings
-    tokens_l: TokenPackageSettings
-    tokens_xl: TokenPackageSettings
-
-
-class AdminSettingsUpdate(BaseModel):
+class AdminSettings(BaseModel):
+    # Both what GET /admin/settings returns and what PUT takes (the page submits the full form).
     price_ads_removed_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
     signup_bonus_tokens: int = Field(ge=0, le=1_000)
     tokens_s: TokenPackageSettings
@@ -84,20 +66,11 @@ class AdminUserListPage(BaseModel):
     total: int  # matches for the search, across all pages
 
 
-class AdminUserRead(BaseModel):
-    # Doubles as the "user" part of the Art. 15/20 DSGVO export below, so it
-    # has to cover every personal-data column on User — add new ones here.
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    email: str
-    created_at: datetime
+class AdminUserRead(AdminUserListItem):
+    # Doubles as the "user" part of the Art. 15/20 DSGVO export below, so together with
+    # AdminUserListItem it has to cover every personal-data column on User — add new ones here.
     exam_variant: str | None
-    first_name: str | None
-    last_name: str | None
     gender: str | None
-    token_balance: int
-    ads_removed: bool
     # Read-only diagnostic signal (ADR-0040): how often the sanitizer backstop fired for this
     # account. No admin control to reset it — it's a symptom to investigate, not an entitlement.
     ai_flags_count: int
@@ -106,9 +79,6 @@ class AdminUserRead(BaseModel):
     agb_accepted_at: datetime | None
     last_login_at: datetime | None
     question_progress_count: int
-    # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
-    # docs/adr/0045.
-    is_blocked: bool = False
 
 
 class AdminQuestionProgressExport(BaseModel):

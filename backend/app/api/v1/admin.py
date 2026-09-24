@@ -15,8 +15,7 @@ from app.schemas.admin import (
     AdminBlockedEmailCreate,
     AdminBlockedEmailRead,
     AdminQuestionReportRead,
-    AdminSettingsRead,
-    AdminSettingsUpdate,
+    AdminSettings,
     AdminUserExport,
     AdminUserListItem,
     AdminUserListPage,
@@ -128,44 +127,41 @@ def update_user(
     return admin_users.admin_user_read(request.app, db, user)
 
 
-def _package_settings(db: Session, product: str) -> TokenPackageSettings:
-    package = pricing_core.token_package(db, product)
-    return TokenPackageSettings(tokens=package.tokens, price_cents=package.price_cents)
-
-
-def _settings_read(db: Session) -> AdminSettingsRead:
-    return AdminSettingsRead(
-        price_ads_removed_cents=pricing_core.ads_removed_price_cents(db),
-        signup_bonus_tokens=pricing_core.signup_bonus_tokens(db),
-        tokens_s=_package_settings(db, "tokens_s"),
-        tokens_m=_package_settings(db, "tokens_m"),
-        tokens_l=_package_settings(db, "tokens_l"),
-        tokens_xl=_package_settings(db, "tokens_xl"),
+def _settings_read(db: Session) -> AdminSettings:
+    return AdminSettings.model_validate(
+        {
+            "price_ads_removed_cents": pricing_core.ads_removed_price_cents(db),
+            "signup_bonus_tokens": pricing_core.signup_bonus_tokens(db),
+            **{
+                package.product: {"tokens": package.tokens, "price_cents": package.price_cents}
+                for package in pricing_core.token_packages(db)
+            },
+        }
     )
 
 
-@router.get("/settings", response_model=AdminSettingsRead)
-def get_settings(db: Session = Depends(get_db)) -> AdminSettingsRead:
+def _payload_packages(payload: AdminSettings) -> dict[str, TokenPackageSettings]:
+    return {product: getattr(payload, product) for product in pricing_core.PACKAGE_PRODUCTS}
+
+
+@router.get("/settings", response_model=AdminSettings)
+def get_settings(db: Session = Depends(get_db)) -> AdminSettings:
     return _settings_read(db)
 
 
-@router.put("/settings", response_model=AdminSettingsRead)
+@router.put("/settings", response_model=AdminSettings)
 def update_settings(
-    payload: AdminSettingsUpdate, db: Session = Depends(get_db), admin: User = Depends(require_admin)
-) -> AdminSettingsRead:
+    payload: AdminSettings, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminSettings:
     """Set the signup bonus and every price (ADR-0043) at once."""
+    packages = _payload_packages(payload)
     pricing_service.set_prices(
         db,
         price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
         packages={
             product: pricing_core.TokenPackage(product, package.tokens, package.price_cents)
-            for product, package in (
-                ("tokens_s", payload.tokens_s),
-                ("tokens_m", payload.tokens_m),
-                ("tokens_l", payload.tokens_l),
-                ("tokens_xl", payload.tokens_xl),
-            )
+            for product, package in packages.items()
         },
     )
     _audit(
@@ -173,10 +169,7 @@ def update_settings(
         "update_settings",
         price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
-        tokens_s=(payload.tokens_s.tokens, payload.tokens_s.price_cents),
-        tokens_m=(payload.tokens_m.tokens, payload.tokens_m.price_cents),
-        tokens_l=(payload.tokens_l.tokens, payload.tokens_l.price_cents),
-        tokens_xl=(payload.tokens_xl.tokens, payload.tokens_xl.price_cents),
+        **{product: (package.tokens, package.price_cents) for product, package in packages.items()},
     )
     return _settings_read(db)
 
