@@ -158,19 +158,21 @@ export function ProfileAccountPage() {
   return (
     <Band className="pt-10 pb-16">
       <div className="mx-auto flex max-w-2xl flex-col gap-8">
-        <p className="text-sm text-ink-soft">
-          Dein Token-Stand: <span className="font-mono text-ink">{user.token_balance}</span>
-          {user.can_buy_tokens ? (
-            <>
-              {' · '}
-              <Link to="/pricing" className="underline hover:text-ink">
-                Tokens im Shop kaufen
-              </Link>
-            </>
-          ) : null}
-        </p>
+        <Section title="Tokens" divider={false}>
+          <p className="text-sm text-ink-soft">
+            Dein Token-Stand: <span className="font-mono text-ink">{user.token_balance}</span>
+            {user.can_buy_tokens ? (
+              <>
+                {' · '}
+                <Link to="/pricing" className="underline hover:text-ink">
+                  Tokens im Shop kaufen
+                </Link>
+              </>
+            ) : null}
+          </p>
+        </Section>
 
-        <Section title="Persönliche Daten" divider={false}>
+        <Section title="Persönliche Daten">
           <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
             <label className={light.label} htmlFor="first-name">
               Vorname
