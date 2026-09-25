@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.schemas.auth import TotpCode
 from app.schemas.common import one_of
 
 MAX_GRANT_TOKENS = 100_000
@@ -184,4 +185,4 @@ class AdminMfaEnrolment(BaseModel):
 
 
 class AdminMfaCode(BaseModel):
-    code: str = Field(pattern=r"^\d{6}$")
+    code: TotpCode

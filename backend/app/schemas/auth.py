@@ -26,6 +26,8 @@ def _require_digits(value: str) -> str:
 # lands in the OpenAPI schema, and openapi-to-postmanv2 then generates a random
 # matching example on every run, breaking the committed-collection check in CI.
 DigitsCode = Annotated[str, Field(min_length=4, max_length=10), AfterValidator(_require_digits)]
+# An authenticator app's TOTP code (ADR-0047): always 6 digits.
+TotpCode = Annotated[str, Field(min_length=6, max_length=6), AfterValidator(_require_digits)]
 
 
 ExamVariantField = Annotated[str, one_of("exam_variant", sorted(EXAM_VARIANTS))]
