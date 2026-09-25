@@ -61,7 +61,7 @@ _CONTACT_EMAIL = "kontakt@sks-lotse.de"
 
 def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, base_url: str) -> str:
     def link(path: str, label: str) -> str:
-        style = f"color:{_PRIMARY};text-decoration:underline"
+        style = "color:#ffffff;text-decoration:underline"
         return f'<a href="{escape(base_url)}{path}" style="{style}">{label}</a>'
 
     table_rows = "".join(
@@ -101,7 +101,7 @@ def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, base_u
         f"SKS Lotse · Lernen für die SKS-Theorieprüfung<br>"
         f'<span style="color:#d8e4e9">{link("/terms", "AGB")} · {link("/privacy", "Datenschutz")} · '
         f"{link('/imprint', 'Impressum')} · "
-        f'<a href="mailto:{_CONTACT_EMAIL}" style="color:{_PRIMARY};text-decoration:underline">'
+        f'<a href="mailto:{_CONTACT_EMAIL}" style="color:#ffffff;text-decoration:underline">'
         f"{_CONTACT_EMAIL}</a></span></td></tr></table></div>"
     )
 
