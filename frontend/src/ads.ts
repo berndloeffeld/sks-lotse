@@ -71,12 +71,19 @@ function queueForConsentApi(callback: () => void) {
   fc.callbackQueue.push(callback)
 }
 
+// Google's CMP adds an iframe named googlefcInactive when it has nothing to show on this page
+// load (no message for the visitor's location, or none published in AdSense). It still defines
+// showRevocationMessage then, which just does nothing.
+function consentDialogInactive(doc: Document) {
+  return doc.querySelector('iframe[name="googlefcInactive"]') !== null
+}
+
 // Re-opens Google's consent dialog so a visitor can change or withdraw their
 // choice at any time — withdrawing must be as easy as giving it (Art. 7(3)
 // DSGVO). Where this document has no consent API (the admin tools), it goes to
 // a public page that loads it and opens the dialog there. Where the script is
 // here but Google's CMP never comes up (an ad blocker or a network filter drops
-// it, or AdSense has no EU message published), `onUnavailable` runs after
+// it) or reports itself inactive (no message to show), `onUnavailable` runs after
 // CONSENT_DIALOG_TIMEOUT_MS so the click never silently does nothing.
 export function openConsentSettings(
   onUnavailable: () => void = () => {},
@@ -95,7 +102,7 @@ export function openConsentSettings(
     show()
   })
   setTimeout(() => {
-    if (!shown) onUnavailable()
+    if (!shown || consentDialogInactive(doc)) onUnavailable()
   }, CONSENT_DIALOG_TIMEOUT_MS)
 }
 

@@ -56,3 +56,7 @@ Accepted risk: for accounts that see ads, the script still runs next to their se
 ## Addendum (2026-09-24): "Cookies", and never a silent click
 
 The footer button is now labelled "Cookies" (was "Cookie-Einstellungen"), still on every page where ads are shown. A click used to do nothing when the page had Google's script but its CMP never came up — an ad blocker or network filter dropping `fundingchoicesmessages.google.com`, a click before the CMP finished loading, or no EU message published in AdSense. `openConsentSettings()` now always queues the dialog (so an early click still opens it once the CMP loads), and if it hasn't opened after two seconds the footer says why and links to the privacy policy's ad section. That's also where the no-consent-API redirect lands now: `/privacy?cookie-einstellungen#werbung`.
+
+## Addendum (2026-09-25): the click was still silent when the CMP is inactive
+
+On sks-lotse.de the script loads and `showRevocationMessage` exists, yet the click showed nothing and, since the function was there, no hint either: Google's CMP had added a `googlefcInactive` iframe, its signal that it has no message for this page load (none for the visitor's location, or none published), and `showRevocationMessage` is then a silent no-op. `openConsentSettings()` now also reports the dialog unavailable when that iframe is present after the two seconds, and the footer text no longer says the dialog "can't load" (it can be inactive) nor promises that Google sets no cookies meanwhile — the privacy policy's ad section is where that is explained.

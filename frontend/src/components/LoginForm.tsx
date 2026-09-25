@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
@@ -26,6 +26,12 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const { run, isPending: isSubmitting, error, setError } = useAsyncAction()
+
+  // The code field takes focus as soon as it appears, so the code can be typed (or pasted) right away.
+  const codeInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (step === 'code') codeInput.current?.focus()
+  }, [step])
 
   const f = formStyles(tone)
   const labelClass = f.label
@@ -95,6 +101,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         Login-Code
         <input
           id="code"
+          ref={codeInput}
           type="text"
           inputMode="numeric"
           required

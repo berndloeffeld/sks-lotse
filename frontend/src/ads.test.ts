@@ -139,6 +139,24 @@ describe('ads', () => {
     expect(onUnavailable).toHaveBeenCalledOnce()
   })
 
+  it('reports the dialog unavailable when Google’s CMP marks itself inactive', () => {
+    vi.useFakeTimers()
+    const showRevocationMessage = vi.fn()
+    const onUnavailable = vi.fn()
+    window.googlefc = { callbackQueue: [], showRevocationMessage }
+    const doc = documentWithScript(ADSENSE_SRC)
+    const inactive = doc.createElement('iframe')
+    inactive.name = 'googlefcInactive'
+    doc.body.append(inactive)
+
+    openConsentSettings(onUnavailable, vi.fn(), doc)
+    runConsentQueue()
+    vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS)
+
+    expect(showRevocationMessage).toHaveBeenCalledOnce()
+    expect(onUnavailable).toHaveBeenCalledOnce()
+  })
+
   it('keeps an existing consent queue when a click queues the dialog', () => {
     const earlier = vi.fn()
     window.googlefc = { callbackQueue: [earlier] }

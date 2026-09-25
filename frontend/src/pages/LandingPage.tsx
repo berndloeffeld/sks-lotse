@@ -46,8 +46,8 @@ const SCREENSHOTS = [
     src: '/screenshots/ki-bewertung.png',
     width: 1008,
     height: 441,
-    title: '3. Selbst bewerten – KI-Prüfung demnächst',
-    text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Die KI-Prüfung, die dir eine Bewertung vorschlägt, ist demnächst verfügbar.',
+    title: '3. Selbst bewerten – mit KI-Vorschlag',
+    text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Auf Wunsch schlägt dir der Lotsen-Check per KI eine Bewertung vor – die Entscheidung bleibt bei dir.',
     alt: 'Screenshot: Auswahl Richtig, Teilweise Richtig, Falsch und darunter die abgeblendete Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „bald verfügbar“ und einem KI-Band.',
     wide: false,
   },
@@ -240,8 +240,12 @@ export function LandingPage() {
             <div>
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
-                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
-                einzeln freischalten – Kauf demnächst möglich.
+                Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
+                KI-Bewertung, ohne Abo), dazu gibt es optional „Werbefrei“. Die aktuellen Preise stehen auf der{' '}
+                <Link to="/pricing" className="underline hover:text-surface">
+                  Preise-Seite
+                </Link>
+                .
               </p>
             </div>
             <ShareLinks />

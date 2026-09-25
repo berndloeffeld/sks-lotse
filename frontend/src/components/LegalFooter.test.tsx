@@ -144,7 +144,7 @@ describe('LegalFooter', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Cookies' }))
       act(() => vi.advanceTimersByTime(CONSENT_DIALOG_TIMEOUT_MS))
 
-      expect(screen.getByRole('status')).toHaveTextContent(/Einstellungsdialog lässt sich gerade nicht laden/)
+      expect(screen.getByRole('status')).toHaveTextContent(/Einstellungsdialog wird gerade nicht angezeigt/)
       expect(screen.getByRole('link', { name: 'Datenschutzerklärung' })).toHaveAttribute('href', '/privacy#werbung')
 
       fireEvent.click(screen.getByRole('button', { name: 'Cookies' }))
