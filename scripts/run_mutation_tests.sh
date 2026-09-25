@@ -16,7 +16,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../backend"
 
-# Ratchet: a few points under the current score (~88.4%), like the coverage gates. Raise it when the
+# Ratchet: a few points under the current score (~90%), like the coverage gates. Raise it when the
 # score settles higher; don't lower it to get a PR through — write the missing test (or, for a
 # mutant that is truly equivalent, nothing: a handful of those are already priced in).
 MUTATION_MIN_SCORE="${MUTATION_MIN_SCORE:-87}"
