@@ -26,6 +26,11 @@ export function AgbPage() {
           Optional steht der „Lotsen-Check" zur Verfügung: ein unverbindlicher, KI-gestützter Bewertungsvorschlag für
           eine selbst formulierte Antwort. Die Bewertung der eigenen Antwort trifft immer der Nutzer selbst.
         </p>
+        <p>
+          Wir bemühen uns um eine möglichst hohe Verfügbarkeit des Dienstes. Ein Anspruch auf unterbrechungsfreie
+          Verfügbarkeit besteht jedoch nicht, etwa bei Wartungsarbeiten oder Störungen bei eingesetzten Dienstleistern.
+          Kann ein Lotsen-Check aus technischen Gründen nicht durchgeführt werden, wird dafür kein Token verbraucht.
+        </p>
       </ProseSection>
 
       <ProseSection title="3. Registrierung und Nutzerkonto">
@@ -77,15 +82,17 @@ export function AgbPage() {
           Der Fragenkatalog ist ein amtliches Werk der zuständigen Behörde; wir übernehmen ihn unverändert, können
           jedoch keine Gewähr für dessen Fehlerfreiheit oder Aktualität übernehmen. Musterantworten und
           Bewertungsvorschläge, auch KI-gestützte, ersetzen keine offizielle Prüfungsvorbereitung und begründen keinen
-          Anspruch auf das Bestehen der SKS-Prüfung.
+          Anspruch auf das Bestehen der SKS-Prüfung. Bei Abweichungen gilt die auf ELWIS veröffentlichte amtliche
+          Fassung des Fragenkatalogs.
         </p>
       </ProseSection>
 
       <ProseSection title="7. Kommunikation per E-Mail">
         <p>
           Wir sind berechtigt, vertragsbezogene Mitteilungen (z. B. Änderungen dieser AGB, Sicherheits- und
-          Wartungshinweise, Ankündigung einer Diensteinstellung oder einer Löschung wegen Inaktivität gemäß Ziffer 8) an
-          die im Konto hinterlegte E-Mail-Adresse zu senden.
+          Wartungshinweise, Kaufbestätigungen, Ankündigung einer Diensteinstellung oder einer Löschung wegen Inaktivität
+          gemäß Ziffer 8) an die im Konto hinterlegte E-Mail-Adresse zu senden. Werbe-E-Mails oder Newsletter versenden
+          wir nicht.
         </p>
       </ProseSection>
 
@@ -97,7 +104,9 @@ export function AgbPage() {
         <p>
           Wir behalten uns vor, den gesamten Dienst mit einer Vorankündigung von sechs Wochen einzustellen. Wir behalten
           uns außerdem vor, ein Konto zu löschen, über das seit mehr als zwölf Monaten kein Login mehr erfolgt ist; wir
-          kündigen dies nach Möglichkeit vorher per E-Mail an die hinterlegte Adresse an.
+          kündigen dies nach Möglichkeit vorher per E-Mail an die hinterlegte Adresse an. Bei einer dauerhaften
+          Einstellung des Dienstes erlöschen noch nicht verbrauchte Tokens; ein Anspruch auf Fortführung des Angebots
+          oder auf Erstattung besteht nicht, soweit gesetzlich zulässig.
         </p>
         <p>
           „Werbefrei" und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
@@ -130,8 +139,9 @@ export function AgbPage() {
 
       <ProseSection title="11. Schlussbestimmungen">
         <p>
-          Es gilt deutsches Recht. Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen
-          Bestimmungen davon unberührt.
+          Es gilt deutsches Recht; zwingende Verbraucherschutzvorschriften des Staates, in dem der Nutzer seinen
+          gewöhnlichen Aufenthalt hat, bleiben unberührt. Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die
+          Wirksamkeit der übrigen Bestimmungen davon unberührt.
         </p>
       </ProseSection>
 
