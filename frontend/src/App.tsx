@@ -20,12 +20,14 @@ import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
-import { ProfilePage } from './pages/ProfilePage'
+import { ProfileAccountPage } from './pages/ProfileAccountPage'
+import { ProfileLearnStatusPage } from './pages/ProfileLearnStatusPage'
 import { AdScriptGate } from './routes/AdScriptGate'
 import { AgbGate } from './routes/AgbGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { ProfileLayout } from './components/ProfileLayout'
 import { useNavigationScroll } from './hooks/useNavigationScroll'
 import { useAuthStore } from './store/authStore'
 import { useMaintenanceStore } from './store/maintenanceStore'
@@ -85,7 +87,10 @@ export function AppRoutes() {
               <Route path="/learn/:subject/:topic" element={<PracticePage />} />
               <Route path="/exam" element={<ExamPage />} />
               <Route path="/exam/:id" element={<ExamRunPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile" element={<ProfileLayout />}>
+                <Route index element={<ProfileLearnStatusPage />} />
+                <Route path="account" element={<ProfileAccountPage />} />
+              </Route>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Navigate to="users" replace />} />
                 <Route path="users" element={<AdminUsersPage />} />

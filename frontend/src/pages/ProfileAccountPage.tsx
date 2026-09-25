@@ -4,24 +4,25 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { Band, Columns } from '../components/Bands'
-import { ExamStatsPanel } from '../components/ExamStatsPanel'
+import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
 import { formStyles } from '../components/formStyles'
-import { PageLayout } from '../components/PageLayout'
-import { ProgressOverview } from '../components/ProgressOverview'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import { useProgressSummary } from '../hooks/useProgressSummary'
+import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
-import { formatDate, getDisplayName } from '../format'
 
 type EmailChangeStep = 'email' | 'code'
 
-export function ProfilePage() {
+// /profile's "Konto" tab: the token balance and exam variant, then the
+// account settings (personal data, email, delete) that used to sit below the
+// Lernstand on one long page.
+export function ProfileAccountPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const updateUser = useAuthStore((state) => state.updateUser)
   const clearSession = useAuthStore((state) => state.clearSession)
+  const { changeVariant, isSaving: isSavingVariant, error: variantError } = useExamVariantUpdate()
 
   // Personal info (Vorname/Nachname/Geschlecht)
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
@@ -131,31 +132,26 @@ export function ProfilePage() {
   const successClass = 'text-sm text-surface'
 
   return (
-    <PageLayout
-      title="Profil"
-      subtitle={
-        <>
-          Angemeldet als <span className="font-mono text-surface">{getDisplayName(user)}</span> · Mitglied seit{' '}
-          {formatDate(user.created_at)}
-        </>
-      }
-      bands
-    >
-      <Band className="pt-10 pb-16">
-        {/* Keyed on exam_variant so a change refetches the Lernstand for
-            the new variant's subjects. */}
-        <ProfileProgress key={user.exam_variant ?? 'none'} />
-      </Band>
-
-      <Band className="pt-0 pb-16">
-        <ExamStatsPanel />
-      </Band>
-
+    <>
       <Band tone="dark" className="py-14">
         <h2 className="font-serif text-3xl">Dein Konto</h2>
-        <p className="mt-3 max-w-xl text-sm text-surface-alt">
-          Deine persönlichen Angaben und die E-Mail-Adresse, mit der du dich anmeldest.
+        <p className="mt-4 text-sm text-surface-alt">
+          Dein Token-Stand: <span className="font-mono text-surface">{user.token_balance}</span>
+          {user.can_buy_tokens ? (
+            <>
+              {' · '}
+              <Link to="/pricing" className="underline hover:text-surface">
+                Tokens im Shop kaufen
+              </Link>
+            </>
+          ) : null}
         </p>
+        <div className="mt-6 flex flex-col gap-2">
+          <h3 className="font-serif text-xl">Prüfungsvariante</h3>
+          <p className="text-sm text-surface-alt">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
+          <ExamVariantDropdown value={user.exam_variant} onChange={changeVariant} disabled={isSavingVariant} />
+          {variantError ? <p className={dark.error}>{variantError}</p> : null}
+        </div>
       </Band>
 
       <Band tone="primary">
@@ -308,23 +304,6 @@ export function ProfilePage() {
           )}
         </section>
       </Band>
-    </PageLayout>
-  )
-}
-
-// Lernstand overview for the profile — same three columns as /learn, with a
-// link there for the per-topic details.
-function ProfileProgress() {
-  const { isLoading, error, totals, categories } = useProgressSummary()
-
-  return (
-    <div className="flex flex-col gap-8">
-      <ProgressOverview totals={totals} categories={categories} />
-      {isLoading ? <p className="text-sm text-ink-soft">Lernstand wird geladen…</p> : null}
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-      <Link to="/learn" className="self-start font-mono text-xs tracking-wide text-primary uppercase hover:underline">
-        Alle Themen ansehen →
-      </Link>
-    </div>
+    </>
   )
 }
