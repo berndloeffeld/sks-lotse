@@ -54,7 +54,7 @@ const SCREENSHOTS = [
   {
     src: '/screenshots/lernstand.png',
     width: 1456,
-    height: 570,
+    height: 586,
     title: '4. Drei Lernmodi',
     text: 'Lerne nach Thema, im Fokus deiner Stern-Themen oder frische Fragen auf, die bald verblassen könnten – mit Überblick, wie viele noch frisch sind.',
     alt: 'Screenshot: Die drei Reiter Nach Thema, Fokus und Auffrischen. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
