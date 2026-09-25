@@ -13,6 +13,6 @@ describe('AgbPage', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'AGB', level: 1 })).toBeInTheDocument()
-    expect(screen.getByText('Stand: 24. September 2026')).toBeInTheDocument()
+    expect(screen.getByText('Stand: 25. September 2026')).toBeInTheDocument()
   })
 })

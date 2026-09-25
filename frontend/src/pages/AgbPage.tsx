@@ -52,9 +52,16 @@ export function AgbPage() {
           </li>
         </ul>
         <p>
-          Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Der Kauf
-          wird derzeit außerhalb der App abgewickelt und nach Zahlungseingang manuell durch den Betreiber
-          gutgeschrieben, bis eine Zahlungsanbieter-Anbindung besteht. Alle genannten Preise sind Endpreise in Euro.
+          Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Alle
+          genannten Preise sind Endpreise in Euro; gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
+        </p>
+        <p>
+          Token-Pakete kauft der angemeldete Nutzer direkt in der App. Nach der Auswahl eines Pakets und der Bestätigung
+          der Angaben zum Widerrufsrecht (Ziffer 8) wird er zur Zahlung an unseren Zahlungsdienstleister Stripe
+          weitergeleitet, der die Zahlung abwickelt und dafür die dort angebotenen Zahlungsmethoden bereitstellt. Der
+          Kaufvertrag kommt mit erfolgreicher Zahlung zustande; die Tokens werden dem Konto danach automatisch
+          gutgeschrieben, in der Regel innerhalb weniger Sekunden. Bei einer verzögerten Zahlungsmethode erfolgt die
+          Gutschrift erst nach Zahlungseingang. „Werbefrei" wird derzeit noch nicht zum Kauf angeboten.
         </p>
       </ProseSection>
 
@@ -97,8 +104,9 @@ export function AgbPage() {
           keine wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort
           nach Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
           ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das
-          Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf gesondert eingeholt. Geschenkte
-          Tokens (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen.
+          Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf durch ein gesondertes
+          Bestätigungsfeld vor der Zahlung eingeholt; ohne sie ist der Kauf nicht möglich. Geschenkte Tokens
+          (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen.
         </p>
       </ProseSection>
 

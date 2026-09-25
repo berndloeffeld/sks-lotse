@@ -76,19 +76,37 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <ProseSection title="Käufe (Werbefrei, Tokens)">
+      <ProseSection title="Käufe (Tokens)">
         <p>
-          Wenn Sie „Werbefrei“ oder ein Token-Paket erwerben oder Ihnen bei der Anmeldung Tokens geschenkt werden,
-          speichern wir dazu: welches Produkt, wie viele Tokens, den gezahlten Betrag (falls vorhanden), wer die
-          Gutschrift veranlasst hat und den Zeitpunkt. Der Kauf selbst wird derzeit außerhalb der App abgewickelt; eine
-          Zahlungsanbieter-Anbindung besteht noch nicht, daher fallen hierbei aktuell keine Daten an einen
-          Zahlungsdienstleister an. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags), für den
-          Anmeldebonus Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung des Nutzungsvertrags). Einträge zu einem
-          tatsächlich bezahlten Betrag löschen wir bei einer Kontolöschung nicht sofort, sondern anonymisieren sie (der
-          Bezug zu Ihrem Konto wird entfernt, Produkt/Betrag/Datum bleiben bestehen), da handels- und steuerrechtliche
-          Aufbewahrungspflichten (§ 147 AO, § 257 HGB) dies für Zahlungsbelege vorschreiben können; Rechtsgrundlage
-          hierfür ist Art. 6 Abs. 1 lit. c DSGVO (rechtliche Verpflichtung). Einträge ohne Geldbetrag, etwa der
-          Anmeldebonus, werden bei einer Kontolöschung vollständig gelöscht.
+          Wenn Sie ein Token-Paket erwerben oder Ihnen bei der Anmeldung Tokens geschenkt werden, speichern wir dazu:
+          welches Produkt, wie viele Tokens, den gezahlten Betrag (falls vorhanden), die Zahlungs-Kennung von Stripe
+          (Payment Intent, für die Zuordnung und Buchhaltung), wer die Gutschrift veranlasst hat und den Zeitpunkt. Die
+          Zustimmung zur sofortigen Bereitstellung und zum Erlöschen des Widerrufsrechts, die Sie beim Kauf geben, wird
+          im Kaufvorgang bei Stripe vermerkt. Die Zahlung selbst wickelt unser Zahlungsdienstleister Stripe (Stripe
+          Payments Europe, Ltd., 1 Grand Canal Street Lower, Dublin 2, Irland; Muttergesellschaft Stripe, Inc., USA) ab:
+          Beim Kauf werden Sie auf eine Bezahlseite von Stripe weitergeleitet. Dorthin übermitteln wir Ihre
+          E-Mail-Adresse, eine interne Konto-Kennung, das gewählte Produkt und den Betrag. Ihre Zahlungsdaten (z. B.
+          Kartennummer, Bankverbindung) geben Sie ausschließlich bei Stripe ein; wir erhalten sie nicht und speichern
+          sie nicht. Stripe verarbeitet Ihre Daten für die Zahlungsabwicklung sowie zur Betrugsprävention und zur
+          Erfüllung eigener rechtlicher Pflichten teilweise als eigener Verantwortlicher; dazu gilt die{' '}
+          <a
+            href="https://stripe.com/de/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            Datenschutzerklärung von Stripe
+          </a>
+          . Auf der Bezahlseite können von Stripe Cookies oder ähnliche Technologien eingesetzt werden, soweit für die
+          Zahlungsabwicklung und Betrugsprävention erforderlich. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
+          (Erfüllung des Kaufvertrags), für den Anmeldebonus Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung des
+          Nutzungsvertrags). Einträge zu einem tatsächlich bezahlten Betrag löschen wir bei einer Kontolöschung nicht
+          sofort, sondern anonymisieren sie (der Bezug zu Ihrem Konto wird entfernt, Produkt/Betrag/Datum und die
+          Zahlungs-Kennung bleiben bestehen), da handels- und steuerrechtliche Aufbewahrungspflichten (§ 147 AO, § 257
+          HGB) dies für Zahlungsbelege vorschreiben können; Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. c DSGVO
+          (rechtliche Verpflichtung). Einträge ohne Geldbetrag, etwa der Anmeldebonus, werden bei einer Kontolöschung
+          vollständig gelöscht. Beim Zahlungsdienstleister gespeicherte Daten unterliegen dessen eigenen
+          Aufbewahrungsfristen.
         </p>
       </ProseSection>
 
@@ -166,10 +184,11 @@ export function PrivacyPage() {
         <p>
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Better Stack
           (Logging und Verfügbarkeitsüberwachung), Resend (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung),
-          Umami (Webanalyse) und Google (Werbung). Mit den Dienstleistern, die in unserem Auftrag Daten verarbeiten,
-          bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben oder Daten dorthin
-          übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der EU-Kommission (EU-US Data
-          Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
+          Stripe (Zahlungsabwicklung, nur bei einem Kauf), Umami (Webanalyse) und Google (Werbung). Mit den
+          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
+          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
+          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
+          (Art. 44 ff. DSGVO).
         </p>
       </ProseSection>
 
