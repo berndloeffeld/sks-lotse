@@ -78,7 +78,7 @@ def build_checkout_params(
             # recorded on the session, which Stripe keeps alongside the payment.
             "withdrawal_waiver": "accepted",
         },
-        "success_url": f"{origin}/pricing?checkout=success",
+        "success_url": f"{origin}/pricing?checkout=success&product={package.product}",
         "cancel_url": f"{origin}/pricing?checkout=cancelled",
     }
 

@@ -24,12 +24,13 @@ export function TokenCounter() {
     <Link
       to="/pricing"
       aria-label={`${user.token_balance} Tokens – Tokens ansehen und kaufen`}
-      className={`inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 font-mono text-xs transition ${tone}`}
+      className={`inline-flex items-baseline gap-1.5 rounded-full border-2 px-3 py-2 font-mono text-xs transition ${tone}`}
     >
       <svg
+        className="translate-y-px"
         viewBox="0 0 24 24"
-        width="14"
-        height="14"
+        width="12"
+        height="12"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"

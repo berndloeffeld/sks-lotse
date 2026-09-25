@@ -125,6 +125,25 @@ describe('PricingPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
   })
 
+  it('marks the package that was just bought', async () => {
+    useAuthStore.setState({ user: BUYER })
+    stubFetch(PRICING, jsonResponse(BUYER))
+    renderPage('/pricing?checkout=success&product=tokens_m')
+
+    const bought = await screen.findByText('Gerade gekauft')
+    expect(bought.closest('label')).toHaveTextContent('Paket M')
+    expect(screen.getAllByText('Gerade gekauft')).toHaveLength(1)
+  })
+
+  it('marks no package without a purchase', async () => {
+    useAuthStore.setState({ user: BUYER })
+    stubFetch(PRICING)
+    renderPage('/pricing?product=tokens_m')
+
+    await screen.findByRole('radio', { name: /Paket M/ })
+    expect(screen.queryByText('Gerade gekauft')).not.toBeInTheDocument()
+  })
+
   it('thanks the buyer after the payment and fetches the balance again a little later', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     useAuthStore.setState({ user: BUYER })

@@ -143,7 +143,7 @@ def test_build_checkout_params_uses_the_checkout_studio_settings(db_session, aut
             "tokens": "50",
             "withdrawal_waiver": "accepted",
         },
-        "success_url": "https://sks-lotse.de/pricing?checkout=success",
+        "success_url": "https://sks-lotse.de/pricing?checkout=success&product=tokens_m",
         "cancel_url": "https://sks-lotse.de/pricing?checkout=cancelled",
     }
     assert "payment_method_collection" not in params

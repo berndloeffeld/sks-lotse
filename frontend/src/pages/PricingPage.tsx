@@ -58,7 +58,7 @@ function checkoutErrorMessage(error: unknown) {
 
 // Pick a package, confirm the § 356 Abs. 5 BGB waiver, go to Stripe's hosted payment page. The
 // tokens are credited by the webhook, never by coming back here (ADR-0048).
-function PurchasePanel({ packages }: { packages: PublicTokenPackage[] }) {
+function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPackage[]; boughtProduct: string | null }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [waived, setWaived] = useState(false)
   const { run, isPending, error, setError } = useAsyncAction()
@@ -96,6 +96,11 @@ function PurchasePanel({ packages }: { packages: PublicTokenPackage[] }) {
               }}
               className="sr-only"
             />
+            {boughtProduct === p.product ? (
+              <span className="self-start rounded-tile bg-success px-2 py-0.5 font-mono text-xs tracking-wide text-white uppercase">
+                Gerade gekauft
+              </span>
+            ) : null}
             <PackageDetails pkg={p} />
           </label>
         ))}
@@ -187,6 +192,8 @@ export function PricingPage() {
   const user = useAuthStore((s) => s.user)
   const [searchParams] = useSearchParams()
   const canBuy = user?.can_buy_tokens ?? false
+  // Back from a paid checkout: which package was bought (`&product=`, set by the backend).
+  const boughtProduct = searchParams.get('checkout') === 'success' ? searchParams.get('product') : null
   // Open to everyone, but this visitor isn't logged in (a logged-in account then has can_buy_tokens).
   const loginToBuy = !canBuy && (data?.checkout_enabled ?? false)
   const tokensSoon = !canBuy && !loginToBuy
@@ -235,7 +242,7 @@ export function PricingPage() {
               {canBuy ? ` Dein Stand: ${user?.token_balance ?? 0} Tokens.` : ''}
             </p>
             {canBuy ? (
-              <PurchasePanel packages={data.packages} />
+              <PurchasePanel packages={data.packages} boughtProduct={boughtProduct} />
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

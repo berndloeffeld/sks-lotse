@@ -35,7 +35,7 @@ Token packages are bought through Stripe Hosted Checkout ([ADR-0048](../adr/0048
 | `line_items` | one `price_data` item, EUR, product id from env, `unit_amount` from `app_settings` |
 | `client_reference_id`, `customer_email` | user id, user email |
 | `metadata` | `user_id`, `product`, `tokens` (fixed at creation), `withdrawal_waiver` |
-| `success_url` / `cancel_url` | `<first CORS origin>/pricing?checkout=success` / `=cancelled` |
+| `success_url` / `cancel_url` | `<first CORS origin>/pricing?checkout=success&product=<package>` / `=cancelled` |
 
 ### Setup
 

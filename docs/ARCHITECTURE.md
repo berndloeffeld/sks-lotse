@@ -135,7 +135,7 @@ Token packages are bought through Stripe Hosted Checkout ([ADR-0048](adr/0048-st
 
 1. The learner ticks the withdrawal waiver on `/pricing`; `POST /payments/checkout` (JWT, flag-gated, 403 otherwise) opens a Checkout Session with the price from `app_settings` sent inline as `price_data` and returns the Stripe URL; the SPA redirects there.
 2. Stripe calls `POST /payments/webhook` (open route, authenticated by the `Stripe-Signature` header, independent of the flag). For a paid session (`checkout.session.completed` / `async_payment_succeeded`) `services/payments.py` books `token_wallet.grant(..., granted_by="stripe", stripe_payment_intent_id=…)`, once per Payment Intent (lookup plus unique index).
-3. The success redirect (`/pricing?checkout=success`) credits nothing; the page just re-checks the session, once more after a delay, because the webhook may arrive later.
+3. The success redirect (`/pricing?checkout=success&product=…`) credits nothing; the page marks the bought package and re-checks the session, once more after a delay, because the webhook may arrive later.
 
 `UserRead.can_buy_tokens` tells the SPA whether to show the buy button; `PublicPricing.checkout_enabled` (only `on`) lets logged-out visitors see "Anmelden zum Kaufen".
 
