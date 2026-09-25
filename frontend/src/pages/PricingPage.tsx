@@ -213,15 +213,13 @@ export function PricingPage() {
     >
       <CheckoutReturnNotice status={searchParams.get('checkout')} />
 
-      <section className="flex flex-col gap-2">
+      {tokensSoon ? (
         <p className="text-ink-soft">
           Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Musterantwort, Lernfortschritt) bleibt dauerhaft
-          kostenlos.{' '}
-          {tokensSoon
-            ? 'Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das Zahlungssystem kommt noch.'
-            : 'Tokens für den Lotsen-Check kannst du hier kaufen.'}
+          kostenlos. Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das
+          Zahlungssystem kommt noch.
         </p>
-      </section>
+      ) : null}
 
       {isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
       {failed ? <p className="text-sm text-danger">Die Preise konnten nicht geladen werden.</p> : null}
