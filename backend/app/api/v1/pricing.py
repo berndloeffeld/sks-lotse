@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core import cache
 from app.core import pricing as pricing_core
+from app.core.checkout import checkout_open_to_everyone
 from app.core.database import get_db
 from app.schemas.pricing import PublicPricing, PublicTokenPackage
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/pricing", tags=["pricing"])
 
 @router.get("", response_model=PublicPricing)
 def get_pricing(request: Request, db: Session = Depends(get_db)) -> PublicPricing:
-    """Current token-package and ads-removal prices — a teaser only, there is no purchase flow yet."""
+    """Current token-package and ads-removal prices, and whether the packages can be bought (ADR-0048)."""
 
     def load() -> PublicPricing:
         return PublicPricing(
@@ -25,6 +26,7 @@ def get_pricing(request: Request, db: Session = Depends(get_db)) -> PublicPricin
                 PublicTokenPackage(product=p.product, tokens=p.tokens, price_cents=p.price_cents)
                 for p in pricing_core.token_packages(db)
             ],
+            checkout_enabled=checkout_open_to_everyone(),
         )
 
     return cache.get_or_set(

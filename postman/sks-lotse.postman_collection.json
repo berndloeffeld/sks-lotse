@@ -414,7 +414,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }
@@ -600,7 +600,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -752,7 +752,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\"\n}",
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\"\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             }
@@ -1064,7 +1064,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\"\n}",
+                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },
@@ -5478,7 +5478,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"ads_removed\": \"<boolean>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"totp_enabled_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"ads_removed\": \"<boolean>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"totp_enabled_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },
@@ -6818,7 +6818,7 @@
                   "request": {
                     "name": "Get Pricing",
                     "description": {
-                      "content": "Current token-package and ads-removal prices — a teaser only, there is no purchase flow yet.",
+                      "content": "Current token-package and ads-removal prices, and whether the packages can be bought (ADR-0048).",
                       "type": "text/plain"
                     },
                     "url": {
@@ -6876,7 +6876,7 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"ads_removed_price_cents\": \"<integer>\",\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ]\n}",
+                      "body": "{\n  \"ads_removed_price_cents\": \"<integer>\",\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ],\n  \"checkout_enabled\": \"<boolean>\"\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     }
@@ -6885,6 +6885,274 @@
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   }
+                }
+              ]
+            },
+            {
+              "name": "payments",
+              "description": "",
+              "item": [
+                {
+                  "name": "checkout",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Create Checkout",
+                      "request": {
+                        "name": "Create Checkout",
+                        "description": {
+                          "content": "Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag.",
+                          "type": "text/plain"
+                        },
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "payments",
+                            "checkout"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"product\": \"<string>\",\n  \"waive_withdrawal\": \"<boolean>\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "payments",
+                                "checkout"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"product\": \"<string>\",\n  \"waive_withdrawal\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"url\": \"<string>\"\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        },
+                        {
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "payments",
+                                "checkout"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"product\": \"<string>\",\n  \"waive_withdrawal\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "webhook",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Stripe Webhook",
+                      "request": {
+                        "name": "Stripe Webhook",
+                        "description": {
+                          "content": "Stripe's event callback: credits the tokens of a paid Checkout Session, exactly once.",
+                          "type": "text/plain"
+                        },
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "payments",
+                            "webhook"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "POST",
+                        "body": {},
+                        "auth": null
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "payments",
+                                "webhook"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"key_0\": \"<boolean>\"\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
                 }
               ]
             }

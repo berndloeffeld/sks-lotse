@@ -119,6 +119,8 @@ export interface components {
             amount_eur_cents: number | null;
             /** Granted By */
             granted_by: string;
+            /** Stripe Payment Intent Id */
+            stripe_payment_intent_id: string | null;
             /**
              * Created At
              * Format: date-time
@@ -305,6 +307,24 @@ export interface components {
         AiGradeRequest: {
             /** Answer */
             answer: string;
+        };
+        /**
+         * CheckoutRead
+         * @description The Stripe-hosted payment page to send the browser to.
+         */
+        CheckoutRead: {
+            /** Url */
+            url: string;
+        };
+        /** CheckoutRequest */
+        CheckoutRequest: {
+            /** Product */
+            product: string;
+            /**
+             * Waive Withdrawal
+             * @constant
+             */
+            waive_withdrawal: true;
         };
         /** EmailChangeRequestCreate */
         EmailChangeRequestCreate: {
@@ -504,7 +524,7 @@ export interface components {
         };
         /**
          * PublicPricing
-         * @description What the (unauthenticated) landing page / in-app teaser show — no purchase flow yet (ADR-0043).
+         * @description What the (unauthenticated) landing page / pricing page show (ADR-0043).
          */
         PublicPricing: {
             /** Ads Removed Price Cents */
@@ -513,6 +533,8 @@ export interface components {
             signup_bonus_tokens: number;
             /** Packages */
             packages: components["schemas"]["PublicTokenPackage"][];
+            /** Checkout Enabled */
+            checkout_enabled: boolean;
         };
         /** PublicTokenPackage */
         PublicTokenPackage: {
@@ -662,6 +684,8 @@ export interface components {
             agb_accepted_version: string | null;
             /** Is Admin */
             readonly is_admin: boolean;
+            /** Can Buy Tokens */
+            readonly can_buy_tokens: boolean;
         };
         /** UserUpdate */
         UserUpdate: {

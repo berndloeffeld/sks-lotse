@@ -141,6 +141,9 @@ class AdminPurchaseExport(BaseModel):
     tokens_granted: int | None
     amount_eur_cents: int | None
     granted_by: str
+    # The Stripe payment behind a granted_by="stripe" row (ADR-0048) — lets a data-subject request
+    # be matched to the payment Stripe itself holds.
+    stripe_payment_intent_id: str | None
     created_at: datetime
 
 

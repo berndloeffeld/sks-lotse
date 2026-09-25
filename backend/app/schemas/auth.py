@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, StringConstraints, computed_field
 
+from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
 from app.core.email_address import canonicalize_email
 from app.core.exam_variant import EXAM_VARIANTS
@@ -104,6 +105,12 @@ class UserRead(BaseModel):
     @property
     def is_admin(self) -> bool:
         return self.email in settings.admin_emails_set
+
+    @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
+    @property
+    def can_buy_tokens(self) -> bool:
+        # The STRIPE_CHECKOUT feature flag for this account (ADR-0048) — shows the buy buttons.
+        return checkout_enabled_for(self.email)
 
 
 class UserUpdate(BaseModel):
