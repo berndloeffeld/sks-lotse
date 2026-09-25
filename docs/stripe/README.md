@@ -46,7 +46,7 @@ Env vars (backend; `render.yaml` declares them `sync: false`): `STRIPE_SECRET_KE
 Test-mode keys and product ids in `backend/.env`, `STRIPE_CHECKOUT=admins`, your address in `ADMIN_EMAILS`, then:
 
 ```bash
-stripe listen --forward-to localhost:8000/api/v1/payments/webhook
+stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to localhost:8000/api/v1/payments/webhook
 ```
 
 It prints the `whsec_…` for `STRIPE_WEBHOOK_SECRET`. Buy Paket S on `/pricing`. Test cards: `4242 4242 4242 4242` (works), `4000 0025 0000 3155` (3-D Secure). `stripe events resend <evt_…>` must not credit twice.
