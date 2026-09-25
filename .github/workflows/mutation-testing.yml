@@ -4,14 +4,14 @@ name: Mutation testing
 # change the business-logic modules one small step at a time; a job fails if fewer than its
 # minimum score of those changes are caught (scripts/run_mutation_tests.sh: 87%,
 # scripts/run_frontend_mutation_tests.sh: 90%). Scope, survivors and how to work on them:
-# docs/mutation-testing.md. Weekly instead of per PR (~5 min / ~3 min, not a required check);
+# docs/mutation-testing.md. Daily instead of per PR (~5 min / ~3 min, not a required check);
 # a failed run opens an issue, and GitHub also mails the person who last edited the cron line.
 # Scheduled runs only fire from the default branch, and GitHub pauses them after 60 days
 # without repo activity. "Run workflow" in the Actions tab starts one on demand.
 
 on:
   schedule:
-    - cron: "0 3 * * 1" # Mondays, 03:00 UTC
+    - cron: "0 3 * * *" # daily, 03:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -50,7 +50,7 @@ jobs:
       - run: ./scripts/run_frontend_mutation_tests.sh gate
 
   alert:
-    # One open issue at a time: a second failing week adds a comment instead of another issue.
+    # One open issue at a time: a second failing day adds a comment instead of another issue.
     needs: [backend, frontend]
     if: ${{ always() && (needs.backend.result == 'failure' || needs.frontend.result == 'failure') }}
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
     steps:
       - run: |
           title="Mutation testing failed"
-          body="The weekly mutation-testing run failed: $RUN_URL. Survivors are listed in the job log; see docs/mutation-testing.md."
+          body="The daily mutation-testing run failed: $RUN_URL. Survivors are listed in the job log; see docs/mutation-testing.md."
           existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body "$body"

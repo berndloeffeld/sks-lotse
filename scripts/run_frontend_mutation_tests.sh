@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mutation testing of the frontend's logic modules with Stryker. `gate` is what the weekly
+# Mutation testing of the frontend's logic modules with Stryker. `gate` is what the daily
 # workflow runs (.github/workflows/mutation-testing.yml, job `frontend`; not a PR check); the plain mode
 # is for working on survivors locally. See docs/mutation-testing.md for scope, reading the
 # results and why Vitest is pinned to 4.x.
