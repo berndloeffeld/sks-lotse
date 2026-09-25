@@ -39,6 +39,8 @@ RECALL_THRESHOLD = 0.7
 # bar) and whose due date has passed or falls within the window, a random sample of this size.
 REFRESH_WINDOW_DAYS = 2
 REFRESH_SESSION_SIZE = 20
+# At least this share of a session comes from the possibly faded (lapsed) questions.
+REFRESH_LAPSED_SHARE = 0.7
 
 # How a grading scales the half-life. A "Richtig" grows it by up to FULL_GAIN,
 # scaled by how much of the current half-life has elapsed since the last
@@ -113,6 +115,18 @@ def lapsed_clause(now: datetime) -> ColumnElement[bool]:
     return and_(
         QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at <= now
     )
+
+
+def refresh_quota(lapsed_available: int, expiring_available: int) -> tuple[int, int]:
+    """How many lapsed and how many soon-lapsing questions a session takes.
+
+    Lapsed questions get at least REFRESH_LAPSED_SHARE of the seats; seats the soon-lapsing pool
+    can't fill go to more lapsed ones, and the other way round.
+    """
+    lapsed_seats = math.ceil(REFRESH_SESSION_SIZE * REFRESH_LAPSED_SHARE)
+    lapsed = min(lapsed_available, max(lapsed_seats, REFRESH_SESSION_SIZE - expiring_available))
+    expiring = min(expiring_available, REFRESH_SESSION_SIZE - lapsed)
+    return lapsed, expiring
 
 
 def learning_clause(now: datetime) -> ColumnElement[bool]:

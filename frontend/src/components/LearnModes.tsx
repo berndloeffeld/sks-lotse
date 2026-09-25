@@ -117,7 +117,7 @@ export function RefreshPanel({ summary }: RefreshPanelProps) {
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-balance text-ink-soft">
             {due > 0
-              ? 'Jede Runde besteht aus bis zu 20 zufälligen Fragen, die möglicherweise verblasst sind oder bald verblassen könnten. Richtig beantwortet, gelten sie wieder als sicher gelernt.'
+              ? 'Jede Runde besteht aus bis zu 20 zufälligen Fragen, überwiegend aus den möglicherweise verblassten, dazu einige, die bald verblassen könnten. Richtig beantwortet, gelten sie wieder als sicher gelernt.'
               : 'Gerade droht nichts zu verblassen. Komm in ein paar Tagen wieder.'}
           </p>
         </div>

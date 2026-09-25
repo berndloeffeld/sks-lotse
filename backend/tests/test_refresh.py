@@ -1,6 +1,13 @@
 from datetime import UTC, datetime, timedelta
 
-from app.core.progress import LEARNED_HALF_LIFE_DAYS, REFRESH_SESSION_SIZE, REFRESH_WINDOW_DAYS
+import pytest
+
+from app.core.progress import (
+    LEARNED_HALF_LIFE_DAYS,
+    REFRESH_SESSION_SIZE,
+    REFRESH_WINDOW_DAYS,
+    refresh_quota,
+)
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
@@ -145,3 +152,52 @@ def test_refresh_summary_respects_the_exam_variant_and_the_learner(client, db_se
     db_session.commit()
 
     assert client.get(SUMMARY_URL, headers=auth_headers).json() == {"lapsed": 0, "expiring": 0, "fresh": 0}
+
+
+@pytest.mark.parametrize(
+    ("lapsed", "expiring", "expected"),
+    [
+        (19, 10, (14, 6)),  # 70 % of the seats reserved for the lapsed
+        (100, 100, (14, 6)),
+        (30, 0, (20, 0)),  # nothing else to fill the seats: all lapsed
+        (30, 2, (18, 2)),
+        (5, 30, (5, 15)),  # too few lapsed: the soon-lapsing ones fill up
+        (0, 3, (0, 3)),
+        (14, 6, (14, 6)),
+        (3, 0, (3, 0)),
+        (0, 0, (0, 0)),
+    ],
+)
+def test_refresh_quota_reserves_seats_for_lapsed_questions(lapsed, expiring, expected):
+    assert refresh_quota(lapsed, expiring) == expected
+
+
+def _grade_many(db_session, questions, **state):
+    for question in questions:
+        _grade(db_session, question, **state)
+
+
+def test_refresh_session_takes_at_least_70_percent_from_the_lapsed(client, db_session, auth_headers):
+    questions = _questions(db_session, 60)
+    lapsed_ids = {q.id for q in questions[:30]}
+    _grade_many(db_session, questions[:30], **LAPSED)
+    _grade_many(db_session, questions[30:], **DUE_TOMORROW)
+
+    ids = [q["id"] for q in client.get(URL, headers=auth_headers).json()]
+
+    assert len(ids) == REFRESH_SESSION_SIZE
+    assert len(set(ids)) == REFRESH_SESSION_SIZE
+    assert len(lapsed_ids & set(ids)) == 14
+
+
+def test_refresh_session_fills_up_with_soon_lapsing_questions_when_few_have_lapsed(
+    client, db_session, auth_headers
+):
+    questions = _questions(db_session, 25)
+    _grade_many(db_session, questions[:3], **LAPSED)
+    _grade_many(db_session, questions[3:], **DUE_TOMORROW)
+
+    ids = {q["id"] for q in client.get(URL, headers=auth_headers).json()}
+
+    assert len(ids) == REFRESH_SESSION_SIZE
+    assert {q.id for q in questions[:3]} <= ids
