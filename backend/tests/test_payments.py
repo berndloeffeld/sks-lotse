@@ -378,7 +378,7 @@ def test_webhook_sends_the_confirmation_mail_once(
     assert to == FIXTURE_EMAIL
     assert (mail["package"], mail["tokens"], mail["amount"]) == ("Paket M", 50, "5,99 €")
     assert mail["reference"] == "pi_1"
-    assert mail["terms_url"] == f"{settings.cors_allowed_origins[0]}/terms"
+    assert mail["base_url"] == settings.cors_allowed_origins[0]
     assert mail["paid_at"].endswith(" Uhr")
 
 
@@ -415,7 +415,7 @@ def test_euro_formats_cents_the_german_way():
 def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
     sent = []
     monkeypatch.setattr(
-        email_service, "_send", lambda to, subject, html, text: sent.append((to, subject, text))
+        email_service, "_send", lambda to, subject, html, text: sent.append((to, subject, text, html))
     )
     email_service.send_purchase_confirmation_email(
         "a@b.de",
@@ -424,9 +424,9 @@ def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
         amount="2,99 €",
         paid_at="25.09.2026, 14:00 Uhr",
         reference="pi_9",
-        terms_url="https://sks-lotse.de/terms",
+        base_url="https://sks-lotse.de",
     )
-    ((to, subject, text),) = sent
+    ((to, subject, text, html),) = sent
     assert to == "a@b.de"
     assert "Paket S" in subject
     for expected in (
@@ -438,3 +438,14 @@ def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
         "§ 19 UStG",
     ):
         assert expected in text
+    # The branded HTML part: header band, order details, links back to the site.
+    for expected in (
+        "SKS Lotse",
+        "Danke für deinen Kauf!",
+        "pi_9",
+        "https://sks-lotse.de/terms",
+        "https://sks-lotse.de/icon-192.png",
+        "https://sks-lotse.de/learn",
+        "§ 356 Abs. 5 BGB",
+    ):
+        assert expected in html

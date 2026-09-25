@@ -141,7 +141,7 @@ def send_purchase_confirmation(
             amount=_euro(amount_cents),
             paid_at=datetime.now(UTC).astimezone(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y, %H:%M Uhr"),
             reference=payment_intent,
-            terms_url=f"{settings.cors_allowed_origins[0]}/terms",
+            base_url=settings.cors_allowed_origins[0],
         )
     except Exception:
         logger.exception(
