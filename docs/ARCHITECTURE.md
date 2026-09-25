@@ -170,7 +170,7 @@ Everything is declared in `render.yaml`:
 GitHub Actions runs on every PR and every push to `main`:
 
 - **Backend**: lint, unit tests with a 95% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
-- **Frontend**: lint, type check, tests with a 90%/85% (lines/branches) coverage gate, and the production build including the prerender.
+- **Frontend**: lint, type check, tests with a 95%/90% (lines/branches) coverage gate, and the production build including the prerender.
 - **Mutation testing**: weekly, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
 - **Security**: Aikido scans the repo; findings are checked by hand before merging (no CI job).
 

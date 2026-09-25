@@ -46,8 +46,8 @@ export default defineConfig(({ mode }) => ({
       // A few points under the actual values, like the backend's pytest-cov
       // gate (backend/pyproject.toml); see CLAUDE.md → Test Coverage.
       thresholds: {
-        lines: 90,
-        branches: 85,
+        lines: 95,
+        branches: 90,
       },
     },
   },

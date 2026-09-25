@@ -102,7 +102,7 @@ Frontend — run from `frontend/`:
 
 ```bash
 npx tsc -b                  # type check
-npx vitest run --coverage   # tests + 90%/85% line/branch coverage gate (vite.config.ts)
+npx vitest run --coverage   # tests + 95%/90% line/branch coverage gate (vite.config.ts)
 npm run lint                # ESLint
 npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
