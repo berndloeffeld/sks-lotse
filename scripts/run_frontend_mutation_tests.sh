@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mutation testing of the frontend's logic modules with Stryker. `gate` is what the weekly
+# Mutation testing of the frontend's logic modules with Stryker. `gate` is what the daily
 # workflow runs (.github/workflows/mutation-testing.yml, job `frontend`; not a PR check); the plain mode
 # is for working on survivors locally. See docs/mutation-testing.md for scope, reading the
 # results and why Vitest is pinned to 4.x.
@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../frontend"
 
-# Ratchet: a few points under the current score (~95%), like the coverage gates. Raise it when
+# Ratchet: a few points under the current score (~95%, 94.8% on 2026-09-25), like the coverage gates. Raise it when
 # the score settles higher; don't lower it to get a PR through — write the missing test (a
 # handful of equivalent survivors are already priced in).
 MUTATION_MIN_SCORE="${MUTATION_MIN_SCORE:-90}"

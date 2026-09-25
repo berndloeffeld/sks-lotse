@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Mutation testing of the backend's business logic with mutmut. `gate` is what
-# the weekly workflow runs (.github/workflows/mutation-testing.yml, job `backend`; not a PR
+# the daily workflow runs (.github/workflows/mutation-testing.yml, job `backend`; not a PR
 # check); the other modes are for working on survivors locally. See docs/mutation-testing.md for scope,
 # reading the results and the frontend counterpart is scripts/run_frontend_mutation_tests.sh.
 #
@@ -16,7 +16,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../backend"
 
-# Ratchet: a few points under the current score (~89.6%), like the coverage gates. Raise it when the
+# Ratchet: a few points under the current score (~90%), like the coverage gates. Raise it when the
 # score settles higher; don't lower it to get a PR through — write the missing test (or, for a
 # mutant that is truly equivalent, nothing: a handful of those are already priced in).
 MUTATION_MIN_SCORE="${MUTATION_MIN_SCORE:-87}"

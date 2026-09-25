@@ -26,8 +26,8 @@ const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 const SCREENSHOTS = [
   {
     src: '/screenshots/frage-beantworten.png',
-    width: 1008,
-    height: 536,
+    width: 1056,
+    height: 654,
     title: '1. Frage beantworten',
     text: 'Eine Frage aus dem Katalog, dazu ein optionales Notizfeld für deine Antwort – sie wird nicht gespeichert.',
     alt: 'Screenshot: Die Frage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld und der Schaltfläche „Lösung anzeigen“.',
@@ -35,8 +35,8 @@ const SCREENSHOTS = [
   },
   {
     src: '/screenshots/selbst-bewerten.png',
-    width: 1008,
-    height: 494,
+    width: 1056,
+    height: 502,
     title: '2. Mit der Musterantwort vergleichen',
     text: 'Neben deiner Antwort steht die amtliche Musterantwort – so siehst du direkt, was gefehlt hat.',
     alt: 'Screenshot: Deine Antwort zur Frage „Was bedeutet die Abkürzung GPS?“ neben der amtlichen Antwort „Global Positioning System“.',
@@ -44,20 +44,20 @@ const SCREENSHOTS = [
   },
   {
     src: '/screenshots/ki-bewertung.png',
-    width: 1008,
-    height: 441,
-    title: '3. Selbst bewerten – KI-Prüfung demnächst',
-    text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Die KI-Prüfung, die dir eine Bewertung vorschlägt, ist demnächst verfügbar.',
-    alt: 'Screenshot: Auswahl Richtig, Teilweise Richtig, Falsch und darunter die abgeblendete Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „bald verfügbar“ und einem KI-Band.',
+    width: 1056,
+    height: 388,
+    title: '3. Selbst bewerten – mit KI-Vorschlag',
+    text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Auf Wunsch schlägt dir der Lotsen-Check per KI eine Bewertung vor – die Entscheidung bleibt bei dir.',
+    alt: 'Screenshot: Auswahl Richtig, Teilweise Richtig, Falsch und darunter die Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „Die KI schlägt dir eine Bewertung vor“ und einem KI-Band.',
     wide: false,
   },
   {
     src: '/screenshots/lernstand.png',
-    width: 1392,
-    height: 1170,
+    width: 1456,
+    height: 1600,
     title: '4. Lernstand und Fokus',
     text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Markiere Themen als Fokus und sieh, wie viele Fragen du sicher oder teilweise gelernt hast.',
-    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und dem Fokus-Bereich mit drei markierten Themen und ihrem Lernstand.',
+    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und dem Fokus-Bereich mit der Schaltfläche „Fokus-Lernen starten“ sowie drei markierten Themen und ihrem Lernstand.',
     wide: true,
   },
 ]
@@ -65,8 +65,8 @@ const SCREENSHOTS = [
 const EXAM_SCREENSHOTS = [
   {
     src: '/screenshots/pruefung-starten.png',
-    width: 700,
-    height: 390,
+    width: 1056,
+    height: 834,
     title: '1. Prüfung starten',
     text: 'Eine zufällige Prüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
     alt: 'Screenshot: Die Prüfungssimulation mit den Regeln, der Schaltfläche „Prüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
@@ -74,17 +74,17 @@ const EXAM_SCREENSHOTS = [
   },
   {
     src: '/screenshots/pruefung-ablegen.png',
-    width: 700,
-    height: 335,
+    width: 1056,
+    height: 854,
     title: '2. Fragebogen beantworten',
     text: 'Du beantwortest alle Fragen in eigenen Worten, mit Restzeit im Blick. Die Zeit wird serverseitig überwacht.',
-    alt: 'Screenshot: Prüfungsfrage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige und Restzeit.',
+    alt: 'Screenshot: Prüfungsfrage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige „1 / 30“, verbleibender Zeit und den Schaltflächen Zurück, Übersicht und Weiter.',
     wide: false,
   },
   {
     src: '/screenshots/pruefung-ergebnis.png',
-    width: 700,
-    height: 440,
+    width: 1056,
+    height: 918,
     title: '3. Ergebnis und Auswertung',
     text: 'Danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein. Du siehst deine Punkte, das Ergebnis und die Auswertung nach Fachgebiet.',
     alt: 'Screenshot: Prüfungsergebnis mit 54 von 60 Punkten, „Bestanden“ und Balken je Fachgebiet für Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft.',
@@ -240,8 +240,12 @@ export function LandingPage() {
             <div>
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
-                Die Grundfunktion bleibt dauerhaft kostenlos. Zwei unabhängige Erweiterungen lassen sich später optional
-                einzeln freischalten – Kauf demnächst möglich.
+                Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
+                KI-Bewertung, ohne Abo), dazu gibt es optional „Werbefrei“. Die aktuellen Preise stehen auf der{' '}
+                <Link to="/pricing" className="underline hover:text-surface">
+                  Preise-Seite
+                </Link>
+                .
               </p>
             </div>
             <ShareLinks />

@@ -5,11 +5,11 @@ The tool changes the code one small step at a time (`>=` → `>`, `and` → `or`
 line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed**; one that still
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
-**It runs weekly** (Mondays 03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
+**It runs daily** (03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
 Actions tab), not on every PR — it takes about 5 minutes in CI and must not hold up merges. A failed run opens an issue
-("Mutation testing failed"); a regression therefore surfaces up to a week after the change that caused it. The backend job fails if fewer than
+("Mutation testing failed"); a regression therefore surfaces up to a day after the change that caused it. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
-points under the current score (~88.5%), like the coverage gates: raise it when the score settles higher, never
+points under the current score (~90%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
 that is optimised for stops measuring anything — the check is there to catch regressions. Two limits to keep in
 mind: an aggregate score over ~1600 mutants barely moves for a small new function (50 surviving mutants ≈ 3 points),
@@ -46,7 +46,15 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   export, per-user limit keys, the hourly code quota — are tested. The two handlers that used to be big enough for
   inline logic to be a smell are split now: the DSGVO export lives in `services/admin_users.py`, the exam statistics
   in `services/exam.py::stats`, so the normal run covers both.
-- **Score (2026-09-24): 2555 of 2868 mutants killed (89.1%)**, ~310 survivors, ~1 minute per run (±1–2 between
+- **Score (2026-09-25): 3058 of 3386 mutants killed (90.3%)**, after going through the `email` and `payments` survivors
+  (88.4% before: 2992). The mutant count had grown with the admin 2FA, payments and branded-mail modules. What was
+  *not* wording and is tested now: the Berlin time in the purchase confirmation, the exact § 312f/§ 356 BGB content of that
+  mail (labels, waiver sentence, separators), the legal footer links, the Resend API key, the log lines the runbook
+  tells the operator to act on (`refund manually`, `send it by hand`, with payment and user ids), and that a redelivered
+  webhook is recognised before another credit is attempted. Left on purpose: the wording of the login-code mails,
+  exception messages nobody reads, and three time-zone mutants (`astimezone(None)`, the case of `"Europe/Berlin"`) that only
+  differ on a machine that isn't in Berlin time or has a case-sensitive file system — a local run understates the CI score there.
+  Before that (2026-09-24): 2555 of 2868 (89.1%), ~310 survivors, ~1 minute per run (±1–2 between
   runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
   tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants
   and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`
@@ -76,7 +84,7 @@ cd frontend && npm ci                                   # once
 - **Setup**: `@stryker-mutator/core` + `vitest-runner` + `typescript-checker` (exact versions), `coverageAnalysis: perTest`
   (each mutant only runs the tests that cover it, ~12 per mutant). The TypeScript checker drops mutants that don't compile
   (≈60 of ~300) instead of counting them as survivors.
-- **Score (2026-09-21): 226 of 236 counted mutants killed (95.8%)**, ~2 minutes. Minimum in CI: **90%**
+- **Score (2026-09-25): 417 of 440 counted mutants killed (94.8%)**, ~4 minutes (2026-09-21: 226 of 236, 95.8%). Minimum in CI: **90%**
   (`MUTATION_MIN_SCORE`), a ratchet like the others. The first run (7 modules) scored 81%; the survivors were real
   gaps (no test for `formatDateTime`, `put`/`delete`, body-less requests, the countdown's expiry boundary and
   latest-callback handling, the auth store's loading state, logout URL, wiring of the unauthorized handler) and the

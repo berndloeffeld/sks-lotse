@@ -285,6 +285,26 @@ def test_webhook_credits_a_paid_session_exactly_once(client, db_session, auth_he
     assert (purchase.granted_by, purchase.stripe_payment_intent_id) == ("stripe", "pi_1")
 
 
+def test_a_credit_is_logged_with_payment_user_and_package(db_session, auth_headers, caplog):
+    user = fixture_user(db_session)
+    with caplog.at_level("INFO"):
+        assert payments.fulfil_checkout_session(db_session, _session(user.id)) is True
+    assert f"stripe payment pi_1: credited tokens_s to user {user.id}" in caplog.messages
+
+
+def test_a_redelivery_is_recognised_before_trying_to_credit_again(db_session, auth_headers, monkeypatch):
+    user = fixture_user(db_session)
+    assert payments.fulfil_checkout_session(db_session, _session(user.id)) is True
+
+    def must_not_run(*args, **kwargs):
+        raise AssertionError("credited a second time")
+
+    # The unique constraint would also turn a second credit away (see the parallel-delivery test);
+    # the lookup is what recognises a redelivery without a failed insert and a rollback.
+    monkeypatch.setattr(payments.token_wallet, "grant", must_not_run)
+    assert payments.fulfil_checkout_session(db_session, _session(user.id)) is False
+
+
 def test_webhook_works_with_the_flag_off(client, db_session, auth_headers, stripe_configured, monkeypatch):
     monkeypatch.setattr(settings, "stripe_checkout", "off")
     user = fixture_user(db_session)
@@ -329,9 +349,12 @@ def test_webhook_answers_503_without_a_secret(client, monkeypatch):
     assert response.json()["detail"] == "Webhook is not configured"
 
 
-def test_fulfil_skips_a_deleted_account(db_session):
-    assert payments.fulfil_checkout_session(db_session, _session(4711)) is False
+def test_fulfil_skips_a_deleted_account(db_session, caplog):
+    with caplog.at_level("ERROR"):
+        assert payments.fulfil_checkout_session(db_session, _session(4711)) is False
     assert db_session.query(Purchase).count() == 0
+    # The runbook tells the operator to look for this line and refund in Stripe: it must name both ids.
+    assert "stripe payment pi_1: user 4711 no longer exists, refund manually" in caplog.messages
 
 
 @pytest.mark.parametrize(
@@ -342,8 +365,10 @@ def test_fulfil_skips_a_deleted_account(db_session):
         {"payment_status": "paid", "payment_intent": "pi_1", "metadata": {}},
     ],
 )
-def test_fulfil_skips_a_session_without_payment_intent_or_user(db_session, session):
-    assert payments.fulfil_checkout_session(db_session, session) is False
+def test_fulfil_skips_a_session_without_payment_intent_or_user(db_session, session, caplog):
+    with caplog.at_level("ERROR"):
+        assert payments.fulfil_checkout_session(db_session, {**session, "id": "cs_9"}) is False
+    assert "stripe checkout session cs_9: paid but no payment intent/user id" in caplog.messages
 
 
 def test_fulfil_treats_a_parallel_delivery_as_done(db_session, auth_headers, monkeypatch):
@@ -403,7 +428,32 @@ def test_a_failing_mail_does_not_undo_the_credit(
     assert response.json() == {"credited": True}
     db_session.refresh(user)
     assert user.token_balance == 20
-    assert "confirmation mail to user failed" in caplog.text
+    # The runbook's "send it by hand" line: without the payment reference the operator can't act on it.
+    assert "stripe payment pi_1: confirmation mail to user failed, send it by hand" in caplog.messages
+
+
+def test_confirmation_mail_names_the_payment_time_in_berlin_time(monkeypatch):
+    from datetime import UTC, datetime
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            instant = datetime(2026, 7, 1, 22, 30, tzinfo=UTC)
+            return instant.astimezone(tz) if tz else instant.replace(tzinfo=None)
+
+    sent = []
+    monkeypatch.setattr(payments, "datetime", Clock)
+    monkeypatch.setattr(
+        payments.email_service, "send_purchase_confirmation_email", lambda to, **kw: sent.append((to, kw))
+    )
+
+    payments.send_purchase_confirmation("a@b.de", "tokens_s", 20, 299, "pi_1")
+
+    [(to, kw)] = sent
+    assert to == "a@b.de"
+    # 22:30 UTC in July is 00:30 the next day in Berlin (CEST).
+    assert kw["paid_at"] == "02.07.2026, 00:30 Uhr"
+    assert (kw["package"], kw["tokens"], kw["amount"], kw["reference"]) == ("Paket S", 20, "2,99 €", "pi_1")
 
 
 def test_euro_formats_cents_the_german_way():
@@ -449,3 +499,46 @@ def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
         "§ 356 Abs. 5 BGB",
     ):
         assert expected in html
+
+
+WAIVER = (
+    "Du hast ausdrücklich zugestimmt, dass wir die Tokens sofort nach der Zahlung bereitstellen, "
+    "und hast zur Kenntnis genommen, dass dein Widerrufsrecht damit erlischt (§ 356 Abs. 5 BGB)."
+)
+
+
+def test_purchase_confirmation_mail_has_the_required_content_exactly(monkeypatch):
+    import re
+
+    sent = []
+    monkeypatch.setattr(
+        email_service, "_send", lambda to, subject, html, text: sent.append((subject, text, html))
+    )
+    email_service.send_purchase_confirmation_email(
+        "a@b.de",
+        package="Paket S",
+        tokens=20,
+        amount="2,99 €",
+        paid_at="25.09.2026, 14:00 Uhr",
+        reference="pi_9",
+        base_url="https://sks-lotse.de",
+    )
+    ((subject, text, html),) = sent
+    assert subject == "Deine Bestellung bei SKS Lotse: Paket S"
+    # § 312f Abs. 3 BGB: the contract content, the waiver and the AGB, on a durable medium.
+    assert text == (
+        "Danke für deinen Kauf bei SKS Lotse! Die Tokens wurden deinem Konto gutgeschrieben.\n\n"
+        "Bestellung: Paket S: 20 Tokens für den Lotsen-Check\n"
+        "Preis: 2,99 € (Endpreis; gemäß § 19 UStG keine Umsatzsteuer ausgewiesen)\n"
+        "Zahlung am: 25.09.2026, 14:00 Uhr\n"
+        "Zahlungsreferenz: pi_9\n"
+        "Art des Kaufs: Einmalkauf, kein Abo, keine wiederkehrende Zahlung\n\n"
+        f"{WAIVER}\n\n"
+        "Unsere AGB: https://sks-lotse.de/terms\n\n"
+        "SKS Lotse · kontakt@sks-lotse.de\n"
+    )
+    assert ">Danke für deinen Kauf!</h1>" in html
+    assert WAIVER in html
+    labels = re.findall(r'width:38%">([^<]*)</td>', html)
+    assert labels == ["Bestellung", "Preis", "Zahlung am", "Zahlungsreferenz", "Art des Kaufs"]
+    assert "XX" not in html  # rows are joined without a separator

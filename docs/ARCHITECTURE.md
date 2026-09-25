@@ -55,7 +55,7 @@ graph LR
 
 Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU, except the Anthropic API (US, see ADR-0031). Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
-Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, checked by hand before merging) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
+Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
 ## Components
 
@@ -170,9 +170,9 @@ Everything is declared in `render.yaml`:
 GitHub Actions runs on every PR and every push to `main`:
 
 - **Backend**: lint, unit tests with a 95% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
-- **Frontend**: lint, type check, tests with a 90%/85% (lines/branches) coverage gate, and the production build including the prerender.
-- **Mutation testing**: weekly, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
-- **Security**: Aikido scans the repo; findings are checked by hand before merging (no CI job).
+- **Frontend**: lint, type check, tests with a 95%/90% (lines/branches) coverage gate, and the production build including the prerender.
+- **Mutation testing**: daily, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
+- **Security**: Aikido rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
 
 All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
 

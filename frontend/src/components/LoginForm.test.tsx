@@ -16,6 +16,24 @@ describe('LoginForm', () => {
     expect(screen.getByLabelText('E-Mail-Adresse')).toHaveClass('border-surface')
   })
 
+  it('puts the focus in the code field once the code step opens', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ detail: 'sent' }), { status: 202 })),
+    )
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
+
+    expect(await screen.findByLabelText('Login-Code')).toHaveFocus()
+  })
+
   it('goes back to the email step from the code step', async () => {
     const user = userEvent.setup()
     vi.stubGlobal(

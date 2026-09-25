@@ -12,7 +12,7 @@ There's no bug bounty program. Please act in good faith: don't access, modify, o
 
 ## What's already in place
 
-- Dependency and static scanning via [Aikido Security](https://www.aikido.dev/) (findings reviewed by hand before each merge) and Dependabot (weekly, with a short cooldown for new releases); backend dependencies are hash-locked.
+- Dependency and static scanning via [Aikido Security](https://www.aikido.dev/) (it rescans about every three days, so it is no merge gate; an alert is triaged the same day, see `docs/RUNBOOK.md`) and Dependabot (weekly, with a short cooldown for new releases); backend dependencies are hash-locked.
 - CI runs linting, the full test suite, and a coverage gate on every change.
 - Sessions use httpOnly JWT cookies; rate limiting applies to all API routes, with tighter limits on login codes; admin actions are audit-logged.
 

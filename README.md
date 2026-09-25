@@ -102,7 +102,7 @@ Frontend — run from `frontend/`:
 
 ```bash
 npx tsc -b                  # type check
-npx vitest run --coverage   # tests + 90%/85% line/branch coverage gate (vite.config.ts)
+npx vitest run --coverage   # tests + 95%/90% line/branch coverage gate (vite.config.ts)
 npm run lint                # ESLint
 npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
@@ -114,7 +114,7 @@ Optional but recommended: `pre-commit install -t pre-commit -t pre-push` (from t
 
 A separate, hand-written Postman collection black-box tests every endpoint of a running local server (auth flow, profile/email change/account deletion, admin tools, CORS, security headers, rate limiting) without needing Python: start the API as above with `ADMIN_EMAILS=integration-admin@example.com` on a freshly started server, then run `./scripts/run_integration_tests.sh` from the repo root. The script's header lists the full server requirements.
 
-The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see `CLAUDE.md`). There is no Aikido job in CI.
+The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see `CLAUDE.md`). Aikido rescans about every three days, so it is no merge gate and there is no Aikido job in CI; an alert it raises is handled right away (`docs/RUNBOOK.md` → Security alerts).
 
 ## Dependencies
 

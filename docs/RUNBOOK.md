@@ -9,7 +9,7 @@ How to operate SKS Lotse in production: where to look, what to do when something
 | Services, env vars, deploys, database | Render dashboard: `sks-lotse-backend`, `sks-lotse-frontend`, `sks-lotse-daily-report` (cron), `sks-lotse-db` — all declared in `render.yaml` |
 | Uptime monitors, status page, logs, heartbeat | Better Stack. Public status page: [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) |
 | CI, branch protection, Dependabot | GitHub (`.github/`) |
-| Security findings | Aikido dashboard (checked by hand before each merge) |
+| Security findings | Aikido dashboard and alert mails (rescans about every three days; see [Security alerts](#security-alerts-aikido)) |
 | Login emails | Resend (sending domain verified via IONOS DNS) |
 | AI answer check | Anthropic Console, its own workspace and spend limit for `ANTHROPIC_GRADING_API_KEY` |
 | Analytics | Umami Cloud |
@@ -114,6 +114,15 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 1. GitHub → Actions → "Reset admin 2FA" → Run workflow → the admin's email address. It starts `python -m scripts.reset_admin_totp --email …` as a Render one-off job and waits for it (output: Render dashboard → `sks-lotse-backend` → Jobs). Needs the `RENDER_API_KEY`/`RENDER_BACKEND_SERVICE_ID` secrets ([One-time setup](#one-time-setup-recreating-the-environment), step 6).
 2. Without GitHub: Render dashboard → `sks-lotse-backend` → Shell → `python -m scripts.reset_admin_totp --email …`.
 3. The script also ends every session of that account. Log in again, open `/admin`, set 2FA up afresh.
+
+## Security alerts (Aikido)
+
+Aikido rescans the repo about every three days and mails when it finds something. It is not a merge gate (nothing in CI, nothing to check before merging), so the alert is the only signal, and it lags the change that caused it by up to ~3 days. Treat an alert as interrupting: decide the same day.
+
+1. Look at what is open: the Aikido dashboard, or `./scripts/check_aikido.sh` (needs `.env.aikido` and a plan with API access; otherwise it prints the API error and the dashboard is the way).
+2. A vulnerable dependency: bump it on a `feature/*` branch (`backend/requirements*.in` → pip-compile with hashes, or `npm update` in `frontend/`; README → Dependencies), let CI run, merge. Dependabot may already have opened that PR.
+3. A finding in our own code (SAST): fix it, or, if it is a false positive or an accepted risk, mark it *ignored* in Aikido with the reason written down. Don't leave it open.
+4. Anything that looks exploitable in production (leaked secret, auth bypass): fix and deploy first, then rotate what was exposed (see *Rotating secrets*).
 
 ## AI-check abuse
 

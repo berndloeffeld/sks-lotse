@@ -3,7 +3,7 @@ updates:
   # Backend dependencies are declared in backend/requirements*.in and locked with
   # hashes in the pip-compile output backend/requirements*.txt (README → Dependencies),
   # so nothing moves on its own — Dependabot proposes the bumps as PRs (regenerating
-  # the locks), which then go through the normal CI (and the by-hand Aikido check).
+  # the locks), which then go through the normal CI (Aikido rescans separately, about every three days, and its alerts are handled right away).
   - package-ecosystem: pip
     directory: /backend
     schedule:

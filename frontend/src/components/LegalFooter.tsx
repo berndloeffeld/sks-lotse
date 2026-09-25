@@ -52,8 +52,8 @@ export function LegalFooter() {
         </nav>
         {consentUnavailable ? (
           <p role="status" className="max-w-md text-xs text-surface">
-            Googles Einstellungsdialog lässt sich gerade nicht laden, z. B. wegen eines Werbeblockers. Solange er nicht
-            lädt, setzt Google auch keine Cookies. Mehr dazu in der{' '}
+            Googles Einstellungsdialog wird gerade nicht angezeigt – z. B. wegen eines Werbeblockers oder weil für
+            deinen Standort keine Abfrage vorgesehen ist. Mehr dazu in der{' '}
             <Link to="/privacy#werbung" className="underline hover:text-surface-alt">
               Datenschutzerklärung
             </Link>

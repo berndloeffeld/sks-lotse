@@ -3,7 +3,7 @@ import type { ExamResult, ExamVariant, GradingOutcome } from './api/types'
 // Display labels for fields the backend stores as fixed keys — shared by the
 // learner's own pages and the admin view, so both show the same wording.
 export const VARIANT_LABELS: Record<ExamVariant, string> = {
-  segeln_und_motor: 'Motor und Segeln',
+  segeln_und_motor: 'Segeln und Motor',
   motor: 'Motor',
 }
 
