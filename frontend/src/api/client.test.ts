@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, apiClient, setMaintenanceHandler, setUnauthorizedHandler } from './client'
+import {
+  ApiError,
+  MFA_REQUIRED,
+  apiClient,
+  setMaintenanceHandler,
+  setMfaRequiredHandler,
+  setUnauthorizedHandler,
+} from './client'
 import { jsonResponse } from '../test/fixtures'
 
 describe('apiClient', () => {
@@ -87,6 +94,34 @@ describe('apiClient', () => {
     await apiClient.get('/auth/me').catch(() => {})
 
     expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('calls the registered 2FA handler on a 403 asking for the second factor, not the logout one', async () => {
+    const mfaHandler = vi.fn()
+    const unauthorizedHandler = vi.fn()
+    setMfaRequiredHandler(mfaHandler)
+    setUnauthorizedHandler(unauthorizedHandler)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: MFA_REQUIRED }, 403)))
+
+    await expect(apiClient.get('/admin/users')).rejects.toMatchObject({ status: 403, message: MFA_REQUIRED })
+
+    expect(mfaHandler).toHaveBeenCalledOnce()
+    expect(unauthorizedHandler).not.toHaveBeenCalled()
+    setMfaRequiredHandler(null)
+  })
+
+  it.each([
+    [403, 'Admin access required'],
+    [400, MFA_REQUIRED],
+  ])('leaves the 2FA handler alone for a %i with detail %s', async (status, detail) => {
+    const mfaHandler = vi.fn()
+    setMfaRequiredHandler(mfaHandler)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail }, status)))
+
+    await apiClient.get('/admin/users').catch(() => {})
+
+    expect(mfaHandler).not.toHaveBeenCalled()
+    setMfaRequiredHandler(null)
   })
 
   it('calls the registered maintenance handler with true on the maintenance header', async () => {

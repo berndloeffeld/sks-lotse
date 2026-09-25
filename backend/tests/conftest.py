@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict, deque
 
 import pytest
@@ -83,5 +84,8 @@ def auth_headers(db_session):
     db_session.commit()
     db_session.refresh(user)
 
-    token = create_access_token(user.id, user.token_version)
+    # With a fresh TOTP check (ADR-0047), so a test that makes the fixture user an admin
+    # (helpers.make_admin) reaches the admin routes; it means nothing for a learner.
+    # test_admin_mfa.py mints its own tokens for the sessions without one.
+    token = create_access_token(user.id, user.token_version, mfa_at=int(time.time()))
     return {"Authorization": f"Bearer {token}"}

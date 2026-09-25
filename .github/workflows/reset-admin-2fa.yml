@@ -1,0 +1,64 @@
+name: Reset admin 2FA
+
+# Switches an admin's TOTP second factor off (ADR-0047) — for a lost or replaced phone. Starts
+# backend/scripts/reset_admin_totp.py as a Render one-off job on sks-lotse-backend, so it runs with
+# the service's own env and private database access; the database is never reachable from GitHub.
+# The script also ends every session of the account; the next visit to /admin sets 2FA up afresh.
+# Uses the same secrets as maintenance-mode.yml (docs/RUNBOOK.md → One-time setup). Anyone who can
+# run this can already push to main (and so deploy any code), so it grants no new power.
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Email address of the admin account"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Start the reset as a Render one-off job and wait for it
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+          # Via env, never ${{ }} inside the script: the input is untrusted text.
+          EMAIL: ${{ inputs.email }}
+        run: |
+          if [ -z "$SERVICE_ID" ]; then
+            echo "RENDER_BACKEND_SERVICE_ID secret is not set — see docs/RUNBOOK.md -> One-time setup." >&2
+            exit 1
+          fi
+          # The address ends up in a shell command on Render: only plain address characters, no
+          # quotes, spaces or shell metacharacters.
+          if ! [[ "$EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+            echo "Not a plain email address: refusing to run." >&2
+            exit 1
+          fi
+
+          # Render API: POST /v1/services/{serviceId}/jobs, then GET .../jobs/{jobId} until done
+          # (https://api-docs.render.com/reference/post-job).
+          body=$(jq -n --arg email "$EMAIL" '{startCommand: ("python -m scripts.reset_admin_totp --email " + $email)}')
+          job_id=$(curl -sf -X POST "https://api.render.com/v1/services/${SERVICE_ID}/jobs" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$body" | jq -r '.id')
+          echo "Render job ${job_id} started — its output is in the Render dashboard (sks-lotse-backend → Jobs)."
+
+          for _ in $(seq 1 60); do
+            sleep 10
+            job_status=$(curl -sf "https://api.render.com/v1/services/${SERVICE_ID}/jobs/${job_id}" \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" | jq -r '.status')
+            echo "status: ${job_status}"
+            case "$job_status" in
+              succeeded) exit 0 ;;
+              failed|canceled) exit 1 ;;
+            esac
+          done
+          echo "Job still not finished after 10 minutes — check it in the Render dashboard." >&2
+          exit 1

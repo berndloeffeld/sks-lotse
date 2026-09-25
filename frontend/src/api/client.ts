@@ -39,6 +39,17 @@ export function setMaintenanceHandler(handler: MaintenanceHandler): void {
   maintenanceHandler = handler
 }
 
+// The admin area's second factor (ADR-0047): an /admin call answers 403 with this detail when the
+// session's TOTP check is missing or has run out. Deliberately not the unauthorized handler — the
+// session is fine, only the admin area asks for a code again (AdminLayout registers this).
+export const MFA_REQUIRED = 'mfa_required'
+type MfaRequiredHandler = () => void
+let mfaRequiredHandler: MfaRequiredHandler | null = null
+
+export function setMfaRequiredHandler(handler: MfaRequiredHandler | null): void {
+  mfaRequiredHandler = handler
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
     ...init,
@@ -63,6 +74,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const body: unknown = await response.json().catch(() => null)
     const detail =
       body && typeof body === 'object' && 'detail' in body ? String((body as { detail: unknown }).detail) : null
+    if (response.status === 403 && detail === MFA_REQUIRED) {
+      mfaRequiredHandler?.()
+    }
     throw new ApiError(response.status, detail ?? response.statusText)
   }
 

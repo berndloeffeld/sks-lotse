@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.schemas.auth import TotpCode
 from app.schemas.common import one_of
 
 MAX_GRANT_TOKENS = 100_000
@@ -78,6 +79,8 @@ class AdminUserRead(AdminUserListItem):
     agb_accepted_version: str | None
     agb_accepted_at: datetime | None
     last_login_at: datetime | None
+    # Admin 2FA (ADR-0047): when it was switched on. Never the secret itself.
+    totp_enabled_at: datetime | None
     question_progress_count: int
 
 
@@ -166,3 +169,20 @@ class AdminBlockedEmailRead(BaseModel):
     reason: str | None
     created_at: datetime
     created_by: str
+
+
+class AdminMfaStatus(BaseModel):
+    enrolled: bool  # 2FA is switched on for this admin
+    verified: bool  # this session passed a TOTP check recently enough to open the admin area
+
+
+class AdminMfaEnrolment(BaseModel):
+    # Shown once, for the authenticator app: the secret for typing in by hand, and the same as
+    # otpauth:// URI and as QR code (an SVG data URI).
+    secret: str
+    otpauth_uri: str
+    qr_code: str
+
+
+class AdminMfaCode(BaseModel):
+    code: TotpCode

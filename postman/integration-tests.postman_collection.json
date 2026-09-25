@@ -6066,6 +6066,464 @@
           }
         },
         {
+          "name": "Admin API - a session without 2FA is rejected (list users)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('asks for the second factor', function () { pm.expect(pm.response.json().detail).to.eql('mfa_required'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "description": "ADR-0047: the email login alone doesn't open the admin area.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - without a token is rejected (status)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "status"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - status before enrolment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('not enrolled, not verified - run against a fresh database, or the admin account is left over from an earlier run', function () { pm.expect(pm.response.json()).to.eql({ enrolled: false, verified: false }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "status"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - start enrolment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test('returns a base32 secret', function () { pm.expect(body.secret).to.match(/^[A-Z2-7]{16,}$/); });",
+                  "pm.test('returns an otpauth URI for the authenticator app', function () { pm.expect(body.otpauth_uri).to.match(/^otpauth:\\/\\/totp\\/SKS%20Lotse:/); });",
+                  "pm.test('returns the QR code as an SVG data URI', function () { pm.expect(body.qr_code).to.match(/^data:image\\/svg\\+xml/); });",
+                  "pm.collectionVariables.set('adminTotpSecret', body.secret);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/enrol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "enrol"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - a wrong code is a 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// RFC 6238 TOTP (SHA-1, 6 digits, 30 s) from the base32 secret /admin/mfa/enrol returned.",
+                  "function totp(secret, stepOffset) {",
+                  "    var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567', bits = '', hex = '';",
+                  "    secret.replace(/=+$/, '').split('').forEach(function (ch) { bits += ('00000' + alphabet.indexOf(ch).toString(2)).slice(-5); });",
+                  "    for (var i = 0; i + 8 <= bits.length; i += 8) { hex += ('0' + parseInt(bits.substr(i, 8), 2).toString(16)).slice(-2); }",
+                  "    var counter = Math.floor(Date.now() / 30000) + (stepOffset || 0);",
+                  "    var counterHex = ('0000000000000000' + counter.toString(16)).slice(-16);",
+                  "    var mac = CryptoJS.HmacSHA1(CryptoJS.enc.Hex.parse(counterHex), CryptoJS.enc.Hex.parse(hex)).toString(CryptoJS.enc.Hex);",
+                  "    var offset = parseInt(mac.substr(-1), 16) * 2;",
+                  "    var value = (parseInt(mac.substr(offset, 8), 16) & 0x7fffffff) % 1000000;",
+                  "    return ('000000' + value).slice(-6);",
+                  "}",
+                  "var secret = pm.collectionVariables.get('adminTotpSecret');",
+                  "var valid = [totp(secret, -1), totp(secret, 0), totp(secret, 1)];",
+                  "var wrong = totp(secret, 5);",
+                  "while (valid.indexOf(wrong) !== -1) { wrong = ('000000' + ((parseInt(wrong, 10) + 1) % 1000000)).slice(-6); }",
+                  "pm.collectionVariables.set('adminTotpWrongCode', wrong);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\": \"{{adminTotpWrongCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "400, not 401: a mistyped code must not log the admin out.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - a malformed code is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\": \"12345\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - verify (completes the enrolment)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// RFC 6238 TOTP (SHA-1, 6 digits, 30 s) from the base32 secret /admin/mfa/enrol returned.",
+                  "function totp(secret, stepOffset) {",
+                  "    var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567', bits = '', hex = '';",
+                  "    secret.replace(/=+$/, '').split('').forEach(function (ch) { bits += ('00000' + alphabet.indexOf(ch).toString(2)).slice(-5); });",
+                  "    for (var i = 0; i + 8 <= bits.length; i += 8) { hex += ('0' + parseInt(bits.substr(i, 8), 2).toString(16)).slice(-2); }",
+                  "    var counter = Math.floor(Date.now() / 30000) + (stepOffset || 0);",
+                  "    var counterHex = ('0000000000000000' + counter.toString(16)).slice(-16);",
+                  "    var mac = CryptoJS.HmacSHA1(CryptoJS.enc.Hex.parse(counterHex), CryptoJS.enc.Hex.parse(hex)).toString(CryptoJS.enc.Hex);",
+                  "    var offset = parseInt(mac.substr(-1), 16) * 2;",
+                  "    var value = (parseInt(mac.substr(offset, 8), 16) & 0x7fffffff) % 1000000;",
+                  "    return ('000000' + value).slice(-6);",
+                  "}",
+                  "pm.collectionVariables.set('adminTotpCode', totp(pm.collectionVariables.get('adminTotpSecret'), 0));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('returns a new bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.eql(pm.collectionVariables.get('adminToken')); });",
+                  "pm.collectionVariables.set('adminToken', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\": \"{{adminTotpCode}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "The admin requests after this one use the upgraded token.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - status after the step-up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('enrolled and verified', function () { pm.expect(pm.response.json()).to.eql({ enrolled: true, verified: true }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "status"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Admin 2FA - start enrolment - already enabled is a 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/mfa/enrol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "enrol"
+              ]
+            }
+          },
+          "description": "An active secret is only replaced by the reset script, never by a (possibly stolen) email session.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "List users",
           "event": [
             {
@@ -6225,7 +6683,7 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'question_progress_count', 'is_blocked');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
@@ -8080,6 +8538,46 @@
           "protocolProfileBehavior": {
             "disableCookies": true
           }
+        },
+        {
+          "name": "Delete the admin test account (a re-run enrols 2FA afresh)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
         }
       ],
       "description": "Needs the server started with ADMIN_EMAILS including the adminEmail collection variable (default integration-admin@example.com) - the second half of this folder checks the admin can search, export and delete; the non-admin 403 checks live in the previous folder."
@@ -8325,6 +8823,21 @@
     },
     {
       "key": "blockedEmailOtpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminTotpSecret",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminTotpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "adminTotpWrongCode",
       "value": "",
       "type": "default"
     }

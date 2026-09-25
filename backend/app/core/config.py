@@ -60,6 +60,9 @@ class Settings(BaseSettings):
     # closed), not "open to everyone" — an unset env var must never grant
     # admin access.
     admin_emails: str = ""
+    # How long one TOTP check keeps the admin area open for that session (ADR-0047) — the
+    # session itself lasts jwt_access_token_expires_minutes, learning isn't affected.
+    admin_mfa_max_age_minutes: int = 720  # 12 hours
 
     otp_length: int = 6
     otp_ttl_minutes: int = 10
@@ -89,6 +92,12 @@ class Settings(BaseSettings):
     # multiple IPs, or many accounts sharing one IP.
     email_change_max_requests_per_window: int = 5
     email_change_window_seconds: int = 3600  # 1 hour
+
+    # Per-admin cap on TOTP attempts (enrolment confirm + step-up verify, app/api/v1/admin_mfa.py):
+    # a 6-digit code must not be guessable by a stolen email session. The per-IP rule on the
+    # same paths (app/main.py) reuses the OTP-verify numbers.
+    admin_mfa_max_attempts_per_window: int = 5
+    admin_mfa_window_seconds: int = 900  # 15 minutes
 
     # Per-authenticated-user cap on POST /questions/{id}/report: bounds how much
     # free text one account can push into the operator's inbox.
