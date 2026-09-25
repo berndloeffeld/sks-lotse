@@ -35,6 +35,11 @@ LEARNED_HALF_LIFE_DAYS = 7.0
 # at which point it resurfaces (review_due_at).
 RECALL_THRESHOLD = 0.7
 
+# The Auffrischen session (docs/adr/0049-...): questions that were gelernt (half-life at the
+# bar) and whose due date has passed or falls within the window, a random sample of this size.
+REFRESH_WINDOW_DAYS = 2
+REFRESH_SESSION_SIZE = 20
+
 # How a grading scales the half-life. A "Richtig" grows it by up to FULL_GAIN,
 # scaled by how much of the current half-life has elapsed since the last
 # grading (spacing effect: re-answering right away proves little).
@@ -92,6 +97,21 @@ def learned_clause(now: datetime) -> ColumnElement[bool]:
     """SQL twin of is_learned()."""
     return and_(
         QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at > now
+    )
+
+
+def refresh_clause(now: datetime) -> ColumnElement[bool]:
+    """Was gelernt and has lapsed or is about to: half-life at the bar, due within the window."""
+    return and_(
+        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS,
+        QuestionProgress.review_due_at <= now + timedelta(days=REFRESH_WINDOW_DAYS),
+    )
+
+
+def lapsed_clause(now: datetime) -> ColumnElement[bool]:
+    """Was gelernt (half-life at the bar) but the due date has passed."""
+    return and_(
+        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at <= now
     )
 
 

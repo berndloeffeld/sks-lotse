@@ -9,17 +9,25 @@ from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.progress import (
+    REFRESH_SESSION_SIZE,
     is_learned,
+    lapsed_clause,
     learned_clause,
     learning_clause,
     progress_fraction,
+    refresh_clause,
 )
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
-from app.schemas.progress import QuestionGradeCreate, QuestionProgressRead, TopicProgressRead
+from app.schemas.progress import (
+    QuestionGradeCreate,
+    QuestionProgressRead,
+    RefreshSummaryRead,
+    TopicProgressRead,
+)
 from app.schemas.question import QuestionRead
 from app.services.catalog import catalog_by_id
 from app.services.focus import is_topic_fully_learned
@@ -151,6 +159,55 @@ def focus_session_questions(
             QuestionProgress.last_correct_at,
             Question.id,
         )
+    )
+    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        stmt = stmt.where(Question.subject.in_(allowed))
+
+    catalog = catalog_by_id(request, db)
+    return [catalog[question_id] for question_id in db.execute(stmt).scalars()]
+
+
+@router.get("/refresh/summary", response_model=RefreshSummaryRead)
+def refresh_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RefreshSummaryRead:
+    """How many questions could have faded, could fade soon, or are still fresh (ADR-0049)."""
+    now = datetime.now(UTC)
+    stmt = (
+        select(
+            func.count(case((lapsed_clause(now), 1))),
+            func.count(case((refresh_clause(now) & ~lapsed_clause(now), 1))),
+            func.count(case((learned_clause(now) & ~refresh_clause(now), 1))),
+        )
+        .select_from(QuestionProgress)
+        .join(Question, Question.id == QuestionProgress.question_id)
+        .where(QuestionProgress.user_id == current_user.id)
+    )
+    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        stmt = stmt.where(Question.subject.in_(allowed))
+
+    lapsed, expiring, fresh = db.execute(stmt).one()
+    return RefreshSummaryRead(lapsed=lapsed, expiring=expiring, fresh=fresh)
+
+
+@router.get("/refresh/questions", response_model=list[QuestionRead])
+def refresh_session_questions(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[QuestionRead]:
+    """The Auffrischen session: a random sample of questions that were gelernt and are lapsed
+    or about to lapse (ADR-0049)."""
+    stmt = (
+        select(Question.id)
+        .join(
+            QuestionProgress,
+            (QuestionProgress.question_id == Question.id) & (QuestionProgress.user_id == current_user.id),
+        )
+        .where(refresh_clause(datetime.now(UTC)))
+        .order_by(func.random())
+        .limit(REFRESH_SESSION_SIZE)
     )
     if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
         stmt = stmt.where(Question.subject.in_(allowed))

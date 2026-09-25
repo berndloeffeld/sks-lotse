@@ -1,15 +1,22 @@
+import { useSearchParams } from 'react-router-dom'
+
+import { apiClient } from '../api/client'
+import type { RefreshSummary } from '../api/types'
 import { Band, Columns } from '../components/Bands'
 import { FocusBand } from '../components/FocusBand'
+import { LearnModePanel, LearnModeTabs, RefreshPanel, type LearnMode } from '../components/LearnModes'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { useProgressSummary } from '../hooks/useProgressSummary'
 import { SUBJECT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
 // The Lernstand, banded like the landing page: overall progress, the
-// per-category pie and the exam-variant picker as three columns, then every
-// topic grouped by subject.
+// per-category pie and the exam-variant picker as three columns, then the
+// three learning modes as tabs: every topic grouped by subject, the Fokus
+// topics, and the Auffrischen session.
 function LearnContent() {
   const {
     progress,
@@ -24,6 +31,16 @@ function LearnContent() {
     focusError,
   } = useProgressSummary()
 
+  // The mode lives in the URL (?modus=focus), so a way back from a run lands on the same tab.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requested = searchParams.get('modus')
+  const mode: LearnMode = requested === 'focus' || requested === 'refresh' ? requested : 'topic'
+  const selectMode = (next: LearnMode) => setSearchParams(next === 'topic' ? {} : { modus: next }, { replace: true })
+
+  // The Auffrischen counts; a failed request reads as "nothing to do".
+  const refresh = useApiQuery('refresh-summary', () => apiClient.get<RefreshSummary>('/progress/refresh/summary'))
+  const refreshSummary = refresh.isLoading ? null : (refresh.data ?? { lapsed: 0, expiring: 0, fresh: 0 })
+
   const status = isLoading ? (
     <p className="text-sm text-ink-soft">Lernstand wird geladen…</p>
   ) : error ? (
@@ -34,46 +51,46 @@ function LearnContent() {
 
   return (
     <>
-      <Band className="pt-10 pb-16">
+      <Band className="pt-10 pb-12">
         <ProgressOverview totals={totals} categories={categories} />
       </Band>
 
-      {status ? null : (
-        <FocusBand topics={focusTopics} totals={focusTotals} onToggleFocus={toggleFocus} error={focusError} />
-      )}
+      <LearnModeTabs active={mode} onChange={selectMode} />
 
-      <Band tone="dark" className="py-14">
-        <h2 className="font-serif text-3xl">Themen</h2>
-        <p className="mt-3 max-w-xl text-sm text-surface-alt">
-          Alle Themen des amtlichen Katalogs, nach Fachgebiet sortiert.
-        </p>
-      </Band>
-
-      <Band>
-        {status ?? (
-          <Columns className="sm:grid-cols-2">
-            {Array.from(bySubject.entries()).map(([subject, topics]) => (
-              <div key={subject} className="flex flex-col gap-2">
-                <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
-                <div>
-                  {topics.map((topic) => (
-                    <LedgerRow
-                      key={topic.topic_slug}
-                      title={topic.topic_name}
-                      learned={topic.learned_questions}
-                      learning={topic.learning_questions}
-                      total={topic.total_questions}
-                      to={`/learn/${topic.subject}/${topic.topic_slug}`}
-                      isFocus={topic.is_focus}
-                      onToggleFocus={() => toggleFocus(topic)}
-                    />
-                  ))}
+      <LearnModePanel mode={mode}>
+        {mode === 'refresh' ? (
+          <RefreshPanel summary={refreshSummary} />
+        ) : status ? (
+          <Band>{status}</Band>
+        ) : mode === 'focus' ? (
+          <FocusBand topics={focusTopics} totals={focusTotals} onToggleFocus={toggleFocus} error={focusError} />
+        ) : (
+          <Band className="py-10">
+            {focusError ? <p className="mb-6 text-sm text-danger">{focusError}</p> : null}
+            <Columns className="sm:grid-cols-2">
+              {Array.from(bySubject.entries()).map(([subject, topics]) => (
+                <div key={subject} className="flex flex-col gap-2">
+                  <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
+                  <div>
+                    {topics.map((topic) => (
+                      <LedgerRow
+                        key={topic.topic_slug}
+                        title={topic.topic_name}
+                        learned={topic.learned_questions}
+                        learning={topic.learning_questions}
+                        total={topic.total_questions}
+                        to={`/learn/${topic.subject}/${topic.topic_slug}`}
+                        isFocus={topic.is_focus}
+                        onToggleFocus={() => toggleFocus(topic)}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </Columns>
+              ))}
+            </Columns>
+          </Band>
         )}
-      </Band>
+      </LearnModePanel>
     </>
   )
 }

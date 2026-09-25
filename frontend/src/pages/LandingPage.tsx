@@ -54,10 +54,10 @@ const SCREENSHOTS = [
   {
     src: '/screenshots/lernstand.png',
     width: 1456,
-    height: 1600,
-    title: '4. Lernstand und Fokus',
-    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Markiere Themen als Fokus und sieh, wie viele Fragen du sicher oder teilweise gelernt hast.',
-    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und dem Fokus-Bereich mit der Schaltfläche „Fokus-Lernen starten“ sowie drei markierten Themen und ihrem Lernstand.',
+    height: 1302,
+    title: '4. Lernstand und Lernmodi',
+    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Lerne nach Thema, im Fokus deiner Stern-Themen oder frische Fragen auf, die bald verblassen könnten.',
+    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und den drei Lernmodi Nach Thema, Fokus und Auffrischen. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
     wide: true,
   },
 ]
