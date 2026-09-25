@@ -162,6 +162,18 @@ describe('PricingPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('aktueller Stand: 3 Tokens')
   })
 
+  it('scrolls the return notice into view', async () => {
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+    stubFetch(PRICING)
+    renderPage('/pricing?checkout=success')
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' })
+    await screen.findByText('5,00 €')
+    // @ts-expect-error jsdom has no scrollIntoView; drop the stub again
+    delete Element.prototype.scrollIntoView
+  })
+
   it('says nothing was charged after a cancelled checkout', async () => {
     stubFetch(PRICING)
     renderPage('/pricing?checkout=cancelled')
