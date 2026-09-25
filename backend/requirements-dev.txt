@@ -22,9 +22,9 @@ annotated-types==0.8.0 \
     # via
     #   -c requirements.txt
     #   pydantic
-anthropic==1.6.0 \
-    --hash=sha256:049434f013d3a874acdfee696ec626e19166d58f4277e8fa34e5d0a5ec250ad0 \
-    --hash=sha256:ce3c032f940984f67c516db896375bff36959f8dc589973e386f8e6ea81bbec3
+anthropic==1.7.0 \
+    --hash=sha256:0ab1b04668606ba1ae93f6d9e8dcc2e0c4f0debebd4eea4773a3a595f0836db1 \
+    --hash=sha256:6b681b6ee00f232bb54f50f9a0d6d30e7be368c1b6f754bfd470c8385b8b6058
     # via
     #   -c requirements.txt
     #   -r requirements.in
@@ -573,9 +573,9 @@ cryptography==50.0.1 \
     # via
     #   -c requirements.txt
     #   -r requirements.in
-disposable-email-domains==0.0.262 \
-    --hash=sha256:846a01eb92a6bd7564b3b913bf2e2a77ae8ebeea3116abc90a731cc53334afb3 \
-    --hash=sha256:91a9ec5ecb21ce43512b95db619e8b2889eeef1b2716b1113811c5c0de16dc95
+disposable-email-domains==0.0.263 \
+    --hash=sha256:b763b594c2af65387467981aadb7ad24f212514911962489a4792ab10b70f1b2 \
+    --hash=sha256:eebb4dfc1892aa1d7cc9002f7e63fde0f4cf941da97bbc65a4d7930814054f30
     # via
     #   -c requirements.txt
     #   -r requirements.in
@@ -696,6 +696,7 @@ greenlet==3.5.6 \
     # via
     #   -c requirements.txt
     #   -r requirements.in
+    #   sqlalchemy
 h11==0.16.0 \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
@@ -1611,9 +1612,9 @@ requests==2.34.2 \
     #   -c requirements.txt
     #   resend
     #   stripe
-resend==2.46.0 \
-    --hash=sha256:cb43ce303c6828c7a35912d9bc6b305e2b5870634b8256cf04af8ab76158633a \
-    --hash=sha256:db0ca26d9f46921082ccf28cf6a894b26a5287b003380cfb5039a7bc66d3b797
+resend==2.47.0 \
+    --hash=sha256:04369afdff1741bc21c83dc68effad3b1635057b2db0f9d70b6be611310c9aed \
+    --hash=sha256:c92900e1c45f6c77e09cbfb29467671b87a62ee21baf8959e60047f3667fb652
     # via
     #   -c requirements.txt
     #   -r requirements.in
