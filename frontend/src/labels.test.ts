@@ -14,7 +14,7 @@ import {
 // changing it should be a deliberate edit here too.
 describe('labels', () => {
   it('names the exam variants', () => {
-    expect(VARIANT_LABELS).toEqual({ segeln_und_motor: 'Motor und Segeln', motor: 'Motor' })
+    expect(VARIANT_LABELS).toEqual({ segeln_und_motor: 'Segeln und Motor', motor: 'Motor' })
   })
 
   it('names the genders', () => {

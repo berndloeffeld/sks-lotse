@@ -71,7 +71,7 @@ export function ExamPage() {
           // Picked right here the first time (the same setting as on /learn and /profile), so the
           // first exam doesn't start with a detour.
           <div className="flex flex-col gap-2">
-            <p className="text-ink">Wähle zuerst, ob du die Prüfung für „Motor“ oder „Motor und Segeln“ ablegst.</p>
+            <p className="text-ink">Wähle zuerst, ob du die Prüfung für „Motor“ oder „Segeln und Motor“ ablegst.</p>
             <ExamVariantDropdown
               value={null}
               onChange={variantUpdate.changeVariant}
