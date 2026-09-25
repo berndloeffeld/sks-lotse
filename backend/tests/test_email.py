@@ -21,6 +21,12 @@ def test_login_code_email_is_german_with_html_and_text_parts(sent):
     assert "<strong>123456</strong>" in params["html"]
     assert "123456" in params["text"]
     assert f"{settings.otp_ttl_minutes} Minuten gültig" in params["text"]
+    # Branded: header band with the wordmark and icon, the legal footer, all on the canonical origin.
+    origin = settings.cors_allowed_origins[0]
+    assert "SKS Lotse" in params["html"]
+    assert f"{origin}/icon-192.png" in params["html"]
+    for path in ("/terms", "/privacy", "/imprint"):
+        assert f"{origin}{path}" in params["html"]
 
 
 def test_email_change_email_uses_confirmation_copy(sent):
@@ -32,6 +38,8 @@ def test_email_change_email_uses_confirmation_copy(sent):
     assert "Bestätigungscode" in params["text"]
     assert "Anmeldecode" not in params["text"]
     assert "654321" in params["text"]
+    assert "<strong>654321</strong>" in params["html"]
+    assert "Neue E-Mail-Adresse bestätigen" in params["html"]
 
 
 def test_default_sender_shows_the_product_name():
