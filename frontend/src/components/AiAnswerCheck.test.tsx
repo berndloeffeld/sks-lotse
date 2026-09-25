@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -25,7 +26,24 @@ describe('AiAnswerCheck', () => {
     const row = screen.getByRole('button', ROW)
     expect(row).toBeDisabled()
     expect(row).toHaveTextContent('bald verfügbar')
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('links to the pricing page without tokens when the checkout is open to the account', () => {
+    useAuthStore.setState({ user: { ...user, token_balance: 0, can_buy_tokens: true } })
+    vi.stubGlobal('fetch', vi.fn())
+    render(
+      <MemoryRouter>
+        <AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('button', ROW)
+    expect(row).toBeDisabled()
+    expect(row).toHaveTextContent('Keine Tokens mehr')
+    expect(row).toHaveAttribute('title', 'Keine Tokens mehr')
+    expect(screen.getByRole('link', { name: 'Tokens kaufen' })).toHaveAttribute('href', '/pricing')
   })
 
   it('shows the token balance and needs a written answer', () => {

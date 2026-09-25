@@ -64,6 +64,13 @@ app.add_middleware(
             settings.rate_limit_otp_verify_max_requests,
             settings.rate_limit_otp_verify_window_seconds,
         ),
+        # Each call opens a Stripe Checkout Session (ADR-0048) — a real learner needs a handful.
+        # The webhook next to it stays on the default rule: Stripe delivers from few IPs, and a
+        # tight cap there would drop genuine payment events.
+        "/api/v1/payments/checkout": (
+            settings.rate_limit_checkout_max_requests,
+            settings.rate_limit_checkout_window_seconds,
+        ),
     },
     # Generous blanket cap for the rest of /api/v1, so new endpoints are
     # covered without touching this file again. /health is deliberately

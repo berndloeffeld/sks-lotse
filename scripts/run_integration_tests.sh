@@ -18,6 +18,8 @@
 #     and, ideally, a scratch database with the catalog seeded (alembic upgrade head)
 #     - the run creates and deletes throwaway users. Leave RESEND_API_KEY empty
 #     so the test addresses never get real mail.
+#   - Leave STRIPE_CHECKOUT off and STRIPE_WEBHOOK_SECRET empty (the defaults): the
+#     Payments folder checks the feature flag's 403 (ADR-0048).
 # CI runs exactly this in backend-ci.yml's `integration-tests` job.
 set -euo pipefail
 cd "$(dirname "$0")/.."

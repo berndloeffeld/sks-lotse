@@ -135,10 +135,12 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('has every package and no purchase flow yet', function () {",
+                  "pm.test('has every package and the checkout flag', function () {",
                   "    var body = pm.response.json();",
-                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages');",
+                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages', 'checkout_enabled');",
                   "    pm.expect(body.packages).to.have.lengthOf(4);",
+                  "    // This server runs with STRIPE_CHECKOUT off (the default).",
+                  "    pm.expect(body.checkout_enabled).to.eql(false);",
                   "    pm.expect(body.packages.map(function (p) { return p.product; })).to.eql(['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl']);",
                   "});"
                 ]
@@ -164,7 +166,7 @@
           "response": []
         }
       ],
-      "description": "The teaser prices the (unauthenticated) landing page and the in-app upsell show - no purchase flow yet, see ADR-0043."
+      "description": "The prices the (unauthenticated) landing page and the pricing page show, and whether the token packages can be bought (STRIPE_CHECKOUT=on, ADR-0048)."
     },
     {
       "name": "CORS",
@@ -1992,6 +1994,274 @@
         }
       ],
       "description": "Mirrors the auth-guard and shape checks in backend/tests/test_questions.py and test_progress.py, incl. grading the first question (self-assessment) and reading its progress back. Content assertions are deliberately loose - unlike pytest's db_session fixture, this can't seed the local Postgres catalog, so results depend on whether backend/scripts/import_catalog.py has been run against it."
+    },
+    {
+      "name": "Payments (Stripe checkout)",
+      "description": "The token-package checkout (ADR-0048). This server runs with STRIPE_CHECKOUT off and no Stripe keys (the defaults), so only the guards are exercised here; opening a real Checkout Session and the signed webhook are covered in backend/tests/test_payments.py.",
+      "item": [
+        {
+          "name": "Checkout - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product\": \"tokens_s\", \"waive_withdrawal\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Checkout - unknown product is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product\": \"ads_removed\", \"waive_withdrawal\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Werbefrei isn't sold through the checkout (yet) - only the four token packages.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Checkout - without the withdrawal waiver is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product\": \"tokens_s\", \"waive_withdrawal\": false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "The learner's consent under § 356 Abs. 5 BGB is required for every purchase.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Checkout - refused while the feature flag is off",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('says checkout is unavailable', function () { pm.expect(pm.response.json().detail).to.eql('Checkout is not available'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product\": \"tokens_s\", \"waive_withdrawal\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Stripe webhook - without a valid signature is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400 or 503', function () { pm.expect(pm.response.code).to.be.oneOf([400, 503]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Stripe-Signature",
+                "value": "t=1,v1=invalid"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "webhook"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"type\": \"checkout.session.completed\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Open route: Stripe authenticates with its Stripe-Signature header, not a session. 503 when the server has no STRIPE_WEBHOOK_SECRET (the default here), 400 for a wrong signature when it has one.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        }
+      ]
     },
     {
       "name": "Profile & exam variant (authenticated)",

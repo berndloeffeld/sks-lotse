@@ -40,7 +40,7 @@ export function PageLayout({
   const column = `mx-auto w-full px-4 ${WIDTH[bands ? 'bands' : width]}`
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden">
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       <Header
         homeTo={showAccountNav ? '/learn' : '/'}
         nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}

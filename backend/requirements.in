@@ -21,6 +21,8 @@ email-validator==2.3.0
 # periodically, this pin will go stale fast.
 disposable-email-domains==0.0.262
 anthropic==1.6.0
+# Token-package checkout (ADR-0048): Checkout Sessions and webhook signature verification.
+stripe==15.6.1
 # Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
 tzdata==2026.4
 # SQLAlchemy needs greenlet only on some platforms (Linux x86_64 yes — Render and CI —, macOS arm64

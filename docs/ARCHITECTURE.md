@@ -130,6 +130,15 @@ PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 
 Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data: progress, Fokus marks, question reports, exams and pending codes, then the account. Money-backed `purchases` rows are anonymized instead of deleted (statutory bookkeeping retention, [ADR-0043](adr/0043-token-based-ai-grading-monetization.md)).
 
+### Payments
+Token packages are bought through Stripe Hosted Checkout ([ADR-0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)), behind the `STRIPE_CHECKOUT` flag (`off` | `admins` | `on`).
+
+1. The learner ticks the withdrawal waiver on `/pricing`; `POST /payments/checkout` (JWT, flag-gated, 403 otherwise) opens a Checkout Session with the price from `app_settings` sent inline as `price_data` and returns the Stripe URL; the SPA redirects there.
+2. Stripe calls `POST /payments/webhook` (open route, authenticated by the `Stripe-Signature` header, independent of the flag). For a paid session (`checkout.session.completed` / `async_payment_succeeded`) `services/payments.py` books `token_wallet.grant(..., granted_by="stripe", stripe_payment_intent_id=…)`, once per Payment Intent (lookup plus unique index).
+3. The success redirect (`/pricing?checkout=success&product=…`) credits nothing; the page marks the bought package and re-checks the session, once more after a delay, because the webhook may arrive later.
+
+`UserRead.can_buy_tokens` tells the SPA whether to show the buy button; `PublicPricing.checkout_enabled` (only `on`) lets logged-out visitors see "Anmelden zum Kaufen".
+
 ### Question catalog
 The official catalog PDF becomes database rows in two phases:
 
@@ -170,7 +179,8 @@ All of them except the integration tests are required status checks on `main`, a
 
 - Tips per question (text or image), and enforcing the rule that a revealed tip caps that attempt's grading to "Teilweise Richtig" ([ADR-0038](adr/0038-tip-reveal-caps-grading-outcome.md))
 - SSO login (Google/Facebook/X)
-- A real payment provider: prices are fixed and admin-editable ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)), but the operator still credits `ads_removed`/`token_balance` by hand on `/admin` until one is wired up
+- Paying for "Werbefrei": token packages are bought via Stripe ([Payments](#payments)), but `ads_removed` is still credited by hand on `/admin` ("bald verfügbar")
+- Switching `STRIPE_CHECKOUT` to `on` for learners: needs the privacy policy, AGB and `CURRENT_AGB_VERSION` updated first ([runbook](RUNBOOK.md#stripe-checkout))
 - Automatic grading of an entire exam in one go (the planned 25-token bulk price is fixed in [ADR-0043](adr/0043-token-based-ai-grading-monetization.md), but the feature itself isn't built — exams are still self-assessed only)
 - Speech-to-text (Web Speech API)
 - Ad units: none are rendered yet. The AdSense script and the consent management are in ([ADR-0027](adr/0027-adsense-with-google-consent-management.md))

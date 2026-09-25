@@ -47,6 +47,22 @@ class Settings(BaseSettings):
     anthropic_grading_api_key: str = ""
     anthropic_grading_model: str = "claude-haiku-4-5"
     anthropic_grading_timeout_seconds: float = 15.0
+    # Token-package checkout via Stripe Hosted Checkout (ADR-0048). The feature flag: "off" hides and
+    # refuses the purchase flow, "admins" opens it to the ADMIN_EMAILS allowlist only (testing in
+    # production with real Stripe before learners see it), "on" opens it to everyone. A closed set,
+    # like `environment`, so a typo fails at startup. The webhook fulfils paid sessions whatever
+    # this says — a session opened while it was on must still be credited after it's switched off.
+    stripe_checkout: Literal["off", "admins", "on"] = "off"
+    # Empty = checkout refused (fail closed) / webhook answers 503.
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    # The Stripe product ids of the four token packages (docs/stripe/README.md) — they differ
+    # between test and live mode. The price itself is sent inline from app_settings (ADR-0048), so
+    # these carry only name, description and image. A package with no id can't be bought.
+    stripe_product_tokens_s: str = ""
+    stripe_product_tokens_m: str = ""
+    stripe_product_tokens_l: str = ""
+    stripe_product_tokens_xl: str = ""
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
     # noreply address.
@@ -83,6 +99,8 @@ class Settings(BaseSettings):
     # attacker spraying guesses across many accounts' codes from one IP. A real login needs one or two.
     rate_limit_otp_verify_max_requests: int = 30
     rate_limit_otp_verify_window_seconds: int = 3600  # 1 hour
+    rate_limit_checkout_max_requests: int = 10
+    rate_limit_checkout_window_seconds: int = 3600  # 1 hour
     rate_limit_default_max_requests: int = 300
     rate_limit_default_window_seconds: int = 300  # 5 minutes
 

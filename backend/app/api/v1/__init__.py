@@ -5,6 +5,7 @@ from app.api.v1.admin_mfa import router as admin_mfa_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.exams import router as exams_router
 from app.api.v1.grading import router as grading_router
+from app.api.v1.payments import router as payments_router
 from app.api.v1.pricing import router as pricing_router
 from app.api.v1.progress import router as progress_router
 from app.api.v1.questions import router as questions_router
@@ -20,3 +21,4 @@ router.include_router(exams_router)
 router.include_router(admin_mfa_router)
 router.include_router(admin_router)
 router.include_router(pricing_router)
+router.include_router(payments_router)

@@ -17,7 +17,7 @@ interface HeaderProps {
 // sits on one text baseline: the wordmark, the links and the bordered buttons' labels.
 export function Header({ homeTo = '/', nav }: HeaderProps) {
   return (
-    <header className="bg-primary-dark">
+    <header className="sticky top-0 z-40 bg-primary-dark">
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-3 px-4 py-4">
         <div className="flex items-baseline gap-3">
           <Link to={homeTo} aria-label="SKS Lotse – Startseite">

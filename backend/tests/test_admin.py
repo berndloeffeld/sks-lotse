@@ -390,6 +390,7 @@ def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, 
             {"product": "tokens_l", "tokens": 100, "price_cents": 999},
             {"product": "tokens_xl", "tokens": 200, "price_cents": 1699},
         ],
+        "checkout_enabled": False,
     }
 
 

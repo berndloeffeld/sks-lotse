@@ -45,6 +45,7 @@ only_mutate = [
     "app/core/log_config.py",
     "app/core/timeutil.py",
     "app/core/totp.py",
+    "app/core/checkout.py",
     "app/services/ai_abuse_monitoring.py",
     "app/services/pricing.py",
     "app/services/token_wallet.py",
@@ -60,6 +61,7 @@ only_mutate = [
     "app/services/admin_users.py",
     "app/services/blocklist.py",
     "app/services/admin_mfa.py",
+    "app/services/payments.py",
     "app/api/v1/exams.py",
     "app/api/v1/progress.py",
     "app/api/v1/auth.py",
@@ -68,6 +70,7 @@ only_mutate = [
     "app/api/v1/admin_mfa.py",
     "app/api/v1/grading.py",
     "app/api/v1/pricing.py",
+    "app/api/v1/payments.py",
 ]
 source_paths = ["app"]
 also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]
