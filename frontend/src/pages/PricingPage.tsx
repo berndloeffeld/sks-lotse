@@ -83,7 +83,7 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
         {packages.map((p) => (
           <label
             key={p.product}
-            className="flex cursor-pointer flex-col gap-2 rounded-tile border-2 border-border bg-surface p-4 transition hover:border-primary has-checked:border-primary has-checked:bg-surface-alt has-focus-visible:ring-2 has-focus-visible:ring-primary"
+            className={`relative flex cursor-pointer flex-col gap-2 rounded-tile border-2 bg-surface p-4 transition ${boughtProduct === p.product ? 'border-success' : 'border-border'}  hover:border-primary has-checked:border-primary has-checked:bg-surface-alt has-focus-visible:ring-2 has-focus-visible:ring-primary`}
           >
             <input
               type="radio"
@@ -97,7 +97,7 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
               className="sr-only"
             />
             {boughtProduct === p.product ? (
-              <span className="self-start rounded-tile bg-success px-2 py-0.5 font-mono text-xs tracking-wide text-white uppercase">
+              <span className="absolute -top-3 right-3 rounded-full bg-success px-2.5 py-0.5 font-mono text-xs tracking-wide whitespace-nowrap text-white uppercase">
                 Gerade gekauft
               </span>
             ) : null}
