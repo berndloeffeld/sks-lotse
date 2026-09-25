@@ -50,6 +50,28 @@ def send_email_change_otp_email(to_email: str, code: str) -> None:
     )
 
 
+def send_purchase_confirmation_email(
+    to_email: str, *, package: str, tokens: int, amount: str, paid_at: str, reference: str, terms_url: str
+) -> None:
+    # The confirmation on a durable medium that § 312f Abs. 3 / § 356 Abs. 5 Nr. 2 BGB require after
+    # the learner waived the right of withdrawal at checkout (ADR-0048): the contract content, the
+    # waiver, and where the AGB are.
+    subject = f"Deine Bestellung bei SKS Lotse: {package}"
+    lines = [
+        "Danke für deinen Kauf bei SKS Lotse! Die Tokens wurden deinem Konto gutgeschrieben.",
+        f"Bestellung: {package} ({tokens} Tokens für den Lotsen-Check)",
+        f"Preis: {amount} (Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen)",
+        f"Zahlung am: {paid_at}",
+        f"Zahlungsreferenz: {reference}",
+        "Einmalkauf, kein Abo, keine wiederkehrende Zahlung.",
+        "Du hast ausdrücklich zugestimmt, dass wir die Tokens sofort nach der Zahlung bereitstellen, und "
+        "hast zur Kenntnis genommen, dass dein Widerrufsrecht damit erlischt (§ 356 Abs. 5 BGB).",
+        f"Unsere AGB: {terms_url}",
+    ]
+    html = "".join(f"<p>{escape(line)}</p>" for line in lines)
+    _send(to_email, subject, html=html, text="\n\n".join(lines) + "\n")
+
+
 def send_kpi_report_email(to_email: str, subject: str, body: str) -> None:
     # Operator-facing (ADMIN_EMAILS), aggregates only. Monospace <pre> keeps
     # the plain-text layout of the report in the HTML part.

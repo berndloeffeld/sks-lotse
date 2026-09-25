@@ -13,6 +13,7 @@ from app.core import pricing as pricing_core
 from app.core.config import settings
 from app.models.purchase import Purchase
 from app.models.user import User
+from app.services import email as email_service
 from app.services import payments
 from app.services import pricing as pricing_service
 from tests.helpers import FIXTURE_EMAIL, fixture_user, make_admin
@@ -354,3 +355,86 @@ def test_fulfil_treats_a_parallel_delivery_as_done(db_session, auth_headers, mon
     monkeypatch.setattr(payments.token_wallet, "grant", racing_grant)
     assert payments.fulfil_checkout_session(db_session, _session(user.id)) is False
     assert db_session.get(User, user.id).token_balance == 0
+
+
+@pytest.fixture
+def sent_mails(monkeypatch):
+    sent = []
+    monkeypatch.setattr(
+        payments.email_service, "send_purchase_confirmation_email", lambda to, **kw: sent.append((to, kw))
+    )
+    return sent
+
+
+def test_webhook_sends_the_confirmation_mail_once(
+    client, db_session, auth_headers, stripe_configured, sent_mails
+):
+    user = fixture_user(db_session)
+    event = _event(_session(user.id, product="tokens_m", tokens=50, amount=599))
+    _post_event(client, event)
+    _post_event(client, event)  # redelivery: credited already, so no second mail
+    assert len(sent_mails) == 1
+    to, mail = sent_mails[0]
+    assert to == FIXTURE_EMAIL
+    assert (mail["package"], mail["tokens"], mail["amount"]) == ("Paket M", 50, "5,99 €")
+    assert mail["reference"] == "pi_1"
+    assert mail["terms_url"] == f"{settings.cors_allowed_origins[0]}/terms"
+    assert mail["paid_at"].endswith(" Uhr")
+
+
+def test_no_confirmation_mail_for_an_unpaid_session(
+    client, db_session, auth_headers, stripe_configured, sent_mails
+):
+    user = fixture_user(db_session)
+    _post_event(client, _event(_session(user.id, status="unpaid")))
+    assert sent_mails == []
+
+
+def test_a_failing_mail_does_not_undo_the_credit(
+    client, db_session, auth_headers, stripe_configured, monkeypatch, caplog
+):
+    def boom(to, **kw):
+        raise RuntimeError("resend down")
+
+    monkeypatch.setattr(payments.email_service, "send_purchase_confirmation_email", boom)
+    user = fixture_user(db_session)
+    with caplog.at_level("ERROR"):
+        response = _post_event(client, _event(_session(user.id)))
+    assert response.json() == {"credited": True}
+    db_session.refresh(user)
+    assert user.token_balance == 20
+    assert "confirmation mail to user failed" in caplog.text
+
+
+def test_euro_formats_cents_the_german_way():
+    assert payments._euro(299) == "2,99 €"
+    assert payments._euro(1699) == "16,99 €"
+    assert payments._euro(None) == "-"
+
+
+def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
+    sent = []
+    monkeypatch.setattr(
+        email_service, "_send", lambda to, subject, html, text: sent.append((to, subject, text))
+    )
+    email_service.send_purchase_confirmation_email(
+        "a@b.de",
+        package="Paket S",
+        tokens=20,
+        amount="2,99 €",
+        paid_at="25.09.2026, 14:00 Uhr",
+        reference="pi_9",
+        terms_url="https://sks-lotse.de/terms",
+    )
+    ((to, subject, text),) = sent
+    assert to == "a@b.de"
+    assert "Paket S" in subject
+    for expected in (
+        "20 Tokens",
+        "2,99 €",
+        "pi_9",
+        "§ 356 Abs. 5 BGB",
+        "https://sks-lotse.de/terms",
+        "§ 19 UStG",
+    ):
+        assert expected in text

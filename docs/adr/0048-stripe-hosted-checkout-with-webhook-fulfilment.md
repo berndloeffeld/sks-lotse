@@ -14,6 +14,7 @@ ADR-0043 fixed the token packages and prices and shaped the ledger (`purchases`,
 - **Fulfilment only in the webhook** (`checkout.session.completed` and `…async_payment_succeeded`, signature-verified), never on the success redirect — that URL is reachable without paying. Only `payment_status == "paid"` credits.
 - **Idempotent over the Payment Intent**: a lookup catches redelivery, a unique index on `purchases.stripe_payment_intent_id` catches two parallel deliveries (the `IntegrityError` is rolled back and counts as done).
 - **The webhook is independent of the flag**, so a session opened while the flag was on is still credited after it is switched off.
+- **Confirmation mail**: after the credit, a background task sends the learner a confirmation (package, price, time, payment reference, the waiver, link to the AGB) through Resend — the confirmation on a durable medium the waiver needs (§ 356 Abs. 5 Nr. 2, § 312f Abs. 3 BGB). It is sent only when this delivery actually credited, so a redelivery doesn't mail twice; a send failure is logged (`confirmation mail … failed, send it by hand`) and doesn't undo the credit.
 - **Withdrawal waiver**: the request must carry `waive_withdrawal: true` (§ 356 Abs. 5 BGB, "beim Kauf gesondert eingeholt" in the AGB); it is also stored in the session metadata.
 - The Stripe client is created without an API version (the SDK's pinned one).
 

@@ -11,8 +11,10 @@ description and image (docs/stripe/README.md).
 """
 
 import logging
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from datetime import UTC, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import stripe
 from sqlalchemy import select
@@ -24,6 +26,7 @@ from app.core.checkout import stripe_product_id
 from app.core.config import settings
 from app.models.purchase import Purchase
 from app.models.user import User
+from app.services import email as email_service
 from app.services import token_wallet
 
 logger = logging.getLogger(__name__)
@@ -112,7 +115,43 @@ def parse_webhook(payload: bytes, signature: str | None) -> stripe.Event:
         raise InvalidWebhook(exc.__class__.__name__) from exc
 
 
-def fulfil_checkout_session(db: Session, session: Mapping[str, Any]) -> bool:
+# Called after a session's tokens were credited, with (email, product, tokens, amount_cents,
+# payment_intent) — the webhook hands it a background task that sends the confirmation mail.
+CreditedCallback = Callable[[str, str, int, int | None, str], None]
+
+
+def _euro(cents: int | None) -> str:
+    return "-" if cents is None else f"{cents / 100:.2f}".replace(".", ",") + " €"
+
+
+def send_purchase_confirmation(
+    email: str, product: str, tokens: int, amount_cents: int | None, payment_intent: str
+) -> None:
+    """Mail the learner the confirmation of a paid package; a failed send is logged, never raised.
+
+    The tokens are already credited when this runs, so a mail problem must not undo or fail the
+    webhook — the log line is what to act on (docs/RUNBOOK.md → Stripe checkout).
+    """
+    letter = product.removeprefix("tokens_").upper()
+    try:
+        email_service.send_purchase_confirmation_email(
+            email,
+            package=f"Paket {letter}",
+            tokens=tokens,
+            amount=_euro(amount_cents),
+            paid_at=datetime.now(UTC).astimezone(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y, %H:%M Uhr"),
+            reference=payment_intent,
+            terms_url=f"{settings.cors_allowed_origins[0]}/terms",
+        )
+    except Exception:
+        logger.exception(
+            "stripe payment %s: confirmation mail to user failed, send it by hand", payment_intent
+        )
+
+
+def fulfil_checkout_session(
+    db: Session, session: Mapping[str, Any], on_credited: CreditedCallback | None = None
+) -> bool:
     """Credit a paid session's tokens exactly once. Returns whether this call credited them.
 
     Safe to call for every delivery of every fulfilment event: an unpaid session is skipped (its
@@ -129,7 +168,8 @@ def fulfil_checkout_session(db: Session, session: Mapping[str, Any]) -> bool:
     if db.scalar(select(Purchase.id).where(Purchase.stripe_payment_intent_id == payment_intent)) is not None:
         return False
     user_id = int(metadata["user_id"])
-    if db.get(User, user_id) is None:
+    user = db.get(User, user_id)
+    if user is None:
         # Deleted the account between paying and the webhook — refund by hand (docs/RUNBOOK.md).
         logger.error("stripe payment %s: user %s no longer exists, refund manually", payment_intent, user_id)
         return False
@@ -148,4 +188,12 @@ def fulfil_checkout_session(db: Session, session: Mapping[str, Any]) -> bool:
         db.rollback()
         return False
     logger.info("stripe payment %s: credited %s to user %s", payment_intent, metadata["product"], user_id)
+    if on_credited is not None:
+        on_credited(
+            user.email,
+            metadata["product"],
+            int(metadata["tokens"]),
+            session.get("amount_total"),
+            payment_intent,
+        )
     return True

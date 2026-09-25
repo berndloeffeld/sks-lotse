@@ -35,9 +35,9 @@ export function PrivacyPage() {
           gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch JavaScript) und Sie bis zur
           Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
           (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für
-          den Versand der Login-Codes per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig
-          wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
-          unserer{' '}
+          den Versand der Login-Codes und der Kaufbestätigung per E-Mail setzen wir den Dienst Resend ein, der dabei in
+          unserem Auftrag tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie,
+          welcher Version unserer{' '}
           <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}
@@ -82,13 +82,15 @@ export function PrivacyPage() {
           welches Produkt, wie viele Tokens, den gezahlten Betrag (falls vorhanden), die Zahlungs-Kennung von Stripe
           (Payment Intent, für die Zuordnung und Buchhaltung), wer die Gutschrift veranlasst hat und den Zeitpunkt. Die
           Zustimmung zur sofortigen Bereitstellung und zum Erlöschen des Widerrufsrechts, die Sie beim Kauf geben, wird
-          im Kaufvorgang bei Stripe vermerkt. Die Zahlung selbst wickelt unser Zahlungsdienstleister Stripe (Stripe
-          Payments Europe, Ltd., 1 Grand Canal Street Lower, Dublin 2, Irland; Muttergesellschaft Stripe, Inc., USA) ab:
-          Beim Kauf werden Sie auf eine Bezahlseite von Stripe weitergeleitet. Dorthin übermitteln wir Ihre
-          E-Mail-Adresse, eine interne Konto-Kennung, das gewählte Produkt und den Betrag. Ihre Zahlungsdaten (z. B.
-          Kartennummer, Bankverbindung) geben Sie ausschließlich bei Stripe ein; wir erhalten sie nicht und speichern
-          sie nicht. Stripe verarbeitet Ihre Daten für die Zahlungsabwicklung sowie zur Betrugsprävention und zur
-          Erfüllung eigener rechtlicher Pflichten teilweise als eigener Verantwortlicher; dazu gilt die{' '}
+          im Kaufvorgang bei Stripe vermerkt. Nach der Gutschrift senden wir Ihnen eine Bestätigungs-E-Mail mit den
+          Kaufdaten und diesem Hinweis (gesetzliche Pflicht bei Wegfall des Widerrufsrechts, § 312f Abs. 3 BGB). Die
+          Zahlung selbst wickelt unser Zahlungsdienstleister Stripe (Stripe Payments Europe, Ltd., 1 Grand Canal Street
+          Lower, Dublin 2, Irland; Muttergesellschaft Stripe, Inc., USA) ab: Beim Kauf werden Sie auf eine Bezahlseite
+          von Stripe weitergeleitet. Dorthin übermitteln wir Ihre E-Mail-Adresse, eine interne Konto-Kennung, das
+          gewählte Produkt und den Betrag. Ihre Zahlungsdaten (z. B. Kartennummer, Bankverbindung) geben Sie
+          ausschließlich bei Stripe ein; wir erhalten sie nicht und speichern sie nicht. Stripe verarbeitet Ihre Daten
+          für die Zahlungsabwicklung sowie zur Betrugsprävention und zur Erfüllung eigener rechtlicher Pflichten
+          teilweise als eigener Verantwortlicher; dazu gilt die{' '}
           <a
             href="https://stripe.com/de/privacy"
             target="_blank"
