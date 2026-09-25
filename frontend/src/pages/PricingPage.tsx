@@ -134,8 +134,7 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
               : 'Paket kaufen'}
         </button>
         <p className="text-xs text-ink-soft">
-          Du wirst zur Zahlung an unseren Zahlungsanbieter weitergeleitet und kommst danach hierher zurück. Kein Abo,
-          keine wiederkehrende Zahlung.
+          Du wirst zur Zahlung an unseren Zahlungsanbieter weitergeleitet und kommst danach hierher zurück.
         </p>
         {error ? (
           <p role="alert" className={styles.error}>
@@ -232,6 +231,7 @@ export function PricingPage() {
             <p className="text-ink-soft">
               Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Antwort. Bei der Anmeldung
               gibt es {data.signup_bonus_tokens} Tokens geschenkt; weitere Tokens lassen sich in Paketen nachkaufen.
+              Kein Abo, keine wiederkehrende Zahlung.
               {canBuy ? ` Dein Stand: ${user?.token_balance ?? 0} Tokens.` : ''}
             </p>
             {canBuy ? (
