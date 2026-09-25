@@ -232,8 +232,8 @@ export function PricingPage() {
               Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Antwort. Bei der Anmeldung
               gibt es {data.signup_bonus_tokens} Tokens geschenkt; weitere Tokens lassen sich in Paketen nachkaufen.
               Kein Abo, keine wiederkehrende Zahlung.
-              {canBuy ? ` Dein Stand: ${user?.token_balance ?? 0} Tokens.` : ''}
             </p>
+            {canBuy ? <p className="text-ink-soft">Dein aktueller Stand: {user?.token_balance ?? 0} Tokens.</p> : null}
             {canBuy ? (
               <PurchasePanel packages={data.packages} boughtProduct={boughtProduct} />
             ) : (

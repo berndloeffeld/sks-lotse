@@ -83,7 +83,7 @@ describe('PricingPage', () => {
     const user = userEvent.setup()
     renderPage()
 
-    expect(await screen.findByText(/Dein Stand: 3 Tokens/)).toBeInTheDocument()
+    expect(await screen.findByText(/Dein aktueller Stand: 3 Tokens/)).toBeInTheDocument()
     expect(screen.queryByText('Bald verfügbar')).not.toBeInTheDocument()
     const buy = screen.getByRole('button', { name: 'Paket kaufen' })
 
