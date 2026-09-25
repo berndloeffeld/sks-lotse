@@ -3,5 +3,5 @@
 // whenever the AGB text changes materially; AgbPage.tsx shows the label.
 // Every account whose stored agb_accepted_version differs sees the AGB-Gate
 // again on next login (see routes/AgbGate.tsx).
-export const AGB_VERSION = '2026-09-24'
-export const AGB_VERSION_LABEL = '24. September 2026'
+export const AGB_VERSION = '2026-09-25'
+export const AGB_VERSION_LABEL = '25. September 2026'

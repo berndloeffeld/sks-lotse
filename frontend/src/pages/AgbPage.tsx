@@ -26,6 +26,11 @@ export function AgbPage() {
           Optional steht der „Lotsen-Check" zur Verfügung: ein unverbindlicher, KI-gestützter Bewertungsvorschlag für
           eine selbst formulierte Antwort. Die Bewertung der eigenen Antwort trifft immer der Nutzer selbst.
         </p>
+        <p>
+          Wir bemühen uns um eine möglichst hohe Verfügbarkeit des Dienstes. Ein Anspruch auf unterbrechungsfreie
+          Verfügbarkeit besteht jedoch nicht, etwa bei Wartungsarbeiten oder Störungen bei eingesetzten Dienstleistern.
+          Kann ein Lotsen-Check aus technischen Gründen nicht durchgeführt werden, wird dafür kein Token verbraucht.
+        </p>
       </ProseSection>
 
       <ProseSection title="3. Registrierung und Nutzerkonto">
@@ -52,9 +57,16 @@ export function AgbPage() {
           </li>
         </ul>
         <p>
-          Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Der Kauf
-          wird derzeit außerhalb der App abgewickelt und nach Zahlungseingang manuell durch den Betreiber
-          gutgeschrieben, bis eine Zahlungsanbieter-Anbindung besteht. Alle genannten Preise sind Endpreise in Euro.
+          Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Alle
+          genannten Preise sind Endpreise in Euro; gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
+        </p>
+        <p>
+          Token-Pakete kauft der angemeldete Nutzer direkt in der App. Nach der Auswahl eines Pakets und der Bestätigung
+          der Angaben zum Widerrufsrecht (Ziffer 8) wird er zur Zahlung an unseren Zahlungsdienstleister Stripe
+          weitergeleitet, der die Zahlung abwickelt und dafür die dort angebotenen Zahlungsmethoden bereitstellt. Der
+          Kaufvertrag kommt mit erfolgreicher Zahlung zustande; die Tokens werden dem Konto danach automatisch
+          gutgeschrieben, in der Regel innerhalb weniger Sekunden. Bei einer verzögerten Zahlungsmethode erfolgt die
+          Gutschrift erst nach Zahlungseingang. „Werbefrei" wird derzeit noch nicht zum Kauf angeboten.
         </p>
       </ProseSection>
 
@@ -70,15 +82,17 @@ export function AgbPage() {
           Der Fragenkatalog ist ein amtliches Werk der zuständigen Behörde; wir übernehmen ihn unverändert, können
           jedoch keine Gewähr für dessen Fehlerfreiheit oder Aktualität übernehmen. Musterantworten und
           Bewertungsvorschläge, auch KI-gestützte, ersetzen keine offizielle Prüfungsvorbereitung und begründen keinen
-          Anspruch auf das Bestehen der SKS-Prüfung.
+          Anspruch auf das Bestehen der SKS-Prüfung. Bei Abweichungen gilt die auf ELWIS veröffentlichte amtliche
+          Fassung des Fragenkatalogs.
         </p>
       </ProseSection>
 
       <ProseSection title="7. Kommunikation per E-Mail">
         <p>
           Wir sind berechtigt, vertragsbezogene Mitteilungen (z. B. Änderungen dieser AGB, Sicherheits- und
-          Wartungshinweise, Ankündigung einer Diensteinstellung oder einer Löschung wegen Inaktivität gemäß Ziffer 8) an
-          die im Konto hinterlegte E-Mail-Adresse zu senden.
+          Wartungshinweise, Kaufbestätigungen, Ankündigung einer Diensteinstellung oder einer Löschung wegen Inaktivität
+          gemäß Ziffer 8) an die im Konto hinterlegte E-Mail-Adresse zu senden. Werbe-E-Mails oder Newsletter versenden
+          wir nicht.
         </p>
       </ProseSection>
 
@@ -90,15 +104,20 @@ export function AgbPage() {
         <p>
           Wir behalten uns vor, den gesamten Dienst mit einer Vorankündigung von sechs Wochen einzustellen. Wir behalten
           uns außerdem vor, ein Konto zu löschen, über das seit mehr als zwölf Monaten kein Login mehr erfolgt ist; wir
-          kündigen dies nach Möglichkeit vorher per E-Mail an die hinterlegte Adresse an.
+          kündigen dies nach Möglichkeit vorher per E-Mail an die hinterlegte Adresse an. Bei einer dauerhaften
+          Einstellung des Dienstes erlöschen noch nicht verbrauchte Tokens; ein Anspruch auf Fortführung des Angebots
+          oder auf Erstattung besteht nicht, soweit gesetzlich zulässig.
         </p>
         <p>
           „Werbefrei" und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
           keine wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort
           nach Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
           ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das
-          Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf gesondert eingeholt. Geschenkte
-          Tokens (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen.
+          Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf durch ein gesondertes
+          Bestätigungsfeld vor der Zahlung eingeholt; ohne sie ist der Kauf nicht möglich. Geschenkte Tokens
+          (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen. Gekaufte
+          Tokens verfallen nicht durch bloßen Zeitablauf; mit der Löschung des Kontos, auch nach dieser Ziffer,
+          erlöschen jedoch die noch nicht verbrauchten Tokens, ohne dass dafür ein Erstattungsanspruch entsteht.
         </p>
       </ProseSection>
 
@@ -120,8 +139,9 @@ export function AgbPage() {
 
       <ProseSection title="11. Schlussbestimmungen">
         <p>
-          Es gilt deutsches Recht. Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen
-          Bestimmungen davon unberührt.
+          Es gilt deutsches Recht; zwingende Verbraucherschutzvorschriften des Staates, in dem der Nutzer seinen
+          gewöhnlichen Aufenthalt hat, bleiben unberührt. Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die
+          Wirksamkeit der übrigen Bestimmungen davon unberührt.
         </p>
       </ProseSection>
 

@@ -56,6 +56,24 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Mitglied seit/)).toBeInTheDocument()
   })
 
+  it('shows the token balance, with a link to the shop only when the account can buy', async () => {
+    useAuthStore.setState({
+      user: makeUser({ token_balance: 145, can_buy_tokens: false }),
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
+    const { unmount } = renderProfilePage()
+
+    expect(screen.getByText(/Dein Token-Stand/)).toHaveTextContent('145')
+    expect(screen.queryByRole('link', { name: 'Tokens im Shop kaufen' })).not.toBeInTheDocument()
+    unmount()
+
+    useAuthStore.setState({ user: makeUser({ token_balance: 3, can_buy_tokens: true }) })
+    renderProfilePage()
+    expect(await screen.findByRole('link', { name: 'Tokens im Shop kaufen' })).toHaveAttribute('href', '/pricing')
+  })
+
   it('shows the Lernstand overview with a link to the topics on /learn', async () => {
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))

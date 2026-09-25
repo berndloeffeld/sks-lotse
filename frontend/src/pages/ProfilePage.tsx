@@ -156,6 +156,17 @@ export function ProfilePage() {
         <p className="mt-3 max-w-xl text-sm text-surface-alt">
           Deine persönlichen Angaben und die E-Mail-Adresse, mit der du dich anmeldest.
         </p>
+        <p className="mt-4 text-sm text-surface-alt">
+          Dein Token-Stand: <span className="font-mono text-surface">{user.token_balance}</span>
+          {user.can_buy_tokens ? (
+            <>
+              {' · '}
+              <Link to="/pricing" className="underline hover:text-surface">
+                Tokens im Shop kaufen
+              </Link>
+            </>
+          ) : null}
+        </p>
       </Band>
 
       <Band tone="primary">

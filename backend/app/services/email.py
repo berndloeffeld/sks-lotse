@@ -16,7 +16,7 @@ def _send(to_email: str, subject: str, html: str, text: str) -> None:
     )
 
 
-def _send_code_email(to_email: str, subject: str, intro: str, code: str) -> None:
+def _send_code_email(to_email: str, subject: str, heading: str, intro: str, code: str) -> None:
     # German copy, like the rest of the app. A plain-text part alongside the
     # HTML one: some clients prefer it, and HTML-only mail scores worse with
     # spam filters.
@@ -25,17 +25,15 @@ def _send_code_email(to_email: str, subject: str, intro: str, code: str) -> None
     _send(
         to_email,
         subject,
-        html=(
-            f"<p>{escape(intro)} <strong>{escape(code)}</strong></p>"
-            f"<p>{escape(validity)}</p>"
-            f"<p>{escape(outro)}</p>"
-        ),
+        html=_code_email_html(heading, intro, code, validity, outro, settings.cors_allowed_origins[0]),
         text=f"{intro} {code}\n\n{validity}\n\n{outro}\n",
     )
 
 
 def send_otp_email(to_email: str, code: str) -> None:
-    _send_code_email(to_email, "Dein Anmeldecode für SKS Lotse", "Dein Anmeldecode lautet:", code)
+    _send_code_email(
+        to_email, "Dein Anmeldecode für SKS Lotse", "Dein Anmeldecode", "Dein Anmeldecode lautet:", code
+    )
 
 
 def send_email_change_otp_email(to_email: str, code: str) -> None:
@@ -45,9 +43,124 @@ def send_email_change_otp_email(to_email: str, code: str) -> None:
     _send_code_email(
         to_email,
         "Bestätige deine neue E-Mail-Adresse für SKS Lotse",
+        "Neue E-Mail-Adresse bestätigen",
         "Dein Bestätigungscode lautet:",
         code,
     )
+
+
+# Brand colours of the web app (frontend/src/index.css), inlined: mail clients ignore stylesheets.
+_BG, _INK, _INK_SOFT = "#e9f0f3", "#1e2a32", "#5b6670"
+_PRIMARY, _PRIMARY_DARK, _SUCCESS, _ACCENT = "#1f6f78", "#164f56", "#3d7a5c", "#b8763c"
+_SERIF = "Georgia, 'Times New Roman', serif"
+_SANS = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+# Same address as frontend/src/contact.ts.
+_CONTACT_EMAIL = "kontakt@sks-lotse.de"
+
+
+def _branded_layout(inner: str, base_url: str) -> str:
+    """The shared mail frame: brand header band, `inner` rows, footer with the legal links."""
+
+    def link(path: str, label: str) -> str:
+        style = "color:#ffffff;text-decoration:underline"
+        return f'<a href="{escape(base_url)}{path}" style="{style}">{label}</a>'
+
+    return (
+        f'<div style="margin:0;padding:24px 12px;background:{_BG};font-family:{_SANS}">'
+        f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        f'style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #b9c9d0">'
+        f'<tr><td style="background:{_PRIMARY_DARK};padding:18px 24px">'
+        f'<img src="{escape(base_url)}/icon-192.png" width="32" height="32" alt="" '
+        f'style="vertical-align:middle;border:0;margin-right:10px">'
+        f'<span style="font-family:{_SERIF};font-size:22px;color:#ffffff;'
+        f'vertical-align:middle">SKS Lotse</span>'
+        f"</td></tr>"
+        f"{inner}"
+        f'<tr><td style="background:{_PRIMARY_DARK};padding:16px 24px;font-size:12px;'
+        f'line-height:1.6;color:#d8e4e9">'
+        f"SKS Lotse · Lernen für die SKS-Theorieprüfung<br>"
+        f'<span style="color:#d8e4e9">{link("/terms", "AGB")} · {link("/privacy", "Datenschutz")} · '
+        f"{link('/imprint', 'Impressum')} · "
+        f'<a href="mailto:{_CONTACT_EMAIL}" style="color:#ffffff;text-decoration:underline">'
+        f"{_CONTACT_EMAIL}</a></span></td></tr></table></div>"
+    )
+
+
+def _heading(text: str) -> str:
+    return (
+        f'<h1 style="margin:0 0 8px;font-family:{_SERIF};font-size:24px;font-weight:normal;'
+        f'color:{_PRIMARY_DARK}">{escape(text)}</h1>'
+    )
+
+
+def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, base_url: str) -> str:
+    table_rows = "".join(
+        f'<tr><td style="padding:6px 0;color:{_INK_SOFT};font-size:13px;vertical-align:top;width:38%">'
+        f'{escape(label)}</td><td style="padding:6px 0;color:{_INK};font-size:14px">{escape(value)}</td></tr>'
+        for label, value in rows
+    )
+    inner = (
+        f'<tr><td style="padding:28px 24px 8px">{_heading("Danke für deinen Kauf!")}'
+        f'<p style="margin:0;font-size:15px;line-height:1.5;color:{_SUCCESS}"><strong>'
+        f"✓ Die Tokens wurden deinem Konto gutgeschrieben.</strong></p></td></tr>"
+        f'<tr><td style="padding:16px 24px"><table role="presentation" width="100%" cellpadding="0" '
+        f'cellspacing="0" style="background:{_BG};padding:8px 16px;border-left:4px solid {_PRIMARY}">'
+        f"{table_rows}</table></td></tr>"
+        f'<tr><td style="padding:0 24px 8px"><p style="margin:0;padding:10px 14px;font-size:13px;'
+        f"line-height:1.5;"
+        f'color:{_INK};border-left:4px solid {_ACCENT};background:#fbf5ee">{escape(waiver)}</p></td></tr>'
+        f'<tr><td align="center" style="padding:20px 24px 28px">'
+        f'<a href="{escape(base_url)}/learn" style="display:inline-block;padding:12px 26px;'
+        f"background:{_PRIMARY};"
+        f'color:#ffffff;text-decoration:none;font-size:14px;letter-spacing:.04em;text-transform:uppercase">'
+        f"Weiterlernen</a></td></tr>"
+    )
+    return _branded_layout(inner, base_url)
+
+
+def _code_email_html(heading: str, intro: str, code: str, validity: str, outro: str, base_url: str) -> str:
+    inner = (
+        f'<tr><td style="padding:28px 24px 8px">{_heading(heading)}'
+        f'<p style="margin:0;font-size:15px;line-height:1.5;color:{_INK}">{escape(intro)}</p></td></tr>'
+        f'<tr><td align="center" style="padding:16px 24px"><div style="background:{_BG};'
+        f"border-left:4px solid {_PRIMARY};padding:16px 12px;font-family:'SFMono-Regular',Menlo,Consolas,"
+        f'monospace;font-size:32px;letter-spacing:.3em;color:{_PRIMARY_DARK}">'
+        f"<strong>{escape(code)}</strong></div></td></tr>"
+        f'<tr><td style="padding:0 24px 24px"><p style="margin:0 0 8px;font-size:14px;color:{_INK}">'
+        f'{escape(validity)}</p><p style="margin:0;font-size:13px;color:{_INK_SOFT}">{escape(outro)}</p>'
+        f"</td></tr>"
+    )
+    return _branded_layout(inner, base_url)
+
+
+def send_purchase_confirmation_email(
+    to_email: str, *, package: str, tokens: int, amount: str, paid_at: str, reference: str, base_url: str
+) -> None:
+    # The confirmation on a durable medium that § 312f Abs. 3 / § 356 Abs. 5 Nr. 2 BGB require after
+    # the learner waived the right of withdrawal at checkout (ADR-0048): the contract content, the
+    # waiver, and where the AGB are. `base_url` is the canonical frontend origin.
+    subject = f"Deine Bestellung bei SKS Lotse: {package}"
+    rows = [
+        ("Bestellung", f"{package}: {tokens} Tokens für den Lotsen-Check"),
+        ("Preis", f"{amount} (Endpreis; gemäß § 19 UStG keine Umsatzsteuer ausgewiesen)"),
+        ("Zahlung am", paid_at),
+        ("Zahlungsreferenz", reference),
+        ("Art des Kaufs", "Einmalkauf, kein Abo, keine wiederkehrende Zahlung"),
+    ]
+    waiver = (
+        "Du hast ausdrücklich zugestimmt, dass wir die Tokens sofort nach der Zahlung bereitstellen, "
+        "und hast zur Kenntnis genommen, dass dein Widerrufsrecht damit erlischt (§ 356 Abs. 5 BGB)."
+    )
+    text = "\n\n".join(
+        [
+            "Danke für deinen Kauf bei SKS Lotse! Die Tokens wurden deinem Konto gutgeschrieben.",
+            "\n".join(f"{label}: {value}" for label, value in rows),
+            waiver,
+            f"Unsere AGB: {base_url}/terms",
+            f"SKS Lotse · {_CONTACT_EMAIL}",
+        ]
+    )
+    _send(to_email, subject, html=_purchase_confirmation_html(rows, waiver, base_url), text=text + "\n")
 
 
 def send_kpi_report_email(to_email: str, subject: str, body: str) -> None:
