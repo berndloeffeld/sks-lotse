@@ -13,24 +13,32 @@ type EmailChangeStep = 'view' | 'email' | 'code'
 
 const light = formStyles('light')
 
-// A settings section: the light, bordered card used across the app for
-// grouped content (see ExamResultView) — kept flat here since /profile is
-// the only place with several of these stacked on one page.
-function Card({ title, danger = false, children }: { title: string; danger?: boolean; children: ReactNode }) {
+// A settings section in the same voice as the Lernstand tab's columns
+// (ProgressOverview): a colored serif heading, no box around it. Sections
+// after the first get a hairline top divider instead of a border all round —
+// softer than a bordered card, still separates the stack.
+function Section({
+  title,
+  danger = false,
+  divider = true,
+  children,
+}: {
+  title: string
+  danger?: boolean
+  divider?: boolean
+  children: ReactNode
+}) {
   return (
-    <section
-      className={`flex flex-col gap-4 rounded-tile border bg-surface p-6 ${danger ? 'border-danger' : 'border-ink'}`}
-    >
-      <h2 className={`font-serif text-2xl ${danger ? 'text-danger' : 'text-ink'}`}>{title}</h2>
+    <section className={`flex flex-col gap-4 ${divider ? 'border-t border-border pt-10' : ''}`}>
+      <h2 className={`font-serif text-2xl ${danger ? 'text-danger' : 'text-primary'}`}>{title}</h2>
       {children}
     </section>
   )
 }
 
 // /profile's "Konto" tab: token balance, then the account settings
-// (personal data, email, delete) as light cards on the page background —
-// the Lernstand tab is the one with the colored bands, this one is plain
-// settings.
+// (personal data, email, delete). Styled after the Lernstand tab right next
+// to it — plain sections on the page background, not boxed-in cards.
 export function ProfileAccountPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
@@ -46,7 +54,7 @@ export function ProfileAccountPage() {
   const [personalInfoSuccess, setPersonalInfoSuccess] = useState<string | null>(null)
 
   // E-Mail-Adresse ändern — collapsed behind "Ändern" until opened, so the
-  // card's resting state is just the current address.
+  // section's resting state is just the current address.
   const [emailStep, setEmailStep] = useState<EmailChangeStep>('view')
   const [newEmail, setNewEmail] = useState('')
   const [emailCode, setEmailCode] = useState('')
@@ -162,7 +170,7 @@ export function ProfileAccountPage() {
           ) : null}
         </p>
 
-        <Card title="Persönliche Daten">
+        <Section title="Persönliche Daten" divider={false}>
           <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
             <label className={light.label} htmlFor="first-name">
               Vorname
@@ -208,9 +216,9 @@ export function ProfileAccountPage() {
               Speichern
             </button>
           </form>
-        </Card>
+        </Section>
 
-        <Card title="E-Mail-Adresse">
+        <Section title="E-Mail-Adresse">
           <p className="text-sm text-ink-soft">
             Aktuelle Adresse: <span className="font-mono text-ink">{user.email}</span>
           </p>
@@ -277,9 +285,9 @@ export function ProfileAccountPage() {
               </div>
             </form>
           )}
-        </Card>
+        </Section>
 
-        <Card title="Konto löschen" danger>
+        <Section title="Konto löschen" danger>
           <p className="text-sm leading-relaxed text-ink-soft">
             Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
           </p>
@@ -313,7 +321,7 @@ export function ProfileAccountPage() {
               </button>
             </form>
           )}
-        </Card>
+        </Section>
       </div>
     </Band>
   )
