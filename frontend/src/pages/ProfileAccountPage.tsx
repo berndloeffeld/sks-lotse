@@ -157,7 +157,7 @@ export function ProfileAccountPage() {
 
   return (
     <Band className="pt-10 pb-16">
-      <div className="mx-auto flex max-w-2xl flex-col gap-8">
+      <div className="flex max-w-2xl flex-col gap-8">
         <Section title="Tokens" divider={false}>
           <p className="text-sm text-ink-soft">
             Dein Token-Stand: <span className="font-mono text-ink">{user.token_balance}</span>
