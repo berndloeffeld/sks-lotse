@@ -46,7 +46,7 @@ describe('AccountMenu', () => {
     expect(menuButton()).toHaveAttribute('aria-controls', 'account-menu')
     expect(document.getElementById('account-menu')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/profile')
-    expect(screen.getByRole('link', { name: 'Tokens' })).toHaveAttribute('href', '/pricing')
+    expect(screen.getByRole('link', { name: 'Shop' })).toHaveAttribute('href', '/pricing')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
     expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(

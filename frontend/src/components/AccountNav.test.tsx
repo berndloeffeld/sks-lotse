@@ -27,7 +27,7 @@ describe('AccountNav', () => {
   it('keeps everything else in the menu, not in the bar', () => {
     renderAt('/profile')
 
-    for (const name of ['FAQ', 'Prüfungsablauf', 'Tokens', 'Profil', 'Feedback']) {
+    for (const name of ['FAQ', 'Prüfungsablauf', 'Shop', 'Profil', 'Feedback']) {
       expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
     }
     expect(screen.queryByRole('button', { name: 'Abmelden' })).not.toBeInTheDocument()

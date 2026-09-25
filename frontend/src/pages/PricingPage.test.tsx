@@ -53,7 +53,7 @@ describe('PricingPage', () => {
     stubFetch(PRICING)
     renderPage()
 
-    expect(screen.getByRole('heading', { name: 'Tokens', level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Preise', level: 1 })).toBeInTheDocument()
     expect(await screen.findByText('5,00 €')).toBeInTheDocument()
     expect(screen.getByText('20 Tokens')).toBeInTheDocument()
     expect(screen.getByText('200 Tokens')).toBeInTheDocument()
@@ -123,6 +123,15 @@ describe('PricingPage', () => {
     await user.click(screen.getByRole('button', { name: /Paket S für 2,99\s€ kaufen/ }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
+  })
+
+  it('calls the page Shop for a logged-in learner', async () => {
+    useAuthStore.setState({ user: BUYER, isAuthenticated: true })
+    stubFetch(PRICING)
+    renderPage()
+
+    expect(screen.getByRole('heading', { name: 'Shop', level: 1 })).toBeInTheDocument()
+    await screen.findByText('5,00 €')
   })
 
   it('marks the package that was just bought', async () => {

@@ -111,7 +111,7 @@ export function AccountMenu() {
             </li>
             <li>
               <Link to="/pricing" className={ITEM} onClick={close}>
-                Tokens
+                Shop
               </Link>
             </li>
             <li>

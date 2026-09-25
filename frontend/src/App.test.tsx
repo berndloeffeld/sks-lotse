@@ -70,7 +70,7 @@ describe('App', () => {
 
   it.each([
     ['/ablauf', 'So läuft die SKS-Prüfung ab'],
-    ['/preise', 'Tokens'],
+    ['/preise', 'Preise'],
   ])('sends the retired German path %s to its English one', async (path, heading) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
 

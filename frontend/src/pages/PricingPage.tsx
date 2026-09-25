@@ -190,6 +190,7 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
 export function PricingPage() {
   const { data, isLoading, failed } = useApiQuery('pricing-page', () => apiClient.get<PublicPricing>('/pricing'))
   const user = useAuthStore((s) => s.user)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const [searchParams] = useSearchParams()
   const canBuy = user?.can_buy_tokens ?? false
   // Back from a paid checkout: which package was bought (`&product=`, set by the backend).
@@ -200,7 +201,7 @@ export function PricingPage() {
 
   return (
     <PageLayout
-      title="Tokens"
+      title={isAuthenticated ? 'Shop' : 'Preise'}
       nav="public"
       subtitle={
         tokensSoon ? (
