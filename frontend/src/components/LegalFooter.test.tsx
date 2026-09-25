@@ -34,7 +34,7 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveClass('border-transparent')
   })
 
-  it('leaves the content links (Prüfungsablauf, Preise, FAQ) to the header', () => {
+  it('leaves the content links (Prüfungsablauf, Tokens, FAQ) to the header', () => {
     render(
       <MemoryRouter>
         <LegalFooter />
@@ -43,7 +43,7 @@ describe('LegalFooter', () => {
 
     expect(screen.queryByRole('link', { name: 'FAQ' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Prüfungsablauf' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Preise' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Tokens' })).not.toBeInTheDocument()
   })
 
   it('offers a contact mail link', () => {

@@ -24,7 +24,7 @@ describe('Header', () => {
     )
 
     expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/pricing')
+    expect(screen.getByRole('link', { name: 'Tokens' })).toHaveAttribute('href', '/pricing')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     // Same order as in the logged-in Menü.
     expect(
@@ -32,7 +32,7 @@ describe('Header', () => {
         .getAllByRole('link')
         .slice(1, 4)
         .map((link) => link.textContent),
-    ).toEqual(['Prüfungsablauf', 'Preise', 'FAQ'])
+    ).toEqual(['Prüfungsablauf', 'Tokens', 'FAQ'])
   })
 
   it('marks the content page the visitor is on', () => {
@@ -42,8 +42,8 @@ describe('Header', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('link', { name: 'Preise' })).toHaveClass('border-surface')
+    expect(screen.getByRole('link', { name: 'Tokens' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Tokens' })).toHaveClass('border-surface')
     expect(screen.getByRole('link', { name: 'FAQ' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveClass('border-transparent')
   })

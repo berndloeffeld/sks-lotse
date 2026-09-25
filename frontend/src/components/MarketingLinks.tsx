@@ -16,7 +16,7 @@ export function MarketingLinks() {
         Prüfungsablauf
       </NavLink>
       <NavLink to="/pricing" className={navLinkClass}>
-        Preise
+        Tokens
       </NavLink>
       <NavLink to="/faq" className={navLinkClass}>
         FAQ

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
@@ -147,13 +147,6 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const loggedIn = user !== null
-  const noticeRef = useRef<HTMLParagraphElement>(null)
-
-  // The page can come back scrolled down: bring the message into view so it isn't missed.
-  useEffect(() => {
-    if (status === 'success' || status === 'cancelled') noticeRef.current?.scrollIntoView?.({ block: 'center' })
-  }, [status])
-
   useEffect(() => {
     if (status !== 'success' || !loggedIn) return
     const refresh = () => {
@@ -169,11 +162,7 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
 
   if (status === 'success') {
     return (
-      <p
-        ref={noticeRef}
-        role="status"
-        className="rounded-tile border-2 border-success bg-success px-4 py-3 text-lg font-bold text-white"
-      >
+      <p role="status" className="rounded-tile border-l-4 border-success bg-surface px-3 py-2 text-ink">
         Danke für deinen Kauf! Die Tokens werden deinem Konto gutgeschrieben
         {user ? ` – aktueller Stand: ${user.token_balance} Tokens` : ''}.
       </p>
@@ -181,11 +170,7 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
   }
   if (status === 'cancelled') {
     return (
-      <p
-        ref={noticeRef}
-        role="status"
-        className="rounded-tile border-2 border-border bg-surface-alt px-4 py-3 text-lg font-bold text-ink"
-      >
+      <p role="status" className="rounded-tile border-l-4 border-border bg-surface px-3 py-2 text-ink-soft">
         Zahlung abgebrochen – es wurde nichts berechnet.
       </p>
     )
@@ -208,7 +193,7 @@ export function PricingPage() {
 
   return (
     <PageLayout
-      title="Preise"
+      title="Tokens"
       nav="public"
       subtitle={
         tokensSoon ? (

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 import { AccountMenu } from './AccountMenu'
+import { TokenCounter } from './TokenCounter'
 import { HEADER_LINK, HEADER_LINK_ACTIVE } from './headerLink'
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -18,6 +19,7 @@ export function AccountNav() {
       <NavLink to="/exam" className={navLinkClass}>
         Prüfung
       </NavLink>
+      <TokenCounter />
       <AccountMenu />
     </nav>
   )
