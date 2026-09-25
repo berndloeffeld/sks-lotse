@@ -1253,6 +1253,98 @@
           }
         },
         {
+          "name": "Refresh summary - counts of possibly faded, soon fading and fresh questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('three non-negative counts (a fresh account has nothing gelernt)', function () {",
+                  "    var r = pm.response.json();",
+                  "    pm.expect(r).to.have.all.keys('lapsed', 'expiring', 'fresh');",
+                  "    ['lapsed', 'expiring', 'fresh'].forEach(function (k) { pm.expect(r[k]).to.be.a('number').and.at.least(0); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/refresh/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "refresh",
+                "summary"
+              ]
+            }
+          },
+          "description": "The counts behind the Auffrischen tab: lapsed (due date passed), expiring (due within two days), fresh (still gelernt beyond that).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Refresh session - lapsed or soon lapsing questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('an empty or short list of questions (a fresh account has nothing lapsed)', function () {",
+                  "    var questions = pm.response.json();",
+                  "    pm.expect(questions).to.be.an('array');",
+                  "    pm.expect(questions.length).to.be.at.most(20);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/progress/refresh/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "progress",
+                "refresh",
+                "questions"
+              ]
+            }
+          },
+          "description": "The Auffrischen session: at most 20 questions that were gelernt and have lapsed or lapse within two days. A fresh account has none.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Focus topic - unmark",
           "event": [
             {

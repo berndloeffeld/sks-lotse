@@ -1,7 +1,8 @@
+import random
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import case, delete, func, or_, select
+from sqlalchemy import ColumnElement, case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -9,17 +10,26 @@ from app.core.database import get_db
 from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.progress import (
+    REFRESH_SESSION_SIZE,
     is_learned,
+    lapsed_clause,
     learned_clause,
     learning_clause,
     progress_fraction,
+    refresh_clause,
+    refresh_quota,
 )
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress
 from app.models.topic import Topic
 from app.models.user import User
-from app.schemas.progress import QuestionGradeCreate, QuestionProgressRead, TopicProgressRead
+from app.schemas.progress import (
+    QuestionGradeCreate,
+    QuestionProgressRead,
+    RefreshSummaryRead,
+    TopicProgressRead,
+)
 from app.schemas.question import QuestionRead
 from app.services.catalog import catalog_by_id
 from app.services.focus import is_topic_fully_learned
@@ -157,6 +167,66 @@ def focus_session_questions(
 
     catalog = catalog_by_id(request, db)
     return [catalog[question_id] for question_id in db.execute(stmt).scalars()]
+
+
+@router.get("/refresh/summary", response_model=RefreshSummaryRead)
+def refresh_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RefreshSummaryRead:
+    """How many questions could have faded, could fade soon, or are still fresh (ADR-0049)."""
+    now = datetime.now(UTC)
+    stmt = (
+        select(
+            func.count(case((lapsed_clause(now), 1))),
+            func.count(case((refresh_clause(now) & ~lapsed_clause(now), 1))),
+            func.count(case((learned_clause(now) & ~refresh_clause(now), 1))),
+        )
+        .select_from(QuestionProgress)
+        .join(Question, Question.id == QuestionProgress.question_id)
+        .where(QuestionProgress.user_id == current_user.id)
+    )
+    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
+        stmt = stmt.where(Question.subject.in_(allowed))
+
+    lapsed, expiring, fresh = db.execute(stmt).one()
+    return RefreshSummaryRead(lapsed=lapsed, expiring=expiring, fresh=fresh)
+
+
+def _random_refresh_ids(db: Session, user: User, clause: ColumnElement[bool]) -> list[int]:
+    """Up to a session's worth of the learner's question ids matching ``clause``, in random order."""
+    stmt = (
+        select(Question.id)
+        .join(
+            QuestionProgress,
+            (QuestionProgress.question_id == Question.id) & (QuestionProgress.user_id == user.id),
+        )
+        .where(clause)
+        .order_by(func.random())
+        .limit(REFRESH_SESSION_SIZE)
+    )
+    if (allowed := subjects_for_variant(user.exam_variant)) is not None:
+        stmt = stmt.where(Question.subject.in_(allowed))
+    return list(db.execute(stmt).scalars())
+
+
+@router.get("/refresh/questions", response_model=list[QuestionRead])
+def refresh_session_questions(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[QuestionRead]:
+    """The Auffrischen session (ADR-0049): a random sample of questions that were gelernt, at
+    least 70 % of them already lapsed, the rest due within the next two days."""
+    now = datetime.now(UTC)
+    lapsed = _random_refresh_ids(db, current_user, lapsed_clause(now))
+    expiring = _random_refresh_ids(db, current_user, refresh_clause(now) & ~lapsed_clause(now))
+    n_lapsed, n_expiring = refresh_quota(len(lapsed), len(expiring))
+    picked = lapsed[:n_lapsed] + expiring[:n_expiring]
+    random.shuffle(picked)
+
+    catalog = catalog_by_id(request, db)
+    return [catalog[question_id] for question_id in picked]
 
 
 def _question_progress_read(row: QuestionProgress, now: datetime) -> QuestionProgressRead:
