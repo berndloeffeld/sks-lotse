@@ -54,11 +54,11 @@ const SCREENSHOTS = [
   {
     src: '/screenshots/lernstand.png',
     width: 1456,
-    height: 1302,
-    title: '4. Lernstand und Lernmodi',
-    text: 'Gesamtfortschritt und Verteilung nach Fachgebieten. Lerne nach Thema, im Fokus deiner Stern-Themen oder frische Fragen auf, die bald verblassen könnten.',
-    alt: 'Screenshot: Übersicht Lernen mit Gesamtfortschritt in Prozent, einem Kreisdiagramm der Fachgebiete, der Auswahl der Prüfungsvariante und den drei Lernmodi Nach Thema, Fokus und Auffrischen. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
-    wide: true,
+    height: 570,
+    title: '4. Drei Lernmodi',
+    text: 'Lerne nach Thema, im Fokus deiner Stern-Themen oder frische Fragen auf, die bald verblassen könnten – mit Überblick, wie viele noch frisch sind.',
+    alt: 'Screenshot: Die drei Reiter Nach Thema, Fokus und Auffrischen. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
+    wide: false,
   },
 ]
 
