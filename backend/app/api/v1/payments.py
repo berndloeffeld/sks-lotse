@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.core.checkout import checkout_enabled_for
@@ -45,7 +45,10 @@ async def _raw_body(request: Request) -> bytes:
 # opened while the flag was on must still be credited after it's switched off.
 @router.post("/webhook", response_model=WebhookRead)
 def stripe_webhook(
-    request: Request, payload: bytes = Depends(_raw_body), db: Session = Depends(get_db)
+    request: Request,
+    background_tasks: BackgroundTasks,
+    payload: bytes = Depends(_raw_body),
+    db: Session = Depends(get_db),
 ) -> WebhookRead:
     """Stripe's event callback: credits the tokens of a paid Checkout Session, exactly once."""
     if not settings.stripe_webhook_secret:
@@ -57,4 +60,10 @@ def stripe_webhook(
         raise HTTPException(status_code=400, detail="Invalid webhook signature") from exc
     if event.type not in payments.FULFILMENT_EVENTS:
         return WebhookRead(credited=False)
-    return WebhookRead(credited=payments.fulfil_checkout_session(db, event.data.object.to_dict()))
+    # The mail goes out after the response, so a slow Resend call never delays Stripe's delivery.
+    credited = payments.fulfil_checkout_session(
+        db,
+        event.data.object.to_dict(),
+        on_credited=lambda *args: background_tasks.add_task(payments.send_purchase_confirmation, *args),
+    )
+    return WebhookRead(credited=credited)
