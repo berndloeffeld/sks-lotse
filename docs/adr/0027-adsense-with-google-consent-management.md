@@ -1,6 +1,6 @@
 # 0027. Google AdSense behind Google's own consent management
 
-Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries the script" is amended by the addendum of 2026-09-23 (only where ads are shown, never on `/admin`); the addendum of 2026-09-24 renames the footer button to "Cookies" and adds a hint when the dialog can't load.
+Status: Accepted (partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md)); "every page carries the script" is amended by the addendum of 2026-09-23 (only where ads are shown, never on `/admin`); the addendum of 2026-09-24 renames the footer button to "Cookies" and adds a hint when the dialog can't load; the addendum of 2026-09-25 extends the hint to Google's CMP being inactive.
 
 ## Context
 
