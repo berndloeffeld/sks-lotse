@@ -711,6 +711,14 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * WebhookRead
+         * @description Whether this delivery credited tokens (False: ignored event, unpaid session or a redelivery).
+         */
+        WebhookRead: {
+            /** Credited */
+            credited: boolean;
+        };
     };
     responses: never;
     parameters: never;

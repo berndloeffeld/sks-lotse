@@ -17,3 +17,9 @@ class CheckoutRead(BaseModel):
     """The Stripe-hosted payment page to send the browser to."""
 
     url: str
+
+
+class WebhookRead(BaseModel):
+    """Whether this delivery credited tokens (False: ignored event, unpaid session or a redelivery)."""
+
+    credited: bool

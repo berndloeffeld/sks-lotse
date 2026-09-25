@@ -7142,7 +7142,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"key_0\": \"<boolean>\"\n}",
+                          "body": "{\n  \"credited\": \"<boolean>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }

@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
 from app.models.user import User
-from app.schemas.payments import CheckoutRead, CheckoutRequest
+from app.schemas.payments import CheckoutRead, CheckoutRequest, WebhookRead
 from app.services import payments
 
 logger = logging.getLogger(__name__)
@@ -43,10 +43,10 @@ async def _raw_body(request: Request) -> bytes:
 # Deliberately no auth dependency: Stripe calls this, and the Stripe-Signature header (checked
 # against STRIPE_WEBHOOK_SECRET) is what authenticates it. Not gated on STRIPE_CHECKOUT — a session
 # opened while the flag was on must still be credited after it's switched off.
-@router.post("/webhook", status_code=200)
+@router.post("/webhook", response_model=WebhookRead)
 def stripe_webhook(
     request: Request, payload: bytes = Depends(_raw_body), db: Session = Depends(get_db)
-) -> dict[str, bool]:
+) -> WebhookRead:
     """Stripe's event callback: credits the tokens of a paid Checkout Session, exactly once."""
     if not settings.stripe_webhook_secret:
         raise HTTPException(status_code=503, detail="Webhook is not configured")
@@ -56,5 +56,5 @@ def stripe_webhook(
         logger.warning("stripe webhook rejected: %s", exc)
         raise HTTPException(status_code=400, detail="Invalid webhook signature") from exc
     if event.type not in payments.FULFILMENT_EVENTS:
-        return {"credited": False}
-    return {"credited": payments.fulfil_checkout_session(db, event.data.object.to_dict())}
+        return WebhookRead(credited=False)
+    return WebhookRead(credited=payments.fulfil_checkout_session(db, event.data.object.to_dict()))
