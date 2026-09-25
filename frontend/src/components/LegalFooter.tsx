@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
 
 const FOOTER_LINK = 'border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface'
+
+// The page the visitor is on is underlined, like the header's links (HEADER_LINK_ACTIVE).
+function footerLinkClass({ isActive }: { isActive: boolean }) {
+  return isActive ? 'border-b-2 border-surface pb-1 text-surface' : FOOTER_LINK
+}
 
 // Impressum must be reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
@@ -23,15 +28,15 @@ export function LegalFooter() {
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
-          <Link to="/imprint" className={FOOTER_LINK}>
+          <NavLink to="/imprint" className={footerLinkClass}>
             Impressum
-          </Link>
-          <Link to="/privacy" className={FOOTER_LINK}>
+          </NavLink>
+          <NavLink to="/privacy" className={footerLinkClass}>
             Datenschutz
-          </Link>
-          <Link to="/terms" className={FOOTER_LINK}>
+          </NavLink>
+          <NavLink to="/terms" className={footerLinkClass}>
             AGB
-          </Link>
+          </NavLink>
           <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>
             Kontakt
           </a>

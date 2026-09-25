@@ -21,6 +21,19 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/terms')
   })
 
+  it('marks the legal page the visitor is on', () => {
+    render(
+      <MemoryRouter initialEntries={['/privacy']}>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveClass('border-surface')
+    expect(screen.getByRole('link', { name: 'Impressum' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Impressum' })).toHaveClass('border-transparent')
+  })
+
   it('leaves the content links (Prüfungsablauf, Preise, FAQ) to the header', () => {
     render(
       <MemoryRouter>
