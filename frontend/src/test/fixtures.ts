@@ -54,6 +54,7 @@ export function makeUser(overrides: Partial<User> = {}): User {
     last_name: null,
     gender: null,
     is_admin: false,
+    can_buy_tokens: false,
     token_balance: 0,
     ads_removed: false,
     agb_accepted_version: null,

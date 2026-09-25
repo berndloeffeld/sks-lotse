@@ -111,7 +111,7 @@ export function AccountMenu() {
             </li>
             <li>
               <Link to="/pricing" className={ITEM} onClick={close}>
-                Preise
+                Shop
               </Link>
             </li>
             <li>

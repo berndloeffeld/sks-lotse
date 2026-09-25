@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent, type Ref } from 'react'
+import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
@@ -57,7 +58,8 @@ function Ribbon() {
 // "Antwort vom Lotsen bewerten lassen" (ADR-0031, ADR-0043, ADR-0044): the fourth choice under
 // the grade radios. A stateless LLM check of the written answer that only *suggests* a grade, 1
 // token each — the token balance is the sole spending control. The learner who is sure just
-// grades. Accounts with no tokens see it dimmed with "bald verfügbar" (prices live on /pricing).
+// grades. Accounts with no tokens see it dimmed — with a link to buy more where the checkout is
+// open to them (ADR-0048), with "bald verfügbar" otherwise (prices live on /pricing).
 // Keyed by question in the parent.
 export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
   const user = useAuthStore((s) => s.user)
@@ -66,6 +68,8 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
   const [result, setResult] = useState<AiGrade | null>(null)
 
   const hasTokens = (user?.token_balance ?? 0) > 0
+  const canBuy = user?.can_buy_tokens ?? false
+  const outOfTokens = canBuy ? 'Keine Tokens mehr' : 'bald verfügbar'
   const hasAnswer = answer.trim().length > 0
   const tooLong = answer.length > AI_CHECK_MAX_ANSWER_CHARS
 
@@ -110,7 +114,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
           ref={buttonRef}
           type="button"
           disabled={isDisabled}
-          title={hasTokens ? SEND_NOTICE : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
+          title={hasTokens ? SEND_NOTICE : canBuy ? 'Keine Tokens mehr' : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
           aria-describedby={`ai-check-notice-${questionId}`}
           onClick={check}
           onKeyDown={onButtonKeyDown}
@@ -119,11 +123,16 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
           <CompassIcon className="size-6 shrink-0 text-accent" />
           <span className="flex flex-col">
             <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
-            <span className="text-xs text-ink-soft">{hasTokens ? hint : 'bald verfügbar'}</span>
+            <span className="text-xs text-ink-soft">{hasTokens ? hint : outOfTokens}</span>
           </span>
           <Ribbon />
         </button>
       )}
+      {!hasTokens && canBuy && !result ? (
+        <Link to="/pricing" className="self-start text-sm text-primary underline">
+          Tokens kaufen
+        </Link>
+      ) : null}
       {error ? (
         <p role="alert" className={styles.error}>
           {error}

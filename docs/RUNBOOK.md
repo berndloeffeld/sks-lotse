@@ -75,7 +75,19 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
 | `VITE_UMAMI_WEBSITE_ID`, `VITE_ADSENSE_CLIENT_ID` | frontend | Build-time values: changing them triggers a rebuild of the static site. |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | backend | Secret key (`sk_live_…`/`sk_test_…`) and the webhook endpoint's signing secret (`whsec_…`). Rotate the key in the Stripe dashboard (roll key), set it, revoke the old one. A new signing secret: roll it on the endpoint, set it at once — deliveries fail with 400 until then and Stripe retries. |
+| `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` | backend | Not secret, dashboard-only. The flag is `off` (default) / `admins` / `on`; the product ids (`prod_…`) differ between Stripe test and live mode. See [Stripe checkout](#stripe-checkout). |
 | `MAINTENANCE_MODE` | backend | Not a secret, but dashboard-only like `ADMIN_EMAILS` above. `true`/`false`, unset = `false`. See [Maintenance mode](#maintenance-mode). |
+
+## Stripe checkout
+
+Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md), parameters in [docs/stripe/README.md](stripe/README.md)).
+
+- **Webhook endpoint (once per Stripe mode)**: Stripe dashboard → Developers → Webhooks → add `https://<backend-domain>/api/v1/payments/webhook`, events `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET`. Failed deliveries show there and are retried by Stripe; "Resend" re-delivers safely (idempotent).
+- **Flag `STRIPE_CHECKOUT`**: `off` = nobody can buy; `admins` = only `ADMIN_EMAILS`; `on` = every learner. Changing it redeploys the backend. Without the secret key or a package's product id, that package can't be bought whatever the flag says. The webhook keeps crediting with the flag `off`.
+- **Before `on`** (its own PR): privacy policy (Stripe as recipient and third country, section "Käufe"), AGB (purchase via Stripe instead of manual credit), raise `CURRENT_AGB_VERSION` ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)). `admins` is fine without it, only admins can buy.
+- **Refund**: Stripe dashboard → the payment → Refund. Tokens are not taken back automatically: on `/admin` open the account and correct the token balance. Paid but the account was deleted in between: the log says `user … no longer exists, refund manually`; refund in Stripe.
+- **Paid but no tokens**: check the endpoint's delivery log in Stripe; a 400 means a wrong `STRIPE_WEBHOOK_SECRET`, 503 an empty one. Fix it and resend the event.
 
 ## Data-subject requests (DSGVO)
 

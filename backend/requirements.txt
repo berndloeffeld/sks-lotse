@@ -1055,7 +1055,9 @@ pyyaml==6.0.3 \
 requests==2.34.2 \
     --hash=sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0 \
     --hash=sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed
-    # via resend
+    # via
+    #   resend
+    #   stripe
 resend==2.46.0 \
     --hash=sha256:cb43ce303c6828c7a35912d9bc6b305e2b5870634b8256cf04af8ab76158633a \
     --hash=sha256:db0ca26d9f46921082ccf28cf6a894b26a5287b003380cfb5039a7bc66d3b797
@@ -1134,6 +1136,10 @@ starlette==1.6.0 \
     --hash=sha256:a86dd39d14bb45f85a3d18525215a9ef0cfd1f192ac793220e72598c90335f0c \
     --hash=sha256:d4e3ac5e546444960c710297a3c9fc3f7ebae1b7e963f3d36173b49da535be9b
     # via fastapi
+stripe==15.6.1 \
+    --hash=sha256:9f3986aa960419041aba9c76191746bdf2c342c95892acfbf6edb500ab006d31 \
+    --hash=sha256:b33e1ea76462d7289e5fe755a1132b82099151bfb31e961021655471e6d216bf
+    # via -r requirements.in
 truststore==0.10.4 \
     --hash=sha256:9d91bd436463ad5e4ee4aba766628dd6cd7010cf3e2461756b3303710eebc301 \
     --hash=sha256:adaeaecf1cbb5f4de3b1959b42d41f6fab57b2b1666adb59e89cb0b53361d981
@@ -1154,6 +1160,7 @@ typing-extensions==4.16.0 \
     #   resend
     #   sqlalchemy
     #   starlette
+    #   stripe
     #   typing-inspection
 typing-inspection==0.4.4 \
     --hash=sha256:547274fa6b0a561ccf549cc9524b999a578e737d015d8709d021f9d0d13bea47 \

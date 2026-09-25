@@ -84,6 +84,24 @@ services:
       # API to set this same var. Unset/false = normal operation.
       - key: MAINTENANCE_MODE
         sync: false
+      # Token-package checkout (ADR-0048). STRIPE_CHECKOUT is the feature flag
+      # (off | admins | on; unset = off), set in the dashboard like
+      # MAINTENANCE_MODE; a flip takes a redeploy. The keys and product ids are
+      # the live-mode ones (docs/RUNBOOK.md → Stripe).
+      - key: STRIPE_CHECKOUT
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRODUCT_TOKENS_S
+        sync: false
+      - key: STRIPE_PRODUCT_TOKENS_M
+        sync: false
+      - key: STRIPE_PRODUCT_TOKENS_L
+        sync: false
+      - key: STRIPE_PRODUCT_TOKENS_XL
+        sync: false
 
   # Daily KPI mail to ADMIN_EMAILS (ADR-0032). Same code and database as the
   # backend, no HTTP. The sync: false values are entered once in the Render

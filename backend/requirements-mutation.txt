@@ -1788,6 +1788,7 @@ requests==2.34.2 \
     #   -c requirements-dev.txt
     #   -c requirements.txt
     #   resend
+    #   stripe
 resend==2.46.0 \
     --hash=sha256:cb43ce303c6828c7a35912d9bc6b305e2b5870634b8256cf04af8ab76158633a \
     --hash=sha256:db0ca26d9f46921082ccf28cf6a894b26a5287b003380cfb5039a7bc66d3b797
@@ -2005,6 +2006,13 @@ starlette==1.6.0 \
     #   -c requirements-dev.txt
     #   -c requirements.txt
     #   fastapi
+stripe==15.6.1 \
+    --hash=sha256:9f3986aa960419041aba9c76191746bdf2c342c95892acfbf6edb500ab006d31 \
+    --hash=sha256:b33e1ea76462d7289e5fe755a1132b82099151bfb31e961021655471e6d216bf
+    # via
+    #   -c requirements-dev.txt
+    #   -c requirements.txt
+    #   -r requirements.in
 textual==8.2.8 \
     --hash=sha256:267375fd402dc8d981457212efa71f0e3365fd17bba144ba9bb3ed7563cb374a \
     --hash=sha256:3f106a9fbc73e39dd266c9712432087de78a6d644084c7c241d6a25c3169115b
@@ -2034,6 +2042,7 @@ typing-extensions==4.16.0 \
     #   resend
     #   sqlalchemy
     #   starlette
+    #   stripe
     #   textual
     #   typing-inspection
 typing-inspection==0.4.4 \

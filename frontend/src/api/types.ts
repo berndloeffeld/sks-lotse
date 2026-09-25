@@ -25,6 +25,7 @@ export type Topic = Schemas['TopicRead']
 export type QuestionProgress = Schemas['QuestionProgressRead']
 export type PublicPricing = Schemas['PublicPricing']
 export type PublicTokenPackage = Schemas['PublicTokenPackage']
+export type CheckoutRead = Schemas['CheckoutRead']
 
 export type ExamSummary = Narrow<Schemas['ExamSummary'], { status: ExamStatus; result: ExamResult | null }>
 export type ExamQuestion = Narrow<Schemas['ExamQuestionRead'], { outcome: GradingOutcome | null }>
