@@ -1,21 +1,26 @@
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-import { HEADER_LINK } from './headerLink'
+import { HEADER_LINK, HEADER_LINK_ACTIVE } from './headerLink'
+
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return isActive ? HEADER_LINK_ACTIVE : HEADER_LINK
+}
 
 // Content links in the logged-out header (Header's default nav); logged in, the same pages sit
-// in the "Menü" (AccountMenu). Keeps the footer (LegalFooter) down to the legal links.
+// in the "Menü" (AccountMenu), with the same labels in the same order. Keeps the footer
+// (LegalFooter) down to the legal links.
 export function MarketingLinks() {
   return (
     <>
-      <Link to="/faq" className={HEADER_LINK}>
-        FAQ
-      </Link>
-      <Link to="/exam-process" className={HEADER_LINK}>
-        Ablauf
-      </Link>
-      <Link to="/pricing" className={HEADER_LINK}>
+      <NavLink to="/exam-process" className={navLinkClass}>
+        Prüfungsablauf
+      </NavLink>
+      <NavLink to="/pricing" className={navLinkClass}>
         Preise
-      </Link>
+      </NavLink>
+      <NavLink to="/faq" className={navLinkClass}>
+        FAQ
+      </NavLink>
     </>
   )
 }

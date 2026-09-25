@@ -21,7 +21,7 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'AGB' })).toHaveAttribute('href', '/terms')
   })
 
-  it('leaves the content links (FAQ, Ablauf, Preise) to the header', () => {
+  it('leaves the content links (Prüfungsablauf, Preise, FAQ) to the header', () => {
     render(
       <MemoryRouter>
         <LegalFooter />
@@ -29,7 +29,7 @@ describe('LegalFooter', () => {
     )
 
     expect(screen.queryByRole('link', { name: 'FAQ' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Ablauf' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Prüfungsablauf' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Preise' })).not.toBeInTheDocument()
   })
 
