@@ -106,7 +106,9 @@ export function AgbPage() {
           ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das
           Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf durch ein gesondertes
           Bestätigungsfeld vor der Zahlung eingeholt; ohne sie ist der Kauf nicht möglich. Geschenkte Tokens
-          (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen.
+          (Anmeldebonus, Ziffer 4) sind unentgeltlich gewährt und daher von einer Rückerstattung ausgenommen. Gekaufte
+          Tokens verfallen nicht durch bloßen Zeitablauf; mit der Löschung des Kontos, auch nach dieser Ziffer,
+          erlöschen jedoch die noch nicht verbrauchten Tokens, ohne dass dafür ein Erstattungsanspruch entsteht.
         </p>
       </ProseSection>
 
