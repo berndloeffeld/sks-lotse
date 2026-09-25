@@ -54,15 +54,14 @@ describe('PricingPage', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { name: 'Preise', level: 1 })).toBeInTheDocument()
-    expect(await screen.findByText('5,00 €')).toBeInTheDocument()
+    expect(await screen.findByText('16,99 €')).toBeInTheDocument()
     expect(screen.getByText('20 Tokens')).toBeInTheDocument()
     expect(screen.getByText('200 Tokens')).toBeInTheDocument()
     expect(screen.getByText('16,99 €')).toBeInTheDocument()
     expect(screen.getByText(/6 Tokens geschenkt/)).toBeInTheDocument()
     expect(screen.getByText(/noch nicht möglich/)).toBeInTheDocument()
-    // Subtitle banner, once for Werbefrei, once per package (4) — impossible to skim past as a
-    // live price list.
-    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(6)
+    // Subtitle banner and once per package (4) — impossible to skim past as a live price list.
+    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(5)
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
@@ -71,8 +70,7 @@ describe('PricingPage', () => {
     renderPage()
 
     expect(await screen.findByRole('link', { name: 'Melde dich an' })).toHaveAttribute('href', '/login')
-    // Only Werbefrei is still "coming soon".
-    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(1)
+    expect(screen.queryByText('Bald verfügbar')).not.toBeInTheDocument()
     expect(screen.queryByText(/noch nicht möglich/)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
@@ -86,7 +84,7 @@ describe('PricingPage', () => {
     renderPage()
 
     expect(await screen.findByText(/Dein Stand: 3 Tokens/)).toBeInTheDocument()
-    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(1)
+    expect(screen.queryByText('Bald verfügbar')).not.toBeInTheDocument()
     const buy = screen.getByRole('button', { name: 'Paket kaufen' })
 
     await user.click(buy)
@@ -131,7 +129,7 @@ describe('PricingPage', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { name: 'Shop', level: 1 })).toBeInTheDocument()
-    await screen.findByText('5,00 €')
+    await screen.findByText('16,99 €')
   })
 
   it('marks the package that was just bought', async () => {
@@ -177,7 +175,7 @@ describe('PricingPage', () => {
     renderPage('/pricing?checkout=success')
 
     expect(screen.getByRole('status')).toHaveTextContent('Die Tokens werden deinem Konto gutgeschrieben.')
-    await screen.findByText('5,00 €')
+    await screen.findByText('16,99 €')
     expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/auth/me'))).toHaveLength(0)
   })
 
@@ -186,7 +184,7 @@ describe('PricingPage', () => {
     stubFetch(PRICING, jsonResponse({}, 500))
     renderPage('/pricing?checkout=success')
 
-    await screen.findByText('5,00 €')
+    await screen.findByText('16,99 €')
     expect(screen.getByRole('status')).toHaveTextContent('aktueller Stand: 3 Tokens')
   })
 
@@ -195,7 +193,7 @@ describe('PricingPage', () => {
     renderPage('/pricing?checkout=cancelled')
 
     expect(screen.getByRole('status')).toHaveTextContent('Zahlung abgebrochen – es wurde nichts berechnet.')
-    await screen.findByText('5,00 €')
+    await screen.findByText('16,99 €')
   })
 
   it('shows an error when the prices cannot be loaded', async () => {

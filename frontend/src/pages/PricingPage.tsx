@@ -183,9 +183,9 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
   return null
 }
 
-// A standalone page for the token/Werbefrei prices (ADR-0043), linked from the header nav. The
+// A standalone page for the token prices (ADR-0043; Werbefrei isn't offered here yet), linked from the header nav. The
 // token packages can be bought here once the STRIPE_CHECKOUT flag lets this account
-// (`user.can_buy_tokens`, ADR-0048); until then — and for Werbefrei, which isn't sold yet — the
+// (`user.can_buy_tokens`, ADR-0048); until then the
 // "bald verfügbar" framing repeats at every level so it can't be skimmed past as a live offer.
 export function PricingPage() {
   const { data, isLoading, failed } = useApiQuery('pricing-page', () => apiClient.get<PublicPricing>('/pricing'))
@@ -218,8 +218,8 @@ export function PricingPage() {
           Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Musterantwort, Lernfortschritt) bleibt dauerhaft
           kostenlos.{' '}
           {tokensSoon
-            ? 'Diese Seite zeigt, was für „Werbefrei" und den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das Zahlungssystem kommt noch.'
-            : 'Tokens für den Lotsen-Check kannst du hier kaufen; „Werbefrei" folgt noch.'}
+            ? 'Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das Zahlungssystem kommt noch.'
+            : 'Tokens für den Lotsen-Check kannst du hier kaufen.'}
         </p>
       </section>
 
@@ -228,13 +228,6 @@ export function PricingPage() {
 
       {data ? (
         <>
-          <section className="flex flex-col gap-2 rounded-tile border border-dashed border-accent bg-surface p-4">
-            <SoonKicker />
-            <h2 className="font-serif text-xl text-primary">Werbefrei</h2>
-            <p className="text-ink-soft">Einmalige Zahlung, entfernt die Werbeeinblendungen dauerhaft.</p>
-            <p className="font-serif text-2xl text-primary">{formatEurCents(data.ads_removed_price_cents)}</p>
-          </section>
-
           <section className="flex flex-col gap-2">
             <h2 className="font-serif text-xl text-primary">Tokens für den Lotsen-Check</h2>
             <p className="text-ink-soft">
