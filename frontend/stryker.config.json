@@ -19,6 +19,7 @@
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",
     "src/hooks/useNavigationScroll.ts",
+    "src/hooks/useAdminMfaStatus.ts",
     "src/contact.ts",
     "src/scroll.ts",
     "src/faq.ts",

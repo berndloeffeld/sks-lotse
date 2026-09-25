@@ -52,3 +52,10 @@ class User(Base):
     # purely learning-based. Indexed for the future cleanup job's
     # `last_login_at < cutoff` scan.
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    # Admin 2FA (ADR-0047). The TOTP secret, Fernet-encrypted (app/core/totp.py) — set when
+    # enrolment starts; totp_enabled_at stays NULL until the first code confirms it, and only then
+    # does the secret count. totp_last_counter is the last accepted 30-second step, so a code
+    # can't be used twice. All three are cleared by backend/scripts/reset_admin_totp.py.
+    totp_secret_encrypted: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    totp_enabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    totp_last_counter: Mapped[int | None] = mapped_column(Integer, nullable=True)

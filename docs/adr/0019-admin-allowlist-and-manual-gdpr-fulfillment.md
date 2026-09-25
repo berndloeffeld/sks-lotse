@@ -1,6 +1,6 @@
 # 0019. Admin email allowlist and manual GDPR fulfillment
 
-Status: Accepted
+Status: Accepted; amended by [ADR-0047](0047-totp-step-up-for-admin-area.md) (the admin area also needs a recent TOTP check)
 
 ## Context
 

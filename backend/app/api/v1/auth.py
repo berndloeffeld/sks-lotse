@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
-from app.core.jwt import SESSION_COOKIE_NAME, create_access_token, get_current_user
+from app.core.jwt import SESSION_COOKIE_NAME, get_current_user, issue_session
 from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
@@ -138,22 +138,7 @@ def verify_otp(
     user.last_login_at = datetime.now(UTC)
     db.commit()
 
-    access_token = create_access_token(user.id, user.token_version)
-    # The browser frontend never reads this token directly (see ADR-0012) —
-    # it's set as an httpOnly cookie here, in addition to the response body,
-    # which stays populated for Postman/the integration-test suite/any
-    # future non-browser client (Bearer fallback, see get_current_user).
-    response.set_cookie(
-        SESSION_COOKIE_NAME,
-        access_token,
-        max_age=settings.jwt_access_token_expires_minutes * 60,
-        httponly=True,
-        # Secure cookies are dropped by browsers over plain http://, which
-        # local dev uses — only require it once actually deployed.
-        secure=settings.is_production,
-        samesite="lax",
-        path="/",
-    )
+    access_token = issue_session(response, user)
     return TokenRead(access_token=access_token)
 
 

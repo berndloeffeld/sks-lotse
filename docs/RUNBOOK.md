@@ -69,7 +69,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 
 | Secret | Set on | Rotating it means |
 |---|---|---|
-| `JWT_SECRET` | backend **and** cron | Every session and every pending OTP code becomes invalid; everyone logs in again. Generate with `openssl rand -hex 32`, set it on both services in one go (the cron only needs it to pass config validation). |
+| `JWT_SECRET` | backend **and** cron | Every session and every pending OTP code becomes invalid; everyone logs in again. Admins' stored TOTP secrets become unreadable too: [reset every admin's 2FA](#reset-an-admins-2fa) afterwards and set it up again. Generate with `openssl rand -hex 32`, set it on both services in one go (the cron only needs it to pass config validation). |
 | `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives, then revoke the old key. |
 | `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the reserved token is refunded. |
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
@@ -86,6 +86,21 @@ Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr
 - **Löschung (Art. 17)**: learners can delete themselves on `/profile`. On request, `/admin/users` → open the account → "Account löschen" removes the account and everything attached to it (`services/user.py`).
 - **Einschränkung / Widerspruch (Art. 18/21)**: handled case by case; there is no tooling.
 - Answer within a month (Art. 12(3) DSGVO).
+
+## Admin 2FA
+
+`/admin` needs a code from an authenticator app (Authy, Google Authenticator, …) on top of the email login, at most 12 h old (`ADMIN_MFA_MAX_AGE_MINUTES`) ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md)).
+
+- **Setup**: log in as the admin, open `/admin` → "Einrichtung starten" → scan the QR code → enter the code. Do this right after adding an address to `ADMIN_EMAILS`: until it's done, whoever logs in first as that address could enrol their own app. `totp_enabled_at` in the account's export shows it's done.
+- **Wrong codes**: 5 attempts per 15 minutes per admin, then 429 until the window passes. Check the phone's clock (automatic time) if valid-looking codes keep failing.
+
+### Reset an admin's 2FA
+
+For a lost or replaced phone, or after rotating `JWT_SECRET`:
+
+1. GitHub → Actions → "Reset admin 2FA" → Run workflow → the admin's email address. It starts `python -m scripts.reset_admin_totp --email …` as a Render one-off job and waits for it (output: Render dashboard → `sks-lotse-backend` → Jobs). Needs the `RENDER_API_KEY`/`RENDER_BACKEND_SERVICE_ID` secrets ([One-time setup](#one-time-setup-recreating-the-environment), step 6).
+2. Without GitHub: Render dashboard → `sks-lotse-backend` → Shell → `python -m scripts.reset_admin_totp --email …`.
+3. The script also ends every session of that account. Log in again, open `/admin`, set 2FA up afresh.
 
 ## AI-check abuse
 
@@ -123,4 +138,4 @@ Account-level steps, done by the project owner:
    - `sks-lotse.global` and `sks-lotse.store` are registered but unused: no DNS, no Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` if ever needed.
 4. Better Stack: monitors on `https://sks-lotse.de` and `https://api.sks-lotse.de/health`, a log source for Render's log stream, the error alert, and the daily-report heartbeat.
 5. Resend: verify the sending domain via the DNS records Resend lists (IONOS).
-6. [Maintenance mode](#maintenance-mode)'s GitHub Action path (optional — the Render dashboard path needs none of this): create a Render API key (Account Settings → API Keys) and add it as the GitHub Actions secret `RENDER_API_KEY`, and add the backend service's id (`srv-...`, from its Render dashboard URL) as the secret `RENDER_BACKEND_SERVICE_ID` (repo → Settings → Secrets and variables → Actions → "Repository secrets" — not sensitive, but simplest to set alongside the API key on the same page).
+6. The GitHub Actions that call Render's API — [Maintenance mode](#maintenance-mode) (optional, the Render dashboard path needs none of this) and [Reset admin 2FA](#reset-an-admins-2fa): create a Render API key (Account Settings → API Keys) and add it as the GitHub Actions secret `RENDER_API_KEY`, and add the backend service's id (`srv-...`, from its Render dashboard URL) as the secret `RENDER_BACKEND_SERVICE_ID` (repo → Settings → Secrets and variables → Actions → "Repository secrets" — not sensitive, but simplest to set alongside the API key on the same page).

@@ -46,6 +46,13 @@ export function PrivacyPage() {
           Speicherdauer). Bleibt ein Konto länger als zwölf Monate ohne Login, behalten wir uns vor, es und die
           zugehörigen Daten zu löschen; wir kündigen dies nach Möglichkeit vorher per E-Mail an.
         </p>
+        <p>
+          Nur für Administratoren: Der Admin-Bereich ist zusätzlich durch eine Zwei-Faktor-Anmeldung mit einer
+          Authenticator-App geschützt. Dafür speichern wir einen verschlüsselten geheimen Schlüssel, den Zeitpunkt der
+          Einrichtung und, welcher Code zuletzt verwendet wurde. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
+          (berechtigtes Interesse am Schutz der verwalteten Daten). Die Angaben werden gelöscht, wenn die
+          Zwei-Faktor-Anmeldung zurückgesetzt oder das Konto gelöscht wird.
+        </p>
       </ProseSection>
 
       <ProseSection title="Lernfortschritt und Profil">
@@ -184,7 +191,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 24. September 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 25. September 2026</p>
     </PageLayout>
   )
 }

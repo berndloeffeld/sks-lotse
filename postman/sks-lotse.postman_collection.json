@@ -4219,6 +4219,391 @@
               "description": "",
               "item": [
                 {
+                  "name": "mfa",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "status",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Get Status",
+                          "request": {
+                            "name": "Get Status",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "mfa",
+                                "status"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "mfa",
+                                    "status"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"enrolled\": \"<boolean>\",\n  \"verified\": \"<boolean>\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "enrol",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Start Enrolment",
+                          "request": {
+                            "name": "Start Enrolment",
+                            "description": {
+                              "content": "A new TOTP secret for the authenticator app; active once /verify accepts a code for it.",
+                              "type": "text/plain"
+                            },
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "mfa",
+                                "enrol"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "mfa",
+                                    "enrol"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {}
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"secret\": \"<string>\",\n  \"otpauth_uri\": \"<string>\",\n  \"qr_code\": \"<string>\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "verify",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Verify",
+                          "request": {
+                            "name": "Verify",
+                            "description": {
+                              "content": "Check a TOTP code — the first one completes the enrolment — and re-issue the session with it.",
+                              "type": "text/plain"
+                            },
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "mfa",
+                                "verify"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"code\": \"752644\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "mfa",
+                                    "verify"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"code\": \"752644\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"access_token\": \"<string>\",\n  \"token_type\": \"bearer\"\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "mfa",
+                                    "verify"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": []
+                                },
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"code\": \"752644\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
                   "name": "users",
                   "description": "",
                   "item": [
@@ -4548,7 +4933,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"totp_enabled_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             },
@@ -4746,7 +5131,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"totp_enabled_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             },
@@ -5093,7 +5478,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"ads_removed\": \"<boolean>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"ads_removed\": \"<boolean>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"totp_enabled_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },
@@ -5274,7 +5659,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
+                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"totp_enabled_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },
@@ -5446,7 +5831,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
+                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"exam_variant\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"ai_flags_count\": \"<integer>\",\n  \"ai_flags_last_at\": \"<dateTime>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"agb_accepted_at\": \"<dateTime>\",\n  \"last_login_at\": \"<dateTime>\",\n  \"totp_enabled_at\": \"<dateTime>\",\n  \"question_progress_count\": \"<integer>\",\n  \"is_blocked\": false\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },

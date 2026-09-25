@@ -58,6 +58,12 @@ app.add_middleware(
             settings.rate_limit_otp_max_requests,
             settings.rate_limit_otp_window_seconds,
         ),
+        # Admin TOTP codes (ADR-0047): same per-IP tightness as login codes; the per-admin cap
+        # lives in app/api/v1/admin_mfa.py.
+        "/api/v1/admin/mfa/verify": (
+            settings.rate_limit_otp_verify_max_requests,
+            settings.rate_limit_otp_verify_window_seconds,
+        ),
     },
     # Generous blanket cap for the rest of /api/v1, so new endpoints are
     # covered without touching this file again. /health is deliberately

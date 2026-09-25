@@ -88,6 +88,27 @@ export interface components {
              */
             created_at: string;
         };
+        /** AdminMfaCode */
+        AdminMfaCode: {
+            /** Code */
+            code: string;
+        };
+        /** AdminMfaEnrolment */
+        AdminMfaEnrolment: {
+            /** Secret */
+            secret: string;
+            /** Otpauth Uri */
+            otpauth_uri: string;
+            /** Qr Code */
+            qr_code: string;
+        };
+        /** AdminMfaStatus */
+        AdminMfaStatus: {
+            /** Enrolled */
+            enrolled: boolean;
+            /** Verified */
+            verified: boolean;
+        };
         /** AdminPurchaseExport */
         AdminPurchaseExport: {
             /** Product */
@@ -257,6 +278,8 @@ export interface components {
             agb_accepted_at: string | null;
             /** Last Login At */
             last_login_at: string | null;
+            /** Totp Enabled At */
+            totp_enabled_at: string | null;
             /** Question Progress Count */
             question_progress_count: number;
         };

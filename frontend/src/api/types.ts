@@ -42,5 +42,7 @@ export type AdminUserListItem = Schemas['AdminUserListItem']
 export type AdminUserListPage = Schemas['AdminUserListPage']
 export type AdminUserExport = Schemas['AdminUserExport']
 export type AdminSettings = Schemas['AdminSettings']
+export type AdminMfaStatus = Schemas['AdminMfaStatus']
+export type AdminMfaEnrolment = Schemas['AdminMfaEnrolment']
 export type TokenPackageSettings = Schemas['TokenPackageSettings']
 export type AdminBlockedEmail = Narrow<Schemas['AdminBlockedEmailRead'], { kind: 'email' | 'domain' }>
