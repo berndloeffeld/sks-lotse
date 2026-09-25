@@ -86,25 +86,6 @@ describe('ProfileAccountPage', () => {
     expect(await screen.findByText('Die Angaben konnten nicht gespeichert werden.')).toBeInTheDocument()
   })
 
-  it('saves a picked exam variant', async () => {
-    const user = userEvent.setup()
-    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
-    const updatedUser = makeUser({ exam_variant: 'motor' })
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
-      if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
-      return jsonResponse({ detail: 'not found' }, 404)
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderAccountPage()
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Variante' }), 'motor')
-
-    await waitFor(() => {
-      expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
-    })
-  })
-
   it('requests an email change and shows the code step', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
@@ -116,6 +97,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
@@ -133,6 +115,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'taken@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
@@ -150,6 +133,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'outsider@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
@@ -169,6 +153,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'someone@mailinator.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
@@ -182,11 +167,26 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'Learner@Example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
     expect(await screen.findByText('Das ist bereits deine E-Mail-Adresse.')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('cancels the email change and returns to the resting view', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404)))
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
+
+    expect(screen.queryByLabelText('Neue E-Mail-Adresse')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' })).toBeInTheDocument()
   })
 
   it('verifies an email change, updates the store and keeps the success message', async () => {
@@ -202,6 +202,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
     await screen.findByText('Code gesendet an new@example.com.')
@@ -211,6 +212,8 @@ describe('ProfileAccountPage', () => {
     expect(await screen.findByText('E-Mail-Adresse geändert.')).toBeInTheDocument()
     expect(useAuthStore.getState().user?.email).toBe('new@example.com')
     expect(calledSessionRefresh(fetchMock)).toBe(false)
+    // Back to the resting view — the toggle button is showing again.
+    expect(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' })).toBeInTheDocument()
   })
 
   it('shows an error when the verification code is invalid', async () => {
@@ -225,6 +228,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
     await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
     await screen.findByText('Code gesendet an new@example.com.')

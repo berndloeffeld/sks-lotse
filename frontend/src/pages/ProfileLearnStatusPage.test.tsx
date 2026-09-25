@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
@@ -24,7 +25,7 @@ describe('ProfileLearnStatusPage', () => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
   })
 
-  it('shows the Lernstand overview with a link to the topics on /learn, without the variant picker', async () => {
+  it('shows the Lernstand overview with a link to the topics on /learn', async () => {
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
 
@@ -33,7 +34,6 @@ describe('ProfileLearnStatusPage', () => {
     expect(screen.getByRole('heading', { name: 'Gesamtfortschritt' })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /Alle Themen ansehen/ })).toHaveAttribute('href', '/learn')
     expect(screen.queryByText('Lernstand wird geladen…')).not.toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Prüfungsvariante' })).not.toBeInTheDocument()
   })
 
   it('shows an error when the Lernstand fails to load', async () => {
@@ -43,5 +43,25 @@ describe('ProfileLearnStatusPage', () => {
     renderPage()
 
     expect(await screen.findByText('Der Lernstand konnte nicht geladen werden.')).toBeInTheDocument()
+  })
+
+  it('saves a picked exam variant', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ exam_variant: 'motor' })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
+      if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderPage()
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Variante' }), 'motor')
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
+    })
   })
 })

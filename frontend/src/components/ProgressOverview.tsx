@@ -8,22 +8,18 @@ import { ProgressPie, type ProgressSlice } from './ProgressPie'
 interface ProgressOverviewProps {
   totals: { learned: number; total: number }
   categories: ProgressSlice[]
-  // The Lernstand tab of /profile hides the variant picker — it moved to
-  // that page's Konto tab, next to the other account settings. /learn always
-  // shows it (the default) since it has no such second place for it.
-  showVariant?: boolean
 }
 
-// The Lernstand at a glance, as up to three band columns: overall progress,
-// the per-category pie, and the exam-variant picker. Shared by /learn and
+// The Lernstand at a glance, as three band columns: overall progress, the
+// per-category pie, and the exam-variant picker. Shared by /learn and
 // /profile; the caller owns the /progress/summary fetch (useProgressSummary).
-export function ProgressOverview({ totals, categories, showVariant = true }: ProgressOverviewProps) {
+export function ProgressOverview({ totals, categories }: ProgressOverviewProps) {
   const user = useAuthStore((state) => state.user)
   const { changeVariant, isSaving, error } = useExamVariantUpdate()
   const percent = percentOf(totals.learned, totals.total)
 
   return (
-    <Columns className={showVariant ? undefined : 'sm:grid-cols-2'}>
+    <Columns>
       <div className="flex flex-col gap-4">
         <h2 className="font-serif text-2xl text-primary">Gesamtfortschritt</h2>
         <p className="font-serif text-5xl text-ink">{percent}%</p>
@@ -38,14 +34,12 @@ export function ProgressOverview({ totals, categories, showVariant = true }: Pro
         <h2 className="font-serif text-2xl text-primary">Fachgebiete</h2>
         {categories.length > 0 ? <ProgressPie slices={categories} /> : null}
       </div>
-      {showVariant ? (
-        <div className="flex flex-col gap-4">
-          <h2 className="font-serif text-2xl text-primary">Prüfungsvariante</h2>
-          <p className="text-sm leading-relaxed text-ink-soft">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
-          <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSaving} />
-          {error ? <p className="text-sm text-danger">{error}</p> : null}
-        </div>
-      ) : null}
+      <div className="flex flex-col gap-4">
+        <h2 className="font-serif text-2xl text-primary">Prüfungsvariante</h2>
+        <p className="text-sm leading-relaxed text-ink-soft">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
+        <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSaving} />
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
+      </div>
     </Columns>
   )
 }

@@ -1,28 +1,42 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { User } from '../api/types'
-import { Band, Columns } from '../components/Bands'
-import { ExamVariantDropdown } from '../components/ExamVariantDropdown'
+import { Band } from '../components/Bands'
 import { formStyles } from '../components/formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
-type EmailChangeStep = 'email' | 'code'
+type EmailChangeStep = 'view' | 'email' | 'code'
 
-// /profile's "Konto" tab: the token balance and exam variant, then the
-// account settings (personal data, email, delete) that used to sit below the
-// Lernstand on one long page.
+const light = formStyles('light')
+
+// A settings section: the light, bordered card used across the app for
+// grouped content (see ExamResultView) — kept flat here since /profile is
+// the only place with several of these stacked on one page.
+function Card({ title, danger = false, children }: { title: string; danger?: boolean; children: ReactNode }) {
+  return (
+    <section
+      className={`flex flex-col gap-4 rounded-tile border bg-surface p-6 ${danger ? 'border-danger' : 'border-ink'}`}
+    >
+      <h2 className={`font-serif text-2xl ${danger ? 'text-danger' : 'text-ink'}`}>{title}</h2>
+      {children}
+    </section>
+  )
+}
+
+// /profile's "Konto" tab: token balance, then the account settings
+// (personal data, email, delete) as light cards on the page background —
+// the Lernstand tab is the one with the colored bands, this one is plain
+// settings.
 export function ProfileAccountPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const updateUser = useAuthStore((state) => state.updateUser)
   const clearSession = useAuthStore((state) => state.clearSession)
-  const { changeVariant, isSaving: isSavingVariant, error: variantError } = useExamVariantUpdate()
 
   // Personal info (Vorname/Nachname/Geschlecht)
   const [firstName, setFirstName] = useState(user?.first_name ?? '')
@@ -31,8 +45,9 @@ export function ProfileAccountPage() {
   const personalInfoAction = useAsyncAction()
   const [personalInfoSuccess, setPersonalInfoSuccess] = useState<string | null>(null)
 
-  // E-Mail-Adresse ändern
-  const [emailStep, setEmailStep] = useState<EmailChangeStep>('email')
+  // E-Mail-Adresse ändern — collapsed behind "Ändern" until opened, so the
+  // card's resting state is just the current address.
+  const [emailStep, setEmailStep] = useState<EmailChangeStep>('view')
   const [newEmail, setNewEmail] = useState('')
   const [emailCode, setEmailCode] = useState('')
   const emailAction = useAsyncAction()
@@ -56,6 +71,13 @@ export function ProfileAccountPage() {
 
   if (!user) {
     return null
+  }
+
+  function closeEmailEditor() {
+    setEmailStep('view')
+    setNewEmail('')
+    setEmailCode('')
+    emailAction.setError(null)
   }
 
   async function handleSavePersonalInfo(event: FormEvent) {
@@ -101,9 +123,7 @@ export function ProfileAccountPage() {
     await emailAction.run(
       async () => {
         setUser(await apiClient.post<User>('/auth/me/email/verify', { new_email: newEmail, code: emailCode }))
-        setEmailStep('email')
-        setNewEmail('')
-        setEmailCode('')
+        closeEmailEditor()
         setEmailSuccess('E-Mail-Adresse geändert.')
       },
       (err) =>
@@ -127,126 +147,120 @@ export function ProfileAccountPage() {
     }, 'Der Account konnte nicht gelöscht werden.')
   }
 
-  const dark = formStyles('dark')
-  const light = formStyles('light')
-  const successClass = 'text-sm text-surface'
-
   return (
-    <>
-      <Band tone="dark" className="py-14">
-        <h2 className="font-serif text-3xl">Dein Konto</h2>
-        <p className="mt-4 text-sm text-surface-alt">
-          Dein Token-Stand: <span className="font-mono text-surface">{user.token_balance}</span>
+    <Band className="pt-10 pb-16">
+      <div className="mx-auto flex max-w-2xl flex-col gap-8">
+        <p className="text-sm text-ink-soft">
+          Dein Token-Stand: <span className="font-mono text-ink">{user.token_balance}</span>
           {user.can_buy_tokens ? (
             <>
               {' · '}
-              <Link to="/pricing" className="underline hover:text-surface">
+              <Link to="/pricing" className="underline hover:text-ink">
                 Tokens im Shop kaufen
               </Link>
             </>
           ) : null}
         </p>
-        <div className="mt-6 flex flex-col gap-2">
-          <h3 className="font-serif text-xl">Prüfungsvariante</h3>
-          <p className="text-sm text-surface-alt">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
-          <ExamVariantDropdown value={user.exam_variant} onChange={changeVariant} disabled={isSavingVariant} />
-          {variantError ? <p className={dark.error}>{variantError}</p> : null}
-        </div>
-      </Band>
 
-      <Band tone="primary">
-        <Columns className="sm:grid-cols-2 sm:gap-12">
-          <section className="flex flex-col gap-6">
-            <h3 className="font-serif text-2xl">Persönliche Daten</h3>
-            <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
-              <label className={dark.label} htmlFor="first-name">
-                Vorname
+        <Card title="Persönliche Daten">
+          <form className="flex flex-col gap-4" onSubmit={handleSavePersonalInfo}>
+            <label className={light.label} htmlFor="first-name">
+              Vorname
+              <input
+                id="first-name"
+                type="text"
+                maxLength={128}
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+                className={light.input}
+              />
+            </label>
+            <label className={light.label} htmlFor="last-name">
+              Nachname
+              <input
+                id="last-name"
+                type="text"
+                maxLength={128}
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
+                className={light.input}
+              />
+            </label>
+            <label className={light.label} htmlFor="gender">
+              Geschlecht
+              <select
+                id="gender"
+                value={gender}
+                onChange={(event) => setGender(event.target.value)}
+                className={light.input}
+              >
+                <option value="">Keine Angabe</option>
+                {(Object.entries(GENDER_LABELS) as [string, string][]).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {personalInfoAction.error ? <p className={light.error}>{personalInfoAction.error}</p> : null}
+            {personalInfoSuccess ? <p className="text-sm text-ink">{personalInfoSuccess}</p> : null}
+            <button type="submit" disabled={personalInfoAction.isPending} className={light.button}>
+              Speichern
+            </button>
+          </form>
+        </Card>
+
+        <Card title="E-Mail-Adresse">
+          <p className="text-sm text-ink-soft">
+            Aktuelle Adresse: <span className="font-mono text-ink">{user.email}</span>
+          </p>
+          {emailSuccess ? <p className="text-sm text-ink">{emailSuccess}</p> : null}
+          {emailStep === 'view' ? (
+            <button type="button" onClick={() => setEmailStep('email')} className="self-start text-sm underline">
+              E-Mail-Adresse ändern
+            </button>
+          ) : emailStep === 'email' ? (
+            <form className="flex flex-col gap-4" onSubmit={handleRequestEmailChange}>
+              <label className={light.label} htmlFor="new-email">
+                Neue E-Mail-Adresse
                 <input
-                  id="first-name"
-                  type="text"
-                  maxLength={128}
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                  className={dark.input}
+                  id="new-email"
+                  type="email"
+                  required
+                  value={newEmail}
+                  onChange={(event) => setNewEmail(event.target.value)}
+                  className={light.input}
                 />
               </label>
-              <label className={dark.label} htmlFor="last-name">
-                Nachname
-                <input
-                  id="last-name"
-                  type="text"
-                  maxLength={128}
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                  className={dark.input}
-                />
-              </label>
-              <label className={dark.label} htmlFor="gender">
-                Geschlecht
-                <select
-                  id="gender"
-                  value={gender}
-                  onChange={(event) => setGender(event.target.value)}
-                  className={dark.input}
-                >
-                  <option value="">Keine Angabe</option>
-                  {(Object.entries(GENDER_LABELS) as [string, string][]).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {personalInfoAction.error ? <p className={dark.error}>{personalInfoAction.error}</p> : null}
-              {personalInfoSuccess ? <p className={successClass}>{personalInfoSuccess}</p> : null}
-              <button type="submit" disabled={personalInfoAction.isPending} className={dark.button}>
-                Speichern
-              </button>
-            </form>
-          </section>
-
-          <section className="flex flex-col gap-6">
-            <h3 className="font-serif text-2xl">E-Mail-Adresse ändern</h3>
-            <p className="text-sm text-surface-alt">
-              Aktuelle E-Mail-Adresse: <span className="font-mono text-surface">{user.email}</span>
-            </p>
-            {emailStep === 'email' ? (
-              <form className="flex flex-col gap-4" onSubmit={handleRequestEmailChange}>
-                <label className={dark.label} htmlFor="new-email">
-                  Neue E-Mail-Adresse
-                  <input
-                    id="new-email"
-                    type="email"
-                    required
-                    value={newEmail}
-                    onChange={(event) => setNewEmail(event.target.value)}
-                    className={dark.input}
-                  />
-                </label>
-                <p className={`text-xs ${dark.note}`}>Wir senden dir einen Bestätigungscode an die neue Adresse.</p>
-                {emailAction.error ? <p className={dark.error}>{emailAction.error}</p> : null}
-                {emailSuccess ? <p className={successClass}>{emailSuccess}</p> : null}
-                <button type="submit" disabled={emailAction.isPending} className={dark.button}>
+              <p className={`text-xs ${light.note}`}>Wir senden dir einen Bestätigungscode an die neue Adresse.</p>
+              {emailAction.error ? <p className={light.error}>{emailAction.error}</p> : null}
+              <div className="flex items-center gap-4">
+                <button type="submit" disabled={emailAction.isPending} className={light.button}>
                   Code anfordern
                 </button>
-              </form>
-            ) : (
-              <form className="flex flex-col gap-4" onSubmit={handleVerifyEmailChange}>
-                <p className="text-sm text-surface-alt">Code gesendet an {newEmail}.</p>
-                <label className={dark.label} htmlFor="email-change-code">
-                  Bestätigungscode
-                  <input
-                    id="email-change-code"
-                    type="text"
-                    inputMode="numeric"
-                    required
-                    value={emailCode}
-                    onChange={(event) => setEmailCode(event.target.value)}
-                    className={`${dark.input} font-mono`}
-                  />
-                </label>
-                {emailAction.error ? <p className={dark.error}>{emailAction.error}</p> : null}
-                <button type="submit" disabled={emailAction.isPending} className={dark.button}>
+                <button type="button" onClick={closeEmailEditor} className={light.link}>
+                  Abbrechen
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form className="flex flex-col gap-4" onSubmit={handleVerifyEmailChange}>
+              <p className="text-sm text-ink-soft">Code gesendet an {newEmail}.</p>
+              <label className={light.label} htmlFor="email-change-code">
+                Bestätigungscode
+                <input
+                  id="email-change-code"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={emailCode}
+                  onChange={(event) => setEmailCode(event.target.value)}
+                  className={`${light.input} font-mono`}
+                />
+              </label>
+              {emailAction.error ? <p className={light.error}>{emailAction.error}</p> : null}
+              <div className="flex items-center gap-4">
+                <button type="submit" disabled={emailAction.isPending} className={light.button}>
                   Bestätigen
                 </button>
                 <button
@@ -256,19 +270,16 @@ export function ProfileAccountPage() {
                     setEmailCode('')
                     emailAction.setError(null)
                   }}
-                  className={dark.link}
+                  className={light.link}
                 >
                   Andere E-Mail-Adresse verwenden
                 </button>
-              </form>
-            )}
-          </section>
-        </Columns>
-      </Band>
+              </div>
+            </form>
+          )}
+        </Card>
 
-      <Band>
-        <section className="flex max-w-xl flex-col gap-4">
-          <h2 className="font-serif text-2xl text-danger">Konto löschen</h2>
+        <Card title="Konto löschen" danger>
           <p className="text-sm leading-relaxed text-ink-soft">
             Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
           </p>
@@ -302,8 +313,8 @@ export function ProfileAccountPage() {
               </button>
             </form>
           )}
-        </section>
-      </Band>
-    </>
+        </Card>
+      </div>
+    </Band>
   )
 }
