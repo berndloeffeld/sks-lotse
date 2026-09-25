@@ -610,6 +610,18 @@ export interface components {
              */
             created_at: string;
         };
+        /**
+         * RefreshSummaryRead
+         * @description Question counts behind the Auffrischen tab; only questions that reached "gelernt" at some point.
+         */
+        RefreshSummaryRead: {
+            /** Lapsed */
+            lapsed: number;
+            /** Expiring */
+            expiring: number;
+            /** Fresh */
+            fresh: number;
+        };
         /** TokenPackageSettings */
         TokenPackageSettings: {
             /** Tokens */
