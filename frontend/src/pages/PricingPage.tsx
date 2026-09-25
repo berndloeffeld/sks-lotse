@@ -128,13 +128,14 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
         </label>
         <button type="button" onClick={() => void buy()} disabled={isPending} className={`self-start ${styles.button}`}>
           {isPending
-            ? 'Weiter zu Stripe …'
+            ? 'Weiter zur Zahlung …'
             : pkg
               ? `${packageLabel(pkg)} für ${formatEurCents(pkg.price_cents)} kaufen`
               : 'Paket kaufen'}
         </button>
         <p className="text-xs text-ink-soft">
-          Die Zahlung läuft über Stripe; danach kommst du hierher zurück. Kein Abo, keine wiederkehrende Zahlung.
+          Du wirst zur Zahlung an unseren Zahlungsanbieter weitergeleitet und kommst danach hierher zurück. Kein Abo,
+          keine wiederkehrende Zahlung.
         </p>
         {error ? (
           <p role="alert" className={styles.error}>
