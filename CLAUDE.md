@@ -17,6 +17,8 @@ This file holds the **rules for working on the code**. Everything descriptive li
 
 When a change makes one of these wrong, fix it in the same PR — in its owner, not by adding a copy here.
 
+This holds in particular for `docs/FEATURES.md` (a change to what learners or operators can do, incl. prices and what is live) and `docs/NON-FUNCTIONAL-REQUIREMENTS.md` (a change to the expected load, limits, security, availability or performance behaviour): update them in the PR that changes the behaviour, not later.
+
 ## Repository layout
 
 ```
