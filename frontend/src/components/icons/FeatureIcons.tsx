@@ -43,12 +43,14 @@ export function ReportIcon({ className }: IconProps) {
   )
 }
 
-// A compass rose in a ring — the Lotsen-Check (AI answer check) button.
-export function CompassIcon({ className }: IconProps) {
+// A ship's wheel: a ring with eight short spokes — the Lotsen-Check (AI answer check) button, and
+// the token balance in the header (the tokens pay for Lotsen-Checks).
+export function HelmIcon({ className }: IconProps) {
   return (
-    <svg {...shared} className={className} aria-hidden="true" focusable="false">
-      <circle cx="16" cy="16" r="12" />
-      <path d="m20.5 11.5-3 6-6 3 3-6 6-3Z" />
+    <svg {...shared} viewBox="0 0 24 24" strokeWidth={1.7} className={className} aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M19.1 4.9l-2.8 2.8M7.7 16.3l-2.8 2.8" />
     </svg>
   )
 }

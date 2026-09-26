@@ -73,6 +73,11 @@ BLANK_LINES_RE = re.compile(r"\n\s*\n+")
 # keeps its line break; every other break in the PDF text is just its layout
 # wrapping the line.
 LIST_ITEM_START_RE = re.compile(r"(?:\d+\.|[a-z]\)|[-•–])\s")  # noqa: RUF001 - the catalog uses en dashes as list bullets
+# The PDF's page footer ("Stand: 01. Juli 2006 © Wasserstraßen- und Schifffahrtsverwaltung des
+# Bundes") is not part of any answer, but pypdf yields it at the end of the last answer on a page.
+PAGE_FOOTER_RE = re.compile(
+    r"\s*Stand: \d{2}\. \w+ \d{4} © Wasserstraßen- und Schifffahrtsverwaltung des Bundes\s*$"
+)
 # Never occurs in the PDF's text: marks where a question's answer begins.
 ANSWER_START = "\x1e"
 
@@ -165,7 +170,7 @@ def split_question_answer(body: str) -> tuple[str, str]:
     the first one splits; the rest are dropped without touching the text.
     """
     question, _, answer = body.partition(ANSWER_START)
-    return clean(question), clean(answer.replace(ANSWER_START, ""))
+    return clean(question), PAGE_FOOTER_RE.sub("", clean(answer.replace(ANSWER_START, "")))
 
 
 def _is_question_font(font_dict) -> bool:
