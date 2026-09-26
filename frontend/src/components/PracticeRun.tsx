@@ -197,17 +197,15 @@ export function PracticeRun({
       </p>
       {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
       <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
-        {/* Where the learner is in this run (the boxed count) is set apart from which question this
-            is (number and topic), so the two never read as one string. */}
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
+        {/* Where the learner is in this run (the boxed count) sits above the line; which question
+            this is (topic and number) sits below it, on its own full-width line, so a long topic
+            wraps cleanly instead of fighting the gauge and report button for space. */}
+        <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           <span className="sr-only">
             Frage {index + 1} von {run.length}
           </span>
           <span aria-hidden="true" className="rounded-tile border border-primary px-2 py-0.5 text-primary">
             {index + 1} / {run.length}
-          </span>
-          <span>
-            {contextLabel ? `${contextLabel(question)} – ` : ''}Nr. {question.number}
           </span>
         </p>
         {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
@@ -218,6 +216,10 @@ export function PracticeRun({
           <ReportQuestion questionId={question.id} />
         </div>
       </div>
+
+      <p className="-mb-2 font-mono text-xs tracking-wide text-ink-soft uppercase">
+        {contextLabel ? `${contextLabel(question)} – ` : ''}Nr. {question.number}
+      </p>
 
       <h2 className="font-serif text-base leading-snug whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />

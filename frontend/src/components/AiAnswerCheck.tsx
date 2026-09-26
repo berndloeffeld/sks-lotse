@@ -7,7 +7,7 @@ import type { AiGrade, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formStyles } from './formStyles'
-import { CompassIcon } from './icons/FeatureIcons'
+import { HelmIcon } from './icons/FeatureIcons'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 
 const styles = formStyles('light')
@@ -120,7 +120,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
           onKeyDown={onButtonKeyDown}
           className="relative flex min-h-10 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-1.5 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
         >
-          <CompassIcon className="size-6 shrink-0 text-accent" />
+          <HelmIcon className="size-6 shrink-0 text-accent" />
           <span className="flex flex-col">
             <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
             <span className="text-xs text-ink-soft">{hasTokens ? hint : outOfTokens}</span>

@@ -12,7 +12,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 // the "Menü" button (AccountMenu).
 export function AccountNav() {
   return (
-    <nav className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+    <nav className="ml-auto flex flex-wrap items-baseline justify-end gap-x-5 gap-y-2">
       <NavLink to="/learn" className={navLinkClass}>
         Lernen
       </NavLink>

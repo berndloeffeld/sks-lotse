@@ -448,3 +448,8 @@ def test_seeding_stores_the_images_and_reseeding_updates_them(db_session, monkey
     lights = db_session.query(Question).filter_by(subject="schifffahrtsrecht", number=23).one()
     assert lights.question_images == []
     assert lights.answer_images == [{"src": "x.png", "width": 1, "height": 2}]
+
+
+def test_parse_drops_the_pdf_page_footer_from_the_answers():
+    assert "©" not in "".join(q.answer_text + q.question_text for q in parse_catalog_pdf())
+    assert _parsed("navigation", 118).answer_text == "Mindestens 1 Meter."

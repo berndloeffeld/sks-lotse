@@ -25,7 +25,7 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
           </Link>
         </div>
         {nav === undefined ? (
-          <nav className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+          <nav className="ml-auto flex flex-wrap items-baseline justify-end gap-x-5 gap-y-2">
             <MarketingLinks />
             <Link to="/login" className={HEADER_CTA}>
               Anmelden

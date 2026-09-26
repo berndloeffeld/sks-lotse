@@ -1,11 +1,12 @@
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
+import { HelmIcon } from './icons/FeatureIcons'
 
 // Below this many tokens the counter turns red: only a handful of Lotsen-Checks are left.
 export const LOW_TOKEN_THRESHOLD = 5
 
-// The header's token balance: a coin and the number, nothing else. Links to the token packages.
+// The header's token balance: the ship's wheel (the Lotsen-Check's symbol, HelmIcon) and the number, nothing else. Links to the token packages.
 // Green while `/pricing?checkout=success` is showing (the learner just bought tokens), red below
 // LOW_TOKEN_THRESHOLD, otherwise the same outline as the other header buttons.
 export function TokenCounter() {
@@ -26,19 +27,7 @@ export function TokenCounter() {
       aria-label={`${user.token_balance} Tokens – zum Shop`}
       className={`inline-flex items-baseline gap-1.5 rounded-full border-2 px-3 py-2 font-mono text-xs transition ${tone}`}
     >
-      <svg
-        className="translate-y-px"
-        viewBox="0 0 24 24"
-        width="12"
-        height="12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="9" />
-        <circle cx="12" cy="12" r="4.5" />
-      </svg>
+      <HelmIcon className="size-4 self-center" />
       {user.token_balance}
     </Link>
   )
