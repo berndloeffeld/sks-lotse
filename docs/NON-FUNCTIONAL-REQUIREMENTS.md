@@ -2,7 +2,7 @@
 
 Expected load and the non-functional requirements (NFRs) the project already meets.
 
-Numbers marked **assumption** are estimates. Replace them with the real ones from the daily KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)); see [Review](#review).
+Numbers marked **assumption** are estimates. Replace them with the real ones from the daily KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)).
 
 ## 1. Sizing
 
@@ -43,7 +43,3 @@ Derived load (planning figure):
 | Performance | Catalog served from memory; cap on concurrent LLM calls |
 | | Prerendered public pages, cached hashed assets, self-hosted fonts |
 | | One instance, one worker, on purpose |
-
-## Review
-
-Check the assumptions in section 1 against the real KPI figures about every six months and after any change in reach.
