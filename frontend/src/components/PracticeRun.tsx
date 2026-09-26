@@ -30,6 +30,8 @@ function shuffled<T>(items: T[]): T[] {
 // everything is learned and the learner asks for it — all of them. A question
 // that was learned but has been forgotten meanwhile (server-side) counts as not learned.
 // The Fokus session (`keepOrder`) arrives ordered by the server and stays that way.
+// The Auffrischen session (`keepLearned`) is made of questions the server picked because they
+// are about to lapse — many are still gelernt, so nothing is filtered out.
 function buildRun(
   questions: Question[],
   standings: Map<number, QuestionProgress>,
@@ -56,13 +58,25 @@ interface PracticeRunProps {
   // Fokus session: play the questions in the given order, and say which topic each one is from.
   keepOrder?: boolean
   contextLabel?: (question: Question) => string
+  // Auffrischen session: play the questions as given, learned or not.
+  keepLearned?: boolean
+  // What to say when the run is empty; the default is the topic run's "everything learned".
+  emptyState?: { title: string; text: string }
 }
 
 // The learning loop for one run (ADR-0023): read the question, optionally
 // jot down an answer, reveal the official answer, assess yourself —
 // Richtig / Teilweise Richtig / Falsch — and watch the boat move (CourseGauge).
-export function PracticeRun({ questions, standings, onGraded, keepOrder = false, contextLabel }: PracticeRunProps) {
-  const [run, setRun] = useState(() => buildRun(questions, standings, false, keepOrder))
+export function PracticeRun({
+  questions,
+  standings,
+  onGraded,
+  keepOrder = false,
+  contextLabel,
+  keepLearned = false,
+  emptyState,
+}: PracticeRunProps) {
+  const [run, setRun] = useState(() => buildRun(questions, standings, keepLearned, keepOrder))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('answer')
   const [note, setNote] = useState('')
@@ -82,7 +96,7 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   }, [phase, index, run])
 
   const startRun = (includeLearned: boolean) => {
-    setRun(buildRun(questions, standings, includeLearned, keepOrder))
+    setRun(buildRun(questions, standings, includeLearned || keepLearned, keepOrder))
     setIndex(0)
     setPhase('answer')
     setNote('')
@@ -128,12 +142,13 @@ export function PracticeRun({ questions, standings, onGraded, keepOrder = false,
   if (run.length === 0) {
     return (
       <section className="flex flex-col items-start gap-4">
-        <h2 className="font-serif text-2xl text-primary">Alles gelernt</h2>
+        <h2 className="font-serif text-2xl text-primary">{emptyState?.title ?? 'Alles gelernt'}</h2>
         <p className="text-sm text-ink-soft">
-          {keepOrder ? 'Es sind keine Fokus-Fragen offen.' : 'Du hast jede Frage dieses Themas gelernt.'}
+          {emptyState?.text ??
+            (keepOrder ? 'Es sind keine Fokus-Fragen offen.' : 'Du hast jede Frage dieses Themas gelernt.')}
         </p>
         <div className="flex flex-wrap gap-3">
-          {keepOrder ? null : (
+          {keepOrder || keepLearned ? null : (
             <button
               type="button"
               className="rounded-tile border border-primary px-4 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"

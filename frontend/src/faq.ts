@@ -21,6 +21,12 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
       'Du liest die Frage, formulierst die Antwort im Kopf oder schreibst sie auf, vergleichst sie mit der Musterantwort und bewertest dich selbst: richtig, teilweise richtig oder falsch. Daraus ergibt sich dein Lernstand.',
   },
   {
+    id: 'lernmodi',
+    question: 'Welche Lernmodi gibt es?',
+    answer:
+      'Nach Thema: ein Fachgebiet nach dem anderen. Fokus: deine Stern-Themen, was du am längsten nicht richtig hattest, kommt zuerst. Auffrischen: 20 Fragen, die du schon sicher konntest und die möglicherweise verblasst sind oder bald verblassen könnten. Alle drei findest du unter [Lernen](/learn).',
+  },
+  {
     id: 'gelernt',
     question: 'Wann gilt eine Frage als „gelernt"?',
     answer:
@@ -30,7 +36,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'lernstand-sinkt',
     question: 'Warum sinkt mein Lernstand, wenn ich länger pausiere?',
     answer:
-      'Was man nicht wiederholt, vergisst man. Wir schätzen für jede Frage, wie lange du sie voraussichtlich behältst. Läuft diese Zeit ab, gilt die Frage wieder als offen und kommt in der Übung zurück – so bleibt dein Lernstand ein ehrlicher Hinweis auf die Prüfungsreife.',
+      'Was man nicht wiederholt, vergisst man. Wir schätzen für jede Frage, wie lange du sie voraussichtlich behältst. Läuft diese Zeit ab, gilt die Frage wieder als offen und kommt in der Übung zurück – so bleibt dein Lernstand ein ehrlicher Hinweis auf die Prüfungsreife. Mit dem Modus „Auffrischen“ holst du gezielt Fragen zurück, die möglicherweise verblasst sind oder bald verblassen könnten.',
   },
   {
     id: 'tokens',
@@ -54,7 +60,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'fokus-themen',
     question: 'Was sind Fokus-Themen?',
     answer:
-      'Mit dem Stern in der Lernübersicht markierst du Themen, auf die du dich gerade konzentrieren willst. Dort siehst du gesammelt, wie weit du bei genau diesen Themen bist.',
+      'Mit dem Stern in der Lernübersicht markierst du Themen, auf die du dich gerade konzentrieren willst. Dort siehst du gesammelt, wie weit du bei genau diesen Themen bist, und mit „Fokus starten“ übst du alle offenen Fragen dieser Themen, die älteste richtige Antwort zuerst.',
   },
   {
     id: 'pruefungssimulation',

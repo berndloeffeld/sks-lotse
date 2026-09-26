@@ -26,6 +26,17 @@ class QuestionProgressRead(BaseModel):
     learned: bool
 
 
+class RefreshSummaryRead(BaseModel):
+    """Question counts behind the Auffrischen tab; only questions that reached "gelernt" at some point."""
+
+    # Due date passed: possibly faded.
+    lapsed: int
+    # Due within the refresh window: could fade soon.
+    expiring: int
+    # Still gelernt beyond the window.
+    fresh: int
+
+
 # A plain str rather than the GradingOutcome Literal — see one_of.
 GradingOutcomeField = Annotated[str, one_of("outcome", get_args(GradingOutcome))]
 

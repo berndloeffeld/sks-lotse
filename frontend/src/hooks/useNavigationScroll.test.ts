@@ -71,4 +71,25 @@ describe('useNavigationScroll', () => {
 
     expect(scrollTo).not.toHaveBeenCalled()
   })
+
+  it('keeps the scroll position when only the query changes, however often', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const { result } = renderAt('/learn')
+
+    act(() => result.current('/learn?modus=focus', { replace: true }))
+    act(() => result.current('/learn?modus=refresh', { replace: true }))
+    act(() => result.current('/learn'))
+
+    expect(scrollTo).not.toHaveBeenCalled()
+  })
+
+  it('still scrolls to the top after a query-only change when the page changes', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const { result } = renderAt('/learn')
+    act(() => result.current('/learn?modus=focus', { replace: true }))
+
+    act(() => result.current('/privacy'))
+
+    expect(scrollTo).toHaveBeenCalledExactlyOnceWith(0, 0)
+  })
 })

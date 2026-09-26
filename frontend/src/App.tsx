@@ -12,6 +12,7 @@ import { ExamPage } from './pages/ExamPage'
 import { ExamRunPage } from './pages/ExamRunPage'
 import { FaqPage } from './pages/FaqPage'
 import { FocusPracticePage } from './pages/FocusPracticePage'
+import { RefreshPracticePage } from './pages/RefreshPracticePage'
 import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
@@ -84,6 +85,7 @@ export function AppRoutes() {
             <Route element={<AgbGate />}>
               <Route path="/learn" element={<LearnPage />} />
               <Route path="/learn/focus" element={<FocusPracticePage />} />
+              <Route path="/learn/refresh" element={<RefreshPracticePage />} />
               <Route path="/learn/:subject/:topic" element={<PracticePage />} />
               <Route path="/exam" element={<ExamPage />} />
               <Route path="/exam/:id" element={<ExamRunPage />} />

@@ -15,12 +15,12 @@ pyjwt==2.14.0
 pyotp==2.10.0
 segno==1.6.6
 cryptography==50.0.1
-resend==2.46.0
+resend==2.47.0
 email-validator==2.3.0
 # Releases every time its upstream domain list changes (very often) — bump
 # periodically, this pin will go stale fast.
-disposable-email-domains==0.0.262
-anthropic==1.6.0
+disposable-email-domains==0.0.263
+anthropic==1.7.0
 # Token-package checkout (ADR-0048): Checkout Sessions and webhook signature verification.
 stripe==15.6.1
 # Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
