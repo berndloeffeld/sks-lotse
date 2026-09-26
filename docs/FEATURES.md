@@ -45,7 +45,7 @@ A trial run of the theory exam's **Fragebogen**:
 - Correctly answered questions count towards the learning status.
 - Not included: the **Kartenaufgabe** (navigation on the practice chart).
 
-For sailing instructors: the simulation suits self-study as a final test before the exam date. There is currently no group or teacher function (see below).
+For sailing instructors: the simulation suits self-study as a final test before the exam date.
 
 ## Lotsen-Check (AI assessment)
 
@@ -62,7 +62,7 @@ Two independent add-ons, valid in any combination:
 - **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance of 6 tokens. Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices, and they are shown publicly on the pricing page.
 - **Ad-free** (one-time payment, starting price 5 €). Without it, ads are planned to be shown later.
 
-Status today: buying tokens is built but not yet open to all learners; the operator can open it step by step (off, admins only, everyone). Ad-free is still credited by hand, and no ads are shown yet.
+Status today: buying tokens is open to all learners. Ad-free is still credited by hand, and no ads are shown yet.
 
 ## Feedback and quality
 
@@ -96,5 +96,4 @@ Protected by an allowlist and a two-factor code (authenticator app):
 - Automatic grading of a whole exam in one step
 - Voice input for answers
 - The Kartenaufgabe in the exam simulation
-- Teacher or group functions for sailing schools (courses, insight into students' progress)
 - Automatic deletion of accounts after 12 months without sign-in (the terms reserve this right)
