@@ -12,7 +12,7 @@ This file holds the **rules for working on the code**. Everything descriptive li
 | Question catalog: subjects, the Seemannschaft merge, images, the import pipeline | [docs/catalog-pipeline.md](docs/catalog-pipeline.md) |
 | Local setup, quality-gate commands, dependency locks | [README.md](README.md) |
 | Mutation testing, Postman/integration tests | [docs/mutation-testing.md](docs/mutation-testing.md), [docs/postman-and-integration-tests.md](docs/postman-and-integration-tests.md) |
-| What the product can do today, for product, sales and sailing instructors (German) | [docs/FEATURES.md](docs/FEATURES.md) |
+| What the product can do today, for product, sales and sailing instructors | [docs/FEATURES.md](docs/FEATURES.md) |
 
 When a change makes one of these wrong, fix it in the same PR — in its owner, not by adding a copy here.
 

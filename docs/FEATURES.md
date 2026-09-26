@@ -1,100 +1,100 @@
-# SKS Lotse: Funktionsübersicht
+# SKS Lotse: Feature overview
 
-Was SKS Lotse heute kann, in der Sprache der Anwender. Für Produktmanager, Vertrieb und Segellehrer. Technik und Begründungen stehen in [ARCHITECTURE.md](ARCHITECTURE.md) und den [ADRs](adr/README.md).
+What SKS Lotse can do today, in the users' terms. For product managers, sales and sailing instructors. Technical detail and reasoning are in [ARCHITECTURE.md](ARCHITECTURE.md) and the [ADRs](adr/README.md).
 
-## Auf einen Blick
+## At a glance
 
-SKS Lotse ist eine Web-Anwendung zur Vorbereitung auf die **theoretische Prüfung zum Sportküstenschifferschein (SKS)**. Sie läuft im Browser auf Handy, Tablet und Rechner, ohne App-Store.
+SKS Lotse is a web application for preparing for the **theory exam of the Sportküstenschifferschein (SKS)**. It runs in the browser on phone, tablet and computer, with no app store.
 
-Der amtliche Fragenkatalog des Bundes (ELWIS) besteht aus Freitextfragen, nicht aus Multiple Choice. Die Lernenden schreiben ihre Antwort selbst, vergleichen sie mit der amtlichen Musterantwort und bewerten sich selbst. Der Fragenkatalog wird unverändert übernommen, ELWIS ist als Quelle genannt.
+The official question catalog of the German federal authority (ELWIS) consists of free-text questions, not multiple choice. Learners write their own answer, compare it with the official model answer and grade themselves. The catalog is used unchanged, with ELWIS credited as the source.
 
-Was SKS Lotse von reinem Durchblättern unterscheidet:
-- Es merkt sich, was jemand **wirklich behalten** hat, und bringt Vergessenes zurück.
-- Es bietet eine **Prüfungssimulation** unter Zeitdruck.
-- Optional gibt ein **KI-Check (Lotsen-Check)** eine Einschätzung der eigenen Antwort.
+What sets it apart from simply paging through the catalog:
+- It tracks what a learner has **actually retained** and brings forgotten questions back.
+- It offers an **exam simulation** under time pressure.
+- Optionally, an **AI check (Lotsen-Check)** gives an assessment of the learner's own answer.
 
-## Zugang und Konto
+## Access and account
 
-- **Anmeldung nur mit E-Mail-Adresse und Einmalcode.** Es gibt kein Passwort. Ohne Anmeldung gibt es keinen Lernfortschritt, dafür ist er auf jedem Gerät derselbe.
-- **Prüfungsvariante** pro Konto: „Segeln und Motor“ oder „Motor“. Die Fragen werden danach gefiltert.
-- **Profil:** Name und Anrede (freiwillig), Prüfungsvariante, Lernstand, Prüfungsstatistik, E-Mail-Adresse ändern (per Code an die neue Adresse), Konto selbst löschen.
-- Die Nutzungsbedingungen (AGB) werden einmal pro Version bestätigt.
+- **Sign-in with an email address and a one-time code only.** There is no password. Without signing in there is no progress; with it, progress is the same on every device.
+- **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.
+- **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address), delete the account oneself.
+- The terms (AGB) are confirmed once per version.
 
-## Lernen
+## Learning
 
-Der Lernbereich bietet drei Modi, als Reiter nebeneinander, mit dem Gesamtfortschritt darüber.
+The learning area has three modes, shown as tabs, with the overall progress above them.
 
-**Ablauf einer Frage:** Frage lesen, Antwort auf dem Notizfeld formulieren (bleibt beim Lernenden, wird nirgends hin geschickt, solange er den KI-Check nicht auslöst), Musterantwort aufdecken, sich selbst bewerten: *Richtig*, *Teilweise richtig* oder *Falsch*. Fragen mit Abbildungen zeigen das Bild. Chart-Notation (etwa bei Navigationsfragen) wird lesbar dargestellt.
+**Flow of a question:** read the question, formulate an answer in the scratchpad (it stays with the learner and is sent nowhere unless they trigger the AI check), reveal the model answer, grade oneself: *Richtig*, *Teilweise richtig* or *Falsch*. Questions with figures show the image. Chart notation (e.g. in navigation questions) is rendered legibly.
 
-| Modus | Wofür | Wie |
+| Mode | Purpose | How |
 |---|---|---|
-| **Nach Thema** | Systematisch lernen | Die Fragen sind nach den Themen des amtlichen Katalogs sortiert (Navigation, Schifffahrtsrecht, Wetterkunde, Seemannschaft). Pro Thema ist der Stand sichtbar. |
-| **Fokus** | Schwerpunkte setzen | Themen lassen sich mit einem Stern markieren. Die Fokus-Runde geht alle noch nicht gelernten Fragen dieser Themen durch, die am längsten zurückliegenden zuerst. Ist ein Thema komplett gelernt, fällt es aus dem Fokus. |
-| **Auffrischen** | Vergessenes zurückholen | 20 Zufallsfragen, die schon einmal sicher gelernt waren. Mindestens 70 % davon sind bereits „verblasst“, der Rest verblasst in den nächsten zwei Tagen. |
+| **By topic** | Learn systematically | Questions are sorted by the topics of the official catalog (navigation, maritime law, meteorology, seamanship). The status per topic is visible. |
+| **Focus** | Set priorities | Topics can be starred. The Focus round runs through all not yet learned questions of those topics, the one longest ago first. Once a topic is fully learned it drops out of the focus. |
+| **Refresh** | Bring back what was forgotten | 20 random questions that were once learned securely. At least 70 % of them have already "faded", the rest fade within the next two days. |
 
-**Wann gilt eine Frage als „gelernt“?** Nicht nach einmal richtig. Das System schätzt für jede Frage, wie lange die Antwort im Gedächtnis bleibt, und passt das bei jeder Bewertung an. Gelernt ist eine Frage, solange die Erinnerung voraussichtlich noch trägt. Lässt sie nach, taucht die Frage wieder auf. Wer wiederholt und mit Abstand richtig antwortet, kommt schneller voran. Die zugrunde liegenden Zahlen zeigt die Oberfläche bewusst nicht; die Lernenden sehen nur den Fortschritt.
+**When does a question count as "learned"?** Not after a single correct answer. The system estimates for each question how long the answer stays in memory and adjusts that with every grading. A question counts as learned as long as the memory is expected to hold. When it fades, the question comes back. Correct answers given repeatedly and with spacing move a learner ahead faster. The interface deliberately does not show the numbers behind this; learners only see their progress.
 
-## Prüfungssimulation
+## Exam simulation
 
-Ein Probelauf des **Fragebogens** der theoretischen Prüfung:
-- 30 zufällige Fragen aus der gewählten Prüfungsvariante, verteilt auf die Fächer wie in der Prüfung (9 Navigation, 7 Schifffahrtsrecht, 5 Wetterkunde, 9 Seemannschaft).
-- 90 Minuten, mit Countdown. Die Zeit wird vom Server überwacht, ein Neuladen oder eine falsche Geräteuhr helfen nicht. Antworten werden laufend gespeichert.
-- Keine Tipps. Die Musterantworten sind erst nach der Abgabe zu sehen.
-- Danach bewertet sich der Lernende Frage für Frage selbst (Richtig 2 Punkte, Teilweise 1, Falsch 0) und erhält ein Ergebnis.
-- Verlauf und Statistik im Profil: Anzahl Versuche, Bestehensquote, Durchschnitt, Bestleistung, letzte Versuche, Anteil pro Fach.
-- Richtig beantwortete Fragen zählen in den Lernstand ein.
-- Nicht enthalten: die **Kartenaufgabe** (Navigation auf der Übungskarte).
+A trial run of the theory exam's **Fragebogen**:
+- 30 random questions from the chosen exam variant, spread over the subjects as in the exam (9 navigation, 7 maritime law, 5 meteorology, 9 seamanship).
+- 90 minutes with a countdown. The server enforces the time, so reloading or a wrong device clock doesn't help. Answers are saved continuously.
+- No tips. Model answers are only shown after submission.
+- Afterwards the learner grades themselves question by question (Richtig 2 points, Teilweise 1, Falsch 0) and gets a result.
+- History and statistics in the profile: number of attempts, pass rate, average, best result, latest attempts, share per subject.
+- Correctly answered questions count towards the learning status.
+- Not included: the **Kartenaufgabe** (navigation on the practice chart).
 
-Für Segellehrer: Die Simulation eignet sich als Abschlusstest zum Selbstlernen vor dem Prüfungstermin. Es gibt derzeit keine Gruppen- oder Lehrerfunktion (siehe unten).
+For sailing instructors: the simulation suits self-study as a final test before the exam date. There is currently no group or teacher function (see below).
 
-## Lotsen-Check (KI-Einschätzung)
+## Lotsen-Check (AI assessment)
 
-Der Lernende kann seine eigene Antwort vom „Lotsen“ prüfen lassen. Eine KI (Claude von Anthropic) vergleicht sie mit der Musterantwort und **schlägt eine Bewertung mit kurzer Begründung vor**. Die Entscheidung trifft immer der Lernende selbst.
+Learners can have their own answer checked by the "Lotse". An AI (Claude by Anthropic) compares it with the model answer and **suggests a grade with a short explanation**. The decision always stays with the learner.
 
-- Kostet **1 Token** pro Prüfung. Neue Konten erhalten Startguthaben; weitere Tokens gibt es in Paketen.
-- Übertragen werden nur Frage, Musterantwort und die Antwort des Lernenden (höchstens 1.000 Zeichen), nichts Persönliches. Die Verarbeitung erfolgt bei Anthropic in den USA, mit Auftragsverarbeitungsvertrag.
-- Schutz gegen Missbrauch: höchstens 2 Prüfungen pro Frage und Tag, Begrenzung pro Stunde, Schutz vor eingeschleusten Anweisungen. Schlägt eine Prüfung technisch fehl, wird das Token zurückgebucht.
-- Bei einem Ausfall der KI lernt man normal weiter, nur der Check fehlt.
+- Costs **1 token** per check. New accounts get a starting balance; more tokens are available in packages.
+- Only the question, the model answer and the learner's answer (at most 1,000 characters) are sent, nothing personal. Processing happens at Anthropic in the USA, under a data processing agreement.
+- Abuse protection: at most 2 checks per question and day, an hourly limit, protection against injected instructions. If a check fails technically, the token is refunded.
+- If the AI is unavailable, learning continues as normal; only the check is missing.
 
-## Kaufen und Preise
+## Buying and prices
 
-Zwei unabhängige Bausteine, in allen Kombinationen möglich:
-- **Tokens für den Lotsen-Check** in vier Paketen (Startpreise: S 20 Tokens 2,99 €, M 50 Tokens 5,99 €, L 100 Tokens 9,99 €, XL 200 Tokens 16,99 €), Startguthaben 6 Tokens gratis. Bezahlung über Stripe (Kreditkarte und weitere Zahlarten), nach dem Kauf kommt eine Bestätigungs-Mail. Die Preise sind vom Betreiber änderbar und stehen öffentlich auf der Preisseite.
-- **Werbefrei** (Einmalzahlung, Startpreis 5 €). Ohne dieses Paket sind später Anzeigen vorgesehen.
+Two independent add-ons, valid in any combination:
+- **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance of 6 tokens. Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices, and they are shown publicly on the pricing page.
+- **Ad-free** (one-time payment, starting price 5 €). Without it, ads are planned to be shown later.
 
-Stand heute: Der Token-Kauf ist eingebaut, aber noch nicht für alle Lernenden freigeschaltet; der Betreiber kann ihn schrittweise öffnen (aus, nur Administratoren, alle). Werbefrei wird noch von Hand gutgeschrieben, Werbeanzeigen werden noch nicht ausgespielt.
+Status today: buying tokens is built but not yet open to all learners; the operator can open it step by step (off, admins only, everyone). Ad-free is still credited by hand, and no ads are shown yet.
 
-## Rückmeldung und Qualität
+## Feedback and quality
 
-- **Frage melden:** unter jeder Frage kann ein Fehler gemeldet werden (Fragetext, Antworttext, Tippfehler, fehlendes Bild, Sonstiges). Der Betreiber sieht die am häufigsten gemeldeten Fragen im Tagesbericht.
-- **Feedback** per E-Mail-Link im Menü, „Kontakt“ in der Fußzeile.
+- **Report a question:** under every question a fault can be reported (question text, answer text, typo, missing image, other). The operator sees the most reported questions in the daily report.
+- **Feedback** via an email link in the menu, "Kontakt" in the footer.
 
-## Öffentliche Seiten
+## Public pages
 
-Startseite mit Funktionsüberblick, Preise, FAQ, „Ablauf der Prüfung“, Impressum, Datenschutz, AGB. Sie sind für Suchmaschinen aufbereitet.
+Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms. They are prepared for search engines.
 
-## Datenschutz
+## Privacy
 
-- Zugang nur mit E-Mail-Adresse, kein Passwort, keine Weitergabe an Werbenetzwerke ohne Einwilligung; Werbe-Einwilligung über die Cookie-Einstellungen in der Fußzeile.
-- Hosting in Frankfurt (EU). Auswertung der Seitennutzung ohne Cookies.
-- Konto und alle Lerndaten lassen sich jederzeit selbst löschen. Auskunft und Datenexport erfolgen auf Anfrage über den Betreiber.
+- Access with an email address only, no password, no passing of data to advertising networks without consent; ad consent is managed through the cookie settings in the footer.
+- Hosted in Frankfurt (EU). Usage analytics without cookies.
+- Learners can delete their account and all learning data at any time themselves. Access and data export are handled on request through the operator.
 
-## Betreiberwerkzeuge (nicht für Lernende)
+## Operator tools (not for learners)
 
-Geschützt durch Freigabeliste und Zwei-Faktor-Code (Authenticator-App):
-- Konten suchen, ansehen, exportieren, löschen, sperren, Tokens oder Werbefrei gutschreiben.
-- Sperrliste für E-Mail-Adressen und Domains gegen Missbrauch.
-- Preise und Pakete einstellen.
-- Fragen und Musterantworten im gesamten Katalog durchsuchen.
-- Täglicher Kennzahlen-Bericht per E-Mail; Wartungsmodus, wenn etwas schiefgeht.
+Protected by an allowlist and a two-factor code (authenticator app):
+- Search, view, export, delete and block accounts; credit tokens or ad-free by hand.
+- Blocklist for email addresses and domains against abuse.
+- Set prices and packages.
+- Search questions and model answers across the whole catalog.
+- Daily KPI report by email; a maintenance mode for when something goes wrong.
 
-## Noch nicht verfügbar
+## Not yet available
 
-- Tipps zu einzelnen Fragen
-- Anmeldung über Google, Facebook oder X
-- Bezahlung von „Werbefrei“ in der Anwendung, ausgespielte Werbung
-- Automatische Bewertung einer ganzen Prüfung in einem Schritt
-- Spracheingabe für Antworten
-- Kartenaufgabe in der Prüfungssimulation
-- Lehrer- oder Gruppenfunktionen für Segelschulen (Kurse, Einblick in den Fortschritt der Schüler)
-- Automatisches Löschen von Konten nach 12 Monaten ohne Anmeldung (die AGB behalten sich das vor)
+- Tips for individual questions
+- Sign-in with Google, Facebook or X
+- Paying for "ad-free" in the app, and ads actually being shown
+- Automatic grading of a whole exam in one step
+- Voice input for answers
+- The Kartenaufgabe in the exam simulation
+- Teacher or group functions for sailing schools (courses, insight into students' progress)
+- Automatic deletion of accounts after 12 months without sign-in (the terms reserve this right)
