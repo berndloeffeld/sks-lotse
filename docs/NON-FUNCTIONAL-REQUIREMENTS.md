@@ -6,21 +6,21 @@ Numbers marked **assumption** are estimates. Replace them with the real ones fro
 
 ## 1. Sizing
 
-Basis: ~5,000 SKS licences a year (given), so roughly 6,000 exam candidates including retakes. 60–80 % learn digitally, and at least two established competitors share that market. SKS Lotse starts without marketing (search, word of mouth, sailing schools). **Assumption:** it reaches 2 % / **5 %** / 15 % of the digital learners.
+Basis: ~5,000 SKS licences a year (given), so roughly 6,000 exam candidates including retakes. ~70 % of them learn digitally (~4,200), and at least two established competitors share that market. **Assumption:** SKS Lotse reaches up to 30 % of the digital learners.
 
-| | Pessimistic | **Realistic** | Optimistic |
+| | Low (5 %) | Medium (15 %) | **High (30 %, planning figure)** |
 |---|---|---|---|
-| New accounts per year | ~60 | **~200** | ~700 |
-| Active at once, average / season peak | ~10 / ~25 | **~30 / ~80** | ~100 / ~300 |
-| Online at once, peak | 1–3 | **3–10** | 15–40 |
+| New accounts per year | ~210 | ~630 | **~1,260** |
+| Active at once, average / season peak | ~30 / ~80 | ~100 / ~240 | **~190 / ~485** |
+| Online at once, peak | 4–8 | 12–24 | **25–50** |
 
-Derivation: a learner is active for 6–10 weeks; the season peak (February to May) is ~2.5 × the average; 5–10 % of the active accounts are online in the same minute.
+Derivation: a learner is active for 6–10 weeks; the season peak (February to May) is ~2.5 × the average; 5–10 % of the peak-active accounts are online in the same minute.
 
-Derived load (realistic, optimistic in brackets):
-- **Requests:** peak ~1 req/s (4–8), from ~100–150 calls per 30-minute session. The single worker should carry ~50–100 req/s; **not measured**.
-- **Data:** under 100 MB (300 MB). `question_progress` ≈ accounts × ~540 questions; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)).
-- **Lotsen-Checks:** ~1,000–5,000 a year, at most 5 in flight at once.
-- **Login mails:** ~1,000–3,000 a year (7-day session, no refresh token).
+Derived load (planning figure):
+- **Requests:** peak ~4–8 req/s, from ~100–150 calls per 30-minute session. The single worker should carry ~50–100 req/s; **not measured**.
+- **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)).
+- **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once.
+- **Login mails:** ~4,000–6,000 a year (7-day session, no refresh token).
 
 ## 2. Met
 
