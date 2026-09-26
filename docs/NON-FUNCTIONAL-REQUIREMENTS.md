@@ -22,7 +22,7 @@ Derived load (planning figure):
 - **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once.
 - **Login mails:** ~4,000–6,000 a year (7-day session, no refresh token).
 
-## 2. Met
+## 2. Non-functional requirements
 
 | Area | Requirement |
 |---|---|
