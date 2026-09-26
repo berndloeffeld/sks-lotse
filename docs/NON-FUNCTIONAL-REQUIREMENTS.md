@@ -1,6 +1,6 @@
 # Sizing and non-functional requirements
 
-Expected load, the non-functional requirements (NFRs) the project already meets. Written retroactively (2026-09-26): the "Met" section points to where each requirement is enforced. What the system is: [ARCHITECTURE.md](ARCHITECTURE.md); why: [ADRs](adr/README.md); operation: [runbook](RUNBOOK.md).
+Expected load and the non-functional requirements (NFRs) the project already meets. Written retroactively (2026-09-26). What the system is: [ARCHITECTURE.md](ARCHITECTURE.md); why: [ADRs](adr/README.md); operation: [runbook](RUNBOOK.md).
 
 Numbers marked **assumption** are estimates. Replace them with the real ones from the daily KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)); see [Review](#review).
 
