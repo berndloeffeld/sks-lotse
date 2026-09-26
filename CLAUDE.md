@@ -10,10 +10,14 @@ This file holds the **rules for working on the code**. Everything descriptive li
 | Why a decision was made (and what superseded it) | [docs/adr/](docs/adr/README.md): index with status per ADR |
 | Operating production: logs, deploys/rollback, backups, secrets, DSGVO requests, one-time setup, domains | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 | Question catalog: subjects, the Seemannschaft merge, images, the import pipeline | [docs/catalog-pipeline.md](docs/catalog-pipeline.md) |
+| Expected load (Mengengerüst), non-functional requirements met and still open | [docs/NON-FUNCTIONAL-REQUIREMENTS.md](docs/NON-FUNCTIONAL-REQUIREMENTS.md) |
 | Local setup, quality-gate commands, dependency locks | [README.md](README.md) |
 | Mutation testing, Postman/integration tests | [docs/mutation-testing.md](docs/mutation-testing.md), [docs/postman-and-integration-tests.md](docs/postman-and-integration-tests.md) |
+| What the product can do today, for product, sales and sailing instructors | [docs/FEATURES.md](docs/FEATURES.md) |
 
 When a change makes one of these wrong, fix it in the same PR — in its owner, not by adding a copy here.
+
+This holds in particular for `docs/FEATURES.md` (a change to what learners or operators can do, incl. prices and what is live) and `docs/NON-FUNCTIONAL-REQUIREMENTS.md` (a change to the expected load, limits, security, availability or performance behaviour): update them in the PR that changes the behaviour, not later.
 
 ## Repository layout
 
