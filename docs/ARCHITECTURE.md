@@ -1,6 +1,6 @@
 # Architecture
 
-Current-state overview: what the product does, which parts the system consists of, how they relate, and where each responsibility lives. This document describes *what exists*. The reasons behind it are in the [ADRs](adr/) ([index](adr/README.md)), the rules for adding code are in `CLAUDE.md`, operating it is in the [runbook](RUNBOOK.md), the catalog import in [catalog-pipeline.md](catalog-pipeline.md), and behavioral detail is in the code and its tests.
+Current-state overview: what the product does, which parts the system consists of, how they relate, and where each responsibility lives. This document describes *what exists*. The reasons behind it are in the [ADRs](adr/) ([index](adr/README.md)), the rules for adding code are in `CLAUDE.md`, operating it is in the [runbook](RUNBOOK.md), the catalog import in [catalog-pipeline.md](catalog-pipeline.md), the expected load and the non-functional requirements in [NON-FUNCTIONAL-REQUIREMENTS.md](NON-FUNCTIONAL-REQUIREMENTS.md), and behavioral detail is in the code and its tests.
 
 ## Product
 
