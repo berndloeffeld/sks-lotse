@@ -81,8 +81,8 @@ export function PracticeRun({
   const [tally, setTally] = useState<GradingOutcome[]>([])
   const [newlyLearned, setNewlyLearned] = useState(0)
   const [feedback, setFeedback] = useState('')
-  // Number of the question that just became gelernt, while its celebration runs.
-  const [celebrating, setCelebrating] = useState<number | null>(null)
+  // Whether a question just became gelernt, while its celebration runs.
+  const [celebrating, setCelebrating] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const styles = formStyles('light')
 
@@ -119,7 +119,7 @@ export function PracticeRun({
     if (learnedNow) {
       trackEvent('question_learned')
       setNewlyLearned((n) => n + 1)
-      setCelebrating(question.number)
+      setCelebrating(true)
     }
     onGraded(result)
     setTally((t) => [...t, chosen])
@@ -133,7 +133,7 @@ export function PracticeRun({
           : 'Zurückgefallen – die Frage kommt später wieder.',
     )
     await letBoatSettle(learnedNow ? CELEBRATION_MS : BOAT_SETTLE_MS)
-    setCelebrating(null)
+    setCelebrating(false)
     nextQuestion()
   }
 
@@ -193,7 +193,7 @@ export function PracticeRun({
       <p role="status" className="sr-only">
         {feedback}
       </p>
-      {celebrating !== null ? <LearnedCelebration questionNumber={celebrating} /> : null}
+      {celebrating ? <LearnedCelebration /> : null}
       <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         {/* Where the learner is in this run (the boxed count) sits above the line; which question
             this is (topic and number) sits below it, on its own full-width line, so a long topic
