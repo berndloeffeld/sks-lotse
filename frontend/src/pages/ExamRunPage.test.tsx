@@ -303,6 +303,23 @@ describe('ExamRunPage', () => {
     expect(scrollBy).toHaveBeenCalledWith({ top: 42, behavior: 'smooth' })
   })
 
+  it('explains an unanswered exam question instead of asking to write one', async () => {
+    aiGradingUser()
+    const grading = makeExam({
+      status: 'grading',
+      questions: [examQuestion(1, { official_answer: 'Amtlich 1' })],
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(grading)),
+    )
+    renderRun()
+
+    expect(await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).toHaveTextContent(
+      'Du hast diese Frage nicht beantwortet.',
+    )
+  })
+
   it('folds the Lotsen-Check into the exam self-assessment Tab loop', async () => {
     const user = userEvent.setup()
     aiGradingUser()

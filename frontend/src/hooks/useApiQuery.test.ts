@@ -140,6 +140,41 @@ describe('useApiQuery', () => {
     expect(result.current.failed).toBe(false)
   })
 
+  function setupOverlappingReloads() {
+    const mount = deferred<string>()
+    const first = deferred<string>()
+    const second = deferred<string>()
+    const fetchers = [() => mount.promise, () => first.promise, () => second.promise]
+    const { result } = renderHook(() => useApiQuery('k', () => (fetchers.shift() ?? (() => second.promise))()))
+    return { result, mount, first, second }
+  }
+
+  it('a later reload wins even if it resolves before an earlier, still-pending one', async () => {
+    const { result, first, second } = setupOverlappingReloads()
+    act(() => {
+      void result.current.reload()
+      void result.current.reload()
+    })
+
+    await act(async () => second.resolve('from the second reload'))
+    await act(async () => first.resolve('from the first reload'))
+
+    expect(result.current.data).toBe('from the second reload')
+  })
+
+  it('a later reload wins even if it resolves after an earlier one already did', async () => {
+    const { result, first, second } = setupOverlappingReloads()
+    act(() => {
+      void result.current.reload()
+      void result.current.reload()
+    })
+
+    await act(async () => first.resolve('from the first reload'))
+    await act(async () => second.resolve('from the second reload'))
+
+    expect(result.current.data).toBe('from the second reload')
+  })
+
   it('drops a reload that finishes after the key changed', async () => {
     const slow = deferred<string>()
     let calls = 0

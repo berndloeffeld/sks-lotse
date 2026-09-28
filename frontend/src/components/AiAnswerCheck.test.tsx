@@ -57,6 +57,19 @@ describe('AiAnswerCheck', () => {
     expect(screen.getByRole('button', ROW)).toHaveTextContent('1 Token(s)')
   })
 
+  it('shows a custom hint instead of "write an answer first" when the caller overrides it', () => {
+    useAuthStore.setState({ user })
+    render(
+      <AiAnswerCheck
+        questionId={7}
+        answer=""
+        onSuggest={vi.fn()}
+        noAnswerHint="Du hast diese Frage nicht beantwortet."
+      />,
+    )
+    expect(screen.getByRole('button', ROW)).toHaveTextContent('Du hast diese Frage nicht beantwortet.')
+  })
+
   it('is disabled for an answer longer than the check accepts, and says so', () => {
     useAuthStore.setState({ user })
     const fetchMock = vi.fn()

@@ -72,6 +72,38 @@ describe('AdminQuestionsPage', () => {
     expect(Object.fromEntries(params)).toEqual({ q: '', subject: 'navigation' })
   })
 
+  it('shows the sketch image without an empty official-answer paragraph when only the text is missing', async () => {
+    const user = userEvent.setup()
+    stubFetch(() =>
+      jsonResponse([
+        { ...anchorQuestion, answer_text: '', answer_images: [{ src: 'skizze.png', width: 100, height: 80 }] },
+      ]),
+    )
+    render(<AdminQuestionsPage />)
+
+    await user.type(screen.getByLabelText('Text oder Nummer'), 'anker')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+
+    expect(await screen.findByText('1 Frage')).toBeInTheDocument()
+    expect(screen.queryByText(/Skizze/)).not.toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort' })).toBeInTheDocument()
+  })
+
+  it('explains a sketch-only official answer when both its text and its image are missing', async () => {
+    const user = userEvent.setup()
+    stubFetch(() => jsonResponse([{ ...anchorQuestion, answer_text: '', answer_images: [] }]))
+    render(<AdminQuestionsPage />)
+
+    await user.type(screen.getByLabelText('Text oder Nummer'), 'anker')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+
+    expect(
+      await screen.findByText(
+        'Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen kann.',
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('shows an unknown subject by its key', async () => {
     const user = userEvent.setup()
     stubFetch(() => jsonResponse([{ ...anchorQuestion, subject: 'neu', topic: null }]))

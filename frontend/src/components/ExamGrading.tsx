@@ -68,7 +68,11 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         saveErrorMessage="Die Bewertung konnte nicht gespeichert werden."
         aiCheck={
           question.official_answer && question.question_id !== null
-            ? { questionId: question.question_id, answer: question.answer_text ?? '' }
+            ? {
+                questionId: question.question_id,
+                answer: question.answer_text ?? '',
+                noAnswerHint: 'Du hast diese Frage nicht beantwortet.',
+              }
             : null
         }
       />

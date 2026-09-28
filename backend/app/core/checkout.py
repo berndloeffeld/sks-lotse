@@ -5,6 +5,7 @@ to tell the frontend whether to show the buy buttons.
 """
 
 from app.core.config import settings
+from app.core.email_address import canonicalize_email
 
 
 def stripe_product_id(product: str) -> str:
@@ -28,4 +29,4 @@ def checkout_enabled_for(email: str) -> bool:
         return False
     if settings.stripe_checkout == "on":
         return True
-    return settings.stripe_checkout == "admins" and email in settings.admin_emails_set
+    return settings.stripe_checkout == "admins" and canonicalize_email(email) in settings.admin_emails_set

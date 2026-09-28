@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress } from '../api/types'
-import { OUTCOME_LABELS } from '../labels'
+import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { CourseGauge } from './CourseGauge'
 import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
@@ -14,8 +14,6 @@ import { RichText } from './RichText'
 import { SelfAssessment } from './SelfAssessment'
 
 type Phase = 'answer' | 'assess'
-
-const OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
 
 function shuffled<T>(items: T[]): T[] {
   const copy = [...items]

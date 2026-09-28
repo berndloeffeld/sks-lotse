@@ -84,11 +84,14 @@ def ai_grade_answer(
         raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
     try:
         graded = grade_answer(question.question_text, question.answer_text, payload.answer)
-    except GradingUnavailable as exc:
-        # A check that never happened costs the learner nothing: the token and both caps are given back.
+    except Exception as exc:
+        # A check that never happened costs the learner nothing: the token and both caps are given
+        # back — regardless of what went wrong, not just the expected GradingUnavailable case.
         token_wallet.refund(db, current_user.id)
         forget_last(request.app, "ai_grade:question", question_key)
         forget_last(request.app, "ai_grade:user", str(current_user.id))
+        if not isinstance(exc, GradingUnavailable):
+            raise
         # Reason only — the learner's answer is never logged.
         logger.warning("AI answer check unavailable: %s", exc)
         raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc

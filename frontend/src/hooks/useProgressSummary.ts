@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
@@ -25,7 +25,9 @@ export function useProgressSummary() {
     failed,
     reload: fetchProgress,
   } = useApiQuery('progress-summary', () => apiClient.get<TopicProgress[]>('/progress/summary'))
-  const progress = data ?? []
+  // Memoized so the derivations below (keyed on `progress`) don't recompute on every render just
+  // because `data ?? []` makes a new array each time while nothing has actually loaded yet.
+  const progress = useMemo(() => data ?? [], [data])
   const error = failed ? 'Der Lernstand konnte nicht geladen werden.' : null
   // Separate from `error`: a failed mark/unmark must not replace the whole
   // Lernstand with an error message.
@@ -51,40 +53,55 @@ export function useProgressSummary() {
   )
 
   // /progress/summary is already ordered by (subject, display_order) —
-  // grouping via Map preserves that order.
-  const bySubject = new Map<string, TopicProgress[]>()
-  for (const topic of progress) {
-    const topics = bySubject.get(topic.subject) ?? []
-    topics.push(topic)
-    bySubject.set(topic.subject, topics)
-  }
+  // grouping via Map preserves that order. Memoized on `progress`: without it, these would
+  // recompute on every render, including ones triggered by unrelated state like `focusError`.
+  const bySubject = useMemo(() => {
+    const map = new Map<string, TopicProgress[]>()
+    for (const topic of progress) {
+      const topics = map.get(topic.subject) ?? []
+      topics.push(topic)
+      map.set(topic.subject, topics)
+    }
+    return map
+  }, [progress])
 
-  const totals = progress.reduce(
-    (acc, topic) => ({
-      learned: acc.learned + topic.learned_questions,
-      total: acc.total + topic.total_questions,
-    }),
-    { learned: 0, total: 0 },
+  const totals = useMemo(
+    () =>
+      progress.reduce(
+        (acc, topic) => ({
+          learned: acc.learned + topic.learned_questions,
+          total: acc.total + topic.total_questions,
+        }),
+        { learned: 0, total: 0 },
+      ),
+    [progress],
   )
 
-  const focusTopics = progress.filter((topic) => topic.is_focus)
-  const focusTotals = focusTopics.reduce(
-    (acc, topic) => ({
-      learned: acc.learned + topic.learned_questions,
-      learning: acc.learning + topic.learning_questions,
-      total: acc.total + topic.total_questions,
-    }),
-    { learned: 0, learning: 0, total: 0 },
+  const focusTopics = useMemo(() => progress.filter((topic) => topic.is_focus), [progress])
+  const focusTotals = useMemo(
+    () =>
+      focusTopics.reduce(
+        (acc, topic) => ({
+          learned: acc.learned + topic.learned_questions,
+          learning: acc.learning + topic.learning_questions,
+          total: acc.total + topic.total_questions,
+        }),
+        { learned: 0, learning: 0, total: 0 },
+      ),
+    [focusTopics],
   )
 
-  const categoryMap = new Map<string, ProgressSlice>()
-  for (const topic of progress) {
-    const key = CATEGORY_BY_SUBJECT[topic.subject] ?? topic.subject
-    const slice = categoryMap.get(key) ?? { key, label: SUBJECT_GROUP_LABELS[key] ?? key, learned: 0, total: 0 }
-    slice.learned += topic.learned_questions
-    slice.total += topic.total_questions
-    categoryMap.set(key, slice)
-  }
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, ProgressSlice>()
+    for (const topic of progress) {
+      const key = CATEGORY_BY_SUBJECT[topic.subject] ?? topic.subject
+      const slice = map.get(key) ?? { key, label: SUBJECT_GROUP_LABELS[key] ?? key, learned: 0, total: 0 }
+      slice.learned += topic.learned_questions
+      slice.total += topic.total_questions
+      map.set(key, slice)
+    }
+    return map
+  }, [progress])
 
   return {
     progress,

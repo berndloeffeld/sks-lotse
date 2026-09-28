@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 
 import type { GradingOutcome } from '../api/types'
-import { OUTCOME_LABELS } from '../labels'
+import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { scrollBelowIntoView } from '../scroll'
 import { AiAnswerCheck } from './AiAnswerCheck'
 import { formStyles } from './formStyles'
 
-const OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
 const styles = formStyles('light')
 
 interface SelfAssessmentProps {
@@ -17,7 +16,9 @@ interface SelfAssessmentProps {
   onSave: (outcome: GradingOutcome) => Promise<void>
   saveErrorMessage: string
   // The Lotsen-Check row (ADR-0031), when the question has a text answer to check against.
-  aiCheck: { questionId: number; answer: string } | null
+  // noAnswerHint overrides the default "write an answer first" hint (e.g. the exam review screen,
+  // where the answer is already fixed and can't be written here).
+  aiCheck: { questionId: number; answer: string; noAnswerHint?: string } | null
   // Practice lays the radios out in a row under the answers, the exam as a column.
   layout: 'row' | 'column'
 }
@@ -126,6 +127,7 @@ export function SelfAssessment({ name, onSave, saveErrorMessage, aiCheck, layout
         <AiAnswerCheck
           questionId={aiCheck.questionId}
           answer={aiCheck.answer}
+          noAnswerHint={aiCheck.noAnswerHint}
           onSuggest={suggestOutcome}
           buttonRef={askRef}
           onButtonKeyDown={(event) => {
