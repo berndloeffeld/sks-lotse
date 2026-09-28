@@ -110,7 +110,12 @@ def test_refresh_window_and_half_life_edges(client, db_session, auth_headers):
     ]
     db_session.add_all(
         QuestionProgress(
-            user_id=user.id, question_id=q.id, half_life_days=h, last_graded_at=now, review_due_at=due
+            user_id=user.id,
+            question_id=q.id,
+            half_life_days=h,
+            last_graded_at=now,
+            review_due_at=due,
+            streak_start_at=now,
         )
         for q, h, due in rows
     )

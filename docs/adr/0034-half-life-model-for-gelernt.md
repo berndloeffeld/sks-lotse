@@ -1,6 +1,6 @@
 # 0034. Half-life model for "gelernt" (replaces the 3-streak rule)
 
-Status: Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start).
+Status: Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start); the "gelernt" gate is amended by [ADR-0050](0050-setback-cannot-regrant-gelernt.md) (a setback can't itself regrant it).
 
 ## Context
 
