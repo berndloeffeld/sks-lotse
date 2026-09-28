@@ -99,6 +99,18 @@ def test_a_failed_call_refunds_the_token(client, db_session, monkeypatch):
     assert _user(db_session, "refund@example.com").token_balance == _PLENTY_OF_TOKENS
 
 
+def test_an_unexpected_error_still_refunds_the_token(client, db_session, monkeypatch):
+    def boom(*args):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(grading_api, "grade_answer", boom)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True, email="unexpected@example.com")
+    with pytest.raises(RuntimeError):
+        _post(client, q.id, headers)
+    assert _user(db_session, "unexpected@example.com").token_balance == _PLENTY_OF_TOKENS
+
+
 def test_validation_and_missing_question(client, db_session, fake_grader):
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)

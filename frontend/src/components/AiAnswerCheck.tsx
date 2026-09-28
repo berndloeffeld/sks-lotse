@@ -25,6 +25,9 @@ interface AiAnswerCheckProps {
   // So the parent can fold the button into the Tab loop of the grade radios.
   buttonRef?: Ref<HTMLButtonElement>
   onButtonKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void
+  // Overrides the default "write an answer first" hint for a context where the learner can't
+  // write one here (e.g. the exam's read-only self-assessment, where `answer` is already fixed).
+  noAnswerHint?: string
 }
 
 function errorMessage(error: unknown): string {
@@ -61,7 +64,14 @@ function Ribbon() {
 // grades. Accounts with no tokens see it dimmed — with a link to buy more where the checkout is
 // open to them (ADR-0048), with "bald verfügbar" otherwise (prices live on /pricing).
 // Keyed by question in the parent.
-export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButtonKeyDown }: AiAnswerCheckProps) {
+export function AiAnswerCheck({
+  questionId,
+  answer,
+  onSuggest,
+  buttonRef,
+  onButtonKeyDown,
+  noAnswerHint,
+}: AiAnswerCheckProps) {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const { run, isPending: isChecking, error } = useAsyncAction()
@@ -75,7 +85,7 @@ export function AiAnswerCheck({ questionId, answer, onSuggest, buttonRef, onButt
 
   let hint = `Die KI schlägt dir eine Bewertung vor · ${user?.token_balance ?? 0} Token(s)`
   if (isChecking) hint = 'Lotse prüft…'
-  else if (!hasAnswer) hint = 'Schreibe zuerst eine Antwort'
+  else if (!hasAnswer) hint = noAnswerHint ?? 'Schreibe zuerst eine Antwort'
   else if (tooLong) hint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
 
   const isDisabled = !hasTokens || isChecking || !hasAnswer || tooLong

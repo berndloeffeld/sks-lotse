@@ -434,6 +434,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
 
     with caplog.at_level("INFO", logger="app.api.v1.admin"):
         client.get("/api/v1/admin/users", params={"q": "target@example"}, headers=auth_headers)
+        client.get(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
         client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
         client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD, headers=auth_headers)
         client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
@@ -442,6 +443,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     messages = [r.getMessage() for r in caplog.records if r.name == "app.api.v1.admin"]
     assert messages == [
         f"admin action: admin={admin.id} action=list_users offset=0 results=1",
+        f"admin action: admin={admin.id} action=get_user target_user={target_id}",
         f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
         f"admin action: admin={admin.id} action=update_settings "
         "price_ads_removed_cents=500 signup_bonus_tokens=6 tokens_s=(20, 299) tokens_m=(50, 599) "

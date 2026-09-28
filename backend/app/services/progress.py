@@ -11,10 +11,17 @@ from app.models.question_progress import QuestionProgress
 from app.services.focus import remove_focus_if_topic_learned
 
 
-def _progress_row(db: Session, user_id: int, question_id: int) -> QuestionProgress | None:
+def _progress_row(
+    db: Session, user_id: int, question_id: int, for_update: bool = False
+) -> QuestionProgress | None:
     stmt = select(QuestionProgress).where(
         QuestionProgress.user_id == user_id, QuestionProgress.question_id == question_id
     )
+    if for_update:
+        # Row lock until the caller commits, so two concurrent gradings of the same question
+        # serialize instead of each reading the same stale half-life/streak and one clobbering
+        # the other's update. No-op on SQLite.
+        stmt = stmt.with_for_update()
     return db.execute(stmt).scalar_one_or_none()
 
 
@@ -25,7 +32,7 @@ def record_grading(
 
     None if the progress row a concurrent grading created has vanished again.
     """
-    row = _progress_row(db, user_id, question.id)
+    row = _progress_row(db, user_id, question.id, for_update=True)
     is_new = row is None
     if row is None:
         row = QuestionProgress(user_id=user_id, question_id=question.id)
@@ -37,7 +44,7 @@ def record_grading(
             # between our read and this insert — apply this one on top of it.
             db.rollback()
             is_new = False
-            row = _progress_row(db, user_id, question.id)
+            row = _progress_row(db, user_id, question.id, for_update=True)
             if row is None:
                 # The row that beat us is gone again (e.g. the account was
                 # deleted meanwhile) — nothing sensible to apply the grading to.
@@ -65,9 +72,9 @@ def credit_correct_answers(db: Session, user_id: int, question_ids: list[int], n
     existing = {
         row.question_id: row
         for row in db.execute(
-            select(QuestionProgress).where(
-                QuestionProgress.user_id == user_id, QuestionProgress.question_id.in_(ids)
-            )
+            select(QuestionProgress)
+            .where(QuestionProgress.user_id == user_id, QuestionProgress.question_id.in_(ids))
+            .with_for_update()
         ).scalars()
     }
     missing = [q.id for q in questions if q.id not in existing]

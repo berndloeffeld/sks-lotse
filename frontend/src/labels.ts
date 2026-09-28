@@ -23,6 +23,10 @@ export const OUTCOME_LABELS: Record<GradingOutcome, string> = {
   falsch: 'Falsch',
 }
 
+// The three outcomes, in the same fixed order — shared so PracticeRun's tally and
+// SelfAssessment's radio group don't each re-derive it.
+export const GRADING_OUTCOMES = Object.keys(OUTCOME_LABELS) as GradingOutcome[]
+
 // Mirrors the catalog's subjects (backend/app/services/catalog_seed.py).
 export const SUBJECT_LABELS: Record<string, string> = {
   navigation: 'Navigation',

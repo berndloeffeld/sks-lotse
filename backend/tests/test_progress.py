@@ -318,6 +318,31 @@ def test_gelernt_starts_exactly_at_the_learned_half_life(db_session):
     assert _count_where(db_session, learning_clause(now)) == 0
 
 
+def test_a_setback_landing_exactly_on_the_initial_half_life_still_counts_as_teilweise_gelernt(db_session):
+    # 4.0 * the "falsch" factor (0.25) lands bit-exactly on INITIAL_HALF_LIFE_DAYS — unlike a
+    # genuinely never-graded row, this one has answered right before (last_correct_at is set,
+    # never cleared by a setback), so it must still count as "Teilweise gelernt".
+    user = User(email="setback-boundary@example.com")
+    db_session.add(user)
+    question = Question(subject="navigation", number=1, question_text="Q?", answer_text="A")
+    db_session.add(question)
+    db_session.commit()
+    now = datetime.now(UTC)
+    row = QuestionProgress(
+        user_id=user.id,
+        question_id=question.id,
+        half_life_days=INITIAL_HALF_LIFE_DAYS,
+        last_graded_at=now,
+        last_correct_at=now - timedelta(days=3),
+        streak_start_at=None,
+        review_due_at=now + timedelta(days=1),
+    )
+    db_session.add(row)
+    db_session.commit()
+
+    assert _count_where(db_session, learning_clause(now)) == 1
+
+
 def test_progress_fraction_is_a_position_that_only_reaches_one_when_learned():
     now = datetime.now(UTC)
     assert progress_fraction(QuestionProgress(**progress_state(0)), now) == 0.0
@@ -478,9 +503,9 @@ def test_grade_question_survives_a_concurrent_first_grading(client, db_session, 
     real_progress_row = progress_api._progress_row
     calls = []
 
-    def stale_first_lookup(db, user_id, question_id):
+    def stale_first_lookup(db, user_id, question_id, for_update=False):
         calls.append(question_id)
-        return None if len(calls) == 1 else real_progress_row(db, user_id, question_id)
+        return None if len(calls) == 1 else real_progress_row(db, user_id, question_id, for_update=for_update)
 
     monkeypatch.setattr(progress_api, "_progress_row", stale_first_lookup)
 
@@ -500,7 +525,9 @@ def test_grade_question_409_when_the_racing_row_vanished(client, db_session, aut
     db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
     db_session.commit()
     # The row exists (so the insert collides) but every lookup misses it.
-    monkeypatch.setattr(progress_api, "_progress_row", lambda db, user_id, question_id: None)
+    monkeypatch.setattr(
+        progress_api, "_progress_row", lambda db, user_id, question_id, for_update=False: None
+    )
 
     response = client.post(
         f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"}, headers=auth_headers

@@ -19,7 +19,7 @@ import math
 from datetime import datetime, timedelta
 from typing import Literal
 
-from sqlalchemy import ColumnElement, and_
+from sqlalchemy import ColumnElement, and_, or_
 
 from app.core.timeutil import as_utc
 from app.models.question_progress import QuestionProgress
@@ -148,8 +148,20 @@ def refresh_quota(lapsed_available: int, expiring_available: int) -> tuple[int, 
 
 
 def learning_clause(now: datetime) -> ColumnElement[bool]:
-    """ "Teilweise gelernt": answered right at least once, but not (or no longer) gelernt."""
-    return and_(QuestionProgress.half_life_days > INITIAL_HALF_LIFE_DAYS, ~learned_clause(now))
+    """ "Teilweise gelernt": answered right at least once, but not (or no longer) gelernt.
+
+    Usually half_life_days alone tells a never-graded row apart from one with real history, but a
+    setback (``x0.25``/``x0.5``) can land a row that had genuinely progressed bit-exactly back on
+    INITIAL_HALF_LIFE_DAYS — last_correct_at (set by every "Richtig", never cleared by a setback)
+    is what actually answers "answered right at least once" at that boundary.
+    """
+    return and_(
+        or_(
+            QuestionProgress.half_life_days > INITIAL_HALF_LIFE_DAYS,
+            QuestionProgress.last_correct_at.is_not(None),
+        ),
+        ~learned_clause(now),
+    )
 
 
 def progress_fraction(row: QuestionProgress, now: datetime) -> float:

@@ -22,33 +22,35 @@ export function useApiQuery<T>(key: string, fetcher: () => Promise<T>) {
   const [state, setState] = useState<QueryState<T>>({ key: null, data: undefined, failed: false })
   const fetcherRef = useRef(fetcher)
   const keyRef = useRef(key)
+  // The most recently *started* fetch is authoritative — shared between the mount effect and
+  // reload(), so two overlapping calls (a key change racing a reload, or two reloads) always let
+  // the latest one win, regardless of which resolves first.
+  const requestIdRef = useRef(0)
   useEffect(() => {
     fetcherRef.current = fetcher
     keyRef.current = key
   })
 
   useEffect(() => {
-    let active = true
+    const requestId = ++requestIdRef.current
     fetcherRef.current().then(
       (data) => {
-        if (active) setState({ key, data, failed: false })
+        if (requestIdRef.current === requestId) setState({ key, data, failed: false })
       },
       () => {
-        if (active) setState({ key, data: undefined, failed: true })
+        if (requestIdRef.current === requestId) setState({ key, data: undefined, failed: true })
       },
     )
-    return () => {
-      active = false
-    }
   }, [key])
 
   const reload = useCallback(async () => {
     const reloading = keyRef.current
+    const requestId = ++requestIdRef.current
     try {
       const data = await fetcherRef.current()
-      setState((current) => (current.key === reloading ? { key: reloading, data, failed: false } : current))
+      if (requestIdRef.current === requestId) setState({ key: reloading, data, failed: false })
     } catch {
-      setState((current) => (current.key === reloading ? { ...current, failed: true } : current))
+      if (requestIdRef.current === requestId) setState((current) => ({ ...current, failed: true }))
     }
   }, [])
 

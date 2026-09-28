@@ -90,9 +90,18 @@ export function AdminQuestionsPage() {
                 <QuestionImages images={question.question_images} part="question" />
                 <div className="border-t border-border pt-3 text-sm text-ink">
                   <p className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</p>
-                  <p className="whitespace-pre-line">
-                    <RichText text={question.answer_text} />
-                  </p>
+                  {question.answer_text ? (
+                    <p className="whitespace-pre-line">
+                      <RichText text={question.answer_text} />
+                    </p>
+                  ) : question.answer_images.length === 0 ? (
+                    // A few official answers are only a sketch in the catalog PDF, with no text at all;
+                    // their sketch is an answer image, so this is only reached if that image is missing.
+                    <p className="text-ink-soft italic">
+                      Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen
+                      kann.
+                    </p>
+                  ) : null}
                 </div>
                 <QuestionImages images={question.answer_images} part="answer" />
               </li>

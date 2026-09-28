@@ -79,6 +79,15 @@ def test_checkout_enabled_for_follows_the_flag(monkeypatch, flag, key, admin, ex
     assert checkout.checkout_enabled_for(FIXTURE_EMAIL) is expected
 
 
+def test_checkout_enabled_for_canonicalizes_the_email_before_comparing(monkeypatch):
+    # admin_emails_set is always canonical (config.py); a caller passing a differently-cased,
+    # dotted Gmail variant of the same address must still match.
+    monkeypatch.setattr(settings, "stripe_checkout", "admins")
+    monkeypatch.setattr(settings, "stripe_secret_key", "sk_test")
+    monkeypatch.setattr(settings, "admin_emails", "admin@gmail.com")
+    assert checkout.checkout_enabled_for("Ad.Min@GMAIL.com") is True
+
+
 @pytest.mark.parametrize(
     ("flag", "key", "expected"), [("on", "sk", True), ("admins", "sk", False), ("on", "", False)]
 )

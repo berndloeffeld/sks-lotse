@@ -67,8 +67,11 @@ def list_users(
 
 
 @router.get("/users/{user_id}", response_model=AdminUserRead)
-def get_user(user_id: int, request: Request, db: Session = Depends(get_db)) -> AdminUserRead:
+def get_user(
+    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminUserRead:
     user = _get_user_or_404(db, user_id)
+    _audit(admin, "get_user", target_user=user.id)
     return admin_users.admin_user_read(request.app, db, user)
 
 
