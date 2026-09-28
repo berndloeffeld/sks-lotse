@@ -60,6 +60,54 @@ Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security sc
 
 ## Components
 
+### Component diagram
+
+Internal module structure of each app — what talks to what inside the codebase, not the deployed system (see [System context](#system-context) above for that). A request flows top to bottom.
+
+```mermaid
+graph TD
+    MW["middleware (in order)<br/>Request ID → CORS → Security headers →<br/>Rate limit → Maintenance mode → Redirect domains"]
+    Routers["api/v1/ routers<br/>auth · questions · progress · grading ·<br/>pricing · exams · admin · admin_mfa · payments"]
+    Schemas["schemas/<br/>Pydantic request/response contracts"]
+    Core["core/<br/>config · JWT/OTP · cache · middleware"]
+    Services["services/<br/>shared business logic"]
+    Models["models/<br/>SQLAlchemy ORM"]
+    DB[(PostgreSQL 18)]
+    Resend[Resend]
+    Anthropic[Anthropic API]
+    Stripe[Stripe]
+
+    MW --> Routers
+    Routers -- validates --> Schemas
+    Routers -- "config · cache" --> Core
+    Routers -- calls --> Services
+    Services -- "config · cache" --> Core
+    Services -- "reads/writes" --> Models
+    Models --> DB
+    Services --> Resend
+    Services --> Anthropic
+    Services --> Stripe
+```
+
+```mermaid
+graph TD
+    Guards["routes/ guards<br/>ProtectedRoute · AgbGate · AdScriptGate"]
+    Pages["pages/<br/>route-level screens"]
+    Components["components/<br/>shared UI, e.g. SelfAssessment, PracticeRun, AdminLayout"]
+    Store["store/<br/>Zustand: authStore, maintenanceStore"]
+    Hooks["hooks/<br/>useApiQuery + data hooks"]
+    Api["api/<br/>client.ts · schema.gen.ts · types.ts"]
+    Backend["Backend API<br/>/api/v1/*"]
+
+    Guards --> Pages
+    Pages --> Components
+    Pages --> Store
+    Pages --> Hooks
+    Store -- "session check" --> Api
+    Hooks -- "typed requests" --> Api
+    Api -- "HTTPS, httpOnly cookie" --> Backend
+```
+
 ### Frontend (`frontend/`)
 A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013](adr/0013-frontend-architecture-and-tooling.md)), served by a Render static site ([ADR-0015](adr/0015-frontend-deployment-topology.md)).
 
