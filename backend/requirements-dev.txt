@@ -22,9 +22,9 @@ annotated-types==0.8.0 \
     # via
     #   -c requirements.txt
     #   pydantic
-anthropic==1.7.0 \
-    --hash=sha256:0ab1b04668606ba1ae93f6d9e8dcc2e0c4f0debebd4eea4773a3a595f0836db1 \
-    --hash=sha256:6b681b6ee00f232bb54f50f9a0d6d30e7be368c1b6f754bfd470c8385b8b6058
+anthropic==1.8.0 \
+    --hash=sha256:79a4516a21e64fd7b15be1a49ebf544bd6376c96a971a77365358823a2717bc6 \
+    --hash=sha256:9c1783ed90f409617749a61c5ab98e20624a572626f2e0a15cea03ed8e1401e5
     # via
     #   -c requirements.txt
     #   -r requirements.in
@@ -573,9 +573,9 @@ cryptography==50.0.1 \
     # via
     #   -c requirements.txt
     #   -r requirements.in
-disposable-email-domains==0.0.263 \
-    --hash=sha256:b763b594c2af65387467981aadb7ad24f212514911962489a4792ab10b70f1b2 \
-    --hash=sha256:eebb4dfc1892aa1d7cc9002f7e63fde0f4cf941da97bbc65a4d7930814054f30
+disposable-email-domains==0.0.266 \
+    --hash=sha256:0adb0e417b620eb33276dc87c7aba9250996e989b60499c4bd198be81a9d26d1 \
+    --hash=sha256:f6d0e27fc8ce8e9593cc11a81f384f66a2ce76924b9508a75dfec2fce9c4bcb5
     # via
     #   -c requirements.txt
     #   -r requirements.in
