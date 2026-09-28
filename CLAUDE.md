@@ -22,6 +22,7 @@ This holds in particular for `docs/FEATURES.md` (a change to what learners or op
 ## Repository layout
 
 ```
+.github/    workflows (backend-ci, frontend-ci, mutation-testing, maintenance-mode, reset-admin-2fa)
 backend/    FastAPI app (app/api/v1 routes, app/services shared logic, app/core cross-cutting), alembic/, scripts/, tests/
 frontend/   React + Vite + TypeScript SPA (src/pages, src/components, src/hooks, src/api, src/store, src/routes)
 docs/       ARCHITECTURE.md, RUNBOOK.md, catalog-pipeline.md, adr/, the catalog PDF
@@ -47,8 +48,7 @@ Trunk-based development:
 - `main` — trunk, single source of truth, auto-deploys to Render
 - `feature/*` — short-lived feature branches, merge back to main via PR
 - No long-lived branches
-- Never commit directly to `main`
-- Every change, however small, goes on a dedicated `feature/*` branch cut from `main`; open a PR to merge back
+- Never commit directly to `main` — every change, however small, goes on a dedicated `feature/*` branch cut from `main`, merged back via PR
 - Merge with **squash** (the repo's convention — `main` has one commit per PR, titled `... (#NN)`); the head branch is deleted automatically.
 
 **Branch protection on `main`** (enforced by GitHub, admins included — this is the actual merge gate):
@@ -71,20 +71,14 @@ All file edits must be made in the canonical project root:
 
 Never write to a git worktree path (e.g. `.claude/worktrees/...`). If Claude Code is invoked from a worktree, edits must still target the real project root above.
 
-### Design Principles
-
-#### Avoid pipeline overkill for rare tasks
+### Avoid pipeline overkill for rare tasks
 For infrequent/one-off operations (e.g. importing the SKS question catalog from PDF, which runs once or a few times total), do not build infrastructure — use a plain script instead. No pipelines, queues, task runners, or extra abstraction layers are needed for tasks that run rarely. This aligns with the general principle of avoiding premature abstraction: match the infrastructure to the actual problem, not hypothetical future complexity.
 
 ### Naming: English in code and URLs, German in the UI
 Route paths, file and component names and code identifiers are English (`/pricing`, `/terms`, `/learn/focus`, `PricingPage`); only what the learner reads is German (labels, copy, page titles). A path that has to change keeps working: add it to `RETIRED_PATHS` in `frontend/src/App.tsx`, and a public one also gets a `type: redirect` in `render.yaml`. Domain terms from the catalog or the law stay as they are: subject keys like `navigation`, the exam variants, and AGB (`AgbPage`, `AgbGate`, `agb_accepted_*`).
 
 ### Security Scanning (Aikido)
-Aikido Security is connected to this GitHub repo.
-
-- **Aikido rescans the repo about every three days**, on its own schedule — not per PR or merge. So it is **not a merge gate**: there is no Aikido job in CI, no required status check, and nobody has to check it before merging (the job was removed 2026-09-19: Aikido's free plan rejects API access with "This action is not allowed on the free plan", so it failed on every PR; the `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET` GitHub Actions secrets are unused now).
-- **An Aikido alert is handled right away, though.** Findings arrive with a delay of up to ~3 days after the change that caused them (a new dependency, a bumped lock), so when an alert or mail comes in, it takes priority over the feature work in flight: triage it the same day — fix it on a dedicated `feature/*` branch (usually a dependency bump through the pip-compile/npm flow, see README → Dependencies), or accept/ignore it in Aikido with a written reason. A finding is never left open without a decision. After merging a change that touches dependencies, expect a possible alert within the next few days. Steps: [docs/RUNBOOK.md](docs/RUNBOOK.md) → Security alerts (Aikido).
-- `scripts/check_aikido.sh` queries the Aikido API directly for open findings on the repo (whichever branch Aikido last scanned) — run it locally instead of asking for a dashboard screenshot (needs a plan with API access; otherwise it prints the API error and exits 1 — use the dashboard then). Needs `.env.aikido` (gitignored, not committed) with `AIKIDO_CLIENT_ID` / `AIKIDO_CLIENT_SECRET` from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
+Aikido rescans the repo about every three days, on its own schedule — **not a merge gate** (no CI job, no required check; removed 2026-09-19 when Aikido's free plan stopped allowing API access from CI, so the job failed every PR). An alert is still handled right away: it takes priority over feature work in flight, triaged the same day it arrives. Steps, `scripts/check_aikido.sh` usage and the API credentials it needs: [docs/RUNBOOK.md](docs/RUNBOOK.md) → Security alerts (Aikido).
 
 ### Test Coverage
 Backend enforces a minimum of **95% coverage (lines + branches)** via `pytest-cov` (`backend/pyproject.toml`, `--cov-branch --cov-fail-under=95`) — `pytest` fails the run if coverage drops below that. The bar sits a few points under the actual value (~99%) on purpose: high enough to catch untested new code, with room for the odd defensive branch. Raise it when the actual value settles higher; don't lower it to get a PR through — test the code.
@@ -112,13 +106,13 @@ Logic that lives inline in a route handler isn't covered by the normal run (deco
 Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
 
 - `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml`'s `lint` job on every push to `main` and on every PR — a required check.
-- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install -t pre-commit -t pre-push` (the package is in `requirements-dev.txt`); the pre-push stage adds `mypy app` and `tsc -b`.
+- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs ruff on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install --install-hooks -t pre-commit -t pre-push` (the package is in `requirements-dev.txt`); the pre-push stage adds `mypy app` and `tsc -b`.
 
 - `mypy app` (`[tool.mypy]` in `backend/pyproject.toml`) runs in the same `lint` job; a `# type: ignore` carries its reason after a second `#`. The frontend compiles with `"strict": true` (`tsc -b` in the `test` job).
 - Complexity is capped via `C901`/`PLR0912` (`max-complexity`/`max-branches` = 10) — split a function rather than raising the ceiling. `PLR0913` (argument count) is deliberately off: FastAPI routes take their dependencies as arguments.
 - The rule set is `E, F, I, UP, B, S, SIM, C4, RUF, C901, PLR0912` (`backend/pyproject.toml`). `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug. Tests are exempt from the bandit `S101`/`S105` and `RUF001` (asserts, dummy tokens, full-width test digits). A `# noqa` in app code carries its reason after a dash.
 
-Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md).
+Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md). `eslint-plugin-jsx-a11y`'s recommended rules are the only accessibility bar — no separate WCAG target is defined.
 
 - `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `lint` job — a required check, like the backend's.
 - Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to the `pre-commit install` above).
@@ -161,7 +155,7 @@ How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/
 Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
 
 - **Temporary/transient data needs cleanup.** If a table accumulates rows that are only useful for a bounded time (codes, tokens, sessions, request logs), decide how they get deleted before shipping the feature, not after the table grows unbounded. Doesn't have to be a scheduled job — piggybacking cleanup on an existing write path (delete-on-insert) is a legitimate, infrastructure-free answer for an MVP at this scale; run it as a background task (`BackgroundTasks.add_task`) rather than inline if the delete would otherwise add latency to that request — the task opens its own session via `get_session_factory` (`backend/app/core/database.py`), never the request's `get_db` one — and see the throttling rule below so its frequency doesn't scale with request volume. Example: `otp_codes` cleanup in `issue_code` (`backend/app/services/otp_codes.py`, [docs/adr/0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)).
-- **Index for the read pattern, not just uniqueness.** When a table will see meaningful read volume, check the actual query shape (equality vs. range, which columns together, which column(s) each *distinct* query filters on) and index accordingly — a composite index in filter/sort order usually beats several single-column indexes for queries that share a filter prefix, but a query with an unrelated filter (no shared leading column) still needs its own index; one composite can't cover every access pattern on a table. Also drop a single-column index once a composite index makes it a redundant subset. Example: `otp_codes` ended up with `(email, created_at)` for the two email-scoped lookups, plus a separate `expires_at` index for the cleanup sweep, which filters on neither column those share.
+- **Index for the read pattern, not just uniqueness.** When a table will see meaningful read volume, check which column(s) each distinct query filters on and index accordingly — a composite index covers a shared filter prefix, but a query with an unrelated filter still needs its own index, and a composite makes a redundant single-column index worth dropping. Example: `otp_codes` ended up with `(email, created_at)` for the two email-scoped lookups, plus a separate `expires_at` index for the cleanup sweep, which filters on neither column those share.
 - **Gate opportunistic/periodic maintenance work that piggybacks on request traffic**, so its cost is bounded regardless of how often the triggering endpoint gets called — under heavy load, "once per request" for something that only needs to run every few minutes is wasted work, not free just because it avoided a scheduled job. Use `cache.throttle(app, key, min_interval_seconds)` (`backend/app/core/cache.py`) to cap it to a cadence, the same practical effect as a cron job without standing up a scheduler. A real scheduler exists now — the `sks-lotse-daily-report` Render Cron Job (ADR-0032) — so work that needs a fixed schedule rather than "at most every N minutes" can become another cron job; still don't add one for something throttled piggybacking already covers. Example: `otp_codes` cleanup throttled to once per `OTP_CLEANUP_MIN_INTERVAL_SECONDS` ([docs/adr/0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)).
 - **Consider caching for read-heavy, rarely-written data**, local (in-process) first — no new infrastructure until there's a concrete reason for it (multiple instances, restarts frequent enough to matter) — but behind an interface that could swap to a shared store like Redis later without callers changing. `backend/app/core/cache.py` is that interface; see [docs/adr/0009](docs/adr/0009-in-process-cache-for-question-catalog.md) and [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) (the rate limiter established the same local-first-but-swappable pattern for a different kind of state).
 
