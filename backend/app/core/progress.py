@@ -9,6 +9,10 @@ weights fitted on review logs — there is no data to fit them on yet.
 Within an unbroken "Richtig" streak, the spacing effect is measured against the
 streak's first "Richtig", not just the previous grading (docs/adr/0039-cumulative-
 spacing-for-richtig-streaks.md) — see ``apply_grading()``.
+
+A setback ("Teilweise Richtig"/"Falsch") can never itself (re)grant "gelernt", even if the
+surviving half-life still clears the bar — only a subsequent "Richtig" can
+(docs/adr/0050-setback-cannot-regrant-gelernt.md) — see ``_at_learned_bar()``.
 """
 
 import math
@@ -91,30 +95,44 @@ def apply_grading(row: QuestionProgress, outcome: GradingOutcome, now: datetime,
     row.review_due_at = due_at(now, row.half_life_days)
 
 
+def _at_learned_bar(half_life_days: float, streak_start_at: datetime | None) -> bool:
+    """Half-life at the "gelernt" bar, confirmed by the most recent grading being a "Richtig".
+
+    A "Teilweise Richtig"/"Falsch" clears ``streak_start_at`` (see ``apply_grading()``) even when
+    the surviving half-life (halved/quartered) still clears the bar — a setback can never itself
+    grant "gelernt" (docs/adr/0050-...); only a subsequent "Richtig" can.
+    """
+    return half_life_days >= LEARNED_HALF_LIFE_DAYS and streak_start_at is not None
+
+
 def is_learned(row: QuestionProgress, now: datetime) -> bool:
-    return row.half_life_days >= LEARNED_HALF_LIFE_DAYS and as_utc(row.review_due_at) > now
+    return _at_learned_bar(row.half_life_days, row.streak_start_at) and as_utc(row.review_due_at) > now
+
+
+def _at_learned_bar_clause() -> ColumnElement[bool]:
+    """SQL twin of _at_learned_bar()."""
+    return and_(
+        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS,
+        QuestionProgress.streak_start_at.is_not(None),
+    )
 
 
 def learned_clause(now: datetime) -> ColumnElement[bool]:
     """SQL twin of is_learned()."""
-    return and_(
-        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at > now
-    )
+    return and_(_at_learned_bar_clause(), QuestionProgress.review_due_at > now)
 
 
 def refresh_clause(now: datetime) -> ColumnElement[bool]:
     """Was gelernt and has lapsed or is about to: half-life at the bar, due within the window."""
     return and_(
-        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS,
+        _at_learned_bar_clause(),
         QuestionProgress.review_due_at <= now + timedelta(days=REFRESH_WINDOW_DAYS),
     )
 
 
 def lapsed_clause(now: datetime) -> ColumnElement[bool]:
     """Was gelernt (half-life at the bar) but the due date has passed."""
-    return and_(
-        QuestionProgress.half_life_days >= LEARNED_HALF_LIFE_DAYS, QuestionProgress.review_due_at <= now
-    )
+    return and_(_at_learned_bar_clause(), QuestionProgress.review_due_at <= now)
 
 
 def refresh_quota(lapsed_available: int, expiring_available: int) -> tuple[int, int]:
