@@ -25,4 +25,9 @@ def progress_state(level: int, *, graded_days_ago: float = 0.0) -> dict:
     """
     half_life = FULL_GAIN**level if level > 0 else MIN_HALF_LIFE_DAYS
     graded = datetime.now(UTC) - timedelta(days=graded_days_ago)
-    return {"half_life_days": half_life, "last_graded_at": graded, "review_due_at": due_at(graded, half_life)}
+    return {
+        "half_life_days": half_life,
+        "last_graded_at": graded,
+        "review_due_at": due_at(graded, half_life),
+        "streak_start_at": graded if level > 0 else None,
+    }

@@ -232,6 +232,29 @@ def test_is_learned_needs_a_long_half_life_and_recent_grading():
     assert not is_learned(QuestionProgress(**progress_state(3, graded_days_ago=30)), now)
 
 
+def test_a_setback_cannot_regrant_gelernt_even_if_the_half_life_survives_it():
+    # docs/adr/0050-...: a long-established question (half-life 40, well above the bar) setbacks
+    # out of "gelernt" while lapsed, then gets a "teilweise richtig" — halving still clears the
+    # 7-day bar, but that single imperfect answer must not itself make it "gelernt" again.
+    now = datetime.now(UTC)
+    lapsed = QuestionProgress(
+        half_life_days=40.0,
+        last_graded_at=now - timedelta(days=60),
+        streak_start_at=now - timedelta(days=90),
+        review_due_at=now - timedelta(days=1),
+    )
+    assert not is_learned(lapsed, now)  # confirms the setup: already lapsed before the setback
+
+    apply_grading(lapsed, "teilweise_richtig", now, is_new=False)
+    assert lapsed.half_life_days == 20.0  # still well above LEARNED_HALF_LIFE_DAYS
+    assert lapsed.streak_start_at is None
+    assert not is_learned(lapsed, now)
+
+    # A subsequent "Richtig" is what actually re-earns "gelernt".
+    apply_grading(lapsed, "richtig", now + timedelta(days=1), is_new=False)
+    assert is_learned(lapsed, now + timedelta(days=1))
+
+
 def test_is_learned_accepts_naive_timestamps_from_sqlite():
     row = QuestionProgress(**progress_state(3))
     row.review_due_at = row.review_due_at.replace(tzinfo=None)
@@ -248,23 +271,26 @@ def test_sql_clauses_agree_with_is_learned_incl_decayed_questions(db_session):
     user = User(email="clauses@example.com")
     db_session.add(user)
     questions = [
-        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in range(1, 5)
+        Question(subject="navigation", number=n, question_text="Q?", answer_text="A") for n in range(1, 6)
     ]
     db_session.add_all(questions)
     db_session.commit()
+    now = datetime.now(UTC)
     states = [
         progress_state(3),  # gelernt
         progress_state(3, graded_days_ago=30),  # long half-life, but decayed
         progress_state(2),  # on the way
         progress_state(0),  # just failed
+        # docs/adr/0050-...: half-life survived a setback (>= the bar) but the setback itself
+        # cleared streak_start_at — not gelernt until a "Richtig" reconfirms it.
+        {"half_life_days": 20.0, "last_graded_at": now, "review_due_at": now + timedelta(days=5)},
     ]
     for question, state in zip(questions, states, strict=True):
         db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **state))
     db_session.commit()
 
-    now = datetime.now(UTC)
     assert _count_where(db_session, learned_clause(now)) == 1
-    assert _count_where(db_session, learning_clause(now)) == 2  # decayed + on the way, not the failed one
+    assert _count_where(db_session, learning_clause(now)) == 3  # decayed + on the way + setback survivor
 
 
 def test_gelernt_starts_exactly_at_the_learned_half_life(db_session):
@@ -278,7 +304,7 @@ def test_gelernt_starts_exactly_at_the_learned_half_life(db_session):
     db_session.add_all(questions)
     db_session.commit()
     now = datetime.now(UTC)
-    at_learned = {"half_life_days": LEARNED_HALF_LIFE_DAYS, "last_graded_at": now}
+    at_learned = {"half_life_days": LEARNED_HALF_LIFE_DAYS, "last_graded_at": now, "streak_start_at": now}
     at_initial = {"half_life_days": INITIAL_HALF_LIFE_DAYS, "last_graded_at": now}
     rows = [
         QuestionProgress(user_id=user.id, question_id=q.id, review_due_at=now + timedelta(days=1), **state)
