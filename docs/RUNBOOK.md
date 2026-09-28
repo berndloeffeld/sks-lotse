@@ -119,7 +119,7 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 
 Aikido rescans the repo about every three days and mails when it finds something. It is not a merge gate (nothing in CI, nothing to check before merging), so the alert is the only signal, and it lags the change that caused it by up to ~3 days. Treat an alert as interrupting: decide the same day.
 
-1. Look at what is open: the Aikido dashboard, or `./scripts/check_aikido.sh` (needs `.env.aikido` and a plan with API access; otherwise it prints the API error and the dashboard is the way).
+1. Look at what is open: the Aikido dashboard, or `./scripts/check_aikido.sh` (needs a plan with API access; otherwise it prints the API error and the dashboard is the way). It reads `.env.aikido` (gitignored, not committed) for `AIKIDO_CLIENT_ID`/`AIKIDO_CLIENT_SECRET`, from an API client created at [app.aikido.dev/settings/integrations/api/aikido/rest](https://app.aikido.dev/settings/integrations/api/aikido/rest).
 2. A vulnerable dependency: bump it on a `feature/*` branch (`backend/requirements*.in` → pip-compile with hashes, or `npm update` in `frontend/`; README → Dependencies), let CI run, merge. Dependabot may already have opened that PR.
 3. A finding in our own code (SAST): fix it, or, if it is a false positive or an accepted risk, mark it *ignored* in Aikido with the reason written down. Don't leave it open.
 4. Anything that looks exploitable in production (leaked secret, auth bypass): fix and deploy first, then rotate what was exposed (see *Rotating secrets*).
