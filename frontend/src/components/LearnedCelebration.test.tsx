@@ -4,10 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { LearnedCelebration } from './LearnedCelebration'
 
 describe('LearnedCelebration', () => {
-  it('shows the banner with the question number', () => {
-    render(<LearnedCelebration questionNumber={42} />)
+  it('shows the banner explaining the question is paused for a while', () => {
+    render(<LearnedCelebration />)
 
     expect(screen.getByTestId('learned-celebration')).toHaveTextContent('Gelernt!')
-    expect(screen.getByTestId('learned-celebration')).toHaveTextContent('Nr. 42')
+    expect(screen.getByTestId('learned-celebration')).toHaveTextContent(
+      'Diese Frage taucht jetzt eine Weile nicht mehr auf.',
+    )
   })
 })

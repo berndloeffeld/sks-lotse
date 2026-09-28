@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
 
 // Shown for a moment when a question has just become "gelernt": a green
-// "vor Anker" banner over the page with confetti drifting up from it. Purely
+// banner over the page, with confetti drifting up from it, explaining that
+// the question leaves the practice rotation for a while now. Purely
 // decorative — the result is announced to screen readers separately — and
 // not rendered at all under reduced motion.
 
@@ -29,7 +30,7 @@ function Anchor() {
   )
 }
 
-export function LearnedCelebration({ questionNumber }: { questionNumber: number }) {
+export function LearnedCelebration() {
   return (
     <div
       data-testid="learned-celebration"
@@ -37,12 +38,12 @@ export function LearnedCelebration({ questionNumber }: { questionNumber: number 
       className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center motion-reduce:hidden"
     >
       <div
-        className="relative flex flex-col items-center gap-1 rounded-tile bg-success px-10 py-6 text-surface shadow-xl"
+        className="relative flex max-w-xs flex-col items-center gap-1 rounded-tile bg-success px-10 py-6 text-center text-surface shadow-xl"
         style={{ animation: `celebrate-pop ${CELEBRATION_MS}ms ease-out forwards` }}
       >
         <Anchor />
         <p className="font-serif text-3xl">Gelernt!</p>
-        <p className="font-mono text-xs tracking-wide uppercase">Sicher vor Anker · Nr. {questionNumber}</p>
+        <p className="text-sm text-surface/80">Diese Frage taucht jetzt eine Weile nicht mehr auf.</p>
         {PIECES.map((piece, i) => (
           <span
             key={i}
