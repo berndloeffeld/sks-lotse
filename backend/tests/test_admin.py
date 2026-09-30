@@ -590,6 +590,20 @@ def test_admin_question_search(client, db_session, auth_headers, monkeypatch, pa
     assert _search(client, auth_headers, **params) == expected
 
 
+def test_admin_question_search_filters_by_topic(client, db_session, auth_headers, monkeypatch):
+    make_admin(monkeypatch)
+    compass = _add_questions(db_session)[0]
+    topic = Topic(subject="navigation", slug="kompass", name="Kompass", display_order=1)
+    db_session.add(topic)
+    db_session.commit()
+    compass.topic_id = topic.id
+    db_session.commit()
+
+    assert _search(client, auth_headers, subject="navigation", topic="kompass") == [("navigation", 1)]
+    assert _search(client, auth_headers, subject="navigation", topic="kompass", q="Ebbe") == []
+    assert _search(client, auth_headers, topic="gibt-es-nicht") == []
+
+
 def test_admin_question_search_finds_by_id(client, db_session, auth_headers, monkeypatch):
     make_admin(monkeypatch)
     rows = _add_questions(db_session)

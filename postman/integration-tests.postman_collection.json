@@ -7178,7 +7178,11 @@
                   "    pm.expect(questions[0]).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'question_images', 'answer_images', 'topic');",
                   "});",
                   "pm.collectionVariables.set('adminSearchQuestionNumber', questions[0].number);",
-                  "pm.collectionVariables.set('adminSearchQuestionSubject', questions[0].subject);"
+                  "pm.collectionVariables.set('adminSearchQuestionSubject', questions[0].subject);",
+                  "var withTopic = questions.find(function (q) { return q.topic; });",
+                  "pm.test('the catalog has questions with a topic', function () { pm.expect(withTopic).to.exist; });",
+                  "pm.collectionVariables.set('adminSearchTopic', withTopic.topic);",
+                  "pm.collectionVariables.set('adminSearchTopicSubject', withTopic.subject);"
                 ]
               }
             }
@@ -7257,6 +7261,62 @@
                 {
                   "key": "subject",
                   "value": "{{adminSearchQuestionSubject}}"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Search questions - by subject and topic",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var questions = pm.response.json();",
+                  "pm.test('only questions of that topic', function () {",
+                  "    var topic = pm.collectionVariables.get('adminSearchTopic');",
+                  "    pm.expect(questions.length).to.be.above(0);",
+                  "    pm.expect(questions.every(function (q) { return q.topic === topic; })).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions?subject={{adminSearchTopicSubject}}&topic={{adminSearchTopic}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "{{adminSearchTopicSubject}}"
+                },
+                {
+                  "key": "topic",
+                  "value": "{{adminSearchTopic}}"
                 }
               ]
             }
