@@ -46,15 +46,19 @@ def catalog_by_id(request: Request, db: Session) -> dict[int, QuestionRead]:
     )
 
 
-def search_catalog(questions: list[QuestionRead], q: str, subject: str | None) -> list[QuestionRead]:
+def search_catalog(
+    questions: list[QuestionRead], q: str, subject: str | None, topic: str | None = None
+) -> list[QuestionRead]:
     """The admin's question lookup: `q` is a case-insensitive substring of the question or the
     official answer; a number also finds the question with that catalog number or id. Empty `q`
-    keeps everything (of `subject`, if given)."""
+    keeps everything (of `subject` and `topic` — a topic slug — if given)."""
     needle = q.strip().casefold()
     number = int(needle) if needle.isdecimal() else None
 
     def matches(question: QuestionRead) -> bool:
         if subject is not None and question.subject != subject:
+            return False
+        if topic is not None and question.topic != topic:
             return False
         if not needle or number in (question.number, question.id):
             return True
