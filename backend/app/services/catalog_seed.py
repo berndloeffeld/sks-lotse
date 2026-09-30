@@ -35,7 +35,7 @@ of this module's logic.
 
 import dataclasses
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import pypdf
@@ -86,16 +86,42 @@ ANSWER_START = "\x1e"
 # on a Seekarte), which the PDF text yields as "2 3" — unrecognisable. The
 # symbol is restored in Unicode (digit + combining low line, subscript digit);
 # the wording is otherwise untouched.
-QUESTION_TEXT_FIXES = {("navigation", 84): ("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083.")}
+QUESTION_TEXT_FIXES = {("navigation", 84): (("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083."),)}
 # Same for answers: Navigation 48 names the Koppelort O_k and the beobachteten
 # Ort O_b, but the PDF text drops the subscripts and appends them after the
 # sentence ("(O ) ... (O ), ... Zeitpunkt. k b"). Unicode has no subscript b,
 # so they are written "O_k"/"O_b" and drawn as markup by RichText.
+#
+# The fire extinguisher answers (Seemannschaft I 120/121, II 101/102) lose the
+# subscript of "CO2" the same way: the "2" is doubled ("CO22"), detached
+# ("CO 2 -Löscher") or displaced behind the clause. Unicode has "₂".
 ANSWER_TEXT_FIXES = {
     ("navigation", 48): (
-        "Koppelort (O ) zum beobachteten Ort (O ), bezogen auf den gleichen Zeitpunkt. k b",
-        "Koppelort (O_k) zum beobachteten Ort (O_b), bezogen auf den gleichen Zeitpunkt.",
-    )
+        (
+            "Koppelort (O ) zum beobachteten Ort (O ), bezogen auf den gleichen Zeitpunkt. k b",
+            "Koppelort (O_k) zum beobachteten Ort (O_b), bezogen auf den gleichen Zeitpunkt.",
+        ),
+    ),
+    **dict.fromkeys(
+        (("seemannschaft_1", 120), ("seemannschaft_2", 101)),
+        (
+            ("CO22-Löscher", "CO\u2082-Löscher"),
+            ("CO -Löschern ohne Sauerstoffzutritt 2", "CO\u2082-Löschern ohne Sauerstoffzutritt"),
+        ),
+    ),
+    ("seemannschaft_1", 121): (
+        ("Pulverlöscher , für", "Pulverlöscher, für"),
+        ("CO -Löscher , 2", "CO\u2082-Löscher,"),
+        (
+            "CO -Löscher nicht im Schiffsinneren unterbringen 2",
+            "CO\u2082-Löscher nicht im Schiffsinneren unterbringen",
+        ),
+    ),
+    ("seemannschaft_2", 102): (
+        ("Pulverlöscher , für", "Pulverlöscher, für"),
+        ("CO -Löscher . 2", "CO\u2082-Löscher."),
+        ("CO 2 -Löscher", "CO\u2082-Löscher"),
+    ),
 }
 
 # Frozen as of revision 16af6f481bf6 (the first data migration) — see the
@@ -217,14 +243,16 @@ def extract_sections(text: str) -> list[tuple[str, str]]:
 
 
 def _apply_fix(
-    fixes: dict[tuple[str, int], tuple[str, str]], key: tuple[str, int], text: str, part: str
+    fixes: Mapping[tuple[str, int], tuple[tuple[str, str], ...]],
+    key: tuple[str, int],
+    text: str,
+    part: str,
 ) -> str:
-    if key not in fixes:
-        return text
-    broken, fixed = fixes[key]
-    if broken not in text:
-        raise ValueError(f"{key[0]} {key[1]}: expected {broken!r} in the {part}")
-    return text.replace(broken, fixed)
+    for broken, fixed in fixes.get(key, ()):
+        if broken not in text:
+            raise ValueError(f"{key[0]} {key[1]}: expected {broken!r} in the {part}")
+        text = text.replace(broken, fixed)
+    return text
 
 
 def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:

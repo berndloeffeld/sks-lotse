@@ -1,5 +1,6 @@
 import dataclasses
 import functools
+import re
 
 import pytest
 import yaml
@@ -104,6 +105,16 @@ def test_parse_restores_the_subscripts_in_the_navigation_48_answer():
     answer = _parsed("navigation", 48).answer_text
     assert "Koppelort (O_k) zum beobachteten Ort (O_b)" in answer
     assert not answer.endswith(" k b")
+
+
+@pytest.mark.parametrize(
+    ("subject", "number"),
+    [("seemannschaft_1", 120), ("seemannschaft_1", 121), ("seemannschaft_2", 101), ("seemannschaft_2", 102)],
+)
+def test_parse_restores_the_co2_subscripts_in_the_fire_extinguisher_answers(subject, number):
+    answer = _parsed(subject, number).answer_text
+    assert "CO\u2082-Löscher" in answer
+    assert not re.search(r"CO(22|\s|-)|\b2 \(|, 2$|\. 2$|ohne Sauerstoffzutritt 2", answer)
 
 
 def test_parse_joins_lines_the_pdf_only_wrapped():
