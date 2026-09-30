@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 
 import { apiClient } from '../api/client'
-import type { Question } from '../api/types'
+import type { Question, Topic } from '../api/types'
 import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
@@ -11,25 +11,32 @@ import { useApiQuery } from '../hooks/useApiQuery'
 interface Search {
   q: string
   subject: string
+  // A topic slug of `subject`; empty = all its topics.
+  topic: string
 }
 
 // Looks up question and official answer texts across the whole catalog (/admin/questions),
 // e.g. for a "Frage melden" note. Read-only: the catalog wording is never changed here.
 export function AdminQuestionsPage() {
-  const [input, setInput] = useState<Search>({ q: '', subject: '' })
-  const [search, setSearch] = useState<Search>({ q: '', subject: '' })
+  const [input, setInput] = useState<Search>({ q: '', subject: '', topic: '' })
+  const [search, setSearch] = useState<Search>({ q: '', subject: '', topic: '' })
   const hasSearch = search.q !== '' || search.subject !== ''
-  const query = useApiQuery(`admin-questions?q=${search.q}&subject=${search.subject}`, () => {
+  const query = useApiQuery(`admin-questions?q=${search.q}&subject=${search.subject}&topic=${search.topic}`, () => {
     // Nothing asked yet: don't load (and render) the whole catalog with its images.
     if (!hasSearch) return Promise.resolve(null)
     const params = new URLSearchParams({ q: search.q })
     if (search.subject) params.set('subject', search.subject)
+    if (search.topic) params.set('topic', search.topic)
     return apiClient.get<Question[]>(`/admin/questions?${params}`)
   })
+  // The chosen subject's topics for the Thema filter; none to load without a subject.
+  const topics = useApiQuery(`admin-topics?subject=${input.subject}`, () =>
+    input.subject ? apiClient.get<Topic[]>(`/topics?subject=${input.subject}`) : Promise.resolve([]),
+  )
 
   function handleSearch(event: FormEvent) {
     event.preventDefault()
-    setSearch({ q: input.q.trim(), subject: input.subject })
+    setSearch({ ...input, q: input.q.trim() })
   }
 
   const results = query.data
@@ -53,7 +60,7 @@ export function AdminQuestionsPage() {
           <select
             id="question-subject"
             value={input.subject}
-            onChange={(event) => setInput({ ...input, subject: event.target.value })}
+            onChange={(event) => setInput({ ...input, subject: event.target.value, topic: '' })}
             className="border border-border bg-surface px-3 py-2 text-ink"
           >
             <option value="">Alle Fächer</option>
@@ -64,6 +71,24 @@ export function AdminQuestionsPage() {
             ))}
           </select>
         </label>
+        {topics.data && topics.data.length > 0 ? (
+          <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="question-topic">
+            Thema
+            <select
+              id="question-topic"
+              value={input.topic}
+              onChange={(event) => setInput({ ...input, topic: event.target.value })}
+              className="border border-border bg-surface px-3 py-2 text-ink"
+            >
+              <option value="">Alle Themen</option>
+              {topics.data.map((topic) => (
+                <option key={topic.slug} value={topic.slug}>
+                  {topic.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <button
           type="submit"
           className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase"

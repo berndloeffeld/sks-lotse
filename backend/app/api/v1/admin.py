@@ -177,10 +177,12 @@ def search_questions(
     request: Request,
     q: str = Query(default="", max_length=200),
     subject: str | None = Query(default=None, max_length=64),
+    # A topic slug; slugs are only unique within a subject, so the page sends it with one.
+    topic: str | None = Query(default=None, max_length=64),
     db: Session = Depends(get_db),
 ) -> list[QuestionRead]:
     """Look up question and official answer texts across all subjects, from the cached catalog."""
-    return catalog_service.search_catalog(catalog_service.catalog(request, db), q, subject)
+    return catalog_service.search_catalog(catalog_service.catalog(request, db), q, subject, topic)
 
 
 @router.get("/questions/{question_id}/history", response_model=AdminQuestionHistory)
