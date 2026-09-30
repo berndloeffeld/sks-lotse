@@ -88,6 +88,21 @@ export interface components {
              */
             created_at: string;
         };
+        /**
+         * AdminGradingEntry
+         * @description One grading of a question and the half-life it resulted in (ADR-0051).
+         */
+        AdminGradingEntry: {
+            /**
+             * Graded At
+             * Format: date-time
+             */
+            graded_at: string;
+            /** Outcome */
+            outcome: string;
+            /** Half Life Days */
+            half_life_days: number;
+        };
         /** AdminMfaCode */
         AdminMfaCode: {
             /** Code */
@@ -126,6 +141,40 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** AdminQuestionGradingExport */
+        AdminQuestionGradingExport: {
+            /** Question Id */
+            question_id: number;
+            /** Subject */
+            subject: string;
+            /** Question Number */
+            question_number: number;
+            /** Outcome */
+            outcome: string;
+            /**
+             * Graded At
+             * Format: date-time
+             */
+            graded_at: string;
+            /** Half Life Days */
+            half_life_days: number;
+        };
+        /** AdminQuestionHistory */
+        AdminQuestionHistory: {
+            /** Question Id */
+            question_id: number;
+            /** Users */
+            users: components["schemas"]["AdminQuestionHistoryUser"][];
+        };
+        /** AdminQuestionHistoryUser */
+        AdminQuestionHistoryUser: {
+            /** User Id */
+            user_id: number;
+            /** Email */
+            email: string;
+            /** Gradings */
+            gradings: components["schemas"]["AdminGradingEntry"][];
         };
         /** AdminQuestionProgressExport */
         AdminQuestionProgressExport: {
@@ -196,6 +245,8 @@ export interface components {
             user: components["schemas"]["AdminUserRead"];
             /** Question Progress */
             question_progress: components["schemas"]["AdminQuestionProgressExport"][];
+            /** Question Gradings */
+            question_gradings: components["schemas"]["AdminQuestionGradingExport"][];
             /** Focus Topics */
             focus_topics: components["schemas"]["AdminFocusTopicExport"][];
             /** Question Reports */

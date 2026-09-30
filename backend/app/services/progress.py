@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.progress import GradingOutcome, apply_grading, is_learned
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.services.focus import remove_focus_if_topic_learned
 
@@ -23,6 +24,21 @@ def _progress_row(
         # the other's update. No-op on SQLite.
         stmt = stmt.with_for_update()
     return db.execute(stmt).scalar_one_or_none()
+
+
+def _log_grading(
+    db: Session, user_id: int, question_id: int, outcome: str, now: datetime, row: QuestionProgress
+) -> None:
+    """Append the grading and the half-life it produced to the admin-visible history (ADR-0051)."""
+    db.add(
+        QuestionGradingLog(
+            user_id=user_id,
+            question_id=question_id,
+            outcome=outcome,
+            graded_at=now,
+            half_life_days=row.half_life_days,
+        )
+    )
 
 
 def record_grading(
@@ -51,6 +67,7 @@ def record_grading(
                 return None
 
     apply_grading(row, cast(GradingOutcome, outcome), now, is_new=is_new)
+    _log_grading(db, user_id, question.id, outcome, now, row)
     db.commit()
     # Only a grading that just made this question "gelernt" can complete a topic.
     if is_learned(row, now) and question.topic_id is not None:
@@ -91,6 +108,7 @@ def credit_correct_answers(db: Session, user_id: int, question_ids: list[int], n
         return
     for question in questions:
         apply_grading(rows[question.id], "richtig", now, is_new=question.id not in existing)
+        _log_grading(db, user_id, question.id, "richtig", now, rows[question.id])
     db.commit()
     # Several learned questions can share a topic — check each topic once.
     learned_topics = {q.topic_id for q in questions if q.topic_id is not None and is_learned(rows[q.id], now)}

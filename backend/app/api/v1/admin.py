@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 from app.core import pricing as pricing_core
 from app.core.database import get_db
 from app.core.jwt import require_admin
+from app.models.question import Question
 from app.models.user import User
 from app.schemas.admin import (
     AdminBlockedEmailCreate,
     AdminBlockedEmailRead,
+    AdminQuestionHistory,
     AdminSettings,
     AdminUserExport,
     AdminUserListItem,
@@ -179,6 +181,17 @@ def search_questions(
 ) -> list[QuestionRead]:
     """Look up question and official answer texts across all subjects, from the cached catalog."""
     return catalog_service.search_catalog(catalog_service.catalog(request, db), q, subject)
+
+
+@router.get("/questions/{question_id}/history", response_model=AdminQuestionHistory)
+def question_history(
+    question_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> AdminQuestionHistory:
+    """Who graded this question when and how, and the half-life each grading produced (ADR-0051)."""
+    if db.get(Question, question_id) is None:
+        raise _NOT_FOUND
+    _audit(admin, "question_history", question_id=question_id)
+    return admin_users.question_history(db, question_id)
 
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)

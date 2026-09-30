@@ -97,6 +97,36 @@ class AdminQuestionProgressExport(BaseModel):
     updated_at: datetime
 
 
+class AdminQuestionGradingExport(BaseModel):
+    question_id: int
+    subject: str
+    question_number: int
+    outcome: str
+    graded_at: datetime
+    half_life_days: float
+
+
+class AdminGradingEntry(BaseModel):
+    """One grading of a question and the half-life it resulted in (ADR-0051)."""
+
+    graded_at: datetime
+    outcome: str
+    half_life_days: float
+
+
+class AdminQuestionHistoryUser(BaseModel):
+    user_id: int
+    email: str
+    # Oldest first.
+    gradings: list[AdminGradingEntry]
+
+
+class AdminQuestionHistory(BaseModel):
+    question_id: int
+    # Most recently graded learner first.
+    users: list[AdminQuestionHistoryUser]
+
+
 class AdminFocusTopicExport(BaseModel):
     subject: str
     topic_slug: str
@@ -150,6 +180,7 @@ class AdminPurchaseExport(BaseModel):
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
+    question_gradings: list[AdminQuestionGradingExport]
     focus_topics: list[AdminFocusTopicExport]
     question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]

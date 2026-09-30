@@ -5714,6 +5714,48 @@
           }
         },
         {
+          "name": "Admin API - a non-admin is rejected (question history)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions/{{firstQuestionId}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions",
+                "{{firstQuestionId}}",
+                "history"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Admin API - a non-admin is rejected (settings read)",
           "event": [
             {
@@ -7319,6 +7361,100 @@
           }
         },
         {
+          "name": "Question history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var h = pm.response.json();",
+                  "pm.test('lists the test user\\'s gradings with the resulting half-life', function () {",
+                  "    pm.expect(h.question_id).to.eql(Number(pm.collectionVariables.get('firstQuestionId')));",
+                  "    var mine = h.users.find(function (u) { return u.user_id === Number(pm.collectionVariables.get('testUserId')); });",
+                  "    pm.expect(mine, 'test user in the history').to.exist;",
+                  "    pm.expect(mine.email).to.eql(pm.collectionVariables.get('testEmail'));",
+                  "    pm.expect(mine.gradings.length).to.be.above(0);",
+                  "    pm.expect(mine.gradings[0]).to.have.all.keys('graded_at', 'outcome', 'half_life_days');",
+                  "    pm.expect(mine.gradings[0].half_life_days).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions/{{firstQuestionId}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions",
+                "{{firstQuestionId}}",
+                "history"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Question history - unknown question is a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/questions/999999999/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "questions",
+                "999999999",
+                "history"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Export a user's data (Art. 15/20)",
           "event": [
             {
@@ -7329,7 +7465,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var e = pm.response.json();",
                   "pm.test('user, progress rows and export timestamp', function () {",
-                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'focus_topics', 'question_reports', 'exam_attempts', 'purchases', 'exported_at');",
+                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'question_gradings', 'focus_topics', 'question_reports', 'exam_attempts', 'purchases', 'exported_at');",
                   "    pm.expect(e.user.email).to.eql(pm.collectionVariables.get('testEmail'));",
                   "    pm.expect(e.question_progress).to.be.an('array');",
                   "    pm.expect(e.question_progress.length).to.eql(e.user.question_progress_count);",

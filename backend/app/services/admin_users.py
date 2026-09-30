@@ -14,6 +14,7 @@ from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
 from app.models.purchase import Purchase
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
@@ -22,7 +23,11 @@ from app.schemas.admin import (
     AdminExamAttemptExport,
     AdminExamQuestionExport,
     AdminFocusTopicExport,
+    AdminGradingEntry,
     AdminPurchaseExport,
+    AdminQuestionGradingExport,
+    AdminQuestionHistory,
+    AdminQuestionHistoryUser,
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
     AdminUserExport,
@@ -129,6 +134,12 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
         .where(QuestionReport.user_id == user.id)
         .order_by(QuestionReport.created_at)
     ).all()
+    grading_rows = db.execute(
+        select(QuestionGradingLog, Question.subject, Question.number)
+        .join(Question, Question.id == QuestionGradingLog.question_id)
+        .where(QuestionGradingLog.user_id == user.id)
+        .order_by(QuestionGradingLog.graded_at, QuestionGradingLog.id)
+    ).all()
     purchases = db.execute(
         select(Purchase).where(Purchase.user_id == user.id).order_by(Purchase.created_at)
     ).scalars()
@@ -154,6 +165,31 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
             _from_row(AdminQuestionProgressExport, progress, subject=subject, question_number=number)
             for progress, subject, number in progress_rows
         ],
+        question_gradings=[
+            _from_row(AdminQuestionGradingExport, grading, subject=subject, question_number=number)
+            for grading, subject, number in grading_rows
+        ],
         purchases=[_from_row(AdminPurchaseExport, purchase) for purchase in purchases],
         exported_at=datetime.now(UTC),
     )
+
+
+def question_history(db: Session, question_id: int) -> AdminQuestionHistory:
+    """Every learner's gradings of one question, with the half-life each produced (ADR-0051).
+
+    Learners ordered by their latest grading, newest first; each learner's gradings oldest first.
+    """
+    rows = db.execute(
+        select(QuestionGradingLog, User.email)
+        .join(User, User.id == QuestionGradingLog.user_id)
+        .where(QuestionGradingLog.question_id == question_id)
+        .order_by(QuestionGradingLog.graded_at, QuestionGradingLog.id)
+    ).all()
+    by_user: dict[int, AdminQuestionHistoryUser] = {}
+    for grading, email in rows:
+        learner = by_user.setdefault(
+            grading.user_id, AdminQuestionHistoryUser(user_id=grading.user_id, email=email, gradings=[])
+        )
+        learner.gradings.append(_from_row(AdminGradingEntry, grading))
+    users = sorted(by_user.values(), key=lambda learner: learner.gradings[-1].graded_at, reverse=True)
+    return AdminQuestionHistory(question_id=question_id, users=users)
