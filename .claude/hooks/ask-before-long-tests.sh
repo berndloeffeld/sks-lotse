@@ -20,14 +20,36 @@ fi
 
 label=""
 
+# True only when "pytest" starts a command segment (i.e. it's actually being
+# invoked), not when the word merely occurs somewhere in the line - e.g. inside
+# a commit message ("git commit -m 'fix pytest detection'") or a file/branch
+# name ("test_pytest_helpers.py", "feature/fix-pytest-run"). A "segment" is
+# whatever sits between shell command separators (&&, ;, |); an env-var
+# assignment (FOO=bar pytest ...) may precede pytest within the same segment.
+pytest_invoked=false
+while IFS= read -r segment; do
+  trimmed="${segment#"${segment%%[![:space:]]*}"}"
+  if [[ "$trimmed" =~ ^([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*pytest([[:space:]]|$) ]]; then
+    pytest_invoked=true
+  fi
+done <<< "$(printf '%s' "$command" | sed -E 's/(&&|\;|\|)/\n/g')"
+
 if [[ "$command" =~ run_mutation_tests\.sh.*(gate|handlers) ]]; then
   label="Backend-Mutation-Tests (mutmut, ~5 Min)"
 elif [[ "$command" =~ run_frontend_mutation_tests\.sh.*gate ]]; then
   label="Frontend-Mutation-Tests (Stryker, ~3 Min)"
 elif [[ "$command" =~ run_integration_tests\.sh ]]; then
   label="Integration-Tests gegen einen laufenden lokalen Backend-Server"
-elif [[ "$command" =~ pytest ]] && [[ "$command" =~ --cov ]]; then
-  label="voller Backend-Coverage-Lauf (pytest --cov)"
+elif [[ "$pytest_invoked" == true ]] \
+  && [[ ! "$command" =~ -o[[:space:]]*addopts= ]] \
+  && [[ ! "$command" =~ \.py ]] \
+  && [[ ! "$command" =~ :: ]] \
+  && [[ ! "$command" =~ (^|[[:space:]])-k([[:space:]]|$) ]]; then
+  # backend/pyproject.toml bakes --cov-fail-under=95 into [tool.pytest.ini_options]
+  # addopts, so a bare `pytest` (the documented full-suite command, README.md)
+  # already runs the full coverage gate without "--cov" ever appearing on the
+  # command line. A targeted run always names a file/node-id or a -k filter.
+  label="voller Backend-Testlauf inkl. 95%-Coverage-Gate (pytest, addopts in backend/pyproject.toml)"
 elif [[ "$command" =~ vitest[[:space:]]+run ]] && [[ "$command" =~ --coverage ]]; then
   label="voller Frontend-Coverage-Lauf (vitest --coverage)"
 fi
