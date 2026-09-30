@@ -85,5 +85,5 @@ Protected by an allowlist and a two-factor code (authenticator app):
 - Search, view, export, delete and block accounts; credit tokens or ad-free by hand.
 - Blocklist for email addresses and domains against abuse.
 - Set prices and packages.
-- Search questions and model answers across the whole catalog.
+- Search questions and model answers across the whole catalog, and see per question who graded it when, how, and which memory estimate (half-life) came of it (recorded since this view went live).
 - Daily KPI report by email; a maintenance mode for when something goes wrong.

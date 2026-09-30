@@ -54,3 +54,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) | Stripe Hosted Checkout with webhook fulfilment | Accepted — amends [ADR-0043](0043-token-based-ai-grading-monetization.md): token packages can now be bought by the learner via Stripe, no longer only credited by hand. Werbefrei stays a manual grant ("bald verfügbar"). |
 | [0049](0049-refresh-session-for-expiring-questions.md) | Auffrischen: a session for questions that lapsed or are about to | Accepted |
 | [0050](0050-setback-cannot-regrant-gelernt.md) | A setback grading can never itself (re)grant "gelernt" | Accepted — amends [ADR-0034](0034-half-life-model-for-gelernt.md). |
+| [0051](0051-grading-log-for-admin-question-history.md) | A grading log for the admin's per-question history | Accepted |

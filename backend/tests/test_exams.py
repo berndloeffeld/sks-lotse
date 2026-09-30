@@ -4,6 +4,7 @@ from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, result_for
 from app.core.timeutil import as_utc
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.user import User
 from tests.helpers import fixture_user, make_admin
@@ -497,6 +498,10 @@ def test_completing_the_exam_credits_only_richtig_answers_to_the_lernstand(clien
     progress = _progress_by_question(db_session)
     assert set(progress) == {q["question_id"] for q in exam["questions"][:10]}
     assert all(row.half_life_days > 1.0 and row.last_correct_at is not None for row in progress.values())
+    # The admin's grading history (ADR-0051) records the credited answers too.
+    log = db_session.query(QuestionGradingLog).all()
+    assert {(row.question_id, row.outcome) for row in log} == {(qid, "richtig") for qid in progress}
+    assert all(row.half_life_days == progress[row.question_id].half_life_days for row in log)
 
 
 def test_exam_grades_change_nothing_before_the_exam_is_complete(client, db_session, auth_headers):

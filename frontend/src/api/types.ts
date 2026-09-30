@@ -43,6 +43,11 @@ export type AdminUser = Schemas['AdminUserRead']
 export type AdminUserListItem = Schemas['AdminUserListItem']
 export type AdminUserListPage = Schemas['AdminUserListPage']
 export type AdminUserExport = Schemas['AdminUserExport']
+export type AdminGradingEntry = Narrow<Schemas['AdminGradingEntry'], { outcome: GradingOutcome }>
+export type AdminQuestionHistory = Narrow<
+  Schemas['AdminQuestionHistory'],
+  { users: Narrow<Schemas['AdminQuestionHistoryUser'], { gradings: AdminGradingEntry[] }>[] }
+>
 export type AdminSettings = Schemas['AdminSettings']
 export type AdminMfaStatus = Schemas['AdminMfaStatus']
 export type AdminMfaEnrolment = Schemas['AdminMfaEnrolment']

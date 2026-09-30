@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 
 import { apiClient } from '../api/client'
 import type { Question } from '../api/types'
+import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
@@ -104,6 +105,7 @@ export function AdminQuestionsPage() {
                   ) : null}
                 </div>
                 <QuestionImages images={question.answer_images} part="answer" />
+                <AdminQuestionHistory questionId={question.id} />
               </li>
             ))}
           </ul>
