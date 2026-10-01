@@ -41,9 +41,7 @@ function ThrowForPreview(): never {
   throw new Error('Error page preview')
 }
 
-// Legal pages stay reachable during maintenance mode (§5 DDG Impressumspflicht) —
-// everything else, including the landing page, shows MaintenancePage instead.
-// Paths taken verbatim from the <Routes> below.
+// Former paths, redirected to their current route (public ones also in render.yaml).
 const RETIRED_PATHS: Record<string, string> = {
   '/start': '/learn',
   '/agb': '/terms',
@@ -52,6 +50,9 @@ const RETIRED_PATHS: Record<string, string> = {
   '/learn/fokus': '/learn/focus',
 }
 
+// Legal pages stay reachable during maintenance mode (§5 DDG Impressumspflicht) —
+// everything else, including the landing page, shows MaintenancePage instead.
+// Paths taken verbatim from the <Routes> below.
 const MAINTENANCE_EXEMPT_PATHS = new Set(['/imprint', '/privacy', '/terms'])
 
 // Everything below the router, so the build-time prerender

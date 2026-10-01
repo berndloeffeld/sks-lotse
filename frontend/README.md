@@ -15,5 +15,5 @@ npm run dev
 - `npm run dev` — Vite dev server
 - `npm run build` — type-check (`tsc -b`), client + SSR build, then `scripts/prerender.mjs` (the seven public pages and the `app.html` shell); CI runs it too
 - `npm run lint` / `npm run format` / `npm run format:check` — ESLint / Prettier
-- `npm run test` — Vitest once; `npm run test:watch` for watch mode; add `-- --coverage` for the coverage report (90% lines / 85% branches gate)
+- `npm run test` — Vitest once; `npm run test:watch` for watch mode; add `-- --coverage` for the coverage report and its gate (thresholds: `test.coverage.thresholds` in [`vite.config.ts`](vite.config.ts))
 - `../scripts/run_frontend_mutation_tests.sh gate` — Stryker over the logic modules (min. 90%, [docs/mutation-testing.md](../docs/mutation-testing.md))

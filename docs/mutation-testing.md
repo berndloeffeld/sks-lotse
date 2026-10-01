@@ -6,13 +6,14 @@ line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
 **It runs daily** (03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
-Actions tab), not on every PR — it takes about 5 minutes in CI and must not hold up merges. A failed run opens an issue
+Actions tab), not on every PR, so it never holds up merges. A CI run takes about 5 minutes for the backend job
+and about 3 for the frontend job; those are the only runtimes this page states. A failed run opens an issue
 ("Mutation testing failed"); a regression therefore surfaces up to a day after the change that caused it. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
 points under the current score (~90%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
 that is optimised for stops measuring anything — the check is there to catch regressions. Two limits to keep in
-mind: an aggregate score over ~1600 mutants barely moves for a small new function (50 surviving mutants ≈ 3 points),
+mind: an aggregate score over a few thousand mutants barely moves for a small new function (50 surviving mutants ≈ 1.5 points),
 so when you add logic, look at the survivor list the job prints, not just at pass/fail; and the run is ±1–2
 mutants noisy (timing-dependent rate-limit tests), which the margin absorbs.
 
@@ -27,20 +28,20 @@ shows the change, then add the test that would fail on it — or, if the change 
 
 ```bash
 cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
-./scripts/run_mutation_tests.sh                                     # ~1 min; lists the survivors
+./scripts/run_mutation_tests.sh                                     # lists the survivors
 ./scripts/run_mutation_tests.sh gate                                # what CI runs: fails below the minimum score
 ./scripts/run_mutation_tests.sh show app.domain.progress.x_is_learned__mutmut_2
 ```
 
-- **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`, `only_mutate`): the product rules in `domain/` (progress, exam,
-  exam_variant, pricing; not `legal.py`, a single constant), the pure logic in `core/` (email_address, cache, rate_limit, otp, jwt, security_headers, canonical_domain, ai_quota), all of `services/` except the catalog importer
-  (`ai_quota`, `focus`, `user`, `grader`, `kpis`, `email`) and the helper functions in `api/v1/` (exams, progress,
-  auth, questions, admin, grading). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
-  the PDF, which `mutants/` doesn't have), `config.py`, `main.py`, `database.py`, `models/`, `schemas/`.
+- **Scope**: exactly `only_mutate` in `[tool.mutmut]` of [`backend/pyproject.toml`](../backend/pyproject.toml), the
+  single list; the modules deliberately left out, each with its reason, are the `EXCLUDED` set in
+  [`backend/tests/test_mutation_scope.py`](../backend/tests/test_mutation_scope.py). In short: the product rules in
+  `domain/`, the logic in `core/` and `services/`, and the undecorated helpers in `api/v1/`; not the catalog importer
+  and `scripts/` (their tests read the PDF, which `mutants/` doesn't have), nor config, wiring, models and schemas.
 - **mutmut skips decorated functions**, i.e. every FastAPI route handler, so the normal run never mutates their bodies.
   `./scripts/run_mutation_tests.sh handlers` does: it mutates a throw-away copy of `backend/` in which each decorator is
   moved behind its function (`backend/scripts/mutation_handlers_setup.py`; the repo isn't touched), scoped to
-  `app/api/v1/`, ~1 minute. Its baseline (2026-09-21): **1503 of 1811 killed (83%)**. Most of the ~300 survivors are
+  `app/api/v1/`. Its baseline (2026-09-21): **1503 of 1811 killed (83%)**. Most of the ~300 survivors are
   message wording (`detail=`), rate-limit bucket *names* (`'ai_grade:user'` → `None`; harmless as long as the keys
   differ) and SQL shape (`order_by`, join conditions SQLAlchemy infers anyway). The real ones — statistics, the DSGVO
   export, per-user limit keys, the hourly code quota — are tested. The two handlers that used to be big enough for
@@ -54,8 +55,8 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   webhook is recognised before another credit is attempted. Left on purpose: the wording of the login-code mails,
   exception messages nobody reads, and three time-zone mutants (`astimezone(None)`, the case of `"Europe/Berlin"`) that only
   differ on a machine that isn't in Berlin time or has a case-sensitive file system — a local run understates the CI score there.
-  Before that (2026-09-24): 2555 of 2868 (89.1%), ~310 survivors, ~1 minute per run (±1–2 between
-  runs: timing-dependent rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
+  Before that (2026-09-24): 2555 of 2868 (89.1%), ~310 survivors (±1–2 between runs: timing-dependent
+  rate-limit tests). History: the first run over the 8 core modules killed 361 of 407 (88%);
   tests for the real gaps it found took that to 384 (94%). Widening to services and API helpers added ~1200 mutants
   and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`
   and `_progress_row` not scoped to the user, an OTP that could be replayed, the KPI window lengths) — all now tested.
@@ -72,19 +73,19 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 
 ```bash
 cd frontend && npm ci                                   # once
-./scripts/run_frontend_mutation_tests.sh                # ~2 min; clear-text survivors + HTML report in frontend/reports/mutation/
+./scripts/run_frontend_mutation_tests.sh                # clear-text survivors + HTML report in frontend/reports/mutation/
 ./scripts/run_frontend_mutation_tests.sh gate           # what CI runs: fails below the minimum score
 ```
 
-- **Scope** (`mutate` in `frontend/stryker.config.json`): the logic modules — `format.ts`, `ads.ts`, `analytics.ts`,
-  `labels.ts`, `contact.ts`, `api/client.ts`, `store/authStore.ts`, and the hooks (`useExam`, `useExamCountdown`,
-  `useExamVariantUpdate`, `useProgressSummary`). Components and pages are deliberately out for now: their mutants are
+- **Scope**: exactly `mutate` in [`frontend/stryker.config.json`](../frontend/stryker.config.json), the logic modules
+  (`src/*.ts`, `api/`, `store/`, `hooks/`); the ones left out are the `EXCLUDED` set in
+  `src/test/mutationScope.test.ts`. Components and pages are deliberately out for now: their mutants are
   mostly markup and class names, and only page-level tests cover them, which makes runs slow and survivors noisy.
-  `src/test/mutationScope.test.ts` keeps the list current (same idea as the backend's `test_mutation_scope.py`).
+  That test keeps the list current (same idea as the backend's `test_mutation_scope.py`).
 - **Setup**: `@stryker-mutator/core` + `vitest-runner` + `typescript-checker` (exact versions), `coverageAnalysis: perTest`
   (each mutant only runs the tests that cover it, ~12 per mutant). The TypeScript checker drops mutants that don't compile
   (≈60 of ~300) instead of counting them as survivors.
-- **Score (2026-09-25): 417 of 440 counted mutants killed (94.8%)**, ~4 minutes (2026-09-21: 226 of 236, 95.8%). Minimum in CI: **90%**
+- **Score (2026-09-25): 417 of 440 counted mutants killed (94.8%)** (2026-09-21: 226 of 236, 95.8%). Minimum in CI: **90%**
   (`MUTATION_MIN_SCORE`), a ratchet like the others. The first run (7 modules) scored 81%; the survivors were real
   gaps (no test for `formatDateTime`, `put`/`delete`, body-less requests, the countdown's expiry boundary and
   latest-callback handling, the auth store's loading state, logout URL, wiring of the unauthorized handler) and the

@@ -3,13 +3,13 @@
 ![Backend CI](https://github.com/berndloeffeld/sks-lotse/actions/workflows/backend-ci.yml/badge.svg)
 ![Frontend CI](https://github.com/berndloeffeld/sks-lotse/actions/workflows/frontend-ci.yml/badge.svg)
 
-A web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text, not multiple choice — the learner writes an answer and has to judge for themselves whether it's close enough to the model answer. SKS Lotse uses an LLM to grade the learner's free-text answer against the official model answer and explain what was missing or wrong.
+A web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text, not multiple choice — the learner writes an answer and has to judge for themselves whether it's close enough to the model answer. SKS Lotse tracks what a learner has actually retained, simulates the exam, and — on request — has an LLM compare the learner's free-text answer with the official one, *suggest* a grade and explain what was missing or wrong; the learner always confirms the grade.
 
-**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), and speech-to-text as an alternative to typing an answer. Monetization is freemium — remove ads for a one-time fee, pay per use for AI-based grading with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
+**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), a learning status based on an estimated memory half-life rather than a streak, and the official Kartenaufgaben worked through task by task. Monetization is freemium — remove ads for a one-time fee, pay per use for the AI check with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
 
 ## Status
 
-Pre-launch — email+OTP login, the question catalog, account/profile pages, learning by topic with self-assessment against the official answers, Fokus topics, a learning-progress overview, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, 1 token per check, credited per account by the operator until payment exists) and GDPR admin tooling are live; a payment provider, SSO and speech-to-text aren't built yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the current-state overview, including what's explicitly not built yet.
+Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. The Kartenaufgaben are built but behind a feature flag, open to the operator only. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Tech stack
 
@@ -20,8 +20,8 @@ Pre-launch — email+OTP login, the question catalog, account/profile pages, lea
 | Database | PostgreSQL 18 |
 | Auth | Email + one-time code (OTP), JWT sessions *(SSO not yet built)* |
 | Transactional email | Resend |
-| Answer check (LLM) | Anthropic API (Claude Haiku), opt-in per account — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md) |
-| Speech-to-text | Web Speech API (browser-native) *(not yet integrated)* |
+| Answer check (LLM) | Anthropic API (Claude Haiku), pay-per-use with tokens — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0043](docs/adr/0043-token-based-ai-grading-monetization.md) |
+| Payments | Stripe Hosted Checkout, fulfilled by webhook — [ADR-0048](docs/adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md) |
 | Ads | Google AdSense *(script + consent are in, no ad units yet)* |
 | Analytics | Umami Cloud (cookieless, EU) |
 | Monitoring | Better Stack (uptime, status page, logs) |
@@ -36,9 +36,10 @@ Login is mandatory, so handling personal data properly is part of the design, no
 - **Session:** JWT in an httpOnly cookie, never readable by JavaScript or kept in `localStorage` ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)). Every `/api/v1` route requires it; per-IP rate limiting applies throughout, with tighter limits on login and email change.
 - **Data residency:** app, database and static frontend all run on Render in Frankfurt (EU). Fonts are self-hosted. Transport is HTTPS-only; disk encryption at rest is provided by the hosting platform, not by the app.
 - **Data minimisation:** name and gender are optional. Analytics is Umami Cloud (EU), cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). Ads (AdSense) load only after consent via Google's TCF consent management ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
-- **AI check is opt-in and stateless:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email, name or history is sent and nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)).
-- **Data-subject rights:** learners can delete their account, including progress, exams, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
-- **Processors:** Render (hosting), Resend (login emails), Umami (analytics), Anthropic (AI check), Google (ads), all listed in the Datenschutzerklärung.
+- **AI check is on request and stateless:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email, name or history is sent and nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)).
+- **Data-subject rights:** learners can delete their account, including progress, exams, Kartenaufgaben runs, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
+- **Payments:** card and other payment details are entered on Stripe's own checkout page only; the app stores the purchase (product, amount, Stripe's payment id), never payment details ([ADR-0048](docs/adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)).
+- **Processors and recipients:** Render (hosting), Resend (login and purchase emails), Better Stack (logs, uptime), Umami (analytics), Anthropic (AI check), Stripe (payments), Google (ads), all listed in the Datenschutzerklärung.
 - **Vulnerabilities:** report privately, see [SECURITY.md](SECURITY.md).
 
 ## Architecture & decisions
@@ -47,6 +48,8 @@ Login is mandatory, so handling personal data properly is part of the design, no
 - [docs/adr/](docs/adr/README.md) — Architecture Decision Records: the reasoning behind non-obvious or hard-to-reverse decisions, not just the resulting code (index with status)
 - [docs/RUNBOOK.md](docs/RUNBOOK.md) — operating production: logs, deploys and rollback, backups, secrets, DSGVO requests
 - [docs/catalog-pipeline.md](docs/catalog-pipeline.md) — how the official catalog PDF becomes the question database
+- [docs/FEATURES.md](docs/FEATURES.md) — what the product can do today, in users' terms
+- [docs/NON-FUNCTIONAL-REQUIREMENTS.md](docs/NON-FUNCTIONAL-REQUIREMENTS.md) — expected load and non-functional requirements
 
 ## Getting started
 
@@ -92,7 +95,7 @@ API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](post
 Backend — run from `backend/`, with the venv active:
 
 ```bash
-pytest                # tests + 95% line/branch coverage gate (backend/pyproject.toml)
+pytest                # tests + line/branch coverage gate (threshold in backend/pyproject.toml)
 ruff check .          # lint
 ruff format --check . # formatting
 mypy app              # type check
@@ -102,7 +105,7 @@ Frontend — run from `frontend/`:
 
 ```bash
 npx tsc -b                  # type check
-npx vitest run --coverage   # tests + 95%/90% line/branch coverage gate (vite.config.ts)
+npx vitest run --coverage   # tests + line/branch coverage gate (thresholds in vite.config.ts)
 npm run lint                # ESLint
 npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
@@ -114,7 +117,7 @@ Optional but recommended: `pre-commit install -t pre-commit -t pre-push` (from t
 
 A separate, hand-written Postman collection black-box tests every endpoint of a running local server (auth flow, profile/email change/account deletion, admin tools, CORS, security headers, rate limiting) without needing Python: start the API as above with `ADMIN_EMAILS=integration-admin@example.com` on a freshly started server, then run `./scripts/run_integration_tests.sh` from the repo root. The script's header lists the full server requirements.
 
-The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see `CLAUDE.md`). Aikido rescans about every three days, so it is no merge gate and there is no Aikido job in CI; an alert it raises is handled right away (`docs/RUNBOOK.md` → Security alerts).
+The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see [docs/RUNBOOK.md](docs/RUNBOOK.md#security-alerts-aikido)). Aikido rescans about every three days, so it is no merge gate and there is no Aikido job in CI; an alert it raises is handled right away (`docs/RUNBOOK.md` → Security alerts).
 
 ## Dependencies
 
