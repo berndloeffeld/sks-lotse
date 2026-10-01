@@ -432,12 +432,22 @@ export interface components {
             questions: components["schemas"]["ChartQuestion"][];
             /** Answer Text */
             answer_text: string | null;
-            /** Solution Images */
-            solution_images: components["schemas"]["ChartImage"][];
-            /** Derivation Images */
-            derivation_images: components["schemas"]["ChartImage"][];
+            /** Solution */
+            solution: components["schemas"]["ChartSolutionPart"][];
+            /** Derivation */
+            derivation: components["schemas"]["ChartDerivationBlock"][];
             /** Points Awarded */
             points_awarded: number | null;
+        };
+        /**
+         * ChartDerivationBlock
+         * @description A paragraph or a table of the working; **bold** marks what the PDF prints bold.
+         */
+        ChartDerivationBlock: {
+            /** Text */
+            text?: string | null;
+            /** Table */
+            table?: components["schemas"]["ChartTableRow"][] | null;
         };
         /** ChartExerciseSummary */
         ChartExerciseSummary: {
@@ -484,6 +494,37 @@ export interface components {
             points: number;
             /** Text */
             text: string;
+        };
+        /**
+         * ChartResult
+         * @description One line of an official solution: a result with its tolerance, or a working line (no tolerance).
+         */
+        ChartResult: {
+            /** Text */
+            text: string;
+            /** Tolerance */
+            tolerance?: string | null;
+        };
+        /**
+         * ChartSolutionPart
+         * @description What one point bullet of the official solution covers.
+         */
+        ChartSolutionPart: {
+            /** Results */
+            results: components["schemas"]["ChartResult"][];
+            image?: components["schemas"]["ChartImage"] | null;
+        };
+        /** ChartTableRow */
+        ChartTableRow: {
+            /** Cells */
+            cells: string[];
+            /**
+             * Sum
+             * @default false
+             */
+            sum: boolean;
+            /** Sum Until */
+            sum_until?: number | null;
         };
         /**
          * CheckoutRead

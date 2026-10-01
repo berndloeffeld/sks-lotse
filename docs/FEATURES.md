@@ -11,7 +11,7 @@ The official question catalog of the German federal authority (ELWIS) consists o
 What sets it apart from simply paging through the catalog:
 - It tracks what a learner has **actually retained** and brings forgotten questions back.
 - It offers an **exam simulation** under time pressure.
-- It walks through the ten official **Kartenaufgaben** task by task, with the official solutions (not yet open to all learners).
+- It walks through the official **Kartenaufgaben** task by task, with the official solutions and a worked derivation (the first two of ten so far, not yet open to all learners).
 - Optionally, an **AI check (Lotsen-Check)** gives an assessment of the learner's own answer.
 
 ## Access and account
@@ -50,11 +50,11 @@ For sailing instructors: the simulation suits self-study as a final test before 
 
 ## Kartenaufgaben (chart exercises)
 
-The second part of the written exam, practised with the **ten official solved Kartenaufgaben** of the WSV (30 points each, 90 minutes in the exam).
+The second part of the written exam, practised with the **official solved Kartenaufgaben** of the WSV (30 points each, 90 minutes in the exam). **Sheets 1 and 2** of the ten are in the app; the others follow as their solutions are transcribed.
 - Before the start the learner is told plainly what they need and what SKS Lotse doesn't provide: the practice chart **Übungskarte 49 (INT 1463)**, Karte 1/INT 1, the Begleitheft (Ausgabe 2013), plotting tools and a calculator. They confirm they have it ready.
-- The tasks come **one after another**, as on the sheet: read the task, work it out in the paper chart, note the result, see the **official solution** (the results with their tolerances and, for the current triangle, the official drawing; the official derivation can be unfolded), give oneself 0 to the task's points, next task.
+- The tasks come **one after another**, as on the sheet: read the task, work it out in the paper chart, note the result, see the **official solution** as text (the results with their tolerances and, for the current triangle, the official drawing), and unfold the **derivation**: the tide and course tables with their sums ruled off as on the sheet, plus what the sheet leaves unsaid (why a correction has its sign, which way a course conversion is read, how the current triangle and a fix are constructed), give oneself 0 to the task's points, next task.
 - Always at hand during a run: the **Formblatt Gezeiten to fill in** on screen (kept in the learner's browser per run; the blank original can be printed), every task done so far with one's own answer and the solution, and the sheet's rules. Beside the task on a computer as cards that fold open and shut, behind a bar at the bottom on a phone.
-- The overview shows per exercise whether it's untouched, begun, or the points of the last completed run. A run can be discarded to start over. The runs don't count towards the learning status.
+- The overview shows per exercise whether it's untouched, begun, or the points of the last completed run. A run begun can be discarded on its exercise page to start over (not beside each task), a finished one deleted from its result. The runs don't count towards the learning status.
 - No AI check yet, no time limit.
 
 Status today: **behind a feature flag, open to the operator only** (`CHART_EXERCISES=admins`) until the usage rights of the WSV material are confirmed.

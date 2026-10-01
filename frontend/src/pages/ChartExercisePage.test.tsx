@@ -95,6 +95,34 @@ describe('ChartExercisePage', () => {
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
 
+  it('discards an open run after a confirmation, then offers a fresh start', async () => {
+    const user = userEvent.setup()
+    let discarded = false
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+      if (init?.method === 'DELETE') {
+        discarded = true
+        return new Response(null, { status: 204 })
+      }
+      const overview = makeChartOverview()
+      if (discarded) overview.exercises[1] = { ...overview.exercises[1], open_attempt_id: null }
+      return jsonResponse(overview)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage('2')
+
+    await user.click(await screen.findByRole('button', { name: 'Begonnene Kartenaufgabe verwerfen' }))
+    await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
+    await user.click(screen.getByRole('button', { name: 'Begonnene Kartenaufgabe verwerfen' }))
+    await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    expect(await screen.findByRole('button', { name: 'Kartenaufgabe starten' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Begonnene Kartenaufgabe fortsetzen' })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/chart-exercises/attempts/9'),
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+
   it('offers the hints and the tide form before the start', async () => {
     stubBackend()
     renderPage('1')

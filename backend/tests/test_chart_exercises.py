@@ -51,9 +51,11 @@ def _complete(client, auth_headers, attempt, award=lambda max_points: max_points
 # --- the committed content ---------------------------------------------------------------------
 
 
-def test_the_catalog_has_ten_sheets_of_thirty_points():
+def test_the_catalog_has_consecutive_sheets_of_thirty_points():
+    # Sheets are added as their solutions are transcribed (ADR-0053); always numbered from 1 without gaps.
     sheets = service.catalog().sheets
-    assert [sheet.number for sheet in sheets] == list(range(1, 11))
+    assert sheets
+    assert [sheet.number for sheet in sheets] == list(range(1, len(sheets) + 1))
     for sheet in sheets:
         assert service.max_points(sheet) == 30
         assert [task.number for task in sheet.tasks] == list(range(1, len(sheet.tasks) + 1))
@@ -64,16 +66,15 @@ def test_every_task_has_questions_matching_its_points_and_a_solution():
         for task in sheet.tasks:
             assert task.questions, (sheet.number, task.number)
             assert sum(q.points for q in task.questions) == task.points, (sheet.number, task.number)
-            assert task.solution_images, (sheet.number, task.number)
+            assert task.solution, (sheet.number, task.number)
+            for part in task.solution:
+                assert part.results or part.image, (sheet.number, task.number)
 
 
 def test_every_referenced_image_exists():
     data = service.catalog()
     images = [data.tide_form] + [
-        image
-        for sheet in data.sheets
-        for task in sheet.tasks
-        for image in [*task.solution_images, *task.derivation_images]
+        part.image for sheet in data.sheets for task in sheet.tasks for part in task.solution if part.image
     ]
     missing = [image.src for image in images if not (CHARTS_DIR / image.src).is_file()]
     assert missing == []
@@ -128,9 +129,9 @@ def test_me_reports_the_flag(client, auth_headers, monkeypatch):
 # --- overview and runs -------------------------------------------------------------------------
 
 
-def test_overview_lists_the_ten_exercises_with_the_shared_material(client, auth_headers):
+def test_overview_lists_the_exercises_with_the_shared_material(client, auth_headers):
     body = client.get(BASE, headers=auth_headers).json()
-    assert [e["number"] for e in body["exercises"]] == list(range(1, 11))
+    assert [e["number"] for e in body["exercises"]] == [sheet.number for sheet in service.catalog().sheets]
     assert body["exercises"][0] == {
         "number": 1,
         "task_count": 18,
@@ -153,8 +154,8 @@ def test_start_shows_only_the_first_task_without_its_solution(client, auth_heade
     assert [t["number"] for t in attempt["tasks"]] == [1]
     first = attempt["tasks"][0]
     assert first["answer_text"] is None
-    assert first["solution_images"] == []
-    assert first["derivation_images"] == []
+    assert first["solution"] == []
+    assert first["derivation"] == []
     assert first["questions"][0]["text"].startswith("Bestimmen Sie die Hochwasserzeit")
 
 
@@ -183,9 +184,13 @@ def test_answer_reveals_the_solution_of_that_task(client, auth_headers):
     assert response.status_code == 200
     task = response.json()["tasks"][0]
     assert task["answer_text"] == "HWZ 08:53"
-    # The results, and the tide table worked out above them as the derivation.
-    assert task["solution_images"][0]["src"] == "bogen-01/aufgabe-01-loesung-1.png"
-    assert task["derivation_images"][0]["src"] == "bogen-01/aufgabe-01-herleitung-1.png"
+    # The results with their tolerance, and the tide table that leads to them as the derivation.
+    assert task["solution"][0]["results"][0] == {"text": "HWZ = 08:53 MESZ/BZ", "tolerance": "Keine Toleranz"}
+    assert task["derivation"][1]["table"][2] == {
+        "cells": ["FD/TF Cuxhaven", "**06 h 38 min**", "**2,5 m**"],
+        "sum": True,
+        "sum_until": None,
+    }
     assert response.json()["current_task"] == 1  # still to be assessed
 
 
@@ -230,7 +235,7 @@ def test_points_advance_to_the_next_task(client, auth_headers):
     assert body["points"] == 2
     assert [t["number"] for t in body["tasks"]] == [1, 2]
     assert body["tasks"][0]["points_awarded"] == 2
-    assert body["tasks"][1]["solution_images"] == []
+    assert body["tasks"][1]["solution"] == []
     # An assessed task is closed.
     assert _points(client, auth_headers, attempt["id"], 1, 1).status_code == 409
 
@@ -242,7 +247,7 @@ def test_the_last_points_complete_the_run(client, auth_headers):
     assert body["completed_at"] is not None
     assert len(body["tasks"]) == 18
     assert body["points"] == 30 - 18
-    assert all(task["solution_images"] for task in body["tasks"])
+    assert all(task["solution"] for task in body["tasks"])
 
 
 def test_overview_reflects_open_and_completed_runs(client, auth_headers):
@@ -263,7 +268,7 @@ def test_last_points_come_from_the_latest_completed_run(db_session):
     earlier, later = datetime(2026, 9, 1, tzinfo=UTC), datetime(2026, 9, 2, tzinfo=UTC)
 
     def run(started, completed, points):
-        attempt = ChartAttempt(user_id=user.id, exercise_number=3, started_at=started, completed_at=completed)
+        attempt = ChartAttempt(user_id=user.id, exercise_number=2, started_at=started, completed_at=completed)
         attempt.tasks.append(
             ChartAttemptTask(task_number=1, answer_text="", answered_at=started, points_awarded=points)
         )
@@ -273,7 +278,7 @@ def test_last_points_come_from_the_latest_completed_run(db_session):
     run(earlier, later + timedelta(days=1), 7)
     run(later, later, 3)
     db_session.commit()
-    assert service.overview(db_session, user).exercises[2].last_points == 7
+    assert service.overview(db_session, user).exercises[1].last_points == 7
 
 
 def test_get_returns_the_run_and_hides_other_learners_runs(client, db_session, auth_headers):

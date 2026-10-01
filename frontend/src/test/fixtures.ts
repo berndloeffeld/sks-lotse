@@ -88,8 +88,8 @@ export function chartTask(number: number, overrides: Partial<ChartAttemptTask> =
       { points: 1, text: `Frage ${number}b?` },
     ],
     answer_text: null,
-    solution_images: [],
-    derivation_images: [],
+    solution: [],
+    derivation: [],
     points_awarded: null,
     ...overrides,
   }

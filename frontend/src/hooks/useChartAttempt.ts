@@ -6,11 +6,12 @@ import { useApiQuery } from './useApiQuery'
 
 // The ten Kartenaufgaben with the learner's runs, plus what every sheet shares (hints, tide form).
 export function useChartOverview() {
-  const { data, failed } = useApiQuery('chart-exercises', () =>
+  const { data, failed, reload } = useApiQuery('chart-exercises', () =>
     apiClient.get<ChartExercisesOverview>('/chart-exercises'),
   )
   return {
     overview: data ?? null,
+    reload,
     error: failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null,
   }
 }

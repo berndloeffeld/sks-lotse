@@ -7,10 +7,11 @@ import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
 import { TideFormFields } from './TideFormFields'
 
 // What stays at hand during a Kartenaufgabe: the Formblatt Gezeiten to fill in, the tasks done so far
-// with the learner's answers and the solutions, and the sheet's rules. Beside the task on a wide screen
+// with the learner's answers and the solutions. (The sheet's rules are read before the start, on
+// ChartExercisePage.) Beside the task on a wide screen
 // as cards that fold open and shut (ChartSidePanel), behind a bar at the bottom on a phone (ChartToolBar).
 
-const PANELS = { form: 'Formblatt Gezeiten', history: 'Verlauf', hints: 'Hinweise' } as const
+const PANELS = { form: 'Formblatt Gezeiten', history: 'Verlauf' } as const
 type Panel = keyof typeof PANELS
 const PANEL_KEYS = Object.keys(PANELS) as Panel[]
 
@@ -52,9 +53,9 @@ export function ChartHints({ overview }: { overview: ChartExercisesOverview | nu
   )
 }
 
-/** Every answered task, newest first, each opening to its text, the answer and the solution. */
+/** Every answered task, in the sheet's order, each opening to its text, the answer and the solution. */
 export function ChartTaskHistory({ attempt }: { attempt: ChartAttempt }) {
-  const answered = attempt.tasks.filter((task) => task.answer_text !== null).reverse()
+  const answered = attempt.tasks.filter((task) => task.answer_text !== null)
   if (answered.length === 0) return <p className="text-sm text-ink-soft">Noch keine Aufgabe beantwortet.</p>
   return (
     <ul className="flex flex-col">
@@ -101,15 +102,14 @@ function FillableTideForm({ overview, tideForm }: Pick<ToolsProps, 'overview' | 
 
 function PanelContent({ panel, attempt, overview, tideForm }: ToolsProps & { panel: Panel }) {
   if (panel === 'form') return <FillableTideForm overview={overview} tideForm={tideForm} />
-  if (panel === 'history') return <ChartTaskHistory attempt={attempt} />
-  return <ChartHints overview={overview} />
+  return <ChartTaskHistory attempt={attempt} />
 }
 
 // Which cards were open stays in this browser, so the layout the learner chose survives the next task.
 const OPEN_KEY = 'sks-lotse:chart-tools-open'
 
 function loadOpen(): Record<Panel, boolean> {
-  const initial = { form: true, history: false, hints: false }
+  const initial = { form: true, history: false }
   try {
     return {
       ...initial,
