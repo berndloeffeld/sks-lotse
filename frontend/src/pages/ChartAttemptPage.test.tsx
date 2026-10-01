@@ -8,8 +8,23 @@ import { useAuthStore } from '../store/authStore'
 import { chartTask, jsonResponse, makeChartAttempt, makeChartOverview } from '../test/fixtures'
 import { ChartAttemptPage } from './ChartAttemptPage'
 
-const SOLUTION = [{ src: 'bogen-03/aufgabe-01-loesung-1.png', width: 1040, height: 300 }]
-const DERIVATION = [{ src: 'bogen-03/aufgabe-01-herleitung-1.png', width: 1040, height: 200 }]
+const SOLUTION = [
+  { results: [{ text: 'HWZ = 08:53 MESZ/BZ', tolerance: 'Keine Toleranz' }, { text: 'HWH = 3,2 m' }] },
+  {
+    results: [{ text: 'Stromdreieck' }],
+    image: { src: 'bogen-03/aufgabe-01-stromdreieck.png', width: 632, height: 632 },
+  },
+]
+const DERIVATION = [
+  { text: 'Alter der Gezeit: **Nippzeit (NpZ)**' },
+  {
+    table: [
+      { cells: ['MgP', '=', '054°', '348°'], sum: false },
+      { cells: ['Abl', '=', '+10°', '+11°'], sum: true, sum_until: 3 },
+      { cells: ['rwP', '=', '065°', '360°'], sum: true },
+    ],
+  },
+]
 
 function renderPage() {
   return render(
@@ -35,7 +50,7 @@ function stubBackend(initial: ChartAttempt, writes: ChartAttempt[] = [], writeSt
 }
 
 const answered = makeChartAttempt({
-  tasks: [chartTask(1, { answer_text: 'HWZ 08:53', solution_images: SOLUTION, derivation_images: DERIVATION })],
+  tasks: [chartTask(1, { answer_text: 'HWZ 08:53', solution: SOLUTION, derivation: DERIVATION })],
 })
 
 describe('ChartAttemptPage', () => {
@@ -65,21 +80,68 @@ describe('ChartAttemptPage', () => {
     await user.type(await screen.findByRole('textbox', { name: /Deine Antwort/ }), 'HWZ 08:53')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
 
-    expect(await screen.findByRole('img', { name: 'Amtliche Lösung zu Aufgabe 1' })).toHaveAttribute(
+    // One bullet per scoring part; a result with its tolerance, a drawing as the PDF's image.
+    const solution = await screen.findByRole('list')
+    expect(within(solution).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(solution).getByText('HWZ = 08:53 MESZ/BZ')).toBeInTheDocument()
+    expect(within(solution).getByText('[Keine Toleranz]')).toBeInTheDocument()
+    expect(within(solution).getByText('HWH = 3,2 m')).toBeInTheDocument()
+    expect(within(solution).getByRole('img', { name: 'Amtliche Zeichnung' })).toHaveAttribute(
       'src',
-      '/charts/bogen-03/aufgabe-01-loesung-1.png',
+      '/charts/bogen-03/aufgabe-01-stromdreieck.png',
     )
     // The working that leads to the results is there, but folded away.
     const derivation = screen.getByText('Herleitung anzeigen')
     expect(derivation.closest('details')).not.toHaveAttribute('open')
     await user.click(derivation)
-    expect(screen.getByRole('img', { name: 'Amtliche Herleitung zu Aufgabe 1' })).toHaveAttribute(
-      'src',
-      '/charts/bogen-03/aufgabe-01-herleitung-1.png',
-    )
+    // **…** is what the PDF prints bold.
+    expect(screen.getByText('Nippzeit (NpZ)').tagName).toBe('STRONG')
+    // A sum is ruled off above — across the row, or only its first cells.
+    expect(screen.getByText('rwP').closest('td')).toHaveClass('border-t')
+    expect(screen.getByText('360°').closest('td')).toHaveClass('border-t')
+    expect(screen.getByText('+10°').closest('td')).toHaveClass('border-t')
+    expect(screen.getByText('+11°').closest('td')).not.toHaveClass('border-t')
+    expect(screen.getByText('MgP').closest('td')).not.toHaveClass('border-t')
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/chart-exercises/attempts/5/tasks/1/answer'),
       expect.objectContaining({ method: 'PUT', body: JSON.stringify({ answer_text: 'HWZ 08:53' }) }),
+    )
+  })
+
+  it('explains what goes into the answer behind an info marker', async () => {
+    const user = userEvent.setup()
+    stubBackend(makeChartAttempt())
+    renderPage()
+
+    const field = await screen.findByRole('textbox', { name: 'Deine Antwort' })
+    expect(field).toHaveAccessibleDescription(/Hier notierst du die Ergebnisse\./)
+    const marker = screen.getByRole('button', { name: 'Hinweis' })
+    const tip = screen.getByRole('tooltip', { hidden: true })
+    expect(tip).toHaveClass('hidden')
+
+    await user.click(marker)
+    expect(marker).toHaveAttribute('aria-expanded', 'true')
+    expect(tip).not.toHaveClass('hidden')
+    await user.keyboard('{Escape}')
+    expect(tip).toHaveClass('hidden')
+  })
+
+  it('breaks the line on Shift+Enter and saves the answer on Enter', async () => {
+    const user = userEvent.setup()
+    const fetchMock = stubBackend(makeChartAttempt(), [answered])
+    renderPage()
+
+    const field = await screen.findByRole('textbox', { name: /Deine Antwort/ })
+    await waitFor(() => expect(field).toHaveFocus())
+    await user.keyboard('HWZ 08:53{Shift>}{Enter}{/Shift}HWH 3,2 m')
+    expect(field).toHaveValue('HWZ 08:53\nHWH 3,2 m')
+    expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining('/answer'), expect.anything())
+
+    await user.keyboard('{Enter}')
+    expect(await screen.findByText('Herleitung anzeigen')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/chart-exercises/attempts/5/tasks/1/answer'),
+      expect.objectContaining({ body: JSON.stringify({ answer_text: 'HWZ 08:53\nHWH 3,2 m' }) }),
     )
   })
 
@@ -96,12 +158,34 @@ describe('ChartAttemptPage', () => {
     expect(field).toHaveValue('HWZ')
   })
 
+  it('cycles through the points with Tab and gives the focused ones on Enter', async () => {
+    const user = userEvent.setup()
+    const fetchMock = stubBackend(answered, [makeChartAttempt({ current_task: 2, tasks: [chartTask(2)] })])
+    renderPage()
+
+    await screen.findByRole('group', { name: /Wie viele Punkte/ })
+    for (const name of ['0', '1', '2', '0']) {
+      await user.tab()
+      expect(screen.getByRole('radio', { name })).toHaveFocus()
+    }
+    await user.tab({ shift: true })
+    expect(screen.getByRole('radio', { name: '2' })).toHaveFocus()
+    expect(screen.getByRole('radio', { name: '2' })).not.toBeChecked()
+
+    await user.keyboard('{Enter}')
+    expect(await screen.findByRole('heading', { name: 'Aufgabe 2' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/tasks/1/points'),
+      expect.objectContaining({ body: JSON.stringify({ points: 2 }) }),
+    )
+  })
+
   it('asks for the points before moving on, then shows the next task', async () => {
     const user = userEvent.setup()
     const next = makeChartAttempt({
       current_task: 2,
       points: 1,
-      tasks: [chartTask(1, { answer_text: 'HWZ 08:53', solution_images: SOLUTION, points_awarded: 1 }), chartTask(2)],
+      tasks: [chartTask(1, { answer_text: 'HWZ 08:53', solution: SOLUTION, points_awarded: 1 }), chartTask(2)],
     })
     const fetchMock = stubBackend(answered, [next])
     renderPage()
@@ -138,7 +222,7 @@ describe('ChartAttemptPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Punkte konnten nicht gespeichert werden.')
   })
 
-  it('keeps the tide form, the tasks so far and the hints at hand beside the task, as cards that fold', async () => {
+  it('keeps the tide form and the tasks so far at hand beside the task, as cards that fold', async () => {
     const user = userEvent.setup()
     stubBackend(
       makeChartAttempt({
@@ -147,11 +231,11 @@ describe('ChartAttemptPage', () => {
         tasks: [
           chartTask(1, {
             answer_text: 'HWZ 08:53',
-            solution_images: SOLUTION,
-            derivation_images: DERIVATION,
+            solution: SOLUTION,
+            derivation: DERIVATION,
             points_awarded: 2,
           }),
-          chartTask(2),
+          chartTask(2, { answer_text: 'FD 6 h' }),
         ],
       }),
     )
@@ -166,13 +250,18 @@ describe('ChartAttemptPage', () => {
     expect(within(panel).queryByRole('textbox', { name: 'Bezugsort' })).not.toBeInTheDocument()
 
     await user.click(within(panel).getByRole('button', { name: 'Verlauf' }))
+    // In the sheet's order, the task just answered last.
+    expect(
+      within(panel)
+        .getAllByText(/^Aufgabe \d$/)
+        .map((item) => item.textContent),
+    ).toEqual(['Aufgabe 1', 'Aufgabe 2'])
+    expect(within(panel).getByText('noch nicht bewertet')).toBeInTheDocument()
     expect(within(panel).getByText('2 / 2 Punkte')).toBeInTheDocument()
     expect(within(panel).getByText('HWZ 08:53')).toBeInTheDocument()
-    expect(within(panel).getByRole('img', { name: 'Amtliche Lösung zu Aufgabe 1' })).toBeInTheDocument()
-
-    await user.click(within(panel).getByRole('button', { name: 'Hinweise' }))
-    expect(within(panel).getByText('Hinweise: Kurse auf volle Grade runden.')).toBeInTheDocument()
-    expect(within(panel).getByText(/Quelle: WSV/)).toBeInTheDocument()
+    expect(within(panel).getByText('HWZ = 08:53 MESZ/BZ')).toBeInTheDocument()
+    // The sheet's rules are read before the start, not during the run.
+    expect(within(panel).queryByRole('button', { name: 'Hinweise' })).not.toBeInTheDocument()
   })
 
   it('remembers which cards are open', async () => {
@@ -181,13 +270,13 @@ describe('ChartAttemptPage', () => {
     const { unmount } = renderPage()
     const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
     await user.click(within(panel).getByRole('button', { name: 'Formblatt Gezeiten' }))
-    await user.click(within(panel).getByRole('button', { name: 'Hinweise' }))
+    await user.click(within(panel).getByRole('button', { name: 'Verlauf' }))
     unmount()
 
     renderPage()
     const again = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
     expect(within(again).getByRole('button', { name: 'Formblatt Gezeiten' })).toHaveAttribute('aria-expanded', 'false')
-    expect(within(again).getByRole('button', { name: 'Hinweise' })).toHaveAttribute('aria-expanded', 'true')
+    expect(within(again).getByRole('button', { name: 'Verlauf' })).toHaveAttribute('aria-expanded', 'true')
   })
 
   it('lets the learner fill in the tide form, kept per run', async () => {
@@ -253,8 +342,8 @@ describe('ChartAttemptPage', () => {
         completed_at: '2026-09-30T11:00:00Z',
         points: 3,
         tasks: [
-          chartTask(1, { answer_text: 'A', solution_images: SOLUTION, points_awarded: 2 }),
-          chartTask(2, { answer_text: '', solution_images: SOLUTION, points_awarded: 1 }),
+          chartTask(1, { answer_text: 'A', solution: SOLUTION, points_awarded: 2 }),
+          chartTask(2, { answer_text: '', solution: [{ results: [{ text: 'KaK = 059°' }] }], points_awarded: 1 }),
         ],
       }),
     )
@@ -264,11 +353,15 @@ describe('ChartAttemptPage', () => {
     expect(screen.getByText(/von 4 Punkten gegeben/)).toHaveTextContent('Du hast dir 3 von 4 Punkten gegeben.')
     expect(screen.getByRole('link', { name: 'Zur Übersicht' })).toHaveAttribute('href', '/charts')
     await waitFor(() => expect(screen.getAllByText('(keine Antwort)').length).toBeGreaterThan(0))
+    // A solution of a single part needs no bullet.
+    const single = screen.getAllByText('KaK = 059°')[0].closest('section')
+    expect(single && within(single).queryByRole('list')).toBeNull()
   })
 
-  it('discards the run after a confirmation and returns to the exercise', async () => {
+  it('offers to delete a finished run, not one still running, and returns to the exercise', async () => {
     const user = userEvent.setup()
-    const fetchMock = stubBackend(makeChartAttempt())
+    const finished = makeChartAttempt({ current_task: null, completed_at: '2026-09-30T11:00:00Z' })
+    const fetchMock = stubBackend(finished)
     render(
       <MemoryRouter initialEntries={['/charts/attempts/5']}>
         <Routes>
@@ -278,9 +371,9 @@ describe('ChartAttemptPage', () => {
       </MemoryRouter>,
     )
 
-    await user.click(await screen.findByRole('button', { name: 'Diesen Durchgang verwerfen' }))
+    await user.click(await screen.findByRole('button', { name: 'Diesen Durchgang löschen' }))
     await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
-    await user.click(screen.getByRole('button', { name: 'Diesen Durchgang verwerfen' }))
+    await user.click(screen.getByRole('button', { name: 'Diesen Durchgang löschen' }))
     fetchMock.mockImplementationOnce(async () => new Response(null, { status: 204 }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
@@ -289,6 +382,14 @@ describe('ChartAttemptPage', () => {
       expect.stringContaining('/chart-exercises/attempts/5'),
       expect.objectContaining({ method: 'DELETE' }),
     )
+  })
+
+  it('has no way to discard the run beside a task', async () => {
+    stubBackend(makeChartAttempt())
+    renderPage()
+
+    expect(await screen.findByRole('heading', { name: 'Aufgabe 1' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /verwerfen|löschen/ })).not.toBeInTheDocument()
   })
 
   it('reports a failed discard', async () => {

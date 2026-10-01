@@ -41,6 +41,8 @@ export type ExamStats = Narrow<
 
 export type ChartImage = Schemas['ChartImage']
 export type ChartQuestion = Schemas['ChartQuestion']
+export type ChartSolutionPart = Schemas['ChartSolutionPart']
+export type ChartDerivationBlock = Schemas['ChartDerivationBlock']
 export type ChartExerciseSummary = Schemas['ChartExerciseSummary']
 export type ChartExercisesOverview = Schemas['ChartExercisesOverview']
 export type ChartAttemptTask = Schemas['ChartAttemptTaskRead']

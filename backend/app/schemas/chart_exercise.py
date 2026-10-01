@@ -17,6 +17,36 @@ class ChartQuestion(BaseModel):
     text: str
 
 
+class ChartResult(BaseModel):
+    """One line of an official solution: a result with its tolerance, or a working line (no tolerance)."""
+
+    text: str
+    tolerance: str | None = None
+
+
+class ChartSolutionPart(BaseModel):
+    """What one point bullet of the official solution covers."""
+
+    results: list[ChartResult]
+    # A drawing that scores, the current triangle: kept as the PDF's image.
+    image: ChartImage | None = None
+
+
+class ChartTableRow(BaseModel):
+    cells: list[str]
+    # Ruled off above, like a sum in the PDF's calculation tables — across the whole row, or only its
+    # first `sum_until` cells when the line covers just one column (a value given, the other summed).
+    sum: bool = False
+    sum_until: int | None = None
+
+
+class ChartDerivationBlock(BaseModel):
+    """A paragraph or a table of the working; **bold** marks what the PDF prints bold."""
+
+    text: str | None = None
+    table: list[ChartTableRow] | None = None
+
+
 class ChartTask(BaseModel):
     """One task of an exercise as committed in app/data/chart_exercises.yaml."""
 
@@ -24,10 +54,10 @@ class ChartTask(BaseModel):
     points: int
     text: str
     questions: list[ChartQuestion]
-    # The official solution's results (what scores), and the working above them — tide tables, the
-    # stream diamond read off, ... — which the app shows only on request.
-    solution_images: list[ChartImage]
-    derivation_images: list[ChartImage]
+    # The official solution's results (what scores), and the working that leads to them — tide tables,
+    # the stream diamond read off, the course conversion, ... — which the app shows only on request.
+    solution: list[ChartSolutionPart]
+    derivation: list[ChartDerivationBlock] = []
 
 
 class ChartExercise(BaseModel):
@@ -70,8 +100,8 @@ class ChartAttemptTaskRead(BaseModel):
     # The learner's answer; None while the task is still open.
     answer_text: str | None
     # Both withheld until the task is answered, so the solution can't be read ahead.
-    solution_images: list[ChartImage]
-    derivation_images: list[ChartImage]
+    solution: list[ChartSolutionPart]
+    derivation: list[ChartDerivationBlock]
     points_awarded: int | None
 
 

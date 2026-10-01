@@ -1,9 +1,10 @@
-"""The Kartenaufgaben (ADR-0052): the committed exercises and the learners' runs through them.
+"""The Kartenaufgaben (ADR-0052, ADR-0053): the committed exercises and the learners' runs through them.
 
-The ten exercises are read from app/data/chart_exercises.yaml (proposed by
-scripts/extract_chart_exercises.py, reviewed by hand) — static data that only changes with a
-deploy, so it's loaded once per process. A run works through the tasks strictly in order:
-answer the current task, see its official solution, give yourself points, next task.
+The exercises transcribed so far are read from app/data/chart_exercises.yaml (task text proposed
+by scripts/extract_chart_exercises.py, solutions transcribed and reviewed by hand) — static data
+that only changes with a deploy, so it's loaded once per process. A run works through the tasks
+strictly in order: answer the current task, see its official solution, give yourself points, next
+task.
 
 The routes in app/api/v1/chart_exercises.py own the HTTP side; the rules live here.
 """
@@ -69,8 +70,8 @@ def _task_read(task: ChartTask, answer: ChartAttemptTask | None) -> ChartAttempt
         text=task.text,
         questions=task.questions,
         answer_text=answer.answer_text if answer else None,
-        solution_images=task.solution_images if answer else [],
-        derivation_images=task.derivation_images if answer else [],
+        solution=task.solution if answer else [],
+        derivation=task.derivation if answer else [],
         points_awarded=answer.points_awarded if answer else None,
     )
 

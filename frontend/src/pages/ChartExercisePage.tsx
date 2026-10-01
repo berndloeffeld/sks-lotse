@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import type { ChartAttempt } from '../api/types'
 import { ChartHints, TideForm } from '../components/ChartTools'
+import { DiscardChartRun } from '../components/DiscardChartRun'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { useAsyncAction } from '../hooks/useAsyncAction'
@@ -26,7 +27,7 @@ const OWN_MATERIAL = [
 export function ChartExercisePage() {
   const { number } = useParams()
   const navigate = useNavigate()
-  const { overview, error: loadError } = useChartOverview()
+  const { overview, reload, error: loadError } = useChartOverview()
   const [ready, setReady] = useState(false)
   const startAction = useAsyncAction()
   const exercise = overview?.exercises.find((e) => String(e.number) === number)
@@ -104,9 +105,16 @@ export function ChartExercisePage() {
             </p>
           ) : null}
           {exercise.open_attempt_id !== null ? (
-            <Link to={`/charts/attempts/${exercise.open_attempt_id}`} className={`${styles.button} self-start`}>
-              Begonnene Kartenaufgabe fortsetzen
-            </Link>
+            <>
+              <Link to={`/charts/attempts/${exercise.open_attempt_id}`} className={`${styles.button} self-start`}>
+                Begonnene Kartenaufgabe fortsetzen
+              </Link>
+              <DiscardChartRun
+                attemptId={exercise.open_attempt_id}
+                label="Begonnene Kartenaufgabe verwerfen"
+                onDiscarded={reload}
+              />
+            </>
           ) : (
             <button
               type="button"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { ChartAttempt, ChartAttemptTask } from '../api/types'
@@ -42,7 +42,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints }: ChartTaskRunProps)
           {attempt.points} / {attempt.max_points} Punkte bisher
         </p>
       </div>
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <h2 className="font-serif text-xl text-ink">Aufgabe {task.number}</h2>
         <p className="text-right text-sm text-ink-soft">Max. erreichbare Punkte: {task.max_points}</p>
       </div>
@@ -57,10 +57,49 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints }: ChartTaskRunProps)
   )
 }
 
+const ANSWER_HINT =
+  'Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du die Ergebnisse.'
+
+// An "i" beside a label, in a row that is `relative` (the bubble opens above the row's start): the
+// hint shows on hover, a click, tap or Enter toggles it, Escape and leaving the marker close it. The
+// bubble stays in the DOM while hidden, so the field can still name it in aria-describedby.
+function InfoMarker({ id, text }: { id: string; text: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <span className="group inline-flex">
+      <button
+        type="button"
+        aria-label="Hinweis"
+        aria-describedby={id}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setOpen(false)
+        }}
+        className="flex size-4 items-center justify-center rounded-full border border-ink-soft font-serif text-[0.65rem] leading-none text-ink-soft italic hover:border-ink hover:text-ink"
+      >
+        i
+      </button>
+      <span
+        id={id}
+        role="tooltip"
+        className={`absolute bottom-full left-0 z-20 mb-2 w-72 max-w-full rounded-tile border border-ink bg-surface p-3 text-xs leading-relaxed text-ink shadow-lg group-hover:block ${
+          open ? 'block' : 'hidden'
+        }`}
+      >
+        {text}
+      </span>
+    </span>
+  )
+}
+
 function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: ChartTaskRunProps['onAnswer'] }) {
   const [answer, setAnswer] = useState('')
   const { run, isPending, error } = useAsyncAction()
   const fieldRef = useRef<HTMLTextAreaElement>(null)
+  const fieldId = useId()
+  const hintId = useId()
 
   useEffect(() => {
     fieldRef.current?.focus({ preventScroll: true })
@@ -71,26 +110,35 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
       className="flex flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault()
+        if (isPending) return
         void run(
           () => onAnswer(task.number, answer),
           'Die Antwort konnte nicht gespeichert werden. Bitte versuche es erneut.',
         )
       }}
     >
-      <label className={styles.label}>
-        Deine Antwort
+      <div className={styles.label}>
+        <div className="relative flex items-center gap-1.5">
+          <label htmlFor={fieldId}>Deine Antwort</label>
+          <InfoMarker id={hintId} text={ANSWER_HINT} />
+        </div>
         <textarea
+          id={fieldId}
+          aria-describedby={hintId}
           ref={fieldRef}
           value={answer}
           onChange={(event) => setAnswer(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault()
+              event.currentTarget.form?.requestSubmit()
+            }
+          }}
           rows={4}
           className={styles.input}
         />
-        <span className="text-xs text-ink-soft">
-          Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du
-          die Ergebnisse.
-        </span>
-      </label>
+        <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
+      </div>
       {error ? (
         <p role="alert" className={styles.error}>
           {error}
@@ -107,31 +155,49 @@ function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: Char
   const [points, setPoints] = useState<number | null>(null)
   const { run, isPending, error, setError } = useAsyncAction()
   const continueRef = useRef<HTMLButtonElement>(null)
+  const groupRef = useRef<HTMLFieldSetElement>(null)
+  const radioRefs = useRef<(HTMLInputElement | null)[]>([])
   const choices = Array.from({ length: task.max_points + 1 }, (_, i) => i)
 
+  // As in the catalog's self-assessment (SelfAssessment): focus goes to the group *before* the
+  // choices, so Tab lands on the first and keeps cycling through them without selecting; Enter on a
+  // choice gives those points and moves on.
   useEffect(() => {
     // Clear of the tool bar a phone shows at the bottom of the screen.
     scrollBelowIntoView(continueRef.current, 64)
+    groupRef.current?.focus({ preventScroll: true })
   }, [])
+
+  function cycleFocus(from: HTMLInputElement, backwards: boolean) {
+    const stops = radioRefs.current.filter((el): el is HTMLInputElement => el !== null)
+    const at = stops.indexOf(from)
+    stops[(at + (backwards ? stops.length - 1 : 1)) % stops.length]?.focus()
+  }
+
+  // `chosen` lets Enter on a choice save the points it just selected, before state has caught up.
+  function save(chosen: number | null) {
+    if (isPending) return
+    if (chosen === null) {
+      setError('Wähle zuerst, wie viele Punkte du dir gibst.')
+      return
+    }
+    void run(
+      () => onPoints(task.number, chosen),
+      'Die Punkte konnten nicht gespeichert werden. Bitte versuche es erneut.',
+    )
+  }
 
   return (
     <form
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        if (points === null) {
-          setError('Wähle zuerst, wie viele Punkte du dir gibst.')
-          return
-        }
-        void run(
-          () => onPoints(task.number, points),
-          'Die Punkte konnten nicht gespeichert werden. Bitte versuche es erneut.',
-        )
+        save(points)
       }}
     >
       <OwnAnswer text={task.answer_text ?? ''} />
       <OfficialSolution task={task} />
-      <fieldset className="flex flex-col gap-2">
+      <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none">
         <legend className="mb-2 text-sm text-ink-soft">
           Wie viele Punkte hättest du in der Prüfung bekommen? Die Toleranzen stehen in eckigen Klammern.
         </legend>
@@ -139,11 +205,14 @@ function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: Char
           {choices.map((choice) => (
             <label
               key={choice}
-              className={`cursor-pointer rounded-tile border-2 px-4 py-2 font-mono text-sm ${
+              className={`cursor-pointer rounded-tile border-2 px-4 py-2 font-mono text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent has-[:focus-visible]:ring-offset-2 ${
                 points === choice ? 'border-primary bg-primary text-surface' : 'border-primary text-primary'
               }`}
             >
               <input
+                ref={(el) => {
+                  radioRefs.current[choice] = el
+                }}
                 type="radio"
                 name="points"
                 value={choice}
@@ -151,6 +220,16 @@ function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: Char
                 onChange={() => {
                   setPoints(choice)
                   setError(null)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Tab') {
+                    event.preventDefault()
+                    cycleFocus(event.currentTarget, event.shiftKey)
+                  } else if (event.key === 'Enter') {
+                    event.preventDefault()
+                    setPoints(choice)
+                    save(choice)
+                  }
                 }}
                 className="sr-only"
               />

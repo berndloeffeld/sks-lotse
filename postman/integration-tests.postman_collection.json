@@ -9226,8 +9226,9 @@
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var o = pm.response.json();",
-                  "pm.test('ten exercises of 30 points with the shared material', function () {",
-                  "    pm.expect(o.exercises.length).to.eql(10);",
+                  "pm.test('the transcribed exercises, numbered from 1, of 30 points with the shared material', function () {",
+                  "    pm.expect(o.exercises.length).to.be.above(0);",
+                  "    pm.expect(o.exercises.map(function (e) { return e.number; })).to.eql(o.exercises.map(function (e, i) { return i + 1; }));",
                   "    o.exercises.forEach(function (e) { pm.expect(e.max_points).to.eql(30); });",
                   "    pm.expect(o.tide_form.src).to.eql('formblatt-gezeiten.png');",
                   "    pm.expect(o.hints.length).to.be.above(0);",
@@ -9276,7 +9277,8 @@
                   "pm.test('only the first task, without its solution', function () {",
                   "    pm.expect(a.current_task).to.eql(1);",
                   "    pm.expect(a.tasks.length).to.eql(1);",
-                  "    pm.expect(a.tasks[0].solution_images).to.eql([]);",
+                  "    pm.expect(a.tasks[0].solution).to.eql([]);",
+                  "    pm.expect(a.tasks[0].derivation).to.eql([]);",
                   "});"
                 ]
               }
@@ -9550,7 +9552,9 @@
                   "var t = pm.response.json().tasks[0];",
                   "pm.test('the answer is stored and the solution revealed', function () {",
                   "    pm.expect(t.answer_text).to.eql('HWZ 08:53 BZ, HWH 3,2 m');",
-                  "    pm.expect(t.solution_images.length).to.be.above(0);",
+                  "    pm.expect(t.solution.length).to.be.above(0);",
+                  "    pm.expect(t.solution[0].results[0].text).to.be.a('string');",
+                  "    pm.expect(t.derivation).to.be.an('array');",
                   "});"
                 ]
               }

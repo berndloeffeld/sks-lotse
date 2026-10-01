@@ -1,6 +1,6 @@
 # 52. Kartenaufgaben: ten fixed exercises from a reviewed YAML, solutions as images, behind a flag
 
-Status: Accepted
+Status: Accepted — amended by [ADR-0053](0053-chart-solutions-transcribed-as-text.md): solutions are text now, and only transcribed sheets are in the app.
 
 ## Context
 

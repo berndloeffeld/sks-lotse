@@ -18,7 +18,7 @@ export function ChartExercisesPage() {
     <PageLayout title="Kartenaufgaben" compact>
       <section className="flex flex-col gap-3">
         <p className="text-ink">
-          Die zehn amtlichen Kartenaufgaben für den zweiten Teil der schriftlichen Prüfung: je 30 Punkte in 90 Minuten,
+          Die amtlichen Kartenaufgaben für den zweiten Teil der schriftlichen Prüfung: je 30 Punkte in 90 Minuten,
           gerechnet und gezeichnet in der Übungskarte 49 (INT 1463).
         </p>
         <p className="text-sm text-ink-soft">
