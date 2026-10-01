@@ -33,3 +33,6 @@ postman/production.postman_environment.json
 
 # mutmut working copy
 backend/mutants/
+
+# Local working file, not part of the repo
+sks-segelschulen.xlsx

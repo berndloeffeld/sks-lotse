@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  lint:
+  backend-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -36,8 +36,11 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: mypy app
+      # Known vulnerabilities in the locked runtime + dev dependencies (PyPI advisory DB / OSV).
+      # --require-hashes/--disable-pip: the lock is hash-pinned and complete, so nothing is resolved again.
+      - run: pip-audit -r requirements-dev.txt --require-hashes --disable-pip
 
-  test:
+  backend-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:

@@ -35,6 +35,7 @@ Derived load (planning figure):
 | | Prompt-injection hardening of the AI check |
 | | No secrets in the git repository |
 | | Continuous security scanning |
+| | No merge with a known-vulnerable dependency (pip-audit, npm audit high+) |
 | Privacy | Deletion and export of personal data |
 | | EU hosting; Anthropic (US) under a data processing agreement |
 | Availability | Readiness check; traffic only to a deploy that passes it |

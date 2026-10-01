@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  lint:
+  frontend-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -35,8 +35,10 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
+      # Known high/critical vulnerabilities in what ships to the browser (dev tooling excluded).
+      - run: npm audit --omit=dev --audit-level=high
 
-  test:
+  frontend-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:

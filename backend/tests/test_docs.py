@@ -15,7 +15,9 @@ DOCS = [
     REPO / "CLAUDE.md",
     REPO / "README.md",
     REPO / "SECURITY.md",
+    REPO / "frontend" / "README.md",
     *sorted((REPO / "docs").glob("*.md")),
+    REPO / "docs" / "stripe" / "README.md",
     # template.md is excluded: its links are placeholders (NNNN-title.md).
     *sorted(p for p in ADR_DIR.glob("*.md") if p.name != "template.md"),
 ]
