@@ -3,38 +3,41 @@ import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
-import { AccountNav } from './AccountNav'
+import { MainNav } from './MainNav'
 import { makeUser } from '../test/fixtures'
 
 function renderAt(path: string, user = makeUser()) {
   useAuthStore.setState({ user })
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <AccountNav />
+      <MainNav />
     </MemoryRouter>,
   )
 }
 
-describe('AccountNav', () => {
-  it('leads with the two learning destinations and the Menü button', () => {
+const charts = makeUser({ can_use_chart_exercises: true })
+
+describe('MainNav', () => {
+  it('leads with Lernen and Prüfung, then the token balance and the Konto menu', () => {
     renderAt('/profile')
 
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('href', '/exam')
-    expect(screen.getByRole('button', { name: 'Menü' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByRole('link', { name: /Tokens – zum Shop/ })).toHaveAttribute('href', '/pricing')
+    expect(screen.getByRole('button', { name: 'Konto' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link', { name: 'Kartenaufgaben' })).not.toBeInTheDocument()
   })
 
-  it('adds the Kartenaufgaben only where the feature flag covers the account', () => {
-    const { unmount } = renderAt('/profile')
-    expect(screen.queryByRole('link', { name: 'Karte' })).not.toBeInTheDocument()
-    unmount()
+  it('splits into Fragen and Kartenaufgaben where the feature flag covers the account', () => {
+    renderAt('/charts/1', charts)
 
-    renderAt('/charts/1', makeUser({ can_use_chart_exercises: true }))
-    expect(screen.getByRole('link', { name: 'Karte' })).toHaveAttribute('href', '/charts')
-    expect(screen.getByRole('link', { name: 'Karte' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Fragen' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Kartenaufgaben' })).toHaveAttribute('href', '/charts')
+    expect(screen.getByRole('link', { name: 'Kartenaufgaben' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.queryByRole('link', { name: 'Prüfung' })).not.toBeInTheDocument()
   })
 
-  it('keeps everything else in the menu, not in the bar', () => {
+  it('keeps the content pages out of the bar', () => {
     renderAt('/profile')
 
     for (const name of ['FAQ', 'Prüfungsablauf', 'Shop', 'Profil', 'Feedback']) {
@@ -43,7 +46,7 @@ describe('AccountNav', () => {
     expect(screen.queryByRole('button', { name: 'Abmelden' })).not.toBeInTheDocument()
   })
 
-  it('marks the current section, including its sub-pages', () => {
+  it('marks the current area, including its sub-pages', () => {
     const { unmount } = renderAt('/learn/focus')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Prüfung' })).not.toHaveAttribute('aria-current')
@@ -54,5 +57,12 @@ describe('AccountNav', () => {
     expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Lernen' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-transparent')
+  })
+
+  it('leaves the areas and the menu to the tab bar on phones', () => {
+    renderAt('/learn')
+
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('hidden', 'md:inline')
+    expect(screen.getByRole('button', { name: 'Konto' }).closest('div.hidden')).toHaveClass('md:block')
   })
 })

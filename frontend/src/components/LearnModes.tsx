@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 
 import type { RefreshSummary } from '../api/types'
 import { percentOf } from '../format'
+import { learnModes, type LearnMode } from '../navigation'
 import { Band } from './Bands'
 import { formStyles } from './formStyles'
-
-export type LearnMode = 'topic' | 'focus' | 'refresh'
 
 const LEARN_MODES: { id: LearnMode; label: string }[] = [
   { id: 'topic', label: 'Nach Thema' },
   { id: 'focus', label: 'Fokus' },
   { id: 'refresh', label: 'Auffrischen' },
+  { id: 'exam', label: 'Probeprüfung' },
 ]
 
 const tabId = (mode: LearnMode) => `learn-tab-${mode}`
@@ -19,16 +19,19 @@ const tabId = (mode: LearnMode) => `learn-tab-${mode}`
 interface LearnModeTabsProps {
   active: LearnMode
   onChange: (mode: LearnMode) => void
+  // Which tabs to show (learnModes); all but the Probeprüfung by default.
+  modes?: LearnMode[]
 }
 
-// The three ways to learn as tabs: by topic (the list), Fokus and Auffrischen. Arrow keys
-// move between them, as the tabs pattern expects.
-export function LearnModeTabs({ active, onChange }: LearnModeTabsProps) {
+// The ways to learn as tabs: by topic (the list), Fokus, Auffrischen, and the Probeprüfung where
+// it belongs to /learn. Arrow keys move between them, as the tabs pattern expects.
+export function LearnModeTabs({ active, onChange, modes = learnModes(false) }: LearnModeTabsProps) {
+  const shown = LEARN_MODES.filter((mode) => modes.includes(mode.id))
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
     if (step === 0) return
     event.preventDefault()
-    const next = LEARN_MODES[(index + step + LEARN_MODES.length) % LEARN_MODES.length].id
+    const next = shown[(index + step + shown.length) % shown.length].id
     onChange(next)
     document.getElementById(tabId(next))?.focus()
   }
@@ -36,7 +39,7 @@ export function LearnModeTabs({ active, onChange }: LearnModeTabsProps) {
   return (
     <Band className="pb-0">
       <div role="tablist" aria-label="Lernmodus" className="flex border-b border-border">
-        {LEARN_MODES.map((mode, index) => {
+        {shown.map((mode, index) => {
           const selected = mode.id === active
           return (
             <button
@@ -49,7 +52,7 @@ export function LearnModeTabs({ active, onChange }: LearnModeTabsProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onChange(mode.id)}
               onKeyDown={(event) => onKeyDown(event, index)}
-              className={`-mb-px flex-1 border-b-2 px-2 py-3 font-serif text-lg transition sm:flex-none sm:px-6 ${
+              className={`-mb-px flex-1 border-b-2 px-1 py-3 font-serif text-sm whitespace-nowrap transition sm:flex-none sm:px-6 sm:text-lg ${
                 selected ? 'border-primary text-primary' : 'border-transparent text-ink-soft hover:text-primary'
               }`}
             >

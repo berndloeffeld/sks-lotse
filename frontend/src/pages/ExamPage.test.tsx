@@ -40,6 +40,7 @@ function renderPage() {
         <Route path="/exam" element={<ExamPage />} />
         <Route path="/exam/:id" element={<p>Prüfung Nr. geöffnet</p>} />
         <Route path="/profile" element={<p>Profil</p>} />
+        <Route path="/learn" element={<p>Lernseite</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -158,5 +159,11 @@ describe('ExamPage', () => {
     )
     renderPage()
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
+  })
+
+  it('leads to the Probeprüfung tab of /learn with the Kartenaufgaben', async () => {
+    useAuthStore.setState({ user: makeUser({ can_use_chart_exercises: true }), isAuthenticated: true })
+    renderPage()
+    expect(await screen.findByText('Lernseite')).toBeInTheDocument()
   })
 })

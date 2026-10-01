@@ -4,19 +4,21 @@ import { apiClient } from '../api/client'
 import type { RefreshSummary } from '../api/types'
 import { Band, Columns } from '../components/Bands'
 import { FocusBand } from '../components/FocusBand'
-import { LearnModePanel, LearnModeTabs, RefreshPanel, type LearnMode } from '../components/LearnModes'
+import { ExamOverview } from '../components/ExamOverview'
+import { LearnModePanel, LearnModeTabs, RefreshPanel } from '../components/LearnModes'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useProgressSummary } from '../hooks/useProgressSummary'
 import { SUBJECT_LABELS } from '../labels'
+import { learnModes, type LearnMode } from '../navigation'
 import { useAuthStore } from '../store/authStore'
 
 // The Lernstand, banded like the landing page: overall progress, the
 // per-category pie and the exam-variant picker as three columns, then the
-// three learning modes as tabs: every topic grouped by subject, the Fokus
-// topics, and the Auffrischen session.
+// learning modes as tabs: every topic grouped by subject, the Fokus topics,
+// the Auffrischen session, and with the Kartenaufgaben the Probeprüfung.
 function LearnContent() {
   const {
     progress,
@@ -33,8 +35,9 @@ function LearnContent() {
 
   // The mode lives in the URL (?modus=focus), so a way back from a run lands on the same tab.
   const [searchParams, setSearchParams] = useSearchParams()
+  const modes = learnModes(useAuthStore((state) => state.user?.can_use_chart_exercises ?? false))
   const requested = searchParams.get('modus')
-  const mode: LearnMode = requested === 'focus' || requested === 'refresh' ? requested : 'topic'
+  const mode = modes.find((candidate) => candidate === requested) ?? 'topic'
   const selectMode = (next: LearnMode) => setSearchParams(next === 'topic' ? {} : { modus: next }, { replace: true })
 
   // The Auffrischen counts; a failed request reads as "nothing to do".
@@ -55,10 +58,16 @@ function LearnContent() {
         <ProgressOverview totals={totals} categories={categories} />
       </Band>
 
-      <LearnModeTabs active={mode} onChange={selectMode} />
+      <LearnModeTabs active={mode} onChange={selectMode} modes={modes} />
 
       <LearnModePanel mode={mode}>
-        {mode === 'refresh' ? (
+        {mode === 'exam' ? (
+          <Band className="py-10">
+            <div className="max-w-2xl">
+              <ExamOverview />
+            </div>
+          </Band>
+        ) : mode === 'refresh' ? (
           <RefreshPanel summary={refreshSummary} />
         ) : status ? (
           <Band>{status}</Band>

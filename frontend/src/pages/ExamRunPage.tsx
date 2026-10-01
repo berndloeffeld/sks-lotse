@@ -13,10 +13,14 @@ export function ExamRunPage() {
   const { exam, setExam, reload, isLoading, error } = useExam(id)
 
   const title =
-    exam?.status === 'in_progress' ? 'Prüfung' : exam?.status === 'grading' ? 'Selbsteinschätzung' : 'Prüfungsergebnis'
+    exam?.status === 'in_progress'
+      ? 'Probeprüfung'
+      : exam?.status === 'grading'
+        ? 'Selbsteinschätzung'
+        : 'Prüfungsergebnis'
 
   return (
-    <PageLayout title={title} compact>
+    <PageLayout title={title} compact immersive={exam?.status !== 'completed'}>
       {isLoading ? <p className="text-ink-soft">Prüfung wird geladen…</p> : null}
       {error ? (
         <p role="alert" className="text-danger">

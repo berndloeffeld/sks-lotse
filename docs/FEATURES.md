@@ -10,7 +10,7 @@ The official question catalog of the German federal authority (ELWIS) consists o
 
 What sets it apart from simply paging through the catalog:
 - It tracks what a learner has **actually retained** and brings forgotten questions back.
-- It offers an **exam simulation** under time pressure.
+- It offers a **Probeprüfung** (exam simulation) under time pressure.
 - It walks through the official **Kartenaufgaben** task by task, with the official solutions and a worked derivation (the first two of ten so far, not yet open to all learners).
 - Optionally, an **AI check (Lotsen-Check)** gives an assessment of the learner's own answer.
 
@@ -35,7 +35,7 @@ The learning area has three modes, shown as tabs, with the overall progress abov
 
 **When does a question count as "learned"?** Not after a single correct answer. The system estimates for each question how long the answer stays in memory and adjusts that with every grading. A question counts as learned as long as the memory is expected to hold. When it fades, the question comes back. Correct answers given repeatedly and with spacing move a learner ahead faster. The interface deliberately does not show the numbers behind this; learners only see their progress.
 
-## Exam simulation
+## Probeprüfung (exam simulation)
 
 A trial run of the theory exam's **Fragebogen**:
 - 30 random questions from the chosen exam variant, spread over the subjects as in the exam (9 navigation, 7 maritime law, 5 meteorology, 9 seamanship).
@@ -79,7 +79,13 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 ## Feedback and quality
 
 - **Report a question:** under every question a fault can be reported (question text, answer text, typo, missing image, other). The operator sees the most reported questions in the daily report.
-- **Feedback** via an email link in the menu, "Kontakt" in the footer.
+- **Feedback** via the email link "Kontakt" in the footer.
+
+## Navigation
+
+- Logged in, the header leads with the areas: **Lernen** and **Prüfung** (the Probeprüfung). For learners with the Kartenaufgaben it follows the written exam's two parts instead: **Fragen** and **Kartenaufgaben**, with the Probeprüfung as a fourth tab of the learning area (next to Auffrischen).
+- Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. Prüfungsablauf, FAQ and Kontakt are in the footer of every page.
+- On phones the areas and the Konto menu are a tab bar at the bottom of the screen. While a practice round, an exam or a Kartenaufgabe is running, the tab bar is hidden.
 
 ## Public pages
 

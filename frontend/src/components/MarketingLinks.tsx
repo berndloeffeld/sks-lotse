@@ -6,9 +6,8 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   return isActive ? HEADER_LINK_ACTIVE : HEADER_LINK
 }
 
-// Content links in the logged-out header (Header's default nav); logged in, the same pages sit
-// in the "Menü" (AccountMenu), with the same labels in the same order. Keeps the footer
-// (LegalFooter) down to the legal links.
+// Content links in the logged-out header (Header's default nav). Logged in, Prüfungsablauf and FAQ
+// are in the footer (LegalFooter) and the prices behind the token balance and the Konto menu.
 export function MarketingLinks() {
   return (
     <>

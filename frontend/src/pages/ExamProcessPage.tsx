@@ -96,8 +96,8 @@ export function ExamProcessPage() {
       <Section icon={<CatalogIcon className="h-8 w-8" />} title="Auf die SKS-Theorieprüfung vorbereiten mit SKS Lotse">
         <p>
           SKS Lotse deckt den kompletten amtlichen Fragenkatalog für die SKS-Theorieprüfung ab – mit Originalfragen,
-          Musterantworten und einer Prüfungssimulation unter realistischen Bedingungen. Leg direkt los und lerne
-          kostenlos für deine Theorieprüfung.
+          Musterantworten und einer Probeprüfung unter realistischen Bedingungen. Leg direkt los und lerne kostenlos für
+          deine Theorieprüfung.
         </p>
         <div className="pt-2">
           <Link

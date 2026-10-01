@@ -4,10 +4,11 @@ import { MemoryRouter } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { PageLayout } from './PageLayout'
+import { makeUser } from '../test/fixtures'
 
-function renderLayout(props: Partial<Parameters<typeof PageLayout>[0]> = {}) {
+function renderLayout(props: Partial<Parameters<typeof PageLayout>[0]> = {}, path = '/') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <PageLayout title="Titel" {...props}>
         <p>Inhalt</p>
       </PageLayout>
@@ -28,14 +29,23 @@ describe('PageLayout', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint')
   })
 
-  it('shows the account nav and links the brand to /learn by default', () => {
+  it('shows the main nav and the phone tab bar, and links the brand to /learn by default', () => {
     useAuthStore.setState({ user: null })
     renderLayout()
 
     const banner = screen.getByRole('banner')
     expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/learn')
     expect(within(banner).getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
-    expect(within(banner).getByRole('button', { name: 'Menü' })).toBeInTheDocument()
+    expect(within(banner).getByRole('button', { name: 'Konto' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Hauptnavigation mobil' })).toBeInTheDocument()
+  })
+
+  it('leaves out the tab bar while a session runs', () => {
+    useAuthStore.setState({ user: makeUser() })
+    renderLayout({ immersive: true }, '/exam/1')
+    expect(screen.queryByRole('navigation', { name: 'Hauptnavigation mobil' })).not.toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Hauptnavigation' })).toBeInTheDocument()
+    useAuthStore.setState({ user: null })
   })
 
   it('shows an Anmelden link on public pages and no nav at all with nav="none"', () => {
@@ -47,6 +57,7 @@ describe('PageLayout', () => {
 
     renderLayout({ nav: 'none' })
     expect(within(screen.getByRole('banner')).getAllByRole('link')).toHaveLength(1)
+    expect(screen.queryByRole('navigation', { name: 'Hauptnavigation mobil' })).not.toBeInTheDocument()
   })
 
   it('shows the account nav on public pages once logged in', () => {
@@ -56,7 +67,7 @@ describe('PageLayout', () => {
     const banner = screen.getByRole('banner')
     expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/learn')
     expect(within(banner).queryByRole('link', { name: 'Anmelden' })).not.toBeInTheDocument()
-    expect(within(banner).getByRole('button', { name: 'Menü' })).toBeInTheDocument()
+    expect(within(banner).getByRole('button', { name: 'Konto' })).toBeInTheDocument()
     useAuthStore.setState({ isAuthenticated: false })
   })
 })

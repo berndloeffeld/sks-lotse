@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 
-import { AccountNav } from '../components/AccountNav'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { FaqAnswer } from '../components/FaqAnswer'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
+import { MainNav } from '../components/MainNav'
+import { MobileTabBar } from '../components/MobileTabBar'
 import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
 import { useAuthStore } from '../store/authStore'
@@ -122,13 +123,13 @@ function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; class
 }
 
 export function LandingPage() {
-  // Logged-in visitors get the account nav and links into the app instead
+  // Logged-in visitors get the main nav (and the phone tab bar) and links into the app instead
   // of the sign-up form.
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
-      {isAuthenticated ? <Header homeTo="/learn" nav={<AccountNav />} /> : <Header />}
+      {isAuthenticated ? <Header homeTo="/learn" nav={<MainNav />} /> : <Header />}
 
       <main className="flex-1">
         <HeroBand className="pt-20 pb-36 text-center sm:pb-44">
@@ -205,7 +206,7 @@ export function LandingPage() {
           </p>
           <ScreenshotList items={SCREENSHOTS} className="mt-10" />
 
-          <h3 className="mt-20 font-serif text-2xl text-primary">Prüfungssimulation</h3>
+          <h3 className="mt-20 font-serif text-2xl text-primary">Probeprüfung</h3>
           <p className="mt-3 max-w-xl text-sm text-ink-soft">
             Teste dich unter realistischen Bedingungen: ein kompletter Fragebogen, danach Auswertung und Statistik in
             deinem Profil.
@@ -312,6 +313,7 @@ export function LandingPage() {
       </main>
 
       <LegalFooter />
+      {isAuthenticated ? <MobileTabBar /> : null}
     </div>
   )
 }

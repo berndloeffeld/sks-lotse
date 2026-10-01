@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-import { FEEDBACK_MAILTO } from '../contact'
 import { getDisplayName } from '../format'
 import { useAuthStore } from '../store/authStore'
-import { HEADER_MENU_BUTTON } from './headerLink'
+import { HEADER_MENU_BUTTON, tabBarItemClass } from './headerLink'
+import { AccountIcon } from './icons/FeatureIcons'
 
-const MENU_ID = 'account-menu'
 const ITEM = 'block w-full px-4 py-2 text-left text-sm text-ink hover:bg-surface-alt'
 
 function ChevronIcon({ isOpen }: { isOpen: boolean }) {
@@ -25,12 +24,22 @@ function ChevronIcon({ isOpen }: { isOpen: boolean }) {
   )
 }
 
-// The "Menü" button at the end of the logged-in header: everything that isn't one of the two
-// learning destinations (Profil, Admin, the content pages, Feedback, Abmelden). A disclosure
+// Where the menu sits: at the end of the header (wide screens; the panel opens below it), or as
+// the last tab of the phone tab bar (the panel opens above it).
+export type AccountMenuPlacement = 'header' | 'tabbar'
+
+const PANEL = {
+  header: 'top-full right-0 mt-2',
+  tabbar: 'right-2 bottom-full mb-2',
+}
+
+// The "Konto" menu of the logged-in navigation: the learner's own things only (Lernstand, account
+// settings, buying tokens, Admin, Abmelden); the content pages and Feedback sit in the footer. A disclosure
 // (button + list of links), not an ARIA menu — it's site navigation. Closes on Escape, a click
 // outside, choosing an entry, and any route change: the open state remembers the path it was
 // opened on, so navigating away closes it without an effect.
-export function AccountMenu() {
+export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuPlacement }) {
+  const menuId = placement === 'header' ? 'account-menu' : 'account-menu-tabbar'
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
@@ -69,22 +78,31 @@ export function AccountMenu() {
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={placement === 'header' ? 'relative' : 'flex flex-1'}>
       <button
         ref={buttonRef}
         type="button"
         aria-expanded={isOpen}
-        aria-controls={MENU_ID}
+        aria-controls={menuId}
         onClick={() => setOpenOn(isOpen ? null : pathname)}
-        className={HEADER_MENU_BUTTON}
+        className={placement === 'header' ? HEADER_MENU_BUTTON : tabBarItemClass(isOpen)}
       >
-        Menü
-        <ChevronIcon isOpen={isOpen} />
+        {placement === 'header' ? (
+          <>
+            Konto
+            <ChevronIcon isOpen={isOpen} />
+          </>
+        ) : (
+          <>
+            <AccountIcon className="size-6" />
+            Konto
+          </>
+        )}
       </button>
       {isOpen ? (
         <div
-          id={MENU_ID}
-          className="absolute top-full right-0 z-20 mt-2 min-w-56 rounded-tile border border-ink bg-surface py-1 shadow-lg"
+          id={menuId}
+          className={`absolute z-20 min-w-56 rounded-tile border border-ink bg-surface py-1 text-left shadow-lg ${PANEL[placement]}`}
         >
           {user ? (
             <p className="border-b border-border px-4 pt-2 pb-3 text-xs text-ink-soft">
@@ -94,7 +112,17 @@ export function AccountMenu() {
           <ul className="border-b border-border py-1">
             <li>
               <Link to="/profile" className={ITEM} onClick={close}>
-                Profil
+                Lernstand
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile/account" className={ITEM} onClick={close}>
+                Kontoeinstellungen
+              </Link>
+            </li>
+            <li>
+              <Link to="/pricing" className={ITEM} onClick={close}>
+                Tokens kaufen
               </Link>
             </li>
             {user?.is_admin ? (
@@ -104,26 +132,6 @@ export function AccountMenu() {
                 </Link>
               </li>
             ) : null}
-            <li>
-              <Link to="/exam-process" className={ITEM} onClick={close}>
-                Prüfungsablauf
-              </Link>
-            </li>
-            <li>
-              <Link to="/pricing" className={ITEM} onClick={close}>
-                Shop
-              </Link>
-            </li>
-            <li>
-              <Link to="/faq" className={ITEM} onClick={close}>
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <a href={FEEDBACK_MAILTO} className={ITEM} onClick={close}>
-                Feedback
-              </a>
-            </li>
           </ul>
           <div className="py-1">
             <button type="button" onClick={handleLogout} className={ITEM}>

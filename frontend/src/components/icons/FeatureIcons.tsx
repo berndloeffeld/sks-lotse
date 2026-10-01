@@ -89,3 +89,24 @@ export function BoatIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+// A clipboard with a tick — the Probeprüfung (the Fragebogen under exam conditions).
+export function ExamIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <rect x="7" y="6" width="18" height="23" rx="1" />
+      <path d="M12 6V4h8v2" />
+      <path d="m11.5 18 3 3 6-7" />
+    </svg>
+  )
+}
+
+// A head and shoulders — the learner's own account (the tab bar's Konto menu).
+export function AccountIcon({ className }: IconProps) {
+  return (
+    <svg {...shared} className={className} aria-hidden="true" focusable="false">
+      <circle cx="16" cy="11" r="5" />
+      <path d="M6 27c1.5-5 5.5-8 10-8s8.5 3 10 8" />
+    </svg>
+  )
+}

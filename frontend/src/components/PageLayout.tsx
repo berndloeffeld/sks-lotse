@@ -1,15 +1,16 @@
 import type { ReactNode } from 'react'
 
 import { useAuthStore } from '../store/authStore'
-import { AccountNav } from './AccountNav'
 import { Header } from './Header'
 import { HeroBand } from './HeroBand'
 import { LegalFooter } from './LegalFooter'
+import { MainNav } from './MainNav'
+import { MobileTabBar } from './MobileTabBar'
 
 interface PageLayoutProps {
   title: string
   subtitle?: ReactNode
-  // Logged-in pages get the account nav and a brand link to /learn;
+  // Logged-in pages get the main nav (and the tab bar on phones) and a brand link to /learn;
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
   // `lg` fits a second column beside the content (the Kartenaufgaben's tools).
@@ -18,6 +19,9 @@ interface PageLayoutProps {
   compact?: boolean
   // Full-width children (e.g. <Band>s) instead of one content column.
   bands?: boolean
+  // A running practice, exam or chart session: no phone tab bar, so the task
+  // (and the keyboard) get the screen.
+  immersive?: boolean
   children: ReactNode
 }
 
@@ -33,6 +37,7 @@ export function PageLayout({
   width = 'md',
   compact = false,
   bands = false,
+  immersive = false,
   children,
 }: PageLayoutProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -44,7 +49,7 @@ export function PageLayout({
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <Header
         homeTo={showAccountNav ? '/learn' : '/'}
-        nav={showAccountNav ? <AccountNav /> : nav === 'none' ? null : undefined}
+        nav={showAccountNav ? <MainNav /> : nav === 'none' ? null : undefined}
       />
       <main className="flex-1">
         <HeroBand className={`${compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
@@ -64,6 +69,7 @@ export function PageLayout({
         {bands ? children : <div className={`${column} flex flex-col gap-8 pt-4 pb-12`}>{children}</div>}
       </main>
       <LegalFooter />
+      {showAccountNav && !immersive ? <MobileTabBar /> : null}
     </div>
   )
 }

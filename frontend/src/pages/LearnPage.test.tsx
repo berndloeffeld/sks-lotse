@@ -232,6 +232,36 @@ describe('LearnPage', () => {
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
   })
 
+  it('has the Probeprüfung as a fourth tab with the Kartenaufgaben, and only then', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({
+      user: makeUser({ can_use_chart_exercises: true, exam_variant: 'motor' }),
+      isAuthenticated: true,
+      isLoading: false,
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input)
+        if (url.endsWith('/progress/summary')) return jsonResponse(progressSummary)
+        if (url.endsWith('/exams')) return jsonResponse([])
+        return jsonResponse({ lapsed: 0, expiring: 0, fresh: 0 })
+      }),
+    )
+
+    const { unmount } = renderLearnPage()
+    await user.click(await screen.findByRole('tab', { name: 'Probeprüfung' }))
+
+    expect(await screen.findByRole('button', { name: 'Prüfung starten' })).toBeInTheDocument()
+    expect(screen.getByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    unmount()
+
+    useAuthStore.setState({ user: makeUser() })
+    renderLearnPage('/learn?modus=exam')
+    expect(await screen.findByRole('tab', { name: 'Nach Thema', selected: true })).toBeInTheDocument()
+    expect(screen.queryByRole('tab', { name: 'Probeprüfung' })).not.toBeInTheDocument()
+  })
+
   it('shows no start button when the Auffrischen counts cannot be loaded', async () => {
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal(
