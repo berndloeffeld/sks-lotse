@@ -16,6 +16,8 @@
     "src/hooks/useApiQuery.ts",
     "src/hooks/useAsyncAction.ts",
     "src/hooks/useExam.ts",
+    "src/hooks/useChartAttempt.ts",
+    "src/hooks/useTideForm.ts",
     "src/hooks/useExamVariantUpdate.ts",
     "src/hooks/useProgressSummary.ts",
     "src/hooks/useNavigationScroll.ts",
@@ -24,7 +26,8 @@
     "src/scroll.ts",
     "src/faq.ts",
     "src/share.ts",
-    "src/legal.ts"
+    "src/legal.ts",
+    "src/chartPoints.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

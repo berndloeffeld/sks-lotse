@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1.admin import router as admin_router
 from app.api.v1.admin_mfa import router as admin_mfa_router
 from app.api.v1.auth import router as auth_router
+from app.api.v1.chart_exercises import router as chart_exercises_router
 from app.api.v1.exams import router as exams_router
 from app.api.v1.grading import router as grading_router
 from app.api.v1.payments import router as payments_router
@@ -18,6 +19,7 @@ router.include_router(grading_router)
 router.include_router(topics_router)
 router.include_router(progress_router)
 router.include_router(exams_router)
+router.include_router(chart_exercises_router)
 router.include_router(admin_mfa_router)
 router.include_router(admin_router)
 router.include_router(pricing_router)

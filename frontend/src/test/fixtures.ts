@@ -1,4 +1,4 @@
-import type { Exam, ExamQuestion, User } from '../api/types'
+import type { ChartAttempt, ChartAttemptTask, ChartExercisesOverview, Exam, ExamQuestion, User } from '../api/types'
 
 export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
@@ -55,6 +55,7 @@ export function makeUser(overrides: Partial<User> = {}): User {
     gender: null,
     is_admin: false,
     can_buy_tokens: false,
+    can_use_chart_exercises: false,
     token_balance: 0,
     ads_removed: false,
     agb_accepted_version: null,
@@ -74,5 +75,51 @@ export function focusWhenShown(text: string): () => Element | null | undefined {
   return () => {
     observer.disconnect()
     return focused
+  }
+}
+
+export function chartTask(number: number, overrides: Partial<ChartAttemptTask> = {}): ChartAttemptTask {
+  return {
+    number,
+    max_points: 2,
+    text: `Lage ${number}.`,
+    questions: [
+      { points: 1, text: `Frage ${number}a?` },
+      { points: 1, text: `Frage ${number}b?` },
+    ],
+    answer_text: null,
+    solution_images: [],
+    derivation_images: [],
+    points_awarded: null,
+    ...overrides,
+  }
+}
+
+export function makeChartAttempt(overrides: Partial<ChartAttempt> = {}): ChartAttempt {
+  return {
+    id: 5,
+    exercise_number: 3,
+    started_at: '2026-09-30T10:00:00Z',
+    completed_at: null,
+    task_count: 2,
+    max_points: 4,
+    points: 0,
+    current_task: 1,
+    tasks: [chartTask(1)],
+    ...overrides,
+  }
+}
+
+export function makeChartOverview(overrides: Partial<ChartExercisesOverview> = {}): ChartExercisesOverview {
+  return {
+    source: 'WSV, Navigationsaufgaben SKS',
+    hints: ['Erlaubte Hilfsmittel: Übungskarte 49.', 'Hinweise: Kurse auf volle Grade runden.'],
+    tide_form: { src: 'formblatt-gezeiten.png', width: 1428, height: 1667 },
+    exercises: [
+      { number: 1, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 0, last_points: null },
+      { number: 2, task_count: 18, max_points: 30, open_attempt_id: 9, completed_count: 0, last_points: null },
+      { number: 3, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 2, last_points: 24 },
+    ],
+    ...overrides,
   }
 }

@@ -18,7 +18,7 @@ Derivation: a learner is active for 6–10 weeks; the season peak (February to M
 
 Derived load (planning figure):
 - **Requests:** peak ~4–8 req/s, from ~100–150 calls per 30-minute session. The single worker should carry ~50–100 req/s; **not measured**.
-- **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)).
+- **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)). Kartenaufgaben add ~180 short rows per complete pass through all ten (`chart_attempt_tasks`, [ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)); their exercises and ~5 MB of solution images are static files, not database rows.
 - **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once.
 - **Login mails:** ~4,000–6,000 a year (7-day session, no refresh token).
 

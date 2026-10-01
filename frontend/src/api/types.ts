@@ -39,6 +39,13 @@ export type ExamStats = Narrow<
   { recent: Narrow<Schemas['ExamStatsPoint'], { result: ExamResult }>[] }
 >
 
+export type ChartImage = Schemas['ChartImage']
+export type ChartQuestion = Schemas['ChartQuestion']
+export type ChartExerciseSummary = Schemas['ChartExerciseSummary']
+export type ChartExercisesOverview = Schemas['ChartExercisesOverview']
+export type ChartAttemptTask = Schemas['ChartAttemptTaskRead']
+export type ChartAttempt = Schemas['ChartAttemptRead']
+
 export type AdminUser = Schemas['AdminUserRead']
 export type AdminUserListItem = Schemas['AdminUserListItem']
 export type AdminUserListPage = Schemas['AdminUserListPage']

@@ -1,5 +1,6 @@
 from app.models.app_setting import AppSetting  # noqa: F401 — registers the model with Base.metadata
 from app.models.blocked_email import BlockedEmail
+from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
@@ -13,6 +14,8 @@ from app.models.user import User
 
 __all__ = [
     "BlockedEmail",
+    "ChartAttempt",
+    "ChartAttemptTask",
     "ExamAttempt",
     "ExamAttemptQuestion",
     "FocusTopic",

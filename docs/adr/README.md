@@ -55,3 +55,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0049](0049-refresh-session-for-expiring-questions.md) | Auffrischen: a session for questions that lapsed or are about to | Accepted |
 | [0050](0050-setback-cannot-regrant-gelernt.md) | A setback grading can never itself (re)grant "gelernt" | Accepted — amends [ADR-0034](0034-half-life-model-for-gelernt.md). |
 | [0051](0051-grading-log-for-admin-question-history.md) | A grading log for the admin's per-question history | Accepted |
+| [0052](0052-chart-exercises-from-reviewed-yaml.md) | Kartenaufgaben: ten fixed exercises from a reviewed YAML, solutions as images, behind a flag | Accepted |

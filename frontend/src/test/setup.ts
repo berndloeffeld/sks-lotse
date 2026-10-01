@@ -17,3 +17,10 @@ Element.prototype.scrollIntoView = () => {}
 // Nor window.scrollTo (it logs "Not implemented" and does nothing); useNavigationScroll calls it
 // on every in-app navigation.
 window.scrollTo = () => {}
+
+// Node 25+ brings a global localStorage of its own, undefined unless started with --localstorage-file,
+// and it shadows jsdom's. Hand the tests jsdom's working one.
+const dom = (globalThis as { jsdom?: { window: Window } }).jsdom
+if (typeof window.localStorage === 'undefined' && dom) {
+  Object.defineProperty(window, 'localStorage', { value: dom.window.localStorage, configurable: true })
+}

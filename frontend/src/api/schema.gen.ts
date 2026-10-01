@@ -34,6 +34,36 @@ export interface components {
             /** Created By */
             created_by: string;
         };
+        /** AdminChartAttemptExport */
+        AdminChartAttemptExport: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Exercise Number */
+            exercise_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /** Tasks */
+            tasks: components["schemas"]["AdminChartTaskExport"][];
+        };
+        /** AdminChartTaskExport */
+        AdminChartTaskExport: {
+            /** Task Number */
+            task_number: number;
+            /** Answer Text */
+            answer_text: string;
+            /**
+             * Answered At
+             * Format: date-time
+             */
+            answered_at: string;
+            /** Points Awarded */
+            points_awarded: number | null;
+        };
         /** AdminExamAttemptExport */
         AdminExamAttemptExport: {
             /** Exam Id */
@@ -253,6 +283,8 @@ export interface components {
             question_reports: components["schemas"]["AdminQuestionReportExport"][];
             /** Exam Attempts */
             exam_attempts: components["schemas"]["AdminExamAttemptExport"][];
+            /** Chart Attempts */
+            chart_attempts: components["schemas"]["AdminChartAttemptExport"][];
             /** Purchases */
             purchases: components["schemas"]["AdminPurchaseExport"][];
             /**
@@ -358,6 +390,100 @@ export interface components {
         AiGradeRequest: {
             /** Answer */
             answer: string;
+        };
+        /** ChartAnswerUpdate */
+        ChartAnswerUpdate: {
+            /** Answer Text */
+            answer_text: string;
+        };
+        /** ChartAttemptRead */
+        ChartAttemptRead: {
+            /** Id */
+            id: number;
+            /** Exercise Number */
+            exercise_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /** Task Count */
+            task_count: number;
+            /** Max Points */
+            max_points: number;
+            /** Points */
+            points: number;
+            /** Current Task */
+            current_task: number | null;
+            /** Tasks */
+            tasks: components["schemas"]["ChartAttemptTaskRead"][];
+        };
+        /** ChartAttemptTaskRead */
+        ChartAttemptTaskRead: {
+            /** Number */
+            number: number;
+            /** Max Points */
+            max_points: number;
+            /** Text */
+            text: string;
+            /** Questions */
+            questions: components["schemas"]["ChartQuestion"][];
+            /** Answer Text */
+            answer_text: string | null;
+            /** Solution Images */
+            solution_images: components["schemas"]["ChartImage"][];
+            /** Derivation Images */
+            derivation_images: components["schemas"]["ChartImage"][];
+            /** Points Awarded */
+            points_awarded: number | null;
+        };
+        /** ChartExerciseSummary */
+        ChartExerciseSummary: {
+            /** Number */
+            number: number;
+            /** Task Count */
+            task_count: number;
+            /** Max Points */
+            max_points: number;
+            /** Open Attempt Id */
+            open_attempt_id: number | null;
+            /** Completed Count */
+            completed_count: number;
+            /** Last Points */
+            last_points: number | null;
+        };
+        /** ChartExercisesOverview */
+        ChartExercisesOverview: {
+            /** Source */
+            source: string;
+            /** Hints */
+            hints: string[];
+            tide_form: components["schemas"]["ChartImage"];
+            /** Exercises */
+            exercises: components["schemas"]["ChartExerciseSummary"][];
+        };
+        /** ChartImage */
+        ChartImage: {
+            /** Src */
+            src: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+        };
+        /** ChartPointsUpdate */
+        ChartPointsUpdate: {
+            /** Points */
+            points: number;
+        };
+        /** ChartQuestion */
+        ChartQuestion: {
+            /** Points */
+            points: number;
+            /** Text */
+            text: string;
         };
         /**
          * CheckoutRead
@@ -749,6 +875,8 @@ export interface components {
             readonly is_admin: boolean;
             /** Can Buy Tokens */
             readonly can_buy_tokens: boolean;
+            /** Can Use Chart Exercises */
+            readonly can_use_chart_exercises: boolean;
         };
         /** UserUpdate */
         UserUpdate: {
