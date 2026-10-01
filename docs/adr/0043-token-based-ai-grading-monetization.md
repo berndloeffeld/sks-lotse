@@ -1,6 +1,6 @@
 # 0043. Token-based AI-grading monetization, with fixed prices
 
-Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (the AI-grading add-on is now pay-per-use, not a boolean unlock) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (drops the `ai_grading_enabled` entitlement it introduced); both stand otherwise. Its "keep the weekly budget alongside tokens" decision is reversed by [ADR-0044](0044-drop-weekly-ai-check-budget.md). Amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md): token packages are bought via Stripe Checkout (the "no payment provider yet" scope note below is historical).
+Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (pay-per-use tokens instead of a boolean unlock); the weekly budget is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md); amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (Stripe Checkout).
 
 ## Context
 
@@ -30,7 +30,7 @@ Scope decided for this change specifically (see also ADR-0006/0031, which cover 
   | (future) full-exam auto-grading | 25 tokens (vs. 30 individually) | — |
 
   The signup bonus (6 tokens) is deliberately small: enough to try a few checks, not enough that creating a second account (email verification + OTP) is worth it instead of buying a package.
-- **No purchase flow yet.** The public prices are a teaser only ("bald verfügbar") — the frontend shows no buy button. Until a payment provider is wired up, the operator credits tokens/Werbefrei by hand via `PATCH /admin/users/{id}` (`grant_tokens`, `grant_amount_eur_cents`), exactly as the two booleans were flipped by hand before.
+- **No purchase flow yet.** The public prices are a teaser only ("bald verfügbar") — the frontend shows no buy button. Until a payment provider is wired up, the operator credits tokens/Werbefrei by hand via `PATCH /admin/users/{id}` (`grant_tokens`, `grant_amount_eur_cents`), exactly as the two booleans were flipped by hand before. *(Historical: since [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) learners buy token packages via Stripe Checkout; Werbefrei is still granted by hand.)*
 
 ## Consequences
 

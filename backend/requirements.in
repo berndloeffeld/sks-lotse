@@ -23,7 +23,7 @@ disposable-email-domains==0.0.267
 anthropic==1.8.0
 # Token-package checkout (ADR-0048): Checkout Sessions and webhook signature verification.
 stripe==15.6.1
-# Europe/Berlin day boundary for the AI-check budget (app/core/ai_quota.py); slim images have no system tz database.
+# Europe/Berlin time in the purchase confirmation mail (app/services/payments.py); slim images have no system tz database.
 tzdata==2026.4
 # SQLAlchemy needs greenlet only on some platforms (Linux x86_64 yes — Render and CI —, macOS arm64
 # no). Listed explicitly so the lock contains it whichever machine it was generated on; without it,

@@ -37,11 +37,14 @@ graph LR
         Static[Static site<br/>sks-lotse.de]
         API[Backend API<br/>FastAPI · api.sks-lotse.de]
         DB[(PostgreSQL 18)]
+        Cron[Cron Job<br/>daily KPI report]
     end
 
-    Resend[Resend<br/>OTP email]
+    Resend[Resend<br/>login + purchase email]
     Umami[Umami Cloud<br/>analytics]
-    Anthropic[Anthropic API<br/>answer check, Haiku]
+    Anthropic[Anthropic API<br/>Lotsen-Check, Haiku]
+    Stripe[Stripe<br/>Hosted Checkout]
+    BetterStack[Better Stack<br/>logs, uptime, heartbeat]
     AdSense[Google AdSense]
 
     Learner --> SPA
@@ -51,11 +54,19 @@ graph LR
     API --> Resend
     SPA --> Umami
     API --> Anthropic
-    SPA -.-> AdSense
+    SPA -- "redirect to pay" --> Stripe
+    API -- "checkout session" --> Stripe
+    Stripe -- webhook --> API
+    Cron --> DB
+    Cron --> Resend
+    Cron -- heartbeat --> BetterStack
+    API -- "logs (via Render)" --> BetterStack
+    BetterStack -- "uptime checks" --> API
+    SPA --> AdSense
     SPA -.-> STT
 ```
 
-Dotted lines are planned and not built yet (see [Not yet built](#not-yet-built)). All runtime services run in the EU, except the Anthropic API (US, see ADR-0031). Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+The dotted line is planned and not built yet (see [Not yet built](#not-yet-built)); AdSense loads only for accounts that see ads, and no ad units are rendered yet. All runtime services run in the EU, except the Anthropic API (US, see ADR-0031); Stripe contracts through its Irish entity, with a US parent (as stated in the Datenschutzerklärung). The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
 Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
@@ -68,7 +79,7 @@ Internal module structure of each app — what talks to what inside the codebase
 ```mermaid
 graph TD
     MW["middleware (in order)<br/>Request ID → CORS → Security headers →<br/>Body-size limit → Maintenance mode → Rate limit → Redirect domains"]
-    Routers["api/v1/ routers<br/>auth · questions · progress · grading ·<br/>pricing · exams · admin · admin_mfa · payments"]
+    Routers["api/v1/ routers<br/>auth · questions · progress · grading ·<br/>pricing · exams · chart_exercises ·<br/>admin · admin_mfa · payments"]
     Schemas["schemas/<br/>Pydantic request/response contracts"]
     Core["core/<br/>config · JWT/OTP · cache · middleware"]
     Services["services/<br/>shared business logic"]
@@ -143,9 +154,11 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | `questions` | Read-only catalog (incl. the images of image questions) and topics, filtered by the learner's exam variant | [0009](adr/0009-in-process-cache-for-question-catalog.md), [0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md), [0033](adr/0033-catalog-images-as-static-files.md) |
 | `progress` | Per-topic learning status (sicher/teilweise gelernt), per-question memory half-lives ("gelernt" while recall probability is high), recording a self-assessed grading, marking topics as Fokus, the Fokus session's ordered question list (`GET /progress/focus/questions`), the Auffrischen session's sample and counts (`GET /progress/refresh/questions`, `/progress/refresh/summary`) | [0018](adr/0018-learning-progress-model-and-gelernt-streak-rule.md), [0034](adr/0034-half-life-model-for-gelernt.md), [0023](adr/0023-self-assessed-learning-flow.md), [0028](adr/0028-focus-topics.md), [0049](adr/0049-refresh-session-for-expiring-questions.md) |
 | `grading` | The Lotsen-Check (`POST /questions/{id}/ai-grade`): 1 token per check, per-question/day and per-hour caps, a process-wide cap on concurrent LLM calls, the sanitizer | [0031](adr/0031-ai-answer-check-with-claude-haiku.md), [0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md), [0043](adr/0043-token-based-ai-grading-monetization.md), [0044](adr/0044-drop-weekly-ai-check-budget.md) |
-| `pricing` | Public, unauthenticated teaser prices (`GET /pricing`) for the landing page and in-app upsell; no purchase flow yet | [0043](adr/0043-token-based-ai-grading-monetization.md) |
+| `pricing` | Public, unauthenticated current prices (`GET /pricing`) for the landing page, `/pricing` and the in-app upsell, plus whether checkout is open (`checkout_enabled`) | [0043](adr/0043-token-based-ai-grading-monetization.md), [0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md) |
+| `payments` | Buying token packages: `POST /payments/checkout` (JWT, behind `STRIPE_CHECKOUT`) opens a Stripe Checkout Session; `POST /payments/webhook` (open, `Stripe-Signature`) credits the tokens once per payment and mails the confirmation (see [Payments](#payments)) | [0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md) |
 | `question_reports` (in `questions`) | "Frage melden": learners flag faulty catalog questions; the daily KPI report lists the most-reported ones, the comments are read via the Render Shell ([runbook](RUNBOOK.md#daily-kpi-report)) and are part of the reporter's DSGVO export | [0030](adr/0030-question-reports-and-feedback-channels.md) |
 | `exams` | Exam simulation (Fragebogen): start with a random draw, autosaved answers, server-enforced deadline, self-assessment ("Richtig" answers feed the Lernstand once the exam is complete), history and statistics | [0029](adr/0029-exam-simulation.md), [0037](adr/0037-exam-richtig-answers-feed-the-lernstand.md) |
+| `chart_exercises` | Kartenaufgaben behind the `CHART_EXERCISES` flag (404 otherwise): the overview of the sheets from `chart_exercises.yaml`, starting a run, saving a task's answer and self-given points, deleting a run (`/chart-exercises/...`) | [0052](adr/0052-chart-exercises-from-reviewed-yaml.md), [0053](adr/0053-chart-solutions-transcribed-as-text.md) |
 | `admin` | User list with search (`GET /admin/users`), GDPR lookup/export/delete, question-text search over the cached catalog, filterable by subject and topic (`GET /admin/questions`), a question's grading history (`GET /admin/questions/{id}/history`), every price/package (app-wide defaults in `app_settings` via `/admin/settings`), granting tokens/Werbefrei by hand and debiting tokens (`PATCH /admin/users/{id}`), read-only AI-grading abuse signal (`ai_flags_count`), a manual email/domain blocklist for spam/abuse (`/admin/blocklist`, `POST`/`DELETE /admin/users/{id}/block`), allowlist-gated plus a recent TOTP check; the 2FA setup/step-up itself is `/admin/mfa/*` (allowlist only) | [0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md), [0047](adr/0047-totp-step-up-for-admin-area.md), [0032](adr/0032-daily-kpi-report.md), [0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md), [0043](adr/0043-token-based-ai-grading-monetization.md), [0045](adr/0045-manual-email-domain-blocklist.md), [0051](adr/0051-grading-log-for-admin-question-history.md) |
 
 Every request passes through a middleware stack: a request id for the logs (`X-Request-ID`), redirect of secondary domains to `sks-lotse.de`, a cap on the request body (413 over 64 KB, 1 MB for the Stripe webhook, checked before anything reads the body; `core/request_limits.py`), a manual maintenance-mode kill switch that can block all of `/api/v1` (see [Deployment](#deployment) below), per-IP rate limiting for `/api/v1` ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)), security headers (API responses also get `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`), and CORS. Per-process state (rate-limit counters, catalog cache, maintenance throttles) sits behind `core/cache.py`. That interface could later move to a shared store without its callers changing ([ADR-0009](adr/0009-in-process-cache-for-question-catalog.md), [ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)).
@@ -155,7 +168,7 @@ API docs (Swagger/ReDoc/OpenAPI) and other dev tooling are only exposed when `EN
 ### Auth
 - **Login**: passwordless email + one-time code. SSO is not built yet. Codes are hashed, short-lived and bound to a purpose (login vs. email change). A code for one purpose never works for the other.
 - **Session**: a successful login issues a JWT in an httpOnly cookie, named `__Host-access_token` when deployed (Secure, `Path=/`, no `Domain`, so `sks-lotse.de` can't plant one for the API host) and `access_token` on plain-http local dev ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md) addendum). Non-browser clients (Postman, integration tests) can send the same token as a Bearer header instead. There is no refresh token. The token must carry `exp`, `sub` and `tv`. Logout invalidates all of a user's tokens by bumping a per-user `token_version` — that is also how a learner evicts a session someone else holds.
-- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code. `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS` and a session whose `mfa` claim (the time of its last TOTP check, `POST /admin/mfa/verify`) is at most `ADMIN_MFA_MAX_AGE_MINUTES` (60 min) old; otherwise they answer 403 `mfa_required`. Exporting and deleting an account need a check at most `ADMIN_RECENT_MFA_MAX_AGE_MINUTES` (5 min) old (`require_recent_mfa`), else 403 `recent_mfa_required`, and the admin area asks for a code above the page. The TOTP secret is stored Fernet-encrypted, with a key derived from `JWT_SECRET`; a lost authenticator is reset by the "Reset admin 2FA" GitHub Action ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md), [runbook](RUNBOOK.md#reset-an-admins-2fa)).
+- **Access**: every `/api/v1` route requires the JWT, except requesting and verifying a login code, the public prices (`GET /pricing`) and the Stripe webhook (authenticated by its signature instead). `/health` is open and checks database connectivity (`503` when the database is unreachable). Admin routes additionally require the email to be in `ADMIN_EMAILS` and a session whose `mfa` claim (the time of its last TOTP check, `POST /admin/mfa/verify`) is at most `ADMIN_MFA_MAX_AGE_MINUTES` old; otherwise they answer 403 `mfa_required`. Exporting and deleting an account need a check at most `ADMIN_RECENT_MFA_MAX_AGE_MINUTES` old (`require_recent_mfa`), else 403 `recent_mfa_required`, and the admin area asks for a code above the page. The TOTP secret is stored Fernet-encrypted, with a key derived from `JWT_SECRET`; a lost authenticator is reset by the "Reset admin 2FA" GitHub Action ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md), [runbook](RUNBOOK.md#reset-an-admins-2fa)).
 - **AGB acceptance**: every login stamps `users.last_login_at`. Consent to the AGB currently in force (`users.agb_accepted_version`/`agb_accepted_at`, set only by `POST /auth/me/agb-accept`) is asked for once per version, not on every login: the frontend's `AgbGate` blocks the protected routes with a confirmation screen only when the account's stored version doesn't match the current one ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md)).
 - **Error contract**: `401` always means "no valid session", and the client logs out on it. Failures inside an authenticated flow (e.g. a wrong email-change code) therefore use other status codes.
 - **Abuse protection** is layered:
@@ -174,7 +187,7 @@ PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 |---|---|---|
 | `questions`, `topics` | Reference data, read-only at runtime | The catalog-seed data migrations, by upsert so ids and progress survive ([ADR-0022](adr/0022-catalog-sync-by-upsert.md)) |
 | `users` | Account and profile, `ads_removed` and the token balance ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)), the sanitizer flag count, AGB acceptance version/timestamp, last-login timestamp ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md)), an admin's encrypted TOTP secret ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md)) | Auth and admin flows, the AI check |
-| `purchases` | Ledger of every token/Werbefrei grant, the signup bonus and admin debits (`admin_debit`, negative `tokens_granted`) (product, amount, who granted it) | Signup, admin token grants and debits; a money-backed row is anonymized rather than deleted on account deletion ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)) |
+| `purchases` | Ledger of every token/Werbefrei grant, the signup bonus and admin debits (`admin_debit`, negative `tokens_granted`) (product, amount, who granted it) | Signup, admin token grants and debits, the Stripe webhook (`granted_by="stripe"`, unique per Payment Intent, [ADR-0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)); a money-backed row is anonymized rather than deleted on account deletion ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)) |
 | `app_settings` | Operator-tuned app-wide values (every token-package/Werbefrei price) | `/admin/settings` ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)) |
 | `blocked_emails` | Manually blocked addresses/domains for spam and abuse | `/admin/blocklist`, `/admin/users/{id}/block`; survives account deletion on purpose, email entries expire 24 months after the block and are purged on the OTP cleanup sweep ([ADR-0045](adr/0045-manual-email-domain-blocklist.md), addendum 2026-10-01) |
 | `question_progress` | Per-user, per-question memory half-life, last grading, last "Richtig", start of the current "Richtig" streak ([ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)) and resurface time | The learner's self-assessment after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
@@ -185,7 +198,7 @@ PostgreSQL 18, with the schema managed by Alembic (`backend/alembic/versions/`).
 | `chart_attempts`, `chart_attempt_tasks` | Per-user runs through a Kartenaufgabe: the learner's answer and self-given points per task (the exercises themselves are `backend/app/data/chart_exercises.yaml`) | `/chart-exercises` endpoints; deleted with the account or one by one ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)) |
 | `otp_codes` | Transient | Login and email change; old rows are cleaned up opportunistically ([ADR-0010](adr/0010-opportunistic-otp-code-cleanup.md)) |
 
-Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data: progress and its grading log, Fokus marks, question reports, exams and pending codes, then the account. Money-backed `purchases` rows are anonymized instead of deleted (statutory bookkeeping retention, [ADR-0043](adr/0043-token-based-ai-grading-monetization.md)). A `blocked_emails` entry for the address stays until its own retention ends ([ADR-0045](adr/0045-manual-email-domain-blocklist.md)).
+Deleting a user (self-service or admin) goes through one service function, `services/user.py`, so both paths remove the same data: progress and its grading log, Fokus marks, question reports, exams, Kartenaufgaben runs and pending codes, then the account. Money-backed `purchases` rows are anonymized instead of deleted (statutory bookkeeping retention, [ADR-0043](adr/0043-token-based-ai-grading-monetization.md)). A `blocked_emails` entry for the address stays until its own retention ends ([ADR-0045](adr/0045-manual-email-domain-blocklist.md)).
 
 ### Payments
 Token packages are bought through Stripe Hosted Checkout ([ADR-0048](adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)), behind the `STRIPE_CHECKOUT` flag (`off` | `admins` | `on`).
@@ -226,12 +239,37 @@ Everything is declared in `render.yaml`:
 ### Quality gates
 GitHub Actions runs on every PR and every push to `main`:
 
-- **Backend** (`backend-ci.yml`): `backend-lint` (ruff, mypy, `pip-audit` of the locked dependencies), `backend-test` (unit tests with a 95% coverage gate), `migrations` against a real Postgres, `integration-tests` (black-box, against a running server) and `postman-collection` (freshness of the generated collection and API types).
-- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`), `frontend-test` (type check, tests with a 95%/90% lines/branches coverage gate, and the production build including the prerender).
-- **Mutation testing**: daily, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
+- **Backend** (`backend-ci.yml`): `backend-lint` (ruff, mypy, `pip-audit` of the locked dependencies), `backend-test` (unit tests with a line/branch coverage gate, threshold in `backend/pyproject.toml`), `migrations` against a real Postgres, `integration-tests` (black-box, against a running server) and `postman-collection` (freshness of the generated collection and API types).
+- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`), `frontend-test` (type check, tests with a lines/branches coverage gate, thresholds in `frontend/vite.config.ts`, and the production build including the prerender).
+- **Mutation testing**: daily, not per PR, with a minimum score per side ([docs/mutation-testing.md](mutation-testing.md)).
 - **Security**: known-vulnerable dependencies fail the lint jobs above; CodeQL (GitHub's Default Setup, configured in the repo settings: Python, JavaScript/TypeScript, Actions) scans every PR and `main` for code-level issues, not a required check; Aikido additionally rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
 
-All PR jobs above are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
+Required status checks on `main` are exactly the seven backend and frontend jobs named above, `integration-tests` included; CodeQL reports on PRs but is not required, and mutation testing and Aikido don't run per PR at all. A PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
+
+## Threat model
+
+A short overview of what is protected against whom; the mechanisms are described in the sections linked, the reasoning in the ADRs.
+
+**Assets**: the accounts and what they hold (email address, optional name, learning history, free-text answers in exams and Kartenaufgaben), the session cookie, the admin area (it can export and delete every account), token balances and the purchase ledger (money), the server-side secrets (`JWT_SECRET`, the Anthropic, Stripe and Resend keys) and the service's availability.
+
+| Attacker | Goal | Main measures |
+|---|---|---|
+| Anonymous internet client | Take over or enumerate accounts, mass-register, flood the API or the mail sending | One-time codes hashed, short-lived and purpose-bound; per-IP and per-email limits; uniform answers; disposable-domain block and manual blocklist; body-size cap ([Auth](#auth), [ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md), [ADR-0045](adr/0045-manual-email-domain-blocklist.md)) |
+| Logged-in learner | Read or change another learner's data, get the Lotsen-Check for free, inject instructions into it, run up the LLM bill | Every query scoped to the session's user; tokens as the only spending control plus per-question/per-hour caps and a concurrency cap; the sanitizer and abuse flag ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md), [ADR-0044](adr/0044-drop-weekly-ai-check-budget.md)) |
+| Forged payment events | Credit tokens without paying, or twice | Webhook accepted only with a valid `Stripe-Signature`; one credit per Payment Intent (unique index); the success redirect credits nothing ([Payments](#payments)) |
+| Script in the learner's browser (XSS, a compromised third-party script) | Use the session against the API | httpOnly `__Host-` cookie; enforced CSP with a script/connect allowlist; the ad script never on `/pricing` or `/admin` and not for ads-removed accounts ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md), [ADR-0027](adr/0027-adsense-with-google-consent-management.md)) |
+| Someone with a stolen admin session or the admin's mailbox | Export or delete accounts | `ADMIN_EMAILS` allowlist plus a TOTP step-up, a fresh one for export/delete; admin actions audit-logged ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md)) |
+| A compromised or vulnerable dependency | Code execution in the build or the app | Hash-locked backend dependencies; `pip-audit`/`npm audit` as merge gates; CodeQL, Aikido, Dependabot ([Quality gates](#quality-gates)) |
+
+**Accepted residual risks**:
+
+- **The ad script runs next to the session** for every account that sees ads, including on `/login` while the code is typed. Any compromise along the ad chain could call the API with that learner's rights; it is bounded by those rights and kept off `/pricing` and `/admin` ([ADR-0027](adr/0027-adsense-with-google-consent-management.md), addendum 2026-09-23).
+- **The mailbox is the account.** Whoever reads a learner's email can log in; learners have no second factor (admins do).
+- **A stolen session token stays valid until it expires** (there is no refresh token) or until the learner logs out, which invalidates all their tokens ([ADR-0008](adr/0008-token-version-based-logout.md)).
+- **Rate limits and caps live in process memory**: a deploy or restart resets them, and they hold only while there is a single instance ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+- **The Lotsen-Check sends text to the US** (question, official answer, the learner's answer; no identity), under a data processing agreement ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)).
+- **No protection against volumetric DoS** beyond what Render and Cloudflare provide in front of the app.
+- **The admin audit trail exists only in the logs** and expires with them ([SECURITY.md](../SECURITY.md)).
 
 ## Not yet built
 
@@ -244,3 +282,32 @@ All PR jobs above are required status checks on `main`, and a PR must be up to d
 - Automatic deletion of accounts inactive for 12+ months: the AGB reserve this right and `users.last_login_at` exists for it, but there is no cron job or reminder email yet ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md))
 
 This section should shrink as each piece lands. Keep it accurate rather than aspirational.
+
+## Glossary
+
+The German terms the UI, the code comments and the docs use, with what they mean here.
+
+| Term | Meaning |
+|---|---|
+| **Amtliches Werk** | An official work under § 5 UrhG, free of copyright; the catalog is one, so it is used unchanged with ELWIS credited as the source |
+| **Antwort / amtliche Antwort** | The official model answer from the catalog, which the learner compares their own answer with |
+| **Auffrischen** | The learning mode with questions that were sicher gelernt and are lapsing ([ADR-0049](adr/0049-refresh-session-for-expiring-questions.md)) |
+| **AGB** | The terms of use; accepted once per version ([ADR-0041](adr/0041-agb-acceptance-and-inactivity-retention.md)) |
+| **Betreiber** | The operator: the person running the service, reachable via the admin area and `kontakt@sks-lotse.de` |
+| **ELWIS / WSV** | The federal waterways administration's information service (ELWIS) and the administration itself (WSV); the source of the catalog and of the Kartenaufgaben |
+| **Fokus** | Topics a learner stars; the Fokus mode runs their not-yet-gelernt questions ([ADR-0028](adr/0028-focus-topics.md)) |
+| **Formblatt Gezeiten** | The official tide calculation form, fillable beside a Kartenaufgabe |
+| **Frage melden** | Reporting a faulty catalog question ([ADR-0030](adr/0030-question-reports-and-feedback-channels.md)) |
+| **Fragebogen** | One exam questionnaire; the Prüfungssimulation draws one at random ([ADR-0029](adr/0029-exam-simulation.md)) |
+| **Gelernt** (*sicher* / *teilweise gelernt*) | A question is (sicher) gelernt while its estimated memory half-life and recall probability clear the bar (`backend/app/domain/progress.py`); teilweise gelernt once answered right at least once but not (or no longer) gelernt. The per-topic status counts both ([ADR-0034](adr/0034-half-life-model-for-gelernt.md)) |
+| **Kartenaufgabe** | The chart-navigation part of the written exam, worked in a paper chart; in the app, the official solved sheets task by task ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)) |
+| **Lernstand** | A learner's overall progress: how many questions are gelernt, per topic and in total |
+| **Lotsen-Check** | "Antwort vom Lotsen bewerten lassen": the LLM suggests a grade and feedback, paid with a token; the learner confirms ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)) |
+| **Prüfungssimulation** | The timed exam simulation over a Fragebogen |
+| **Prüfungsvariante** | The exam variant of an account, "Segeln und Motor" or "Motor"; decides which subjects are shown |
+| **Richtig / Teilweise Richtig / Falsch** | The three self-assessment grades after each question ([ADR-0023](adr/0023-self-assessed-learning-flow.md)) |
+| **Seemannschaft I/II** | The two seamanship subjects of the catalog, merged where their questions overlap ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)) |
+| **SKS** | Sportküstenschifferschein, the sailing licence whose theory exam the app prepares for |
+| **Thema** | A topic within a subject, transcribed from the catalog's table of contents |
+| **Token** | The unit the Lotsen-Check is paid with; bought in packages via Stripe or credited by the operator ([ADR-0043](adr/0043-token-based-ai-grading-monetization.md)) |
+| **Werbefrei** | The one-time add-on that removes ads (`users.ads_removed`) |

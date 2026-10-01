@@ -57,5 +57,5 @@ jobs:
       - run: npx tsc -b
       - run: npx vitest run --coverage
       # The same build Render runs (tsc, client + SSR build, prerender.mjs): a broken prerender or
-      # an app.html that still carries the ad script (ADR-0041) must fail here, not in the deploy.
+      # an app.html that still carries the ad script (ADR-0027 addendum 2026-09-23) must fail here, not in the deploy.
       - run: npm run build
