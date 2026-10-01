@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.user import User
 from app.schemas.chart_exercise import (
+    ChartAiSuggestion,
     ChartAttemptRead,
     ChartAttemptTaskRead,
     ChartExercise,
@@ -29,6 +30,7 @@ from app.schemas.chart_exercise import (
     ChartExerciseSummary,
     ChartTask,
 )
+from app.services.chart_grader import ChartGradeResult, EarlierTask, is_ai_checkable
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "chart_exercises.yaml"
 # The committed copy the frontend's guest runs and their prerender read (ADR-0056).
@@ -71,6 +73,16 @@ def current_task(attempt: ChartAttempt, sheet: ChartExercise) -> int | None:
     return next((task.number for task in sheet.tasks if task.number not in assessed), None)
 
 
+def _suggestion(answer: ChartAttemptTask | None) -> ChartAiSuggestion | None:
+    if answer is None or answer.ai_points is None:
+        return None
+    return ChartAiSuggestion(
+        points=answer.ai_points,
+        feedback=answer.ai_feedback or "",
+        suspected_error=answer.ai_suspected_error or "",
+    )
+
+
 def _task_read(task: ChartTask, answer: ChartAttemptTask | None) -> ChartAttemptTaskRead:
     return ChartAttemptTaskRead(
         number=task.number,
@@ -81,6 +93,8 @@ def _task_read(task: ChartTask, answer: ChartAttemptTask | None) -> ChartAttempt
         solution=task.solution if answer else [],
         derivation=task.derivation if answer else [],
         points_awarded=answer.points_awarded if answer else None,
+        ai_checkable=is_ai_checkable(task),
+        ai_suggestion=_suggestion(answer),
     )
 
 
@@ -131,6 +145,39 @@ def award_points(attempt: ChartAttempt, sheet: ChartExercise, task_number: int, 
     answer.points_awarded = awarded
     if current_task(attempt, sheet) is None:
         attempt.completed_at = now()
+
+
+def ai_check_target(attempt: ChartAttempt, sheet: ChartExercise, task_number: int) -> ChartAttemptTask:
+    """The answer the Lotsen-Check may look at (ADR-0058): the current task's, given but not yet
+    assessed, not empty, not a drawing task, and not checked already — the answer can't change, so a
+    second check would only cost the learner tokens for the same suggestion."""
+    task = _require_current(attempt, sheet, task_number)
+    if not is_ai_checkable(task):
+        raise ChartTaskConflict("A drawing scores in this task; the Lotsen-Check can't see it")
+    answer = next((row for row in attempt.tasks if row.task_number == task_number), None)
+    if answer is None:
+        raise ChartTaskConflict("Answer the task first")
+    if not answer.answer_text.strip():
+        raise ChartTaskConflict("There is no answer to check")
+    if answer.ai_points is not None:
+        raise ChartTaskConflict("The task is already checked")
+    return answer
+
+
+def earlier_answers(attempt: ChartAttempt, sheet: ChartExercise, task_number: int) -> list[EarlierTask]:
+    """The run's tasks before this one with the learner's answers — for spotting follow-on errors."""
+    answers = {row.task_number: row.answer_text for row in attempt.tasks}
+    return [
+        EarlierTask(task=task, answer_text=answers.get(task.number, ""))
+        for task in sheet.tasks
+        if task.number < task_number
+    ]
+
+
+def store_suggestion(answer: ChartAttemptTask, result: ChartGradeResult) -> None:
+    answer.ai_points = result.points
+    answer.ai_feedback = result.feedback
+    answer.ai_suspected_error = result.suspected_error
 
 
 def has_open_attempt(db: Session, user: User, number: int) -> bool:

@@ -43,7 +43,9 @@ class ChartAttempt(Base):
 class ChartAttemptTask(Base):
     """The learner's answer to one task of the run, and the points they gave themselves.
 
-    Created when the task is answered; `points_awarded` NULL = answered, not yet assessed.
+    Created when the task is answered; `points_awarded` NULL = answered, not yet assessed. The
+    `ai_*` columns hold the Lotsen-Check's suggestion (ADR-0058), NULL until the learner asks for one —
+    at most one per task: the answer can't change once given.
     """
 
     __tablename__ = "chart_attempt_tasks"
@@ -59,3 +61,6 @@ class ChartAttemptTask(Base):
     answer_text: Mapped[str] = mapped_column(Text, nullable=False)
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     points_awarded: Mapped[int | None] = mapped_column(Integer)
+    ai_points: Mapped[int | None] = mapped_column(Integer)
+    ai_feedback: Mapped[str | None] = mapped_column(Text)
+    ai_suspected_error: Mapped[str | None] = mapped_column(Text)

@@ -19,7 +19,7 @@ Derivation: a learner is active for 6–10 weeks; the season peak (February to M
 Derived load (planning figure):
 - **Requests:** peak ~4–8 req/s, from ~100–150 calls per 30-minute session. The single worker should carry ~50–100 req/s; **not measured**.
 - **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)). Kartenaufgaben add ~18 short rows per completed sheet (`chart_attempt_tasks`, [ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)); their exercises (solutions as text, [ADR-0053](adr/0053-chart-solutions-transcribed-as-text.md)) and the few drawings are static files, not database rows.
-- **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once.
+- **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once, catalog and Kartenaufgaben together. A Kartenaufgaben check ([ADR-0058](adr/0058-lotsen-check-for-chart-exercises.md)) runs on a stronger model with a longer prompt: a few seconds instead of about one, up to its 45 s timeout, holding its slot (and a worker thread) as long.
 - **Login mails:** ~4,000–6,000 a year (7-day session, no refresh token).
 
 ## 2. Non-functional requirements
@@ -45,6 +45,6 @@ Derived load (planning figure):
 | Availability | Readiness check; traffic only to a deploy that passes it |
 | | Monitoring and status page (partly: no target) |
 | | Configurable maintenance mode |
-| Performance | Catalog served from memory; cap on concurrent LLM calls |
-| | Prerendered public pages, incl. the catalog by topic and, once open, the Kartenaufgaben (guests cause no API load beyond the session check), cached hashed assets, self-hosted fonts |
+| Performance | Catalog served from memory; cap on concurrent LLM calls (shared by both kinds of Lotsen-Check) |
+| | Prerendered public pages, incl. the catalog by topic and the Kartenaufgaben (guests cause no API load beyond the session check), cached hashed assets, self-hosted fonts |
 | | One instance, one worker, on purpose |

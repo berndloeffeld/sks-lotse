@@ -174,6 +174,10 @@ class AdminChartTaskExport(BaseModel):
     answer_text: str
     answered_at: datetime
     points_awarded: int | None
+    # The Lotsen-Check's suggestion, if the learner asked for one (ADR-0058).
+    ai_points: int | None
+    ai_feedback: str | None
+    ai_suspected_error: str | None
 
 
 class AdminChartAttemptExport(BaseModel):

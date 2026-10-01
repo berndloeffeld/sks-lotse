@@ -27,6 +27,12 @@ export function currentTask(sheet: ChartSheet, run: GuestRun): number | null {
   return task ? task.number : null
 }
 
+// Whether the Lotsen-Check could look at the task: not when a drawing (the current triangle) scores,
+// as backend/app/services/chart_grader.py decides for a learner's run (ADR-0058).
+export function isAiCheckable(task: ChartSheetTask): boolean {
+  return !task.solution.some((part) => part.image)
+}
+
 // A task as the run shows it: its solution only once answered — or, with `reveal`, always (the
 // list of all tasks below a sheet's page).
 export function taskView(task: ChartSheetTask, answer?: GuestAnswer, reveal = false): ChartAttemptTask {
@@ -40,6 +46,9 @@ export function taskView(task: ChartSheetTask, answer?: GuestAnswer, reveal = fa
     solution: shown ? task.solution : [],
     derivation: shown ? task.derivation : [],
     points_awarded: answer ? answer.points_awarded : null,
+    ai_checkable: isAiCheckable(task),
+    // A guest's run is never sent anywhere, so the Lotsen-Check only shows as a teaser.
+    ai_suggestion: null,
   }
 }
 

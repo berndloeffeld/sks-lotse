@@ -1,6 +1,6 @@
 # 0031. AI answer check with Claude Haiku
 
-Status: Accepted — amended by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) (sanitizer, abuse monitoring); the boolean entitlement is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (tokens); the budget, amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md), is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md).
+Status: Accepted — amended by [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) (sanitizer, abuse monitoring); the boolean entitlement is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (tokens); the budget, amended by [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md), is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md). Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): the Kartenaufgaben have their own check, on Sonnet.
 
 ## Context
 

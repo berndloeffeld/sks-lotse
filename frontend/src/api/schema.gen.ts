@@ -79,6 +79,12 @@ export interface components {
             answered_at: string;
             /** Points Awarded */
             points_awarded: number | null;
+            /** Ai Points */
+            ai_points: number | null;
+            /** Ai Feedback */
+            ai_feedback: string | null;
+            /** Ai Suspected Error */
+            ai_suspected_error: string | null;
         };
         /** AdminExamAttemptExport */
         AdminExamAttemptExport: {
@@ -411,6 +417,24 @@ export interface components {
             /** Answer */
             answer: string;
         };
+        /** ChartAiCheckRead */
+        ChartAiCheckRead: {
+            attempt: components["schemas"]["ChartAttemptRead"];
+            /** Tokens Remaining */
+            tokens_remaining: number;
+        };
+        /**
+         * ChartAiSuggestion
+         * @description The Lotsen-Check's suggestion for one answered task (ADR-0058) — the learner still gives the points.
+         */
+        ChartAiSuggestion: {
+            /** Points */
+            points: number;
+            /** Feedback */
+            feedback: string;
+            /** Suspected Error */
+            suspected_error: string;
+        };
         /** ChartAnswerUpdate */
         ChartAnswerUpdate: {
             /** Answer Text */
@@ -458,6 +482,9 @@ export interface components {
             derivation: components["schemas"]["ChartDerivationBlock"][];
             /** Points Awarded */
             points_awarded: number | null;
+            /** Ai Checkable */
+            ai_checkable: boolean;
+            ai_suggestion: components["schemas"]["ChartAiSuggestion"] | null;
         };
         /**
          * ChartDerivationBlock

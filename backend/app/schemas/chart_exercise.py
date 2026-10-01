@@ -92,6 +92,15 @@ class ChartExercisesOverview(BaseModel):
     exercises: list[ChartExerciseSummary]
 
 
+class ChartAiSuggestion(BaseModel):
+    """The Lotsen-Check's suggestion for one answered task (ADR-0058) — the learner still gives the points."""
+
+    points: int
+    feedback: str
+    # Where the learner probably went wrong; empty when nothing is.
+    suspected_error: str
+
+
 class ChartAttemptTaskRead(BaseModel):
     number: int
     max_points: int
@@ -103,6 +112,9 @@ class ChartAttemptTaskRead(BaseModel):
     solution: list[ChartSolutionPart]
     derivation: list[ChartDerivationBlock]
     points_awarded: int | None
+    # Whether the Lotsen-Check can look at this task at all: not when a drawing scores (ADR-0058).
+    ai_checkable: bool
+    ai_suggestion: ChartAiSuggestion | None
 
 
 class ChartAttemptRead(BaseModel):
@@ -118,6 +130,11 @@ class ChartAttemptRead(BaseModel):
     current_task: int | None
     # Every task up to and including the current one — later tasks stay hidden.
     tasks: list[ChartAttemptTaskRead]
+
+
+class ChartAiCheckRead(BaseModel):
+    attempt: ChartAttemptRead
+    tokens_remaining: int
 
 
 class ChartAnswerUpdate(BaseModel):

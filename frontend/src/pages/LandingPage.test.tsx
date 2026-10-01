@@ -74,6 +74,7 @@ describe('LandingPage', () => {
   })
 
   it('previews the Kartenaufgaben with a screenshot, without linking to them', () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'admins')
     const { container } = renderLandingPage()
 
     const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })

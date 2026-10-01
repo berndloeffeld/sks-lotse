@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import type { ChartAttempt, ChartAttemptTask } from '../api/types'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { scrollBelowIntoView } from '../scroll'
+import { ChartAiCheck } from './ChartAiCheck'
 import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
@@ -14,13 +15,15 @@ interface ChartTaskRunProps {
   attempt: ChartAttempt
   onAnswer: (task: number, answer: string) => Promise<void>
   onPoints: (task: number, points: number) => Promise<void>
+  // The Lotsen-Check (ADR-0058); absent in a guest's run, where it is only a teaser.
+  onAiCheck?: (task: number) => Promise<void>
   // A guest's run, held in the page only (ADR-0056): its result says so.
   guest?: boolean
 }
 
 // One Kartenaufgabe, task after task (ADR-0052): read the task, work it out in the chart, note the
 // result, see the official solution, give yourself the points you'd have got. Then the next task.
-export function ChartTaskRun({ attempt, onAnswer, onPoints, guest = false }: ChartTaskRunProps) {
+export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = false }: ChartTaskRunProps) {
   const task = attempt.tasks.find((t) => t.number === attempt.current_task)
   const articleRef = useRef<HTMLElement>(null)
   const shownTask = useRef(task?.number)
@@ -53,7 +56,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, guest = false }: Cha
       {task.answer_text === null ? (
         <AnswerForm key={task.number} task={task} onAnswer={onAnswer} />
       ) : (
-        <PointsForm key={task.number} task={task} onPoints={onPoints} />
+        <PointsForm key={task.number} task={task} onPoints={onPoints} onAiCheck={onAiCheck} />
       )}
     </article>
   )
@@ -153,26 +156,55 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
   )
 }
 
-function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: ChartTaskRunProps['onPoints'] }) {
-  const [points, setPoints] = useState<number | null>(null)
+function PointsForm({
+  task,
+  onPoints,
+  onAiCheck,
+}: {
+  task: ChartAttemptTask
+  onPoints: ChartTaskRunProps['onPoints']
+  onAiCheck: ChartTaskRunProps['onAiCheck']
+}) {
+  // The Lotsen-Check's suggestion picks its points, also when it arrives while the form is open;
+  // giving them is still the learner's own step.
+  const suggested = task.ai_suggestion?.points ?? null
+  const [points, setPoints] = useState<number | null>(suggested)
+  const [shownSuggestion, setShownSuggestion] = useState(suggested)
+  if (suggested !== shownSuggestion) {
+    setShownSuggestion(suggested)
+    if (suggested !== null) setPoints(suggested)
+  }
   const { run, isPending, error, setError } = useAsyncAction()
   const continueRef = useRef<HTMLButtonElement>(null)
   const groupRef = useRef<HTMLFieldSetElement>(null)
   const radioRefs = useRef<(HTMLInputElement | null)[]>([])
+  const askRef = useRef<HTMLButtonElement>(null)
+  const suggestedAtMount = useRef(suggested)
   const choices = Array.from({ length: task.max_points + 1 }, (_, i) => i)
 
   // As in the catalog's self-assessment (SelfAssessment): focus goes to the group *before* the
-  // choices, so Tab lands on the first and keeps cycling through them without selecting; Enter on a
-  // choice gives those points and moves on.
+  // choices, so Tab lands on the first and keeps cycling through them and the Lotse button without
+  // selecting; Enter on a choice gives those points and moves on.
   useEffect(() => {
     // Clear of the tool bar a phone shows at the bottom of the screen.
     scrollBelowIntoView(continueRef.current, 64)
     groupRef.current?.focus({ preventScroll: true })
   }, [])
 
-  function cycleFocus(from: HTMLInputElement, backwards: boolean) {
-    const stops = radioRefs.current.filter((el): el is HTMLInputElement => el !== null)
-    const at = stops.indexOf(from)
+  // A suggestion that arrives while the form is open puts focus on its points, so Enter gives them
+  // and Tab keeps cycling; its box can push "Weiter" further down, so scroll again.
+  useEffect(() => {
+    if (suggested === null || suggested === suggestedAtMount.current) return
+    radioRefs.current[suggested]?.focus({ preventScroll: true })
+    scrollBelowIntoView(continueRef.current, 64)
+  }, [suggested])
+
+  // Tab cycles through the choices and, when usable, the Lotse button (focus only, no selection).
+  function cycleFocus(from: HTMLElement, backwards: boolean) {
+    const stops = [...radioRefs.current, askRef.current].filter(
+      (el): el is HTMLInputElement | HTMLButtonElement => el !== null && !el.disabled,
+    )
+    const at = stops.indexOf(from as HTMLInputElement | HTMLButtonElement)
     stops[(at + (backwards ? stops.length - 1 : 1)) % stops.length]?.focus()
   }
 
@@ -240,6 +272,17 @@ function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: Char
           ))}
         </div>
       </fieldset>
+      <ChartAiCheck
+        task={task}
+        onAiCheck={onAiCheck}
+        buttonRef={askRef}
+        onButtonKeyDown={(event) => {
+          if (event.key === 'Tab') {
+            event.preventDefault()
+            cycleFocus(event.currentTarget, event.shiftKey)
+          }
+        }}
+      />
       {error ? (
         <p role="alert" className={styles.error}>
           {error}

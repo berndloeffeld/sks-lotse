@@ -85,10 +85,10 @@ services:
       - key: MAINTENANCE_MODE
         sync: false
       # The Kartenaufgaben (ADR-0052): off | admins | on. Declared here rather than
-      # in the dashboard, so opening them to everyone is a reviewed PR that also
-      # updates docs/FEATURES.md. "admins" until then (the usage rights are cleared since 2026-10-01).
+      # in the dashboard, so switching them is a reviewed PR that also updates
+      # docs/FEATURES.md. "on" since 2026-10-02 (the usage rights are cleared since 2026-10-01).
       - key: CHART_EXERCISES
-        value: admins
+        value: "on"
       # Token-package checkout (ADR-0048). STRIPE_CHECKOUT is the feature flag
       # (off | admins | on; unset = off), set in the dashboard like
       # MAINTENANCE_MODE; a flip takes a redeploy. The keys and product ids are
@@ -189,7 +189,7 @@ services:
       # (backend/tests/test_chart_exercises_export.py checks it); flipping
       # both is one reviewed PR with docs/FEATURES.md.
       - key: VITE_CHART_EXERCISES
-        value: admins
+        value: "on"
     routes:
       # Public pages that moved from German to English paths: a permanent
       # redirect keeps bookmarks and search results working. Before the
@@ -310,6 +310,18 @@ services:
       - type: rewrite
         source: /learn/wetterkunde/seegang
         destination: /learn/wetterkunde/seegang.html
+      # The open /charts pages (ADR-0056): the list and one page per transcribed
+      # sheet, built only while VITE_CHART_EXERCISES is "on". Must match chartPages()
+      # in frontend/src/publicPages.ts (backend/tests/test_catalog_export.py checks it).
+      - type: rewrite
+        source: /charts
+        destination: /charts.html
+      - type: rewrite
+        source: /charts/1
+        destination: /charts/1.html
+      - type: rewrite
+        source: /charts/2
+        destination: /charts/2.html
       # SPA fallback: routes like /login and /profile have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
