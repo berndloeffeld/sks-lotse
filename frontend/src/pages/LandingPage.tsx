@@ -71,7 +71,7 @@ const EXAM_SCREENSHOTS = [
     height: 834,
     title: '1. Prüfung starten',
     text: 'Eine zufällige Prüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
-    alt: 'Screenshot: Die Prüfungssimulation mit den Regeln, der Schaltfläche „Prüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
+    alt: 'Screenshot: Die Probeprüfung mit den Regeln, der Schaltfläche „Prüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
     wide: false,
   },
   {
