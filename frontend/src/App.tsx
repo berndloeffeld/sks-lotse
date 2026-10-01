@@ -2,6 +2,9 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ExamProcessPage } from './pages/ExamProcessPage'
+import { ChartAttemptPage } from './pages/ChartAttemptPage'
+import { ChartExercisePage } from './pages/ChartExercisePage'
+import { ChartExercisesPage } from './pages/ChartExercisesPage'
 import { AdminBlocklistPage } from './pages/AdminBlocklistPage'
 import { AdminQuestionsPage } from './pages/AdminQuestionsPage'
 import { AdminSettingsPage } from './pages/AdminSettingsPage'
@@ -25,6 +28,7 @@ import { ProfileAccountPage } from './pages/ProfileAccountPage'
 import { ProfileLearnStatusPage } from './pages/ProfileLearnStatusPage'
 import { AdScriptGate } from './routes/AdScriptGate'
 import { AgbGate } from './routes/AgbGate'
+import { ChartExercisesGate } from './routes/ChartExercisesGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminLayout } from './components/AdminLayout'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -89,6 +93,11 @@ export function AppRoutes() {
               <Route path="/learn/:subject/:topic" element={<PracticePage />} />
               <Route path="/exam" element={<ExamPage />} />
               <Route path="/exam/:id" element={<ExamRunPage />} />
+              <Route element={<ChartExercisesGate />}>
+                <Route path="/charts" element={<ChartExercisesPage />} />
+                <Route path="/charts/:number" element={<ChartExercisePage />} />
+                <Route path="/charts/attempts/:id" element={<ChartAttemptPage />} />
+              </Route>
               <Route path="/profile" element={<ProfileLayout />}>
                 <Route index element={<ProfileLearnStatusPage />} />
                 <Route path="account" element={<ProfileAccountPage />} />

@@ -164,6 +164,21 @@ class AdminExamAttemptExport(BaseModel):
     questions: list[AdminExamQuestionExport]
 
 
+class AdminChartTaskExport(BaseModel):
+    task_number: int
+    answer_text: str
+    answered_at: datetime
+    points_awarded: int | None
+
+
+class AdminChartAttemptExport(BaseModel):
+    attempt_id: int
+    exercise_number: int
+    started_at: datetime
+    completed_at: datetime | None
+    tasks: list[AdminChartTaskExport]
+
+
 class AdminPurchaseExport(BaseModel):
     # Never NULL here: a row this account's own export can see still has its user_id set — an
     # anonymized row (services/user.py) only exists after that same account is already gone.
@@ -184,6 +199,7 @@ class AdminUserExport(BaseModel):
     focus_topics: list[AdminFocusTopicExport]
     question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
+    chart_attempts: list[AdminChartAttemptExport]
     purchases: list[AdminPurchaseExport]
     exported_at: datetime
 

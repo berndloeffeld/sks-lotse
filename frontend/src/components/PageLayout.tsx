@@ -12,7 +12,8 @@ interface PageLayoutProps {
   // Logged-in pages get the account nav and a brand link to /learn;
   // `public` pages the default "Anmelden" link; `none` no nav at all.
   nav?: 'account' | 'public' | 'none'
-  width?: 'sm' | 'md'
+  // `lg` fits a second column beside the content (the Kartenaufgaben's tools).
+  width?: 'sm' | 'md' | 'lg'
   // Slimmer title band for pages where the content should start sooner.
   compact?: boolean
   // Full-width children (e.g. <Band>s) instead of one content column.
@@ -20,7 +21,7 @@ interface PageLayoutProps {
   children: ReactNode
 }
 
-const WIDTH = { sm: 'max-w-sm', md: 'max-w-2xl', bands: 'max-w-4xl' }
+const WIDTH = { sm: 'max-w-sm', md: 'max-w-2xl', lg: 'max-w-6xl', bands: 'max-w-4xl' }
 
 // The banded page shell every non-landing page shares: dark header, primary
 // title band with a slanted edge, content on the light background, dark

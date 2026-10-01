@@ -90,11 +90,15 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 - **Confirmation mail** (§ 312f BGB, needed because of the withdrawal waiver): sent by the webhook after the credit. A log line `confirmation mail to user failed, send it by hand` means the credit worked but the mail didn't: send the learner a mail with the package, price, payment date, the payment reference (`stripe_payment_intent_id` in `/admin`), the waiver sentence and the AGB link.
 - **Paid but no tokens**: check the endpoint's delivery log in Stripe; a 400 means a wrong `STRIPE_WEBHOOK_SECRET`, 503 an empty one. Fix it and resend the event.
 
+## Kartenaufgaben flag
+
+`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner. Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `admins`), so switching it is a PR — together with `docs/FEATURES.md`. Before `on`: the usage rights of the WSV's Navigationsaufgaben PDF are confirmed (the ELWIS confirmation covers the question catalog only).
+
 ## Data-subject requests (DSGVO)
 
 Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)). Every admin action is logged (`admin action`, ids only).
 
-- **Auskunft / Datenübertragbarkeit (Art. 15/20)**: `/admin/users` → search the email → open the account → "Daten exportieren" downloads the JSON (profile, progress, Fokus marks, reports, exams). Send it to the verified address of the account only.
+- **Auskunft / Datenübertragbarkeit (Art. 15/20)**: `/admin/users` → search the email → open the account → "Daten exportieren" downloads the JSON (profile, progress, Fokus marks, reports, exams, Kartenaufgaben runs). Send it to the verified address of the account only.
 - **Berichtigung (Art. 16)**: learners edit name, gender, exam variant and email themselves on `/profile`; anything else by hand on request.
 - **Löschung (Art. 17)**: learners can delete themselves on `/profile`. On request, `/admin/users` → open the account → "Account löschen" removes the account and everything attached to it (`services/user.py`).
 - **Einschränkung / Widerspruch (Art. 18/21)**: handled case by case; there is no tooling.

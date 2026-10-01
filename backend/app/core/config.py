@@ -63,6 +63,9 @@ class Settings(BaseSettings):
     stripe_product_tokens_m: str = ""
     stripe_product_tokens_l: str = ""
     stripe_product_tokens_xl: str = ""
+    # The Kartenaufgaben (ADR-0052), same three states: "off" hides them (their routes answer 404),
+    # "admins" opens them to the ADMIN_EMAILS allowlist only, "on" to every learner.
+    chart_exercises: Literal["off", "admins", "on"] = "off"
     resend_api_key: str = ""
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
     # noreply address.

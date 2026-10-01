@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from app.models.chart_attempt import ChartAttempt
 from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
 from app.models.purchase import Purchase
@@ -20,6 +21,8 @@ from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
+    AdminChartAttemptExport,
+    AdminChartTaskExport,
     AdminExamAttemptExport,
     AdminExamQuestionExport,
     AdminFocusTopicExport,
@@ -116,6 +119,21 @@ def _exam_attempts(db: Session, user: User) -> list[AdminExamAttemptExport]:
     ]
 
 
+def _chart_attempts(db: Session, user: User) -> list[AdminChartAttemptExport]:
+    attempts = db.execute(
+        select(ChartAttempt).where(ChartAttempt.user_id == user.id).order_by(ChartAttempt.started_at)
+    ).scalars()
+    return [
+        _from_row(
+            AdminChartAttemptExport,
+            attempt,
+            attempt_id=attempt.id,
+            tasks=[_from_row(AdminChartTaskExport, task) for task in attempt.tasks],
+        )
+        for attempt in attempts
+    ]
+
+
 def build_user_export(app, db: Session, user: User) -> AdminUserExport:
     progress_rows = db.execute(
         select(QuestionProgress, Question.subject, Question.number)
@@ -147,6 +165,7 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
     return AdminUserExport(
         user=admin_user_read(app, db, user),
         exam_attempts=_exam_attempts(db, user),
+        chart_attempts=_chart_attempts(db, user),
         focus_topics=[
             _from_row(
                 AdminFocusTopicExport,

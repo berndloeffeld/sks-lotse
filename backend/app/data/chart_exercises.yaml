@@ -1,0 +1,2614 @@
+source: Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV), Navigationsaufgaben SKS
+hints:
+- 'Erlaubte Hilfsmittel: Übungskarte 49 (INT 1463), Karte 1/INT 1, Begleitheft für die Kartenaufgaben im Fach Navigation
+  für den SKS (Ausgabe 2013), Taschenrechner (nicht programmiert und nicht programmierbar), Navigationsbesteck und
+  Schreibgeräte. Für die Prüfung darf die Übungskarte 49 (INT 1463) keine Eintragungen und keine Markierungen enthalten.
+  Gegebenenfalls sind in die Übungskarte eingetragene Kurse, Peilungen und Orte restlos auszuradieren. Die Karte
+  1/INT 1 und das Begleitheft dürfen ebenfalls keine Markierungen, zusätzlichen Eintragungen oder eingeklebten Reiter
+  enthalten.'
+- 'Hinweise: Die Schiffsorte sind in die Seekarte einzutragen und jeweils nach Breite und Länge anzugeben. Kurse
+  und Peilungen sind ebenfalls in die Seekarte einzutragen und kaufmännisch auf volle Grade auf- bzw. abzurunden.
+  Es ist die Norm DIN 13312 Navigation (soweit möglich) anzuwenden; es gilt die Steuertafel im Begleitheft. BW und
+  BS (falls kein Stromdreieck zu zeichnen ist) werden als absolute Werte angegeben ( |BW| bzw. |BS| ), es ist jeweils
+  das zugehörige Vorzeichen hinzuzufügen. Uhrzeiten sind in Bordzeit (BZ) anzugeben. Bei Feuern und Schifffahrtszeichen
+  sind die deutschen Beschreibungen anzugeben; die Angabe von Abkürzungen reicht nicht aus. Erreichbare Punktzahl
+  gesamt: 30 Punkte. Erreichbare Punktzahl je Aufgabe: Siehe entsprechende Punktvorgabe.'
+- 'Gesetzliche Zeit (GZ) für 2013: MEZ bis 31.03.2013, 02:00 Uhr; dann MESZ bis 27.10.2013, 03:00 Uhr; danach MEZ.'
+tide_form:
+  src: formblatt-gezeiten.png
+  width: 1428
+  height: 1556
+sheets:
+- number: 1
+  tasks:
+  - number: 1
+    points: 2
+    text: Am 04.05.2013 liegt eine Yacht im Yachthafen von Cuxhaven. Geplant ist eine Reise elbabwärts durch die
+      Norderrinne nach Büsum. Das Auslaufen soll weit vor dem Morgenhochwasser erfolgen. Bordzeit (BZ) ist gesetzliche
+      Zeit (GZ). Der Tiefgang der Yacht beträgt 2,2 m.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Hochwasserzeit (HWZ) und die Hochwasserhöhe (HWH) am Morgen.
+    - points: 1
+      text: Bestimmen Sie die Falldauer (FD) und den Tidenfall (TF).
+    derivation_images:
+    - src: bogen-01/aufgabe-01-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-01/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 131
+  - number: 2
+    points: 1
+    text: Die Yacht verlässt den Hafen am 04.05.2013 um 05:25 BZ noch vor Sonnenaufgang.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-01/aufgabe-02-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-01/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 3
+    points: 1
+    text: Vor der Tonne „14“ muss man kurzzeitig aufstoppen und treibt mit dem Strom auf die Tonne „NL 2“ zu, die
+      man um 07:30 BZ erreicht.
+    questions:
+    - points: 1
+      text: Beschreiben Sie die Tonne „NL 2“ vollständig (Kennung und Wiederkehr, Aussehen am Tage).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 125
+  - number: 4
+    points: 2
+    text: ''
+    questions:
+    - points: 1
+      text: Welche Bedeutung hat die Tonne „NL 2“?
+    - points: 1
+      text: Wie kann man die Tonne „NL 2“ mit dieser Yacht passieren?
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 107
+  - number: 5
+    points: 2
+    text: Die Reise fortsetzend wird von der Tonne „NL 2“ Kurs auf die Tonne „2/Außenelbe-Reede 3“ abgesetzt, was
+      etwa dem Verlauf des roten Tonnenstriches entspricht.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    - points: 1
+      text: Bestimmen Sie die Distanz (d).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 59
+  - number: 6
+    points: 1
+    text: Für den Abschnitt zwischen den beiden Tonnen koppelt man mit einer durchschnittlichen Geschwindigkeit
+      von FüG = 5,0 kn.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die für diese Distanz benötigte Zeit (in Stunden und Minuten).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 7
+    points: 1
+    text: An Tonne „NL 2“ werden die Stromverhältnisse für 07:30 BZ bestimmt.
+    questions:
+    - points: 1
+      text: Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie der Seekarte in der Nähe der Tonne
+        „NL 2“?
+    derivation_images:
+    - src: bogen-01/aufgabe-07-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-01/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 8
+    points: 2
+    text: Man fährt dem Fahrwasser folgend weiter elbabwärts. Nach ca. zwei Stunden soll die Tonne „2/Außenelbe-Reede
+      3“ erreicht werden.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie in zwei Stunden nach Gezeitenstromatlas?
+    derivation_images:
+    - src: bogen-01/aufgabe-08-herleitung-1.png
+      width: 1040
+      height: 53
+    solution_images:
+    - src: bogen-01/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 9
+    points: 1
+    text: Bis zur Tonne „2/Außenelbe-Reede 3“ überfährt man zweimal eine in der Seekarte eingezeichnete breite grüne
+      Linie.
+    questions:
+    - points: 1
+      text: Erklären Sie die Bedeutung dieser Linie bzw. des von ihr begrenzten Gebietes.
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 10
+    points: 1
+    text: Um 09:10 BZ wird die Tonne „2/Außenelbe-Reede 3“ erreicht. Etwa 2 sm südwestlich der Position ist ein
+      längerer magentafarbener Pfeil in der Seekarte eingezeichnet.
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 11
+    points: 2
+    text: Von der Tonne „2/Außenelbe-Reede 3“ nimmt die Yacht um 09:10 BZ Kurs auf die Tonne „Süderpiep“. Man schätzt
+      den aus SSW wehenden Wind mit |BW| = 3° ein; Strom wird nicht berücksichtigt (BS = 0).
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    derivation_images:
+    - src: bogen-01/aufgabe-11-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-01/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 73
+  - number: 12
+    points: 1
+    text: Gegen 10:45 BZ peilt man am Radar in der relativen Darstellungsart „Head Up“ die Tonne „Süderpiep“ nahebei
+      in Radar-Seitenpeilung RaSP = 352°, anliegender MgK = 062°. Nahezu zeitgleich peilt man die westlich der Tonne
+      „Süderpiep“ liegende „ODAS“-Tonne in der Magnetkompasspeilung MgP = 348°, anliegender MgK = 067°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 203
+  - number: 13
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) um 10:45 BZ.
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 14
+    points: 3
+    text: 'Man steuert etwas nach Steuerbord auf. Gegen 11:20 BZ erreicht man die Tonne „Süderpiep“. Ab jetzt legt
+      man KaK = 085° zugrunde. Man rechnet mit folgendem Strom: StR = 050° und StG = 1,2 kn und einer Yacht-Geschwindigkeit
+      von FdW = 5,8 kn. Den leichten SW-Wind berücksichtigt man mit |BW| = 2°.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 601
+  - number: 15
+    points: 2
+    text: 'Man lässt sich längere Zeit treiben und trainiert verschiedene „Mensch-über-Bord“ Manöver. Um 18:23 BZ
+      zeigt das GPS folgende Koordinaten an: φ = 54°05,8‘N, λ = 008°26,8‘E. Man nimmt wieder Fahrt auf, setzt vom
+      GPS-Ort weiter den KaK = 085° ab und koppelt mit FüG = 5,2 kn. Wind und Strom werden nicht berücksichtigt
+      (BWS= 0).'
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 19:00 BZ.
+    derivation_images:
+    - src: bogen-01/aufgabe-15-herleitung-1.png
+      width: 1040
+      height: 57
+    solution_images:
+    - src: bogen-01/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 16
+    points: 3
+    text: 'Um 19:00 BZ wird die Position zu einer Tonne, die auf dem Flachwassergebiet „Falsches Tief“ ein Wrack
+      markiert, wie folgt ermittelt: rwP = 196°, d = 2,2 sm.'
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) um 19:00 BZ.
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 17
+    points: 2
+    text: In der Abenddämmerung identifiziert man die Befeuerung des Leuchtfeuers von Büsum.
+    questions:
+    - points: 2
+      text: 'Beschreiben Sie das Leuchtfeuer vollständig nach Seekarte und Leuchtfeuerverzeichnis:
+
+        – Kennung, Wiederkehr, Nenntragweite,
+
+        – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden.'
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 149
+  - number: 18
+    points: 1
+    text: Vom O_b um 19:00 BZ soll der Hafen von Büsum möglichst auf dem kürzesten Weg angesteuert werden.
+    questions:
+    - points: 1
+      text: Können Sie bei Niedrigwasser (NW) direkten Kurs absetzen? Begründen Sie Ihre Aussage.
+    derivation_images: []
+    solution_images:
+    - src: bogen-01/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 35
+- number: 2
+  tasks:
+  - number: 1
+    points: 2
+    text: Auf dem Weg nach Helgoland hat eine Yacht am Morgen des 12.04.2013 den Hafen von Büsum verlassen. Es herrscht
+      N-Wind der Stärke 4-5 Beaufort (Bft); im Laufe des Tages zunehmend. Am Nachmittag will man bei Hochwasser
+      Norderpiep „Blauort“ erreichen. Bordzeit (BZ) ist gesetzliche Zeit (GZ).
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Nachmittags-Hochwasserzeit (HWZ) für Norderpiep „Blauort“.
+    - points: 1
+      text: Bestimmen Sie den Tidenfall (TF) für Norderpiep „Blauort“ am Nachmittag.
+    derivation_images:
+    - src: bogen-02/aufgabe-01-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-02/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 257
+  - number: 2
+    points: 1
+    text: Vergleichen Sie die ermittelte HWH für Norderpiep „Blauort“ mit den Angaben von Büsum in den Gezeitentafeln
+      im Begleitheft.
+    questions:
+    - points: 1
+      text: Um wie viel unterscheidet sich die ermittelte Höhe von der Mittleren Springhochwasserhöhe (MSpHWH) in
+        den Tabellen der Gezeitentafeln im Begleitheft?
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 101
+  - number: 3
+    points: 1
+    text: In der Seekarte sind weite Gebiete um Büsum herum grün eingefärbt.
+    questions:
+    - points: 1
+      text: Was bedeuten die so gefärbten Flächen in der Seekarte?
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 4
+    points: 1
+    text: 'Um 12:25 BZ zeigt das GPS folgende Position an: φ = 54°09,4‘N, λ = 008°41,8‘E, die Position wird in der
+      Seekarte eingezeichnet.'
+    questions:
+    - points: 1
+      text: Können Sie die GPS-Position unmittelbar in die Seekarte übernehmen? Begründen Sie Ihre Aussage.
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 5
+    points: 1
+    text: Von der beobachteten Position um 12:25 BZ steuert man MgK = 308° mit FüG = 7,1 kn. Wegen des vorherrschenden
+      N-Windes hält man 5° vor ( |BW| = 5°), Strom wird nicht berücksichtigt (BS = 0).
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kurs über Grund (KüG).
+    derivation_images:
+    - src: bogen-02/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-02/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 6
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 13:30 BZ.
+    derivation_images:
+    - src: bogen-02/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 57
+    solution_images:
+    - src: bogen-02/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 7
+    points: 3
+    text: Um 13:30 BZ wird über den Steuerkompass die Tonne „NP 1“ in MgP = 230° und anschließend die Tonne „1/3“
+      in MgP = 339° gepeilt. Bei beiden Peilungen lag MgK = 294° an.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) um 13:30 BZ.
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images:
+    - src: bogen-02/aufgabe-07-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-02/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 97
+  - number: 8
+    points: 1
+    text: Um 14:30 BZ erreicht die Yacht den Wegpunkt 1 (WPT 1) auf φ = 54°13,4‘N, λ = 008°20,0‘E.
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 9
+    points: 1
+    text: Am WPT 1 sollen die Stromverhältnisse für 14:30 BZ anhand des nächst gelegenen Strommesspunktes eingeschätzt
+      werden.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-02/aufgabe-09-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-02/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 10
+    points: 2
+    text: In der nächsten Stunde soll der Koppelort WPT 2 auf φ = 54°10,0‘N, λ = 008°05,0‘E erreicht werden.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie in einer Stunde nach Gezeitenstromatlas?
+    derivation_images:
+    - src: bogen-02/aufgabe-10-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-02/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 11
+    points: 1
+    text: Vom WPT 2 wird um 15:30 BZ der Kurs auf die Tonne „Düne-S“ südlich von Helgoland abgesetzt.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 12
+    points: 3
+    text: 'Am WPT 2 ist die Tide bereits gekentert, es setzt ein Strom: StR = 312°, StG = 1,1 kn. Der mittlerweile
+      aus Nordwest kommende Wind hat an Stärke zugekommen; man rechnet deshalb jetzt mit |BW| = 7°. Man legt den
+      in Aufgabe 11 ermittelten KaK zugrunde und rechnet ab jetzt mit FdW = 7,6 kn.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 623
+  - number: 13
+    points: 3
+    text: Auf dem Weg zur Tonne „Düne-S“ wird um 15:39 BZ mit dem Radar in der relativen Darstellungsart „Head Up“
+      die Tonne „Steingrund-O“ in Radar-Seitenpeilung RaSP = 107° gepeilt. Bei der Messung liegt MgK = 270° an.
+      Nahezu zeitgleich peilt man über den Steuerkompass den Leuchtturm von Helgoland in MgP = 287°, anliegender
+      MgK = 275°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) um 15:39 BZ.
+    derivation_images:
+    - src: bogen-02/aufgabe-13-herleitung-1.png
+      width: 1040
+      height: 197
+    solution_images:
+    - src: bogen-02/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 121
+  - number: 14
+    points: 3
+    text: Um 16:20 BZ befindet man sich 2,3 sm genau südlich (rwP = 360°) von „Düne-S“. Tragen Sie den beobachteten
+      Ort in die Karte ein.
+    questions:
+    - points: 1
+      text: Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage).
+    - points: 2
+      text: Welche Bedeutung hat dieses Schifffahrtszeichen? Wie passiert man es?
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 275
+  - number: 15
+    points: 1
+    text: Um 16:20 BZ sollen die Stromverhältnisse für die aktuelle Position anhand des nächst gelegenen Strommesspunktes
+      eingeschätzt werden.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-02/aufgabe-15-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-02/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 91
+  - number: 16
+    points: 1
+    text: Die Yacht befindet sich in einem Gebiet, das mit einer unterbrochenen magentafarbenen Linie eingegrenzt
+      ist. An dieser Linie sind magentafarbene Punkte mit flammenähnlichem Symbol.
+    questions:
+    - points: 1
+      text: Erklären Sie die Bedeutung dieses Gebietes.
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 17
+    points: 2
+    text: Es wird nun Kurs auf Tonne „2“ abgesetzt. Bei achterlichem Strom rechnet man mit FüG = 8,3 kn.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Distanz.
+    - points: 1
+      text: Bestimmen Sie die für diese Distanz benötigte Zeit (in Stunden und Minuten).
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 18
+    points: 1
+    text: Helgoland soll von Süden kommend, ab Tonne „2“, im betonnten Fahrwasser angelaufen werden.
+    questions:
+    - points: 1
+      text: Geben Sie die Kennung und Richtfeuerlinie des Richtfeuers an.
+    derivation_images: []
+    solution_images:
+    - src: bogen-02/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 53
+- number: 3
+  tasks:
+  - number: 1
+    points: 2
+    text: Am 31.07.2013 will man mit einer Yacht von Helgoland nach Baltrum reisen. Man ermittelt überschlägig als
+      Distanz 40 sm und rechnet mit einer durchschnittlichen Geschwindigkeit von FüG = 5,3 kn. Man plant, mit dem
+      Morgenhochwasser Helgoland auszulaufen. Bordzeit (BZ) ist gesetzliche Zeit (GZ).
+    questions:
+    - points: 2
+      text: Bestimmen Sie die geschätzte Ankunftszeit im Hafen von Baltrum (Estimated Time of Arrival = ETA).
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 101
+  - number: 2
+    points: 3
+    text: Die Yacht verlässt den Hafen von Helgoland bereits um 05:00 BZ und steuert zwischen der Hauptinsel und
+      der östlich vorgelagerten, sogenannten „Düne“ in nördlicher Richtung durch das betonnte Fahrwasser. Man befindet
+      sich im Leitsektor „weiß“ des „Düne Oberfeuers“.
+    questions:
+    - points: 3
+      text: 'Beschreiben Sie dieses Leuchtfeuer und seine navigatorische Bedeutung vollständig nach Seekarte und
+        Leuchtfeuerverzeichnis:
+
+        – Kennung und Wiederkehr, Nenntragweite,
+
+        – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden,
+
+        – navigatorische Bedeutung.'
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 317
+  - number: 3
+    points: 1
+    text: Entlang des Leitsektors, in dem man Helgoland verlässt, befindet sich in der Seekarte eingezeichnet eine
+      unterbrochene grüne Linie mit kurzen senkrechten Strichen. Durch sie wird ein Gebiet eingegrenzt.
+    questions:
+    - points: 1
+      text: Erklären Sie die Bedeutung dieses Gebietes.
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 4
+    points: 1
+    text: Die Wasserfläche im Bereich des Leitsektors „weiß“ ist in der Seekarte hellblau gefärbt.
+    questions:
+    - points: 1
+      text: Was bedeuten die so gefärbten Flächen in der Seekarte?
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 5
+    points: 1
+    text: Um 06:01 BZ steht die Yacht bei der Tonne „Nathurn-N“.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-03/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-03/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 91
+  - number: 6
+    points: 2
+    text: Von der Tonne „Nathurn-N“ wird der Kartenkurs KaK = 235° abgesetzt. Man koppelt mit FüG = 5,7 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 07:00 BZ.
+    derivation_images:
+    - src: bogen-03/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-03/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 7
+    points: 2
+    text: Um 07:00 Uhr BZ peilt man mit dem Steuerkompass die Tonne „E 2“ in MgP = 150° (anl. MgK = 237°) und nahezu
+      zeitgleich ermittelt man mit dem Radar in der relativen Darstellungsart „Head-Up“ ein Echo in der Radar-Seitenpeilung
+      RaSP = 044°. Dieses Echo ist auf dem Radarbildschirm zusätzlich mit einem langen Strich gekennzeichnet (=
+      Morsebuchstabe Tango „T“). Bei dieser Peilung liegt MgK = 231° an.
+    questions:
+    - points: 1
+      text: Welches Echo hat man mit dem Radar gepeilt?
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 341
+  - number: 8
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 07:00 BZ.
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 9
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 10
+    points: 1
+    text: Am O_b werden um 07:00 BZ die Stromverhältnisse ermittelt.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-03/aufgabe-10-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-03/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 11
+    points: 1
+    text: 'In den nächsten zwei Stunden bis 09:00 BZ soll das Verkehrstrennungsgebiet (VTG) „Jade Approach“ gequert
+      werden. Dabei wird als nächstes der Wegpunkt 1 (WPT 1): φ = 54°05,0‘N, λ = 007°36,0‘E angesteuert, den man
+      gegen 08:00 BZ erreicht. Vom WPT 1 aus soll das VTG „Jade Approach“ den Kollisionsverhütungsregeln (KVR) entsprechend
+      gequert werden.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie den rechtweisenden Kurs (rwK).
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 12
+    points: 2
+    text: Gegen 08:00 beginnt der Strom zu kentern. Für das Queren des VTG von 08:00 BZ bis 09:00 BZ koppelt man
+      mit FüG = 5,7 kn.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie nach dem Queren um 09:00 BZ nach
+        Gezeitenstromatlas?
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 149
+  - number: 13
+    points: 1
+    text: 'Nach der Querung des VTG, bei der man offensichtlich deutlich in NW-liche Richtung versetzt wurde, steht
+      man auf folgender GPS-Position: φ = 54°04,8‘N, λ = 007°27,2‘E. Die Position wird als WPT 2 in die Karte eingetragen.
+      In der Seekarte ist an dieser Stelle magentafarben „DW“ mit Anker eingetragen.'
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 14
+    points: 2
+    text: Vom WPT 2 aus steuert die Yacht auf eine Tonne zu, die sich SSW-lich befindet und bei einer durchschnittlichen
+      FüG = 6,5 kn in weniger als einer Stunde erreicht wird.
+    questions:
+    - points: 1
+      text: Beschreiben Sie diese Tonne vollständig (Name, Kennung und Wiederkehr, Aussehen am Tage).
+    - points: 1
+      text: Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen?
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 269
+  - number: 15
+    points: 2
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK) vom WPT 2 zur Tonne nach Aufgabe 14.
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) vom WPT 2 zur Tonne nach Aufgabe 14.
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 59
+  - number: 16
+    points: 3
+    text: 'Für die Strecke zur Tonne nach Aufgabe 14 rechnet man mit einem mittleren Strom von: StR = 055° und StG
+      = 1,4 kn. Wegen des böigen NW-Windes hält man 3° vor (|BW| = 3°), als Geschwindigkeit wird FdW = 6,5 kn angenommen.
+      Man steuert den ermittelten KaK aus Aufgabe 15.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 625
+  - number: 17
+    points: 1
+    text: Auf ca. φ = 53°58,2‘N, λ = 007°38,8‘E befindet sich die Tonne „Jade-Weser“.
+    questions:
+    - points: 1
+      text: Welche navigatorische Bedeutung hat diese Tonne?
+    derivation_images: []
+    solution_images:
+    - src: bogen-03/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 18
+    points: 2
+    text: Auf dem Weg nach Baltrum erhält man die Meldung, dass keine Liegeplätze mehr vorhanden sind. Man entschließt
+      sich, den Hafen von Langeoog anzusteuern. Um die Einlaufsituation besser abschätzen zu können, sollen das
+      Nachmittagshochwasser für Langeoog am 31.07.2013 und der dazugehörige Tidenstieg ermittelt werden.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Nachmittagshochwasserzeit (HWZ).
+    - points: 1
+      text: Bestimmen Sie den Tidenstieg (TS).
+    derivation_images:
+    - src: bogen-03/aufgabe-18-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-03/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 257
+- number: 4
+  tasks:
+  - number: 1
+    points: 2
+    text: Auf dem Weg zum „Wurster Watt“ (ca. 53°43‘N 008°28‘E) verlässt man am 31.08.2013 mit einer Yacht um 07:50
+      Uhr Bordzeit bei leichtem Südwind den Yachthafen von Horumersiel (ca. 53°41‘N 008°01‘E) in Richtung des Fahrwassers
+      der Jade, das man zunächst befahren will. Bordzeit (BZ) ist gesetzliche Zeit (GZ). Man läuft wegen des gegenan
+      setzenden Stromes zunächst mit FüG = 2,5 kn. Dabei hält man sich deutlich außerhalb des Fahrwassers und lässt
+      die Steuerbordfahrwassertonnen an der Steuerbordseite.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie nach zwei Stunden um 09:50 BZ nach
+        Gezeitenstromatlas?
+    derivation_images:
+    - src: bogen-04/aufgabe-01-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-04/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 59
+  - number: 2
+    points: 1
+    text: Bei der Tonne „19“ quert man das Fahrwasser und erreicht um 10:05 BZ die Tonne „20“. Man läuft von dort
+      in NW-liche Richtung und will um 11:00 BZ am Wegpunkt 1 (WPT 1) auf φ = 53°50,2‘N, λ = 007°56,9‘E stehen.
+      Diese Position wird um 11:00 Uhr durch GPS-Ablesung bestätigt.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) von Tonne „20“ zum WPT 1.
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 3
+    points: 2
+    text: Man plant, weiter seewärts zu fahren, dann beim Mittagsniedrigwasser des in der Nähe befindlichen Anschlussortes
+      „Wangerooge West“ umzukehren und Kurs auf das „Wurster Watt“ zu nehmen.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Mittags-Niedrigwasserzeit (NWZ) für „Wangerooge West“.
+    - points: 1
+      text: Bestimmen Sie den Tidenstieg (TS) zum Abend-Hochwasser für „Wangerooge West“.
+    derivation_images:
+    - src: bogen-04/aufgabe-03-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-04/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 257
+  - number: 4
+    points: 3
+    text: 'Für die Zeit bis zum Niedrigwasser steuert man ab 11:00 BZ KaK = 300° und koppelt mit FdW = 4,0 kn. Man
+      geht von folgendem Strom aus: StR = 282° und StG = 1,1 kn. Bei unverändertem Südwind schätzt man den Windeinfluss
+      auf |BW| = 3°.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 549
+  - number: 5
+    points: 2
+    text: Die Bordinstrumente zeigen eine andere Fahrt über Grund an. Daher koppelt man vom WPT 1, dem beobachteten
+      Ort (O_b) um 11:00 BZ mit FüG = 4,5 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 12:15 BZ.
+    derivation_images:
+    - src: bogen-04/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 57
+    solution_images:
+    - src: bogen-04/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 6
+    points: 1
+    text: Um 12:15 BZ peilt man mit dem Radar (Head-Up-Darstellung) die Tonne „3/Jade 2“ des Fahrwassers „Neue Weser“
+      in Radar-Seitenpeilung (RaSP) = 332°. Bei der Peilung liegt MgK = 275° an. Nahezu zeitgleich peilt man den
+      Leuchtturm „Alte Weser“ über den Steuerkompass in der Magnetkompasspeilung MgP = 104°, anliegender MgK = 281°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    derivation_images:
+    - src: bogen-04/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 221
+    solution_images:
+    - src: bogen-04/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 7
+    points: 3
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 12:15 BZ.
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 8
+    points: 1
+    text: Es werden für den O_b um 12:15 BZ die Stromverhältnisse ermittelt.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-04/aufgabe-08-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-04/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 9
+    points: 1
+    text: Die Tonne „3/Jade 2“ ist deutlich auf dem Radarschirm zu erkennen.
+    questions:
+    - points: 1
+      text: Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage und
+        weitere Angaben in der Seekarte).
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 221
+  - number: 10
+    points: 2
+    text: Die Beschriftung der Tonne „3/Jade 2“ und ihre Farbgebung lassen auf ihre besondere Bedeutung in Bezug
+      auf die Fahrwasser schließen.
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen? Wie passiert man es?
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 269
+  - number: 11
+    points: 1
+    text: Auf dem Weg zum Fahrwasser „Alte Weser“ hält man zunächst auf die Ansteuerungstonne „ST“ zu. Man will
+      dort die Stromverhältnisse für 13:00 BZ ermitteln.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-04/aufgabe-11-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-04/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 12
+    points: 1
+    text: Man biegt vor Erreichen der Tonne „ST“ in das Fahrwasser „Alte Weser“ ein und erreicht um 12:55 BZ die
+      Tonne „A 1“. In der Seekarte ist an dieser Stelle ein magentafarbenes Symbol, bestehend aus einem Kreis mit
+      einem angesetzten Dreieck in Fahrtrichtung, eingetragen.
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 13
+    points: 1
+    text: Nördlich und NW-lich dieser Position geht die Farbe „hellblau“ in der Seekarte in „weiß“ über.
+    questions:
+    - points: 1
+      text: Was bedeuten die so gefärbten Flächen in der Seekarte?
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 14
+    points: 2
+    text: 'Dem Fahrwasser folgend befindet man sich um 13:47 BZ zwischen den Tonnen „A 7“ und „A 8“ auf der Sektorengrenze
+      des Feuers „Alte Weser“: zwischen Leitsektor weiß und angrenzendem grünen Warnsektor. Man richtet die Kielrichtung
+      auf dieser Sektorengrenze auf das Leuchtfeuer aus und nutzt die Gelegenheit zur Prüfung der Deviationstabelle.
+      Der Magnetkompass zeigt MgK = 117° an.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Ablenkung.
+    - points: 1
+      text: Vergleichen Sie den ermittelten Wert mit der Deviationstabelle, geben Sie den Unterschied an und erläutern
+        Sie, welche Konsequenzen daraus gezogen werden müssen.
+    derivation_images:
+    - src: bogen-04/aufgabe-14-herleitung-1.png
+      width: 1040
+      height: 197
+    solution_images:
+    - src: bogen-04/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 15
+    points: 1
+    text: Dem Fahrwasser Richtung Leuchtfeuer „Alte Weser“ folgend wird kurze Zeit später eine in der Seekarte eingezeichnete
+      magentafarbene Linie mit nach unten angesetzten Dreiecken überfahren.
+    questions:
+    - points: 1
+      text: Was besagt diese Linie?
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 16
+    points: 2
+    text: Um 15:20 BZ peilt man über den Steuerkompass den Leuchtturm „Tegeler Plate“ MgP = 155°. Bei der Peilung
+      liegt MgK = 100° an. Nahezu zeitgleich peilt man die Tonne „16a/A 16“ in der MgP = 221°, anliegender MgK =
+      104°.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 15:20 BZ.
+    derivation_images:
+    - src: bogen-04/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 251
+    solution_images:
+    - src: bogen-04/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 17
+    points: 2
+    text: 'Zur Ermittlung der restlichen Distanz ab 15:20 BZ gibt man in den Kartenplotter zwei weitere Wegpunkte
+      ein: WPT 2 φ = 53°49,4‘N, λ = 008°20,0‘E und WPT 3 φ = 53°46,6‘N, λ = 008°27,2‘E. Die Fahrt über Grund wird
+      gemittelt auf FüG = 4,8 kn. Sie wollen abschätzen, wann Sie an WPT 3 sein werden.'
+    questions:
+    - points: 2
+      text: Bestimmen Sie die geschätzte Ankunftszeit, die Estimated Time of Arrival (ETA) am WPT 3.
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 125
+  - number: 18
+    points: 2
+    text: Nahe WPT 3 wird im „Wurster Watt“ ein Ankerplatz gesucht, auf dem man sich im weißen Sektor des Leuchtfeuers
+      „Alte Weser“ befindet.
+    questions:
+    - points: 2
+      text: Geben Sie die Kennung und die Richtungsangaben dieses Sektors exakt an.
+    derivation_images: []
+    solution_images:
+    - src: bogen-04/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 59
+- number: 5
+  tasks:
+  - number: 1
+    points: 1
+    text: Eine Yacht will am Abend des 20.05.2013 von Helgoland nach Wangerooge auslaufen. Bordzeit (BZ) ist gesetzliche
+      Zeit (GZ). Um die Gesamtstrecke zu überschlagen, wählt man als Startpunkt die „ODAS“-Tonne südwestlich von
+      Helgoland. Von dort aus wird eine Position 1,0 sm östlich der Tonne „SZ-N“ am Verkehrstrennungsgebiet (VTG)
+      „Jade Approach“ als erster Wegpunkt (WPT 1) angesteuert. Als WPT 2 wird die „Harle“ Ansteuerungstonne vor
+      Wangerooge festgelegt. Von dort aus rechnet man noch mit 4,0 sm bis zum Hafen.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) bis Wangerooge Hafen.
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 2
+    points: 1
+    text: Die „ODAS“-Tonne soll um 21:45 BZ passiert werden. Man rechnet ab dieser Tonne über WPT 1 und WPT 2 bis
+      zum Hafen mit einer durchschnittlichen Fahrt über Grund von 5 kn (FüG = 5 kn).
+    questions:
+    - points: 1
+      text: Bestimmen Sie die für diese Gesamtdistanz benötigte Zeit (Angabe in Stunden und Minuten).
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 3
+    points: 2
+    text: Um nicht genau bei Niedrigwasser anzukommen, wird ermittelt, wann an „Wangerooge West“ in der Nacht vom
+      20. auf den 21.05.2013 Niedrigwasser eintritt, ebenso der entsprechende Tidenfall.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Niedrigwasserzeit (NWZ) in der Nacht vom 20. auf den 21.05.2013.
+    - points: 1
+      text: Bestimmen Sie den Tidenfall (TF).
+    derivation_images:
+    - src: bogen-05/aufgabe-03-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-05/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 257
+  - number: 4
+    points: 2
+    text: '„ODAS“-Tonne SW-lich Helgoland:'
+    questions:
+    - points: 1
+      text: Welche Bedeutung hat diese Tonne und wie passiert man sie?
+    - points: 1
+      text: Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage).
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 173
+  - number: 5
+    points: 1
+    text: Die „ODAS“-Tonne und auch die gesamte Insel Helgoland befinden sich in einem Gebiet, welches mit einer
+      durchgezogenen magentafarbenen Linie eingekreist ist.
+    questions:
+    - points: 1
+      text: Erklären Sie die Bedeutung dieses Gebietes.
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 6
+    points: 2
+    text: Man verlässt Helgoland am 20.05.2013 um 21:30 BZ und passiert um 21:48 BZ die „ODAS“-Tonne SW-lich von
+      Helgoland.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie beim Passieren der „ODAS“- Tonne
+        um 21:48 BZ nach Gezeitenstromatlas (der Strom ist ggf. zu mitteln)?
+    derivation_images:
+    - src: bogen-05/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-05/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 7
+    points: 1
+    text: Sie wollen die Angaben nach Aufgabe 6 mit den Stromangaben in der Seekarte vergleichen.
+    questions:
+    - points: 1
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie beim Passieren der „ODAS“- Tonne
+        gegen 21:48 BZ nach Seekarte (der Strom ist ggf. zu mitteln)?
+    derivation_images:
+    - src: bogen-05/aufgabe-07-herleitung-1.png
+      width: 1040
+      height: 173
+    solution_images:
+    - src: bogen-05/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 8
+    points: 2
+    text: Von der „ODAS“-Tonne wird Kurs auf den WPT 1 (1,0 sm östlich Tonne „SZ-N“) abgesetzt. Man berücksichtigt
+      weder Strom noch Wind, BWS = 0.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 193
+  - number: 9
+    points: 1
+    text: Beim Befahren dieses Kurses zum WPT 1 sehen Sie in der Seekarte auf Ihrem Weg magentafarben gestrichelte
+      Pfeile in Richtung ca. 120° bzw. 300°.
+    questions:
+    - points: 1
+      text: Welche Bedeutung haben diese gestrichelten Pfeile in diesem Seegebiet?
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 10
+    points: 3
+    text: 'Der starke Wind führt zu einer Versetzung nach Osten, so dass man sich um 22:15 BZ auf der GPS-Position:
+      φ = 54°04,2‘N, λ = 007°51,2‘E befindet. In der Folgezeit soll MgK = 180° gesteuert werden. Der Strom setzt
+      mit StR = 300° und StG = 1,0 kn. Der SW-liche Wind frischt weiter auf, deshalb rechnet man mit |BW| = 4°,
+      FdW = 4,2 kn.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 2
+      text: Bestimmen Sie den Kurs über Grund (KüG) und die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 611
+  - number: 11
+    points: 2
+    text: Durch Koppeln soll die Position für 23:30 BZ ermittelt werden, man rechnet ab jetzt mit FüG = 3,5 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k).
+    derivation_images:
+    - src: bogen-05/aufgabe-11-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-05/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 12
+    points: 3
+    text: 'Um 23:30 BZ erkennt man auf dem Radar (Head-Up-Darstellung) das Echo der Tonne „TG 19/Weser 2“ und peilt
+      sie in Radar-Seitenpeilung: RaSP = 017°. Der Abstand beträgt 4,6 sm, anliegender MgK = 180°.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisende Peilung (rwP) aus der Radar-Seitenpeilung (RaSP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b).
+    derivation_images:
+    - src: bogen-05/aufgabe-12-herleitung-1.png
+      width: 1040
+      height: 221
+    solution_images:
+    - src: bogen-05/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 72
+  - number: 13
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 14
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat die Tonne „TG 19/Weser 2“?
+    derivation_images: []
+    solution_images:
+    - src: bogen-05/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 101
+  - number: 15
+    points: 1
+    text: Zur weiteren Abschätzung schaut man sich für 23:30 BZ die Stromverhältnisse am nächst gelegenen Strommesspunkt
+      an.
+    questions:
+    - points: 1
+      text: Wie setzt jetzt und hier der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation_images:
+    - src: bogen-05/aufgabe-15-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-05/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 91
+  - number: 16
+    points: 2
+    text: Vom beobachteten Ort um 23:30 BZ setzt man den Kurs direkt auf die Tonne „Jade 6“ ab. Um 00:28 BZ peilt
+      man über den Steuerkompass die Tonne „TG 19/Weser 2“ in der MgP = 273° und ein Leuchtfeuer, Blitz rot alle
+      5 s in der MgP = 162°. Beide Male lag MgK = 171° an.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den O_b für 00:28 BZ.
+    derivation_images:
+    - src: bogen-05/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-05/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 17
+    points: 2
+    text: Bis zum Eintritt in den roten Warnsektor des Leuchtfeuers Wangerooge wird der Kartenkurs aus Aufgabe 16
+      beibehalten; man rechnet mit FüG = 4,5 kn. Um 01:18 BZ tritt man beim Passieren der Backbordfahrwassertonne
+      „Jade 6“ in den roten Warnsektor ein. Auf der roten Sektorengrenze nutzt man die Gelegenheit zur Kontrolle
+      der Deviationstabelle und dreht dazu den Bug direkt auf das rote Leuchtfeuer zu. Der Magnetkompass zeigt MgK
+      = 157°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Ablenkung.
+    - points: 1
+      text: Wie groß ist der Unterschied zur Deviationstabelle und was ist zu unternehmen?
+    derivation_images:
+    - src: bogen-05/aufgabe-17-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-05/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 18
+    points: 1
+    text: Nach der Kompasskontrolle bei der Tonne „Jade 6“ soll auf direktem Kurs die Tonne „Harle“ angesteuert
+      werden und danach noch die 4,0 sm bis zur Hafeneinfahrt zurückgelegt werden, wobei man mit FüG = 5,0 kn ab
+      01:18 BZ rechnet.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Ankunftszeit (ETA) im Hafen von Wangerooge.
+    derivation_images:
+    - src: bogen-05/aufgabe-18-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-05/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 49
+- number: 6
+  tasks:
+  - number: 1
+    points: 2
+    text: Am 08.07.2013 will man mit einer Yacht von Spiekeroog nach Helgoland fahren. Um nicht durch die verkehrsreiche
+      Wesermündung navigieren zu müssen, wählt man von der Ansteuerungstonne „Otzumer Balje“ (WPT 1) einen Weg westlich
+      des Verkehrstrennungsgebietes (VTG) „Jade Approach“ über die Tonne „GW/Jade“ (WPT 2) und die Tonne „E 1“ (WPT
+      3) zur Nordeinfahrt von Helgoland zur Tonne „Nathurn-N“ (WPT 4). Man will überschlägig die Reisedauer ermitteln
+      und setzt dazu direkte Kurse auf die Wegpunkte ab. Verkehrsrechtliche Besonderheiten werden hierbei zunächst
+      nicht berücksichtigt. Dabei rechnet man mit einer Fahrt über Grund (FüG) = 7 kn.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Gesamtdistanz von Spiekeroog nach Helgoland Nordeinfahrt (Tonne „Nathurn-N“, WPT 4),
+        wobei die Distanz vom Yachthafen Spiekeroog bis zur Tonne „Otzumer Balje“ mit 5,5 sm der Seekarte entnommen
+        wird. Die Kurse sind in die Seekarte einzutragen.
+    - points: 1
+      text: Bestimmen Sie die voraussichtliche Reisedauer in Stunden und Minuten.
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 185
+  - number: 2
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Kartenkurs (KaK) und den Magnetkompasskurs (MgK) von der Tonne „Otzumer Balje“ bis
+        zur südlichen Begrenzung des VTG „Terschelling – German Bight“, als Teilstück des zuvor eingezeichneten
+        Kurses von der Tonne „Otzumer Balje“ direkt zum WPT 2. Wegen des böigen Westwindes rechnet man mit |BW|
+        = 5°, Strom wird zunächst nicht berücksichtigt.
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 227
+  - number: 3
+    points: 1
+    text: Man plant die Abfahrt in Spiekeroog so, dass man noch vor dem Mittagshochwasser an der Tonne „Otzumer
+      Balje“ steht. Bordzeit (BZ) ist gesetzliche Zeit (GZ).
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Hochwasserzeit (HWZ) und Hochwasserhöhe (HWH) am 08.07.2013 mittags an der Tonne „Otzumer
+        Balje“.
+    derivation_images:
+    - src: bogen-06/aufgabe-03-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-06/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 131
+  - number: 4
+    points: 2
+    text: Um 11:00 BZ verlässt man den Yachthafen von Spiekeroog. Auf dem Weg von Spiekeroog zur Tonne „Otzumer
+      Balje“ wird in der Seekarte eine breite grüne Linie überfahren, an der parallel eine feingestrichelte magentafarbene
+      Linie verläuft.
+    questions:
+    - points: 1
+      text: Was besagt diese Linie?
+    - points: 1
+      text: Erklären Sie die Bedeutung dieses Gebietes.
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 5
+    points: 1
+    text: Beim Passieren der Tonne „Otzumer Balje“ gegen 12:00 BZ möchte man die Stromverhältnisse feststellen.
+      Ein Blick in die Seekarte zeigt, dass dieses bequem mittels Seekarte geschehen kann.
+    questions:
+    - points: 1
+      text: Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie für 12:00 BZ der Seekarte?
+    derivation_images:
+    - src: bogen-06/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-06/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 65
+  - number: 6
+    points: 2
+    text: Die Stromverhältnisse zwei Stunden später für 14:00 BZ werden anhand des Gezeitentromatlasses ermittelt.
+      Um 14:00 BZ will man überschlagsmäßig auf φ = 54°03‘N, λ = 007°32‘E stehen.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie um 14:00 BZ nach Gezeitenstromatlas
+        (der Strom ist ggf. zu mitteln)?
+    derivation_images:
+    - src: bogen-06/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-06/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 7
+    points: 1
+    text: Man startet um 12:00 BZ von der Tonne „Otzumer Balje“ mit dem unter Aufgabe 2 berechneten MgK.
+    questions:
+    - points: 1
+      text: Kann man mit diesem Kurs das vor Ihnen liegende VTG „Terschelling – German Bight“ queren? Begründen
+        Sie Ihre Antwort. Was ist ggf. zu veranlassen?
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 8
+    points: 1
+    text: Auf dem Weg zum WPT 2 passiert man die Tonne „TG 18/Jade“.
+    questions:
+    - points: 1
+      text: Beschreiben Sie das Schifffahrtszeichen „TG 18/Jade“ vollständig (Kennung und Wiederkehr, Aussehen am
+        Tage).
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 9
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat die Tonne „TG 18/Jade“?
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 145
+  - number: 10
+    points: 2
+    text: 'Man bestimmt den Koppelort für 12:50 BZ ausgehend von dem Startkurs nach Aufgabe 2 zum WPT 2. Die angenommene
+      Fahrt über Grund beträgt: FüG = 6,5 kn.'
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 12:50 BZ.
+    derivation_images:
+    - src: bogen-06/aufgabe-10-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-06/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 11
+    points: 3
+    text: Man peilt um 12:50 BZ über den Steuerkompass die Tonne „TG 17/Weser 1“ in der Magnektkompasspeilung (MgP)
+      = 274°, anliegender MgK = 341°, während nahezu zeitgleich am Radar in Head-Up-Darstellung die Tonne „Jade-Weser“
+      in Radarseitenpeilung (RaSP) = 037° ausgemacht wird, anliegender MgK = 345°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b).
+    derivation_images:
+    - src: bogen-06/aufgabe-11-herleitung-1.png
+      width: 1040
+      height: 249
+    solution_images:
+    - src: bogen-06/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 97
+  - number: 12
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 13
+    points: 3
+    text: 'Man quert das VTG „Terschelling – German Bight“ wie vorgeschrieben. Man steht um 15:10 BZ nach GPS auf:
+      φ = 54°06,4‘N, λ = 007°24,5‘E. Man setzt den KaK = 031° auf die Tonne „GW/Jade“ ab. Man rechnet jetzt wegen
+      des abnehmenden W-lichen Windes nur noch mit einer BW von |2°|. Der Strom setzt jetzt in 320° mit 1,3 kn.
+      Die Logge zeigt FdW = 6,8 kn.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 624
+  - number: 14
+    points: 1
+    text: 'Der Kurs vom WPT 3 zum WPT 4 in der Nordeinfahrt nach Helgoland führt knapp 2 sm ENE-lich der „Tonne
+      E 1“ über folgende Karteneintragung: nach oben offenes Rechteck mit der Zahl 34₄, umrahmt von einem gepunkteten
+      Kreis sowie daneben „2 Wks“'
+    questions:
+    - points: 1
+      text: Welche Bedeutung hat diese Karteneintragung?
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 53
+  - number: 15
+    points: 2
+    text: Ca. 2,5 sm weiter auf dem Kurs zur Tonne „Nathurn-N“ überfährt man eine magentafarbene Linie in Nord-Süd
+      Richtung, an deren oberem und unterem Ende magentafarben die Zahl „3“ steht.
+    questions:
+    - points: 2
+      text: Was bedeutet diese Linie und was ist von Ihnen zu unternehmen?
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 16
+    points: 1
+    text: Um weiterhin möglichst geschickt zu manövrieren, werden die vor der Nordeinfahrt von Helgoland für 18:00
+      BZ vorherrschenden Stromverhältnisse am dortigen Messpunkt ermittelt.
+    questions:
+    - points: 1
+      text: Wie setzt in der Nähe der Tonne „Nathurn-N“ um 18:00 BZ der Strom in Richtung (StR) und Stärke (StG)
+        nach Seekarte?
+    derivation_images:
+    - src: bogen-06/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-06/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 65
+  - number: 17
+    points: 2
+    text: Der Leuchtturm von Helgoland kommt in Sicht.
+    questions:
+    - points: 2
+      text: 'Beschreiben Sie das Leuchtfeuer vollständig nach Seekarte und Leuchtfeuerverzeichnis:
+
+        – Kennung, Wiederkehr, Nenntragweite,
+
+        – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden.'
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 149
+  - number: 18
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Welche navigatorische Hilfe entnehmen Sie der Seekarte bzw. dem Leuchtfeuerverzeichnis für die Einfahrt
+        nach Helgoland bei Dunkelheit aus nördlicher Richtung?
+    derivation_images: []
+    solution_images:
+    - src: bogen-06/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 77
+- number: 7
+  tasks:
+  - number: 1
+    points: 1
+    text: Eine Yacht verlässt am 10. Juni 2013 am späten Vormittag den Hafen von Büsum mit dem Ziel Wangerooge.
+      Tiefgang 1,8 m. Wind SE Bft 3. Bordzeit = MESZ.
+    questions:
+    - points: 1
+      text: Stellen Sie fest, mit welcher/n Missweisung/en im Verlaufe der gesamten Reise gerechnet werden muss.
+    derivation_images:
+    - src: bogen-07/aufgabe-01-herleitung-1.png
+      width: 1040
+      height: 221
+    solution_images:
+    - src: bogen-07/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 2
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: In welcher Seekarte beginnen Sie die Reise in Büsum?
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 3
+    points: 1
+    text: Man fährt im Fahrwasser seewärts und steht um 12:00 Uhr Bordzeit auf φ = 54° 06,0’ N λ = 008° 30,0’ E.
+      Von hier aus wird der Kurs auf die Tonne „Süderpiep“ (WPT 1) abgesetzt und der Karte mit KaK = 266° entnommen.
+      FdW = 5,0 kn. Wegen des SE-Windes hält man 3° vor, |BW| = 3°. Strom wird nicht berücksichtigt ( |BS| = 0°).
+    questions:
+    - points: 1
+      text: Bestimmen Sie den MgK.
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 221
+  - number: 4
+    points: 2
+    text: Nach etwa 1,5 sm passieren Sie gleichzeitig an Steuerbord und an Backbord eine rote und eine grüne Tonne.
+    questions:
+    - points: 1
+      text: Beschreiben Sie die navigatorische Bedeutung dieser Seezeichen.
+    - points: 1
+      text: Nach welchem Betonnungssystem sind sie ausgelegt?
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 169
+  - number: 5
+    points: 3
+    text: 'Um 12:40 Uhr passieren Sie die Tonne „Süderpiep“ eben an Backbord. Von der Tonne werden Kurse wie folgt
+      abgesetzt:
+
+      – Position 1 sm W-lich Tonne „Außenelbe-Reede 1“ (WPT 2)
+
+      – Tonne „ST“ in der Mündung „Alte Weser“ (WPT 3)
+
+      – Ansteuerungstonne „Harle“ vor Wangerooge (WPT 4)'
+    questions:
+    - points: 3
+      text: Bestimmen Sie die entsprechenden Kartenkurse (KaK) und Distanzen (d).
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 121
+  - number: 6
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Wann wird man die Tonne „Harle“ (WPT 4) bei FüG = 5,0 kn erreichen?
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 7
+    points: 1
+    text: Durch die Position der Tonne „Süderpiep“ verläuft in NNE-licher bzw. SSW-licher Richtung eine magentafarbene
+      Linie mit angesetzten Dreiecken in E-licher Richtung und einem Kreis am unteren Ende.
+    questions:
+    - points: 1
+      text: Welche Bedeutung haben diese Linie und der Kreis?
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 8
+    points: 2
+    text: Man möchte an der Tonne „Süderpiep“ die Stromverhältnisse abschätzen.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie um 12:40 BZ im Bereich der Tonne
+        „Süderpiep“ nach Gezeitenstromatlas?
+    derivation_images:
+    - src: bogen-07/aufgabe-08-herleitung-1.png
+      width: 1040
+      height: 125
+    solution_images:
+    - src: bogen-07/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 9
+    points: 2
+    text: Nach dem Passieren der Tonne „Süderpiep“ um 12:40 BZ ändert man Kurs auf den WPT 2. Es wird etwas diesig,
+      das GPS Gerät ist ausgefallen. Man koppelt in der Seekarte mit FüG = 4,5 kn. Strom und Wind werden nicht berücksichtigt.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 13:49 BZ
+    derivation_images:
+    - src: bogen-07/aufgabe-09-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-07/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 10
+    points: 3
+    text: 'Um 13:49 BZ kommt an Backbord ein rot-weißer TURM (ehemaliger Leuchtturm Großer Vogelsand φ = 53° 59,8’
+      N λ = 008° 28,7’ E) in Sicht, den man wie folgt über den Steuerkompass peilt: MgP = 124°, anl. MgK = 250°.
+      Nahezu zeitgleich peilt man mit dem Radargerät in der relativen Darstellungsart „Head-Up“ das Raconsignal
+      (T) der Elbe Ansteuerungstonne in der Radarseitenpeilung (RaSP) = 350°, anl. MgK = 253°.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen.
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 13:49 BZ.
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 281
+  - number: 11
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 12
+    points: 3
+    text: Man steuert etwas auf und erreicht um 15:28 BZ den WPT 2. Man ändert jetzt Kurs auf die Tonne „ST“ (WPT
+      3, siehe Aufg. 5). Wegen des zunehmenden SE-Windes hält man jetzt 5° vor, |BW| = 5°. Außerdem berücksichtigt
+      man einen Strom StR = 270° und StG = 1 kn. Die Logge zeigt FdW = 5,6 kn.
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 kn entspricht 1 cm) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 637
+  - number: 13
+    points: 1
+    text: Gegen 16:48 BZ erreicht man die Tonne „ST“.
+    questions:
+    - points: 1
+      text: Stellen Sie mit den in der Seekarte verfügbaren Möglichkeiten fest, welcher Gezeitenstrom beim Passieren
+        der Tonne „ST“ zu erwarten ist.
+    derivation_images:
+    - src: bogen-07/aufgabe-13-herleitung-1.png
+      width: 1040
+      height: 125
+    solution_images:
+    - src: bogen-07/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 14
+    points: 3
+    text: Von der Tonne „ST“ wird der Kurs auf die Ansteuerungstonne „Harle“ geändert. Auf dem Weg quert man das
+      Fahrwasser „Neue Weser“ zwischen den Tonnen „3/Jade 2“ und Tonne „3a“.
+    questions:
+    - points: 3
+      text: 'Beschreiben Sie das Seezeichen „3/Jade 2“ vollständig:
+
+        – Aussehen am Tage und Höhe,
+
+        – Kennung, Nenntragweite und Identifizierungshilfe bei unsichtigem Wetter,
+
+        – navigatorische Bedeutung bzw. was kennzeichnet das Seezeichen?'
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 365
+  - number: 15
+    points: 1
+    text: Auf dem Weg zur Ansteuerungstonne „Harle“ überfährt man ca. 1,5 sm nach dem Passieren von WPT 3 eine blaue
+      Linie und erreicht danach ein hellblau gefärbtes Gebiet.
+    questions:
+    - points: 1
+      text: Erläutern Sie die blaue Linie und das hellblau gefärbte Gebiet in der Seekarte.
+    derivation_images: []
+    solution_images:
+    - src: bogen-07/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 16
+    points: 2
+    text: Man steuert MgK = 200°. Um 17:30 BZ peilt man über den Steuerkompass den Alte Weser Leuchtturm in der
+      MgP = 094° und den Leuchtturm von Wangerooge in der MgP = 174°. Bei beiden Peilungen lag der Sollkurs an.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort O_b für 17:30 BZ.
+    derivation_images:
+    - src: bogen-07/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 197
+    solution_images:
+    - src: bogen-07/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 44
+  - number: 17
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Ermitteln Sie den Strom nach Richtung (StR) und Stärke (StG) auf dem weiteren Weg gegen 18:00 BZ nach
+        Seekarte?
+    derivation_images:
+    - src: bogen-07/aufgabe-17-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-07/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 91
+  - number: 18
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Wann und in welcher Höhe tritt am 10. Juni 2013 nach Bordzeit in Wangerooge (West) das Abendniedrigwasser
+        ein?
+    derivation_images:
+    - src: bogen-07/aufgabe-18-herleitung-1.png
+      width: 1040
+      height: 53
+    solution_images:
+    - src: bogen-07/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 89
+- number: 8
+  tasks:
+  - number: 1
+    points: 3
+    text: Eine Yacht passiert am 11. April 2013 auf dem Weg nach Cuxhaven um 23:45 Uhr mit Kurs MgK = 114° das Seezeichen
+      „GB“ am östlichen Ende des Verkehrstrennungsgebietes (VTG) „German Bight Western Approach“ (ca. 15 sm westlich
+      von Helgoland) nahe an Bb., Tiefgang 2,1 m, Wind W-lich Bft 4, Bordzeit = MESZ.
+    questions:
+    - points: 3
+      text: 'Beschreiben Sie ausführlich das Seezeichen „GB“ nach Seekarte und Leuchtfeuerverzeichnis:
+
+        – bei Tage,
+
+        – bei Nacht,
+
+        – weitere Angaben.'
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 403
+  - number: 2
+    points: 2
+    text: Man möchte am Seezeichen „GB“ die Stromverhältnisse nach Gezeitenstromatlas abschätzen.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie um 23:45 BZ im Bereich des Seezeichens
+        „GB“ nach Gezeitenstromatlas?
+    derivation_images:
+    - src: bogen-08/aufgabe-02-herleitung-1.png
+      width: 1040
+      height: 173
+    solution_images:
+    - src: bogen-08/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 41
+  - number: 3
+    points: 3
+    text: Beim Passieren des Seezeichens „GB“ steuert man MgK = 114°. Man berücksichtigt den W-lichen Wind mit 4°
+      ( |BW| = 4°). Außerdem berücksichtigt man die nächsten 2 Stunden einen Strom im Mittel Stromrichtung StR =
+      090°, Stromgeschwindigkeit StG = 0,8 kn. Die Logge zeigt FdW = 7,5 kn.
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 kn entspricht 1 cm) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Kurs über Grund (KüG).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 526
+  - number: 4
+    points: 2
+    text: Man koppelt in der Seekarte, unabhängig vom Ergebnis der Aufg. 3, am 11.04.13 ab 23:45 BZ für die nächsten
+      2 Stunden mit KaK = 120° und FüG = 8,0 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 01:45 BZ am 12.04.13.
+    derivation_images:
+    - src: bogen-08/aufgabe-04-herleitung-1.png
+      width: 1040
+      height: 53
+    solution_images:
+    - src: bogen-08/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 44
+  - number: 5
+    points: 1
+    text: Der Kurs verläuft im Bereich von magentafarbenen gestrichelten Pfeilen in Richtung Elbmündung.
+    questions:
+    - points: 1
+      text: Welche Bedeutung haben diese magentafarbenen, gestrichelten Pfeile an dieser Stelle?
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 6
+    points: 3
+    text: Man peilt um 01:45 BZ über den Steuerkompass an Bb. achteraus ein Leuchtfeuer „Blitz weiß alle 5 s“ in
+      der MgP = 000° (anl. MgK = 112°) und nahezu gleichzeitig an Bb. voraus ein weißes Gleichtaktfeuer alle 4 s
+      in der MgP = 060° (anl. MgK = 116°).
+    questions:
+    - points: 1
+      text: Bestimmen Sie die gepeilten Feuer und die rechtweisenden Peilungen (rwP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 01:45 BZ.
+    derivation_images:
+    - src: bogen-08/aufgabe-06-herleitung-1.png
+      width: 1040
+      height: 53
+    solution_images:
+    - src: bogen-08/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 185
+  - number: 7
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 8
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Auf welche Entfernung verschwindet das in Aufg. 6 gepeilte Feuer „Blitz weiß alle 5 s“ in der Kimm?
+        Die Augeshöhe beträgt 2,5 m.
+    derivation_images:
+    - src: bogen-08/aufgabe-08-herleitung-1.png
+      width: 1040
+      height: 173
+    solution_images:
+    - src: bogen-08/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 9
+    points: 1
+    text: Man setzt vom O_b um 01:45 BZ den Kurs auf die Tonne „Westertill-N“ in der Elbmündung ab.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 10
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Wann wird man die Tonne „Westertill-N“ bei FüG = 7,0 kn erreichen?
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 11
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Welche navigatorische Bedeutung hat die Tonne „Westertill-N“ in Verbindung mit der magentafarben gestrichelten
+        Linie durch die Position der Tonne „Westertill-N“ in Richtung der Tonne „Scharhörnriff-W“?
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 12
+    points: 1
+    text: Man möchte an der Tonne „Westertill-N“ die Stromverhältnisse für 03:00 BZ aus der Seekarte abschätzen.
+    questions:
+    - points: 1
+      text: Wie setzt der Strom in Richtung (StR) und Stärke (StG) um 03:00 BZ im Bereich der Tonne „Westertill-N“
+        nach Seekarte?
+    derivation_images:
+    - src: bogen-08/aufgabe-12-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-08/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 13
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Welche Tendenz des Stromes lässt sich anhand der Seekarte nahe der Tonne „Westertill-N“ für die weitere
+        Fahrt elbaufwärts unter Berücksichtigung der Zeit von 02:00 bis 04:00 BZ erkennen?
+    derivation_images:
+    - src: bogen-08/aufgabe-13-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-08/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 14
+    points: 3
+    text: Da es etwas diesig wird und die Tonne „Westertill-N“ optisch nicht zu sehen ist, peilt man um 03:00 BZ
+      mit dem Radargerät in der relativen Darstellungsart „Head Up“ das Raconsignal (T) der Elbe Ansteuerungstonne
+      in der Radarseitenpeilung (RaSP) = 330°, anl. MgK = 110°. Der Abstand beträgt 3,8 sm.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisende Peilung aus der Radarseitenpeilung (RaSP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 03:00 BZ.
+    derivation_images:
+    - src: bogen-08/aufgabe-14-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-08/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 97
+  - number: 15
+    points: 1
+    text: Gegen 03:20 Uhr erreicht man die Tonne „Westertill-N“ und ändert Kurs nach Bb. in das VTG „Elbe Approach“.
+      Beim Passieren der Tonne „1“ nahe an Stb. überfährt man eine magentafarbene Linie zwischen den Tonnen „1“
+      und „2/Außenelbe-Reede 3“.
+    questions:
+    - points: 1
+      text: Welche Bedeutung hat diese magentafarbene Linie und welche Verkehrsgebiete werden durch diese Linie
+        voneinander getrennt?
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 16
+    points: 1
+    text: Man hält sich beim Befahren der Elbe am südlichen Tonnenstrich und rechnet jetzt mit FüG = 5,5 kn. Gegen
+      05:20 Uhr erreicht man die Tonne „11“. Man will erneut die Stromsituation für die nächsten 2 Stunden feststellen.
+    questions:
+    - points: 1
+      text: Welche Stromsituation („mit“, „gegen“) und welche ungefähre Geschwindigkeit entnehmen Sie der Seekarte
+        für die nächsten 2 Stunden?
+    derivation_images:
+    - src: bogen-08/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 221
+    solution_images:
+    - src: bogen-08/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 17
+    points: 2
+    text: 'Kurz nach Passieren des Seezeichens „Bk.F“ dreht man mit der Yacht nach Stb. in Richtung Cuxhaven. Man
+      befährt kurzzeitig, als kein Schiffsverkehr zu sehen ist, eine durchgezogene schwarze Linie mit folgenden
+      Angaben: magentafarben „Ra“ und schwarz „2 Iso. 4s 151,2°“.'
+    questions:
+    - points: 1
+      text: Was bedeutet die magentafarbene Karteneintragung „Ra“ in Verbindung mit der durchgezogenen schwarzen
+        Linie und der dort angegebenen Gradzahl?
+    - points: 1
+      text: Was bedeutet die Karteneintragung „2 Iso. 4s 151,2°“ (ausführliche Erläuterung erforderlich)?
+    derivation_images: []
+    solution_images:
+    - src: bogen-08/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 101
+  - number: 18
+    points: 2
+    text: Als man sich mit der Kielrichtung der Yacht auf der schwarzen Linie nach Aufgabe 17 befindet, liegt MgK
+      = 154° an.
+    questions:
+    - points: 2
+      text: Bestimmen Sie die Ablenkung (Abl) Ihres Magnetkompasses, vergleichen Sie den Wert mit der Ablenkungstabelle
+        und geben Sie an, was ggf. zu veranlassen ist.
+    derivation_images:
+    - src: bogen-08/aufgabe-18-herleitung-1.png
+      width: 1040
+      height: 53
+    solution_images:
+    - src: bogen-08/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 227
+- number: 9
+  tasks:
+  - number: 1
+    points: 2
+    text: 'Auf dem Weg vom „Wurster Watt“ nach „Neuwerk“ befindet sich eine Yacht am 08.06.2013 um 10:30 BZ (= gesetzliche
+      Zeit) im Fahrwasser „Neue Weser“ bei Tonne „28“. Die Fahrt durchs Wasser (FdW) beträgt 6 kn. Wind: W-lich
+      3/4 Bft. Man hat für diese Reise am Tage zuvor eine neue Seekarte 49 (INT 1463) gekauft.'
+    questions:
+    - points: 1
+      text: Woran erkennen Sie, ob Ihre Seekarte aktuell ist bzw. wie lange sie berichtigt ist?
+    - points: 1
+      text: Was ist von Ihnen dennoch zu beachten?
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 139
+  - number: 2
+    points: 2
+    text: Beim Passieren der Tonne „28“ am rechten Fahrwasserrand sehen Sie an Stb.-Seite voraus den Leuchtturm
+      „Tegeler Plate“.
+    questions:
+    - points: 2
+      text: 'Beschreiben Sie den Leuchtturm/das Leuchtfeuer vollständig nach Seekarte und Leuchtfeuerverzeichnis:
+
+        – bei Tage (Aussehen, Höhe des Feuerträgers über dem Erdboden, Sichtweite),
+
+        – bei Nacht (Kennung und Wiederkehr, Nenntragweite, Höhe des Feuers über dem Wasser).'
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 331
+  - number: 3
+    points: 1
+    text: Von Tonne „28“ wird am rechten Fahrwasserrand seewärts gesteuert bis zur Tonne „16/A 15“ und von dort
+      der Kurs auf den ersten Wegpunkt (WPT 1) genau 1,0 sm westlich vom alten Leuchtturm „Roter Sand“ abgesetzt,
+      von dem aus der Leuchtturm rwP = 090° peilt.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) von Tonne „28“ bis zum WPT 1.
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 59
+  - number: 4
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat die Tonne „16/A 15“ bzw. was kennzeichnet sie?
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 163
+  - number: 5
+    points: 2
+    text: Man will die Stromverhältnisse W-lich vom WPT 1 ermitteln.
+    questions:
+    - points: 2
+      text: Bestimmen Sie anhand des Gezeitenstromatlasses die Stromrichtung (StR) und Stromgeschwindigkeit (StG)
+        W-lich vom WPT 1 auf ca. 53° 52’ N, 007°52’ E für 12:15 Uhr BZ (der Strom ist ggf. zu mittlen).
+    derivation_images:
+    - src: bogen-09/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 173
+    solution_images:
+    - src: bogen-09/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 6
+    points: 1
+    text: Nach dem Passieren der Tonne „16/A 15“ nahe an Stb. steuert man MgK = 315°. Der mäßige W-Wind wird mit
+      |BW| = 4° einbezogen, Strom wird nicht berücksichtigt. Als Mw wird die Mw-Angabe im Fahrwasser „Neue Weser“
+      verwendet.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK).
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 233
+  - number: 7
+    points: 3
+    text: 'Um 12:16 BZ hat man den WPT 1 fast erreicht. Das GPS zeigt folgende Position an: φ = 53°50,8‘N, λ = 008°03,8‘E.
+      Von hier wird als neuer Kurs abgesetzt: KaK = 018°. Man erhöht etwas die Fahrt und koppelt mit FdW = 8 kn.
+      Man rechnet nunmehr mit einem Strom: StR = 109°, StG = 0,8 kn. Der mäßige W-Wind wird jetzt mit |BW| = 5°
+      berücksichtigt. Mw wie Aufgabe 6.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 sm) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 612
+  - number: 8
+    points: 2
+    text: Unabhängig vom Ergebnis in Aufgabe 7 koppelt man mit KaK = 018° und FüG = 8 kn und ermittelt die voraussichtliche
+      Position für 13:00 BZ.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 13:00 BZ.
+    derivation_images:
+    - src: bogen-09/aufgabe-08-herleitung-1.png
+      width: 1040
+      height: 81
+    solution_images:
+    - src: bogen-09/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 9
+    points: 3
+    text: Um 13:00 BZ werden zeitgleich der Leuchtturm „Alte Weser“ mit dem Steuerkompass in der Magnetkompasspeilung
+      Peilung MgP = 182°, anl. MgK = 013° und die Tonne „NGN“ mit dem Radargerät in der relativen Darstellungsart
+      „Head Up“ in Radar-Seitenpeilung RaSP = 254° gepeilt, anl. MgK = 019°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b).
+    derivation_images:
+    - src: bogen-09/aufgabe-09-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-09/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 97
+  - number: 10
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 11
+    points: 1
+    text: Am beobachteten Ort um 13:00 BZ sollen die Stromverhältnisse nach Seekarte ermittelt werden.
+    questions:
+    - points: 1
+      text: Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie der Seekarte am O_b um 13:00 BZ?
+    derivation_images:
+    - src: bogen-09/aufgabe-11-herleitung-1.png
+      width: 1040
+      height: 125
+    solution_images:
+    - src: bogen-09/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 12
+    points: 3
+    text: Der weitere Kurs soll an der Tonne „Scharhörnriff-W“ vorbeiführen.
+    questions:
+    - points: 1
+      text: Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage).
+    - points: 1
+      text: Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen, auch in Verbindung mit der magentafarben
+        gestrichelten Linie, die durch die Position dieses Seezeichens verläuft?
+    - points: 1
+      text: Wie kann man dieses Schifffahrtszeichen mit einer Yacht mit 2 m Tiefgang passieren?
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 293
+  - number: 13
+    points: 2
+    text: Die Häfen von Neuwerk können am 08.06.2013 nur von Schiffen mit geringem Tiefgang angelaufen werden. Deshalb
+      wird das Abendniedrigwasser für Scharhörn, „Bake C“ ermittelt.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Niedrigwasserzeit (NWZ).
+    - points: 1
+      text: Bestimmen Sie den Tidenfall (TF).
+    derivation_images:
+    - src: bogen-09/aufgabe-13-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-09/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 257
+  - number: 14
+    points: 1
+    text: Man passiert gegen 13:29 BZ die Tonne „Scharhörnriff-N“ und um 13:40 in die Elbmündung am Südtonnenstrich
+      einlaufend die Tonne „1“. Man koppelt mit 6,5 kn Fahrt über Grund und möchte für 14:40 BZ die Stromverhältnisse
+      nach Seekarte bestimmen.
+    questions:
+    - points: 1
+      text: Wie setzt der Strom nach Richtung (StR) und Stärke (StG) nach Seekarte für 14:40 BZ und was sagt Ihnen
+        der festgestellte Wert mit Blick auf eine Stunde zurück und eine Stunde voraus?
+    derivation_images:
+    - src: bogen-09/aufgabe-14-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-09/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 82
+  - number: 15
+    points: 3
+    text: Wegen der Unsicherheit, ob ein sicheres Einlaufen möglich ist, entscheidet man sich um 14:10 BZ an der
+      Tonne „5“, nach Büsum weiterzulaufen. Man setzt den Kurs auf die Ansteuerungstonne „Süderpiep“ ab und koppelt
+      mit 5,5 kn. Der Wind weht weiterhin aus westlicher Richtung, |BW| = 4°; für den in NW-licher Richtung laufenden
+      Strom berücksichtigt man |BS| = 2°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK) zur Tonne „Süderpiep“.
+    - points: 1
+      text: Bestimmen Sie den zugehörigen Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Ankunftszeit, die Estimated Time of Arrival (ETA) an dieser Tonne.
+    derivation_images:
+    - src: bogen-09/aufgabe-15-herleitung-1.png
+      width: 1040
+      height: 245
+    solution_images:
+    - src: bogen-09/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 115
+  - number: 16
+    points: 1
+    text: Beim Queren der Elbe überfährt man vor dem Passieren des roten Tonnenstrichs eine breite grüne Linie mit
+      der Kennzeichnung „PSSA“.
+    questions:
+    - points: 1
+      text: Was besagt diese Linie?
+    derivation_images: []
+    solution_images:
+    - src: bogen-09/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 53
+- number: 10
+  tasks:
+  - number: 1
+    points: 2
+    text: 'Auf dem Weg von Cuxhaven nach Spiekeroog rund um Helgoland befindet sich eine Yacht am 29.08.2013 um
+      06:05 BZ (= gesetzliche Zeit) im Fahrwasser „Elbe“ bei Tonne „4“. Die Fahrt durchs Wasser (FdW) beträgt 6
+      kn. Wind: E-lich 5 Bft. Man setzt von der Tonne „4“ Kurse zunächst wie folgt ab:
+
+      – Tonne „Düne-N“ NE-lich von Helgoland (WPT 1),
+
+      – Tonne „Sellebrunn-W“ (WPT 2),
+
+      – Seezeichen „GB“ (WPT 3).'
+    questions:
+    - points: 1
+      text: Bestimmen Sie die einzelnen Kartenkurse (KaK) bis zum WPT 3.
+    - points: 1
+      text: Bestimmen Sie die entsprechenden Distanzen (d).
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 235
+  - number: 2
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Welche Seekarten benötigt man für die Fahrt von Cuxhaven elbabwärts bis zur Tonne „Sellebrunn-W“ bei
+        Helgoland, um mehr navigatorische Detailinformationen zu erhalten?
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 91
+  - number: 3
+    points: 2
+    text: Man möchte die Stromverhältnisse beim Verlassen der Elbe feststellen.
+    questions:
+    - points: 2
+      text: Bestimmen Sie anhand des Gezeitenstromatlasses die Stromrichtung (StR) und die Stromgeschwindigkeit
+        (StG) bei der Tonne „4“ für 06:05 BZ (der Strom ist ggf. zu mitteln).
+    derivation_images:
+    - src: bogen-10/aufgabe-03-herleitung-1.png
+      width: 1040
+      height: 101
+    solution_images:
+    - src: bogen-10/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 67
+  - number: 4
+    points: 3
+    text: Man steuert beim Verlassen der Elbe KaK = 316°. Die Fahrt durchs Wasser (FdW) beträgt weiterhin 6 kn.
+      Man berücksichtigt für die nächsten ca. 3 Stunden den E-Wind mit |BW| = 5° und nach dem Kentern einen Strom
+      in Richtung 270° mit 1,0 kn.
+    questions:
+    - points: 1
+      text: 'Zeichen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 639
+  - number: 5
+    points: 3
+    text: 'Unabhängig vom Ergebnis in Aufgabe 4 koppelt man bis 08:00 BZ mit KaK = 316° und FüG = 6,5 kn. Um 08:00
+      BZ liest man am GPS Empfänger folgende Position ab: φ = 54°09,2’N, λ = 008°00,0’E. Der GPS Empfänger ist auf
+      WGS 84 eingestellt.'
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 08:00 BZ.
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation_images:
+    - src: bogen-10/aufgabe-05-herleitung-1.png
+      width: 1040
+      height: 57
+    solution_images:
+    - src: bogen-10/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 73
+  - number: 6
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Geben Sie Gründe für die festgestellte Versetzung an.
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 101
+  - number: 7
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: In welcher Magnetkompasspeilung (MgP) peilt man über den Steuerkompass den Leuchtturm von Helgoland
+        um 08:00 BZ von der abgelesenen GPS-Position bei anliegendem MgK = 340°?
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 125
+  - number: 8
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: 'Beschreiben Sie den in Aufgabe 7 gepeilten Leuchtturm von Helgoland bei Tage und bei Nacht vollständig
+        nach Seekarte und Leuchtfeuerverzeichnis:
+
+        – Kennung, Wiederkehr, Nenntragweite,
+
+        – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden.'
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 197
+  - number: 9
+    points: 1
+    text: Knapp 2 sm nördlich der Position um 08:00 BZ liegt ein magentafarbenes gestricheltes Gebiet. Auf den gestrichelten
+      Linien befinden sich gleichfarbige Kreise mit 3 Strichen zum eingerahmten Gebiet hin.
+    questions:
+    - points: 1
+      text: Geben Sie die Bedeutung dieses Gebietes an.
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 35
+  - number: 10
+    points: 2
+    text: Man steuert etwas auf und passiert um 08:38 BZ die Tonne „Düne-N“ eben an Bb.; man ändert nunmehr den
+      Kurs auf den WPT 2 (Tonne „Sellebrunn-W“). Es sollen für 09:00 BZ und die zwei weiteren Stunden die Stromverhältnisse
+      nach Seekarte ermittelt werden.
+    questions:
+    - points: 1
+      text: Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie der Seekarte auf dem Kurs zum WPT 2
+        für 09:00 BZ?
+    - points: 1
+      text: Wie setzt der Strom (StR, StG) nach dem Passieren des WPT 2 auf dem Weg zum Seezeichen „GB“ (WPT 3)
+        um 10:00 BZ und 11:00 BZ nach Seekarte? Geben Sie für die beiden Stunden zusätzlich die Stromrichtung durch
+        „mit“ oder „gegenan“ und die gemittelte Stromstärke an.
+    derivation_images:
+    - src: bogen-10/aufgabe-10-herleitung-1.png
+      width: 1040
+      height: 149
+    solution_images:
+    - src: bogen-10/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 139
+  - number: 11
+    points: 1
+    text: Nach dem Passieren der Tonne „Sellebrunn-W“ um 09:08 BZ wird das Seezeichen „GB“ (WPT 3) mit MgK = 254°
+      recht voraus genommen; BWS = 0.
+    questions:
+    - points: 1
+      text: Beschreiben Sie das Aussehen des Seezeichens „GB“ und geben Sie an, was im Falle einer Einziehung (z.
+        B. durch Überholung) geschieht.
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 77
+  - number: 12
+    points: 3
+    text: Um 10:35 BZ peilt man über den Steuerkompass die Tonne „E 1“ in MgP = 198°, anl. MgK = 254°; fast gleichzeitig
+      peilt man das Seezeichen „GB“ mit dem Radargerät in der relativen Darstellungsart „Head Up“ in Radar-Seitenpeilung
+      RaSP = 358°, anl. MgK = 259°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b).
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 251
+  - number: 13
+    points: 2
+    text: Um 11:06 BZ passiert man das Seezeichen „GB“ an der Backbordseite und ändert Kurs nach Bb. auf KaK = 190°
+      direkt auf die Tonne „TG 16/Reede“ zu. Dabei passiert man die Tonne „GW/Jade“ nahebei. Um 12:51 BZ steht man
+      schließlich 1,2 sm ENE-lich der Tonne „TG 16/Reede“ auf der Verbindungslinie zur Tonne „TG 18/Jade“.
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat die Tonne „TG 16/Reede“ bzw. was kennzeichnet sie?
+    derivation_images: []
+    solution_images:
+    - src: bogen-10/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 139
+  - number: 14
+    points: 2
+    text: Von der Position aus Aufgabe 13 will man zur Ansteuerungstonne „Otzumer Balje“ vor Spiekeroog versegeln.
+      Dazu wird zunächst das Verkehrstrennungsgebiet (VTG) „Terschelling – German Bight“ gequert. Der E-Wind wird
+      mit |BW| = 4° eingeschätzt; ein eventueller Strom wird nicht berücksichtigt ( |BS| = 0°).
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK), der zum Queren des VTG unter Einhaltung navigatorischer und
+        verkehrsrechtlicher Vorschriften zu steuern ist.
+    - points: 1
+      text: 'Bestimmen Sie den Magnetkompasskurs (MgK), der nach dem Queren des VTG bis zur Ansteuerungstonne „Otzumer
+        Balje“ zu steuern ist. Dafür wird folgende Ausgangsposition angenommen: φ = 53°52,6‘N, λ = 007°27,8‘E.'
+    derivation_images:
+    - src: bogen-10/aufgabe-14-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-10/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 235
+  - number: 15
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die geschätzte Ankunftszeit, die Estimated Time of Arrival (ETA) an der Tonne „Otzumer
+        Balje“ bei FüG = 6 kn.
+    derivation_images:
+    - src: bogen-10/aufgabe-15-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-10/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 49
+  - number: 16
+    points: 1
+    text: Es sollen die Stromverhältnisse an der Ansteuerungstonne „Otzumer Balje“ nach Seekarte ermittelt werden.
+    questions:
+    - points: 1
+      text: Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie der Seekarte an der Tonne „Otzumer
+        Balje“ bei Erreichen?
+    derivation_images:
+    - src: bogen-10/aufgabe-16-herleitung-1.png
+      width: 1040
+      height: 77
+    solution_images:
+    - src: bogen-10/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 83
+  - number: 17
+    points: 2
+    text: Um die Einlaufsituation besser abschätzen zu können, soll das Abendhochwasser für Spiekeroog und der zugehörige
+      Tidenstieg ermittelt werden.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Abendhochwasserzeit (HWZ).
+    - points: 1
+      text: Bestimmen Sie den Tidenstieg (TS).
+    derivation_images:
+    - src: bogen-10/aufgabe-17-herleitung-1.png
+      width: 1040
+      height: 29
+    solution_images:
+    - src: bogen-10/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 257

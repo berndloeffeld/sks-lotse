@@ -171,9 +171,13 @@ describe('AdminUserPage', () => {
   it("syncs the admin's own session when they credit tokens to their own account", async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { ...foundUser, is_admin: true, can_buy_tokens: false, agb_accepted_version: null } as ReturnType<
-        typeof useAuthStore.getState
-      >['user'],
+      user: {
+        ...foundUser,
+        is_admin: true,
+        can_buy_tokens: false,
+        can_use_chart_exercises: false,
+        agb_accepted_version: null,
+      } as ReturnType<typeof useAuthStore.getState>['user'],
       isAuthenticated: true,
       isLoading: false,
     })
@@ -195,9 +199,14 @@ describe('AdminUserPage', () => {
   it("leaves the admin's own session untouched when they edit a different account", async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { ...foundUser, id: 999, is_admin: true, can_buy_tokens: false, agb_accepted_version: null } as ReturnType<
-        typeof useAuthStore.getState
-      >['user'],
+      user: {
+        ...foundUser,
+        id: 999,
+        is_admin: true,
+        can_buy_tokens: false,
+        can_use_chart_exercises: false,
+        agb_accepted_version: null,
+      } as ReturnType<typeof useAuthStore.getState>['user'],
       isAuthenticated: true,
       isLoading: false,
     })
@@ -246,9 +255,13 @@ describe('AdminUserPage', () => {
   it("syncs the admin's own session when they remove ads on their own account", async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
-      user: { ...foundUser, is_admin: true, can_buy_tokens: false, agb_accepted_version: null } as ReturnType<
-        typeof useAuthStore.getState
-      >['user'],
+      user: {
+        ...foundUser,
+        is_admin: true,
+        can_buy_tokens: false,
+        can_use_chart_exercises: false,
+        agb_accepted_version: null,
+      } as ReturnType<typeof useAuthStore.getState>['user'],
       isAuthenticated: true,
       isLoading: false,
     })

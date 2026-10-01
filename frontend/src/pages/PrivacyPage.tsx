@@ -76,6 +76,15 @@ export function PrivacyPage() {
           besteht; einzelne Prüfungen können Sie jederzeit selbst löschen, mit dem Konto werden alle Prüfungen gelöscht.
           Bitte geben Sie in Ihren Antworten keine personenbezogenen Daten ein.
         </p>
+        <p>
+          Wenn Sie eine Kartenaufgabe bearbeiten, speichern wir zu jedem Durchgang die Nummer der Kartenaufgabe, Start-
+          und Abschlusszeitpunkt sowie zu jeder bearbeiteten Aufgabe Ihren Antworttext, den Zeitpunkt der Antwort und
+          die Punkte, die Sie sich selbst gegeben haben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Die Daten
+          werden gespeichert, solange Ihr Konto besteht; einzelne Durchgänge können Sie jederzeit selbst löschen, mit
+          dem Konto werden alle gelöscht. Was Sie in das Formblatt Gezeiten eintragen und welche Hilfsmittel-Bereiche
+          Sie auf- oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht
+          an uns übertragen und lässt sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
+        </p>
       </ProseSection>
 
       <ProseSection title="Käufe (Tokens)">
@@ -214,7 +223,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 25. September 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 30. September 2026</p>
     </PageLayout>
   )
 }

@@ -7,6 +7,7 @@ from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
 from app.core.email_address import canonicalize_email
 from app.core.exam_variant import EXAM_VARIANTS
+from app.core.features import chart_exercises_enabled_for
 from app.schemas.common import one_of
 
 # EmailStr only lowercases the domain, not the local part. Canonicalize the
@@ -111,6 +112,12 @@ class UserRead(BaseModel):
     def can_buy_tokens(self) -> bool:
         # The STRIPE_CHECKOUT feature flag for this account (ADR-0048) — shows the buy buttons.
         return checkout_enabled_for(self.email)
+
+    @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
+    @property
+    def can_use_chart_exercises(self) -> bool:
+        # The CHART_EXERCISES feature flag for this account (ADR-0052) — shows the Kartenaufgaben.
+        return chart_exercises_enabled_for(self.email)
 
 
 class UserUpdate(BaseModel):

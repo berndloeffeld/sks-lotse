@@ -20,6 +20,8 @@
 #     so the test addresses never get real mail.
 #   - Leave STRIPE_CHECKOUT off and STRIPE_WEBHOOK_SECRET empty (the defaults): the
 #     Payments folder checks the feature flag's 403 (ADR-0048).
+#   - Set CHART_EXERCISES=admins: the learner gets the flag's 404, the admin walks
+#     through a Kartenaufgabe (ADR-0052).
 # CI runs exactly this in backend-ci.yml's `integration-tests` job.
 set -euo pipefail
 cd "$(dirname "$0")/.."

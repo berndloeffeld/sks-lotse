@@ -6,8 +6,8 @@ import { useAuthStore } from '../store/authStore'
 import { AccountNav } from './AccountNav'
 import { makeUser } from '../test/fixtures'
 
-function renderAt(path: string) {
-  useAuthStore.setState({ user: makeUser() })
+function renderAt(path: string, user = makeUser()) {
+  useAuthStore.setState({ user })
   return render(
     <MemoryRouter initialEntries={[path]}>
       <AccountNav />
@@ -22,6 +22,16 @@ describe('AccountNav', () => {
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('href', '/exam')
     expect(screen.getByRole('button', { name: 'Menü' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('adds the Kartenaufgaben only where the feature flag covers the account', () => {
+    const { unmount } = renderAt('/profile')
+    expect(screen.queryByRole('link', { name: 'Karte' })).not.toBeInTheDocument()
+    unmount()
+
+    renderAt('/charts/1', makeUser({ can_use_chart_exercises: true }))
+    expect(screen.getByRole('link', { name: 'Karte' })).toHaveAttribute('href', '/charts')
+    expect(screen.getByRole('link', { name: 'Karte' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('keeps everything else in the menu, not in the bar', () => {

@@ -1,6 +1,7 @@
 from sqlalchemy import delete, or_, select, update
 from sqlalchemy.orm import Session
 
+from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.otp_code import OtpCode
@@ -36,6 +37,10 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     attempt_ids = select(ExamAttempt.id).where(ExamAttempt.user_id == user.id)
     db.execute(delete(ExamAttemptQuestion).where(ExamAttemptQuestion.attempt_id.in_(attempt_ids)))
     db.execute(delete(ExamAttempt).where(ExamAttempt.user_id == user.id))
+    # Chart exercise runs carry free-text answers too.
+    chart_attempt_ids = select(ChartAttempt.id).where(ChartAttempt.user_id == user.id)
+    db.execute(delete(ChartAttemptTask).where(ChartAttemptTask.attempt_id.in_(chart_attempt_ids)))
+    db.execute(delete(ChartAttempt).where(ChartAttempt.user_id == user.id))
     # Pending/recent codes are personal data too — both those for the
     # account's own address and email-change codes it requested for another
     # one. The regular cleanup (ADR-0010) only runs opportunistically on later
