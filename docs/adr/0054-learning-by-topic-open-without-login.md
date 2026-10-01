@@ -1,6 +1,6 @@
 # 54. "Lernen nach Thema" open without a login, prerendered from a committed catalog export
 
-Status: Accepted — amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (login no longer required to read and practise the catalog) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the /learn pages are prerendered too).
+Status: Accepted — amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (login no longer required to read and practise the catalog) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the /learn pages are prerendered too). Amended by [ADR-0055](0055-prerendered-pages-as-directory-index-files.md): no rewrite per page in `render.yaml`.
 
 ## Context
 

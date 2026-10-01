@@ -9,11 +9,12 @@
 //                       ADR-0027 addendum 2026-09-23).
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<path>.html  — likewise for every page in src/publicPages.ts: /faq,
-//                       /imprint, /privacy, /terms, /exam-process, /pricing,
-//                       and the open /learn pages (ADR-0054), e.g.
-//                       dist/learn/navigation/seekarten.html; render.yaml
-//                       rewrites each of those paths to its file explicitly.
+//   dist/<path>/index.html — likewise for every page in src/publicPages.ts:
+//                       /faq, /imprint, /privacy, /terms, /exam-process,
+//                       /pricing, and the open /learn pages (ADR-0054), e.g.
+//                       dist/learn/navigation/seekarten/index.html. Render
+//                       serves a directory's index.html for its path, so
+//                       render.yaml needs no rewrite per page (ADR-0055).
 //                       Each of these (everything but "/") also gets its own
 //                       <title>/description/OG/Twitter/canonical via applyMeta,
 //                       and drops the "/"-scoped JSON-LD block — see ADR-0025's
