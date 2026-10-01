@@ -31,7 +31,8 @@ else
 fi
 
 export DATABASE_URL=postgresql://test:test@localhost:5432/test
-export JWT_SECRET=45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
+# Only has to satisfy Settings(); random per run, so no secret-looking literal sits in the repo.
+export JWT_SECRET="${JWT_SECRET:-$(openssl rand -hex 32)}"
 # On macOS, requests' proxy lookup segfaults in mutmut's forked workers, which
 # then report every mutant that reaches an email send as "segfault" rather than
 # killed/survived. NO_PROXY=* skips that lookup.
