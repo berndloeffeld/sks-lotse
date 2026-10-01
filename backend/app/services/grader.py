@@ -12,7 +12,7 @@ import anthropic
 from pydantic import BaseModel
 
 from app.core.config import settings
-from app.core.progress import GradingOutcome
+from app.domain.progress import GradingOutcome
 
 SYSTEM_PROMPT = """\
 Du prüfst Antworten auf Fragen der theoretischen SKS-Prüfung (Sportküstenschifferschein) streng, aber fair.

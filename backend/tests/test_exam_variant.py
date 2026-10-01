@@ -1,4 +1,4 @@
-from app.core.exam_variant import EXAM_VARIANTS, subjects_for_variant
+from app.domain.exam_variant import EXAM_VARIANTS, subjects_for_variant
 
 
 def test_subjects_for_known_variant():

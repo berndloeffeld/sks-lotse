@@ -3,9 +3,9 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
-from app.core import pricing as pricing_core
 from app.core.database import get_db
 from app.core.jwt import require_admin, require_recent_mfa
+from app.domain import pricing as pricing_domain
 from app.models.question import Question
 from app.models.user import User
 from app.schemas.admin import (
@@ -135,18 +135,18 @@ def update_user(
 def _settings_read(db: Session) -> AdminSettings:
     return AdminSettings.model_validate(
         {
-            "price_ads_removed_cents": pricing_core.ads_removed_price_cents(db),
-            "signup_bonus_tokens": pricing_core.signup_bonus_tokens(db),
+            "price_ads_removed_cents": pricing_service.ads_removed_price_cents(db),
+            "signup_bonus_tokens": pricing_service.signup_bonus_tokens(db),
             **{
                 package.product: {"tokens": package.tokens, "price_cents": package.price_cents}
-                for package in pricing_core.token_packages(db)
+                for package in pricing_service.token_packages(db)
             },
         }
     )
 
 
 def _payload_packages(payload: AdminSettings) -> dict[str, TokenPackageSettings]:
-    return {product: getattr(payload, product) for product in pricing_core.PACKAGE_PRODUCTS}
+    return {product: getattr(payload, product) for product in pricing_domain.PACKAGE_PRODUCTS}
 
 
 @router.get("/settings", response_model=AdminSettings)
@@ -165,7 +165,7 @@ def update_settings(
         price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
         packages={
-            product: pricing_core.TokenPackage(product, package.tokens, package.price_cents)
+            product: pricing_domain.TokenPackage(product, package.tokens, package.price_cents)
             for product, package in packages.items()
         },
     )

@@ -2,7 +2,7 @@ from typing import Annotated, get_args
 
 from pydantic import BaseModel
 
-from app.core.progress import GradingOutcome
+from app.domain.progress import GradingOutcome
 from app.schemas.common import one_of
 
 
@@ -14,7 +14,7 @@ class TopicProgressRead(BaseModel):
     total_questions: int
     learned_questions: int
     # "Teilweise gelernt": answered right at least once, but not (or no
-    # longer) gelernt — see app/core/progress.py.
+    # longer) gelernt — see app/domain/progress.py.
     learning_questions: int
     is_focus: bool
 

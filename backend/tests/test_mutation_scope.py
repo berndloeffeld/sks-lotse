@@ -8,7 +8,7 @@ import tomllib
 from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parent.parent
-SCANNED = ("app/core", "app/services", "app/api/v1")
+SCANNED = ("app/domain", "app/core", "app/services", "app/api/v1")
 
 # Deliberately not mutated (CLAUDE.md → Mutation testing): configuration/wiring and the catalog
 # importer, whose tests read files outside backend/ that mutmut's working copy doesn't have.
@@ -17,7 +17,7 @@ EXCLUDED = {
     "app/core/database.py",
     "app/services/catalog_seed.py",
     # A single constant, no branching logic to mutate — same reasoning as config.py.
-    "app/core/legal.py",
+    "app/domain/legal.py",
 }
 
 

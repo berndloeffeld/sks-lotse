@@ -6,8 +6,8 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, Str
 from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
 from app.core.email_address import canonicalize_email
-from app.core.exam_variant import EXAM_VARIANTS
 from app.core.features import chart_exercises_enabled_for
+from app.domain.exam_variant import EXAM_VARIANTS
 from app.schemas.common import one_of
 
 # EmailStr only lowercases the domain, not the local part. Canonicalize the

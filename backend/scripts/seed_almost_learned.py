@@ -22,7 +22,7 @@ from app.core.email_address import canonicalize_email
 from app.models import Question, QuestionProgress, User
 
 # Half-life the next "Richtig" needs to start from so it clears LEARNED_HALF_LIFE_DAYS (7.0) in one
-# step: FULL_GAIN (2.5) * 3.0 = 7.5. See app/core/progress.py.
+# step: FULL_GAIN (2.5) * 3.0 = 7.5. See app/domain/progress.py.
 SEED_HALF_LIFE_DAYS = 3.0
 
 

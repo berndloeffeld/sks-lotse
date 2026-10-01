@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel
 
-from app.core.pricing import PACKAGE_PRODUCTS
+from app.domain.pricing import PACKAGE_PRODUCTS
 from app.schemas.common import one_of
 
 

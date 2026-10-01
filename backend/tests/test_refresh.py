@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from app.core.progress import (
+from app.domain.progress import (
     LEARNED_HALF_LIFE_DAYS,
     REFRESH_SESSION_SIZE,
     REFRESH_WINDOW_DAYS,

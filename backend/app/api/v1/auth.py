@@ -10,14 +10,13 @@ from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
 from app.core.jwt import clear_session, get_current_user, issue_session
-from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
     OTP_PURPOSE_LOGIN,
     is_disposable_email,
 )
-from app.core.pricing import signup_bonus_tokens
 from app.core.rate_limit import enforce_limit
+from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import User
 from app.schemas.auth import (
     EmailChangeRequestCreate,
@@ -31,6 +30,7 @@ from app.schemas.auth import (
     UserUpdate,
 )
 from app.services import blocklist, otp_codes, token_wallet
+from app.services.pricing import signup_bonus_tokens
 from app.services.user import delete_user_and_progress
 
 logger = logging.getLogger(__name__)

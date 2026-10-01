@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from app.core.config import settings
-from app.core.progress import FULL_GAIN, MIN_HALF_LIFE_DAYS, due_at
+from app.domain.progress import FULL_GAIN, MIN_HALF_LIFE_DAYS, due_at
 from app.models import User
 
 # The account the `auth_headers` fixture (conftest.py) logs in as.

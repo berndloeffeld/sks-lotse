@@ -9,8 +9,8 @@ import stripe
 from sqlalchemy.exc import IntegrityError
 
 from app.core import checkout
-from app.core import pricing as pricing_core
 from app.core.config import settings
+from app.domain import pricing as pricing_domain
 from app.models.purchase import Purchase
 from app.models.user import User
 from app.services import email as email_service
@@ -98,9 +98,9 @@ def test_checkout_open_to_everyone_only_when_on(monkeypatch, flag, key, expected
 
 
 def test_stripe_product_id_maps_each_package(monkeypatch):
-    for product in pricing_core.PACKAGE_PRODUCTS:
+    for product in pricing_domain.PACKAGE_PRODUCTS:
         monkeypatch.setattr(settings, f"stripe_product_{product}", f"prod_{product}")
-    assert [checkout.stripe_product_id(p) for p in pricing_core.PACKAGE_PRODUCTS] == [
+    assert [checkout.stripe_product_id(p) for p in pricing_domain.PACKAGE_PRODUCTS] == [
         "prod_tokens_s",
         "prod_tokens_m",
         "prod_tokens_l",
@@ -130,7 +130,7 @@ def test_public_pricing_reports_checkout_only_when_on(client, monkeypatch):
 
 def test_build_checkout_params_uses_the_checkout_studio_settings(db_session, auth_headers):
     user = fixture_user(db_session)
-    package = pricing_core.TokenPackage("tokens_m", 50, 599)
+    package = pricing_domain.TokenPackage("tokens_m", 50, 599)
     params = payments.build_checkout_params(user, package, "prod_m", "https://sks-lotse.de")
     assert params == {
         "ui_mode": "hosted_page",
@@ -166,7 +166,7 @@ def test_checkout_returns_the_stripe_url_with_the_configured_price(
         db_session,
         price_ads_removed_cents=500,
         signup_bonus_tokens=6,
-        packages={"tokens_s": pricing_core.TokenPackage("tokens_s", 25, 349)},
+        packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 25, 349)},
     )
     response = _checkout(client, auth_headers)
     assert response.status_code == 200

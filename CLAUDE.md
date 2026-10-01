@@ -23,7 +23,7 @@ This holds in particular for `docs/FEATURES.md` (a change to what learners or op
 
 ```
 .github/    workflows (backend-ci, frontend-ci, mutation-testing, maintenance-mode, reset-admin-2fa)
-backend/    FastAPI app (app/api/v1 routes, app/services shared logic, app/core cross-cutting), alembic/, scripts/, tests/
+backend/    FastAPI app (app/api/v1 routes, app/services shared logic, app/domain product rules, app/core infrastructure/cross-cutting), alembic/, scripts/, tests/
 frontend/   React + Vite + TypeScript SPA (src/pages, src/components, src/hooks, src/api, src/store, src/routes)
 docs/       ARCHITECTURE.md, RUNBOOK.md, catalog-pipeline.md, adr/, the catalog PDF
 postman/    generated API-reference collection + hand-written integration tests
@@ -95,8 +95,8 @@ Frontend enforces **95% lines / 90% branches** via Vitest's built-in coverage (`
 ### Mutation testing
 Workflow `.github/workflows/mutation-testing.yml` (jobs `backend`/`frontend`; runs **daily** at 03:00 UTC plus manually via `workflow_dispatch`, not per PR — ~5 min / ~3 min; a failed run opens a GitHub issue "Mutation testing failed"): `./scripts/run_mutation_tests.sh gate` runs mutmut over the backend's business logic and fails below a minimum score (87% — a ratchet like the coverage gates: raise it, never lower it to get a PR through). Without `gate` the script just lists the survivors; `handlers` mutates the route handlers in a throw-away copy (mutmut skips decorated functions). The frontend equivalent is `./scripts/run_frontend_mutation_tests.sh gate` (Stryker over the logic modules, minimum 90%, also fails if the runner is broken, i.e. surviving mutants that ran no tests); it needs Vitest on 4.x, see [ADR-0035](docs/adr/0035-vitest-pinned-to-4x-for-stryker.md). Scope, reading survivors: [docs/mutation-testing.md](docs/mutation-testing.md).
 
-**Keep the scope current.** What gets mutated is exactly `only_mutate` in `[tool.mutmut]` of `backend/pyproject.toml` — a module missing from it is silently unchecked. `backend/tests/test_mutation_scope.py` fails when a module in `app/core/`, `app/services/` or `app/api/v1/` is in neither `only_mutate` nor its `EXCLUDED` set (with reasons), or when an entry points at a file that's gone. So in the same PR:
-- a new backend module with business logic (`app/core/`, `app/services/`, or an `app/api/v1/` file with undecorated helpers) is **added** to `only_mutate`;
+**Keep the scope current.** What gets mutated is exactly `only_mutate` in `[tool.mutmut]` of `backend/pyproject.toml` — a module missing from it is silently unchecked. `backend/tests/test_mutation_scope.py` fails when a module in `app/domain/`, `app/core/`, `app/services/` or `app/api/v1/` is in neither `only_mutate` nor its `EXCLUDED` set (with reasons), or when an entry points at a file that's gone. So in the same PR:
+- a new backend module with business logic (`app/domain/`, `app/core/`, `app/services/`, or an `app/api/v1/` file with undecorated helpers) is **added** to `only_mutate`;
 - a renamed or deleted module is updated/removed there;
 - deliberately left out (don't add): `config.py`, `main.py`, `database.py`, `models/`, `schemas/`, `catalog_seed.py`, `scripts/` — the test's `EXCLUDED` set holds the ones in the scanned directories.
 

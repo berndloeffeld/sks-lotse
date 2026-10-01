@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from app.core.progress import learned_clause
+from app.domain.progress import learned_clause
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_progress import QuestionProgress

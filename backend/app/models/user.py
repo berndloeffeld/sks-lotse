@@ -20,7 +20,7 @@ class User(Base):
     # have (JWT `iat` is whole-second, a DB timestamp isn't).
     token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     # Which SKS exam variant the learner is preparing for — "motor" or "segeln_und_motor"
-    # (see app/core/exam_variant.py). NULL until the learner picks one; questions.py falls back to
+    # (see app/domain/exam_variant.py). NULL until the learner picks one; questions.py falls back to
     # showing every subject when unset.
     exam_variant: Mapped[str | None] = mapped_column(String(32), nullable=True)
     # All optional, self-reported, blank ("keine Angabe") by default. gender is

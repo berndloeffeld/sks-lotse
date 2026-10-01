@@ -37,7 +37,7 @@ export const SUBJECT_LABELS: Record<string, string> = {
   seemannschaft_segeln: 'Seemannschaft (Segeln)',
 }
 
-// Mirrors SUBJECT_GROUPS in backend/app/core/exam.py.
+// Mirrors SUBJECT_GROUPS in backend/app/domain/exam.py.
 export const SUBJECT_GROUP_LABELS: Record<string, string> = {
   navigation: 'Navigation',
   schifffahrtsrecht: 'Schifffahrtsrecht',
@@ -45,7 +45,7 @@ export const SUBJECT_GROUP_LABELS: Record<string, string> = {
   seemannschaft: 'Seemannschaft',
 }
 
-// Mirrors PACKAGE_PRODUCTS in backend/app/core/pricing.py (ADR-0043).
+// Mirrors PACKAGE_PRODUCTS in backend/app/domain/pricing.py (ADR-0043).
 export const PACKAGE_PRODUCTS = ['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl'] as const
 export type PackageProduct = (typeof PACKAGE_PRODUCTS)[number]
 export const PACKAGE_LABELS: Record<PackageProduct, string> = {

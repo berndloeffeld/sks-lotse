@@ -67,7 +67,7 @@ class ExamAttemptQuestion(Base):
     # SET NULL: a question that vanishes from the catalog must not delete history.
     question_id: Mapped[int | None] = mapped_column(ForeignKey("questions.id", ondelete="SET NULL"))
     position: Mapped[int] = mapped_column(Integer, nullable=False)
-    # navigation / schifffahrtsrecht / wetterkunde / seemannschaft (app/core/exam.py)
+    # navigation / schifffahrtsrecht / wetterkunde / seemannschaft (app/domain/exam.py)
     subject_group: Mapped[str] = mapped_column(String(32), nullable=False)
     answer_text: Mapped[str | None] = mapped_column(Text)
     outcome: Mapped[str | None] = mapped_column(String(32))

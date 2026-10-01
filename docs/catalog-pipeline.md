@@ -5,7 +5,7 @@ How the official SKS catalog PDF becomes the `questions` and `topics` rows, and 
 ## The catalog
 
 - **Source**: the official SKS question catalog as PDF (`docs/Fragenkatalog-SKS.pdf`, questions + official model answers). It's an amtliches Werk (§ 5 UrhG): cite ELWIS as the source and never change the wording.
-- **Exam variants** by propulsion type: **"Segeln und Motor"** (Navigation + Schifffahrtsrecht + Wetterkunde + Seemannschaft I) and **"Motor"** (… + Seemannschaft II). A learner sits one or the other, not both. `app/core/exam_variant.py` maps each variant to its subjects.
+- **Exam variants** by propulsion type: **"Segeln und Motor"** (Navigation + Schifffahrtsrecht + Wetterkunde + Seemannschaft I) and **"Motor"** (… + Seemannschaft II). A learner sits one or the other, not both. `app/domain/exam_variant.py` maps each variant to its subjects.
 - **Subjects**: `navigation`, `schifffahrtsrecht`, `wetterkunde`, and the Seemannschaft split. Seemannschaft I and II are ~65% word-for-word identical (safety equipment, anchoring, MOB, ropework; only rigging/sail trim vs. engine/boat types really differ), so they become:
   - `seemannschaft_allgemein`: shared questions, stored once in the Seemannschaft I wording;
   - `seemannschaft_segeln`: I only;

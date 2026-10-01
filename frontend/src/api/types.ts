@@ -8,11 +8,11 @@ type Schemas = components['schemas']
 // `T` with the fields in `N` replaced by narrower types.
 type Narrow<T, N extends { [K in keyof N]: K extends keyof T ? unknown : never }> = Omit<T, keyof N> & N
 
-// Mirrors ExamVariant in backend/app/core/exam_variant.py.
+// Mirrors ExamVariant in backend/app/domain/exam_variant.py.
 export type ExamVariant = 'motor' | 'segeln_und_motor'
-// Mirrors GradingOutcome in backend/app/core/progress.py.
+// Mirrors GradingOutcome in backend/app/domain/progress.py.
 export type GradingOutcome = 'richtig' | 'teilweise_richtig' | 'falsch'
-// Mirrors ExamStatus / ExamResult in backend/app/core/exam.py.
+// Mirrors ExamStatus / ExamResult in backend/app/domain/exam.py.
 export type ExamStatus = 'in_progress' | 'grading' | 'completed'
 export type ExamResult = 'bestanden' | 'muendliche_nachpruefung' | 'nicht_bestanden'
 

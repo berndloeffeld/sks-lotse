@@ -3,11 +3,11 @@ from datetime import UTC, datetime, timedelta
 import jwt
 import pytest
 
-from app.core import pricing as pricing_core
 from app.core.config import settings
 from app.core.jwt import create_access_token
-from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import OTP_PURPOSE_LOGIN
+from app.domain import pricing as pricing_domain
+from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import BlockedEmail, OtpCode, Question, QuestionProgress, User
 from app.models.purchase import Purchase
 from app.services import blocklist
@@ -342,12 +342,12 @@ def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session,
     user = db_session.query(User).filter_by(email="learner@example.com").one()
     assert user.email == "learner@example.com"
     # ADR-0043: a new account gets a few free tokens to try the AI check.
-    assert user.token_balance == pricing_core.DEFAULT_SIGNUP_BONUS_TOKENS
+    assert user.token_balance == pricing_domain.DEFAULT_SIGNUP_BONUS_TOKENS
     purchase = db_session.query(Purchase).filter_by(user_id=user.id).one()
     assert (purchase.product, purchase.granted_by, purchase.tokens_granted) == (
         "signup_bonus",
         "signup",
-        pricing_core.DEFAULT_SIGNUP_BONUS_TOKENS,
+        pricing_domain.DEFAULT_SIGNUP_BONUS_TOKENS,
     )
     assert purchase.amount_eur_cents is None
 

@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.progress import GradingOutcome, apply_grading, is_learned
+from app.domain.progress import GradingOutcome, apply_grading, is_learned
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
