@@ -3,7 +3,7 @@
 # Branch Strategy / Development Conventions).
 # One-time setup: `pip install -r backend/requirements-dev.txt && (cd frontend && npm install) && pre-commit install --install-hooks -t pre-commit -t pre-push`
 # The type checks (mypy, tsc) run on `git push` rather than on every commit — they check the whole
-# project and take a few seconds each, same as the `lint`/`test` CI jobs they mirror.
+# project and take a few seconds each, same as the `backend-lint`/`frontend-test` CI jobs they mirror.
 # Hooks without their own `stages` run on commit only; the slower type checks opt into pre-push.
 default_stages: [pre-commit]
 repos:
@@ -29,20 +29,24 @@ repos:
       - id: trailing-whitespace
         exclude: ^postman/sks-lotse\.postman_collection\.json$
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8  # keep in sync with ruff in backend/requirements-dev.in
-    hooks:
-      - id: ruff
-        args: [--fix]
-        files: ^backend/
-      - id: ruff-format
-        files: ^backend/
-
-  # Local hooks (not a separate eslint-mirror repo) so this stays in sync
-  # with frontend/package.json's own eslint/prettier versions with no extra
-  # pinning to maintain here.
+  # Local hooks (not mirror repos like ruff-pre-commit) so ruff, eslint and prettier run in the
+  # versions backend/requirements-dev.txt and frontend/package.json pin, with no second pin here
+  # to drift.
   - repo: local
     hooks:
+      - id: backend-ruff
+        name: ruff check --fix (backend)
+        # The backend venv's ruff (same version as CI) when there is one, else whatever is on PATH.
+        entry: bash -c 'if [ -x backend/.venv/bin/ruff ]; then RUFF=backend/.venv/bin/ruff; else RUFF=ruff; fi; $RUFF check --fix "$@"' --
+        language: system
+        types_or: [python, pyi]
+        files: ^backend/
+      - id: backend-ruff-format
+        name: ruff format (backend)
+        entry: bash -c 'if [ -x backend/.venv/bin/ruff ]; then RUFF=backend/.venv/bin/ruff; else RUFF=ruff; fi; $RUFF format "$@"' --
+        language: system
+        types_or: [python, pyi]
+        files: ^backend/
       - id: frontend-eslint
         name: eslint (frontend)
         entry: bash -c 'cd frontend && npm run lint'
@@ -60,7 +64,7 @@ repos:
         # Under a second; catches an ADR status line that differs from its index row before CI does.
         entry: bash -c 'cd backend && if [ -x .venv/bin/pytest ]; then PYTEST=.venv/bin/pytest; else PYTEST=pytest; fi; $PYTEST tests/test_docs.py -q --no-cov -p no:cacheprovider'
         language: system
-        files: ^(docs/.*\.md|CLAUDE\.md|README\.md|SECURITY\.md)$
+        files: ^(docs/.*\.md|CLAUDE\.md|README\.md|SECURITY\.md|frontend/README\.md)$
         pass_filenames: false
       - id: backend-mypy
         name: mypy (backend)

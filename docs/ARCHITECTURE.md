@@ -221,12 +221,12 @@ Everything is declared in `render.yaml`:
 ### Quality gates
 GitHub Actions runs on every PR and every push to `main`:
 
-- **Backend**: lint, unit tests with a 95% coverage gate, migrations against a real Postgres, black-box integration tests against a running server, and a freshness check of the generated Postman collection.
-- **Frontend**: lint, type check, tests with a 95%/90% (lines/branches) coverage gate, and the production build including the prerender.
+- **Backend** (`backend-ci.yml`): `backend-lint` (ruff, mypy, `pip-audit` of the locked dependencies), `backend-test` (unit tests with a 95% coverage gate), `migrations` against a real Postgres, `integration-tests` (black-box, against a running server) and `postman-collection` (freshness of the generated collection and API types).
+- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`), `frontend-test` (type check, tests with a 95%/90% lines/branches coverage gate, and the production build including the prerender).
 - **Mutation testing**: daily, not per PR (mutmut 87%, Stryker 90% minimum; [docs/mutation-testing.md](mutation-testing.md)).
-- **Security**: Aikido rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
+- **Security**: known-vulnerable dependencies fail the lint jobs above; CodeQL (GitHub's Default Setup, configured in the repo settings: Python, JavaScript/TypeScript, Actions) scans every PR and `main` for code-level issues, not a required check; Aikido additionally rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
 
-All of them except the integration tests are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
+All PR jobs above are required status checks on `main`, and a PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
 
 ## Not yet built
 
