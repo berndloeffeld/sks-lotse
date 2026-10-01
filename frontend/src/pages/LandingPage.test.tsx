@@ -73,6 +73,16 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Kann ich auch ohne Anmeldung lernen?' })).toBeInTheDocument()
   })
 
+  it('previews the Kartenaufgaben without linking to them or showing WSV material', () => {
+    const { container } = renderLandingPage()
+
+    const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })
+    expect(within(preview).getByText('Vorschau · bald verfügbar')).toBeInTheDocument()
+    expect(within(preview).getByRole('heading', { name: 'Lösung mit Herleitung' })).toBeInTheDocument()
+    expect(within(preview).queryAllByRole('link')).toEqual([])
+    expect(container.querySelector('a[href^="/charts"], img[src^="/charts"]')).toBeNull()
+  })
+
   it('links to the exam process overview page', () => {
     renderLandingPage()
 

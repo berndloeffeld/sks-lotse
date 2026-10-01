@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
+import { ChartDividersIcon } from '../components/icons/FeatureIcons'
 import { FaqAnswer } from '../components/FaqAnswer'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
@@ -122,6 +123,56 @@ function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; class
   )
 }
 
+// What a Kartenaufgabe run is like (ADR-0052/0053), ahead of its release: text only, no link — the
+// feature is still behind the CHART_EXERCISES flag, and no WSV material (solutions, drawings, the
+// Formblatt) is shown on a public page before its usage rights are confirmed.
+const CHART_FEATURES = [
+  [
+    'Aufgabe für Aufgabe',
+    'Die amtlichen Kartenaufgaben der WSV, eine Teilaufgabe nach der anderen – wie auf dem Prüfungsbogen, mit Punkten je Aufgabe.',
+  ],
+  [
+    'Lösung mit Herleitung',
+    'Nach deiner Antwort die amtliche Lösung mit Toleranz und auf Wunsch die Herleitung: Gezeitenrechnung, Kursumwandlung, Stromdreieck – Schritt für Schritt erklärt.',
+  ],
+  [
+    'Formblatt am Bildschirm',
+    'Das Formblatt Gezeiten zum Ausfüllen, deine bisherigen Antworten und die Regeln des Bogens immer griffbereit.',
+  ],
+]
+
+function ChartExercisesPreview() {
+  return (
+    <section aria-labelledby="kartenaufgaben" className="mt-20 rounded-tile border border-dashed border-primary p-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <ChartDividersIcon className="size-8 text-primary" />
+        <h3 id="kartenaufgaben" className="font-serif text-2xl text-primary">
+          Kartenaufgaben
+        </h3>
+        <span className="rounded-tile bg-accent px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase">
+          Vorschau · bald verfügbar
+        </span>
+      </div>
+      <p className="mt-3 max-w-xl text-sm text-ink-soft">
+        Der zweite Teil der schriftlichen Prüfung: Navigationsaufgaben in der Übungskarte, 30 Punkte in 90 Minuten. SKS
+        Lotse führt dich durch die amtlichen Aufgaben und ihre Lösungen.
+      </p>
+      <Columns className="mt-8 sm:grid-cols-3">
+        {CHART_FEATURES.map(([title, text]) => (
+          <div key={title} className="flex flex-col gap-2">
+            <h4 className="font-serif text-xl leading-snug text-primary">{title}</h4>
+            <p className="text-sm leading-relaxed text-ink-soft">{text}</p>
+          </div>
+        ))}
+      </Columns>
+      <p className="mt-8 text-xs text-ink-soft">
+        Rechnen und zeichnen tust du in deiner eigenen Seekarte: Übungskarte 49 (INT 1463), Karte 1/INT 1, Begleitheft
+        und Navigationsbesteck gehören nicht zu SKS Lotse.
+      </p>
+    </section>
+  )
+}
+
 export function LandingPage() {
   // Logged-in visitors get the main nav (and the phone tab bar) and links into the app instead
   // of the sign-up form.
@@ -172,7 +223,7 @@ export function LandingPage() {
               ],
               [
                 'Selbst bewerten',
-                'Richtig, teilweise richtig oder falsch: Deine Einschätzung bestimmt, welche Fragen du wiederholst, bis du sie sicher kannst.',
+                'Richtig, teilweise richtig oder falsch: Mit Konto bestimmt deine Einschätzung, welche Fragen du wiederholst, bis du sie sicher kannst.',
               ],
             ].map(([title, text]) => (
               <div key={title} className="flex flex-col gap-6">
@@ -193,7 +244,10 @@ export function LandingPage() {
                   'Kein Download',
                   'Die SKS App läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download nötig.',
                 ],
-                ['Offener Katalog', 'Der amtliche Fragenkatalog und die Musterantworten stehen von Anfang an offen.'],
+                [
+                  'Offener Katalog',
+                  'Alle Fragen und Musterantworten des amtlichen Katalogs stehen offen – zum Üben auch ohne Anmeldung.',
+                ],
               ].map(([title, text]) => (
                 <div key={title} className="flex flex-col gap-6">
                   <h3 className="font-serif text-2xl">{title}</h3>
@@ -213,10 +267,12 @@ export function LandingPage() {
 
           <h3 className="mt-20 font-serif text-2xl text-primary">Probeprüfung</h3>
           <p className="mt-3 max-w-xl text-sm text-ink-soft">
-            Teste dich unter realistischen Bedingungen: ein kompletter Fragebogen, danach Auswertung und Statistik in
-            deinem Profil.
+            Der erste Teil der schriftlichen Prüfung unter realistischen Bedingungen: ein kompletter Fragebogen, danach
+            Auswertung und Statistik in deinem Profil.
           </p>
           <ScreenshotList items={EXAM_SCREENSHOTS} className="mt-10" />
+
+          <ChartExercisesPreview />
         </section>
 
         <section className={`${CONTENT} py-16`}>
@@ -224,9 +280,10 @@ export function LandingPage() {
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
             Die theoretische SKS-Prüfung deckt vier Fächer ab: Navigation, Schifffahrtsrecht, Wetterkunde und
             Seemannschaft. Im echten Fragebogen sind sie mit 9, 7, 5 und 9 Fragen vertreten – zusammen 30 Fragen in 90
-            Minuten, ohne Hilfsmittel. SKS Lotse bildet den kompletten amtlichen Fragenkatalog ab, in beiden
-            Prüfungsvarianten „Segeln und Motor" und „Motor" – mit genau den Originalfragen und -musterantworten, die
-            auch im Examen vorkommen, nicht mit umformulierten oder gekürzten Versionen.
+            Minuten, ohne Hilfsmittel. Zweiter Teil der schriftlichen Prüfung ist die Kartenaufgabe in der Übungskarte.
+            SKS Lotse bildet den kompletten amtlichen Fragenkatalog ab, in beiden Prüfungsvarianten „Segeln und Motor"
+            und „Motor" – mit genau den Originalfragen und -musterantworten, die auch im Examen vorkommen, nicht mit
+            umformulierten oder gekürzten Versionen.
           </p>
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <Link to="/learn" className="text-primary underline hover:no-underline">

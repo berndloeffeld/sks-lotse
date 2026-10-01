@@ -90,7 +90,7 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). They are prepared for search engines and listed in the sitemap.
+Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (text only, marked "bald verfügbar", no link while they are behind the flag). They are prepared for search engines and listed in the sitemap.
 
 ## Privacy
 
