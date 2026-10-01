@@ -94,8 +94,8 @@ Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam 
 ## Operator tools (not for learners)
 
 Protected by an allowlist and a two-factor code (authenticator app):
-- Search, view, export, delete and block accounts; credit tokens or ad-free by hand.
-- Blocklist for email addresses and domains against abuse.
+- Search, view, export, delete and block accounts; credit tokens or ad-free by hand, take tokens back after a refund or chargeback (never below 0).
+- Blocklist for email addresses and domains against abuse; a blocked address is deleted automatically 24 months after the block, a domain stays until removed.
 - Set prices and packages.
 - Search questions and model answers across the whole catalog (by text, number, subject and topic), and see per question who graded it when, how, and which memory estimate (half-life) came of it (recorded since this view went live).
 - Daily KPI report by email; a maintenance mode for when something goes wrong.

@@ -21,6 +21,7 @@ from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
+    AdminBlocklistEntryExport,
     AdminChartAttemptExport,
     AdminChartTaskExport,
     AdminExamAttemptExport,
@@ -189,6 +190,10 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
             for grading, subject, number in grading_rows
         ],
         purchases=[_from_row(AdminPurchaseExport, purchase) for purchase in purchases],
+        blocklist_entries=[
+            _from_row(AdminBlocklistEntryExport, entry, expires_at=blocklist.expires_at(entry))
+            for entry in blocklist.entries_for(db, user.email)
+        ],
         exported_at=datetime.now(UTC),
     )
 

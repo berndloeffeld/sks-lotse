@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.jwt import create_access_token
 from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import OTP_PURPOSE_LOGIN
-from app.models import OtpCode, Question, QuestionProgress, User
+from app.models import BlockedEmail, OtpCode, Question, QuestionProgress, User
 from app.models.purchase import Purchase
 from app.services import blocklist
 from tests.helpers import progress_state
@@ -230,6 +230,18 @@ def test_request_otp_cleans_up_codes_past_retention(client, db_session, monkeypa
     remaining_ids = {row.id for row in db_session.query(OtpCode).all()}
     assert stale_id not in remaining_ids
     assert recent_id in remaining_ids
+
+
+def test_request_otp_sweep_also_purges_expired_blocklist_entries(client, db_session, monkeypatch):
+    _capture_otp(monkeypatch)
+    old = BlockedEmail(kind="email", value="old@example.com", created_by="admin@example.com")
+    old.created_at = datetime.now(UTC) - timedelta(days=blocklist.EMAIL_ENTRY_RETENTION_DAYS + 1)
+    db_session.add(old)
+    db_session.commit()
+
+    client.post("/api/v1/auth/otp/request", json={"email": "someone-else@example.com"})
+
+    assert db_session.query(BlockedEmail).count() == 0
 
 
 def test_request_otp_cleanup_is_throttled_across_requests(client, db_session, monkeypatch):

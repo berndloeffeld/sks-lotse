@@ -1,6 +1,6 @@
 # 0045. Manual email/domain blocklist for spam and abuse
 
-Status: Accepted; amended by the addendum of 2026-09-24 (verifying a code checks the blocklist too).
+Status: Accepted; amended by the addenda of 2026-09-24 (verifying a code checks the blocklist too) and 2026-10-01 (email entries expire after 24 months, in the export and the Datenschutzerklärung).
 
 ## Context
 
@@ -41,3 +41,14 @@ New admin endpoints: `GET/POST /admin/blocklist`, `DELETE /admin/blocklist/{id}`
 ## Addendum 2026-09-24: a block also stops codes already sent
 
 `POST /auth/otp/verify` now checks the blocklist too, after consuming the code, and answers a blocked address exactly like a wrong code (`401 Invalid or expired code`). Before that, a code requested just before the block still opened a new session for up to `OTP_TTL_MINUTES`. This applies to email and domain entries alike; a domain block still leaves sessions that already exist on that domain alone.
+
+## Addendum 2026-10-01: retention, export and Datenschutzerklärung for email entries
+
+An email entry is personal data — the address, an optional free-text reason about the person, when and by which admin — and it deliberately outlives the account it blocks (deleting the account must not lift the block, or the block is worthless). As decided above it had no expiry, it wasn't in the Art. 15 export (only the derived `is_blocked`), and the Datenschutzerklärung didn't mention it, which broke the rule that personal data is deleted, exported and described.
+
+- **Retention: 24 months after the block, for email entries only** (`blocklist.EMAIL_ENTRY_RETENTION_DAYS`). Long enough that a blocked sender can't just come back after a few weeks, short enough to justify as necessary under Art. 6(1)(f). Domain entries keep "until an admin removes them": a domain names a mail provider or a spam operation, not usually one person, and making the operator re-block a spam domain every two years would buy little privacy.
+- **Enforcement in two steps.** `_load` (the cached hot-path set) ignores expired email entries, so the block ends exactly on the day, independent of any job. The rows are deleted by `blocklist.purge_expired`, run on the existing throttled OTP cleanup sweep (`otp_codes._cleanup_expired_codes`, ADR-0010) — no new job, same cadence-bounded cost. The cache isn't invalidated after the purge; it no longer contains those entries anyway.
+- **Export**: `blocklist_entries` in `AdminUserExport` lists the live entries matching the account's address — its own email entry and its domain's — with kind, value, reason, created_at and expires_at. Not `created_by`: that's the admin's address, not the learner's data. The export only exists while the account does; a request from someone whose account is already deleted is answered by hand (RUNBOOK → Data-subject requests).
+- **Datenschutzerklärung**: own section "Sperrung bei Missbrauch" (purpose, Art. 6 Abs. 1 lit. f, survives account deletion, 24 months, objection under Art. 21).
+
+**Rejected — delete the email entry with the account:** the most frequent reason to block is a throwaway signup that the operator then deletes; tying the entry to the account would undo the block in that exact case.

@@ -85,8 +85,8 @@ def update_user(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
-    """Remove ads or grant tokens (ADR-0043) — an off-platform payment the operator credits by
-    hand until a payment provider exists."""
+    """Remove ads, grant tokens (ADR-0043) — an off-platform payment the operator credits by
+    hand — or take tokens back after a refund or chargeback (never below 0)."""
     user = _get_user_or_404(db, user_id)
     turning_ads_removed_on = payload.ads_removed is not None and payload.ads_removed and not user.ads_removed
     if payload.ads_removed is not None:
@@ -115,12 +115,19 @@ def update_user(
             granted_by="admin_manual",
             admin_user_id=admin.id,
         )
+    debited = {}
+    if payload.debit_tokens is not None:
+        # The audit line gets what was actually taken — less than asked when the balance was lower.
+        debited["debited"] = token_wallet.debit(
+            db, user.id, tokens=payload.debit_tokens, admin_user_id=admin.id
+        )
     db.commit()
     _audit(
         admin,
         "update_user",
         target_user=user.id,
         **payload.model_dump(exclude_unset=True, exclude={"grant_amount_eur_cents"}),
+        **debited,
     )
     return admin_users.admin_user_read(request.app, db, user)
 

@@ -23,11 +23,16 @@ class AdminUserUpdate(BaseModel):
     # goodwill grant with no payment behind it.
     grant_tokens: int | None = Field(default=None, ge=1, le=MAX_GRANT_TOKENS)
     grant_amount_eur_cents: int | None = Field(default=None, ge=0, le=MAX_GRANT_AMOUNT_EUR_CENTS)
+    # Take tokens back, e.g. after a refund or chargeback (RUNBOOK → Stripe checkout). Never below
+    # 0: at most the current balance is taken (services/token_wallet.py::debit).
+    debit_tokens: int | None = Field(default=None, ge=1, le=MAX_GRANT_TOKENS)
 
     @model_validator(mode="after")
     def _require_a_field(self) -> "AdminUserUpdate":
-        if self.ads_removed is None and self.grant_tokens is None:
-            raise ValueError("at least one of ads_removed, grant_tokens required")
+        if self.ads_removed is None and self.grant_tokens is None and self.debit_tokens is None:
+            raise ValueError("at least one of ads_removed, grant_tokens, debit_tokens required")
+        if self.grant_tokens is not None and self.debit_tokens is not None:
+            raise ValueError("grant_tokens and debit_tokens are mutually exclusive")
         return self
 
 
@@ -192,6 +197,17 @@ class AdminPurchaseExport(BaseModel):
     created_at: datetime
 
 
+class AdminBlocklistEntryExport(BaseModel):
+    # A blocklist entry that matches this account's address (ADR-0045): its own email entry and/or
+    # its domain's. Without created_by — that's the admin's address, not the learner's data.
+    kind: str
+    value: str
+    reason: str | None
+    created_at: datetime
+    # When retention deletes it (email entries, 24 months); None for a domain entry.
+    expires_at: datetime | None
+
+
 class AdminUserExport(BaseModel):
     user: AdminUserRead
     question_progress: list[AdminQuestionProgressExport]
@@ -201,6 +217,7 @@ class AdminUserExport(BaseModel):
     exam_attempts: list[AdminExamAttemptExport]
     chart_attempts: list[AdminChartAttemptExport]
     purchases: list[AdminPurchaseExport]
+    blocklist_entries: list[AdminBlocklistEntryExport]
     exported_at: datetime
 
 
