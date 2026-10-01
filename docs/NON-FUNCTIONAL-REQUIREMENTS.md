@@ -26,7 +26,8 @@ Derived load (planning figure):
 
 | Area | Requirement |
 |---|---|
-| Security | Login required; hashed, short-lived, purpose-bound email codes |
+| Security | Login required for anything stored; the catalog by topic is open, served statically, with no open API route for it |
+| | Hashed, short-lived, purpose-bound email codes |
 | | Session cookie not readable by scripts, `__Host-` prefixed when deployed; logout ends all sessions |
 | | Every route needs a session unless listed as public |
 | | Layered abuse protection (IP and email limits, blocklists) |
@@ -45,5 +46,5 @@ Derived load (planning figure):
 | | Monitoring and status page (partly: no target) |
 | | Configurable maintenance mode |
 | Performance | Catalog served from memory; cap on concurrent LLM calls |
-| | Prerendered public pages, cached hashed assets, self-hosted fonts |
+| | Prerendered public pages, incl. the catalog by topic (guests cause no API load beyond the session check), cached hashed assets, self-hosted fonts |
 | | One instance, one worker, on purpose |

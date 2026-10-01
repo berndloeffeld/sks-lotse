@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
+import { primeCatalog, resetCatalog } from '../catalog'
 import { ProtectedRoute } from '../routes/ProtectedRoute'
 import { useAuthStore } from '../store/authStore'
 import { LearnPage } from './LearnPage'
@@ -291,5 +292,57 @@ describe('LearnPage', () => {
 
     expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /Zurück/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('LearnPage without a login', () => {
+  afterEach(() => {
+    cleanup()
+    resetCatalog()
+  })
+
+  it('lists every topic of the catalog export to practise, and what an account adds', () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const question = (subject: string, number: number, topic: string) => ({
+      subject,
+      number,
+      topic,
+      question_text: 'F',
+      answer_text: 'A',
+      question_images: [],
+      answer_images: [],
+    })
+    primeCatalog({
+      topics: [
+        { subject: 'navigation', slug: 'seekarten', name: 'Seekarten', display_order: 1 },
+        { subject: 'seemannschaft_motor', slug: 'motor', name: 'Motorkunde', display_order: 1 },
+      ],
+      questions: [
+        question('navigation', 1, 'seekarten'),
+        question('navigation', 2, 'seekarten'),
+        question('seemannschaft_motor', 3, 'motor'),
+      ],
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/learn']}>
+        <LearnPage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Seemannschaft (Motor)' })).toBeInTheDocument()
+    expect(screen.getByText('Seekarten')).toBeInTheDocument()
+    expect(screen.getByText('2 Fragen')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Lernen starten' }).map((l) => l.getAttribute('href'))).toEqual([
+      '/learn/navigation/seekarten',
+      '/learn/seemannschaft_motor/motor',
+    ])
+    expect(screen.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Gesamtfortschritt/)).not.toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

@@ -17,6 +17,7 @@ What sets it apart from simply paging through the catalog:
 ## Access and account
 
 - **Sign-in with an email address and a one-time code only.** There is no password. Without signing in there is no progress; with it, progress is the same on every device.
+- **Without signing in**, "Lernen nach Thema" is open: every topic of the catalog (both Seemannschaft variants), each question with the official answer. Guests write their answer, reveal the official one, grade themselves and get the round's summary, but nothing is saved: no Lernstand, nothing sent. Fokus, Auffrischen, the Probeprüfung and the Lotsen-Check need an account.
 - **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.
 - **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address), delete the account oneself.
 - The terms (AGB) are confirmed once per version.
@@ -89,7 +90,7 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms. They are prepared for search engines.
+Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). They are prepared for search engines and listed in the sitemap.
 
 ## Privacy
 

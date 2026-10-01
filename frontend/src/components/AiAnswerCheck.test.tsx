@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAuthStore } from '../store/authStore'
 import { AI_CHECK_MAX_ANSWER_CHARS, AiAnswerCheck } from './AiAnswerCheck'
@@ -12,6 +12,8 @@ const user = makeUser({ token_balance: 1 })
 const ROW = { name: /Antwort vom Lotsen bewerten lassen/ }
 
 describe('AiAnswerCheck', () => {
+  // Logged in unless a test says otherwise; each test sets its own user.
+  beforeEach(() => useAuthStore.setState({ isAuthenticated: true }))
   afterEach(() => {
     cleanup()
     delete window.umami
@@ -27,6 +29,25 @@ describe('AiAnswerCheck', () => {
     expect(row).toBeDisabled()
     expect(row).toHaveTextContent('bald verfügbar')
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('is a teaser for guests: dimmed, inviting to sign up, never calling the grading endpoint', () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(
+      <MemoryRouter>
+        <AiAnswerCheck questionId={-1} answer="links" onSuggest={vi.fn()} />
+      </MemoryRouter>,
+    )
+
+    const row = screen.getByRole('button', ROW)
+    expect(row).toBeDisabled()
+    expect(row).toHaveTextContent('Mit Anmeldung, Start-Tokens geschenkt')
+    expect(row).toHaveAttribute('title', 'Mit Anmeldung: KI-Prüfung deiner Antwort')
+    expect(screen.getByRole('link', { name: 'Anmelden und den Lotsen fragen' })).toHaveAttribute('href', '/login')
+    expect(screen.queryByRole('link', { name: 'Tokens kaufen' })).not.toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
 

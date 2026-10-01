@@ -6,11 +6,15 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   return isActive ? HEADER_LINK_ACTIVE : HEADER_LINK
 }
 
-// Content links in the logged-out header (Header's default nav). Logged in, Prüfungsablauf and FAQ
+// Content links in the logged-out header (Header's default nav), led by the topics open to
+// practise without a login (ADR-0054). Logged in, Prüfungsablauf and FAQ
 // are in the footer (LegalFooter) and the prices behind the token balance and the Konto menu.
 export function MarketingLinks() {
   return (
     <>
+      <NavLink to="/learn" className={navLinkClass}>
+        Lernen
+      </NavLink>
       <NavLink to="/exam-process" className={navLinkClass}>
         Prüfungsablauf
       </NavLink>

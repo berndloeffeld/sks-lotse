@@ -14,7 +14,7 @@ import { useAuthStore } from '../store/authStore'
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
 // preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
-const LANDING_FAQ_IDS = new Set(['quelle', 'varianten', 'gelernt', 'pruefungssimulation'])
+const LANDING_FAQ_IDS = new Set(['quelle', 'ohne-anmeldung', 'varianten', 'gelernt', 'pruefungssimulation'])
 const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 
 // Banded layout after a website template: full-width color bands (light
@@ -146,9 +146,14 @@ export function LandingPage() {
                 Jetzt loslegen
               </Link>
             ) : (
-              <a href="#anmelden" className={HERO_CTA}>
-                Jetzt loslegen
-              </a>
+              <>
+                <a href="#anmelden" className={HERO_CTA}>
+                  Jetzt loslegen
+                </a>
+                <Link to="/learn" className="mt-5 text-sm text-surface-alt underline hover:text-surface">
+                  Oder gleich ohne Anmeldung die Fragen üben
+                </Link>
+              </>
             )}
           </div>
         </HeroBand>
@@ -223,9 +228,14 @@ export function LandingPage() {
             Prüfungsvarianten „Segeln und Motor" und „Motor" – mit genau den Originalfragen und -musterantworten, die
             auch im Examen vorkommen, nicht mit umformulierten oder gekürzten Versionen.
           </p>
-          <Link to="/faq" className="mt-4 inline-block text-sm text-primary underline hover:no-underline">
-            Mehr zum Fragenkatalog in den häufigen Fragen
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link to="/learn" className="text-primary underline hover:no-underline">
+              Alle Fragen nach Themen, frei zum Üben
+            </Link>
+            <Link to="/faq" className="text-primary underline hover:no-underline">
+              Mehr zum Fragenkatalog in den häufigen Fragen
+            </Link>
+          </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
             Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
             der Theorie weitergeht?{' '}
@@ -284,6 +294,7 @@ export function LandingPage() {
               <h2 className="font-serif text-3xl">Jetzt loslegen</h2>
               <dl className="flex flex-col gap-3 text-sm text-surface-alt">
                 {[
+                  ['Ohne Anmeldung', 'alle Fragen frei üben, ohne Lernstand'],
                   ['Anmeldung', 'per E-Mail-Code, ohne Passwort'],
                   ['Fortschritt', 'wird in deinem Konto gespeichert'],
                   ['Kosten', 'kostenlos, Erweiterungen optional'],

@@ -72,16 +72,22 @@ export function PrivacyPage() {
 
       <ProseSection title="Lernfortschritt und Profil">
         <p>
-          Wir speichern Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete Lernstand),
-          einschließlich eines Verlaufs Ihrer Bewertungen (Zeitpunkt, Selbsteinschätzung und der jeweils daraus
-          berechnete Lernstand), den der Betreiber zur Prüfung und Verbesserung der Lernlogik einsehen kann, sowie die
-          von Ihnen gewählte Prüfungsvariante und die Themen, die Sie als Fokus markiert haben. Optional können Sie in
-          Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig. Rechtsgrundlage ist
-          Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Lernangebots), für freiwillige Angaben Art. 6 Abs. 1 lit. a
-          DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit selbst unter
-          „Profil“ löschen; dabei werden Konto, Lernfortschritt, Fokus-Markierungen und Fragenmeldungen vollständig
-          gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art. 22 DSGVO
-          statt.
+          Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben. Dabei speichern
+          wir nichts zu Ihnen: Was Sie als Antwort eingeben, und Ihre Selbsteinschätzung bleiben in der geöffneten Seite
+          und werden weder übertragen noch gespeichert; einen Lernstand gibt es nur mit Konto. Es gelten nur die Angaben
+          zum Hosting und zur Werbung.
+        </p>
+        <p>
+          Mit Konto speichern wir Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete
+          Lernstand), einschließlich eines Verlaufs Ihrer Bewertungen (Zeitpunkt, Selbsteinschätzung und der jeweils
+          daraus berechnete Lernstand), den der Betreiber zur Prüfung und Verbesserung der Lernlogik einsehen kann,
+          sowie die von Ihnen gewählte Prüfungsvariante und die Themen, die Sie als Fokus markiert haben. Optional
+          können Sie in Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Lernangebots), für freiwillige Angaben Art.
+          6 Abs. 1 lit. a DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit
+          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt, Fokus-Markierungen und Fragenmeldungen
+          vollständig gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art.
+          22 DSGVO statt.
         </p>
         <p>
           Wenn Sie die Probeprüfung nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen, die

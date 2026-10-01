@@ -62,7 +62,8 @@ function Ribbon() {
 // the grade radios. A stateless LLM check of the written answer that only *suggests* a grade, 1
 // token each — the token balance is the sole spending control. The learner who is sure just
 // grades. Accounts with no tokens see it dimmed — with a link to buy more where the checkout is
-// open to them (ADR-0048), with "bald verfügbar" otherwise (prices live on /pricing).
+// open to them (ADR-0048), with "bald verfügbar" otherwise (prices live on /pricing). Guests (no
+// login, ADR-0054) see it dimmed as a teaser, with a link to sign up: an account starts with tokens.
 // Keyed by question in the parent.
 export function AiAnswerCheck({
   questionId,
@@ -79,7 +80,12 @@ export function AiAnswerCheck({
 
   const hasTokens = (user?.token_balance ?? 0) > 0
   const canBuy = user?.can_buy_tokens ?? false
-  const outOfTokens = canBuy ? 'Keine Tokens mehr' : 'bald verfügbar'
+  const isGuest = !useAuthStore((s) => s.isAuthenticated)
+  const outOfTokens = isGuest
+    ? 'Mit Anmeldung, Start-Tokens geschenkt'
+    : canBuy
+      ? 'Keine Tokens mehr'
+      : 'bald verfügbar'
   const hasAnswer = answer.trim().length > 0
   const tooLong = answer.length > AI_CHECK_MAX_ANSWER_CHARS
 
@@ -124,7 +130,15 @@ export function AiAnswerCheck({
           ref={buttonRef}
           type="button"
           disabled={isDisabled}
-          title={hasTokens ? SEND_NOTICE : canBuy ? 'Keine Tokens mehr' : 'Bald verfügbar: KI-Prüfung deiner Antwort'}
+          title={
+            hasTokens
+              ? SEND_NOTICE
+              : isGuest
+                ? 'Mit Anmeldung: KI-Prüfung deiner Antwort'
+                : canBuy
+                  ? 'Keine Tokens mehr'
+                  : 'Bald verfügbar: KI-Prüfung deiner Antwort'
+          }
           aria-describedby={`ai-check-notice-${questionId}`}
           onClick={check}
           onKeyDown={onButtonKeyDown}
@@ -138,6 +152,11 @@ export function AiAnswerCheck({
           <Ribbon />
         </button>
       )}
+      {isGuest ? (
+        <Link to="/login" className="self-start text-sm text-primary underline">
+          Anmelden und den Lotsen fragen
+        </Link>
+      ) : null}
       {!hasTokens && canBuy && !result ? (
         <Link to="/pricing" className="self-start text-sm text-primary underline">
           Tokens kaufen

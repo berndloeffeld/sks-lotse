@@ -34,6 +34,7 @@ of this module's logic.
 """
 
 import dataclasses
+import json
 import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -53,6 +54,8 @@ SEEMANNSCHAFT_DUPLICATES_PATH = DATA_DIR / "seemannschaft_duplicates.yaml"
 IMAGES_PATH = DATA_DIR / "question_images.yaml"
 # The static frontend serves these (ADR-0033); the API only hands out file names.
 IMAGES_DIR = _BACKEND_DIR.parent / "frontend" / "public" / "catalog"
+# The catalog as the frontend reads it without a login (catalog_export below, ADR-0054).
+EXPORT_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "data" / "catalog.gen.json"
 
 SUBJECTS = [
     ("navigation", "Navigation"),
@@ -415,6 +418,45 @@ def attach_images(questions: list[CatalogQuestion]) -> list[CatalogQuestion]:
 def build_catalog() -> list[CatalogQuestion]:
     """The complete target catalog: parse -> images -> merge -> topic assignment."""
     return assign_topics(merge_seemannschaft(attach_images(parse_catalog_pdf())))
+
+
+def catalog_export(questions: Sequence[CatalogQuestion], topics: Mapping[str, list[dict]]) -> dict:
+    """The catalog for the frontend's logged-out "Lernen nach Thema" and its prerender (ADR-0054).
+
+    Ordered like the questions API (services/catalog.py): by subject, topic and number. Only
+    topics with questions, only questions with a topic, and nothing but the catalog's own content.
+    """
+    order = {(subject, t["slug"]): t["display_order"] for subject, ts in topics.items() for t in ts}
+    placed = sorted(
+        (q for q in questions if (q.subject, q.topic_slug) in order),
+        key=lambda q: (q.subject, order[(q.subject, q.topic_slug)], q.number),
+    )
+    used = {(q.subject, q.topic_slug) for q in placed}
+    return {
+        "topics": [
+            {"subject": subject, "slug": t["slug"], "name": t["name"], "display_order": t["display_order"]}
+            for subject in sorted(topics)
+            for t in sorted(topics[subject], key=lambda t: t["display_order"])
+            if (subject, t["slug"]) in used
+        ],
+        "questions": [
+            {
+                "subject": q.subject,
+                "number": q.number,
+                "topic": q.topic_slug,
+                "question_text": q.question_text,
+                "answer_text": q.answer_text,
+                "question_images": [dataclasses.asdict(image) for image in q.question_images],
+                "answer_images": [dataclasses.asdict(image) for image in q.answer_images],
+            }
+            for q in placed
+        ],
+    }
+
+
+def render_catalog_export(export: dict) -> str:
+    """The export file's exact text: stable, so a stale file shows up as a diff."""
+    return json.dumps(export, ensure_ascii=False, indent=1) + "\n"
 
 
 def _rekey_seemannschaft(connection: Connection, questions: list[CatalogQuestion]) -> None:

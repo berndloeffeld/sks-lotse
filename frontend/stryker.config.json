@@ -28,7 +28,10 @@
     "src/share.ts",
     "src/legal.ts",
     "src/chartPoints.ts",
-    "src/navigation.ts"
+    "src/navigation.ts",
+    "src/catalog.ts",
+    "src/publicPages.ts",
+    "src/hooks/useCatalog.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

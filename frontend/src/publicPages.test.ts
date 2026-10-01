@@ -1,0 +1,132 @@
+import { describe, expect, it } from 'vitest'
+
+import type { CatalogExport } from './catalog'
+import { applyMeta, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+
+const CATALOG: CatalogExport = {
+  topics: [
+    { subject: 'navigation', slug: 'seekarten', name: 'Seekarten', display_order: 1 },
+    { subject: 'wetterkunde', slug: 'wind', name: 'Wind & "Böen"', display_order: 1 },
+  ],
+  questions: [
+    {
+      subject: 'navigation',
+      number: 1,
+      topic: 'seekarten',
+      question_text: 'F',
+      answer_text: 'A',
+      question_images: [],
+      answer_images: [],
+    },
+    {
+      subject: 'navigation',
+      number: 2,
+      topic: 'seekarten',
+      question_text: 'F',
+      answer_text: 'A',
+      question_images: [],
+      answer_images: [],
+    },
+    {
+      subject: 'wetterkunde',
+      number: 3,
+      topic: 'wind',
+      question_text: 'F',
+      answer_text: 'A',
+      question_images: [],
+      answer_images: [],
+    },
+  ],
+}
+
+const SHELL = `<head>
+<title>SKS Lotse</title>
+<meta name="description" content="Start" />
+<link rel="canonical" href="https://sks-lotse.de/" />
+<meta property="og:url" content="https://sks-lotse.de/" />
+<meta property="og:title" content="SKS Lotse" />
+<meta property="og:description" content="Start" />
+<meta name="twitter:title" content="SKS Lotse" />
+<meta name="twitter:description" content="Start" />
+<script type="application/ld+json">{"@type":"WebApplication"}</script>
+</head>`
+
+describe('learnPages', () => {
+  it('has /learn and one page per topic, all without the static ad script', () => {
+    const pages = learnPages(CATALOG)
+
+    expect(pages.map((p) => [p.path, p.file])).toEqual([
+      ['/learn', 'learn.html'],
+      ['/learn/navigation/seekarten', 'learn/navigation/seekarten.html'],
+      ['/learn/wetterkunde/wind', 'learn/wetterkunde/wind.html'],
+    ])
+    expect(pages.every((p) => p.withoutAds)).toBe(true)
+    expect(pages[0].meta?.description).toContain('Alle 3 Fragen')
+    expect(pages[1].meta).toEqual({
+      title: 'Seekarten – SKS-Fragen Navigation – SKS Lotse',
+      description:
+        'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.',
+      canonical: 'https://sks-lotse.de/learn/navigation/seekarten',
+    })
+  })
+})
+
+describe('publicPages', () => {
+  it('keeps the static pages, the ad script off /pricing only among them', () => {
+    const pages = publicPages(CATALOG)
+    const statics = pages.slice(0, 7)
+    expect(statics.map((p) => p.path)).toEqual([
+      '/',
+      '/faq',
+      '/imprint',
+      '/privacy',
+      '/terms',
+      '/exam-process',
+      '/pricing',
+    ])
+    expect(statics.filter((p) => p.withoutAds).map((p) => p.path)).toEqual(['/pricing'])
+    expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
+    expect(statics[1].file).toBe('faq.html')
+  })
+})
+
+describe('escapeHtml', () => {
+  it('escapes everything that could end an attribute or element', () => {
+    expect(escapeHtml(`a & b <c> "d" 'e'`)).toBe('a &amp; b &lt;c&gt; &quot;d&quot; &#39;e&#39;')
+  })
+})
+
+describe('applyMeta', () => {
+  it('sets title, description and canonical everywhere, escaped, and drops the JSON-LD', () => {
+    const html = applyMeta(SHELL, {
+      title: 'Wind & "Böen" $&',
+      description: 'Über <Wind>',
+      canonical: 'https://sks-lotse.de/learn/wetterkunde/wind',
+    })
+
+    expect(html).toContain('<title>Wind &amp; &quot;Böen&quot; $&amp;</title>')
+    expect(html).toContain('<meta name="description" content="Über &lt;Wind&gt;" />')
+    expect(html).toContain('<link rel="canonical" href="https://sks-lotse.de/learn/wetterkunde/wind" />')
+    expect(html).toContain('<meta property="og:url" content="https://sks-lotse.de/learn/wetterkunde/wind" />')
+    expect(html).toContain('<meta property="og:title" content="Wind &amp; &quot;Böen&quot; $&amp;" />')
+    expect(html).toContain('<meta property="og:description" content="Über &lt;Wind&gt;" />')
+    expect(html).toContain('<meta name="twitter:title" content="Wind &amp; &quot;Böen&quot; $&amp;" />')
+    expect(html).toContain('<meta name="twitter:description" content="Über &lt;Wind&gt;" />')
+    expect(html).not.toContain('ld+json')
+    expect(html).not.toContain('content="Start"')
+  })
+})
+
+describe('sitemapXml', () => {
+  it('lists every page under the site', () => {
+    const xml = sitemapXml([
+      { path: '/', file: 'index.html' },
+      { path: '/learn', file: 'learn.html' },
+    ])
+    expect(xml).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '  <url>\n    <loc>https://sks-lotse.de/</loc>\n  </url>\n' +
+        '  <url>\n    <loc>https://sks-lotse.de/learn</loc>\n  </url>\n</urlset>\n',
+    )
+  })
+})

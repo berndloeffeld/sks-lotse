@@ -7,8 +7,8 @@ import { AGB_VERSION } from '../legal'
 import { useAuthStore } from '../store/authStore'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 
-// Sits inside ProtectedRoute (only reached once authenticated). The protected
-// page always renders (via Outlet) so the app doesn't visually disappear;
+// Wraps the logged-in routes and the pages open to guests too (/learn, ADR-0054); it only ever
+// asks a logged-in learner. The page always renders (via Outlet) so the app doesn't visually disappear;
 // when the account's stored AGB version doesn't match the current one — a
 // fresh acceptance, or AGB_VERSION was bumped since the last login — a modal
 // overlay blocks it until confirmed. No per-login checkbox: friction only

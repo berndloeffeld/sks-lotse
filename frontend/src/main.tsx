@@ -15,6 +15,7 @@ import './index.css'
 import App from './App.tsx'
 import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
+import { loadCatalog } from './catalog.ts'
 
 initAnalytics()
 // Arriving from "Cookies" (footer) on a page without the consent API (ads.ts).
@@ -34,7 +35,19 @@ const app = (
 // container.
 const path = window.location.pathname.replace(/(.)\/$/, '$1')
 if (container.hasChildNodes() && container.dataset.prerendered === path) {
-  hydrateRoot(container, app)
+  // The open /learn pages (ADR-0054) were rendered from the catalog export; the first render
+  // needs it too, or it wouldn't match. If it fails to load, render afresh rather than not at all.
+  if (path.startsWith('/learn')) {
+    loadCatalog().then(
+      () => hydrateRoot(container, app),
+      () => {
+        container.replaceChildren()
+        createRoot(container).render(app)
+      },
+    )
+  } else {
+    hydrateRoot(container, app)
+  }
 } else {
   container.replaceChildren()
   createRoot(container).render(app)

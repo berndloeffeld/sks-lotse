@@ -9,7 +9,7 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0003](0003-synchronous-grading-requests.md) | Synchronous grading requests | Accepted — the provider changed from OpenAI to Anthropic in [ADR-0031](0031-ai-answer-check-with-claude-haiku.md); the synchronous request/response decision stands. |
 | [0004](0004-anonymous-device-id-rate-limiting.md) | Anonymous device-ID rate limiting for grading requests | Superseded by [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) |
 | [0005](0005-render-deployment-topology.md) | Render deployment topology | Accepted — the "no frontend service yet" part is superseded by [ADR-0015](0015-frontend-deployment-topology.md) |
-| [0006](0006-mandatory-login-and-feature-gated-monetization.md) | Mandatory login and feature-gated monetization | Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); the rest stands |
+| [0006](0006-mandatory-login-and-feature-gated-monetization.md) | Mandatory login and feature-gated monetization | Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) ("Lernen nach Thema" open without a login, nothing saved); the rest stands |
 | [0007](0007-in-memory-per-ip-rate-limiting.md) | In-memory, per-IP rate limiting instead of Redis or a reverse proxy | Accepted |
 | [0008](0008-token-version-based-logout.md) | Token-version counter for logout, instead of a blacklist or short-lived tokens | Accepted |
 | [0009](0009-in-process-cache-for-question-catalog.md) | In-process cache for the question catalog | Accepted |
@@ -28,7 +28,7 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0022](0022-catalog-sync-by-upsert.md) | Sync the question catalog by upsert, through frozen table definitions | Accepted |
 | [0023](0023-self-assessed-learning-flow.md) | Self-assessed learning flow as the first write path to progress | Accepted |
 | [0024](0024-course-gauge-without-visible-step-count.md) | Course gauge: per-question progress without a visible step count | Accepted |
-| [0025](0025-build-time-prerender-of-the-landing-page.md) | Build-time prerender of the landing page | Accepted |
+| [0025](0025-build-time-prerender-of-the-landing-page.md) | Build-time prerender of the landing page | Accepted — amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) (the open /learn pages are prerendered too) |
 | [0026](0026-merge-seemannschaft-only-on-matching-wording.md) | Merge Seemannschaft I/II pairs only on matching wording; key Seemannschaft rows by official number | Accepted — supersedes the merge criterion ("near word-for-word identical questions") of [ADR-0017](0017-official-topic-taxonomy-and-seemannschaft-merge.md) and refines the upsert key of [ADR-0022](0022-catalog-sync-by-upsert.md) for the three Seemannschaft subjects |
 | [0027](0027-adsense-with-google-consent-management.md) | Google AdSense behind Google's own consent management | Accepted — partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md); amended by the addenda below (2026-09-20 to 2026-09-25). |
 | [0028](0028-focus-topics.md) | Focus topics | Accepted |
@@ -57,3 +57,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0051](0051-grading-log-for-admin-question-history.md) | A grading log for the admin's per-question history | Accepted |
 | [0052](0052-chart-exercises-from-reviewed-yaml.md) | Kartenaufgaben: ten fixed exercises from a reviewed YAML, solutions as images, behind a flag | Accepted — amended by [ADR-0053](0053-chart-solutions-transcribed-as-text.md): solutions are text now, and only transcribed sheets are in the app. |
 | [0053](0053-chart-solutions-transcribed-as-text.md) | Kartenaufgaben: official solutions transcribed as text, sheets added as they are reviewed | Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md). |
+| [0054](0054-learning-by-topic-open-without-login.md) | "Lernen nach Thema" open without a login, prerendered from a committed catalog export | Accepted — amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (login no longer required to read and practise the catalog) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the /learn pages are prerendered too). |

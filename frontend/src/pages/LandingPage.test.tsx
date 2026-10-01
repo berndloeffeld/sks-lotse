@@ -58,6 +58,21 @@ describe('LandingPage', () => {
     expect(screen.queryByText('Anzeige')).not.toBeInTheDocument()
   })
 
+  it('leads guests to the topics open without a login', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('link', { name: 'Oder gleich ohne Anmeldung die Fragen üben' })).toHaveAttribute(
+      'href',
+      '/learn',
+    )
+    expect(screen.getByRole('link', { name: 'Alle Fragen nach Themen, frei zum Üben' })).toHaveAttribute(
+      'href',
+      '/learn',
+    )
+    expect(screen.getByText('alle Fragen frei üben, ohne Lernstand')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Kann ich auch ohne Anmeldung lernen?' })).toBeInTheDocument()
+  })
+
   it('links to the exam process overview page', () => {
     renderLandingPage()
 

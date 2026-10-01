@@ -1,11 +1,20 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { Question, QuestionProgress } from '../api/types'
+import { primeCatalog, resetCatalog } from '../catalog'
 import { useAuthStore } from '../store/authStore'
 import { PracticePage } from './PracticePage'
+
+// The list of every question below the run repeats their texts; its own tests are in
+// TopicQuestionList.test.tsx, so here it only says which questions it got.
+vi.mock('../components/TopicQuestionList', () => ({
+  TopicQuestionList: ({ questions }: { questions: { number: number }[] }) => (
+    <p>Liste: {questions.map((q) => q.number).join(',')}</p>
+  ),
+}))
 import { focusWhenShown, jsonResponse, makeUser } from '../test/fixtures'
 
 function question(id: number, number: number): Question {
@@ -447,6 +456,82 @@ describe('PracticePage', () => {
     renderPracticePage()
 
     expect(await screen.findByText('Die Fragen konnten nicht geladen werden.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
+  })
+
+  it('lists every question of the topic below the run', async () => {
+    mockBackend({ questions: [question(1, 7), question(2, 8)] })
+    renderPracticePage()
+
+    expect(await screen.findByText('Liste: 7,8')).toBeInTheDocument()
+  })
+})
+
+describe('PracticePage without a login', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    mockReducedMotion(true)
+    primeCatalog({
+      topics,
+      questions: [7, 8].map((number) => ({
+        subject: 'navigation',
+        number,
+        question_text: `Frage ${number}?`,
+        answer_text: `Antwort ${number}.`,
+        question_images: [],
+        answer_images: [],
+        topic: 'ankern',
+      })),
+    })
+  })
+  afterEach(() => resetCatalog())
+
+  it('runs the topic from the catalog export in catalog order, grading only for the summary', async () => {
+    const fetchMock = mockBackend({})
+    const user = userEvent.setup()
+    renderPracticePage()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Ankern' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Frage 7?' })).toBeInTheDocument()
+    // Not pulled into the answer field on arrival.
+    expect(screen.getByLabelText(/Deine Antwort/)).not.toHaveFocus()
+    expect(screen.queryByRole('button', { name: /Frage melden/ })).not.toBeInTheDocument()
+    expect(screen.getByText('Liste: 7,8')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    expect(screen.getByText('Antwort 7.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: 'Anmelden und den Lotsen fragen' })).toHaveAttribute('href', '/login')
+    expect(screen.getByText(/zählt deine Bewertung nur für diese Runde/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Mit Anmeldung' })).toHaveAttribute('href', '/login')
+    await user.click(screen.getByRole('radio', { name: 'Richtig' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+
+    expect(await screen.findByRole('heading', { name: 'Frage 8?' })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Deine Antwort/)).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('radio', { name: 'Falsch' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+
+    expect(await screen.findByRole('heading', { name: 'Runde beendet' })).toBeInTheDocument()
+    const main = within(screen.getByRole('main'))
+    expect(main.getByText('Richtig').nextElementSibling).toHaveTextContent('1')
+    expect(main.getByText('Falsch').nextElementSibling).toHaveTextContent('1')
+    expect(main.queryByText('Neu gelernt')).not.toBeInTheDocument()
+    expect(main.getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
+    expect(window.localStorage.length).toBe(0)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('says so for a topic the catalog does not have', () => {
+    render(
+      <MemoryRouter initialEntries={['/learn/navigation/gibtsnicht']}>
+        <Routes>
+          <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('Zu diesem Thema gibt es keine Fragen.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
   })
 })
