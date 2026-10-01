@@ -15,4 +15,3 @@ The "in the same PR" duties from `CLAUDE.md`. Tick what applies, strike through 
 - [ ] New/renamed/deleted logic module: mutation scope updated (`only_mutate` in `backend/pyproject.toml`, `mutate` in `frontend/stryker.config.json`)
 - [ ] New table: cleanup of transient rows, indexes for the read pattern, throttled maintenance, caching considered
 - [ ] New personal data: deleted with the account, in the admin export, described in the Datenschutzerklärung
-- [ ] `integration-tests` check is green (not required, but checked before merging)
