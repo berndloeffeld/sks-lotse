@@ -9,7 +9,7 @@ psycopg2-binary==2.9.13
 pydantic-settings==2.15.0
 pypdf==6.19.0
 pyyaml==6.0.3
-pyjwt==2.14.0
+pyjwt==2.15.0
 # Admin 2FA (ADR-0047): TOTP codes, the enrolment QR code as SVG, and Fernet to keep the TOTP
 # secret encrypted at rest.
 pyotp==2.10.0
