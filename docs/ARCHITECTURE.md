@@ -8,7 +8,7 @@ The official SKS exam catalog is free text, not multiple choice: the learner wri
 
 1. **Login is required** (email + one-time code; SSO is planned). Progress is always stored server-side against the account.
 2. **Learning by topic** (`/learn`): a question, an optional scratchpad answer (never sent unless the learner asks for the AI check), then the official answer, and the learner grades themselves: Richtig / Teilweise Richtig / Falsch ([ADR-0023](adr/0023-self-assessed-learning-flow.md)).
-3. **"Gelernt" is a half-life estimate, not a streak** ([ADR-0034](adr/0034-half-life-model-for-gelernt.md), [ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)): each grading re-estimates the question's memory half-life. A question is gelernt while the half-life is ≥ 7 days, the most recent grading was a "Richtig" ([ADR-0050](adr/0050-setback-cannot-regrant-gelernt.md): a "Teilweise Richtig"/"Falsch" can never itself regrant it, even if the surviving half-life still clears the bar), and the estimated recall probability is ≥ 0.7 — and it resurfaces once that decays. The UI never shows the numbers ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)); the constants are in `backend/app/core/progress.py`.
+3. **"Gelernt" is a half-life estimate, not a streak** ([ADR-0034](adr/0034-half-life-model-for-gelernt.md), [ADR-0039](adr/0039-cumulative-spacing-for-richtig-streaks.md)): each grading re-estimates the question's memory half-life. A question is gelernt while the half-life is ≥ 7 days, the most recent grading was a "Richtig" ([ADR-0050](adr/0050-setback-cannot-regrant-gelernt.md): a "Teilweise Richtig"/"Falsch" can never itself regrant it, even if the surviving half-life still clears the bar), and the estimated recall probability is ≥ 0.7 — and it resurfaces once that decays. The UI never shows the numbers ([ADR-0024](adr/0024-course-gauge-without-visible-step-count.md)); the constants are in `backend/app/domain/progress.py`.
 4. **Lotsen-Check** ("Antwort vom Lotsen bewerten lassen", [ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md)): for accounts with `token_balance > 0`, Claude Haiku *suggests* a grade plus feedback (1 token per check, [ADR-0043](adr/0043-token-based-ai-grading-monetization.md)), and the learner still confirms. The token balance is the sole spending control ([ADR-0044](adr/0044-drop-weekly-ai-check-budget.md)), on top of the existing per-question/per-hour rate limits and prompt-injection hardening ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md)).
 5. **Fokus topics** ([ADR-0028](adr/0028-focus-topics.md)): starred topics on `/learn`. The Fokus session (`/learn/focus`) runs all their not-yet-gelernt questions, the one whose last "Richtig" is longest ago first. A Fokus topic drops out for good once all its questions are learned.
    Alongside it, the **Auffrischen** session (`/learn/refresh`, [ADR-0049](adr/0049-refresh-session-for-expiring-questions.md)): 20 random questions that were sicher gelernt, at least 70 % of them already lapsed and the rest lapsing within two days. `/learn` offers the three modes (Nach Thema, Fokus, Auffrischen) as tabs under the overall progress; the selected tab is kept in the URL (`?modus=focus|refresh`).
@@ -72,6 +72,7 @@ graph TD
     Schemas["schemas/<br/>Pydantic request/response contracts"]
     Core["core/<br/>config · JWT/OTP · cache · middleware"]
     Services["services/<br/>shared business logic"]
+    Domain["domain/<br/>product rules: gelernt · exam · variants · prices · AGB version"]
     Models["models/<br/>SQLAlchemy ORM"]
     DB[(PostgreSQL 18)]
     Resend[Resend]
@@ -83,6 +84,9 @@ graph TD
     Routers -- "config · cache" --> Core
     Routers -- calls --> Services
     Services -- "config · cache" --> Core
+    Routers -- rules --> Domain
+    Services -- rules --> Domain
+    Domain -- "SQL expressions" --> Models
     Services -- "reads/writes" --> Models
     Models --> DB
     Services --> Resend
@@ -128,9 +132,10 @@ One FastAPI deployable, organized as a modular monolith ([ADR-0002](adr/0002-mod
 | Layer | Role |
 |---|---|
 | `api/v1/` | HTTP routes, one module per area (below) |
-| `services/` | Business logic the routes share: the cached catalog, OTP codes, exam read models, progress and the batched exam credit, the AI check and its quota, the admin export, user deletion, KPIs, email, catalog seeding |
+| `domain/` | The product rules, free of infrastructure: the half-life model of "gelernt" (`progress.py`, its Python and SQL form side by side), the exam simulation's rules (`exam.py`), the exam variants' subjects (`exam_variant.py`), the price defaults and token packages (`pricing.py`), the AGB version in force (`legal.py`). Imports neither `Settings`, a DB session nor FastAPI (`backend/tests/test_domain_imports.py`); models and SQLAlchemy expressions are allowed |
+| `services/` | Business logic the routes share, incl. reading the operator-set prices (`pricing.py`): the cached catalog, OTP codes, exam read models, progress and the batched exam credit, the AI check and its quota, the admin export, user deletion, KPIs, email, catalog seeding |
 | `models/`, `schemas/` | SQLAlchemy persistence, Pydantic request/response contracts |
-| `core/` | Cross-cutting concerns: config, JWT/OTP, cache, middleware |
+| `core/` | Infrastructure and cross-cutting concerns: config, database, JWT/OTP/TOTP, rate limit, cache, middleware, logging, email canonicalization, feature flags (`features.py`, `checkout.py`) |
 
 | Area | Responsibility | ADRs |
 |---|---|---|

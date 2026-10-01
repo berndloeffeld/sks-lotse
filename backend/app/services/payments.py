@@ -21,12 +21,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core import pricing as pricing_core
 from app.core.checkout import stripe_product_id
 from app.core.config import settings
+from app.domain import pricing as pricing_domain
 from app.models.purchase import Purchase
 from app.models.user import User
 from app.services import email as email_service
+from app.services import pricing as pricing_service
 from app.services import token_wallet
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class InvalidWebhook(Exception):
 
 
 def build_checkout_params(
-    user: User, package: pricing_core.TokenPackage, product_id: str, origin: str
+    user: User, package: pricing_domain.TokenPackage, product_id: str, origin: str
 ) -> dict[str, Any]:
     """The Checkout Session parameters for one token package.
 
@@ -96,7 +97,7 @@ def create_checkout_url(db: Session, user: User, product: str) -> str:
     product_id = stripe_product_id(product)
     if not product_id:
         raise CheckoutUnavailable(f"no Stripe product id configured for {product}")
-    package = pricing_core.token_package(db, product)
+    package = pricing_service.token_package(db, product)
     params = build_checkout_params(user, package, product_id, settings.cors_allowed_origins[0])
     try:
         session = _client().v1.checkout.sessions.create(params=params)  # type: ignore[arg-type]  # a plain dict, the SDK's TypedDict is structural

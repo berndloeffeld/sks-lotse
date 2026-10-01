@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta, timezone
 
-from app.core.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, result_for
 from app.core.timeutil import as_utc
+from app.domain.exam import QUESTIONS_PER_GROUP, SUBJECT_GROUPS, result_for
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog

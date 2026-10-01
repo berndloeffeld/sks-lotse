@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
 from app.core.rate_limit import enforce_limit
+from app.domain.exam_variant import subjects_for_variant
 from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic

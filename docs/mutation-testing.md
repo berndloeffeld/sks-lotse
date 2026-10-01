@@ -29,11 +29,11 @@ shows the change, then add the test that would fail on it — or, if the change 
 cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
 ./scripts/run_mutation_tests.sh                                     # ~1 min; lists the survivors
 ./scripts/run_mutation_tests.sh gate                                # what CI runs: fails below the minimum score
-./scripts/run_mutation_tests.sh show app.core.progress.x_is_learned__mutmut_2
+./scripts/run_mutation_tests.sh show app.domain.progress.x_is_learned__mutmut_2
 ```
 
-- **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`, `only_mutate`): the pure logic in `core/` (progress, exam,
-  exam_variant, email_address, cache, rate_limit, otp, jwt, security_headers, canonical_domain, ai_quota), all of `services/` except the catalog importer
+- **Scope** (`[tool.mutmut]` in `backend/pyproject.toml`, `only_mutate`): the product rules in `domain/` (progress, exam,
+  exam_variant, pricing; not `legal.py`, a single constant), the pure logic in `core/` (email_address, cache, rate_limit, otp, jwt, security_headers, canonical_domain, ai_quota), all of `services/` except the catalog importer
   (`ai_quota`, `focus`, `user`, `grader`, `kpis`, `email`) and the helper functions in `api/v1/` (exams, progress,
   auth, questions, admin, grading). Left out on purpose: `catalog_seed.py`/`scripts/` (parse and migration code whose tests read
   the PDF, which `mutants/` doesn't have), `config.py`, `main.py`, `database.py`, `models/`, `schemas/`.

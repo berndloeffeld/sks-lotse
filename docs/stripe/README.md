@@ -1,6 +1,6 @@
 # Stripe products
 
-The product entries as set up in the Stripe dashboard. Prices are not listed here: they're operator-tunable (`/admin/settings`, ADR-0043), and the code defaults are in `backend/app/core/pricing.py`. The images are rendered by [generate_images.py](generate_images.py). They show the token amount, so re-run the script and re-upload the image when a package's amount changes.
+The product entries as set up in the Stripe dashboard. Prices are not listed here: they're operator-tunable (`/admin/settings`, ADR-0043), and the code defaults are in `backend/app/domain/pricing.py`. The images are rendered by [generate_images.py](generate_images.py). They show the token amount, so re-run the script and re-upload the image when a package's amount changes.
 
 | Image | Name | Description |
 |---|---|---|

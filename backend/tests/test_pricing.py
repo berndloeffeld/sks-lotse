@@ -1,12 +1,14 @@
-from app.core import pricing as pricing_core
+from app.domain import pricing as pricing_domain
 from app.services import pricing as pricing_service
 
 
 def test_defaults_apply_when_nothing_is_configured(db_session):
-    assert pricing_core.ads_removed_price_cents(db_session) == pricing_core.DEFAULT_ADS_REMOVED_PRICE_CENTS
-    assert pricing_core.signup_bonus_tokens(db_session) == pricing_core.DEFAULT_SIGNUP_BONUS_TOKENS
-    packages = pricing_core.token_packages(db_session)
-    assert [p.product for p in packages] == list(pricing_core.PACKAGE_PRODUCTS)
+    assert (
+        pricing_service.ads_removed_price_cents(db_session) == pricing_domain.DEFAULT_ADS_REMOVED_PRICE_CENTS
+    )
+    assert pricing_service.signup_bonus_tokens(db_session) == pricing_domain.DEFAULT_SIGNUP_BONUS_TOKENS
+    packages = pricing_service.token_packages(db_session)
+    assert [p.product for p in packages] == list(pricing_domain.PACKAGE_PRODUCTS)
     assert [(p.tokens, p.price_cents) for p in packages] == [(20, 299), (50, 599), (100, 999), (200, 1699)]
 
 
@@ -15,21 +17,21 @@ def test_set_prices_overrides_the_defaults(db_session):
         db_session,
         price_ads_removed_cents=799,
         signup_bonus_tokens=3,
-        packages={"tokens_s": pricing_core.TokenPackage("tokens_s", 15, 249)},
+        packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 15, 249)},
     )
-    assert pricing_core.ads_removed_price_cents(db_session) == 799
-    assert pricing_core.signup_bonus_tokens(db_session) == 3
-    changed = pricing_core.token_package(db_session, "tokens_s")
+    assert pricing_service.ads_removed_price_cents(db_session) == 799
+    assert pricing_service.signup_bonus_tokens(db_session) == 3
+    changed = pricing_service.token_package(db_session, "tokens_s")
     assert (changed.tokens, changed.price_cents) == (15, 249)
     # A package not passed to set_prices keeps its default.
-    unchanged = pricing_core.token_package(db_session, "tokens_m")
+    unchanged = pricing_service.token_package(db_session, "tokens_m")
     assert (unchanged.tokens, unchanged.price_cents) == (50, 599)
 
 
 def test_set_prices_updates_an_existing_row_rather_than_duplicating_it(db_session):
     pricing_service.set_prices(db_session, price_ads_removed_cents=500, signup_bonus_tokens=6, packages={})
     pricing_service.set_prices(db_session, price_ads_removed_cents=700, signup_bonus_tokens=6, packages={})
-    assert pricing_core.ads_removed_price_cents(db_session) == 700
+    assert pricing_service.ads_removed_price_cents(db_session) == 700
 
 
 def test_public_pricing_endpoint_reflects_the_configured_prices(client, db_session):
@@ -37,7 +39,7 @@ def test_public_pricing_endpoint_reflects_the_configured_prices(client, db_sessi
         db_session,
         price_ads_removed_cents=799,
         signup_bonus_tokens=3,
-        packages={"tokens_s": pricing_core.TokenPackage("tokens_s", 15, 249)},
+        packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 15, 249)},
     )
     response = client.get("/api/v1/pricing")
     assert response.status_code == 200

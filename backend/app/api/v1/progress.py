@@ -7,9 +7,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.exam_variant import subjects_for_variant
 from app.core.jwt import get_current_user
-from app.core.progress import (
+from app.domain.exam_variant import subjects_for_variant
+from app.domain.progress import (
     REFRESH_SESSION_SIZE,
     is_learned,
     lapsed_clause,

@@ -1,7 +1,7 @@
 """Exam attempts as the API presents them (ADR-0029): status, deadline, points and read models.
 
 The routes in app/api/v1/exams.py own the HTTP side (ownership checks, 404/409); the scoring rules
-themselves live in app/core/exam.py.
+themselves live in app/domain/exam.py.
 """
 
 from datetime import UTC, datetime
@@ -9,7 +9,8 @@ from datetime import UTC, datetime
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
-from app.core.exam import (
+from app.core.timeutil import as_utc
+from app.domain.exam import (
     MAX_POINTS,
     OUTCOME_POINTS,
     POINTS_PER_QUESTION,
@@ -17,7 +18,6 @@ from app.core.exam import (
     ExamStatus,
     result_for,
 )
-from app.core.timeutil import as_utc
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.question import Question
 from app.models.user import User

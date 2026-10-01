@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import func, select
 
 from app.core.jwt import create_access_token
-from app.core.progress import (
+from app.domain.progress import (
     FULL_GAIN,
     INITIAL_HALF_LIFE_DAYS,
     LEARNED_HALF_LIFE_DAYS,

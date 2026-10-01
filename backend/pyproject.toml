@@ -30,9 +30,10 @@ max-branches = 10
 # tests; wiring, config and the catalog importer would only produce noise and hours of runtime.
 [tool.mutmut]
 only_mutate = [
-    "app/core/progress.py",
-    "app/core/exam.py",
-    "app/core/exam_variant.py",
+    "app/domain/progress.py",
+    "app/domain/exam.py",
+    "app/domain/exam_variant.py",
+    "app/domain/pricing.py",
     "app/core/email_address.py",
     "app/core/cache.py",
     "app/core/rate_limit.py",
@@ -42,7 +43,6 @@ only_mutate = [
     "app/core/request_limits.py",
     "app/core/canonical_domain.py",
     "app/core/maintenance.py",
-    "app/core/pricing.py",
     "app/core/log_config.py",
     "app/core/timeutil.py",
     "app/core/totp.py",
