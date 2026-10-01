@@ -52,20 +52,16 @@ A manual kill switch for an ongoing malfunction, deliberately not wired through 
 ## Database
 
 - `sks-lotse-db`, PostgreSQL 18 (pinned via `postgresMajorVersion` in `render.yaml`), plan `basic-256mb`.
-- **Backups**: paid Render Postgres has point-in-time recovery (PITR); the retention window depends on the Render workspace plan. The values below come from the Render dashboard and are **not filled in yet**. Fill them in, and update them after every plan change and every drill:
+- **Backups**: point-in-time recovery (PITR) on the Render Postgres. Read from the Render dashboard on 2026-10-01; update after every plan change:
 
   | Value | Where to read it in Render | Value |
   |---|---|---|
-  | Database plan | `sks-lotse-db` → Info | `basic-256mb` (per `render.yaml`) — confirm |
-  | Workspace plan | Workspace → Settings → Billing | _to fill in_ |
-  | PITR window (how far back a restore can go) | `sks-lotse-db` → Recovery | _to fill in_ |
-  | Logical exports available? (and how long they're kept) | `sks-lotse-db` → Recovery → Export | _to fill in_ |
-  | Last restore drill (date) | your own note of the drill | _to fill in_ |
-  | Drill result: time from "Restore" to a usable database | time it during the drill | _to fill in_ |
-  | Drill result: newest data in the restored copy vs the chosen point in time | compare the newest `users.created_at` / `question_grading_log.graded_at` in the copy | _to fill in_ |
+  | Database plan | `sks-lotse-db` → Info | `basic-256mb` (per `render.yaml`) |
+  | Workspace plan | Workspace → Settings → Billing | Hobby |
+  | PITR window (how far back a restore can go) | `sks-lotse-db` → Recovery | 3 days (7 days with a Pro workspace) |
 
-  Deleted data stays in these backups until it ages out of the PITR window. The Datenschutzerklärung doesn't name a separate backup period; if the window is long (weeks rather than days), mention it there.
-- **Restore drill** (do it once, and after plan changes): in the Recovery tab, restore to a point in time into a *new* database, connect to it read-only, and check that `users`, `question_progress` and `exam_attempts` look plausible. Note the date, the duration and the result in the table above. Then delete the copy (it holds a full set of personal data). A real restore means pointing the backend's `DATABASE_URL` at the restored database, or restoring over the original per Render's instructions. Plan for the gap between the restore point and now. The restored copy is a separate, ad hoc database, not the one declared in `render.yaml` — it isn't covered by `ipAllowList` below, so connect to it directly as before; if Render ever changes that, use the Render Shell approach instead (see External access).
+  Deleted data stays in these backups until it ages out of the 3-day window. That is short enough that the Datenschutzerklärung doesn't name a separate backup period; mention it there if the window grows to weeks.
+- **Restore drill** (do it once, and after plan changes): in the Recovery tab, restore to a point in time into a *new* database, connect to it read-only, and check that `users`, `question_progress` and `exam_attempts` look plausible. Then delete the copy (it holds a full set of personal data). A real restore means pointing the backend's `DATABASE_URL` at the restored database, or restoring over the original per Render's instructions. Plan for the gap between the restore point and now. The restored copy is a separate, ad hoc database, not the one declared in `render.yaml` — it isn't covered by `ipAllowList` below, so connect to it directly as before; if Render ever changes that, use the Render Shell approach instead (see External access).
 - **External access** is closed (`ipAllowList: []` in `render.yaml`, ADR-0005 addendum 2026-09-23): the database only accepts connections from services in the same Render account over its internal network (the backend, the cron job), not from a local `psql`. The admin UI (`/admin/users`, `/admin/questions`) covers the lookups that used to need direct SQL. For anything it doesn't cover, open a **Shell** on the `sks-lotse-backend` service in the Render dashboard — it runs inside the account's internal network, so it reaches the database despite the allow list — and query it with the app's own SQLAlchemy session, e.g.:
   ```python
   from app.core.database import get_session_factory
