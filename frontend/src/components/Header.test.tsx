@@ -19,6 +19,7 @@ describe('Header', () => {
   afterEach(() => vi.unstubAllEnvs())
 
   it('carries the content links next to Anmelden by default', () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', '')
     render(
       <MemoryRouter>
         <Header />

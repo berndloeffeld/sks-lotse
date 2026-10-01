@@ -24,7 +24,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'ohne-anmeldung',
     question: 'Kann ich auch ohne Anmeldung lernen?',
     answer:
-      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der Musterantwort vergleichen. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
+      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der Musterantwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
   },
   {
     id: 'lernmodi',
@@ -90,7 +90,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'praxis',
     question: 'Bereitet SKS Lotse auch auf die praktische Prüfung vor?',
     answer:
-      'Nein, SKS Lotse deckt ausschließlich den amtlichen Fragenkatalog für die SKS-Theorieprüfung ab. Die praktische Ausbildung und Prüfung – zum Beispiel für Manöver auf einer Segelyacht – holst du dir bei einer Segelschule. Mehr dazu unter [So läuft die SKS-Prüfung ab](/exam-process).',
+      'Nein, SKS Lotse deckt ausschließlich die SKS-Theorieprüfung ab: den amtlichen Fragenkatalog und die amtlichen Kartenaufgaben. Die praktische Ausbildung und Prüfung – zum Beispiel für Manöver auf einer Segelyacht – holst du dir bei einer Segelschule. Mehr dazu unter [So läuft die SKS-Prüfung ab](/exam-process).',
   },
 ]
 

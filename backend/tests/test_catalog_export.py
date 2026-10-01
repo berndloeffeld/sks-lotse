@@ -102,7 +102,7 @@ def test_render_yaml_rewrites_the_chart_pages_only_while_they_are_built():
     # /charts and /charts/<n> are prerendered only at VITE_CHART_EXERCISES=on (ADR-0056); a rewrite
     # to a file the build doesn't write answers 200 with an empty body.
     render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
-    flag = re.findall(r"- key: VITE_CHART_EXERCISES\s+value: (\S+)", render_yaml)
+    flag = re.findall(r"- key: VITE_CHART_EXERCISES\s+value: \"?([^\"\s]+)\"?", render_yaml)
     charts = {source for source, _ in _rewrites(render_yaml) if source.startswith("/charts")}
     sheets = json.loads((EXPORT_PATH.parent / "chart_exercises.gen.json").read_text())["sheets"]
 
