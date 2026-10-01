@@ -31,10 +31,6 @@ def _docs_kwargs() -> dict:
 
 app = FastAPI(title="SKS Lotse API", **_docs_kwargs())
 app.add_middleware(RedirectSecondaryDomainsMiddleware)
-# Ahead of the rate limiter, so a request blocked here never burns a rate-limit
-# counter during an incident. Still inside CORSMiddleware/RequestIdMiddleware
-# below, so its 503 gets CORS headers and a request id like any other response.
-app.add_middleware(MaintenanceModeMiddleware, enabled=settings.maintenance_mode)
 app.add_middleware(
     RateLimitMiddleware,
     # OTP requests get their own tighter cap (bounds cost/spam per IP,
@@ -81,6 +77,11 @@ app.add_middleware(
     # front of the app overwrites these headers, so a client could set them.
     trusted_client_ip_headers=("cf-connecting-ip", "true-client-ip") if settings.render else (),
 )
+# Added after (i.e. outside) the rate limiter — the last middleware added runs first — so a request
+# blocked here never burns a rate-limit counter during an incident. Still inside
+# CORSMiddleware/RequestIdMiddleware below, so its 503 gets CORS headers and a request id like any
+# other response.
+app.add_middleware(MaintenanceModeMiddleware, enabled=settings.maintenance_mode)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,

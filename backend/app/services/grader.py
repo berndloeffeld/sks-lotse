@@ -77,12 +77,23 @@ def _looks_injected(feedback: str, learner_answer: str) -> bool:
     return len(feedback) > settings.grading_feedback_max_chars or (bool(stripped) and stripped in feedback)
 
 
+# Built on first use and then shared by every check in the process: the client holds an HTTP
+# connection pool (thread-safe), so reusing it saves a TLS handshake per check. Tests patch `_client`
+# itself, or reset `_shared_client` to None to build a fresh one.
+_shared_client: anthropic.Anthropic | None = None
+_client_lock = threading.Lock()
+
+
 def _client() -> anthropic.Anthropic:
-    return anthropic.Anthropic(
-        api_key=settings.anthropic_grading_api_key,
-        timeout=settings.anthropic_grading_timeout_seconds,
-        max_retries=1,
-    )
+    global _shared_client
+    with _client_lock:
+        if _shared_client is None:
+            _shared_client = anthropic.Anthropic(
+                api_key=settings.anthropic_grading_api_key,
+                timeout=settings.anthropic_grading_timeout_seconds,
+                max_retries=1,
+            )
+        return _shared_client
 
 
 def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> GradedAnswer:

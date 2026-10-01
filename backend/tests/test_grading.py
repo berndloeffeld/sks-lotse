@@ -216,7 +216,9 @@ def test_the_hourly_check_limit_is_per_user(client, db_session, fake_grader, mon
     ben = _headers(db_session, enabled=True, email="ben@example.com")
 
     assert _post(client, questions[0].id, anna).status_code == 200
-    assert _post(client, questions[1].id, anna).status_code == 429
+    capped = _post(client, questions[1].id, anna)
+    assert capped.status_code == 429
+    assert capped.json()["detail"] == "Too many answer checks"
     assert _post(client, questions[2].id, ben).status_code == 200  # Anna's limit is not Ben's
 
 
@@ -236,7 +238,7 @@ def test_per_question_cap_is_429_but_other_questions_still_work(
     caplog.set_level(logging.WARNING)
     capped = _post(client, first.id, headers)
     assert capped.status_code == 429
-    assert "this question" in capped.json()["detail"]
+    assert capped.json()["detail"] == "Too many checks for this question today"
     assert _post(client, second.id, headers).status_code == 200
     messages = [r.getMessage() for r in caplog.records]
     assert any("bucket=per_question_day" in m for m in messages)
@@ -257,6 +259,36 @@ def test_failed_call_does_not_use_up_the_per_question_cap(client, db_session, mo
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
     assert _post(client, q.id, headers).status_code == 503
+    assert _post(client, q.id, headers).status_code == 200
+
+
+def test_hitting_the_hourly_cap_does_not_use_up_the_per_question_cap(
+    client, db_session, fake_grader, monkeypatch
+):
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
+    monkeypatch.setattr(settings, "grading_max_per_window", 1)
+    first = _question(db_session)
+    second = Question(subject="navigation", number=2, question_text="Q?", answer_text="A")
+    db_session.add(second)
+    db_session.commit()
+    headers = _headers(db_session, enabled=True)
+
+    assert _post(client, first.id, headers).status_code == 200
+    assert _post(client, second.id, headers).status_code == 429  # hourly cap, not the question's
+    user_id = _user(db_session).id
+    assert not client.app.state.rate_limit_hits[("ai_grade:question", f"{user_id}:{second.id}")]
+
+
+def test_a_402_at_the_reserve_gives_both_caps_back(client, db_session, fake_grader, monkeypatch):
+    monkeypatch.setattr(settings, "grading_max_per_question_per_day", 1)
+    monkeypatch.setattr(settings, "grading_max_per_window", 1)
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    real_reserve = token_wallet.reserve
+    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id: None)
+    assert _post(client, q.id, headers).status_code == 402
+
+    monkeypatch.setattr(token_wallet, "reserve", real_reserve)
     assert _post(client, q.id, headers).status_code == 200
 
 
@@ -440,9 +472,16 @@ def test_service_does_not_sanitize_normal_short_feedback(monkeypatch):
 
 
 def test_client_factory_uses_configured_key_timeout_and_a_single_retry(monkeypatch):
+    monkeypatch.setattr(grader, "_shared_client", None)
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
     monkeypatch.setattr(settings, "anthropic_grading_timeout_seconds", 7.5)
     client = grader._client()
     assert client.api_key == "test-key"
     assert client.timeout == 7.5
     assert client.max_retries == 1
+
+
+def test_client_is_built_once_and_then_reused(monkeypatch):
+    monkeypatch.setattr(grader, "_shared_client", None)
+    monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
+    assert grader._client() is grader._client()

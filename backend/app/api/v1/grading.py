@@ -39,6 +39,48 @@ def _record_and_log_if_flagged(
         )
 
 
+def _question_key(user_id: int, question_id: int) -> str:
+    return f"{user_id}:{question_id}"
+
+
+def _enforce_caps(app, user_id: int, question_id: int) -> None:
+    """Two caps, cheapest first: per question and day (no rephrasing until it says "richtig"), then
+    per hour (a brake on rapid-fire clicking) — on top of the token balance itself (ADR-0044:
+    tokens are the sole spending control, no separate weekly budget anymore).
+
+    A request the hourly cap turns away gets its per-question hit back: no check ran, so today's
+    attempt at this question isn't used up.
+    """
+    enforce_limit(
+        app,
+        "ai_grade:question",
+        _question_key(user_id, question_id),
+        settings.grading_max_per_question_per_day,
+        _DAY_SECONDS,
+        "Too many checks for this question today",
+        f"ai-grade rate limit: user={user_id} question={question_id} bucket=per_question_day",
+    )
+    try:
+        enforce_limit(
+            app,
+            "ai_grade:user",
+            str(user_id),
+            settings.grading_max_per_window,
+            settings.grading_window_seconds,
+            "Too many answer checks",
+            f"ai-grade rate limit: user={user_id} bucket=per_hour",
+        )
+    except HTTPException:
+        forget_last(app, "ai_grade:question", _question_key(user_id, question_id))
+        raise
+
+
+def _give_back_caps(app, user_id: int, question_id: int) -> None:
+    """Undo both hits `_enforce_caps` recorded — for a check that never happened."""
+    forget_last(app, "ai_grade:question", _question_key(user_id, question_id))
+    forget_last(app, "ai_grade:user", str(user_id))
+
+
 @router.post("/{question_id}/ai-grade", response_model=AiGradeRead)
 def ai_grade_answer(
     request: Request,
@@ -56,31 +98,11 @@ def ai_grade_answer(
     if not question.answer_text.strip():
         # The official answer is only a sketch (image not extracted) — nothing to compare against.
         raise HTTPException(status_code=409, detail="This question has no text answer to check against")
-    # Two caps, cheapest first: per question and day (no rephrasing until it says "richtig"), then
-    # per hour (a brake on rapid-fire clicking) — on top of the token balance itself (ADR-0044:
-    # tokens are the sole spending control, no separate weekly budget anymore).
-    question_key = f"{current_user.id}:{question_id}"
-    enforce_limit(
-        request.app,
-        "ai_grade:question",
-        question_key,
-        settings.grading_max_per_question_per_day,
-        _DAY_SECONDS,
-        "Too many checks for this question today",
-        f"ai-grade rate limit: user={current_user.id} question={question_id} bucket=per_question_day",
-    )
-    enforce_limit(
-        request.app,
-        "ai_grade:user",
-        str(current_user.id),
-        settings.grading_max_per_window,
-        settings.grading_window_seconds,
-        "Too many answer checks",
-        f"ai-grade rate limit: user={current_user.id} bucket=per_hour",
-    )
+    _enforce_caps(request.app, current_user.id, question_id)
     tokens_remaining = token_wallet.reserve(db, current_user.id)
     if tokens_remaining is None:
         # Someone else spent the account's last token between the check above and here.
+        _give_back_caps(request.app, current_user.id, question_id)
         raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
     try:
         graded = grade_answer(question.question_text, question.answer_text, payload.answer)
@@ -88,8 +110,7 @@ def ai_grade_answer(
         # A check that never happened costs the learner nothing: the token and both caps are given
         # back — regardless of what went wrong, not just the expected GradingUnavailable case.
         token_wallet.refund(db, current_user.id)
-        forget_last(request.app, "ai_grade:question", question_key)
-        forget_last(request.app, "ai_grade:user", str(current_user.id))
+        _give_back_caps(request.app, current_user.id, question_id)
         if not isinstance(exc, GradingUnavailable):
             raise
         # Reason only — the learner's answer is never logged.

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core import totp
 from app.models import User
 from app.schemas.admin import AdminMfaEnrolment
+from app.services.user import locked_user
 
 
 def is_enrolled(user: User) -> bool:
@@ -26,21 +27,26 @@ def start_enrolment(db: Session, user: User) -> AdminMfaEnrolment:
 def confirm_code(db: Session, user: User, code: str, now: datetime) -> bool:
     """Check `code` against the user's secret — the pending one while enrolling, else the active one.
 
-    On success the time step is remembered (no replay) and a pending enrolment becomes active.
+    On success the time step is remembered (no replay) and a pending enrolment becomes active. The
+    row is locked for the check, so two parallel requests can't both accept the same time step.
     """
+    user = locked_user(db, user.id)
+    counter = _accepted_counter(user, code, now)
+    if counter is not None:
+        user.totp_last_counter = counter
+        if user.totp_enabled_at is None:
+            user.totp_enabled_at = now
+    db.commit()  # also releases the lock when the code is refused
+    return counter is not None
+
+
+def _accepted_counter(user: User, code: str, now: datetime) -> int | None:
     if user.totp_secret_encrypted is None:
-        return False
+        return None
     secret = totp.decrypt_secret(user.totp_secret_encrypted)
     if secret is None:
-        return False
-    counter = totp.accepted_counter(secret, code, user.totp_last_counter, now)
-    if counter is None:
-        return False
-    user.totp_last_counter = counter
-    if user.totp_enabled_at is None:
-        user.totp_enabled_at = now
-    db.commit()
-    return True
+        return None
+    return totp.accepted_counter(secret, code, user.totp_last_counter, now)
 
 
 def reset(db: Session, user: User) -> bool:
