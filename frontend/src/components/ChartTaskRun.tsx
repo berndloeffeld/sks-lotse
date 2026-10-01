@@ -14,11 +14,13 @@ interface ChartTaskRunProps {
   attempt: ChartAttempt
   onAnswer: (task: number, answer: string) => Promise<void>
   onPoints: (task: number, points: number) => Promise<void>
+  // A guest's run, held in the page only (ADR-0056): its result says so.
+  guest?: boolean
 }
 
 // One Kartenaufgabe, task after task (ADR-0052): read the task, work it out in the chart, note the
 // result, see the official solution, give yourself the points you'd have got. Then the next task.
-export function ChartTaskRun({ attempt, onAnswer, onPoints }: ChartTaskRunProps) {
+export function ChartTaskRun({ attempt, onAnswer, onPoints, guest = false }: ChartTaskRunProps) {
   const task = attempt.tasks.find((t) => t.number === attempt.current_task)
   const articleRef = useRef<HTMLElement>(null)
   const shownTask = useRef(task?.number)
@@ -29,7 +31,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints }: ChartTaskRunProps)
     shownTask.current = task?.number
   }, [task])
 
-  if (!task) return <ChartRunResult attempt={attempt} />
+  if (!task) return <ChartRunResult attempt={attempt} guest={guest} />
   return (
     <article ref={articleRef} className="flex scroll-mt-24 flex-col gap-4">
       <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
@@ -250,13 +252,22 @@ function PointsForm({ task, onPoints }: { task: ChartAttemptTask; onPoints: Char
   )
 }
 
-function ChartRunResult({ attempt }: { attempt: ChartAttempt }) {
+function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: boolean }) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="font-serif text-2xl text-primary">Kartenaufgabe abgeschlossen</h2>
       <p className="text-ink">
         Du hast dir <strong>{attempt.points}</strong> von {attempt.max_points} Punkten gegeben.
       </p>
+      {guest ? (
+        <p className="text-sm text-ink-soft">
+          Ohne Konto wird dieser Durchgang nicht gespeichert.{' '}
+          <Link to="/login" className="text-primary underline">
+            Mit einem Konto
+          </Link>{' '}
+          siehst du bei jeder Kartenaufgabe, wie viele Punkte du zuletzt hattest.
+        </p>
+      ) : null}
       <Link to="/charts" className={`${styles.button} self-start`}>
         Zur Übersicht
       </Link>

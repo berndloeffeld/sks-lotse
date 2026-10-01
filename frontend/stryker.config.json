@@ -31,7 +31,11 @@
     "src/navigation.ts",
     "src/catalog.ts",
     "src/publicPages.ts",
-    "src/hooks/useCatalog.ts"
+    "src/hooks/useCatalog.ts",
+    "src/chartFlag.ts",
+    "src/chartCatalog.ts",
+    "src/chartGuestRun.ts",
+    "src/hooks/useChartCatalog.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

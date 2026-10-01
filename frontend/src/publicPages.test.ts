@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import type { CatalogExport } from './catalog'
-import { applyMeta, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+import { makeChartExport } from './test/fixtures'
 
 const CATALOG: CatalogExport = {
   topics: [
@@ -87,6 +88,34 @@ describe('publicPages', () => {
     expect(statics.filter((p) => p.withoutAds).map((p) => p.path)).toEqual(['/pricing'])
     expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
     expect(statics[1].file).toBe('faq/index.html')
+  })
+})
+
+describe('chartPages', () => {
+  it('has /charts and one page per sheet, all without the static ad script', () => {
+    const pages = chartPages(makeChartExport())
+
+    expect(pages.map((p) => [p.path, p.file])).toEqual([
+      ['/charts', 'charts/index.html'],
+      ['/charts/1', 'charts/1/index.html'],
+      ['/charts/2', 'charts/2/index.html'],
+    ])
+    expect(pages.every((p) => p.withoutAds)).toBe(true)
+    expect(pages[1].meta).toEqual({
+      title: 'Kartenaufgabe 1 – SKS-Navigation – SKS Lotse',
+      description:
+        'Amtliche SKS-Kartenaufgabe 1: 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
+      canonical: 'https://sks-lotse.de/charts/1',
+    })
+  })
+
+  it('are built only when the Kartenaufgaben are open to guests', () => {
+    expect(publicPages(CATALOG).some((p) => p.path.startsWith('/charts'))).toBe(false)
+    expect(
+      publicPages(CATALOG, makeChartExport())
+        .slice(-3)
+        .map((p) => p.path),
+    ).toEqual(['/charts', '/charts/1', '/charts/2'])
   })
 })
 

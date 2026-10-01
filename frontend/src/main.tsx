@@ -16,6 +16,7 @@ import App from './App.tsx'
 import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
 import { loadCatalog } from './catalog.ts'
+import { loadChartCatalog } from './chartCatalog.ts'
 
 initAnalytics()
 // Arriving from "Cookies" (footer) on a page without the consent API (ads.ts).
@@ -37,8 +38,10 @@ const path = window.location.pathname.replace(/(.)\/$/, '$1')
 if (container.hasChildNodes() && container.dataset.prerendered === path) {
   // The open /learn pages (ADR-0054) were rendered from the catalog export; the first render
   // needs it too, or it wouldn't match. If it fails to load, render afresh rather than not at all.
-  if (path.startsWith('/learn')) {
-    loadCatalog().then(
+  // The open /charts pages (ADR-0056) likewise need the Kartenaufgaben export.
+  const data = path.startsWith('/learn') ? loadCatalog : path.startsWith('/charts') ? loadChartCatalog : null
+  if (data) {
+    data().then(
       () => hydrateRoot(container, app),
       () => {
         container.replaceChildren()

@@ -33,8 +33,8 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 
 ## Product rules that constrain code
 
-- **Login is required for everything that remembers**; no anonymous progress. Progress always lives server-side. Only "Lernen nach Thema" is open to guests (read, answer, reveal, self-assess for the round's summary — nothing saved or sent; ADR-0054).
-- **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand; the guests' copy `frontend/src/data/catalog.gen.json` only from `backend/scripts/export_catalog.py`. Topic names are transcribed from the catalog, never invented by a script or an LLM.
+- **Login is required for everything that remembers**; no anonymous progress. Progress always lives server-side. Only "Lernen nach Thema" is open to guests (read, answer, reveal, self-assess for the round's summary — nothing saved or sent; ADR-0054), and the Kartenaufgaben while their flag is `on` (a sheet run in the page, the same way; ADR-0056).
+- **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand; the guests' copy `frontend/src/data/catalog.gen.json` only from `backend/scripts/export_catalog.py`, and `chart_exercises.gen.json` only from `backend/scripts/export_chart_exercises.py`. Topic names are transcribed from the catalog, never invented by a script or an LLM.
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
 - **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/pricing` or `/admin` (ADR-0027 addendum 2026-09-23).
@@ -162,5 +162,5 @@ Apply these four checks whenever adding or changing a database table — going f
 - A new variable goes into `Settings` and `.env.example` in the same PR (a new secret also follows the rule in Deployment (Render) above).
 - An allowlist that grants rights fails closed: `ADMIN_EMAILS` unset/empty means **no admins** (the inverse of `ALLOWED_EMAILS`, where unset means open). Keep it that way for anything similar.
 - Enum-like settings (`ENVIRONMENT`, `CHART_EXERCISES`, `STRIPE_CHECKOUT`) reject unknown values at startup; a typo must never fall back to a default.
-- `CHART_EXERCISES` is declared in `render.yaml`, not the dashboard: switching it is a PR together with `docs/FEATURES.md` ([ADR-0052](docs/adr/0052-chart-exercises-from-reviewed-yaml.md)).
+- `CHART_EXERCISES` is declared in `render.yaml`, not the dashboard: switching it is a PR together with `docs/FEATURES.md` ([ADR-0052](docs/adr/0052-chart-exercises-from-reviewed-yaml.md)), and with the static site's `VITE_CHART_EXERCISES` set alike (it opens them to guests, [ADR-0056](docs/adr/0056-chart-exercises-open-to-guests.md)).
 - `ANTHROPIC_GRADING_API_KEY` (the running app's Lotsen-Check) stays a different key, in its own Console workspace, from `ANTHROPIC_API_KEY` (local topic classification only, never set on Render).

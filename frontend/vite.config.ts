@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
+import { parseChartFlag } from './src/chartFlag.ts'
+
 // AdSense wants its snippet in the served <head> of the public pages (its site
 // verification reads the HTML source — ADR-0027). prerender.mjs derives the
 // public pages and the SPA shell from this built index.html and strips the tag
@@ -30,25 +32,30 @@ function adsenseSnippet(clientId: string | undefined): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
-  plugins: [react(), tailwindcss(), adsenseSnippet(loadEnv(mode, process.cwd(), 'VITE_').VITE_ADSENSE_CLIENT_ID)],
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-    // Reset before every test, so a test's teardown (the DOM cleanup in
-    // setup.ts) still runs with its own stubs in place.
-    unstubGlobals: true,
-    unstubEnvs: true,
-    restoreMocks: true,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html'],
-      // A few points under the actual values, like the backend's pytest-cov
-      // gate (backend/pyproject.toml); see CLAUDE.md → Test Coverage.
-      thresholds: {
-        lines: 95,
-        branches: 90,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  // A typo in the Kartenaufgaben flag fails the build rather than falling back to "off" (ADR-0056).
+  parseChartFlag(env.VITE_CHART_EXERCISES)
+  return {
+    plugins: [react(), tailwindcss(), adsenseSnippet(env.VITE_ADSENSE_CLIENT_ID)],
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./src/test/setup.ts'],
+      // Reset before every test, so a test's teardown (the DOM cleanup in
+      // setup.ts) still runs with its own stubs in place.
+      unstubGlobals: true,
+      unstubEnvs: true,
+      restoreMocks: true,
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        // A few points under the actual values, like the backend's pytest-cov
+        // gate (backend/pyproject.toml); see CLAUDE.md → Test Coverage.
+        thresholds: {
+          lines: 95,
+          branches: 90,
+        },
       },
     },
-  },
-}))
+  }
+})

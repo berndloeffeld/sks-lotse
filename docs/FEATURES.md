@@ -11,7 +11,7 @@ The official question catalog of the German federal authority (ELWIS) consists o
 What sets it apart from simply paging through the catalog:
 - It tracks what a learner has **actually retained** and brings forgotten questions back.
 - It offers a **Probeprüfung** (exam simulation) under time pressure.
-- It walks through the official **Kartenaufgaben** task by task, with the official solutions and a worked derivation (the first two of ten so far, not yet open to all learners).
+- It walks through the official **Kartenaufgaben** task by task, with the official solutions and a worked derivation (the first two of ten so far, not yet open to all learners; once they are, guests can work through them without a login too).
 - Optionally, an **AI check (Lotsen-Check)** gives an assessment of the learner's own answer.
 
 ## Access and account
@@ -57,8 +57,9 @@ The second part of the written exam, practised with the **official solved Karten
 - Always at hand during a run: the **Formblatt Gezeiten to fill in** on screen (kept in the learner's browser per run; the blank original can be printed), every task done so far with one's own answer and the solution, and the sheet's rules. Beside the task on a computer as cards that fold open and shut, behind a bar at the bottom on a phone.
 - The overview shows per exercise whether it's untouched, begun, or the points of the last completed run. A run begun can be discarded on its exercise page to start over (not beside each task), a finished one deleted from its result. The runs don't count towards the learning status.
 - No AI check yet, no time limit.
+- **Without a login** (as soon as they are open to everyone): the list and every sheet's page are open to guests, and a guest works through a whole sheet the same way, task by task with the official solution and their own points. Nothing is saved: answers and points are gone when the page is left, and a run can't be interrupted. Below every sheet, all its tasks with their official solutions to unfold, for search engines and to look one up.
 
-Status today: **behind a feature flag, open to the operator only** (`CHART_EXERCISES=admins`). The usage rights of the WSV material are cleared (2026-10-01); opening it to everyone is a separate step. The landing page already shows a preview with a screenshot.
+Status today: **behind a feature flag, open to the operator only** (`CHART_EXERCISES=admins`). The usage rights of the WSV material are cleared (2026-10-01); opening it to everyone is a separate step, and opens it to guests at the same time. The landing page already shows a preview with a screenshot; once open, it links to the Kartenaufgaben.
 
 ## Lotsen-Check (AI assessment)
 
@@ -90,7 +91,7 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers, marked "bald verfügbar", no link while they are behind the flag). They are prepared for search engines and listed in the sitemap.
+Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers, marked "bald verfügbar", no link while they are behind the flag). Once the Kartenaufgaben are open, their list and one page per sheet join them. They are prepared for search engines and listed in the sitemap.
 
 ## Privacy
 

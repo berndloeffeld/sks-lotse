@@ -98,6 +98,18 @@ function saveTideForm(attemptId: string | number, form: TideForm) {
   }
 }
 
+// A guest's run has no id; the Formblatt is kept under the sheet's number.
+export const guestTideFormId = (sheet: number) => `guest-${sheet}`
+
+// A guest's new run starts with an empty form (ADR-0056); a learner's run has its own id anyway.
+export function forgetTideForm(attemptId: string | number) {
+  try {
+    window.localStorage.removeItem(storageKey(attemptId))
+  } catch {
+    // Storage blocked: there is nothing stored to forget either.
+  }
+}
+
 export function useTideForm(attemptId: string | number) {
   const [form, setForm] = useState<TideForm>(() => loadTideForm(attemptId))
 

@@ -1,9 +1,10 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
 import { useAuthStore } from '../store/authStore'
-import { jsonResponse, makeChartOverview } from '../test/fixtures'
+import { jsonResponse, makeChartExport, makeChartOverview } from '../test/fixtures'
 import { ChartExercisesPage } from './ChartExercisesPage'
 
 function renderPage() {
@@ -44,5 +45,33 @@ describe('ChartExercisesPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Kartenaufgaben konnten nicht geladen werden.')
     expect(screen.queryByText('Wird geladen…')).not.toBeInTheDocument()
+  })
+})
+
+describe('ChartExercisesPage for a guest', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, user: null })
+  })
+  afterEach(() => resetChartCatalog())
+
+  it('lists the sheets from the export, without asking the API', () => {
+    primeChartCatalog(makeChartExport())
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+
+    const first = screen.getByRole('link', { name: /Kartenaufgabe 1/ })
+    expect(first).toHaveAttribute('href', '/charts/1')
+    expect(within(first).getByText('2 Aufgaben · 3 Punkte')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Mit einem Konto' })).toHaveAttribute('href', '/login')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('loads the export when it is not there yet', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    renderPage()
+
+    expect(screen.getByText('Wird geladen…')).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /Kartenaufgabe 1/ })).toBeInTheDocument()
   })
 })

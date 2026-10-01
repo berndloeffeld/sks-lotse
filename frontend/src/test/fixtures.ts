@@ -1,4 +1,5 @@
 import type { ChartAttempt, ChartAttemptTask, ChartExercisesOverview, Exam, ExamQuestion, User } from '../api/types'
+import type { ChartExport } from '../chartCatalog'
 
 export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
@@ -119,6 +120,28 @@ export function makeChartOverview(overrides: Partial<ChartExercisesOverview> = {
       { number: 1, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 0, last_points: null },
       { number: 2, task_count: 18, max_points: 30, open_attempt_id: 9, completed_count: 0, last_points: null },
       { number: 3, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 2, last_points: 24 },
+    ],
+    ...overrides,
+  }
+}
+
+// The Kartenaufgaben export guests get (chartCatalog.ts): two sheets, the first with two tasks.
+export function makeChartExport(overrides: Partial<ChartExport> = {}): ChartExport {
+  const task = (number: number, points: number) => ({
+    number,
+    points,
+    text: `Szenario ${number}`,
+    questions: [{ points, text: `Frage ${number}` }],
+    solution: [{ results: [{ text: `Ergebnis ${number}`, tolerance: '[± 1°]' }], image: null }],
+    derivation: [{ text: `Herleitung ${number}`, table: null }],
+  })
+  return {
+    source: 'WSV, Navigationsaufgaben SKS',
+    hints: ['Erlaubte Hilfsmittel: Übungskarte 49.'],
+    tide_form: { src: 'formblatt-gezeiten.png', width: 1428, height: 1667 },
+    sheets: [
+      { number: 1, tasks: [task(1, 2), task(2, 1)] },
+      { number: 2, tasks: [task(1, 3)] },
     ],
     ...overrides,
   }
