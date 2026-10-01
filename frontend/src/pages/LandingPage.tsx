@@ -123,9 +123,9 @@ function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; class
   )
 }
 
-// What a Kartenaufgabe run is like (ADR-0052/0053), ahead of its release: text only, no link — the
-// feature is still behind the CHART_EXERCISES flag, and no WSV material (solutions, drawings, the
-// Formblatt) is shown on a public page before its usage rights are confirmed.
+// What a Kartenaufgabe run is like (ADR-0052/0053), ahead of its release: a screenshot of a run and
+// what it offers, but no link — the feature is still behind the CHART_EXERCISES flag. (The WSV
+// material's usage rights are cleared, so the screenshot may show it.)
 const CHART_FEATURES = [
   [
     'Aufgabe für Aufgabe',
@@ -157,6 +157,14 @@ function ChartExercisesPreview() {
         Der zweite Teil der schriftlichen Prüfung: Navigationsaufgaben in der Übungskarte, 30 Punkte in 90 Minuten. SKS
         Lotse führt dich durch die amtlichen Aufgaben und ihre Lösungen.
       </p>
+      <img
+        src="/screenshots/kartenaufgabe.png"
+        width={1456}
+        height={772}
+        alt="Screenshot: Kartenaufgabe 1, Aufgabe 1 von 18 – der Aufgabentext zu Hochwasser, Falldauer und Tidenfall in Cuxhaven, darunter die eigene Antwort und die amtliche Lösung mit „Herleitung anzeigen“, daneben das Formblatt Gezeiten zum Ausfüllen."
+        loading="lazy"
+        className="mt-8 h-auto w-full border border-border"
+      />
       <Columns className="mt-8 sm:grid-cols-3">
         {CHART_FEATURES.map(([title, text]) => (
           <div key={title} className="flex flex-col gap-2">

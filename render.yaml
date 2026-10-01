@@ -86,7 +86,7 @@ services:
         sync: false
       # The Kartenaufgaben (ADR-0052): off | admins | on. Declared here rather than
       # in the dashboard, so opening them to everyone is a reviewed PR that also
-      # updates docs/FEATURES.md. "admins" until the usage rights are confirmed.
+      # updates docs/FEATURES.md. "admins" until then (the usage rights are cleared since 2026-10-01).
       - key: CHART_EXERCISES
         value: admins
       # Token-package checkout (ADR-0048). STRIPE_CHECKOUT is the feature flag

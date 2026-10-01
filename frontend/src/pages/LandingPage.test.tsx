@@ -73,14 +73,18 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Kann ich auch ohne Anmeldung lernen?' })).toBeInTheDocument()
   })
 
-  it('previews the Kartenaufgaben without linking to them or showing WSV material', () => {
+  it('previews the Kartenaufgaben with a screenshot, without linking to them', () => {
     const { container } = renderLandingPage()
 
     const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })
     expect(within(preview).getByText('Vorschau · bald verfügbar')).toBeInTheDocument()
     expect(within(preview).getByRole('heading', { name: 'Lösung mit Herleitung' })).toBeInTheDocument()
     expect(within(preview).queryAllByRole('link')).toEqual([])
-    expect(container.querySelector('a[href^="/charts"], img[src^="/charts"]')).toBeNull()
+    expect(within(preview).getByRole('img', { name: /Kartenaufgabe 1, Aufgabe 1 von 18/ })).toHaveAttribute(
+      'src',
+      '/screenshots/kartenaufgabe.png',
+    )
+    expect(container.querySelector('a[href^="/charts"]')).toBeNull()
   })
 
   it('links to the exam process overview page', () => {
@@ -108,7 +112,8 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Ein Blick in die App' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Probeprüfung' })).toBeInTheDocument()
     const images = screen.getAllByRole('img', { name: /^Screenshot:/ })
-    expect(images).toHaveLength(7)
+    // 4 learning, 3 Probeprüfung, 1 Kartenaufgaben preview.
+    expect(images).toHaveLength(8)
     for (const image of images) {
       expect(image).toHaveAttribute('src', expect.stringMatching(/^\/screenshots\/.+\.png$/))
       expect(image).toHaveAttribute('width')

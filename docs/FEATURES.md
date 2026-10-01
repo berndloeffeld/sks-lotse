@@ -58,7 +58,7 @@ The second part of the written exam, practised with the **official solved Karten
 - The overview shows per exercise whether it's untouched, begun, or the points of the last completed run. A run begun can be discarded on its exercise page to start over (not beside each task), a finished one deleted from its result. The runs don't count towards the learning status.
 - No AI check yet, no time limit.
 
-Status today: **behind a feature flag, open to the operator only** (`CHART_EXERCISES=admins`) until the usage rights of the WSV material are confirmed.
+Status today: **behind a feature flag, open to the operator only** (`CHART_EXERCISES=admins`). The usage rights of the WSV material are cleared (2026-10-01); opening it to everyone is a separate step. The landing page already shows a preview with a screenshot.
 
 ## Lotsen-Check (AI assessment)
 
@@ -90,7 +90,7 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (text only, marked "bald verfügbar", no link while they are behind the flag). They are prepared for search engines and listed in the sitemap.
+Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers, marked "bald verfügbar", no link while they are behind the flag). They are prepared for search engines and listed in the sitemap.
 
 ## Privacy
 
