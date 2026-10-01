@@ -55,6 +55,13 @@ repos:
         language: system
         files: ^frontend/
         pass_filenames: false
+      - id: docs-cross-references
+        name: docs cross-references (ADR index, relative links)
+        # Under a second; catches an ADR status line that differs from its index row before CI does.
+        entry: bash -c 'cd backend && if [ -x .venv/bin/pytest ]; then PYTEST=.venv/bin/pytest; else PYTEST=pytest; fi; $PYTEST tests/test_docs.py -q --no-cov -p no:cacheprovider'
+        language: system
+        files: ^(docs/.*\.md|CLAUDE\.md|README\.md|SECURITY\.md)$
+        pass_filenames: false
       - id: backend-mypy
         name: mypy (backend)
         # The backend venv's mypy (same version as CI) when there is one, else whatever is on PATH.
