@@ -1,6 +1,6 @@
 # 55. Prerendered pages as directory index files, no rewrite per page
 
-Status: Accepted — amends [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) and [ADR-0054](0054-learning-by-topic-open-without-login.md): the prerendered pages are found without a rewrite in `render.yaml`.
+Status: Superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): Render answers `/faq` with an empty body when the file is `faq/index.html`.
 
 ## Context
 

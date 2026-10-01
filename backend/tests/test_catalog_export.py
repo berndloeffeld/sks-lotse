@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 
@@ -74,12 +75,36 @@ def test_renders_stable_readable_json():
     assert text == render_catalog_export({"topics": [], "questions": [{"question_text": "Übung"}]})
 
 
-def test_render_yaml_rewrites_only_to_the_app_shell():
-    # Render applies render.yaml's routes on the Blueprint sync, before the build that creates the
-    # files has deployed; a rewrite to a prerendered page the same change adds answers 200 with an
-    # empty body until then (PR #235). The prerendered pages are directory index files Render
-    # finds without a rewrite (ADR-0055), so the SPA fallback stays the only rewrite.
-    render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
-    rewrites = re.findall(r"- type: rewrite\s+source: (\S+)\s+destination: (\S+)", render_yaml)
+# The static prerendered pages besides "/" (STATIC_PAGES in frontend/src/publicPages.ts).
+STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms", "/exam-process", "/pricing"}
 
-    assert rewrites == [("/*", "/app.html")]
+
+def _rewrites(render_yaml: str) -> list[tuple[str, str]]:
+    return re.findall(r"- type: rewrite\s+source: (\S+)\s+destination: (\S+)", render_yaml)
+
+
+def test_render_yaml_rewrites_every_prerendered_page_to_its_file():
+    # Render doesn't map /faq to faq.html, and a directory index (faq/index.html) answers /faq
+    # with an empty 200 (ADR-0057). So every prerendered page needs its own rewrite, ahead of the
+    # SPA fallback. The open /learn pages come from the export (learnPages, ADR-0054).
+    render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
+    rewrites = _rewrites(render_yaml)
+    topics = json.loads(EXPORT_PATH.read_text())["topics"]
+    learn = {"/learn"} | {f"/learn/{t['subject']}/{t['slug']}" for t in topics}
+
+    assert rewrites[-1] == ("/*", "/app.html")
+    pages = dict(rewrites[:-1])
+    assert all(destination == f"{source}.html" for source, destination in pages.items())
+    assert {source for source in pages if not source.startswith("/charts")} == STATIC_PAGES | learn
+
+
+def test_render_yaml_rewrites_the_chart_pages_only_while_they_are_built():
+    # /charts and /charts/<n> are prerendered only at VITE_CHART_EXERCISES=on (ADR-0056); a rewrite
+    # to a file the build doesn't write answers 200 with an empty body.
+    render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
+    flag = re.findall(r"- key: VITE_CHART_EXERCISES\s+value: (\S+)", render_yaml)
+    charts = {source for source, _ in _rewrites(render_yaml) if source.startswith("/charts")}
+    sheets = json.loads((EXPORT_PATH.parent / "chart_exercises.gen.json").read_text())["sheets"]
+
+    expected = {"/charts"} | {f"/charts/{sheet['number']}" for sheet in sheets}
+    assert charts == (expected if flag == ["on"] else set())
