@@ -23,6 +23,15 @@ def _disable_real_emails(monkeypatch):
     # the OTP background task) can never fire a real email.
     monkeypatch.setattr(settings, "resend_api_key", "")
 
+    # An empty key alone still sends the request (Resend answers 401), i.e. a real DNS lookup and
+    # HTTPS call from the test suite — which segfaults mutmut's forked workers on macOS (getaddrinfo
+    # isn't fork-safe there). Fail the send offline instead, the same outcome the empty key had;
+    # tests of the send itself patch Emails.send again on top of this.
+    def _offline_send(params):
+        raise RuntimeError("tests never send real email")
+
+    monkeypatch.setattr("resend.Emails.send", _offline_send)
+
 
 @pytest.fixture(autouse=True)
 def _reset_rate_limits():
