@@ -1,6 +1,6 @@
 # 0025. Build-time prerender of the landing page
 
-Status: Accepted — amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) (the open /learn pages are prerendered too)
+Status: Accepted — amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) (the open /learn pages are prerendered too) and [ADR-0055](0055-prerendered-pages-as-directory-index-files.md) (pages are directory index files, no rewrite per page)
 
 ## Context
 

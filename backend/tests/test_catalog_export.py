@@ -1,4 +1,3 @@
-import json
 import re
 from pathlib import Path
 
@@ -75,14 +74,12 @@ def test_renders_stable_readable_json():
     assert text == render_catalog_export({"topics": [], "questions": [{"question_text": "Übung"}]})
 
 
-def test_render_yaml_rewrites_every_open_learn_page():
-    # The frontend prerenders /learn and one page per topic of the export (learnPages in
-    # frontend/src/publicPages.ts); without its rewrite, Render would serve such a path the empty
-    # app shell, and search engines would see nothing (ADR-0054).
+def test_render_yaml_rewrites_only_to_the_app_shell():
+    # Render applies render.yaml's routes on the Blueprint sync, before the build that creates the
+    # files has deployed; a rewrite to a prerendered page the same change adds answers 200 with an
+    # empty body until then (PR #235). The prerendered pages are directory index files Render
+    # finds without a rewrite (ADR-0055), so the SPA fallback stays the only rewrite.
     render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
-    rewrites = dict(re.findall(r"- type: rewrite\s+source: (\S+)\s+destination: (\S+)", render_yaml))
-    topics = json.loads(EXPORT_PATH.read_text())["topics"]
-    expected = {"/learn"} | {f"/learn/{t['subject']}/{t['slug']}" for t in topics}
+    rewrites = re.findall(r"- type: rewrite\s+source: (\S+)\s+destination: (\S+)", render_yaml)
 
-    assert {source for source in rewrites if source.startswith("/learn")} == expected
-    assert all(rewrites[path] == f"{path}.html" for path in expected)
+    assert rewrites == [("/*", "/app.html")]

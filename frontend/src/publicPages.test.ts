@@ -56,9 +56,9 @@ describe('learnPages', () => {
     const pages = learnPages(CATALOG)
 
     expect(pages.map((p) => [p.path, p.file])).toEqual([
-      ['/learn', 'learn.html'],
-      ['/learn/navigation/seekarten', 'learn/navigation/seekarten.html'],
-      ['/learn/wetterkunde/wind', 'learn/wetterkunde/wind.html'],
+      ['/learn', 'learn/index.html'],
+      ['/learn/navigation/seekarten', 'learn/navigation/seekarten/index.html'],
+      ['/learn/wetterkunde/wind', 'learn/wetterkunde/wind/index.html'],
     ])
     expect(pages.every((p) => p.withoutAds)).toBe(true)
     expect(pages[0].meta?.description).toContain('Alle 3 Fragen')
@@ -86,7 +86,7 @@ describe('publicPages', () => {
     ])
     expect(statics.filter((p) => p.withoutAds).map((p) => p.path)).toEqual(['/pricing'])
     expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
-    expect(statics[1].file).toBe('faq.html')
+    expect(statics[1].file).toBe('faq/index.html')
   })
 })
 
@@ -121,7 +121,7 @@ describe('sitemapXml', () => {
   it('lists every page under the site', () => {
     const xml = sitemapXml([
       { path: '/', file: 'index.html' },
-      { path: '/learn', file: 'learn.html' },
+      { path: '/learn', file: 'learn/index.html' },
     ])
     expect(xml).toBe(
       '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
