@@ -13,9 +13,9 @@ declare global {
 
 // Google AdSense (ADR-0027). The public pages carry the script as a static tag,
 // injected into the built HTML by the adsense-snippet plugin in vite.config.ts
-// (AdSense's site verification reads their source). The app shell (app.html) is
-// built without it — scripts/prerender.mjs strips the tag — and loads it at
-// runtime instead, only where wantsAdScript says so (ADR-0027 addendum
+// (AdSense's site verification reads their source). The app shell (app.html) and
+// /pricing are built without it — scripts/prerender.mjs strips the tag. The shell
+// loads it at runtime instead, only where wantsAdScript says so (ADR-0027 addendum
 // 2026-09-23): not for accounts that removed ads, never on the admin tools.
 // All of it only when VITE_ADSENSE_CLIENT_ID is set (unset locally/in CI).
 // Google's certified TCF CMP is configured in the AdSense dashboard and shown

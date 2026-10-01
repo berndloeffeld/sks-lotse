@@ -81,8 +81,9 @@ export function AppRoutes() {
         <Route path="/terms" element={<AgbPage />} />
         <Route path="/exam-process" element={<ExamProcessPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        {/* The prerendered public pages above carry the ad script statically; these load it
-            only where wanted — not for ads-removed accounts, never on /admin (ads.ts). */}
+        {/* The prerendered public pages above carry the ad script statically (all but /pricing,
+            which runs none — prerender.mjs); these load it only where wanted — not for
+            ads-removed accounts, never on /admin (ads.ts). */}
         <Route element={<AdScriptGate />}>
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute />}>

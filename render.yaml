@@ -214,6 +214,9 @@ services:
       - type: rewrite
         source: /exam-process
         destination: /exam-process.html
+      - type: rewrite
+        source: /pricing
+        destination: /pricing.html
       # SPA fallback: routes like /login and /learn have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
