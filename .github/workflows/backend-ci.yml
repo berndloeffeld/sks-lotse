@@ -47,16 +47,14 @@ jobs:
       # Tests override get_db (in-memory SQLite), so this never needs to be a
       # real, reachable database — it only has to satisfy Settings() on import.
       DATABASE_URL: postgresql://test:test@localhost:5432/test
-      # JWT_SECRET has no default (see backend/app/core/config.py) — any
-      # fixed value is fine here since ENVIRONMENT stays "development". Not a
-      # real secret, just `openssl rand -hex 32` output — long enough that it
-      # wouldn't itself trip the production min-length check if ever copied
-      # somewhere it shouldn't be, unlike an obviously-named placeholder.
-      JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # JWT_SECRET has no default (see backend/app/core/config.py) and only has to
+      # satisfy Settings(); a fresh random one per run keeps a secret-looking literal
+      # out of the repo (secret scanners flag it) and is never used outside this job.
+      - run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
@@ -91,11 +89,11 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/test
-      JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
@@ -131,7 +129,6 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/test
-      JWT_SECRET: 45eb335498028f51fca3594cd2979ac9e9a3f9f09a908ccee3b05f054e7964ac
       # The collection's admin test account (adminEmail variable); RESEND_API_KEY stays unset, so
       # no OTP mail is ever sent — the collection reads codes via the dev-only _dev-peek endpoint.
       ADMIN_EMAILS: integration-admin@example.com
@@ -141,6 +138,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v7
         with:
           python-version-file: .python-version
