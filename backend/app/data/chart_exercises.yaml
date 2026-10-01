@@ -330,7 +330,7 @@ sheets:
       text: Bestimmen Sie den beobachteten Ort (O_b) um 10:45 BZ.
     solution:
     - results:
-      - text: φ = 54°04,3′ N, λ = 008°20,1′ E
+      - text: 'O_b 10:45 BZ: φ = 54°04,3′ N, λ = 008°20,1′ E'
         tolerance: ± 0,2′
   - number: 14
     points: 3
@@ -424,7 +424,7 @@ sheets:
     - text: 'Vom GPS-Ort aus 3,2 sm auf KaK = 085° abtragen: Der Endpunkt ist der Koppelort.'
     solution:
     - results:
-      - text: φ = 54°06,1′ N, λ = 008°32,2′ E
+      - text: 'O_k 19:00 BZ: φ = 54°06,1′ N, λ = 008°32,2′ E'
         tolerance: ± 0,2′
   - number: 16
     points: 3
@@ -442,7 +442,7 @@ sheets:
         Richtung und Länge dieser Strecke in der Karte abgreifen.'
     solution:
     - results:
-      - text: φ = 54°06,2′ N, λ = 008°33,5′ E
+      - text: 'O_b 19:00 BZ: φ = 54°06,2′ N, λ = 008°33,5′ E'
         tolerance: ± 0,2′
     - results:
       - text: BV = 083° / 0,8 sm
@@ -635,7 +635,7 @@ sheets:
     - text: 'Vom beobachteten Ort um 12:25 BZ aus 7,7 sm auf KüG = 293° abtragen: Der Endpunkt ist der Koppelort.'
     solution:
     - results:
-      - text: φ = 54°12,4′ N, λ = 008°29,7′ E
+      - text: 'O_k 13:30 BZ: φ = 54°12,4′ N, λ = 008°29,7′ E'
         tolerance: ± 0,2′
   - number: 7
     points: 3
@@ -688,7 +688,7 @@ sheets:
         Richtung und Länge dieser Strecke in der Karte abgreifen.'
     solution:
     - results:
-      - text: φ = 54°12,0′ N, λ = 008°31,6′ E
+      - text: 'O_b 13:30 BZ: φ = 54°12,0′ N, λ = 008°31,6′ E'
         tolerance: ± 0,2′
     - results:
       - text: BV = 110° / 1,2 sm
@@ -908,7 +908,7 @@ sheets:
       - text: rwP Leuchtturm Helgoland = 282°
         tolerance: Keine Toleranz
     - results:
-      - text: φ = 54°09,5′ N, λ = 008°03,6′ E
+      - text: 'O_b 15:39 BZ: φ = 54°09,5′ N, λ = 008°03,6′ E'
         tolerance: ± 0,2′
   - number: 14
     points: 3
