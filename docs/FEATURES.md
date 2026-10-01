@@ -86,6 +86,7 @@ Status today: buying tokens is open to all learners. Ad-free is still credited b
 
 ## Navigation
 
+- Without a login, the header has **Lernen**, **Kartenaufgaben** (once they are open to everyone) and **Preise**, plus Anmelden; Prüfungsablauf and FAQ are in the footer.
 - Logged in, the header leads with the areas: **Lernen** and **Prüfung** (the Probeprüfung). For learners with the Kartenaufgaben it follows the written exam's two parts instead: **Fragen** and **Kartenaufgaben**, with the Probeprüfung as a fourth tab of the learning area (next to Auffrischen).
 - Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. Prüfungsablauf, FAQ and Kontakt are in the footer of every page.
 - On phones the areas and the Konto menu are a tab bar at the bottom of the screen. While a practice round, an exam or a Kartenaufgabe is running, the tab bar is hidden.
