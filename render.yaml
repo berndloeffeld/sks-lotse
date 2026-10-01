@@ -86,7 +86,7 @@ services:
         sync: false
       # The Kartenaufgaben (ADR-0052): off | admins | on. Declared here rather than
       # in the dashboard, so opening them to everyone is a reviewed PR that also
-      # updates docs/FEATURES.md. "admins" until the usage rights are confirmed.
+      # updates docs/FEATURES.md. "admins" until then (the usage rights are cleared since 2026-10-01).
       - key: CHART_EXERCISES
         value: admins
       # Token-package checkout (ADR-0048). STRIPE_CHECKOUT is the feature flag
@@ -198,7 +198,7 @@ services:
         destination: /pricing
       # Prerendered public pages (ADR-0025): each path serves its own
       # prerendered file. Listed explicitly because Render doesn't map /faq
-      # to faq.html on its own. Must match PAGES in scripts/prerender.mjs.
+      # to faq.html on its own. Must match frontend/src/publicPages.ts.
       - type: rewrite
         source: /faq
         destination: /faq.html
@@ -217,11 +217,92 @@ services:
       - type: rewrite
         source: /pricing
         destination: /pricing.html
-      # SPA fallback: routes like /login and /learn have no matching static
+      # The open /learn pages (ADR-0054): the topic list and one page per catalog
+      # topic, generated from the catalog export. Must match learnPages() in
+      # frontend/src/publicPages.ts (backend/tests/test_catalog_export.py checks it).
+      - type: rewrite
+        source: /learn
+        destination: /learn.html
+      - type: rewrite
+        source: /learn/navigation/seekarten
+        destination: /learn/navigation/seekarten.html
+      - type: rewrite
+        source: /learn/navigation/nautische-publikationen
+        destination: /learn/navigation/nautische-publikationen.html
+      - type: rewrite
+        source: /learn/navigation/ortsbestimmung-navigieren
+        destination: /learn/navigation/ortsbestimmung-navigieren.html
+      - type: rewrite
+        source: /learn/navigation/gezeiten
+        destination: /learn/navigation/gezeiten.html
+      - type: rewrite
+        source: /learn/navigation/elektronische-navigation
+        destination: /learn/navigation/elektronische-navigation.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/kvr-ausweich-fahrregeln
+        destination: /learn/schifffahrtsrecht/kvr-ausweich-fahrregeln.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/kvr-lichter-signale
+        destination: /learn/schifffahrtsrecht/kvr-lichter-signale.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/seeschstro-verkehrsregeln
+        destination: /learn/schifffahrtsrecht/seeschstro-verkehrsregeln.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/seeschstro-kennzeichnung
+        destination: /learn/schifffahrtsrecht/seeschstro-kennzeichnung.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/schiffspapiere-sug-flaggenrecht
+        destination: /learn/schifffahrtsrecht/schiffspapiere-sug-flaggenrecht.html
+      - type: rewrite
+        source: /learn/schifffahrtsrecht/marpol-verkehrsregeln
+        destination: /learn/schifffahrtsrecht/marpol-verkehrsregeln.html
+      - type: rewrite
+        source: /learn/seemannschaft_allgemein/ausruestung-allgemein
+        destination: /learn/seemannschaft_allgemein/ausruestung-allgemein.html
+      - type: rewrite
+        source: /learn/seemannschaft_allgemein/fuehren-einer-yacht
+        destination: /learn/seemannschaft_allgemein/fuehren-einer-yacht.html
+      - type: rewrite
+        source: /learn/seemannschaft_allgemein/sicherheitsausruestung
+        destination: /learn/seemannschaft_allgemein/sicherheitsausruestung.html
+      - type: rewrite
+        source: /learn/seemannschaft_allgemein/ankern
+        destination: /learn/seemannschaft_allgemein/ankern.html
+      - type: rewrite
+        source: /learn/seemannschaft_motor/antriebsmaschine-betrieb-wartung
+        destination: /learn/seemannschaft_motor/antriebsmaschine-betrieb-wartung.html
+      - type: rewrite
+        source: /learn/seemannschaft_motor/manoever-hafen-see
+        destination: /learn/seemannschaft_motor/manoever-hafen-see.html
+      - type: rewrite
+        source: /learn/seemannschaft_segeln/segelstellung-stabilitaet-rumpfgeschwindigkeit
+        destination: /learn/seemannschaft_segeln/segelstellung-stabilitaet-rumpfgeschwindigkeit.html
+      - type: rewrite
+        source: /learn/seemannschaft_segeln/antriebsmaschine-betrieb-wartung
+        destination: /learn/seemannschaft_segeln/antriebsmaschine-betrieb-wartung.html
+      - type: rewrite
+        source: /learn/seemannschaft_segeln/manoever-schwerem-wetter
+        destination: /learn/seemannschaft_segeln/manoever-schwerem-wetter.html
+      - type: rewrite
+        source: /learn/wetterkunde/allgemeine-begriffe
+        destination: /learn/wetterkunde/allgemeine-begriffe.html
+      - type: rewrite
+        source: /learn/wetterkunde/druckgebilde
+        destination: /learn/wetterkunde/druckgebilde.html
+      - type: rewrite
+        source: /learn/wetterkunde/seewetterberichte
+        destination: /learn/wetterkunde/seewetterberichte.html
+      - type: rewrite
+        source: /learn/wetterkunde/wetterregeln
+        destination: /learn/wetterkunde/wetterregeln.html
+      - type: rewrite
+        source: /learn/wetterkunde/seegang
+        destination: /learn/wetterkunde/seegang.html
+      # SPA fallback: routes like /login and /profile have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
       # empty shell — index.html carries the prerendered landing page
-      # (ADR-0025), which must not flash up on /learn. Render only rewrites
+      # (ADR-0025), which must not flash up on /profile. Render only rewrites
       # paths with no matching file, so / still serves index.html.
       - type: rewrite
         source: /*

@@ -1,15 +1,18 @@
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { RefreshSummary } from '../api/types'
+import { topicQuestions, topicsBySubject, type GuestCatalog } from '../catalog'
 import { Band, Columns } from '../components/Bands'
-import { FocusBand } from '../components/FocusBand'
 import { ExamOverview } from '../components/ExamOverview'
+import { FocusBand } from '../components/FocusBand'
+import { formStyles } from '../components/formStyles'
 import { LearnModePanel, LearnModeTabs, RefreshPanel } from '../components/LearnModes'
 import { LedgerRow } from '../components/LedgerRow'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { useCatalog } from '../hooks/useCatalog'
 import { useProgressSummary } from '../hooks/useProgressSummary'
 import { SUBJECT_LABELS } from '../labels'
 import { learnModes, type LearnMode } from '../navigation'
@@ -104,14 +107,88 @@ function LearnContent() {
   )
 }
 
-export function LearnPage() {
-  const user = useAuthStore((state) => state.user)
+const GUEST_ROW_ACTION =
+  'border border-primary px-3 py-1.5 font-mono text-xs tracking-wide text-primary uppercase hover:bg-primary hover:text-surface'
+
+// /learn without a login (ADR-0054): every topic of the catalog, open to practise, and what an account
+// adds. No Lernstand, Fokus, Auffrischen or Probeprüfung, and no exam variant, so both
+// Seemannschaft variants are listed.
+function GuestLearnContent() {
+  const { catalog, failed } = useCatalog()
 
   return (
-    <PageLayout title="Lernen" subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog." bands>
+    <>
+      <Band className="pt-10 pb-0">
+        <div className="flex flex-col items-start gap-3 rounded-tile border border-primary bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-xl text-sm text-ink">
+            Alle Fragen des amtlichen Katalogs, frei zum Üben. Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung
+            speichert SKS Lotse deinen Lernstand, und du bekommst Fokus-Themen, Auffrischen, die Probeprüfung und den
+            Lotsen-Check.
+          </p>
+          <Link to="/login" className={formStyles('light').button}>
+            Kostenlos anmelden
+          </Link>
+        </div>
+      </Band>
+      <Band className="py-10">
+        {failed ? (
+          <p className="text-sm text-danger">Die Themen konnten nicht geladen werden.</p>
+        ) : !catalog ? (
+          <p className="text-sm text-ink-soft">Themen werden geladen…</p>
+        ) : (
+          <GuestTopics catalog={catalog} />
+        )}
+      </Band>
+    </>
+  )
+}
+
+function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
+  return (
+    <Columns className="sm:grid-cols-2">
+      {Array.from(topicsBySubject(catalog.topics).entries()).map(([subject, topics]) => (
+        <div key={subject} className="flex flex-col gap-2">
+          <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
+          <div>
+            {topics.map((topic) => (
+              <div
+                key={topic.slug}
+                className="flex items-center justify-between gap-4 border-b border-border px-2 py-3 last:border-b-0"
+              >
+                <div className="flex-1">
+                  <p className="text-ink">{topic.name}</p>
+                  <p className="mt-1 font-mono text-xs text-ink-soft">
+                    {topicQuestions(catalog, subject, topic.slug).length} Fragen
+                  </p>
+                </div>
+                <Link to={`/learn/${subject}/${topic.slug}`} className={GUEST_ROW_ACTION}>
+                  Lernen starten
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </Columns>
+  )
+}
+
+// Open without a login (ADR-0054): the prerendered page is the guest's, and becomes the learner's
+// Lernstand once the session check knows them.
+export function LearnPage() {
+  const user = useAuthStore((state) => state.user)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+
+  return (
+    <PageLayout
+      title="Lernen"
+      subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog."
+      nav="public"
+      bands
+    >
       {/* Keyed on exam_variant so a change remounts (and refetches) the
           Lernstand for the new variant's subjects. */}
-      <LearnContent key={user?.exam_variant ?? 'none'} />
+      {isAuthenticated ? <LearnContent key={user?.exam_variant ?? 'none'} /> : <GuestLearnContent />}
     </PageLayout>
   )
 }

@@ -23,16 +23,16 @@ describe('Header', () => {
       </MemoryRouter>,
     )
 
+    expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
     expect(screen.getByRole('link', { name: 'Preise' })).toHaveAttribute('href', '/pricing')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
-    // Same order as in the logged-in Menü.
     expect(
       screen
         .getAllByRole('link')
-        .slice(1, 4)
+        .slice(1, 5)
         .map((link) => link.textContent),
-    ).toEqual(['Prüfungsablauf', 'Preise', 'FAQ'])
+    ).toEqual(['Lernen', 'Prüfungsablauf', 'Preise', 'FAQ'])
   })
 
   it('marks the content page the visitor is on', () => {

@@ -1,6 +1,6 @@
 # 0006. Mandatory login and feature-gated monetization
 
-Status: Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); the rest stands
+Status: Accepted — the AI-grading add-on's boolean unlock is superseded by [ADR-0043](0043-token-based-ai-grading-monetization.md) (pay-per-use tokens); amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) ("Lernen nach Thema" open without a login, nothing saved); the rest stands
 
 ## Context
 

@@ -83,17 +83,20 @@ export function AppRoutes() {
         <Route path="/exam-process" element={<ExamProcessPage />} />
         {/* The prerendered public pages above carry the ad script statically; these load it
             only where wanted — not for ads-removed accounts, never on /pricing or /admin (ads.ts).
-            /pricing is prerendered without it, and the gate leaves a document that already runs
-            it (arriving from a page with ads). */}
+            /pricing and the open /learn pages are prerendered without it, and the gate leaves a
+            document that already runs it (arriving from a page with ads). */}
         <Route element={<AdScriptGate />}>
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AgbGate />}>
-              <Route path="/learn" element={<LearnPage />} />
+          {/* AgbGate only ever asks a logged-in learner; guests pass straight through. */}
+          <Route element={<AgbGate />}>
+            {/* Open without a login (ADR-0054): the topic list and a topic's run, prerendered for
+                search engines; logged in they are the learner's Lernstand and graded run. */}
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+            <Route element={<ProtectedRoute />}>
               <Route path="/learn/focus" element={<FocusPracticePage />} />
               <Route path="/learn/refresh" element={<RefreshPracticePage />} />
-              <Route path="/learn/:subject/:topic" element={<PracticePage />} />
               <Route path="/exam" element={<ExamPage />} />
               <Route path="/exam/:id" element={<ExamRunPage />} />
               <Route element={<ChartExercisesGate />}>

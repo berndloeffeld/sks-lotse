@@ -33,8 +33,8 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 
 ## Product rules that constrain code
 
-- **Login is required**; no anonymous progress. Progress always lives server-side.
-- **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand. Topic names are transcribed from the catalog, never invented by a script or an LLM.
+- **Login is required for everything that remembers**; no anonymous progress. Progress always lives server-side. Only "Lernen nach Thema" is open to guests (read, answer, reveal, self-assess for the round's summary — nothing saved or sent; ADR-0054).
+- **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand; the guests' copy `frontend/src/data/catalog.gen.json` only from `backend/scripts/export_catalog.py`. Topic names are transcribed from the catalog, never invented by a script or an LLM.
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
 - **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/pricing` or `/admin` (ADR-0027 addendum 2026-09-23).

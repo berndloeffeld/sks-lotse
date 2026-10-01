@@ -43,6 +43,7 @@ Images follow the same pattern: `backend/scripts/extract_catalog_images.py` prop
 - The proposing scripts read the PDF directly; no database needed. `backend/scripts/import_catalog.py` syncs a local database with the committed files (the same code as the migrations) to check the result.
 - Only the *review artifacts* (`seemannschaft_duplicates.yaml`, `topic_assignments/*.yaml`, `question_images.yaml` plus its PNGs) have to exist before `alembic upgrade head` can seed a new environment. They are committed, so that's already true everywhere.
 - Re-running the proposing scripts (and re-reviewing) is only needed when the source PDF or the topic taxonomy changes. A new data migration calling `sync_catalog(op.get_bind(), build_catalog())` then ships the result.
+- **The guest export follows in the same PR**: `PYTHONPATH=. .venv/bin/python scripts/export_catalog.py` (in `backend/`) rewrites `frontend/src/data/catalog.gen.json`, which the open "Lernen nach Thema" pages and their prerender read ([ADR-0054](adr/0054-learning-by-topic-open-without-login.md)). `backend/tests/test_catalog_export.py` fails while it is stale. A new or renamed topic also needs its rewrite in `render.yaml` (`/learn/<subject>/<slug>` → `/learn/<subject>/<slug>.html`), and the same test checks that.
 
 ## Kartenaufgaben
 

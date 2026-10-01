@@ -60,6 +60,9 @@ interface PracticeRunProps {
   keepLearned?: boolean
   // What to say when the run is empty; the default is the topic run's "everything learned".
   emptyState?: { title: string; text: string }
+  // Without a login (ADR-0054): in catalog order, and the self-assessment only counts for this
+  // round's summary; nothing is stored or sent — the Lotsen-Check only as a teaser, no report, no gauge.
+  guest?: boolean
 }
 
 // The learning loop for one run (ADR-0023): read the question, optionally
@@ -73,6 +76,7 @@ export function PracticeRun({
   contextLabel,
   keepLearned = false,
   emptyState,
+  guest = false,
 }: PracticeRunProps) {
   const [run, setRun] = useState(() => buildRun(questions, standings, keepLearned, keepOrder))
   const [index, setIndex] = useState(0)
@@ -89,9 +93,11 @@ export function PracticeRun({
   // Keyboard flow: each phase hands focus to the control the learner needs next, so the whole
   // loop works without a mouse — the answer field here, the grade group once SelfAssessment mounts.
   // A layout effect, so the question never shows up without the cursor in the field.
+  // A guest arriving on the page (often from a search) isn't pulled into the field before they
+  // chose to start; from the second question on, the loop is the same.
   useLayoutEffect(() => {
-    if (phase === 'answer') noteRef.current?.focus()
-  }, [phase, index, run])
+    if (phase === 'answer' && !(guest && index === 0)) noteRef.current?.focus()
+  }, [phase, index, run, guest])
 
   const startRun = (includeLearned: boolean) => {
     setRun(buildRun(questions, standings, includeLearned || keepLearned, keepOrder))
@@ -109,6 +115,13 @@ export function PracticeRun({
   }
 
   const question = run[index] as Question | undefined
+
+  // A guest's grading only counts for the summary, and the next question follows at once (no boat).
+  const saveGuestGrade = async (chosen: GradingOutcome) => {
+    if (!question) return
+    setTally((t) => [...t, chosen])
+    nextQuestion()
+  }
 
   // Rejects when the grading couldn't be saved — SelfAssessment shows the error and keeps the choice.
   const saveGrade = async (chosen: GradingOutcome) => {
@@ -178,12 +191,29 @@ export function PracticeRun({
               <dd className="text-ink">{count(o)}</dd>
             </div>
           ))}
-          <dt className="text-ink-soft">Neu gelernt</dt>
-          <dd className="text-ink">{newlyLearned}</dd>
+          {guest ? null : (
+            <>
+              <dt className="text-ink-soft">Neu gelernt</dt>
+              <dd className="text-ink">{newlyLearned}</dd>
+            </>
+          )}
         </dl>
-        <Link to="/learn" className={styles.button}>
-          Zur Themenübersicht
-        </Link>
+        {guest ? (
+          <p className="max-w-xl text-sm text-ink-soft">
+            Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung merkt sich SKS Lotse, was du sicher kannst, holt
+            Verblasstes zurück und zeigt deinen Lernstand auf jedem Gerät.
+          </p>
+        ) : null}
+        <div className="flex flex-wrap gap-3">
+          {guest ? (
+            <Link to="/login" className={styles.button}>
+              Anmelden
+            </Link>
+          ) : null}
+          <Link to="/learn" className={styles.button}>
+            Zur Themenübersicht
+          </Link>
+        </div>
       </section>
     )
   }
@@ -209,10 +239,12 @@ export function PracticeRun({
         {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
             previous question's gauge standing): a new question starts where it stands, only a
             grading of this one makes the boat sail, and the report popover starts closed. */}
-        <div key={question.id} className="flex items-center gap-3">
-          <CourseGauge progress={standings.get(question.id)?.progress ?? 0} />
-          <ReportQuestion questionId={question.id} />
-        </div>
+        {guest ? null : (
+          <div key={question.id} className="flex items-center gap-3">
+            <CourseGauge progress={standings.get(question.id)?.progress ?? 0} />
+            <ReportQuestion questionId={question.id} />
+          </div>
+        )}
       </div>
 
       <p className="-mb-2 font-mono text-xs tracking-wide text-ink-soft uppercase">
@@ -271,14 +303,35 @@ export function PracticeRun({
             <QuestionImages images={question.answer_images} part="answer" />
           </section>
 
-          <SelfAssessment
-            key={question.id}
-            name="outcome"
-            layout="row"
-            onSave={saveGrade}
-            saveErrorMessage="Die Bewertung konnte nicht gespeichert werden. Bitte versuche es erneut."
-            aiCheck={question.answer_text ? { questionId: question.id, answer: note } : null}
-          />
+          {guest ? (
+            <>
+              <SelfAssessment
+                key={question.id}
+                name="outcome"
+                layout="row"
+                onSave={saveGuestGrade}
+                saveErrorMessage="Die Bewertung konnte nicht übernommen werden."
+                // The Lotsen-Check as a teaser only: AiAnswerCheck keeps it disabled without a login.
+                aiCheck={question.answer_text ? { questionId: question.id, answer: note } : null}
+              />
+              <p className="text-xs text-ink-soft">
+                Ohne Anmeldung zählt deine Bewertung nur für diese Runde.{' '}
+                <Link to="/login" className="text-primary underline">
+                  Mit Anmeldung
+                </Link>{' '}
+                behältst du deinen Lernstand auf jedem Gerät.
+              </p>
+            </>
+          ) : (
+            <SelfAssessment
+              key={question.id}
+              name="outcome"
+              layout="row"
+              onSave={saveGrade}
+              saveErrorMessage="Die Bewertung konnte nicht gespeichert werden. Bitte versuche es erneut."
+              aiCheck={question.answer_text ? { questionId: question.id, answer: note } : null}
+            />
+          )}
         </>
       )}
     </article>

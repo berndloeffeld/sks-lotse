@@ -21,6 +21,12 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
       'Du liest die Frage, formulierst die Antwort im Kopf oder schreibst sie auf, vergleichst sie mit der Musterantwort und bewertest dich selbst: richtig, teilweise richtig oder falsch. Daraus ergibt sich dein Lernstand.',
   },
   {
+    id: 'ohne-anmeldung',
+    question: 'Kann ich auch ohne Anmeldung lernen?',
+    answer:
+      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der Musterantwort vergleichen. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
+  },
+  {
     id: 'lernmodi',
     question: 'Welche Lernmodi gibt es?',
     answer:
