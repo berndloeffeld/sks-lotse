@@ -990,3 +990,490 @@ sheets:
       - text: 'Kennung: Gleichtaktfeuer bzw. Isophase weiß, Wiederkehr 4 s'
       - text: 'Richtfeuerlinie: rwP = 020°'
         tolerance: Keine Toleranz
+- number: 3
+  tasks:
+  - number: 1
+    points: 2
+    text: Am 31.07.2013 will man mit einer Yacht von Helgoland nach Baltrum reisen. Man ermittelt überschlägig als
+      Distanz 40 sm und rechnet mit einer durchschnittlichen Geschwindigkeit von FüG = 5,3 kn. Man plant, mit dem
+      Morgenhochwasser Helgoland auszulaufen. Bordzeit (BZ) ist gesetzliche Zeit (GZ).
+    questions:
+    - points: 2
+      text: Bestimmen Sie die geschätzte Ankunftszeit im Hafen von Baltrum (Estimated Time of Arrival = ETA).
+    derivation:
+    - text: 'Abfahrt ist das Morgenhochwasser in Helgoland. Laut Gezeitentafel ist das am 31.07.2013 um 05:45 MEZ.
+        Die Gezeitentafeln rechnen in MEZ, im Sommer gilt aber MESZ. Deshalb kommt eine Stunde dazu: 05:45 MEZ =
+        06:45 MESZ = 06:45 BZ.'
+    - text: t (Zeit in Stunden) = d (Distanz) / FüG (Geschwindigkeit) → 40 sm / 5,3 kn = 7,55 h = 7 h 33 min
+    - text: ETA = Abfahrt + Fahrzeit → 06:45 BZ + 7 h 33 min = 14:18 BZ
+    solution:
+    - results:
+      - text: 'HWZ Helgoland 31.07.2013: 05:45 MEZ = 06:45 MESZ/BZ'
+        tolerance: Keine Toleranz
+    - results:
+      - text: ETA = 14:18 BZ
+        tolerance: Keine Toleranz
+  - number: 2
+    points: 3
+    text: Die Yacht verlässt den Hafen von Helgoland bereits um 05:00 BZ und steuert zwischen der Hauptinsel und
+      der östlich vorgelagerten, sogenannten „Düne“ in nördlicher Richtung durch das betonnte Fahrwasser. Man befindet
+      sich im Leitsektor „weiß“ des „Düne Oberfeuers“.
+    questions:
+    - points: 3
+      text: 'Beschreiben Sie dieses Leuchtfeuer und seine navigatorische Bedeutung vollständig nach Seekarte und
+        Leuchtfeuerverzeichnis:
+
+        – Kennung und Wiederkehr, Nenntragweite,
+
+        – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden,
+
+        – navigatorische Bedeutung.'
+    derivation:
+    - text: Kennung, Wiederkehr und Nenntragweite stehen in der Seekarte am Feuer, die übrigen Angaben im Leuchtfeuerverzeichnis.
+    - text: 'Gleichtaktfeuer (Iso) heißt: Licht und Dunkelheit sind gleich lang. Bei einer Wiederkehr von 4 s ist
+        das Feuer also 2 s hell und 2 s dunkel.'
+    - text: Ein Leitfeuer zeigt einen schmalen weißen Sektor mit einem roten und einem grünen Sektor daneben. Solange
+        man weiß sieht, ist man im Fahrwasser. Rot oder grün zeigt an, nach welcher Seite man abgekommen ist. Das
+        Düne Oberfeuer hat zwei solcher Leitsektoren, einen für die Ansteuerung aus SSW und einen aus NW. Deshalb
+        gibt es je zwei weiße, rote und grüne Sektoren.
+    - text: Zusammen mit dem Unterfeuer bildet es außerdem eine Richtfeuerlinie. Wer von SSW kommt, sieht beide
+        Feuer übereinander und fährt damit auf der Linie 020°.
+    solution:
+    - results:
+      - text: 'Kennung: Gleichtaktfeuer bzw. Isophase, mit jeweils zwei weißen, roten und grünen Sektoren'
+      - text: 'Wiederkehr: 4 Sekunden'
+      - text: 'Nenntragweite: weiß 11 sm, rot 10 sm, grün 10 sm'
+    - results:
+      - text: 'Feuerhöhe über dem Wasser: 17 m'
+      - text: 'Aussehen am Tage: rotweißer waagerecht gestreifter runder Turm'
+      - text: 'Höhe des FT ü. Erdboden: 15 m'
+    - results:
+      - text: 'Navigatorische Bedeutung: Ein Leitfeuer für die Ansteuerung aus ca. SSW, ein Leitfeuer für die Ansteuerung
+          aus ca. NW.'
+      - text: Das Oberfeuer bildet in Verbindung mit dem vorgelagerten Unterfeuer eine Richtfeuerlinie (020°) für
+          aus ca. SSW einlaufende Schiffe.
+  - number: 3
+    points: 1
+    text: Entlang des Leitsektors, in dem man Helgoland verlässt, befindet sich in der Seekarte eingezeichnet eine
+      unterbrochene grüne Linie mit kurzen senkrechten Strichen. Durch sie wird ein Gebiet eingegrenzt.
+    questions:
+    - points: 1
+      text: Erklären Sie die Bedeutung dieses Gebietes.
+    derivation:
+    - text: 'Die Bedeutung dieser Linie steht in Karte 1/INT 1: Eine unterbrochene grüne Linie mit kurzen senkrechten
+        Strichen begrenzt ein Naturschutzgebiet. In der Seekarte steht dazu „NSG“. Rund um Helgoland ist das Naturschutzgebiet
+        ein Sperrgebiet, in das Fahrzeuge nicht einfahren dürfen. Deshalb muss die Yacht im weißen Leitsektor bleiben.'
+    solution:
+    - results:
+      - text: NSG = Naturschutzgebiet; Sperrgebiet, Einfahren verboten.
+  - number: 4
+    points: 1
+    text: Die Wasserfläche im Bereich des Leitsektors „weiß“ ist in der Seekarte hellblau gefärbt.
+    questions:
+    - points: 1
+      text: Was bedeuten die so gefärbten Flächen in der Seekarte?
+    derivation:
+    - text: 'Die Seekarte färbt das Wasser nach seiner Tiefe: Je flacher es ist, desto kräftiger ist das Blau. Welche
+        Farbe für welchen Tiefenbereich steht, ergibt sich aus den Tiefenlinien am Rand der Fläche. Hier liegt die
+        hellblaue Fläche zwischen der 10-m- und der 20-m-Linie.'
+    - text: 'Die Zahlen sind Kartentiefen, keine Wassertiefen. Eine Kartentiefe ist auf LAT bezogen (Lowest Astronomical
+        Tide, das niedrigste Niedrigwasser, das nach den Gezeiten zu erwarten ist). Die tatsächliche Wassertiefe
+        ist fast immer größer: Kartentiefe plus aktuelle Höhe der Gezeit.'
+    solution:
+    - results:
+      - text: Kartentiefen [nicht Wassertiefen] in dieser Seekarte, bezogen auf LAT, zwischen 10 m und 20 m (in
+          Verbindung mit den angegebenen Tiefenlinien)
+  - number: 5
+    points: 1
+    text: Um 06:01 BZ steht die Yacht bei der Tonne „Nathurn-N“.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation:
+    - text: '**Magentafarbene Raute „B“** der Gezeitenstromangabe'
+    - text: 'HWZ Helgoland 31.07.2013: 05:45 MEZ = 06:45 MESZ/BZ'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: '**06:01 BZ = 44 min vor HWZ Helgoland ≈ 1 h vor HWZ Helgoland**'
+    solution:
+    - results:
+      - text: StR = 085°
+        tolerance: Keine Toleranz
+      - text: StG = 0,5 kn
+        tolerance: Keine Toleranz
+  - number: 6
+    points: 2
+    text: Von der Tonne „Nathurn-N“ wird der Kartenkurs KaK = 235° abgesetzt. Man koppelt mit FüG = 5,7 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 07:00 BZ.
+    derivation:
+    - text: 'Koppelzeit von 06:01 BZ bis 07:00 BZ: **59 min**'
+    - text: d (Distanz) = FüG (Geschwindigkeit) · t (Zeit) → 5,7 kn · 59 min / 60 min = **5,6 sm**
+    - text: 'Von der Tonne „Nathurn-N“ aus 5,6 sm auf KaK = 235° abtragen: Der Endpunkt ist der Koppelort.'
+    solution:
+    - results:
+      - text: 'O_k 07:00 BZ: φ = 54°10,2′ N, λ = 007°41,2′ E'
+        tolerance: ± 0,2′
+  - number: 7
+    points: 2
+    text: Um 07:00 Uhr BZ peilt man mit dem Steuerkompass die Tonne „E 2“ in MgP = 150° (anl. MgK = 237°) und nahezu
+      zeitgleich ermittelt man mit dem Radar in der relativen Darstellungsart „Head-Up“ ein Echo in der Radar-Seitenpeilung
+      RaSP = 044°. Dieses Echo ist auf dem Radarbildschirm zusätzlich mit einem langen Strich gekennzeichnet (=
+      Morsebuchstabe Tango „T“). Bei dieser Peilung liegt MgK = 231° an.
+    questions:
+    - points: 1
+      text: Welches Echo hat man mit dem Radar gepeilt?
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    derivation:
+    - text: Ein Racon ist eine Radarbake, die auf das Radar antwortet und dort ein Morsezeichen hinter das Echo
+        zeichnet. Ein langer Strich ist das „T“. In der Seekarte steht „Racon (T)“ an der Großtonne GB, deshalb
+        ist sie das gepeilte Echo.
+    - text: 'Bei „Head Up“ ist die Radar-Seitenpeilung auf den Bug bezogen: RaSP + MgK = MgP (044° + 231° = 275°).'
+    - text: Die Ablenkung hängt vom anliegenden Kurs ab, nicht von der Peilung. Sie wird deshalb in der Steuertafel
+        für MgK = 231° (+3°) bzw. MgK = 237° (+2°) abgelesen.
+    - table:
+      - cells:
+        - ''
+        - ''
+        - '**Großtonne GB**'
+        - '**E 2**'
+      - cells:
+        - RaSP
+        - '='
+        - 044°
+        - ''
+      - cells:
+        - MgK
+        - '='
+        - 231°
+        - ''
+      - cells:
+        - MgP
+        - '='
+        - 275°
+        - 150°
+        sum: true
+        sum_until: 3
+      - cells:
+        - Abl
+        - '='
+        - +3°
+        - +2°
+      - cells:
+        - mwP
+        - '='
+        - 278°
+        - 152°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+        - +1°
+      - cells:
+        - '**rwP**'
+        - '='
+        - '**279°**'
+        - '**153°**'
+        sum: true
+    solution:
+    - results:
+      - text: 'Radarecho = Großtonne GB mit Racon T (auch richtig: unbemanntes rotes Schiff GB mit Racon T)'
+    - results:
+      - text: rwP Großtonne „GB“ = 279°
+        tolerance: Keine Toleranz
+      - text: rwP Tonne „E 2“ = 153°
+        tolerance: Keine Toleranz
+  - number: 8
+    points: 2
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 07:00 BZ.
+    derivation:
+    - text: 'O_b: Die Gegenpeilungen aus Aufgabe 7 einzeichnen, von der Großtonne GB 099° (279° − 180°) und von
+        der Tonne „E 2“ 333° (153° + 180°). Der Schnittpunkt ist der beobachtete Ort.'
+    solution:
+    - results:
+      - text: 'O_b 07:00 BZ: φ = 54°09,4′ N, λ = 007°41,8′ E'
+        tolerance: ± 0,2′
+  - number: 9
+    points: 1
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation:
+    - text: 'BV: Die Besteckversetzung ist der Weg vom Koppelort (O_k aus Aufgabe 6) zum beobachteten Ort (O_b aus
+        Aufgabe 8). Richtung und Länge dieser Strecke in der Karte abgreifen.'
+    solution:
+    - results:
+      - text: BV = 157° / 0,9 sm
+        tolerance: ± 20° / ± 0,2 sm
+  - number: 10
+    points: 1
+    text: Am O_b werden um 07:00 BZ die Stromverhältnisse ermittelt.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation:
+    - text: '**Magentafarbene Raute „D“** der Gezeitenstromangabe'
+    - text: 'HWZ Helgoland 31.07.2013: 05:45 MEZ **= 06:45 MESZ/BZ**'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: '**07:00 BZ = 15 min nach HWZ Helgoland ≈ HWZ Helgoland**'
+    solution:
+    - results:
+      - text: StR = 100°
+        tolerance: Keine Toleranz
+      - text: StG = 0,3 kn
+        tolerance: Keine Toleranz
+  - number: 11
+    points: 1
+    text: 'In den nächsten zwei Stunden bis 09:00 BZ soll das Verkehrstrennungsgebiet (VTG) „Jade Approach“ gequert
+      werden. Dabei wird als nächstes der Wegpunkt 1 (WPT 1): φ = 54°05,0‘N, λ = 007°36,0‘E angesteuert, den man
+      gegen 08:00 BZ erreicht. Vom WPT 1 aus soll das VTG „Jade Approach“ den Kollisionsverhütungsregeln (KVR) entsprechend
+      gequert werden.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie den rechtweisenden Kurs (rwK).
+    derivation:
+    - text: '„Festgelegte Verkehrsrichtung“ ist unter Berücksichtigung der nächstgelegenen magentafarbenen Pfeile
+        ca. 331°, Queren Kielrichtung im rechten Winkel: 331° − 90° = 241°.'
+    - text: Nach den KVR (Regel 10) quert man ein Verkehrstrennungsgebiet möglichst mit der Kielrichtung im rechten
+        Winkel zur Verkehrsrichtung. Es zählt der Kurs durchs Wasser, nicht der Weg über Grund. So ist man am kürzesten
+        im VTG, und die Schiffe darin erkennen das Queren sofort. Die Yacht will nach SW, deshalb wird 90° abgezogen
+        und nicht addiert.
+    solution:
+    - results:
+      - text: rwK = 241°
+        tolerance: ± 2°
+  - number: 12
+    points: 2
+    text: Gegen 08:00 beginnt der Strom zu kentern. Für das Queren des VTG von 08:00 BZ bis 09:00 BZ koppelt man
+      mit FüG = 5,7 kn.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie nach dem Queren um 09:00 BZ nach
+        Gezeitenstromatlas?
+    derivation:
+    - text: 'HWZ Helgoland 31.07.2013: 05:45 MEZ **= 06:45 MESZ/BZ**'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: 'Position um 09:00 BZ für Stromatlas: ca. φ = 54°02,2‘N, λ = 007°27,6‘E'
+    - text: '**09:00 BZ = 2 h 15 min nach HWZ Helgoland ≈ 2 h nach HWZ Helgoland**'
+    - text: 'Die Position ergibt sich durch Koppeln: Von WPT 1 aus wird eine Stunde lang mit FüG = 5,7 kn auf rwK
+        = 241° (aus Aufgabe 11) gefahren, das sind 5,7 sm. Im Gezeitenstromatlas schlägt man die Karte „2 Stunden
+        nach Hochwasser Helgoland“ auf. An dieser Position liest man Richtung und Stärke des Stroms ab, für Nippzeit.'
+    solution:
+    - results:
+      - text: StR = 295°
+        tolerance: ± 10°
+      - text: StG = 0,4 kn
+        tolerance: Keine Toleranz
+  - number: 13
+    points: 1
+    text: 'Nach der Querung des VTG, bei der man offensichtlich deutlich in NW-liche Richtung versetzt wurde, steht
+      man auf folgender GPS-Position: φ = 54°04,8‘N, λ = 007°27,2‘E. Die Position wird als WPT 2 in die Karte eingetragen.
+      In der Seekarte ist an dieser Stelle magentafarben „DW“ mit Anker eingetragen.'
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation:
+    - text: 'Die Zeichen stehen in Karte 1/INT 1: Ein magentafarbener Anker kennzeichnet einen Ankerplatz bzw. ein
+        Ankergebiet. „DW“ steht für „Deep Water“, also tiefes Wasser. Zusammen bedeuten sie ein Ankergebiet für
+        Schiffe mit großem Tiefgang. Hier warten zum Beispiel große Schiffe darauf, nach Jade, Weser oder Elbe einzulaufen.'
+    solution:
+    - results:
+      - text: Tiefwasserankergebiet (Ankergebiet für tiefgehende Schiffe).
+  - number: 14
+    points: 2
+    text: Vom WPT 2 aus steuert die Yacht auf eine Tonne zu, die sich SSW-lich befindet und bei einer durchschnittlichen
+      FüG = 6,5 kn in weniger als einer Stunde erreicht wird.
+    questions:
+    - points: 1
+      text: Beschreiben Sie diese Tonne vollständig (Name, Kennung und Wiederkehr, Aussehen am Tage).
+    - points: 1
+      text: Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen?
+    derivation:
+    - text: In weniger als einer Stunde schafft die Yacht mit FüG = 6,5 kn weniger als 6,5 sm. Die gesuchte Tonne
+        liegt also in der Karte SSW-lich von WPT 2, nicht weiter als 6,5 sm entfernt. Das ist die Tonne „TG 16/Reede“.
+    - text: 'Kennung und Wiederkehr stehen in der Seekarte an der Tonne: „Oc(3) R 12s“. Unterbrochenes Feuer (Oc)
+        heißt: Das Licht brennt länger, als es dunkel ist, und wird kurz unterbrochen. Hier sind es 3 Unterbrechungen
+        in einer Gruppe, die sich alle 12 Sekunden wiederholt.'
+    - text: 'Die Bedeutung zeigt der Name: „TG“ ist das VTG „Terschelling – German Bight“, „Reede“ die Tiefwasserreede
+        aus Aufgabe 13. Die Tonne begrenzt beides, das VTG an seiner N-Seite und die Reede an ihrer SW-Seite.'
+    solution:
+    - results:
+      - text: 'Name: Tonne „TG 16/Reede“'
+      - text: 'Kennung: rotes unterbrochenes Feuer mit 3 Gruppen bzw. Group Occulting (3) red'
+      - text: 'Wiederkehr: 12 s'
+      - text: 'Form: Bakentonne'
+      - text: 'Farbe: rot'
+      - text: kein Toppzeichen
+    - results:
+      - text: 'Bedeutung:'
+      - text: – N-liche Begrenzung des VTG „Terschelling – German Bight“ [angezeigt durch „TG 16“],
+      - text: – SW-liche Begrenzung der Tiefwasserreede [angezeigt durch „Reede“].
+  - number: 15
+    points: 2
+    text: ''
+    questions:
+    - points: 1
+      text: Bestimmen Sie den Kartenkurs (KaK) vom WPT 2 zur Tonne nach Aufgabe 14.
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) vom WPT 2 zur Tonne nach Aufgabe 14.
+    solution:
+    - results:
+      - text: KaK = 200°
+        tolerance: ± 1°
+    - results:
+      - text: d = 4,6 sm
+        tolerance: ± 0,1 sm
+  - number: 16
+    points: 3
+    text: 'Für die Strecke zur Tonne nach Aufgabe 14 rechnet man mit einem mittleren Strom von: StR = 055° und StG
+      = 1,4 kn. Wegen des böigen NW-Windes hält man 3° vor (|BW| = 3°), als Geschwindigkeit wird FdW = 6,5 kn angenommen.
+      Man steuert den ermittelten KaK aus Aufgabe 15.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation:
+    - text: 'So entsteht das Stromdreieck: Vom Startpunkt den Stromvektor zeichnen (055°, 1,4 cm). Um seine Spitze
+        einen Kreis mit dem Radius FdW = 6,5 cm schlagen. Wo der Kreis die KüG-Linie (200°, der KaK aus Aufgabe
+        15) schneidet, endet der KdW-Vektor. Abgelesen werden KdW = 207° und FüG = 5,3 kn.'
+    - text: 'Gerechnet wird wieder von unten nach oben: Der KüG = 200° ist vorgegeben, über BS, BW, Mw und Abl ergibt
+        sich der MgK.'
+    - text: 'BS kommt aus dem Stromdreieck: BS = KüG − KdW = 200° − 207° = −7° [± 1°, zeichnerische Toleranz].'
+    - text: 'BW ist negativ, weil der Wind aus NW (ca. 315°) bei einem Kurs von etwa 207° von Steuerbord einfällt:
+        Die Yacht wird nach Backbord versetzt. Bei einem Versatz nach Backbord durch Wind ist der Wert immer negativ
+        zu rechnen.'
+    - table:
+      - cells:
+        - '**MgK**'
+        - '='
+        - '**202°**'
+      - cells:
+        - Abl
+        - '='
+        - +7°
+      - cells:
+        - mwK
+        - '='
+        - 209°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+      - cells:
+        - rwK
+        - '='
+        - 210°
+        sum: true
+      - cells:
+        - BW
+        - '='
+        - −3°
+      - cells:
+        - KdW
+        - '='
+        - 207°
+        sum: true
+      - cells:
+        - BS
+        - '='
+        - −7°
+      - cells:
+        - KüG
+        - '='
+        - 200°
+        sum: true
+    - text: Bei KaK = 199° oder 201° ändern sich KdW sowie rwK, MwK und MgK entsprechend, zuzüglich der zeichnerischen
+        Toleranz.
+    solution:
+    - results:
+      - text: Stromdreieck
+      image:
+        src: bogen-03/aufgabe-16-stromdreieck.png
+        width: 632
+        height: 558
+    - results:
+      - text: MgK = 202°
+        tolerance: ± 1°
+    - results:
+      - text: FüG = 5,3 kn
+        tolerance: ± 0,1 kn
+  - number: 17
+    points: 1
+    text: Auf ca. φ = 53°58,2‘N, λ = 007°38,8‘E befindet sich die Tonne „Jade-Weser“.
+    questions:
+    - points: 1
+      text: Welche navigatorische Bedeutung hat diese Tonne?
+    derivation:
+    - text: 'Die Tonne ist in der Seekarte rot-weiß senkrecht gestreift, das ist ein Mitte-Fahrwasser-Zeichen. Es
+        zeigt, dass ringsum sicheres Wasser ist. Meist markiert es den Anfang eines Fahrwassers oder dessen Mitte.
+        Der Name zeigt, welche Fahrwasser hier beginnen: Jade und Weser. Deshalb ist es die Ansteuerungstonne für
+        beide.'
+    solution:
+    - results:
+      - text: Ansteuerungstonne zu den Fahrwassern Jade und Weser (Mitte-Fahrwasser-Zeichen).
+  - number: 18
+    points: 2
+    text: Auf dem Weg nach Baltrum erhält man die Meldung, dass keine Liegeplätze mehr vorhanden sind. Man entschließt
+      sich, den Hafen von Langeoog anzusteuern. Um die Einlaufsituation besser abschätzen zu können, sollen das
+      Nachmittagshochwasser für Langeoog am 31.07.2013 und der dazugehörige Tidenstieg ermittelt werden.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Nachmittagshochwasserzeit (HWZ).
+    - points: 1
+      text: Bestimmen Sie den Tidenstieg (TS).
+    derivation:
+    - text: 'Alter der Gezeit am 31.07.2013: **Nippzeit (NpZ)**'
+    - text: 'Langeoog ist ein Anschlussort von Norderney: Zeit und Höhe von Norderney plus die Unterschiede ZUG/HUG.'
+    - table:
+      - cells:
+        - 2. HW Norderney
+        - 31.07.2013
+        - 17:45 MEZ
+        - 2,9 m
+      - cells:
+        - ZUG / HUG
+        - ''
+        - +00:26
+        - +0,2 m
+      - cells:
+        - '**2. HW Langeoog**'
+        - 31.07.2013
+        - '**18:11 MEZ**'
+        - '**3,1 m**'
+        sum: true
+    - text: 'Die Gezeitentafel ist in MEZ angegeben. Am 31.07.2013 gilt MESZ, also +1 h: 18:11 MEZ = **19:11 MESZ/BZ**.'
+    - text: Der Tidenstieg ist der Höhenunterschied vom vorangehenden Niedrigwasser zum Hochwasser. Vor dem 2. HW
+        liegt das 1. NW.
+    - table:
+      - cells:
+        - 1. NW Norderney
+        - 31.07.2013
+        - 0,8 m
+      - cells:
+        - HUG
+        - ''
+        - +0,1 m
+      - cells:
+        - '**1. NW Langeoog**'
+        - 31.07.2013
+        - '**0,9 m**'
+        sum: true
+    - text: TS = HWH − NWH = 3,1 m − 0,9 m = **2,2 m**
+    solution:
+    - results:
+      - text: HWZ = 19:11 MESZ/BZ
+        tolerance: Keine Toleranz
+    - results:
+      - text: TS = 2,2 m
+        tolerance: Keine Toleranz
