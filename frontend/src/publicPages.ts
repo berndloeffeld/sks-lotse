@@ -2,10 +2,9 @@ import type { CatalogExport } from './catalog'
 import { sheetMaxPoints, type ChartExport } from './chartCatalog'
 import { SUBJECT_LABELS } from './labels'
 
-// The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file> and the
-// sitemap lists them. The open /learn pages come from the catalog export (ADR-0054). Each file is
-// its path's directory index (/faq -> faq/index.html), which Render serves without a rewrite in
-// render.yaml: a rewrite would go live before the deploy that creates its file (ADR-0055).
+// The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
+// sitemap lists them, and render.yaml rewrites each path to its file (for the /learn pages,
+// backend/tests/test_catalog_export.py checks that every one is there). The open /learn pages come from the catalog export (ADR-0054).
 
 export const SITE = 'https://sks-lotse.de'
 
@@ -28,7 +27,7 @@ export interface PublicPage {
 function page(path: string, title: string, description: string, withoutAds = false): PublicPage {
   return {
     path,
-    file: `${path.slice(1)}/index.html`,
+    file: `${path.slice(1)}.html`,
     meta: { title, description, canonical: `${SITE}${path}` },
     ...(withoutAds ? { withoutAds } : {}),
   }

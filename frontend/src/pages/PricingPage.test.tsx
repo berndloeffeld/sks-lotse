@@ -192,7 +192,7 @@ describe('PricingPage', () => {
 
   it('shows the return from Stripe only after hydrating the prerendered page', async () => {
     stubFetch(PRICING)
-    // What prerender.mjs writes to pricing/index.html: no query string at build time.
+    // What prerender.mjs writes to pricing.html: no query string at build time.
     const prerendered = renderToString(
       <StaticRouter location="/pricing">
         <PricingPage />
