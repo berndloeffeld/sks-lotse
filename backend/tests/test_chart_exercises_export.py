@@ -1,5 +1,6 @@
 import re
 
+from app.schemas.chart_exercise import ChartExerciseCatalog
 from app.services.chart_exercises import EXPORT_PATH, catalog, render_export
 
 
@@ -17,6 +18,21 @@ def test_renders_stable_readable_json():
     assert text.endswith("\n")
     assert "Übungskarte" in text
     assert text == render_export(catalog())
+
+
+def test_renders_exactly_this_text():
+    data = ChartExerciseCatalog.model_validate(
+        {
+            "source": "WSV",
+            "hints": ["Übung"],
+            "tide_form": {"src": "f.png", "width": 1, "height": 2},
+            "sheets": [],
+        }
+    )
+    assert render_export(data) == (
+        '{\n "source": "WSV",\n "hints": [\n  "Übung"\n ],\n'
+        ' "tide_form": {\n  "src": "f.png",\n  "width": 1,\n  "height": 2\n },\n "sheets": []\n}\n'
+    )
 
 
 def test_render_yaml_sets_the_same_flag_for_api_and_build():

@@ -109,6 +109,15 @@ describe('chartPages', () => {
     })
   })
 
+  it('gives the list its own head', () => {
+    expect(chartPages(makeChartExport())[0].meta).toEqual({
+      title: 'SKS-Kartenaufgaben online üben – SKS Lotse',
+      description:
+        'Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.',
+      canonical: 'https://sks-lotse.de/charts',
+    })
+  })
+
   it('are built only when the Kartenaufgaben are open to guests', () => {
     expect(publicPages(CATALOG).some((p) => p.path.startsWith('/charts'))).toBe(false)
     expect(
@@ -116,6 +125,19 @@ describe('chartPages', () => {
         .slice(-3)
         .map((p) => p.path),
     ).toEqual(['/charts', '/charts/1', '/charts/2'])
+  })
+})
+
+describe('every page but "/"', () => {
+  it('has a title, a description and its canonical of its own', () => {
+    const pages = publicPages(CATALOG, makeChartExport()).slice(1)
+    for (const page of pages) {
+      expect(page.meta?.title.length, page.path).toBeGreaterThan(10)
+      expect(page.meta?.description.length, page.path).toBeGreaterThan(50)
+      expect(page.meta?.canonical, page.path).toBe(`https://sks-lotse.de${page.path}`)
+    }
+    expect(new Set(pages.map((p) => p.meta?.title)).size).toBe(pages.length)
+    expect(new Set(pages.map((p) => p.meta?.description)).size).toBe(pages.length)
   })
 })
 
