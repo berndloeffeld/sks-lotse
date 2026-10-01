@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ExamProcessPage } from './pages/ExamProcessPage'
+import { chartExercisesForGuests } from './chartCatalog'
 import { ChartAttemptPage } from './pages/ChartAttemptPage'
 import { ChartExercisePage } from './pages/ChartExercisePage'
 import { ChartExercisesPage } from './pages/ChartExercisesPage'
@@ -61,6 +62,7 @@ export function AppRoutes() {
   const checkSession = useAuthStore((state) => state.checkSession)
   const maintenanceMode = useMaintenanceStore((state) => state.maintenanceMode)
   const { pathname } = useLocation()
+  const chartsOpen = chartExercisesForGuests()
 
   useEffect(() => {
     checkSession()
@@ -94,14 +96,26 @@ export function AppRoutes() {
                 search engines; logged in they are the learner's Lernstand and graded run. */}
             <Route path="/learn" element={<LearnPage />} />
             <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+            {/* The Kartenaufgaben open without a login too, while the build's flag is "on"
+                (ADR-0056): a guest runs a sheet in the page, nothing saved. */}
+            {chartsOpen ? (
+              <Route element={<ChartExercisesGate />}>
+                <Route path="/charts" element={<ChartExercisesPage />} />
+                <Route path="/charts/:number" element={<ChartExercisePage />} />
+              </Route>
+            ) : null}
             <Route element={<ProtectedRoute />}>
               <Route path="/learn/focus" element={<FocusPracticePage />} />
               <Route path="/learn/refresh" element={<RefreshPracticePage />} />
               <Route path="/exam" element={<ExamPage />} />
               <Route path="/exam/:id" element={<ExamRunPage />} />
               <Route element={<ChartExercisesGate />}>
-                <Route path="/charts" element={<ChartExercisesPage />} />
-                <Route path="/charts/:number" element={<ChartExercisePage />} />
+                {chartsOpen ? null : (
+                  <>
+                    <Route path="/charts" element={<ChartExercisesPage />} />
+                    <Route path="/charts/:number" element={<ChartExercisePage />} />
+                  </>
+                )}
                 <Route path="/charts/attempts/:id" element={<ChartAttemptPage />} />
               </Route>
               <Route path="/profile" element={<ProfileLayout />}>

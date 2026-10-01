@@ -80,13 +80,18 @@ source_paths = ["app"]
 also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]
 pytest_add_cli_args_test_selection = ["tests/"]
 # addopts= drops the coverage gate in [tool.pytest.ini_options], which would fail every partial run;
-# the Postman-collection, catalog-PDF and docs tests and the chart-image check read files outside backend/,
+# the Postman-collection, catalog-PDF and docs tests, the chart-image check and the export/render.yaml checks of
+# the guests' copies (catalog, Kartenaufgaben) read files outside backend/,
 # which mutants/ doesn't have, and the scope test reads only_mutate (which the handlers mode rewrites); none of them covers a mutated module.
 pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tests/test_integration_collection.py",
     "--ignore=tests/test_catalog_seed.py",
     "--ignore=tests/test_mutation_scope.py",
     "--ignore=tests/test_docs.py",
-    "--deselect=tests/test_chart_exercises.py::test_every_referenced_image_exists"]
+    "--deselect=tests/test_chart_exercises.py::test_every_referenced_image_exists",
+    "--deselect=tests/test_catalog_export.py::test_the_committed_export_matches_the_catalog",
+    "--deselect=tests/test_catalog_export.py::test_render_yaml_rewrites_only_to_the_app_shell",
+    "--deselect=tests/test_chart_exercises_export.py::test_the_committed_export_matches_the_yaml",
+    "--deselect=tests/test_chart_exercises_export.py::test_render_yaml_sets_the_same_flag_for_api_and_build"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -9,6 +9,7 @@ task.
 The routes in app/api/v1/chart_exercises.py own the HTTP side; the rules live here.
 """
 
+import json
 from datetime import UTC, datetime
 from functools import cache
 from pathlib import Path
@@ -30,6 +31,8 @@ from app.schemas.chart_exercise import (
 )
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "chart_exercises.yaml"
+# The committed copy the frontend's guest runs and their prerender read (ADR-0056).
+EXPORT_PATH = Path(__file__).resolve().parents[3] / "frontend" / "src" / "data" / "chart_exercises.gen.json"
 
 
 class ChartTaskConflict(Exception):
@@ -43,6 +46,11 @@ def now() -> datetime:
 @cache
 def catalog() -> ChartExerciseCatalog:
     return ChartExerciseCatalog.model_validate(yaml.safe_load(DATA_PATH.read_text(encoding="utf-8")))
+
+
+def render_export(data: ChartExerciseCatalog) -> str:
+    """The export file's exact text: stable, so a stale file shows up as a diff."""
+    return json.dumps(data.model_dump(mode="json"), ensure_ascii=False, indent=1) + "\n"
 
 
 def exercise(number: int) -> ChartExercise | None:

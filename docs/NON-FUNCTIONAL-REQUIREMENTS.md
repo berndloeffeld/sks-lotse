@@ -46,5 +46,5 @@ Derived load (planning figure):
 | | Monitoring and status page (partly: no target) |
 | | Configurable maintenance mode |
 | Performance | Catalog served from memory; cap on concurrent LLM calls |
-| | Prerendered public pages, incl. the catalog by topic (guests cause no API load beyond the session check), cached hashed assets, self-hosted fonts |
+| | Prerendered public pages, incl. the catalog by topic and, once open, the Kartenaufgaben (guests cause no API load beyond the session check), cached hashed assets, self-hosted fonts |
 | | One instance, one worker, on purpose |

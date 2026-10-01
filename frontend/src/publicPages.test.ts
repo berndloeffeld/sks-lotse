@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import type { CatalogExport } from './catalog'
-import { applyMeta, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+import { makeChartExport } from './test/fixtures'
 
 const CATALOG: CatalogExport = {
   topics: [
@@ -87,6 +88,56 @@ describe('publicPages', () => {
     expect(statics.filter((p) => p.withoutAds).map((p) => p.path)).toEqual(['/pricing'])
     expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
     expect(statics[1].file).toBe('faq/index.html')
+  })
+})
+
+describe('chartPages', () => {
+  it('has /charts and one page per sheet, all without the static ad script', () => {
+    const pages = chartPages(makeChartExport())
+
+    expect(pages.map((p) => [p.path, p.file])).toEqual([
+      ['/charts', 'charts/index.html'],
+      ['/charts/1', 'charts/1/index.html'],
+      ['/charts/2', 'charts/2/index.html'],
+    ])
+    expect(pages.every((p) => p.withoutAds)).toBe(true)
+    expect(pages[1].meta).toEqual({
+      title: 'Kartenaufgabe 1 – SKS-Navigation – SKS Lotse',
+      description:
+        'Amtliche SKS-Kartenaufgabe 1: 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
+      canonical: 'https://sks-lotse.de/charts/1',
+    })
+  })
+
+  it('gives the list its own head', () => {
+    expect(chartPages(makeChartExport())[0].meta).toEqual({
+      title: 'SKS-Kartenaufgaben online üben – SKS Lotse',
+      description:
+        'Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.',
+      canonical: 'https://sks-lotse.de/charts',
+    })
+  })
+
+  it('are built only when the Kartenaufgaben are open to guests', () => {
+    expect(publicPages(CATALOG).some((p) => p.path.startsWith('/charts'))).toBe(false)
+    expect(
+      publicPages(CATALOG, makeChartExport())
+        .slice(-3)
+        .map((p) => p.path),
+    ).toEqual(['/charts', '/charts/1', '/charts/2'])
+  })
+})
+
+describe('every page but "/"', () => {
+  it('has a title, a description and its canonical of its own', () => {
+    const pages = publicPages(CATALOG, makeChartExport()).slice(1)
+    for (const page of pages) {
+      expect(page.meta?.title.length, page.path).toBeGreaterThan(10)
+      expect(page.meta?.description.length, page.path).toBeGreaterThan(50)
+      expect(page.meta?.canonical, page.path).toBe(`https://sks-lotse.de${page.path}`)
+    }
+    expect(new Set(pages.map((p) => p.meta?.title)).size).toBe(pages.length)
+    expect(new Set(pages.map((p) => p.meta?.description)).size).toBe(pages.length)
   })
 })
 

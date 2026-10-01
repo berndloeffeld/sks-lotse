@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import { chartExercisesForGuests } from '../chartCatalog'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
 import { ChartDividersIcon } from '../components/icons/FeatureIcons'
 import { FaqAnswer } from '../components/FaqAnswer'
@@ -123,9 +124,10 @@ function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; class
   )
 }
 
-// What a Kartenaufgabe run is like (ADR-0052/0053), ahead of its release: a screenshot of a run and
-// what it offers, but no link — the feature is still behind the CHART_EXERCISES flag. (The WSV
-// material's usage rights are cleared, so the screenshot may show it.)
+// What a Kartenaufgabe run is like (ADR-0052/0053): a screenshot of a run and what it offers. Ahead
+// of the release, without a link; once the build's flag is "on", with one, since guests can then try
+// them without a login (ADR-0056). (The WSV material's usage rights are cleared, so the screenshot
+// may show it.)
 const CHART_FEATURES = [
   [
     'Aufgabe für Aufgabe',
@@ -142,6 +144,7 @@ const CHART_FEATURES = [
 ]
 
 function ChartExercisesPreview() {
+  const open = chartExercisesForGuests()
   return (
     <section aria-labelledby="kartenaufgaben" className="mt-20 rounded-tile border border-dashed border-primary p-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -150,7 +153,7 @@ function ChartExercisesPreview() {
           Kartenaufgaben
         </h3>
         <span className="rounded-tile bg-accent px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase">
-          Vorschau · bald verfügbar
+          {open ? 'Neu' : 'Vorschau · bald verfügbar'}
         </span>
       </div>
       <p className="mt-3 max-w-xl text-sm text-ink-soft">
@@ -173,6 +176,11 @@ function ChartExercisesPreview() {
           </div>
         ))}
       </Columns>
+      {open ? (
+        <Link to="/charts" className="mt-8 inline-block text-primary underline hover:no-underline">
+          Kartenaufgaben ausprobieren – auch ohne Anmeldung
+        </Link>
+      ) : null}
       <p className="mt-8 text-xs text-ink-soft">
         Rechnen und zeichnen tust du in deiner eigenen Seekarte: Übungskarte 49 (INT 1463), Karte 1/INT 1, Begleitheft
         und Navigationsbesteck gehören nicht zu SKS Lotse.

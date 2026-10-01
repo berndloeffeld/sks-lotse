@@ -53,6 +53,33 @@ describe('App', () => {
     expect(screen.queryByRole('heading', { name: 'Wartungsarbeiten' })).not.toBeInTheDocument()
   })
 
+  it('opens the Kartenaufgaben to a guest while the build’s flag is on', async () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'on')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    render(
+      <MemoryRouter initialEntries={['/charts/1']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Kartenaufgabe starten' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Kartenaufgabe 1' })).toBeInTheDocument()
+  })
+
+  it('sends a guest to the login for the Kartenaufgaben while the flag is not on', async () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'admins')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    render(
+      <MemoryRouter initialEntries={['/charts/1']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Anmelden' })).toBeInTheDocument()
+  })
+
   it('sends the old /start overview to /learn, which took its place', async () => {
     vi.stubGlobal(
       'fetch',

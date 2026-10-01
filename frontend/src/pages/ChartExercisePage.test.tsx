@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
+import { storageKey } from '../hooks/useTideForm'
 import { useAuthStore } from '../store/authStore'
-import { jsonResponse, makeChartAttempt, makeChartOverview } from '../test/fixtures'
+import { jsonResponse, makeChartAttempt, makeChartExport, makeChartOverview } from '../test/fixtures'
 import { ChartExercisePage } from './ChartExercisePage'
 
 function renderPage(number: string) {
@@ -149,5 +151,77 @@ describe('ChartExercisePage', () => {
     renderPage('1')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Kartenaufgaben konnten nicht geladen werden.')
+  })
+})
+
+describe('ChartExercisePage for a guest', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, user: null })
+    primeChartCatalog(makeChartExport())
+  })
+  afterEach(() => resetChartCatalog())
+
+  it('runs a whole sheet in the page, sending nothing', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.fn(async () => jsonResponse({ detail: 'no' }, 500))
+    vi.stubGlobal('fetch', fetchMock)
+    window.localStorage.setItem(storageKey('guest-1'), '{"stale":true}')
+    renderPage('1')
+
+    expect(screen.getByText(/Ohne Konto wird nichts gespeichert/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Bestätige zuerst')
+    await user.click(screen.getByRole('checkbox', { name: /bereitgelegt/ }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
+
+    // A new run starts with an empty Formblatt.
+    expect(window.localStorage.getItem(storageKey('guest-1'))).toBeNull()
+    expect(screen.getAllByText('Aufgabe 1 / 2').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Ergebnis 1')).not.toBeInTheDocument()
+    await user.type(screen.getByRole('textbox', { name: 'Deine Antwort' }), 'HW 12:30')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    expect(screen.getAllByText('Ergebnis 1').length).toBeGreaterThan(0)
+    await user.click(screen.getByRole('radio', { name: '2' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    await user.click(screen.getByRole('radio', { name: '1' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+
+    expect(screen.getByRole('heading', { name: 'Kartenaufgabe abgeschlossen' })).toBeInTheDocument()
+    expect(screen.getByText(/Du hast dir/)).toHaveTextContent('Du hast dir 3 von 3 Punkten gegeben.')
+    expect(screen.getByText(/Ohne Konto wird dieser Durchgang nicht gespeichert/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('lists every task with its solution below, folded shut', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ detail: 'no' }, 500)),
+    )
+    renderPage('1')
+
+    const list = screen.getByRole('region', { name: 'Alle Aufgaben dieser Kartenaufgabe' })
+    expect(list.querySelectorAll('li > details:not([open])')).toHaveLength(2)
+    expect(list).toHaveTextContent('Aufgabe 1')
+    expect(list).toHaveTextContent('2 Punkte')
+    expect(list).toHaveTextContent('Frage 2')
+    expect(list).toHaveTextContent('Ergebnis 2')
+  })
+
+  it('says when there is no such sheet', () => {
+    renderPage('7')
+    expect(screen.getByText('Diese Kartenaufgabe gibt es nicht.')).toBeInTheDocument()
+  })
+
+  it('says so when the export cannot be loaded', async () => {
+    resetChartCatalog()
+    vi.doMock('../data/chart_exercises.gen.json', () => {
+      throw new Error('offline')
+    })
+    renderPage('1')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Kartenaufgaben konnten nicht geladen werden.')
+    vi.doUnmock('../data/chart_exercises.gen.json')
   })
 })

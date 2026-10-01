@@ -112,7 +112,7 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 
 ## Kartenaufgaben flag
 
-`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner. Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `admins`), so switching it is a PR — together with `docs/FEATURES.md`. Before `on`: the usage rights of the WSV's Navigationsaufgaben PDF are confirmed (the ELWIS confirmation covers the question catalog only).
+`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner, and guests without a login ([ADR-0056](adr/0056-chart-exercises-open-to-guests.md)). Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `admins`), so switching it is a PR — together with `docs/FEATURES.md`, and together with the static site's `VITE_CHART_EXERCISES`, which must have the same value (a backend test checks it; the frontend's build bakes it in, so the switch for guests takes the frontend's deploy). Before `on`: the usage rights of the WSV's Navigationsaufgaben PDF are confirmed (the ELWIS confirmation covers the question catalog only).
 
 ## Data-subject requests (DSGVO)
 

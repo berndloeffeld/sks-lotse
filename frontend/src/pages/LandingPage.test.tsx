@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
@@ -85,6 +85,18 @@ describe('LandingPage', () => {
       '/screenshots/kartenaufgabe.png',
     )
     expect(container.querySelector('a[href^="/charts"]')).toBeNull()
+  })
+
+  it('links the Kartenaufgaben once they are open to guests', () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'on')
+    renderLandingPage()
+
+    const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })
+    expect(within(preview).getByText('Neu')).toBeInTheDocument()
+    expect(within(preview).getByRole('link', { name: /Kartenaufgaben ausprobieren/ })).toHaveAttribute(
+      'href',
+      '/charts',
+    )
   })
 
   it('links to the exam process overview page', () => {

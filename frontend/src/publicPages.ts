@@ -1,4 +1,5 @@
 import type { CatalogExport } from './catalog'
+import { sheetMaxPoints, type ChartExport } from './chartCatalog'
 import { SUBJECT_LABELS } from './labels'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file> and the
@@ -93,8 +94,30 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
   ]
 }
 
-export function publicPages(catalog: CatalogExport): PublicPage[] {
-  return [...STATIC_PAGES, ...learnPages(catalog)]
+// /charts and one page per transcribed sheet, open to guests while the build's flag is "on"
+// (ADR-0056). Logged-in learners land on them too, so they are built without the ad script as well.
+export function chartPages(charts: ChartExport): PublicPage[] {
+  return [
+    page(
+      '/charts',
+      'SKS-Kartenaufgaben online üben – SKS Lotse',
+      `Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.`,
+      true,
+    ),
+    ...charts.sheets.map((sheet) =>
+      page(
+        `/charts/${sheet.number}`,
+        `Kartenaufgabe ${sheet.number} – SKS-Navigation – SKS Lotse`,
+        `Amtliche SKS-Kartenaufgabe ${sheet.number}: ${sheet.tasks.length} Aufgaben, ${sheetMaxPoints(sheet)} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
+        true,
+      ),
+    ),
+  ]
+}
+
+// `charts` only while the Kartenaufgaben are open to guests; otherwise their pages aren't built.
+export function publicPages(catalog: CatalogExport, charts: ChartExport | null = null): PublicPage[] {
+  return [...STATIC_PAGES, ...learnPages(catalog), ...(charts ? chartPages(charts) : [])]
 }
 
 // For text placed into the shell's head: topic names come from data, so nothing in them may close

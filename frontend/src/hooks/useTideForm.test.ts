@@ -1,7 +1,15 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { EVENT_ORDINALS, emptyTideForm, loadTideForm, storageKey, useTideForm } from './useTideForm'
+import {
+  EVENT_ORDINALS,
+  emptyTideForm,
+  forgetTideForm,
+  guestTideFormId,
+  loadTideForm,
+  storageKey,
+  useTideForm,
+} from './useTideForm'
 
 describe('emptyTideForm', () => {
   it('has the printed form’s fields: a head and two halves of four high/low waters', () => {
@@ -57,6 +65,22 @@ describe('loadTideForm', () => {
   ])('drops %s', (_, stored) => {
     window.localStorage.setItem(storageKey(5), stored)
     expect(loadTideForm(5)).toEqual(emptyTideForm())
+  })
+
+  it('forgets a guest’s form, by the sheet’s number', () => {
+    expect(guestTideFormId(2)).toBe('guest-2')
+    window.localStorage.setItem(storageKey('guest-2'), JSON.stringify(emptyTideForm()))
+    window.localStorage.setItem(storageKey('guest-1'), 'kept')
+    forgetTideForm('guest-2')
+    expect(window.localStorage.getItem(storageKey('guest-2'))).toBeNull()
+    expect(window.localStorage.getItem(storageKey('guest-1'))).toBe('kept')
+  })
+
+  it('forgets quietly when storage throws', () => {
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    expect(() => forgetTideForm('guest-1')).not.toThrow()
   })
 
   it('copes with storage that throws', () => {

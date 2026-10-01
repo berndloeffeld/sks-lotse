@@ -183,6 +183,13 @@ services:
       # script is loaded at all.
       - key: VITE_ADSENSE_CLIENT_ID
         sync: false
+      # The Kartenaufgaben flag for the build (ADR-0056): at "on" the guests'
+      # pages /charts and /charts/<n> are prerendered and open without a login.
+      # Always the same value as the API's CHART_EXERCISES above
+      # (backend/tests/test_chart_exercises_export.py checks it); flipping
+      # both is one reviewed PR with docs/FEATURES.md.
+      - key: VITE_CHART_EXERCISES
+        value: admins
     routes:
       # Public pages that moved from German to English paths: a permanent
       # redirect keeps bookmarks and search results working. Before the
