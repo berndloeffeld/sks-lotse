@@ -46,6 +46,8 @@ describe('ads', () => {
     expect(wantsAdScript(true, '/administration-guide')).toBe(true)
     expect(wantsAdScript(true, '/admin')).toBe(false)
     expect(wantsAdScript(true, '/admin/settings')).toBe(false)
+    expect(wantsAdScript(true, '/pricing')).toBe(false)
+    expect(wantsAdScript(true, '/pricing-guide')).toBe(true)
     expect(wantsAdScript(false, '/learn')).toBe(false)
   })
 

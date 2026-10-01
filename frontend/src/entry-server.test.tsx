@@ -24,4 +24,13 @@ describe('entry-server render', () => {
     expect(html).toContain(heading)
     expect(html).not.toContain('Sicher durch die SKS-Theorie')
   })
+
+  it('prerenders /pricing logged out, with the prices still loading', () => {
+    const html = render('/pricing')
+
+    expect(html).toContain('Preise')
+    expect(html).toContain('Lädt …')
+    expect(html).not.toContain('Shop')
+    expect(html).not.toContain('role="status"')
+  })
 })

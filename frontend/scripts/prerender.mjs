@@ -9,13 +9,17 @@
 //                       ADR-0027 addendum 2026-09-23).
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<name>.html  — likewise for /faq, /imprint, /privacy, /terms and
-//                       /exam-process; render.yaml rewrites each of those paths to
-//                       its file explicitly. Each of these (everything but
+//   dist/<name>.html  — likewise for /faq, /imprint, /privacy, /terms,
+//                       /exam-process and /pricing; render.yaml rewrites each of
+//                       those paths to its file explicitly. Each of these (everything but
 //                       "/") also gets its own <title>/description/OG/
 //                       Twitter/canonical via applyMeta below, and drops the
 //                       "/"-scoped JSON-LD block — see ADR-0025's
 //                       2026-09-24 update.
+//
+//   dist/pricing.html — like the other pages, but without the static ad
+//                       script (like app.html): no Google script runs on
+//                       /pricing, not even during a purchase.
 //
 // The rendered root is tagged data-prerendered="<path>" so main.tsx only
 // hydrates markup that belongs to the route it is actually showing.
@@ -33,7 +37,7 @@ if (!shell.includes(ROOT)) {
   throw new Error(`prerender: ${ROOT} not found in dist/index.html`)
 }
 
-// path -> { file, meta? } in dist/. Keep in sync with the public routes in render.yaml.
+// path -> { file, meta?, withoutAds? } in dist/. Keep in sync with the public routes in render.yaml.
 // "/" carries no `meta`: its head is index.html's own, untouched by applyMeta.
 const PAGES = {
   '/': { file: 'index.html' },
@@ -81,6 +85,16 @@ const PAGES = {
       canonical: 'https://sks-lotse.de/exam-process',
     },
   },
+  '/pricing': {
+    file: 'pricing.html',
+    withoutAds: true,
+    meta: {
+      title: 'Preise – SKS Lotse',
+      description:
+        'Was SKS Lotse kostet: Fragen üben, Musterantwort und Lernfortschritt bleiben kostenlos, Tokens für den Lotsen-Check gibt es in Paketen ohne Abo.',
+      canonical: 'https://sks-lotse.de/pricing',
+    },
+  },
 }
 
 // Gives a prerendered page its own title/description/OG/Twitter/canonical instead of
@@ -123,15 +137,20 @@ function applyMeta(html, { title, description, canonical }) {
 // it — AdSense's site verification reads their source. The shell must start without it: once
 // loaded it can't be removed again, and ads-removed accounts and /admin must not run it.
 const ADSENSE_TAG = /<script\b[^>]*pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^>]*><\/script>\s*/g
-const appShell = shell.replace(ADSENSE_TAG, '')
-if (appShell.includes('adsbygoogle')) {
-  throw new Error('prerender: Google ad script still present in app.html')
+function withoutAdScript(html, file) {
+  html = html.replace(ADSENSE_TAG, '')
+  if (html.includes('adsbygoogle')) {
+    throw new Error(`prerender: Google ad script still present in ${file}`)
+  }
+  return html
 }
-writeFileSync(`${dist}app.html`, appShell)
-for (const [path, { file, meta }] of Object.entries(PAGES)) {
+
+writeFileSync(`${dist}app.html`, withoutAdScript(shell, 'app.html'))
+for (const [path, { file, meta, withoutAds }] of Object.entries(PAGES)) {
   const root = `<div id="root" data-prerendered="${path}">${render(path)}</div>`
   let html = shell.replace(ROOT, root)
   if (meta) html = applyMeta(html, meta)
+  if (withoutAds) html = withoutAdScript(html, file)
   writeFileSync(`${dist}${file}`, html)
 }
 rmSync(ssrDir, { recursive: true, force: true })
@@ -139,5 +158,9 @@ rmSync(ssrDir, { recursive: true, force: true })
 console.log(
   `prerender: wrote ${Object.values(PAGES)
     .map((p) => p.file)
-    .join(', ')} and app.html (SPA shell, without the static ad script)`,
+    .join(', ')} and app.html (SPA shell); without the static ad script: ${Object.values(PAGES)
+    .filter((p) => p.withoutAds)
+    .map((p) => p.file)
+    .concat('app.html')
+    .join(', ')}`,
 )

@@ -1,7 +1,9 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { hydrateRoot } from 'react-dom/client'
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, StaticRouter } from 'react-router-dom'
 
 import { BALANCE_RECHECK_MS, PricingPage } from './PricingPage'
 import { useAuthStore } from '../store/authStore'
@@ -186,6 +188,36 @@ describe('PricingPage', () => {
 
     await screen.findByText('16,99 €')
     expect(screen.getByRole('status')).toHaveTextContent('aktueller Stand: 3 Tokens')
+  })
+
+  it('shows the return from Stripe only after hydrating the prerendered page', async () => {
+    stubFetch(PRICING)
+    // What prerender.mjs writes to pricing.html: no query string at build time.
+    const prerendered = renderToString(
+      <StaticRouter location="/pricing">
+        <PricingPage />
+      </StaticRouter>,
+    )
+    expect(prerendered).toContain('Lädt')
+    expect(prerendered).not.toContain('Danke für deinen Kauf')
+
+    const container = document.createElement('div')
+    container.innerHTML = prerendered
+    document.body.append(container)
+    const onRecoverableError = vi.fn()
+    await act(async () => {
+      hydrateRoot(
+        container,
+        <MemoryRouter initialEntries={['/pricing?checkout=success']}>
+          <PricingPage />
+        </MemoryRouter>,
+        { onRecoverableError },
+      )
+    })
+
+    expect(screen.getByRole('status')).toHaveTextContent('Danke für deinen Kauf!')
+    expect(onRecoverableError).not.toHaveBeenCalled()
+    container.remove()
   })
 
   it('says nothing was charged after a cancelled checkout', async () => {
