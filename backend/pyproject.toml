@@ -55,6 +55,7 @@ only_mutate = [
     "app/services/progress.py",
     "app/services/user.py",
     "app/services/grader.py",
+    "app/services/chart_grader.py",
     "app/services/kpis.py",
     "app/services/email.py",
     "app/services/catalog.py",

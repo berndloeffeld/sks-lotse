@@ -12,7 +12,7 @@ import { useTideForm } from '../hooks/useTideForm'
 export function ChartAttemptPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { attempt, isLoading, error, answer, awardPoints } = useChartAttempt(id)
+  const { attempt, isLoading, error, answer, awardPoints, aiCheck } = useChartAttempt(id)
   const { overview } = useChartOverview()
   const tideForm = useTideForm(id ?? '')
 
@@ -32,7 +32,7 @@ export function ChartAttemptPage() {
       {attempt ? (
         <div className="grid gap-8 pb-16 lg:grid-cols-[minmax(0,1fr)_28rem] lg:pb-0">
           <div className="flex flex-col gap-8">
-            <ChartTaskRun attempt={attempt} onAnswer={answer} onPoints={awardPoints} />
+            <ChartTaskRun attempt={attempt} onAnswer={answer} onPoints={awardPoints} onAiCheck={aiCheck} />
             {/* An open run is discarded on its exercise page, not beside every task. */}
             {attempt.completed_at ? (
               <div className="border-t border-border pt-4">

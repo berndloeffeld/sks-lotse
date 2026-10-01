@@ -11,23 +11,25 @@ from app.models.purchase import Purchase
 from app.services.user import locked_user
 
 TOKENS_PER_ANSWER_CHECK = 1
+# A Kartenaufgabe's check runs on a stronger model with a much longer prompt (ADR-0058).
+TOKENS_PER_CHART_CHECK = 2
 
 
-def reserve(db: Session, user_id: int) -> int | None:
-    """Spend one answer check's worth of tokens. Returns tokens left, or None if the balance is too low."""
+def reserve(db: Session, user_id: int, amount: int = TOKENS_PER_ANSWER_CHECK) -> int | None:
+    """Spend one check's worth of tokens. Returns tokens left, or None if the balance is too low."""
     user = locked_user(db, user_id)
-    if user.token_balance < TOKENS_PER_ANSWER_CHECK:
+    if user.token_balance < amount:
         db.commit()
         return None
-    user.token_balance -= TOKENS_PER_ANSWER_CHECK
+    user.token_balance -= amount
     db.commit()
     return user.token_balance
 
 
-def refund(db: Session, user_id: int) -> None:
-    """Give back a reserved token (the LLM call failed) — a check that never happened costs nothing."""
+def refund(db: Session, user_id: int, amount: int = TOKENS_PER_ANSWER_CHECK) -> None:
+    """Give back reserved tokens (the LLM call failed) — a check that never happened costs nothing."""
     user = locked_user(db, user_id)
-    user.token_balance += TOKENS_PER_ANSWER_CHECK
+    user.token_balance += amount
     db.commit()
 
 

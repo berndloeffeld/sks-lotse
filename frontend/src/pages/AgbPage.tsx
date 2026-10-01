@@ -51,9 +51,10 @@ export function AgbPage() {
         <ul className="list-disc pl-5">
           <li>„Werbefrei" (einmalige Zahlung) entfernt die Werbeeinblendungen dauerhaft für das Konto.</li>
           <li>
-            „Tokens" für den Lotsen-Check: ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine
-            Antwort. Jedes neu angelegte Konto erhält einmalig eine kleine Anzahl Tokens geschenkt; weitere Tokens
-            lassen sich in Paketen nachkaufen.
+            „Tokens" für den Lotsen-Check: Tokens berechtigen zu automatisierten KI-Bewertungsvorschlägen für eigene
+            Antworten. Wie viele Tokens ein Lotsen-Check kostet, hängt von der Art der Aufgabe ab und wird vor dem
+            Auslösen angezeigt. Jedes neu angelegte Konto erhält einmalig eine kleine Anzahl Tokens geschenkt; weitere
+            Tokens lassen sich in Paketen nachkaufen.
           </li>
         </ul>
         <p>

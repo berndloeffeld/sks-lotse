@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     anthropic_grading_api_key: str = ""
     anthropic_grading_model: str = "claude-haiku-4-5"
     anthropic_grading_timeout_seconds: float = 15.0
+    # The Lotsen-Check of a Kartenaufgabe (app/services/chart_grader.py, ADR-0058): same key, a
+    # stronger model — it recomputes the learner's numbers from the official derivation to guess
+    # where they went wrong — and so a longer timeout.
+    anthropic_chart_grading_model: str = "claude-sonnet-5-5"
+    anthropic_chart_grading_timeout_seconds: float = 45.0
     # Token-package checkout via Stripe Hosted Checkout (ADR-0048). The feature flag: "off" hides and
     # refuses the purchase flow, "admins" opens it to the ADMIN_EMAILS allowlist only (testing in
     # production with real Stripe before learners see it), "on" opens it to everyone. A closed set,

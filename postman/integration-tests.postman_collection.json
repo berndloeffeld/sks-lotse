@@ -2764,7 +2764,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('records the current AGB version', function () {",
                   "    var me = pm.response.json();",
-                  "    pm.expect(me.agb_accepted_version).to.eql('2026-09-25');",
+                  "    pm.expect(me.agb_accepted_version).to.eql('2026-10-02');",
                   "});"
                 ]
               }
@@ -4706,6 +4706,50 @@
             }
           },
           "description": "The server runs with CHART_EXERCISES=admins (see the runner script's header), so the feature doesn't exist for this learner (ADR-0052). The admin walks through it in the Admin folder.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - a learner outside the admins-only flag can't use the Lotsen-Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/attempts/1/tasks/1/ai-check",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "attempts",
+                "1",
+                "tasks",
+                "1",
+                "ai-check"
+              ]
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -9783,6 +9827,8 @@
                   "    pm.expect(t.solution.length).to.be.above(0);",
                   "    pm.expect(t.solution[0].results[0].text).to.be.a('string');",
                   "    pm.expect(t.derivation).to.be.an('array');",
+                  "    pm.expect(t.ai_checkable).to.eql(true);",
+                  "    pm.expect(t.ai_suggestion).to.eql(null);",
                   "});"
                 ]
               }
@@ -9926,6 +9972,94 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - the Lotsen-Check of a later task is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/attempts/{{chartAttemptId}}/tasks/2/ai-check",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "attempts",
+                "{{chartAttemptId}}",
+                "tasks",
+                "2",
+                "ai-check"
+              ]
+            }
+          },
+          "description": "Only the current, answered task can be checked (ADR-0058).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - Lotsen-Check unavailable without a configured grading key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 503', function () { pm.response.to.have.status(503); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/attempts/{{chartAttemptId}}/tasks/1/ai-check",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "attempts",
+                "{{chartAttemptId}}",
+                "tasks",
+                "1",
+                "ai-check"
+              ]
+            }
+          },
+          "description": "The admin account still has its free starting tokens (ADR-0043), so the check clears the token gate and reaches the grader, which this environment's server runs with no ANTHROPIC_GRADING_API_KEY; the tokens are refunded. The happy path, the 402 and the once-per-task rule are covered in backend/tests/test_chart_exercises.py with a fake grader.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true

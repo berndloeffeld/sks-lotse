@@ -6,4 +6,4 @@ agb_accepted_version differs see the AGB-Gate again on next login
 (frontend/src/routes/AgbGate.tsx).
 """
 
-CURRENT_AGB_VERSION = "2026-09-25"
+CURRENT_AGB_VERSION = "2026-10-02"

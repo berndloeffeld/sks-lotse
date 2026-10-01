@@ -3,13 +3,18 @@ import { act } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apiClient } from '../api/client'
-import { chartTask, makeChartAttempt, makeChartOverview } from '../test/fixtures'
+import { useAuthStore } from '../store/authStore'
+import { chartTask, makeChartAttempt, makeChartOverview, makeUser } from '../test/fixtures'
 import { useChartAttempt, useChartOverview } from './useChartAttempt'
 
-vi.mock('../api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn() } }))
+vi.mock('../api/client', () => ({
+  apiClient: { get: vi.fn(), put: vi.fn(), post: vi.fn() },
+  setUnauthorizedHandler: vi.fn(),
+}))
 
 const get = vi.mocked(apiClient.get)
 const put = vi.mocked(apiClient.put)
+const post = vi.mocked(apiClient.post)
 
 describe('useChartOverview', () => {
   beforeEach(() => {
@@ -90,6 +95,22 @@ describe('useChartAttempt', () => {
 
     expect(put).toHaveBeenCalledWith('/chart-exercises/attempts/5/tasks/1/points', { points: 2 })
     expect(result.current.attempt).toBe(next)
+  })
+
+  it('runs the Lotsen-Check, takes the returned run and the new token balance', async () => {
+    useAuthStore.setState({ user: makeUser({ token_balance: 6 }), isAuthenticated: true })
+    get.mockResolvedValue(makeChartAttempt())
+    const suggestion = { points: 1, feedback: 'Die HWH fehlt.', suspected_error: '' }
+    const checked = makeChartAttempt({ tasks: [chartTask(1, { answer_text: 'HWZ', ai_suggestion: suggestion })] })
+    post.mockResolvedValue({ attempt: checked, tokens_remaining: 4 })
+    const { result } = renderHook(() => useChartAttempt('5'))
+    await waitFor(() => expect(result.current.attempt).not.toBeNull())
+
+    await act(() => result.current.aiCheck(1))
+
+    expect(post).toHaveBeenCalledWith('/chart-exercises/attempts/5/tasks/1/ai-check')
+    expect(result.current.attempt).toBe(checked)
+    expect(useAuthStore.getState().user?.token_balance).toBe(4)
   })
 
   it('passes a failed write on to the caller and keeps the loaded run', async () => {

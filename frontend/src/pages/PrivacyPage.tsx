@@ -100,11 +100,12 @@ export function PrivacyPage() {
         <p>
           Wenn Sie eine Kartenaufgabe bearbeiten, speichern wir zu jedem Durchgang die Nummer der Kartenaufgabe, Start-
           und Abschlusszeitpunkt sowie zu jeder bearbeiteten Aufgabe Ihren Antworttext, den Zeitpunkt der Antwort und
-          die Punkte, die Sie sich selbst gegeben haben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Die Daten
-          werden gespeichert, solange Ihr Konto besteht; einzelne Durchgänge können Sie jederzeit selbst löschen, mit
-          dem Konto werden alle gelöscht. Was Sie in das Formblatt Gezeiten eintragen und welche Hilfsmittel-Bereiche
-          Sie auf- oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht
-          an uns übertragen und lässt sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
+          die Punkte, die Sie sich selbst gegeben haben, sowie gegebenenfalls den Bewertungsvorschlag des Lotsen-Checks
+          (siehe „KI-Prüfung Ihrer Antwort“). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Die Daten werden
+          gespeichert, solange Ihr Konto besteht; einzelne Durchgänge können Sie jederzeit selbst löschen, mit dem Konto
+          werden alle gelöscht. Was Sie in das Formblatt Gezeiten eintragen und welche Hilfsmittel-Bereiche Sie auf-
+          oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht an uns
+          übertragen und lässt sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
         </p>
       </ProseSection>
 
@@ -182,16 +183,28 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <ProseSection title="KI-Prüfung Ihrer Antwort (Anthropic)">
+      <ProseSection title="KI-Prüfung Ihrer Antwort (Lotsen-Check, Anthropic)">
         <p>
-          Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie Ihre geschriebene Antwort per Klick von einer KI
-          prüfen lassen. Nur dann, und nur für diese eine Frage, übermitteln wir die Frage, die amtliche Musterantwort
-          und Ihre eingegebene Antwort an Anthropic (Anthropic, PBC, USA), die daraus einen Bewertungsvorschlag und eine
-          kurze Rückmeldung erzeugt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt und frühere Antworten werden
-          nicht übermittelt. Ihre eingegebene Antwort sowie die KI-Rückmeldung speichern oder protokollieren wir nicht;
-          die Bewertung übernehmen Sie selbst. Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige
-          Antworten automatisiert; löst dieser Schutzmechanismus bei einem Konto wiederholt aus, protokollieren wir ab
-          diesem Zeitpunkt zusätzlich Frage und Ergebnis (richtig/falsch) weiterer Prüfungen dieses Kontos — niemals den
+          Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie eine Antwort per Klick von einer KI prüfen
+          lassen. Nur dann, und nur für diese eine Prüfung, übermitteln wir an Anthropic (Anthropic, PBC, USA) die dafür
+          nötigen Inhalte: die Frage oder Aufgabe, die amtliche Lösung bzw. Musterantwort samt Lösungsweg und Ihre
+          Antwort darauf. Baut eine Aufgabe auf vorangegangenen auf (etwa bei den Kartenaufgaben), übermitteln wir
+          zusätzlich diese vorangegangenen Aufgaben desselben Durchgangs mit Ihren Antworten darauf, damit Folgefehler
+          erkannt werden können. Anthropic erzeugt daraus einen Bewertungsvorschlag und eine kurze Rückmeldung,
+          gegebenenfalls mit einer Vermutung, wo ein Fehler liegt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt
+          sowie Antworten aus anderen Lernrunden, Prüfungen oder Durchgängen werden nicht übermittelt.
+        </p>
+        <p>
+          Ob wir den Vorschlag speichern, richtet sich danach, ob wir die Antwort selbst speichern: Zu Fragen aus dem
+          Fragenkatalog speichern oder protokollieren wir weder Ihre Antwort noch den Vorschlag. Bei Aufgaben, deren
+          Antworten wir ohnehin zu Ihrem Durchgang speichern (Kartenaufgaben), speichern wir den Vorschlag (Punkte und
+          Rückmeldung) dort mit, damit Sie ihn später wieder sehen; er wird mit dem Durchgang bzw. Ihrem Konto gelöscht.
+          Die Bewertung übernehmen Sie in jedem Fall selbst.
+        </p>
+        <p>
+          Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige Antworten automatisiert; löst dieser
+          Schutzmechanismus bei einem Konto wiederholt aus, protokollieren wir ab diesem Zeitpunkt zusätzlich, welche
+          Frage oder Aufgabe geprüft wurde und den Bewertungsvorschlag weiterer Prüfungen dieses Kontos — niemals den
           Antworttext oder die KI-Rückmeldung — und speichern kontobezogen, wie oft und wann dieser Mechanismus
           ausgelöst wurde. Bitte geben Sie in Ihre Antwort keine personenbezogenen Daten ein. Rechtsgrundlage für die
           KI-Prüfung ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO), da Sie die Funktion aktiv
@@ -244,7 +257,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 1. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 2. Oktober 2026</p>
     </PageLayout>
   )
 }

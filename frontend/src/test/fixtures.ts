@@ -92,6 +92,8 @@ export function chartTask(number: number, overrides: Partial<ChartAttemptTask> =
     solution: [],
     derivation: [],
     points_awarded: null,
+    ai_checkable: true,
+    ai_suggestion: null,
     ...overrides,
   }
 }

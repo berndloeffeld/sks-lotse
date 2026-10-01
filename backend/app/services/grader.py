@@ -6,7 +6,9 @@ the prompt around 400 tokens, which is what makes the check fast and cheap.
 """
 
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 import anthropic
 from pydantic import BaseModel
@@ -65,7 +67,7 @@ class GradingUnavailable(Exception):
 _call_slots = threading.BoundedSemaphore(settings.grading_max_concurrent_calls)
 
 
-def _escape_tags(text: str) -> str:
+def escape_tags(text: str) -> str:
     # The learner's answer sits between <antwort> tags — escaping angle brackets means it can't close
     # that tag and open a fake <musterantwort> of its own. Only the learner's text needs it: question
     # and model answer come from the official catalog.
@@ -96,30 +98,46 @@ def _client() -> anthropic.Anthropic:
         return _shared_client
 
 
-def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> GradedAnswer:
+def structured_call[T](output_format: type[T], call: Callable[[anthropic.Anthropic], Any]) -> T:
+    """One structured-output call under the process-wide slot cap — shared by every Lotsen-Check.
+
+    `call` makes the actual `parse` request on the shared client, asking for `output_format`; every
+    way it can fail (no key, too busy, API error, a refusal or otherwise unparseable reply) becomes
+    GradingUnavailable, whose message is the reason only, never the learner's text.
+    """
     if not settings.anthropic_grading_api_key:
         raise GradingUnavailable("ANTHROPIC_GRADING_API_KEY is not configured")
-    user_prompt = (
-        f"<frage>{question_text}</frage>\n<musterantwort>{model_answer}</musterantwort>\n"
-        f"<antwort>{_escape_tags(learner_answer)}</antwort>"
-    )
     if not _call_slots.acquire(blocking=False):
         raise GradingUnavailable("too many concurrent checks")
     try:
-        response = _client().messages.parse(
+        response = call(_client())
+    except anthropic.APIError as exc:
+        raise GradingUnavailable(type(exc).__name__) from exc
+    finally:
+        _call_slots.release()
+    if getattr(response, "stop_reason", None) == "refusal":
+        raise GradingUnavailable("refusal")
+    parsed = response.parsed_output
+    if not isinstance(parsed, output_format):
+        raise GradingUnavailable("unparseable reply")
+    return parsed
+
+
+def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> GradedAnswer:
+    user_prompt = (
+        f"<frage>{question_text}</frage>\n<musterantwort>{model_answer}</musterantwort>\n"
+        f"<antwort>{escape_tags(learner_answer)}</antwort>"
+    )
+    parsed = structured_call(
+        GradeResult,
+        lambda client: client.messages.parse(
             model=settings.anthropic_grading_model,
             max_tokens=300,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
             output_format=GradeResult,
-        )
-    except anthropic.APIError as exc:
-        raise GradingUnavailable(type(exc).__name__) from exc
-    finally:
-        _call_slots.release()
-    if response.parsed_output is None:
-        raise GradingUnavailable("unparseable reply")
-    parsed = response.parsed_output
+        ),
+    )
     if _looks_injected(parsed.feedback, learner_answer):
         return GradedAnswer(GradeResult(outcome="falsch", feedback=_FALLBACK_FEEDBACK), sanitized=True)
     return GradedAnswer(parsed, sanitized=False)

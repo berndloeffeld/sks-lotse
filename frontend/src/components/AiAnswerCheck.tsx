@@ -1,13 +1,13 @@
 import { useState, type KeyboardEvent, type Ref } from 'react'
-import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
-import { ApiError, apiClient } from '../api/client'
+import { apiClient } from '../api/client'
 import type { AiGrade, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formStyles } from './formStyles'
-import { HelmIcon } from './icons/FeatureIcons'
+import { lotseErrorMessage } from '../lotseErrorMessage'
+import { LotseCheckButton } from './LotseCheckButton'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 
 const styles = formStyles('light')
@@ -30,41 +30,10 @@ interface AiAnswerCheckProps {
   noAnswerHint?: string
 }
 
-function errorMessage(error: unknown): string {
-  if (error instanceof ApiError && error.status === 429) {
-    return 'Der Lotse ist für diese Frage oder für heute ausgelastet. Bewerte dich bitte selbst.'
-  }
-  if (error instanceof ApiError && error.status === 422) {
-    return 'Diese Antwort kann der Lotse nicht prüfen. Bewerte dich bitte selbst.'
-  }
-  if (error instanceof ApiError && error.status === 402) {
-    return 'Deine Tokens sind aufgebraucht. Bewerte dich bitte selbst.'
-  }
-  return 'Der Lotse ist gerade nicht erreichbar. Bewerte dich bitte selbst.'
-}
-
-// What happens to the answer lives in the tooltip and the accessible description, not in a caption.
-const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
-
-// A diagonal corner ribbon ("KI"), clipped by the row (which needs relative + overflow-hidden).
-function Ribbon() {
-  return (
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute top-[8px] -right-[22px] w-[74px] rotate-45 bg-primary py-px text-center text-[0.7rem] leading-4 font-bold tracking-widest text-surface shadow-sm"
-    >
-      KI
-    </span>
-  )
-}
-
-// "Antwort vom Lotsen bewerten lassen" (ADR-0031, ADR-0043, ADR-0044): the fourth choice under
+// The Lotsen-Check of a catalog question (ADR-0031, ADR-0043, ADR-0044): the fourth choice under
 // the grade radios. A stateless LLM check of the written answer that only *suggests* a grade, 1
 // token each — the token balance is the sole spending control. The learner who is sure just
-// grades. Accounts with no tokens see it dimmed — with a link to buy more where the checkout is
-// open to them (ADR-0048), with "bald verfügbar" otherwise (prices live on /pricing). Guests (no
-// login, ADR-0054) see it dimmed as a teaser, with a link to sign up: an account starts with tokens.
-// Keyed by question in the parent.
+// grades. The button and its token states are LotseCheckButton's. Keyed by question in the parent.
 export function AiAnswerCheck({
   questionId,
   answer,
@@ -78,23 +47,10 @@ export function AiAnswerCheck({
   const { run, isPending: isChecking, error } = useAsyncAction()
   const [result, setResult] = useState<AiGrade | null>(null)
 
-  const hasTokens = (user?.token_balance ?? 0) > 0
-  const canBuy = user?.can_buy_tokens ?? false
-  const isGuest = !useAuthStore((s) => s.isAuthenticated)
-  const outOfTokens = isGuest
-    ? 'Mit Anmeldung, Start-Tokens geschenkt'
-    : canBuy
-      ? 'Keine Tokens mehr'
-      : 'bald verfügbar'
-  const hasAnswer = answer.trim().length > 0
-  const tooLong = answer.length > AI_CHECK_MAX_ANSWER_CHARS
-
-  let hint = `Die KI schlägt dir eine Bewertung vor · ${user?.token_balance ?? 0} Token(s)`
-  if (isChecking) hint = 'Lotse prüft…'
-  else if (!hasAnswer) hint = noAnswerHint ?? 'Schreibe zuerst eine Antwort'
-  else if (tooLong) hint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
-
-  const isDisabled = !hasTokens || isChecking || !hasAnswer || tooLong
+  let blockedHint: string | null = null
+  if (answer.trim().length === 0) blockedHint = noAnswerHint ?? 'Schreibe zuerst eine Antwort'
+  else if (answer.length > AI_CHECK_MAX_ANSWER_CHARS)
+    blockedHint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
 
   function check() {
     return run(async () => {
@@ -103,14 +59,11 @@ export function AiAnswerCheck({
       if (user) setUser({ ...user, token_balance: grade.tokens_remaining })
       setResult(grade)
       onSuggest(grade.outcome)
-    }, errorMessage)
+    }, lotseErrorMessage)
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <span id={`ai-check-notice-${questionId}`} className="sr-only">
-        {SEND_NOTICE}
-      </span>
       {result ? (
         <section
           role="status"
@@ -124,44 +77,18 @@ export function AiAnswerCheck({
             Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
           </p>
         </section>
-      ) : null}
-      {result ? null : (
-        <button
-          ref={buttonRef}
-          type="button"
-          disabled={isDisabled}
-          title={
-            hasTokens
-              ? SEND_NOTICE
-              : isGuest
-                ? 'Mit Anmeldung: KI-Prüfung deiner Antwort'
-                : canBuy
-                  ? 'Keine Tokens mehr'
-                  : 'Bald verfügbar: KI-Prüfung deiner Antwort'
-          }
-          aria-describedby={`ai-check-notice-${questionId}`}
-          onClick={check}
-          onKeyDown={onButtonKeyDown}
-          className="relative flex min-h-10 items-center gap-3 overflow-hidden rounded-tile border border-dashed border-accent py-1.5 pr-[72px] pl-3 text-left text-ink transition hover:bg-surface-alt disabled:opacity-60 disabled:hover:bg-transparent"
-        >
-          <HelmIcon className="size-6 shrink-0 text-accent" />
-          <span className="flex flex-col">
-            <span className="font-mono text-sm tracking-wide uppercase">Antwort vom Lotsen bewerten lassen</span>
-            <span className="text-xs text-ink-soft">{hasTokens ? hint : outOfTokens}</span>
-          </span>
-          <Ribbon />
-        </button>
+      ) : (
+        <LotseCheckButton
+          noticeId={`ai-check-notice-${questionId}`}
+          cost={1}
+          pitch="Die KI schlägt dir eine Bewertung vor"
+          isChecking={isChecking}
+          blockedHint={blockedHint}
+          onCheck={check}
+          buttonRef={buttonRef}
+          onButtonKeyDown={onButtonKeyDown}
+        />
       )}
-      {isGuest ? (
-        <Link to="/login" className="self-start text-sm text-primary underline">
-          Anmelden und den Lotsen fragen
-        </Link>
-      ) : null}
-      {!hasTokens && canBuy && !result ? (
-        <Link to="/pricing" className="self-start text-sm text-primary underline">
-          Tokens kaufen
-        </Link>
-      ) : null}
       {error ? (
         <p role="alert" className={styles.error}>
           {error}

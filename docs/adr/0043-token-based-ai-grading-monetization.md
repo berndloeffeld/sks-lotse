@@ -1,6 +1,6 @@
 # 0043. Token-based AI-grading monetization, with fixed prices
 
-Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (pay-per-use tokens instead of a boolean unlock); the weekly budget is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md); amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (Stripe Checkout).
+Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (pay-per-use tokens instead of a boolean unlock); the weekly budget is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md); amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (Stripe Checkout). Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): a Kartenaufgaben check costs 2 tokens.
 
 ## Context
 

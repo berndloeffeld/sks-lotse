@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChartAttempt } from '../api/types'
 import { useAuthStore } from '../store/authStore'
-import { chartTask, jsonResponse, makeChartAttempt, makeChartOverview } from '../test/fixtures'
+import { chartTask, jsonResponse, makeChartAttempt, makeChartOverview, makeUser } from '../test/fixtures'
 import { ChartAttemptPage } from './ChartAttemptPage'
 
 const SOLUTION = [
@@ -412,5 +412,177 @@ describe('ChartAttemptPage', () => {
     renderPage()
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Kartenaufgabe konnte nicht geladen werden.')
+  })
+})
+
+describe('ChartAttemptPage – Lotsen-Check', () => {
+  const suggestion = {
+    points: 1,
+    feedback: 'Die HWZ stimmt, die HWH fehlt.',
+    suspected_error: 'Vermutlich hast du nur die Zeit abgelesen.',
+  }
+
+  beforeEach(() => {
+    useAuthStore.setState({ isAuthenticated: true, isLoading: false, user: makeUser({ token_balance: 6 }) })
+    window.localStorage.clear()
+  })
+
+  function stubCheck(result: ChartAttempt | null, status = 200) {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return status === 200
+          ? jsonResponse({ attempt: result, tokens_remaining: 4 })
+          : jsonResponse({ detail: 'nope' }, status)
+      }
+      return url.includes('/attempts/') ? jsonResponse(answered) : jsonResponse(makeChartOverview())
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  it('suggests points with the probable mistake, picks them, and leaves giving them to the learner', async () => {
+    const user = userEvent.setup()
+    const checked = makeChartAttempt({
+      tasks: [chartTask(1, { ...answered.tasks[0], ai_suggestion: suggestion })],
+    })
+    const fetchMock = stubCheck(checked)
+    renderPage()
+
+    const button = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(button).toHaveTextContent('2 Tokens, du hast 6')
+    await user.click(button)
+
+    const box = await screen.findByRole('status')
+    expect(box).toHaveTextContent('Lotsen-Vorschlag: 1 von 2 Punkten')
+    expect(box).toHaveTextContent('Die HWZ stimmt, die HWH fehlt.')
+    expect(box).toHaveTextContent('Vermuteter Fehler: Vermutlich hast du nur die Zeit abgelesen.')
+    expect(screen.getByRole('radio', { name: '1' })).toBeChecked()
+    expect(useAuthStore.getState().user?.token_balance).toBe(4)
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/chart-exercises/attempts/5/tasks/1/ai-check'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+    // Only the points are the learner's step: nothing was given yet.
+    expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining('/points'), expect.anything())
+  })
+
+  it('sits below the points, in their Tab loop, and puts focus on the points it suggests', async () => {
+    const user = userEvent.setup()
+    const checked = makeChartAttempt({
+      tasks: [chartTask(1, { ...answered.tasks[0], ai_suggestion: suggestion })],
+    })
+    stubCheck(checked)
+    renderPage()
+
+    const group = await screen.findByRole('group', { name: /Wie viele Punkte/ })
+    const button = screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(group.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    for (const name of ['0', '1', '2']) {
+      await user.tab()
+      expect(screen.getByRole('radio', { name })).toHaveFocus()
+    }
+    await user.tab()
+    expect(button).toHaveFocus()
+    await user.tab()
+    expect(screen.getByRole('radio', { name: '0' })).toHaveFocus()
+    await user.tab({ shift: true })
+    expect(button).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    await screen.findByRole('status')
+    expect(screen.getByRole('radio', { name: '1' })).toHaveFocus()
+    expect(screen.getByRole('radio', { name: '1' })).toBeChecked()
+  })
+
+  it('shows a stored suggestion after a reload instead of offering a second check', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/attempts/')
+          ? jsonResponse(makeChartAttempt({ tasks: [chartTask(1, { answer_text: 'HWZ', ai_suggestion: suggestion })] }))
+          : jsonResponse(makeChartOverview()),
+      ),
+    )
+    renderPage()
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Lotsen-Vorschlag: 1 von 2 Punkten')
+    expect(screen.queryByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '1' })).toBeChecked()
+  })
+
+  it('is not offered where a drawing scores', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/attempts/')
+          ? jsonResponse(makeChartAttempt({ tasks: [chartTask(1, { answer_text: 'KdW 092°', ai_checkable: false })] }))
+          : jsonResponse(makeChartOverview()),
+      ),
+    )
+    renderPage()
+
+    expect(
+      await screen.findByText('Wie viele Punkte hättest du in der Prüfung bekommen?', { exact: false }),
+    ).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).not.toBeInTheDocument()
+  })
+
+  it('is dimmed without an answer or with too few tokens', async () => {
+    useAuthStore.setState({ user: makeUser({ token_balance: 1, can_buy_tokens: true }) })
+    stubCheck(null)
+    renderPage()
+
+    const button = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(button).toBeDisabled()
+    expect(button).toHaveTextContent('Keine Tokens mehr')
+    expect(screen.getByRole('link', { name: 'Tokens kaufen' })).toHaveAttribute('href', '/pricing')
+  })
+
+  it('has nothing to check without an answer', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/attempts/')
+          ? jsonResponse(makeChartAttempt({ tasks: [chartTask(1, { answer_text: '  ' })] }))
+          : jsonResponse(makeChartOverview()),
+      ),
+    )
+    renderPage()
+
+    const button = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(button).toBeDisabled()
+    expect(button).toHaveTextContent('Ohne Antwort gibt es nichts zu prüfen')
+  })
+
+  it('reports a failed check and leaves the self-assessment as it was', async () => {
+    const user = userEvent.setup()
+    stubCheck(null, 503)
+    renderPage()
+
+    await user.click(await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Der Lotse ist gerade nicht erreichbar.')
+    expect(screen.getByRole('radio', { name: '1' })).not.toBeChecked()
+  })
+
+  it('shows the suggestion with the task in the tasks so far', async () => {
+    const user = userEvent.setup()
+    const done = makeChartAttempt({
+      current_task: 2,
+      tasks: [chartTask(1, { answer_text: 'HWZ', points_awarded: 1, ai_suggestion: suggestion }), chartTask(2)],
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/attempts/') ? jsonResponse(done) : jsonResponse(makeChartOverview()),
+      ),
+    )
+    renderPage()
+
+    const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
+    await user.click(within(panel).getByRole('button', { name: 'Verlauf' }))
+    expect(within(panel).getByText('Vermuteter Fehler:')).toBeInTheDocument()
+    expect(within(panel).getByText('Lotsen-Vorschlag: 1 von 2 Punkten')).toBeInTheDocument()
+    expect(within(panel).queryByText('Nur ein Vorschlag', { exact: false })).not.toBeInTheDocument()
   })
 })

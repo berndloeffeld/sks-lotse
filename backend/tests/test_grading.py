@@ -312,6 +312,18 @@ def test_reserve_then_refund_round_trips(db_session):
     assert user.token_balance == 3
 
 
+def test_reserve_and_refund_take_an_amount(db_session):
+    # A Kartenaufgabe's check costs more than one token (ADR-0058).
+    user = User(email="chart-wallet@example.com", token_balance=3)
+    db_session.add(user)
+    db_session.commit()
+    assert token_wallet.reserve(db_session, user.id, 2) == 1
+    assert token_wallet.reserve(db_session, user.id, 2) is None
+    assert user.token_balance == 1
+    token_wallet.refund(db_session, user.id, 2)
+    assert user.token_balance == 3
+
+
 def test_grant_credits_the_balance_and_records_a_purchase(db_session):
     user = User(email="grantee@example.com", token_balance=0)
     db_session.add(user)
