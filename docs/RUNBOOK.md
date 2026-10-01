@@ -106,7 +106,7 @@ Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr
 
 ## Admin 2FA
 
-`/admin` needs a code from an authenticator app (Authy, Google Authenticator, …) on top of the email login, at most 12 h old (`ADMIN_MFA_MAX_AGE_MINUTES`) ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md)).
+`/admin` needs a code from an authenticator app (Authy, Google Authenticator, …) on top of the email login, at most 60 min old (`ADMIN_MFA_MAX_AGE_MINUTES`); exporting or deleting an account asks again unless the last code is at most 5 min old (`ADMIN_RECENT_MFA_MAX_AGE_MINUTES`) ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md), addendum 2026-10-01). A code is accepted once only, so for the second prompt wait for the app's next code.
 
 - **Setup**: log in as the admin, open `/admin` → "Einrichtung starten" → scan the QR code → enter the code. Do this right after adding an address to `ADMIN_EMAILS`: until it's done, whoever logs in first as that address could enrol their own app. `totp_enabled_at` in the account's export shows it's done.
 - **Wrong codes**: 5 attempts per 15 minutes per admin, then 429 until the window passes. Check the phone's clock (automatic time) if valid-looking codes keep failing.
@@ -118,6 +118,10 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 1. GitHub → Actions → "Reset admin 2FA" → Run workflow → the admin's email address. It starts `python -m scripts.reset_admin_totp --email …` as a Render one-off job and waits for it (output: Render dashboard → `sks-lotse-backend` → Jobs). Needs the `RENDER_API_KEY`/`RENDER_BACKEND_SERVICE_ID` secrets ([One-time setup](#one-time-setup-recreating-the-environment), step 6).
 2. Without GitHub: Render dashboard → `sks-lotse-backend` → Shell → `python -m scripts.reset_admin_totp --email …`.
 3. The script also ends every session of that account. Log in again, open `/admin`, set 2FA up afresh.
+
+## security.txt
+
+`frontend/public/.well-known/security.txt` (RFC 9116) names `kontakt@sks-lotse.de` and links `SECURITY.md`. Its `Expires` field (currently 2027-09-30) must stay in the future and at most a year ahead: move it forward in a PR before it runs out.
 
 ## Security alerts (Aikido)
 

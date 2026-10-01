@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { MFA_REQUIRED, apiClient } from '../api/client'
+import { MFA_REQUIRED, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
 import { jsonResponse } from '../test/fixtures'
 import { useAdminMfaStatus } from './useAdminMfaStatus'
 
@@ -47,6 +47,25 @@ describe('useAdminMfaStatus', () => {
     await apiClient.get('/admin/users').catch(() => {})
 
     await waitFor(() => expect(result.current.status?.verified).toBe(false))
+  })
+
+  it('asks for a recent code without reloading when an export or deletion needs one', async () => {
+    const fetchMock = stubFetch(
+      jsonResponse({ enrolled: true, verified: true }),
+      jsonResponse({ detail: RECENT_MFA_REQUIRED }, 403),
+    )
+    const { result } = renderHook(() => useAdminMfaStatus())
+    await waitFor(() => expect(result.current.status?.verified).toBe(true))
+    expect(result.current.recentCheckRequired).toBe(false)
+
+    await act(() => apiClient.get('/admin/users/1/export').catch(() => {}))
+
+    expect(result.current.recentCheckRequired).toBe(true)
+    expect(result.current.status?.verified).toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    act(() => result.current.recentCheckDone())
+    expect(result.current.recentCheckRequired).toBe(false)
   })
 
   it('stops listening once unmounted', async () => {

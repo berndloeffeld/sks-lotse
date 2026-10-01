@@ -10,12 +10,16 @@ from app.core.database import get_db
 from app.core.totp import mfa_is_fresh
 from app.models import User
 
-# Shared with app/api/v1/auth.py, which sets/clears this cookie on
-# verify/logout (see ADR-0012) — kept here since this module is where the
-# corresponding read side lives.
+# The session cookie (ADR-0012). Deployed, the `__Host-` prefix makes browsers accept it only as
+# Secure, Path=/ and without a Domain — so a page on sks-lotse.de can't plant a second
+# `access_token` for the API host (cookie tossing; Starlette would read whichever came last).
+# Local dev runs on plain http://, where a `__Host-` cookie is never stored, so it keeps the bare name.
 SESSION_COOKIE_NAME = "access_token"
+SECURE_SESSION_COOKIE_NAME = "__Host-access_token"
 # The 403 detail of an admin route whose session still needs its TOTP check (require_admin).
 MFA_REQUIRED = "mfa_required"
+# The 403 detail of an export/delete whose TOTP check is valid but not recent (require_recent_mfa).
+RECENT_MFA_REQUIRED = "recent_mfa_required"
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -30,6 +34,10 @@ def create_access_token(user_id: int, token_version: int, mfa_at: int | None = N
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
+def session_cookie_name() -> str:
+    return SECURE_SESSION_COOKIE_NAME if settings.is_production else SESSION_COOKIE_NAME
+
+
 def issue_session(response: Response, user: User, mfa_at: int | None = None) -> str:
     """Mint a session token for `user` and set it as the session cookie; returns the token."""
     access_token = create_access_token(user.id, user.token_version, mfa_at)
@@ -38,7 +46,7 @@ def issue_session(response: Response, user: User, mfa_at: int | None = None) -> 
     # which stays populated for Postman/the integration-test suite/any
     # future non-browser client (Bearer fallback, see get_session_claims).
     response.set_cookie(
-        SESSION_COOKIE_NAME,
+        session_cookie_name(),
         access_token,
         max_age=settings.jwt_access_token_expires_minutes * 60,
         httponly=True,
@@ -51,6 +59,17 @@ def issue_session(response: Response, user: User, mfa_at: int | None = None) -> 
     return access_token
 
 
+def clear_session(response: Response) -> None:
+    """Delete the session cookie (logout, account deletion).
+
+    With the same attributes it was set with: a browser ignores a `__Host-` Set-Cookie that isn't
+    Secure, deletions included.
+    """
+    response.delete_cookie(
+        session_cookie_name(), path="/", secure=settings.is_production, httponly=True, samesite="lax"
+    )
+
+
 def get_session_claims(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Security(_bearer_scheme),
@@ -60,7 +79,7 @@ def get_session_claims(
     # Cookie first (the browser frontend, per ADR-0012), falling back to
     # Authorization: Bearer (Postman, the integration-test suite, any future
     # non-browser client).
-    token = request.cookies.get(SESSION_COOKIE_NAME) or (credentials.credentials if credentials else None)
+    token = request.cookies.get(session_cookie_name()) or (credentials.credentials if credentials else None)
     if token is None:
         raise unauthorized
     try:
@@ -107,4 +126,15 @@ def require_admin(
     """
     if not mfa_is_fresh(claims.get("mfa"), datetime.now(UTC)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=MFA_REQUIRED)
+    return admin
+
+
+def require_recent_mfa(
+    claims: dict = Depends(get_session_claims), admin: User = Depends(require_admin)
+) -> User:
+    """An admin whose last TOTP check is minutes old, for the irreversible or data-leaking actions
+    (exporting and deleting accounts) — a session cookie that leaked to a script still can't do
+    them on its own (ADR-0047 addendum 2026-10-01). The frontend asks for a code and retries."""
+    if not mfa_is_fresh(claims.get("mfa"), datetime.now(UTC), settings.admin_recent_mfa_max_age_minutes):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=RECENT_MFA_REQUIRED)
     return admin

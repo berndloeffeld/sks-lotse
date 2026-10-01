@@ -475,6 +475,59 @@ def test_logout_clears_the_session_cookie(client, db_session, monkeypatch):
     assert client.get("/api/v1/auth/me").status_code == 401
 
 
+def _set_cookie_headers(response):
+    return response.headers.get_list("set-cookie")
+
+
+def test_production_session_cookie_uses_the_host_prefix(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    monkeypatch.setattr(settings, "environment", "production")
+
+    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    assert response.status_code == 200
+    [set_cookie] = _set_cookie_headers(response)
+    # __Host-: Secure, Path=/ and no Domain, or browsers refuse the cookie.
+    assert set_cookie.startswith(f"__Host-access_token={response.json()['access_token']};")
+    assert "Secure" in set_cookie
+    assert "Path=/" in set_cookie
+    assert "Domain" not in set_cookie
+
+
+def test_production_reads_only_the_host_prefixed_cookie(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    token = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+    ).json()["access_token"]
+    client.cookies.clear()
+    monkeypatch.setattr(settings, "environment", "production")
+
+    # A bare access_token cookie is what a page on the parent domain could toss in; it's ignored.
+    tossed = client.get("/api/v1/auth/me", headers={"Cookie": f"access_token={token}"})
+    assert tossed.status_code == 401
+    own = client.get("/api/v1/auth/me", headers={"Cookie": f"__Host-access_token={token}"})
+    assert own.status_code == 200
+
+
+@pytest.mark.parametrize(("method", "path"), [("post", "/api/v1/auth/logout"), ("delete", "/api/v1/auth/me")])
+def test_production_clears_the_host_prefixed_cookie(client, db_session, monkeypatch, method, path):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+    token = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+    ).json()["access_token"]
+    client.cookies.clear()
+    monkeypatch.setattr(settings, "environment", "production")
+
+    response = getattr(client, method)(path, headers={"Cookie": f"__Host-access_token={token}"})
+
+    assert response.status_code == 204
+    [set_cookie] = _set_cookie_headers(response)
+    assert set_cookie.startswith('__Host-access_token="";')
+    assert "Max-Age=0" in set_cookie
+    assert "Secure" in set_cookie
+    assert "Path=/" in set_cookie
+
+
 def test_me_with_invalid_token_returns_401(client):
     response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer not-a-real-token"})
     assert response.status_code == 401

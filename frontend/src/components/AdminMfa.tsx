@@ -77,7 +77,8 @@ export function AdminMfaEnrol({ onVerified }: Props) {
       <h2 className="font-serif text-2xl text-ink">Zwei-Faktor-Anmeldung einrichten</h2>
       <p className="max-w-prose text-sm text-ink-soft">
         Der Admin-Bereich ist zusätzlich durch einen Code aus einer Authenticator-App geschützt (z. B. Authy, Google
-        Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich alle 12 Stunden nach einem Code.
+        Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich jede Stunde nach einem Code, und
+        vor jedem Export oder Löschen eines Accounts erneut.
       </p>
       {enrolment === null ? (
         <>
@@ -114,13 +115,16 @@ export function AdminMfaEnrol({ onVerified }: Props) {
   )
 }
 
-// Every later visit (and after 12 hours): one code opens the admin area for this session.
-export function AdminMfaVerify({ onVerified }: Props) {
+// Every later visit (and after an hour): one code opens the admin area for this session. `recent`:
+// an export or deletion asked for a code from the last few minutes, the admin area stays open.
+export function AdminMfaVerify({ onVerified, recent = false }: Props & { recent?: boolean }) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="font-serif text-2xl text-ink">Code bestätigen</h2>
       <p className="max-w-prose text-sm text-ink-soft">
-        Für den Admin-Bereich bitte den aktuellen Code aus deiner Authenticator-App eingeben.
+        {recent
+          ? 'Export und Löschen eines Accounts brauchen einen frischen Code. Bitte den aktuellen Code aus deiner Authenticator-App eingeben und die Aktion danach wiederholen.'
+          : 'Für den Admin-Bereich bitte den aktuellen Code aus deiner Authenticator-App eingeben.'}
       </p>
       <CodeForm onVerified={onVerified} submitLabel="Bestätigen" />
     </section>

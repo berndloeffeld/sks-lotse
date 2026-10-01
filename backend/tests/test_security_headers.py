@@ -19,3 +19,13 @@ def test_api_responses_are_not_cacheable(client):
 
 def test_non_api_responses_keep_default_caching(client):
     assert "cache-control" not in client.get("/health").headers
+
+
+def test_api_responses_forbid_loading_and_framing(client):
+    response = client.get("/api/v1/questions")
+    assert response.headers["content-security-policy"] == "default-src 'none'; frame-ancestors 'none'"
+
+
+def test_non_api_responses_have_no_csp(client):
+    # /docs (dev only) runs Swagger UI's scripts; /health is no document either way.
+    assert "content-security-policy" not in client.get("/health").headers

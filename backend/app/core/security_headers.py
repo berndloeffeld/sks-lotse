@@ -8,6 +8,8 @@ doesn't add these headers itself — the app has to.
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
+API_CSP = "default-src 'none'; frame-ancestors 'none'"
+
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -25,6 +27,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # API responses carry per-user data (tokens from otp/verify, /me) —
         # never let a browser or intermediary cache them. Routes that want
         # caching can still set their own Cache-Control.
-        if request.url.path.startswith("/api/") and "cache-control" not in response.headers:
-            response.headers["Cache-Control"] = "no-store"
+        if request.url.path.startswith("/api/"):
+            if "cache-control" not in response.headers:
+                response.headers["Cache-Control"] = "no-store"
+            # JSON never needs to load, run or frame anything: should a response ever be rendered as
+            # a document (opened directly, or a sniffing mistake), it can do nothing. Not on /docs
+            # (dev only), whose Swagger UI loads scripts.
+            response.headers["Content-Security-Policy"] = API_CSP
         return response

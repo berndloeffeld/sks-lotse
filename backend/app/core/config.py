@@ -80,8 +80,12 @@ class Settings(BaseSettings):
     # admin access.
     admin_emails: str = ""
     # How long one TOTP check keeps the admin area open for that session (ADR-0047) — the
-    # session itself lasts jwt_access_token_expires_minutes, learning isn't affected.
-    admin_mfa_max_age_minutes: int = 720  # 12 hours
+    # session itself lasts jwt_access_token_expires_minutes, learning isn't affected. Short on
+    # purpose: the session cookie is origin-wide, so it also rides along on the public pages that
+    # carry the ad script (ADR-0047 addendum 2026-10-01).
+    admin_mfa_max_age_minutes: int = 60
+    # Exporting or deleting an account needs a TOTP check at most this old (require_recent_mfa).
+    admin_recent_mfa_max_age_minutes: int = 5
 
     otp_length: int = 6
     otp_ttl_minutes: int = 10

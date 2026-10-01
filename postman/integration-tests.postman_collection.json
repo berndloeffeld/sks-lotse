@@ -295,6 +295,69 @@
       "name": "Auth Flow",
       "item": [
         {
+          "name": "Request OTP - an oversized body is refused with a 413",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 64 KiB is the cap for every route but the Stripe webhook (app/core/request_limits.py).",
+                  "pm.request.body.update(JSON.stringify({ email: 'a'.repeat(70 * 1024) + '@example.com' }));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 413', function () { pm.response.to.have.status(413); });",
+                  "pm.test('detail names the cause', function () { pm.expect(pm.response.json().detail).to.eql('Request body too large'); });",
+                  "pm.test('still carries the security headers', function () { pm.response.to.have.header('X-Content-Type-Options', 'nosniff'); });",
+                  "pm.test('API responses forbid loading and framing', function () { pm.response.to.have.header('Content-Security-Policy', \"default-src 'none'; frame-ancestors 'none'\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Refused before the app reads the body, and outside the rate limiter, so it doesn't use up the OTP-request quota the next request needs.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Request OTP",
           "event": [
             {

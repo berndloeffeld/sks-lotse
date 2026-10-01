@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core import totp
 from app.core.config import settings
-from app.core.jwt import MFA_REQUIRED, create_access_token
+from app.core.jwt import MFA_REQUIRED, RECENT_MFA_REQUIRED, create_access_token
 from app.models import User
 from app.services import admin_mfa
 from scripts import reset_admin_totp
@@ -65,6 +65,36 @@ def test_an_expired_second_factor_no_longer_opens_the_admin_area(client, admin, 
 
 def test_a_fresh_second_factor_opens_the_admin_area(client, admin):
     assert client.get(_ADMIN_ROUTE, headers=_headers(admin, mfa_at=int(time.time()))).status_code == 200
+
+
+def test_the_default_second_factor_lasts_an_hour():
+    assert settings.admin_mfa_max_age_minutes == 60
+    assert settings.admin_recent_mfa_max_age_minutes == 5
+
+
+@pytest.mark.parametrize(
+    ("method", "path"), [("get", "/api/v1/admin/users/{id}/export"), ("delete", "/api/v1/admin/users/{id}")]
+)
+def test_export_and_delete_need_a_recent_second_factor(client, db_session, admin, method, path):
+    target = User(email="target@example.com")
+    db_session.add(target)
+    db_session.commit()
+    url = path.format(id=target.id)
+    # Still good for the rest of the admin area, but older than five minutes.
+    older = _headers(admin, mfa_at=int(time.time()) - 5 * 60 - 1)
+    assert client.get(_ADMIN_ROUTE, headers=older).status_code == 200
+    response = getattr(client, method)(url, headers=older)
+    assert response.status_code == 403
+    assert response.json()["detail"] == RECENT_MFA_REQUIRED
+    assert db_session.get(User, target.id) is not None
+
+    recent = _headers(admin, mfa_at=int(time.time()) - 60)
+    assert getattr(client, method)(url, headers=recent).status_code in (200, 204)
+
+
+def test_without_any_second_factor_export_still_asks_for_the_normal_step_up(client, no_mfa):
+    response = client.get("/api/v1/admin/users/1/export", headers=no_mfa)
+    assert response.json()["detail"] == MFA_REQUIRED
 
 
 def test_the_mfa_routes_reject_learners(client, auth_headers):

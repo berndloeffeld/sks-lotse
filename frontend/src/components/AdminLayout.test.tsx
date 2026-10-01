@@ -1,8 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
+import { apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { AdminLayout } from './AdminLayout'
 import { jsonResponse, makeUser } from '../test/fixtures'
@@ -85,6 +86,43 @@ describe('AdminLayout', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
 
     expect(await screen.findByText('Users page')).toBeInTheDocument()
+  })
+
+  it('asks for a fresh code above the page when an export needs one, and keeps the page', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ enrolled: true, verified: true }))
+      .mockResolvedValueOnce(jsonResponse({ detail: 'recent_mfa_required' }, 403))
+      .mockResolvedValueOnce(jsonResponse({ access_token: 't', token_type: 'bearer' }))
+    vi.stubGlobal('fetch', fetchMock)
+    setSession(true)
+    render(
+      <MemoryRouter initialEntries={['/admin/users/1']}>
+        <Routes>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route
+              path="users/:id"
+              element={
+                <button type="button" onClick={() => void apiClient.get('/admin/users/1/export').catch(() => {})}>
+                  Export
+                </button>
+              }
+            />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Export' }))
+
+    expect(await screen.findByText(/brauchen einen frischen Code/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText('Code aus der Authenticator-App'), '123456')
+    await userEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    await waitFor(() => expect(screen.queryByText(/brauchen einen frischen Code/)).not.toBeInTheDocument())
+    expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument()
+    expect(fetchMock.mock.calls[2][0]).toMatch(/\/admin\/mfa\/verify$/)
   })
 
   it('says so when the 2FA status cannot be loaded', async () => {

@@ -36,7 +36,7 @@ export function AdminLayout() {
 // The second factor (ADR-0047) comes before any admin page: set it up on the first visit, confirm a
 // code on every later one. The admin pages only render once the session has passed the check.
 function AdminArea() {
-  const { status, failed, reload } = useAdminMfaStatus()
+  const { status, failed, reload, recentCheckRequired, recentCheckDone } = useAdminMfaStatus()
 
   if (failed) {
     return (
@@ -51,6 +51,9 @@ function AdminArea() {
 
   return (
     <>
+      {/* Above the page, which stays as it is (an open delete confirmation included): after the
+          code the admin repeats the export or deletion. */}
+      {recentCheckRequired ? <AdminMfaVerify recent onVerified={recentCheckDone} /> : null}
       <nav aria-label="Admin-Bereiche" className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
         {SECTIONS.map((section) => (
           <NavLink

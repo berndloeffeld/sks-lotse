@@ -66,9 +66,12 @@ def accepted_counter(secret: str, code: str, last_counter: int | None, now: date
     return None
 
 
-def mfa_is_fresh(mfa_at: object, now: datetime) -> bool:
-    """Whether a session's `mfa` claim (unix time of its last TOTP check) still counts."""
+def mfa_is_fresh(mfa_at: object, now: datetime, max_age_minutes: int | None = None) -> bool:
+    """Whether a session's `mfa` claim (unix time of its last TOTP check) is at most
+    `max_age_minutes` old (default: ADMIN_MFA_MAX_AGE_MINUTES)."""
     if not isinstance(mfa_at, int) or isinstance(mfa_at, bool):
         return False
+    if max_age_minutes is None:
+        max_age_minutes = settings.admin_mfa_max_age_minutes
     age_seconds = now.timestamp() - mfa_at
-    return 0 <= age_seconds <= settings.admin_mfa_max_age_minutes * 60
+    return 0 <= age_seconds <= max_age_minutes * 60

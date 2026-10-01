@@ -14,6 +14,7 @@ from app.core.database import get_session_factory
 from app.core.log_config import RequestIdMiddleware, configure_logging
 from app.core.maintenance import MAINTENANCE_HEADER, MaintenanceModeMiddleware
 from app.core.rate_limit import RateLimitMiddleware
+from app.core.request_limits import RequestBodyLimitMiddleware
 from app.core.security_headers import SecurityHeadersMiddleware
 
 configure_logging(settings.log_level, settings.log_format)
@@ -82,6 +83,9 @@ app.add_middleware(
 # CORSMiddleware/RequestIdMiddleware below, so its 503 gets CORS headers and a request id like any
 # other response.
 app.add_middleware(MaintenanceModeMiddleware, enabled=settings.maintenance_mode)
+# Outside the rate limiter too, so an oversized body is refused (413) before anything reads it or a
+# counter moves; inside SecurityHeadersMiddleware/CORS, so the 413 carries the usual headers.
+app.add_middleware(RequestBodyLimitMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
