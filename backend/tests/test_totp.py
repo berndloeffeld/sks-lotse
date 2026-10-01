@@ -100,6 +100,14 @@ def test_mfa_is_fresh_within_the_max_age(monkeypatch):
     assert not totp.mfa_is_fresh(now_ts - 3601, _NOW)
 
 
+def test_mfa_is_fresh_with_an_explicit_max_age(monkeypatch):
+    monkeypatch.setattr(settings, "admin_mfa_max_age_minutes", 60)
+    now_ts = int(_NOW.timestamp())
+    assert totp.mfa_is_fresh(now_ts - 300, _NOW, 5)
+    assert not totp.mfa_is_fresh(now_ts - 301, _NOW, 5)
+    assert not totp.mfa_is_fresh(now_ts + 1, _NOW, 5)
+
+
 @pytest.mark.parametrize("claim", [None, "123", 1.5, True])
 def test_mfa_claim_of_the_wrong_type_is_not_fresh(claim):
     assert not totp.mfa_is_fresh(claim, _NOW)

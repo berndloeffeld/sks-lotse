@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 
 import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
@@ -16,7 +16,10 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
 export function LegalFooter() {
-  const showAds = useShowAds()
+  // Not on /admin: the admin pages never load the ad script (ADR-0027 addendum 2026-09-23), so
+  // there is no dialog to open — the button would only lead to /privacy, a page that carries it.
+  const isAdmin = useLocation().pathname.startsWith('/admin')
+  const showConsentButton = useShowAds() && !isAdmin
   const [consentUnavailable, setConsentUnavailable] = useState(false)
 
   function handleConsentClick() {
@@ -40,7 +43,7 @@ export function LegalFooter() {
           <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>
             Kontakt
           </a>
-          {showAds && (
+          {showConsentButton && (
             <button
               type="button"
               onClick={handleConsentClick}

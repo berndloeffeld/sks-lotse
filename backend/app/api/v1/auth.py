@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
-from app.core.jwt import SESSION_COOKIE_NAME, get_current_user, issue_session
+from app.core.jwt import clear_session, get_current_user, issue_session
 from app.core.legal import CURRENT_AGB_VERSION
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
@@ -189,7 +189,7 @@ def delete_current_user(
     # The account is gone, so the session cookie is now meaningless — clear
     # it the same way logout does. No token_version bump needed: the row
     # itself is gone, so get_current_user's next lookup already 401s.
-    response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+    clear_session(response)
 
 
 @router.post("/me/agb-accept", response_model=UserRead)
@@ -292,4 +292,4 @@ def logout(response: Response, current_user: User = Depends(get_current_user), d
     # app/core/jwt.py), including the one used to call this endpoint.
     current_user.token_version += 1
     db.commit()
-    response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+    clear_session(response)

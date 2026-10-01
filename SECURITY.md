@@ -16,6 +16,7 @@ There's no bug bounty program. Please act in good faith: don't access, modify, o
 - Static analysis with GitHub CodeQL (Python, JavaScript/TypeScript, GitHub Actions) on every pull request and on `main`.
 - Dependency and static scanning via [Aikido Security](https://www.aikido.dev/) (it rescans about every three days, so it is no merge gate; an alert is triaged the same day, see `docs/RUNBOOK.md`) and Dependabot (weekly, with a short cooldown for new releases); backend dependencies are hash-locked.
 - CI runs linting, the full test suite, and a coverage gate on every change.
-- Sessions use httpOnly JWT cookies; rate limiting applies to all API routes, with tighter limits on login codes; admin actions are audit-logged.
+- Sessions use httpOnly, `__Host-`-prefixed JWT cookies; rate limiting applies to all API routes, with tighter limits on login codes; request bodies are size-capped before they're read; the admin area needs a TOTP code, a fresh one for exporting or deleting an account, and admin actions are audit-logged.
+- This contact is also published as [`/.well-known/security.txt`](https://sks-lotse.de/.well-known/security.txt) (RFC 9116).
 
 Thanks for helping keep this project and its users safe.

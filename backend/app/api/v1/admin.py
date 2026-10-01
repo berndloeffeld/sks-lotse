@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core import pricing as pricing_core
 from app.core.database import get_db
-from app.core.jwt import require_admin
+from app.core.jwt import require_admin, require_recent_mfa
 from app.models.question import Question
 from app.models.user import User
 from app.schemas.admin import (
@@ -198,7 +198,7 @@ def question_history(
 
 @router.get("/users/{user_id}/export", response_model=AdminUserExport)
 def export_user(
-    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+    user_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_recent_mfa)
 ) -> AdminUserExport:
     user = _get_user_or_404(db, user_id)
     _audit(admin, "export_user", target_user=user.id)
@@ -206,7 +206,9 @@ def export_user(
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_admin)) -> None:
+def delete_user(
+    user_id: int, db: Session = Depends(get_db), admin: User = Depends(require_recent_mfa)
+) -> None:
     user = _get_user_or_404(db, user_id)
     delete_user_and_progress(db, user)
     _audit(admin, "delete_user", target_user=user_id)

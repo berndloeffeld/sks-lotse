@@ -134,6 +134,22 @@ describe('AdminUserPage', () => {
     expect(await screen.findByText('User list (deleted: learner@example.com)')).toBeInTheDocument()
   })
 
+  it('asks for a fresh code when deleting needs one, keeping the confirmation open', async () => {
+    const user = userEvent.setup()
+    stubFetch((_url, init) =>
+      init?.method === 'DELETE' ? jsonResponse({ detail: 'recent_mfa_required' }, 403) : undefined,
+    )
+    renderUserPage()
+    await user.click(await screen.findByRole('button', { name: 'Account löschen' }))
+    await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    expect(
+      await screen.findByText('Bitte oben den aktuellen Code bestätigen und dann erneut versuchen.'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Endgültig löschen' })).toBeInTheDocument()
+  })
+
   it('stays on the page with an error when deleting fails', async () => {
     const user = userEvent.setup()
     stubFetch((_url, init) => (init?.method === 'DELETE' ? new Response(null, { status: 500 }) : undefined))
@@ -351,6 +367,17 @@ describe('AdminUserPage', () => {
 
     expect(createObjectURL).toHaveBeenCalledTimes(1)
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+  })
+
+  it('explains why nothing happened when the export needs a fresh code', async () => {
+    const user = userEvent.setup()
+    stubFetch((url) => (url.endsWith('/export') ? jsonResponse({ detail: 'recent_mfa_required' }, 403) : undefined))
+    renderUserPage()
+    await user.click(await screen.findByRole('button', { name: 'Daten exportieren' }))
+
+    expect(
+      await screen.findByText('Bitte oben den aktuellen Code bestätigen und dann erneut versuchen.'),
+    ).toBeInTheDocument()
   })
 
   it('shows an error when the export fails', async () => {

@@ -27,11 +27,13 @@ Derived load (planning figure):
 | Area | Requirement |
 |---|---|
 | Security | Login required; hashed, short-lived, purpose-bound email codes |
-| | Session cookie not readable by scripts; logout ends all sessions |
+| | Session cookie not readable by scripts, `__Host-` prefixed when deployed; logout ends all sessions |
 | | Every route needs a session unless listed as public |
 | | Layered abuse protection (IP and email limits, blocklists) |
-| | Admin: allowlist plus TOTP |
-| | Enforced CSP, HSTS, frame denial |
+| | Admin: allowlist plus TOTP (one code per hour; export and deletion need one from the last 5 min) |
+| | Enforced CSP, HSTS, frame denial (API responses: `default-src 'none'`) |
+| | Request bodies capped before they are read (413 over 64 KB, 1 MB for the Stripe webhook) |
+| | security.txt (RFC 9116) with the reporting contact |
 | | Prompt-injection hardening of the AI check |
 | | No secrets in the git repository |
 | | Continuous security scanning |

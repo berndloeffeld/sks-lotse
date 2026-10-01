@@ -39,6 +39,7 @@ only_mutate = [
     "app/core/otp.py",
     "app/core/jwt.py",
     "app/core/security_headers.py",
+    "app/core/request_limits.py",
     "app/core/canonical_domain.py",
     "app/core/maintenance.py",
     "app/core/pricing.py",

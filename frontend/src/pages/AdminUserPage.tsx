@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import { ApiError, apiClient } from '../api/client'
+import { ApiError, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
 import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
@@ -19,6 +19,15 @@ function downloadJson(data: unknown, filename: string) {
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
+}
+
+// Export and deletion need a code from the last few minutes; the admin area then shows the code
+// field above this page, and this message says why nothing happened.
+function recentCheckError(fallback: string) {
+  return (err: unknown) =>
+    err instanceof ApiError && err.message === RECENT_MFA_REQUIRED
+      ? 'Bitte oben den aktuellen Code bestätigen und dann erneut versuchen.'
+      : fallback
 }
 
 const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
@@ -80,7 +89,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     return exportAction.run(async () => {
       const data = await apiClient.get<AdminUserExport>(`/admin/users/${user.id}/export`)
       downloadJson(data, `sks-lotse-export-${user.id}.json`)
-    }, 'Der Export konnte nicht erstellt werden.')
+    }, recentCheckError('Der Export konnte nicht erstellt werden.'))
   }
 
   function handleToggle(field: 'ads_removed', errorMessage: string) {
@@ -139,7 +148,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     return deleteAction.run(async () => {
       await apiClient.delete(`/admin/users/${user.id}`)
       navigate('/admin/users', { state: { deleted: user.email } })
-    }, 'Der Account konnte nicht gelöscht werden.')
+    }, recentCheckError('Der Account konnte nicht gelöscht werden.'))
   }
 
   const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()

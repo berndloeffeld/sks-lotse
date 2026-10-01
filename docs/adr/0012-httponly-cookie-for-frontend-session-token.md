@@ -1,6 +1,6 @@
 # 0012. httpOnly cookie for the frontend's session token, not localStorage
 
-Status: Accepted
+Status: Accepted; the addendum of 2026-10-01 names the cookie `__Host-access_token` when deployed
 
 ## Context
 
@@ -34,3 +34,11 @@ When the frontend work starts, this implies backend changes not yet made:
 - No CSRF token is introduced. If a future endpoint ever needs to accept cross-site, cookie-authenticated form submissions (not the case for anything currently planned), that assumption would need revisiting.
 - Ties the frontend's deployment to being same-site with the API for the simple `SameSite=Lax` config assumed here. If the frontend ends up on an unrelated origin, this ADR's cookie attributes (`SameSite=None`, revisit CSRF) need updating — not a reason to avoid deciding now, since the alternative (`localStorage`) has the larger, harder-to-bound downside (XSS) regardless of topology.
 - Still doesn't address the underlying 7-day-no-refresh token lifetime ([ADR-0008](0008-token-version-based-logout.md)) — an httpOnly cookie stops the token from being *read* by a script, but a still-valid stolen session (e.g. via a physically compromised device, or a proxy that can see `Set-Cookie`) is out of scope here, same as it already is for ADR-0008.
+
+## Addendum (2026-10-01): `__Host-` cookie name when deployed
+
+The cookie was set host-only on `api.sks-lotse.de`, but nothing stopped a page on the parent domain from setting a second `access_token` with `Domain=sks-lotse.de`. Browsers send both, and Starlette keeps the last one of a name. So whatever runs on `sks-lotse.de` (including the ad script on the public pages, ADR-0027) could plant its own session and log the visitor into an attacker's account (cookie tossing / login CSRF), or shadow the real one.
+
+When deployed (`settings.is_production`) the cookie is now called `__Host-access_token`. Browsers only accept a cookie with that prefix when it is `Secure`, has `Path=/` and has no `Domain`, so no other host can set one for the API. `get_session_claims` reads only that name, never a bare `access_token` as a fallback, which would reopen the hole. Local dev runs on plain `http://`, where a `__Host-` cookie is never stored, so it keeps the bare name. One helper in `app/core/jwt.py` (`session_cookie_name()`, plus `clear_session()` for logout and account deletion) decides it. Clearing repeats `Secure`, because browsers ignore a `__Host-` `Set-Cookie` without it, deletions included.
+
+Consequence: on the deploy that ships it, every browser session ends once (the old cookie is no longer read), and learners log in again. The old cookie stays in the browser, unread, until it expires. The Bearer fallback is unaffected.

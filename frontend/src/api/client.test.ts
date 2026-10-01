@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   ApiError,
   MFA_REQUIRED,
+  RECENT_MFA_REQUIRED,
   apiClient,
   setMaintenanceHandler,
   setMfaRequiredHandler,
@@ -105,14 +106,29 @@ describe('apiClient', () => {
 
     await expect(apiClient.get('/admin/users')).rejects.toMatchObject({ status: 403, message: MFA_REQUIRED })
 
-    expect(mfaHandler).toHaveBeenCalledOnce()
+    expect(mfaHandler).toHaveBeenCalledExactlyOnceWith(MFA_REQUIRED)
     expect(unauthorizedHandler).not.toHaveBeenCalled()
+    setMfaRequiredHandler(null)
+  })
+
+  it('tells the 2FA handler when an export or deletion needs a recent code', async () => {
+    const mfaHandler = vi.fn()
+    setMfaRequiredHandler(mfaHandler)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: RECENT_MFA_REQUIRED }, 403)))
+
+    await expect(apiClient.get('/admin/users/1/export')).rejects.toMatchObject({
+      status: 403,
+      message: RECENT_MFA_REQUIRED,
+    })
+
+    expect(mfaHandler).toHaveBeenCalledExactlyOnceWith(RECENT_MFA_REQUIRED)
     setMfaRequiredHandler(null)
   })
 
   it.each([
     [403, 'Admin access required'],
     [400, MFA_REQUIRED],
+    [400, RECENT_MFA_REQUIRED],
   ])('leaves the 2FA handler alone for a %i with detail %s', async (status, detail) => {
     const mfaHandler = vi.fn()
     setMfaRequiredHandler(mfaHandler)

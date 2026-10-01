@@ -43,7 +43,11 @@ export function setMaintenanceHandler(handler: MaintenanceHandler): void {
 // session's TOTP check is missing or has run out. Deliberately not the unauthorized handler — the
 // session is fine, only the admin area asks for a code again (AdminLayout registers this).
 export const MFA_REQUIRED = 'mfa_required'
-type MfaRequiredHandler = () => void
+// Exporting or deleting an account needs a check from the last few minutes (require_recent_mfa):
+// the admin area stays open, only that action asks for a code again before it is retried.
+export const RECENT_MFA_REQUIRED = 'recent_mfa_required'
+export type MfaRequirement = typeof MFA_REQUIRED | typeof RECENT_MFA_REQUIRED
+type MfaRequiredHandler = (requirement: MfaRequirement) => void
 let mfaRequiredHandler: MfaRequiredHandler | null = null
 
 export function setMfaRequiredHandler(handler: MfaRequiredHandler | null): void {
@@ -74,8 +78,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const body: unknown = await response.json().catch(() => null)
     const detail =
       body && typeof body === 'object' && 'detail' in body ? String((body as { detail: unknown }).detail) : null
-    if (response.status === 403 && detail === MFA_REQUIRED) {
-      mfaRequiredHandler?.()
+    if (response.status === 403 && (detail === MFA_REQUIRED || detail === RECENT_MFA_REQUIRED)) {
+      mfaRequiredHandler?.(detail)
     }
     throw new ApiError(response.status, detail ?? response.statusText)
   }

@@ -112,6 +112,28 @@ describe('LegalFooter', () => {
       expect(screen.queryByRole('button', { name: 'Cookies' })).not.toBeInTheDocument()
     })
 
+    it.each(['/admin', '/admin/users/42'])('is hidden on %s, where no ad script runs', (path) => {
+      vi.stubEnv('VITE_ADSENSE_CLIENT_ID', 'ca-pub-123')
+      render(
+        <MemoryRouter initialEntries={[path]}>
+          <LegalFooter />
+        </MemoryRouter>,
+      )
+
+      expect(screen.queryByRole('button', { name: 'Cookies' })).not.toBeInTheDocument()
+    })
+
+    it('stays on the learner pages', () => {
+      vi.stubEnv('VITE_ADSENSE_CLIENT_ID', 'ca-pub-123')
+      render(
+        <MemoryRouter initialEntries={['/learn']}>
+          <LegalFooter />
+        </MemoryRouter>,
+      )
+
+      expect(screen.getByRole('button', { name: 'Cookies' })).toBeInTheDocument()
+    })
+
     it('re-opens the consent dialog when ads are configured', async () => {
       vi.stubEnv('VITE_ADSENSE_CLIENT_ID', 'ca-pub-123')
       addAdScript()
