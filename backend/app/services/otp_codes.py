@@ -18,6 +18,7 @@ from app.core.config import settings
 from app.core.otp import generate_code, hash_code, verify_code
 from app.core.timeutil import as_utc
 from app.models import OtpCode
+from app.services import blocklist
 from app.services import email as email_service
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,9 @@ def _cleanup_expired_codes(session_factory: sessionmaker[Session], now: datetime
     stmt = delete(OtpCode).where(OtpCode.expires_at < cutoff).execution_options(synchronize_session=False)
     with session_factory() as db:
         db.execute(stmt)
+        # Same cadence, same session: email blocklist entries past their retention (ADR-0045
+        # addendum 2026-10-01). Login traffic is what drives both, so neither needs its own job.
+        blocklist.purge_expired(db, now)
         db.commit()
 
 

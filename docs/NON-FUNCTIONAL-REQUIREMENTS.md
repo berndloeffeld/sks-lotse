@@ -39,6 +39,7 @@ Derived load (planning figure):
 | | Continuous security scanning |
 | | No merge with a known-vulnerable dependency (pip-audit, npm audit high+) |
 | Privacy | Deletion and export of personal data |
+| | A retention limit for personal data that outlives the account (blocked addresses: 24 months) |
 | | EU hosting; Anthropic (US) under a data processing agreement |
 | Availability | Readiness check; traffic only to a deploy that passes it |
 | | Monitoring and status page (partly: no target) |

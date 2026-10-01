@@ -32,7 +32,9 @@ class Purchase(Base):
     # NULL once anonymized (see class docstring) — never re-populated afterwards.
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     # "ads_removed" | "tokens_s" | "tokens_m" | "tokens_l" | "tokens_xl" | "signup_bonus" | "admin_grant"
+    # | "admin_debit"
     product: Mapped[str] = mapped_column(String(32), nullable=False)
+    # Negative for "admin_debit" (tokens taken back, services/token_wallet.py::debit).
     tokens_granted: Mapped[int | None] = mapped_column(Integer, nullable=True)
     amount_eur_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # "signup" | "admin_manual" | "stripe"

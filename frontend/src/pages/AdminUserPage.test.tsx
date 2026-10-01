@@ -253,6 +253,54 @@ describe('AdminUserPage', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  it('debits tokens and says how many were actually taken', async () => {
+    const user = userEvent.setup()
+    const bodies: unknown[] = []
+    stubFetch(
+      (url, init) => {
+        if (!(url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH')) return undefined
+        bodies.push(JSON.parse(String(init.body)))
+        // The backend stops at 0: of the 50 asked for, only the 7 left are taken.
+        return jsonResponse({ ...foundUser, token_balance: 0 })
+      },
+      { ...foundUser, token_balance: 7 },
+    )
+    renderUserPage()
+    expect(await screen.findByText('Tokens gutschreiben (aktuell: 7)')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/Tokens abbuchen/), '50')
+    await user.click(screen.getByRole('button', { name: 'Tokens abbuchen' }))
+
+    expect(await screen.findByText('7 Tokens abgebucht.')).toBeInTheDocument()
+    expect(bodies).toEqual([{ debit_tokens: 50 }])
+    expect(screen.getByText('Tokens gutschreiben (aktuell: 0)')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tokens abbuchen/)).toHaveValue(null)
+  })
+
+  it('rejects an invalid debit without calling the backend', async () => {
+    const user = userEvent.setup()
+    const fetchMock = stubFetch()
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+    fetchMock.mockClear()
+
+    await user.click(screen.getByRole('button', { name: 'Tokens abbuchen' }))
+    expect(screen.getByText('Bitte eine ganze Zahl ab 1 eingeben.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('shows an error when the debit fails', async () => {
+    const user = userEvent.setup()
+    stubFetch((_url, init) => (init?.method === 'PATCH' ? new Response(null, { status: 500 }) : undefined))
+    renderUserPage()
+    await screen.findByText('learner@example.com')
+
+    await user.type(screen.getByLabelText(/Tokens abbuchen/), '5')
+    await user.click(screen.getByRole('button', { name: 'Tokens abbuchen' }))
+
+    expect(await screen.findByText('Die Tokens konnten nicht abgebucht werden.')).toBeInTheDocument()
+  })
+
   it('removes and restores ads', async () => {
     const user = userEvent.setup()
     stubFetch(echoPatch)

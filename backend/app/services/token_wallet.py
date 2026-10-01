@@ -1,4 +1,4 @@
-"""Reserving/refunding tokens against a user's balance, and granting new ones (ADR-0043).
+"""Reserving/refunding tokens against a user's balance, granting new ones and taking them back (ADR-0043).
 
 The token balance is the sole spending control for the AI answer check (ADR-0044 dropped the
 separate weekly budget this used to sit alongside) — `app/api/v1/grading.py` reserves one token
@@ -63,3 +63,28 @@ def grant(
     db.add(purchase)
     db.commit()
     return purchase
+
+
+def debit(db: Session, user_id: int, *, tokens: int, admin_user_id: int) -> int:
+    """Take up to `tokens` back from the balance (never below 0) and record it in the ledger.
+
+    Returns how many were actually taken. A refund or chargeback of a package the learner has
+    partly used takes what's left; nothing to take writes no ledger row. The row has no amount
+    (`amount_eur_cents=None`): the money side of a refund is Stripe's record, not ours.
+    """
+    user = locked_user(db, user_id)
+    taken = min(tokens, user.token_balance)
+    if taken:
+        user.token_balance -= taken
+        db.add(
+            Purchase(
+                user_id=user_id,
+                product="admin_debit",
+                tokens_granted=-taken,
+                amount_eur_cents=None,
+                granted_by="admin_manual",
+                admin_user_id=admin_user_id,
+            )
+        )
+    db.commit()
+    return taken

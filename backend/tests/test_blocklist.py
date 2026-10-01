@@ -1,6 +1,9 @@
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from app.main import app
+from app.models.blocked_email import BlockedEmail
 from app.models.user import User
 from app.services import blocklist
 
@@ -99,3 +102,46 @@ def test_unblock_user_is_a_noop_when_not_blocked(db_session):
     db_session.commit()
     blocklist.unblock_user(db_session, user)
     assert blocklist.list_blocks(db_session) == []
+
+
+def _aged(db_session, kind: str, value: str, days: int) -> BlockedEmail:
+    entry = blocklist.add_block(db_session, kind, value, None, "admin@example.com")
+    entry.created_at = datetime.now(UTC) - timedelta(days=days)
+    db_session.commit()
+    return entry
+
+
+def test_an_email_entry_stops_blocking_once_past_its_retention(db_session):
+    _aged(db_session, "email", "old@example.com", blocklist.EMAIL_ENTRY_RETENTION_DAYS + 1)
+    _aged(db_session, "email", "recent@example.com", blocklist.EMAIL_ENTRY_RETENTION_DAYS - 1)
+    blocklist.commit(db_session, app)
+    assert blocklist.is_email_blocked(app, db_session, "old@example.com") is False
+    assert blocklist.is_email_blocked(app, db_session, "recent@example.com") is True
+
+
+def test_a_domain_entry_never_expires(db_session):
+    entry = _aged(db_session, "domain", "spammy.example", blocklist.EMAIL_ENTRY_RETENTION_DAYS * 3)
+    blocklist.commit(db_session, app)
+    assert blocklist.is_email_blocked(app, db_session, "someone@spammy.example") is True
+    assert blocklist.expires_at(entry) is None
+
+
+def test_purge_expired_deletes_only_email_entries_past_retention(db_session):
+    _aged(db_session, "email", "old@example.com", blocklist.EMAIL_ENTRY_RETENTION_DAYS + 1)
+    _aged(db_session, "email", "recent@example.com", blocklist.EMAIL_ENTRY_RETENTION_DAYS - 1)
+    _aged(db_session, "domain", "spammy.example", blocklist.EMAIL_ENTRY_RETENTION_DAYS + 1)
+
+    blocklist.purge_expired(db_session, datetime.now(UTC))
+    db_session.commit()
+
+    remaining = sorted(e.value for e in blocklist.list_blocks(db_session))
+    assert remaining == ["recent@example.com", "spammy.example"]
+
+
+def test_entries_for_skips_expired_and_unrelated_entries(db_session):
+    _aged(db_session, "email", "target@spammy.example", blocklist.EMAIL_ENTRY_RETENTION_DAYS + 1)
+    _aged(db_session, "email", "other@spammy.example", 1)
+    _aged(db_session, "domain", "spammy.example", 1)
+    assert [(e.kind, e.value) for e in blocklist.entries_for(db_session, "Target@Spammy.example")] == [
+        ("domain", "spammy.example")
+    ]

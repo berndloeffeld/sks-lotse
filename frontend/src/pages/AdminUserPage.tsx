@@ -33,7 +33,7 @@ function recentCheckError(fallback: string) {
 const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
 
 // One account in the admin area (/admin/users/:id): view, export or delete it
-// (Art. 15/17/20 DSGVO), remove ads, credit AI-check tokens (ADR-0043).
+// (Art. 15/17/20 DSGVO), remove ads, credit AI-check tokens (ADR-0043) or take them back.
 export function AdminUserPage() {
   const { id } = useParams()
   // An unknown id is a normal answer here (null), not a failed load.
@@ -75,12 +75,15 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   const toggleAction = useAsyncAction()
   const blockAction = useAsyncAction()
   const grantAction = useAsyncAction()
+  const debitAction = useAsyncAction()
   const deleteAction = useAsyncAction()
-  // A toggle and a token grant both PATCH the account; neither starts while the other runs.
-  const isUpdating = toggleAction.isPending || grantAction.isPending
+  // A toggle, a grant and a debit all PATCH the account; none starts while another runs.
+  const isUpdating = toggleAction.isPending || grantAction.isPending || debitAction.isPending
 
   const [grantTokensInput, setGrantTokensInput] = useState('')
   const [grantAmountInput, setGrantAmountInput] = useState('')
+  const [debitTokensInput, setDebitTokensInput] = useState('')
+  const [debited, setDebited] = useState<number | null>(null)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
@@ -141,6 +144,27 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       setGrantTokensInput('')
       setGrantAmountInput('')
     }, 'Die Tokens konnten nicht gutgeschrieben werden.')
+  }
+
+  // Taking tokens back after a refund or chargeback (RUNBOOK → Stripe checkout). The backend never
+  // goes below 0, so what was actually taken is the drop in the balance, which can be less than
+  // what was typed in.
+  async function handleDebitTokens(event: FormEvent) {
+    event.preventDefault()
+    debitAction.setError(null)
+    setDebited(null)
+    const tokens = Number(debitTokensInput)
+    if (debitTokensInput.trim() === '' || !Number.isInteger(tokens) || tokens < 1) {
+      debitAction.setError('Bitte eine ganze Zahl ab 1 eingeben.')
+      return
+    }
+    await debitAction.run(async () => {
+      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { debit_tokens: tokens })
+      onChange(updated)
+      syncIfSelf(updated)
+      setDebited(user.token_balance - updated.token_balance)
+      setDebitTokensInput('')
+    }, 'Die Tokens konnten nicht abgebucht werden.')
   }
 
   function handleDelete(event: FormEvent) {
@@ -250,6 +274,29 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
           className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
         >
           Tokens gutschreiben
+        </button>
+      </form>
+
+      <form className="flex flex-col gap-2" onSubmit={handleDebitTokens}>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="debit-tokens">
+          Tokens abbuchen, z. B. nach Erstattung (höchstens bis 0)
+          <input
+            id="debit-tokens"
+            type="number"
+            min={1}
+            value={debitTokensInput}
+            onChange={(event) => setDebitTokensInput(event.target.value)}
+            className="border border-border bg-surface px-3 py-2 text-ink"
+          />
+        </label>
+        {debitAction.error ? <p className="text-sm text-danger">{debitAction.error}</p> : null}
+        {debited !== null ? <p className="text-sm text-ink-soft">{debited} Tokens abgebucht.</p> : null}
+        <button
+          type="submit"
+          disabled={isUpdating}
+          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+        >
+          Tokens abbuchen
         </button>
       </form>
 

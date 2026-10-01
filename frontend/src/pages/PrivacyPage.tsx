@@ -55,6 +55,21 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
+      <ProseSection title="Sperrung bei Missbrauch">
+        <p>
+          Missbraucht jemand SKS Lotse, etwa durch Spam-Anmeldungen, Angriffe auf die KI-Prüfung oder andere Verstöße
+          gegen unsere AGB, können wir die E-Mail-Adresse oder ihre ganze Domain sperren. Dafür speichern wir die
+          gesperrte Adresse bzw. Domain, einen optionalen Grund, den Zeitpunkt der Sperre und den Administrator, der sie
+          eingetragen hat. Mit einer gesperrten Adresse sind Anmeldung und Registrierung nicht mehr möglich.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Abwehr von Missbrauch und am
+          Schutz des Angebots und seiner Nutzer). Damit die Sperre ihren Zweck erfüllt, bleibt der Eintrag auch nach
+          einer Löschung des Kontos bestehen. Gesperrte E-Mail-Adressen löschen wir automatisch 24 Monate nach der
+          Sperre, oder früher, wenn wir die Sperre aufheben. Gesperrte Domains bleiben gespeichert, bis wir die Sperre
+          aufheben. Ob und warum Ihre Adresse gesperrt ist, teilen wir Ihnen auf Anfrage mit (Art. 15 DSGVO); gegen die
+          Sperre können Sie Widerspruch einlegen (Art. 21 DSGVO).
+        </p>
+      </ProseSection>
+
       <ProseSection title="Lernfortschritt und Profil">
         <p>
           Wir speichern Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete Lernstand),
@@ -223,7 +238,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 30. September 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 1. Oktober 2026</p>
     </PageLayout>
   )
 }

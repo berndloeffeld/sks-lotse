@@ -215,6 +215,32 @@ def test_admin_export_includes_purchase_history(client, db_session, auth_headers
     assert purchase["granted_by"] == "admin_manual"
 
 
+def test_admin_export_includes_the_blocklist_entries_matching_the_account(
+    client, db_session, auth_headers, monkeypatch
+):
+    make_admin(monkeypatch)
+    (user,) = _add_users(db_session, ("target@spammy.example", None, None))
+    client.post(f"/api/v1/admin/users/{user.id}/block", headers=auth_headers)
+    for kind, value in (("domain", "spammy.example"), ("email", "other@spammy.example")):
+        payload = {"kind": kind, "value": value, "reason": "spam"}
+        client.post("/api/v1/admin/blocklist", json=payload, headers=auth_headers)
+
+    export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers).json()
+    entries = export["blocklist_entries"]
+
+    # Its own address and its domain, not another address on the same domain; never the admin's.
+    assert [(e["kind"], e["value"], e["reason"]) for e in entries] == [
+        ("email", "target@spammy.example", None),
+        ("domain", "spammy.example", "spam"),
+    ]
+    assert all("created_by" not in e for e in entries)
+    # SQLite hands created_at back without a zone; compare both as naive UTC.
+    created = datetime.fromisoformat(entries[0]["created_at"]).replace(tzinfo=None)
+    expires = datetime.fromisoformat(entries[0]["expires_at"]).replace(tzinfo=None)
+    assert expires - created == timedelta(days=730)
+    assert entries[1]["expires_at"] is None
+
+
 def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
     make_admin(monkeypatch)
     user = fixture_user(db_session)
@@ -241,6 +267,59 @@ def test_admin_can_grant_tokens(client, db_session, auth_headers, monkeypatch):
     # A second grant adds on top, it doesn't replace the balance.
     response = client.patch(f"/api/v1/admin/users/{user.id}", json={"grant_tokens": 10}, headers=auth_headers)
     assert response.json()["token_balance"] == 60
+
+
+def test_admin_can_debit_tokens_and_it_is_ledgered(client, db_session, auth_headers, monkeypatch):
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
+    user.token_balance = 50
+    db_session.commit()
+
+    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"debit_tokens": 20}, headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["token_balance"] == 30
+
+    purchase = db_session.query(Purchase).filter_by(user_id=user.id, product="admin_debit").one()
+    assert (purchase.tokens_granted, purchase.amount_eur_cents, purchase.granted_by) == (
+        -20,
+        None,
+        "admin_manual",
+    )
+    assert purchase.admin_user_id == user.id
+
+
+def test_admin_debit_never_takes_the_balance_below_zero(client, db_session, auth_headers, monkeypatch):
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
+    user.token_balance = 7
+    db_session.commit()
+
+    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"debit_tokens": 50}, headers=auth_headers)
+    assert response.json()["token_balance"] == 0
+    [purchase] = db_session.query(Purchase).filter_by(user_id=user.id, product="admin_debit").all()
+    # The ledger records what was actually taken, not what was asked for.
+    assert purchase.tokens_granted == -7
+
+    # Nothing left to take: still 200, balance stays 0, no empty ledger row.
+    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"debit_tokens": 5}, headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["token_balance"] == 0
+    assert db_session.query(Purchase).filter_by(user_id=user.id, product="admin_debit").count() == 1
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"debit_tokens": 0},
+        {"debit_tokens": -5},
+        {"debit_tokens": 100_001},
+        {"grant_tokens": 5, "debit_tokens": 5},
+    ],
+)
+def test_admin_debit_rejects_invalid_values(client, db_session, auth_headers, monkeypatch, body):
+    make_admin(monkeypatch)
+    user = fixture_user(db_session)
+    assert client.patch(f"/api/v1/admin/users/{user.id}", json=body, headers=auth_headers).status_code == 422
 
 
 def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_headers, monkeypatch):

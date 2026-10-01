@@ -34,6 +34,22 @@ export interface components {
             /** Created By */
             created_by: string;
         };
+        /** AdminBlocklistEntryExport */
+        AdminBlocklistEntryExport: {
+            /** Kind */
+            kind: string;
+            /** Value */
+            value: string;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expires At */
+            expires_at: string | null;
+        };
         /** AdminChartAttemptExport */
         AdminChartAttemptExport: {
             /** Attempt Id */
@@ -287,6 +303,8 @@ export interface components {
             chart_attempts: components["schemas"]["AdminChartAttemptExport"][];
             /** Purchases */
             purchases: components["schemas"]["AdminPurchaseExport"][];
+            /** Blocklist Entries */
+            blocklist_entries: components["schemas"]["AdminBlocklistEntryExport"][];
             /**
              * Exported At
              * Format: date-time
@@ -376,6 +394,8 @@ export interface components {
             grant_tokens?: number | null;
             /** Grant Amount Eur Cents */
             grant_amount_eur_cents?: number | null;
+            /** Debit Tokens */
+            debit_tokens?: number | null;
         };
         /** AiGradeRead */
         AiGradeRead: {
