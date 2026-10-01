@@ -42,7 +42,14 @@ case "${1:-run}" in
   run) rm -rf mutants; "$MUTMUT" run; "$MUTMUT" results | grep -v ': killed' || true ;;
   gate)
     rm -rf mutants
-    "$MUTMUT" run > /dev/null
+    # Quiet on success, but a run that aborts (e.g. a test failing in mutants/ before any mutant ran)
+    # must show why — otherwise the job just exits 1 without a word.
+    log="$(mktemp)"
+    if ! "$MUTMUT" run > "$log" 2>&1; then
+      tail -n 60 "$log" >&2
+      echo "mutmut run failed before scoring (output above)." >&2
+      exit 1
+    fi
     "$MUTMUT" results | grep -v ': killed' || true
     # killed / all mutants; a timeout counts as killed (the tests hung on it).
     read -r total killed < <("$MUTMUT" results --all true | awk '{n++} /: (killed|timeout)/{k++} END{print n+0, k+0}')
