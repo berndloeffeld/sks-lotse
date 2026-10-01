@@ -34,6 +34,7 @@ async function renderAt(
           <Route path="/login" element={<p>Login page</p>} />
           <Route path="/learn" element={<p>Learn page</p>} />
           <Route path="/admin" element={<p>Admin page</p>} />
+          <Route path="/pricing" element={<p>Pricing page</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -116,6 +117,24 @@ describe('AdScriptGate', () => {
     await vi.waitFor(() => expect(reload).toHaveBeenCalledWith(window.location.href))
     expect(screen.queryByText('Admin page')).not.toBeInTheDocument()
     expect(window.sessionStorage.getItem(RELOAD_KEY)).toBe('1')
+  })
+
+  it('leaves a document with the script before rendering the pricing page, logged out too', async () => {
+    // Arriving from a public page served with the tag, e.g. /faq → /pricing in the header nav.
+    const { store, reload } = await renderAt('/pricing', { staticTag: true })
+    store.setState({ isLoading: false, isAuthenticated: false, user: null })
+
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledWith(window.location.href))
+    expect(screen.queryByText('Pricing page')).not.toBeInTheDocument()
+  })
+
+  it('never loads the script on the pricing page', async () => {
+    const { store, reload } = await renderAt('/pricing')
+    signedIn(false, store)
+
+    await screen.findByText('Pricing page')
+    expect(adScripts()).toHaveLength(0)
+    expect(reload).not.toHaveBeenCalled()
   })
 
   it('leaves a document with the script when the account removed ads', async () => {

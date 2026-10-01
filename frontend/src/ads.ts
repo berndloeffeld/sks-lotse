@@ -33,9 +33,10 @@ export function useShowAds() {
 }
 
 // Whether a page of the app should run Google's script. Not on the admin tools: the script runs
-// as same-origin JavaScript, and an operator session there can export and delete accounts.
+// as same-origin JavaScript, and an operator session there can export and delete accounts. Not on
+// /pricing either, where the purchase starts — no third-party script next to the checkout.
 export function wantsAdScript(showAds: boolean, pathname: string) {
-  return showAds && !/^\/admin(\/|$)/.test(pathname)
+  return showAds && !/^\/(admin|pricing)(\/|$)/.test(pathname)
 }
 
 const ADSENSE_SCRIPT_SELECTOR = 'script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]'
