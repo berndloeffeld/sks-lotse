@@ -1,6 +1,6 @@
 # 53. Kartenaufgaben: official solutions transcribed as text, sheets added as they are reviewed
 
-Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md)
+Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md).
 
 ## Context
 
