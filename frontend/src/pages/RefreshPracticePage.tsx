@@ -56,6 +56,7 @@ export function RefreshPracticePage() {
       title="Auffrischen"
       subtitle="Sicher gelernte Fragen, die möglicherweise verblasst sind oder bald verblassen könnten"
       compact
+      immersive
     >
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>

@@ -34,15 +34,15 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveClass('border-transparent')
   })
 
-  it('leaves the content links (Prüfungsablauf, Preise, FAQ) to the header', () => {
+  it('carries Prüfungsablauf and FAQ, but leaves Preise to the header', () => {
     render(
       <MemoryRouter>
         <LegalFooter />
       </MemoryRouter>,
     )
 
-    expect(screen.queryByRole('link', { name: 'FAQ' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Prüfungsablauf' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
+    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     expect(screen.queryByRole('link', { name: 'Preise' })).not.toBeInTheDocument()
   })
 

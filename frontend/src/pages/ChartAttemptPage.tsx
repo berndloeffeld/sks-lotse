@@ -17,7 +17,12 @@ export function ChartAttemptPage() {
   const tideForm = useTideForm(id ?? '')
 
   return (
-    <PageLayout title={attempt ? `Kartenaufgabe ${attempt.exercise_number}` : 'Kartenaufgabe'} width="lg" compact>
+    <PageLayout
+      title={attempt ? `Kartenaufgabe ${attempt.exercise_number}` : 'Kartenaufgabe'}
+      width="lg"
+      compact
+      immersive
+    >
       {isLoading ? <p className="text-ink-soft">Kartenaufgabe wird geladen…</p> : null}
       {error ? (
         <p role="alert" className="text-danger">

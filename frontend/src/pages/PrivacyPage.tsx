@@ -84,12 +84,12 @@ export function PrivacyPage() {
           statt.
         </p>
         <p>
-          Wenn Sie die Prüfungssimulation nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen,
-          die von Ihnen eingegebenen Antworttexte, Ihre Selbsteinschätzung je Frage, Start-, Abgabe- und
-          Bewertungszeitpunkt sowie die daraus berechnete Punktzahl. Daraus erstellen wir die Statistik in Ihrem Profil.
-          Rechtsgrundlage ist ebenfalls Art. 6 Abs. 1 lit. b DSGVO. Diese Daten werden gespeichert, solange Ihr Konto
-          besteht; einzelne Prüfungen können Sie jederzeit selbst löschen, mit dem Konto werden alle Prüfungen gelöscht.
-          Bitte geben Sie in Ihren Antworten keine personenbezogenen Daten ein.
+          Wenn Sie die Probeprüfung nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen, die
+          von Ihnen eingegebenen Antworttexte, Ihre Selbsteinschätzung je Frage, Start-, Abgabe- und Bewertungszeitpunkt
+          sowie die daraus berechnete Punktzahl. Daraus erstellen wir die Statistik in Ihrem Profil. Rechtsgrundlage ist
+          ebenfalls Art. 6 Abs. 1 lit. b DSGVO. Diese Daten werden gespeichert, solange Ihr Konto besteht; einzelne
+          Prüfungen können Sie jederzeit selbst löschen, mit dem Konto werden alle Prüfungen gelöscht. Bitte geben Sie
+          in Ihren Antworten keine personenbezogenen Daten ein.
         </p>
         <p>
           Wenn Sie eine Kartenaufgabe bearbeiten, speichern wir zu jedem Durchgang die Nummer der Kartenaufgabe, Start-

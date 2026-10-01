@@ -64,7 +64,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
   },
   {
     id: 'pruefungssimulation',
-    question: 'Was ist die Prüfungssimulation?',
+    question: 'Was ist die Probeprüfung?',
     answer:
       'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Fragen, die du im Examen richtig beantwortet hast, zählen für deinen Lernstand wie Praxis-Fragen – das macht das Examen zu einem echten Test deines aktuellen Wissensstands. Die praktische Kartenaufgabe wird nicht simuliert.',
   },

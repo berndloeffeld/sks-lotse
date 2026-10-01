@@ -21,13 +21,14 @@ function renderMenu(user = makeUser()) {
         <Route path="/learn" element={<p>Learn page</p>} />
         <Route path="/exam" element={<p>Exam page</p>} />
         <Route path="/profile" element={<p>Profile page</p>} />
+        <Route path="/pricing" element={<p>Pricing page</p>} />
       </Routes>
     </MemoryRouter>,
   )
 }
 
 function menuButton() {
-  return screen.getByRole('button', { name: 'Menü' })
+  return screen.getByRole('button', { name: 'Konto' })
 }
 
 describe('AccountMenu', () => {
@@ -38,21 +39,25 @@ describe('AccountMenu', () => {
   it('starts closed and opens on click', async () => {
     renderMenu()
     expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByRole('link', { name: 'Profil' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Lernstand' })).not.toBeInTheDocument()
 
     await userEvent.click(menuButton())
 
     expect(menuButton()).toHaveAttribute('aria-expanded', 'true')
     expect(menuButton()).toHaveAttribute('aria-controls', 'account-menu')
     expect(document.getElementById('account-menu')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/profile')
-    expect(screen.getByRole('link', { name: 'Shop' })).toHaveAttribute('href', '/pricing')
-    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
-    expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
-    expect(screen.getByRole('link', { name: 'Feedback' })).toHaveAttribute(
-      'href',
-      expect.stringMatching(/^mailto:kontakt@sks-lotse\.de/),
-    )
+    expect(document.getElementById('account-menu')).toHaveClass('top-full')
+    expect(screen.getByRole('link', { name: 'Lernstand' })).toHaveAttribute('href', '/profile')
+    expect(screen.getByRole('link', { name: 'Kontoeinstellungen' })).toHaveAttribute('href', '/profile/account')
+    expect(screen.getByRole('link', { name: 'Tokens kaufen' })).toHaveAttribute('href', '/pricing')
+  })
+
+  it('holds only the account, not the content pages (they are in the footer)', async () => {
+    renderMenu()
+    await userEvent.click(menuButton())
+    for (const name of ['FAQ', 'Prüfungsablauf', 'Feedback', 'Shop']) {
+      expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
+    }
   })
 
   it('says who is signed in', async () => {
@@ -83,7 +88,7 @@ describe('AccountMenu', () => {
   it('closes on Escape and hands focus back to the button', async () => {
     renderMenu()
     await userEvent.click(menuButton())
-    screen.getByRole('link', { name: 'FAQ' }).focus()
+    screen.getByRole('link', { name: 'Lernstand' }).focus()
 
     await userEvent.keyboard('{Escape}')
 
@@ -112,12 +117,13 @@ describe('AccountMenu', () => {
   it('closes when an entry is chosen, and on any route change', async () => {
     renderMenu()
     await userEvent.click(menuButton())
-    await userEvent.click(screen.getByRole('link', { name: 'Profil' }))
+    await userEvent.click(screen.getByRole('link', { name: 'Lernstand' }))
     expect(await screen.findByText('Profile page')).toBeInTheDocument()
     expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
 
     await userEvent.click(menuButton())
-    await userEvent.click(screen.getByRole('link', { name: 'Feedback' }))
+    await userEvent.click(screen.getByRole('link', { name: 'Tokens kaufen' }))
+    expect(await screen.findByText('Pricing page')).toBeInTheDocument()
     expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
   })
 

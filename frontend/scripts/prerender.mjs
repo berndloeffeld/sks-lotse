@@ -46,7 +46,7 @@ const PAGES = {
     meta: {
       title: 'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
       description:
-        'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Prüfungssimulation der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
+        'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
       canonical: 'https://sks-lotse.de/faq',
     },
   },

@@ -27,7 +27,8 @@
     "src/faq.ts",
     "src/share.ts",
     "src/legal.ts",
-    "src/chartPoints.ts"
+    "src/chartPoints.ts",
+    "src/navigation.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

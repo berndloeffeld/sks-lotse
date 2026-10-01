@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
+import { learnModes } from '../navigation'
 import { LearnModeTabs, RefreshPanel } from './LearnModes'
 
 describe('LearnModeTabs', () => {
@@ -32,6 +33,23 @@ describe('LearnModeTabs', () => {
 
     await user.keyboard('a')
     expect(onChange).toHaveBeenCalledTimes(2)
+  })
+  it('adds the Probeprüfung as a fourth tab when asked to, and wraps over it', async () => {
+    const onChange = vi.fn()
+    render(<LearnModeTabs active="exam" onChange={onChange} modes={learnModes(true)} />)
+    const user = userEvent.setup()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+      'Nach Thema',
+      'Fokus',
+      'Auffrischen',
+      'Probeprüfung',
+    ])
+    expect(screen.getByRole('tab', { name: 'Probeprüfung' })).toHaveAttribute('aria-selected', 'true')
+
+    screen.getByRole('tab', { name: 'Probeprüfung' }).focus()
+    await user.keyboard('{ArrowRight}')
+    expect(onChange).toHaveBeenLastCalledWith('topic')
   })
 })
 

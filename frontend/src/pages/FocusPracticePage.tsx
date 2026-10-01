@@ -47,7 +47,12 @@ export function FocusPracticePage() {
   )
 
   return (
-    <PageLayout title="Fokus-Lernen" subtitle="Alle Fokus-Themen, die älteste richtige Antwort zuerst" compact>
+    <PageLayout
+      title="Fokus-Lernen"
+      subtitle="Alle Fokus-Themen, die älteste richtige Antwort zuerst"
+      compact
+      immersive
+    >
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : failed || !data ? (

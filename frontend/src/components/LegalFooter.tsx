@@ -11,7 +11,9 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
   return isActive ? 'border-b-2 border-surface pb-1 text-surface' : FOOTER_LINK
 }
 
-// Impressum must be reachable from every page (§5 DDG) — the landing page
+// The content pages (Prüfungsablauf, FAQ), the contact (also the way to send feedback) and the
+// legal links. Impressum must be
+// reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
@@ -31,6 +33,12 @@ export function LegalFooter() {
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
+          <NavLink to="/exam-process" className={footerLinkClass}>
+            Prüfungsablauf
+          </NavLink>
+          <NavLink to="/faq" className={footerLinkClass}>
+            FAQ
+          </NavLink>
           <NavLink to="/imprint" className={footerLinkClass}>
             Impressum
           </NavLink>
