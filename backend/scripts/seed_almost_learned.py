@@ -16,6 +16,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.core.database import get_session_factory
 from app.core.email_address import canonicalize_email
 from app.models import Question, QuestionProgress, User
@@ -31,6 +32,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--subject", default="wetterkunde")
     parser.add_argument("--number", type=int, default=11)
     args = parser.parse_args(argv)
+    if settings.is_production:
+        # Rewrites a real learner's progress — a QA shortcut that must never touch production data.
+        print("Refusing to run against production (ENVIRONMENT=production or on Render).")
+        return 1
     email = canonicalize_email(args.email)
 
     with get_session_factory()() as db:

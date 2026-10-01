@@ -67,7 +67,7 @@ Internal module structure of each app — what talks to what inside the codebase
 
 ```mermaid
 graph TD
-    MW["middleware (in order)<br/>Request ID → CORS → Security headers →<br/>Rate limit → Maintenance mode → Redirect domains"]
+    MW["middleware (in order)<br/>Request ID → CORS → Security headers →<br/>Maintenance mode → Rate limit → Redirect domains"]
     Routers["api/v1/ routers<br/>auth · questions · progress · grading ·<br/>pricing · exams · admin · admin_mfa · payments"]
     Schemas["schemas/<br/>Pydantic request/response contracts"]
     Core["core/<br/>config · JWT/OTP · cache · middleware"]

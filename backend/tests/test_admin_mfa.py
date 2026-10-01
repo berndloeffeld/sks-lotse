@@ -148,6 +148,21 @@ def test_a_code_cannot_be_used_twice(client, db_session, admin, no_mfa):
     assert client.post(_VERIFY, headers=no_mfa, json={"code": code}).status_code == 400
 
 
+def test_a_time_step_a_parallel_request_already_accepted_is_refused(db_session, admin):
+    # The caller's copy of the row predates the other request's commit; confirm_code must decide on
+    # the locked, freshly read row, not on that stale totp_last_counter.
+    secret = _enrolled_secret(db_session, admin)
+    now = datetime.now(UTC)
+    code = pyotp.TOTP(secret).now()
+    other_request = sessionmaker(bind=db_session.get_bind())()
+    other_admin = other_request.get(User, admin.id)
+    assert admin_mfa.confirm_code(other_request, other_admin, code, now)
+    other_request.close()
+
+    assert admin.totp_last_counter is None  # stale
+    assert not admin_mfa.confirm_code(db_session, admin, code, now)
+
+
 def test_a_wrong_code_is_a_400_not_a_logout(client, db_session, admin, no_mfa):
     secret = _enrolled_secret(db_session, admin)
     wrong = f"{(int(pyotp.TOTP(secret).now()) + 1) % 1_000_000:06d}"

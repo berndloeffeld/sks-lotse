@@ -65,7 +65,7 @@ Learners can have their own answer checked by the "Lotse". An AI (Claude by Anth
 
 - Costs **1 token** per check. New accounts get a starting balance; more tokens are available in packages.
 - Only the question, the model answer and the learner's answer (at most 1,000 characters) are sent, nothing personal. Processing happens at Anthropic in the USA, under a data processing agreement.
-- Abuse protection: at most 2 checks per question and day, an hourly limit, protection against injected instructions. If a check fails technically, the token is refunded.
+- Abuse protection: at most 2 checks per question and day, an hourly limit, protection against injected instructions. If a check fails technically, the token is refunded; a check turned away by the hourly limit or for lack of tokens doesn't count towards the per-question limit.
 - If the AI is unavailable, learning continues as normal; only the check is missing.
 
 ## Buying and prices
