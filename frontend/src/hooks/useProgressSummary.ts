@@ -70,9 +70,10 @@ export function useProgressSummary() {
       progress.reduce(
         (acc, topic) => ({
           learned: acc.learned + topic.learned_questions,
+          learning: acc.learning + topic.learning_questions,
           total: acc.total + topic.total_questions,
         }),
-        { learned: 0, total: 0 },
+        { learned: 0, learning: 0, total: 0 },
       ),
     [progress],
   )

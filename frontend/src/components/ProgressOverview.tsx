@@ -6,7 +6,7 @@ import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'
 
 interface ProgressOverviewProps {
-  totals: { learned: number; total: number }
+  totals: { learned: number; learning: number; total: number }
   categories: ProgressSlice[]
 }
 
@@ -17,17 +17,20 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
   const user = useAuthStore((state) => state.user)
   const { changeVariant, isSaving, error } = useExamVariantUpdate()
   const percent = percentOf(totals.learned, totals.total)
+  const learningPercent = percentOf(totals.learning, totals.total)
 
   return (
     <Columns>
       <div className="flex flex-col gap-4">
         <h2 className="font-serif text-2xl text-primary">Gesamtfortschritt</h2>
         <p className="font-serif text-5xl text-ink">{percent}%</p>
-        <div className="h-1.5 w-full bg-surface-alt">
+        <div className="flex h-1.5 w-full bg-surface-alt">
           <div className="h-full bg-success" style={{ width: `${percent}%` }} />
+          <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
         </div>
         <p className="font-mono text-xs text-ink-soft">
           {totals.learned} von {totals.total} Fragen gelernt
+          {totals.learning > 0 ? ` · ${totals.learning} teilweise` : ''}
         </p>
       </div>
       <div className="flex flex-col gap-4">

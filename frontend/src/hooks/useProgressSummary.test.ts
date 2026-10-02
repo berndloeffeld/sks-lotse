@@ -76,7 +76,7 @@ describe('useProgressSummary', () => {
 
   it('sums the overall totals', async () => {
     const { result } = await load()
-    expect(result.current.totals).toEqual({ learned: 10, total: 32 })
+    expect(result.current.totals).toEqual({ learned: 10, learning: 9, total: 32 })
   })
 
   it('groups topics by subject in the delivered order', async () => {
