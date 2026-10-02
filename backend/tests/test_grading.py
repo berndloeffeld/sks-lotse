@@ -497,3 +497,11 @@ def test_client_is_built_once_and_then_reused(monkeypatch):
     monkeypatch.setattr(grader, "_shared_client", None)
     monkeypatch.setattr(settings, "anthropic_grading_api_key", "test-key")
     assert grader._client() is grader._client()
+
+
+def test_prompts_forbid_quotation_marks_in_feedback():
+    # A closing ASCII quote would end the JSON string and cut the feedback off mid-sentence.
+    from app.services import chart_grader
+
+    assert "keine Anführungszeichen" in grader.SYSTEM_PROMPT
+    assert "keine Anführungszeichen" in chart_grader.SYSTEM_PROMPT
