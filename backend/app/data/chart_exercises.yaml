@@ -1477,3 +1477,546 @@ sheets:
     - results:
       - text: TS = 2,2 m
         tolerance: Keine Toleranz
+- number: 4
+  tasks:
+  - number: 1
+    points: 2
+    text: Auf dem Weg zum „Wurster Watt“ (ca. 53°43‘N 008°28‘E) verlässt man am 31.08.2013 mit einer Yacht um 07:50
+      Uhr Bordzeit bei leichtem Südwind den Yachthafen von Horumersiel (ca. 53°41‘N 008°01‘E) in Richtung des Fahrwassers
+      der Jade, das man zunächst befahren will. Bordzeit (BZ) ist gesetzliche Zeit (GZ). Man läuft wegen des gegenan
+      setzenden Stromes zunächst mit FüG = 2,5 kn. Dabei hält man sich deutlich außerhalb des Fahrwassers und lässt
+      die Steuerbordfahrwassertonnen an der Steuerbordseite.
+    questions:
+    - points: 2
+      text: Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie nach zwei Stunden um 09:50 BZ nach
+        Gezeitenstromatlas?
+    derivation:
+    - text: 'HWZ Helgoland 31.08.2013: 07:05 MEZ **= 08:05 MESZ/BZ**'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: '**09:50 BZ = 1 h 45 min nach HWZ Helgoland ≈ 2 h nach HWZ Helgoland**'
+    - text: Etwas nördlich Tonne „23/B 20“ (ca. 53°45‘N 008°02,5‘E)
+    - text: 'Die Position ergibt sich durch Koppeln: In zwei Stunden kommt die Yacht mit FüG = 2,5 kn rund 5 sm
+        weit, außerhalb des Fahrwassers an den Steuerbordtonnen der Jade entlang nach Norden. Im Gezeitenstromatlas
+        schlägt man die Karte „2 Stunden nach Hochwasser Helgoland“ auf. An dieser Position liest man Richtung und
+        Stärke des Stroms ab, für Nippzeit.'
+    solution:
+    - results:
+      - text: StR = 345°
+        tolerance: ± 10°
+      - text: StG = 0,6 kn
+        tolerance: ± 0,1 kn
+  - number: 2
+    points: 1
+    text: Bei der Tonne „19“ quert man das Fahrwasser und erreicht um 10:05 BZ die Tonne „20“. Man läuft von dort
+      in NW-liche Richtung und will um 11:00 BZ am Wegpunkt 1 (WPT 1) auf φ = 53°50,2‘N, λ = 007°56,9‘E stehen.
+      Diese Position wird um 11:00 Uhr durch GPS-Ablesung bestätigt.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Distanz (d) von Tonne „20“ zum WPT 1.
+    solution:
+    - results:
+      - text: d = 4,3 sm
+        tolerance: ± 0,1 sm
+  - number: 3
+    points: 2
+    text: Man plant, weiter seewärts zu fahren, dann beim Mittagsniedrigwasser des in der Nähe befindlichen Anschlussortes
+      „Wangerooge West“ umzukehren und Kurs auf das „Wurster Watt“ zu nehmen.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Mittags-Niedrigwasserzeit (NWZ) für „Wangerooge West“.
+    - points: 1
+      text: Bestimmen Sie den Tidenstieg (TS) zum Abend-Hochwasser für „Wangerooge West“.
+    derivation:
+    - text: 'Alter der Gezeit am 31.08.2013: **Nippzeit (NpZ)**'
+    - text: 'Wangerooge West ist ein Anschlussort von Norderney: Zeit und Höhe von Norderney plus die Unterschiede
+        ZUG/HUG. Das Mittagsniedrigwasser ist das 2. NW des Tages.'
+    - table:
+      - cells:
+        - 2. NW Norderney
+        - 31.08.2013
+        - 13:01 MEZ
+        - 1,0 m
+      - cells:
+        - ZUG / HUG
+        - ''
+        - +00:36
+        - +0,2 m
+      - cells:
+        - '**2. NW Wangerooge West**'
+        - 31.08.2013
+        - '**13:37 MEZ**'
+        - '**1,2 m**'
+        sum: true
+    - text: 'Die Gezeitentafel ist in MEZ angegeben. Am 31.08.2013 gilt MESZ, also +1 h: 13:37 MEZ = **14:37 MESZ/BZ**.'
+    - text: Der Tidenstieg ist der Höhenunterschied vom vorangehenden Niedrigwasser zum Hochwasser. Auf das 2. NW
+        folgt das Abend-Hochwasser, das 2. HW.
+    - table:
+      - cells:
+        - 2. HW Norderney
+        - 31.08.2013
+        - 2,7 m
+      - cells:
+        - HUG
+        - ''
+        - +0,5 m
+      - cells:
+        - '**2. HW Wangerooge West**'
+        - 31.08.2013
+        - '**3,2 m**'
+        sum: true
+    - text: TS = HWH − NWH = 3,2 m − 1,2 m = **2,0 m**
+    solution:
+    - results:
+      - text: NWZ = 14:37 MESZ/BZ
+        tolerance: Keine Toleranz
+    - results:
+      - text: TS = 2,0 m
+        tolerance: Keine Toleranz
+  - number: 4
+    points: 3
+    text: 'Für die Zeit bis zum Niedrigwasser steuert man ab 11:00 BZ KaK = 300° und koppelt mit FdW = 4,0 kn. Man
+      geht von folgendem Strom aus: StR = 282° und StG = 1,1 kn. Bei unverändertem Südwind schätzt man den Windeinfluss
+      auf |BW| = 3°.'
+    questions:
+    - points: 1
+      text: 'Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit
+        Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten.'
+    - points: 1
+      text: Bestimmen Sie den Magnetkompasskurs (MgK).
+    - points: 1
+      text: Bestimmen Sie die Fahrt über Grund (FüG).
+    derivation:
+    - text: 'So entsteht das Stromdreieck: Vom Startpunkt den Stromvektor zeichnen (282°, 1,1 cm). Um seine Spitze
+        einen Kreis mit dem Radius FdW = 4,0 cm schlagen. Wo der Kreis die KüG-Linie (300°) schneidet, endet der
+        KdW-Vektor. Abgelesen werden KdW = 305° und FüG = 5,0 kn.'
+    - text: 'Gerechnet wird wieder von unten nach oben: Der KüG = 300° ist vorgegeben (der gesteuerte KaK), über
+        BS, BW, Mw und Abl ergibt sich der MgK.'
+    - text: 'BS kommt aus dem Stromdreieck: BS = KüG − KdW = 300° − 305° = −5° [± 1°, zeichnerische Toleranz].'
+    - text: 'BW ist positiv, weil der Wind aus S (ca. 180°) bei einem Kurs von etwa 305° von Backbord einfällt:
+        Die Yacht wird nach Steuerbord versetzt. Bei einem Versatz nach Steuerbord durch Wind ist der Wert immer
+        positiv zu rechnen.'
+    - table:
+      - cells:
+        - '**MgK**'
+        - '='
+        - '**312°**'
+      - cells:
+        - Abl
+        - '='
+        - −11°
+      - cells:
+        - mwK
+        - '='
+        - 301°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+      - cells:
+        - rwK
+        - '='
+        - 302°
+        sum: true
+      - cells:
+        - BW
+        - '='
+        - +3°
+      - cells:
+        - KdW
+        - '='
+        - 305°
+        sum: true
+      - cells:
+        - BS
+        - '='
+        - −5°
+      - cells:
+        - KüG
+        - '='
+        - 300°
+        sum: true
+    solution:
+    - results:
+      - text: Stromdreieck
+      image:
+        src: bogen-04/aufgabe-04-stromdreieck.png
+        width: 632
+        height: 557
+    - results:
+      - text: MgK = 312°
+        tolerance: ± 1°
+    - results:
+      - text: FüG = 5,0 kn
+        tolerance: ± 0,1 kn
+  - number: 5
+    points: 2
+    text: Die Bordinstrumente zeigen eine andere Fahrt über Grund an. Daher koppelt man vom WPT 1, dem beobachteten
+      Ort (O_b) um 11:00 BZ mit FüG = 4,5 kn.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den Koppelort (O_k) für 12:15 BZ.
+    derivation:
+    - text: 'Koppelzeit von 11:00 BZ bis 12:15 BZ: 1 h 15 min = **75 min**'
+    - text: d (Distanz) = FüG (Geschwindigkeit) · t (Zeit) → 4,5 kn · 75 min / 60 min = **5,6 sm**
+    - text: 'Vom WPT 1 aus 5,6 sm auf KüG = 300° (aus Aufgabe 4) abtragen: Der Endpunkt ist der Koppelort.'
+    solution:
+    - results:
+      - text: 'O_k 12:15 BZ: φ = 53°53,0′ N, λ = 007°48,7′ E'
+        tolerance: ± 0,2′
+  - number: 6
+    points: 1
+    text: Um 12:15 BZ peilt man mit dem Radar (Head-Up-Darstellung) die Tonne „3/Jade 2“ des Fahrwassers „Neue Weser“
+      in Radar-Seitenpeilung (RaSP) = 332°. Bei der Peilung liegt MgK = 275° an. Nahezu zeitgleich peilt man den
+      Leuchtturm „Alte Weser“ über den Steuerkompass in der Magnetkompasspeilung MgP = 104°, anliegender MgK = 281°.
+    questions:
+    - points: 1
+      text: Bestimmen Sie die rechtweisenden Peilungen (rwP).
+    derivation:
+    - text: 'Bei „Head Up“ ist die Radar-Seitenpeilung auf den Bug bezogen: RaSP + MgK = MgP (332° + 275° = 607°
+        − 360° = 247°).'
+    - text: Die Ablenkung hängt vom anliegenden Kurs ab, nicht von der Peilung. Sie wird deshalb in der Steuertafel
+        für MgK = 275° (−6°) bzw. MgK = 281° (−7°) abgelesen.
+    - table:
+      - cells:
+        - ''
+        - ''
+        - '**Tn. 3/Jade 2**'
+        - '**Lt. Alte Weser**'
+      - cells:
+        - RaSP
+        - '='
+        - 332°
+        - ''
+      - cells:
+        - MgK
+        - '='
+        - 275°
+        - ''
+      - cells:
+        - MgP
+        - '='
+        - 247°
+        - 104°
+        sum: true
+        sum_until: 3
+      - cells:
+        - Abl
+        - '='
+        - −6°
+        - −7°
+      - cells:
+        - mwP
+        - '='
+        - 241°
+        - 097°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+        - +1°
+      - cells:
+        - '**rwP**'
+        - '='
+        - '**242°**'
+        - '**098°**'
+        sum: true
+    solution:
+    - results:
+      - text: rwP Tonne „3/Jade 2“ = 242°
+        tolerance: Keine Toleranz
+      - text: rwP Leuchtturm „Alte Weser“ = 098°
+        tolerance: Keine Toleranz
+  - number: 7
+    points: 3
+    text: ''
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 12:15 BZ.
+    - points: 1
+      text: Bestimmen Sie die Besteckversetzung (BV).
+    derivation:
+    - text: 'O_b: Die Gegenpeilungen aus Aufgabe 6 einzeichnen, von der Tonne „3/Jade 2“ 062° (242° − 180°) und
+        vom Leuchtturm „Alte Weser“ 278° (098° + 180°). Der Schnittpunkt ist der beobachtete Ort.'
+    - text: 'BV: Die Besteckversetzung ist der Weg vom Koppelort (O_k aus Aufgabe 5) zum beobachteten Ort (O_b).
+        Richtung und Länge dieser Strecke in der Karte abgreifen.'
+    solution:
+    - results:
+      - text: 'O_b 12:15 BZ: φ = 53°53,2′ N, λ = 007°50,8′ E'
+        tolerance: ± 0,2′
+    - results:
+      - text: BV = 081° / 1,3 sm
+        tolerance: ± 20° / ± 0,2 sm
+  - number: 8
+    points: 1
+    text: Es werden für den O_b um 12:15 BZ die Stromverhältnisse ermittelt.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation:
+    - text: '**Magentafarbene Raute „G“** der Gezeitenstromangabe'
+    - text: 'HWZ Helgoland 31.08.2013: 07:05 MEZ **= 08:05 MESZ/BZ**'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: '**12:15 BZ = 4 h 10 min nach HWZ Helgoland ≈ 4 h nach HWZ Helgoland**'
+    solution:
+    - results:
+      - text: StR = 282°
+        tolerance: Keine Toleranz
+      - text: StG = 1,0 kn
+        tolerance: Keine Toleranz
+  - number: 9
+    points: 1
+    text: Die Tonne „3/Jade 2“ ist deutlich auf dem Radarschirm zu erkennen.
+    questions:
+    - points: 1
+      text: Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage und
+        weitere Angaben in der Seekarte).
+    derivation:
+    - text: 'Alle Angaben stehen in der Seekarte an der Tonne: „Fl(2+1) G 15s“, die Feuerhöhe, die Nenntragweite
+        und „Racon (T)“.'
+    - text: 'Blitzfeuer mit verschiedenen Gruppen heißt: Erst kommt eine Gruppe aus 2 Blitzen, dann eine aus 1 Blitz.
+        Das Ganze wiederholt sich alle 15 Sekunden.'
+    - text: Eine grüne Tonne mit einem waagerechten roten Band ist ein Abzweigungs- bzw. Einmündungszeichen. Was
+        das für diese Tonne bedeutet, fragt Aufgabe 10.
+    solution:
+    - results:
+      - text: 'Kennung: grünes Blitzfeuer mit verschiedenen Gruppen (2 Blitze, gefolgt von 1 Blitz) bzw. Composite
+          Group Flash (2+1) green'
+      - text: 'Wiederkehr: 15 s'
+      - text: 'Form: Bakentonne'
+      - text: 'Farbe: grün mit waagerechtem roten Band'
+      - text: 'Toppzeichen: grüner Kegel mit Spitze oben'
+      - text: 'Feuerhöhe: 9 m'
+      - text: 'Nenntragweite: 9 sm'
+      - text: 'Weitere Angaben: Radarantwortbake mit Morse-Kennung „T“ (Tango)'
+  - number: 10
+    points: 2
+    text: Die Beschriftung der Tonne „3/Jade 2“ und ihre Farbgebung lassen auf ihre besondere Bedeutung in Bezug
+      auf die Fahrwasser schließen.
+    questions:
+    - points: 2
+      text: Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen? Wie passiert man es?
+    derivation:
+    - text: 'Die Farbe zeigt, welches Fahrwasser das Hauptfahrwasser ist: Die Grundfarbe gilt für das Hauptfahrwasser,
+        das Band für das abzweigende Fahrwasser. Grün mit rotem Band heißt also: Steuerbordseite der „Neuen Weser“
+        und Backbordseite der „Jade“.'
+    - text: 'Die Beschriftung zeigt dasselbe: „3“ ist die dritte Steuerbordtonne der Weser, „Jade 2“ die erste Backbordtonne
+        (gerade Zahl) der Jade.'
+    - text: Der Name „Weser“ entfällt auf dieser Tonne, er steht bei beginnenden Fahrwassern nur auf den Tonnen
+        „1“ und „2“.
+    solution:
+    - results:
+      - text: 'Bedeutung:'
+      - text: Es ist die Tonne „Weser 3“ auf der Steuerbordseite des durchgehenden Fahrwassers „Neue Weser“ (auch
+          Hauptfahrwasser) und Tonne „Jade 2“ (erste Tonne) auf der Backbordseite des abzweigenden/einmündenden
+          Fahrwassers „Jade“ (auch Nebenfahrwasser).
+    - results:
+      - text: 'Passieren:'
+      - text: 'Abhängig vom Ziel: bei Fahrt im Fahrwasser „Neue Weser“, von See kommend in Richtung Bremerhaven,
+          hat man dieses Schifffahrtszeichen an Steuerbord zu halten, beim Einbiegen in das Fahrwasser „Jade“ an
+          Backbord.'
+      - text: Sportfahrzeuge dürfen deutlich erkennbar außerhalb der Fahrwasser fahren.
+  - number: 11
+    points: 1
+    text: Auf dem Weg zum Fahrwasser „Alte Weser“ hält man zunächst auf die Ansteuerungstonne „ST“ zu. Man will
+      dort die Stromverhältnisse für 13:00 BZ ermitteln.
+    questions:
+    - points: 1
+      text: Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?
+    derivation:
+    - text: '**Magentafarbene Raute „F“** der Gezeitenstromangabe'
+    - text: 'HWZ Helgoland 31.08.2013: 07:05 MEZ **= 08:05 MESZ/BZ**'
+    - text: 'Alter der Gezeit: **Nippzeit (NpZ)**'
+    - text: '**13:00 BZ = 4 h 55 min nach HWZ Helgoland ≈ 5 h nach HWZ Helgoland**'
+    solution:
+    - results:
+      - text: StR = 282°
+        tolerance: Keine Toleranz
+      - text: StG = 0,9 kn
+        tolerance: Keine Toleranz
+  - number: 12
+    points: 1
+    text: Man biegt vor Erreichen der Tonne „ST“ in das Fahrwasser „Alte Weser“ ein und erreicht um 12:55 BZ die
+      Tonne „A 1“. In der Seekarte ist an dieser Stelle ein magentafarbenes Symbol, bestehend aus einem Kreis mit
+      einem angesetzten Dreieck in Fahrtrichtung, eingetragen.
+    questions:
+    - points: 1
+      text: Erläutern Sie die Karteneintragung an dieser Stelle.
+    derivation:
+    - text: 'Das Zeichen steht in Karte 1/INT 1: Ein magentafarbener Kreis mit angesetztem Dreieck ist eine Meldestelle.
+        Das Dreieck zeigt, für welche Fahrtrichtung die Meldung gilt. Daneben stehen die Verkehrszentrale und der
+        UKW-Kanal, bei der man sich meldet.'
+    solution:
+    - results:
+      - text: Meldestelle mit Richtungsangabe der Schiffsbewegung mit Bezeichnung und UKW-Kanal.
+      - text: 'Hier: Einlaufend in die „Alte Weser“ melden bei „Bremerhaven Weser Traffic“ auf UKW Kanal 22.'
+  - number: 13
+    points: 1
+    text: Nördlich und NW-lich dieser Position geht die Farbe „hellblau“ in der Seekarte in „weiß“ über.
+    questions:
+    - points: 1
+      text: Was bedeuten die so gefärbten Flächen in der Seekarte?
+    derivation:
+    - text: 'Die Seekarte färbt das Wasser nach seiner Tiefe: Je flacher es ist, desto kräftiger ist das Blau. Die
+        letzte blaue Stufe reicht hier bis zur 20-m-Linie, tieferes Wasser bleibt weiß.'
+    - text: 'Die Zahlen sind Kartentiefen, keine Wassertiefen. Eine Kartentiefe ist auf LAT bezogen (Lowest Astronomical
+        Tide, das niedrigste Niedrigwasser, das nach den Gezeiten zu erwarten ist). Die tatsächliche Wassertiefe
+        ist fast immer größer: Kartentiefe plus aktuelle Höhe der Gezeit.'
+    solution:
+    - results:
+      - text: Kartentiefen [nicht Wassertiefen] in dieser Seekarte, bezogen auf LAT, betragen bis 20 m im hellblau
+          gefärbten Bereich und gehen in Bereiche über mit mehr als 20 m KT.
+  - number: 14
+    points: 2
+    text: 'Dem Fahrwasser folgend befindet man sich um 13:47 BZ zwischen den Tonnen „A 7“ und „A 8“ auf der Sektorengrenze
+      des Feuers „Alte Weser“: zwischen Leitsektor weiß und angrenzendem grünen Warnsektor. Man richtet die Kielrichtung
+      auf dieser Sektorengrenze auf das Leuchtfeuer aus und nutzt die Gelegenheit zur Prüfung der Deviationstabelle.
+      Der Magnetkompass zeigt MgK = 117° an.'
+    questions:
+    - points: 1
+      text: Bestimmen Sie die Ablenkung.
+    - points: 1
+      text: Vergleichen Sie den ermittelten Wert mit der Deviationstabelle, geben Sie den Unterschied an und erläutern
+        Sie, welche Konsequenzen daraus gezogen werden müssen.
+    derivation:
+    - text: 'Leuchtfeuer „Alte Weser“: rwP = 118° [Sektorengrenze Leitsektor/Grün]'
+    - text: 'Die Kielrichtung zeigt genau auf das Feuer, deshalb ist die Peilung gleich dem Kurs: MgP = MgK = 117°.
+        Die rechtweisende Peilung der Sektorengrenze steht in der Seekarte bzw. im Leuchtfeuerverzeichnis.'
+    - text: 'Gerechnet wird von unten nach oben: Von rwP = 118° zieht man die Mw ab und erhält mwP = 117°. Die Ablenkung
+        ist der Unterschied zwischen mwP und MgP: 117° − 117° = ± 0°.'
+    - table:
+      - cells:
+        - MgP
+        - '='
+        - 117°
+      - cells:
+        - '**Abl**'
+        - '='
+        - '**± 0°**'
+      - cells:
+        - mwP
+        - '='
+        - 117°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+      - cells:
+        - rwP
+        - '='
+        - 118°
+        sum: true
+    solution:
+    - results:
+      - text: Abl = ± 0°
+        tolerance: Keine Toleranz
+    - results:
+      - text: Abl für MgK 117° nach Deviationstabelle = + 8°
+      - text: Der Tabellenwert differiert um + 8°
+      - text: 'Konsequenz: die gesamte Deviationstabelle ist dringend zu überprüfen.'
+  - number: 15
+    points: 1
+    text: Dem Fahrwasser Richtung Leuchtfeuer „Alte Weser“ folgend wird kurze Zeit später eine in der Seekarte eingezeichnete
+      magentafarbene Linie mit nach unten angesetzten Dreiecken überfahren.
+    questions:
+    - points: 1
+      text: Was besagt diese Linie?
+    derivation:
+    - text: 'Das Zeichen steht in Karte 1/INT 1: Eine magentafarbene Linie mit angesetzten Dreiecken ist eine gerade
+        Basislinie, die Dreiecke markieren die Basispunkte. Die Basislinie trennt die inneren Gewässer vom Küstenmeer.'
+    - text: Die Seeschifffahrtsstraßen-Ordnung gilt bis zu ihrer seewärtigen Grenze, und die liegt in der Regel
+        3 sm seewärts der Basislinie.
+    solution:
+    - results:
+      - text: Gerade Basislinie mit Basispunkten.
+      - text: Von ihr gerechnet in der Regel 3 sm seewärts befindet sich die seewärtige Grenze der Seeschifffahrtsstraßen.
+  - number: 16
+    points: 2
+    text: Um 15:20 BZ peilt man über den Steuerkompass den Leuchtturm „Tegeler Plate“ MgP = 155°. Bei der Peilung
+      liegt MgK = 100° an. Nahezu zeitgleich peilt man die Tonne „16a/A 16“ in der MgP = 221°, anliegender MgK =
+      104°.
+    questions:
+    - points: 2
+      text: Bestimmen Sie den beobachteten Ort (O_b) für 15:20 BZ.
+    derivation:
+    - text: Die Ablenkung hängt vom anliegenden Kurs ab, nicht von der Peilung. Sie wird deshalb in der Steuertafel
+        für MgK = 100° (+10°) bzw. MgK = 104° (+10°) abgelesen.
+    - table:
+      - cells:
+        - ''
+        - ''
+        - '**Lt. Tegeler Plate**'
+        - '**Tn. 16a/A 16**'
+      - cells:
+        - MgP
+        - '='
+        - 155°
+        - 221°
+      - cells:
+        - Abl
+        - '='
+        - +10°
+        - +10°
+      - cells:
+        - mwP
+        - '='
+        - 165°
+        - 231°
+        sum: true
+      - cells:
+        - Mw
+        - '='
+        - +1°
+        - +1°
+      - cells:
+        - '**rwP**'
+        - '='
+        - '**166°**'
+        - '**232°**'
+        sum: true
+    - text: Auch Mw = 0° ist hier zu akzeptieren. rwP ändert sich entsprechend, O_b ändert sich entsprechend zuzüglich
+        der angegebenen Toleranz.
+    - text: 'O_b: Die Gegenpeilungen einzeichnen, vom Leuchtturm „Tegeler Plate“ 346° (166° + 180°) und von der
+        Tonne „16a/A 16“ 052° (232° − 180°). Der Schnittpunkt ist der beobachtete Ort.'
+    solution:
+    - results:
+      - text: 'O_b 15:20 BZ: φ = 53°50,6′ N, λ = 008°10,3′ E'
+        tolerance: ± 0,2′
+  - number: 17
+    points: 2
+    text: 'Zur Ermittlung der restlichen Distanz ab 15:20 BZ gibt man in den Kartenplotter zwei weitere Wegpunkte
+      ein: WPT 2 φ = 53°49,4‘N, λ = 008°20,0‘E und WPT 3 φ = 53°46,6‘N, λ = 008°27,2‘E. Die Fahrt über Grund wird
+      gemittelt auf FüG = 4,8 kn. Sie wollen abschätzen, wann Sie an WPT 3 sein werden.'
+    questions:
+    - points: 2
+      text: Bestimmen Sie die geschätzte Ankunftszeit, die Estimated Time of Arrival (ETA) am WPT 3.
+    derivation:
+    - text: 'Distanz in der Karte abgreifen, vom O_b 15:20 BZ (aus Aufgabe 16) über WPT 2 bis WPT 3: 5,9 sm [± 0,1
+        sm] + 5,1 sm [± 0,1 sm] = **11 sm**'
+    - text: t (Zeit in Stunden) = d (Distanz) / FüG (Geschwindigkeit) → 11 sm / 4,8 kn = 2,29 h = **2 h 18 min**
+    - text: ETA = Abfahrt + Fahrzeit → 15:20 BZ + 2 h 18 min = **17:38 BZ**
+    solution:
+    - results:
+      - text: d = 5,9 sm + 5,1 sm = 11 sm
+        tolerance: ± 0,2 sm
+    - results:
+      - text: ETA = 17:38 BZ
+        tolerance: ± 3 min
+  - number: 18
+    points: 2
+    text: Nahe WPT 3 wird im „Wurster Watt“ ein Ankerplatz gesucht, auf dem man sich im weißen Sektor des Leuchtfeuers
+      „Alte Weser“ befindet.
+    questions:
+    - points: 2
+      text: Geben Sie die Kennung und die Richtungsangaben dieses Sektors exakt an.
+    derivation:
+    - text: Kennung und Sektorgrenzen stehen in der Seekarte am Feuer und im Leuchtfeuerverzeichnis.
+    - text: Sektorgrenzen werden immer als rechtweisende Peilung von See aus zum Feuer angegeben. Wer das Feuer
+        zwischen 288° und 352° peilt, liegt im weißen Sektor.
+    solution:
+    - results:
+      - text: 'Kennung: Weißes Festfeuer bzw. Fixed white'
+    - results:
+      - text: 'Richtungsangaben für weißen Sektor: 288° − 352°'
