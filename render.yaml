@@ -328,6 +328,9 @@ services:
       - type: rewrite
         source: /charts/4
         destination: /charts/4.html
+      - type: rewrite
+        source: /charts/5
+        destination: /charts/5.html
       # SPA fallback: routes like /login and /profile have no matching static
       # file, so a direct load/refresh still needs to serve the app and let
       # React Router take over client-side. The destination is app.html, the
