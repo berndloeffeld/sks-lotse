@@ -90,7 +90,8 @@ pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tes
     "--ignore=tests/test_docs.py",
     "--deselect=tests/test_chart_exercises.py::test_every_referenced_image_exists",
     "--deselect=tests/test_catalog_export.py::test_the_committed_export_matches_the_catalog",
-    "--deselect=tests/test_catalog_export.py::test_render_yaml_rewrites_only_to_the_app_shell",
+    "--deselect=tests/test_catalog_export.py::test_render_yaml_rewrites_every_prerendered_page_to_its_file",
+    "--deselect=tests/test_catalog_export.py::test_render_yaml_rewrites_the_chart_pages_only_while_they_are_built",
     "--deselect=tests/test_chart_exercises_export.py::test_the_committed_export_matches_the_yaml",
     "--deselect=tests/test_chart_exercises_export.py::test_render_yaml_sets_the_same_flag_for_api_and_build"]
 
