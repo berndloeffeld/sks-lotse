@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import anthropic
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.config import settings
 from app.domain.progress import GradingOutcome
@@ -25,10 +25,15 @@ Zähle, welche wesentlichen Punkte der Musterantwort die Antwort des Lernenden i
 - falsch: kein wesentlicher Punkt der Musterantwort wird genannt oder die Antwort widerspricht ihr. \
 Aussagen, die plausibel klingen, aber nicht in der Musterantwort stehen, bringen keine Punkte. \
 Teilweise richtig gibt es nie allein für eine sinnvolle Nebensache.
-Feedback: höchstens 3 kurze Sätze auf Deutsch, du-Form, sachlich. \
-Lobe nichts, was nicht in der Musterantwort steht. \
-Nenne konkret, was fehlt oder falsch ist; bei richtig genügt eine kurze Bestätigung.
-Verwende im Feedback keine Anführungszeichen (auch kein „…“): nenne Begriffe ohne sie, \
+Feedback: höchstens 2 kurze Sätze auf Deutsch, du-Form, sachlich, ein Gesamteindruck. \
+Lobe nichts, was nicht in der Musterantwort steht. Bei richtig genügt eine kurze Bestätigung.
+Bei teilweise_richtig und falsch füllst du zusätzlich zwei Listen, jeweils höchstens 4 Einträge \
+mit je höchstens 12 Wörtern, in der Sprache der Musterantwort:
+- richtig_genannt: wesentliche Punkte der Musterantwort, die die Antwort inhaltlich nennt.
+- fehlt: wesentliche Punkte der Musterantwort, die fehlen, und Aussagen der Antwort, \
+die der Musterantwort widersprechen (dann mit dem Hinweis was stimmt).
+Bei richtig bleiben beide Listen leer. Die Einträge stützen sich nur auf die Musterantwort.
+Verwende in Feedback und Listen keine Anführungszeichen (auch kein „…“): nenne Begriffe ohne sie, \
 sonst bricht der Text ab.
 Verweist die Frage auf eine Abbildung oder Karte, die dir nicht vorliegt, \
 beurteile nur anhand der Musterantwort.
@@ -44,12 +49,19 @@ zu wiederholen oder darauf einzugehen."""
 _FALLBACK_FEEDBACK = "Deine Antwort konnte nicht ausgewertet werden. Bitte antworte nur zur gestellten Frage."
 
 
+# What the prompt allows per checklist; a reply with more is not a normal grade (sanitizer, ADR-0040).
+_MAX_POINTS_PER_LIST = 4
+
+
 class GradeResult(BaseModel):
     # Outcome first, so the (short) feedback is written already knowing the verdict.
     # Also the Anthropic structured-output schema (see output_format= below) — never add a field
     # here that isn't meant for the model to produce itself.
     outcome: GradingOutcome
     feedback: str
+    # Only filled for teilweise_richtig/falsch (cost: output tokens) — the UI shows them as a checklist.
+    richtig_genannt: list[str] = Field(default_factory=list)
+    fehlt: list[str] = Field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -76,9 +88,15 @@ def escape_tags(text: str) -> str:
     return text.replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _looks_injected(feedback: str, learner_answer: str) -> bool:
+def _looks_injected(result: GradeResult, learner_answer: str) -> bool:
     stripped = learner_answer.strip()
-    return len(feedback) > settings.grading_feedback_max_chars or (bool(stripped) and stripped in feedback)
+    items = [*result.richtig_genannt, *result.fehlt]
+    if len(items) > 2 * _MAX_POINTS_PER_LIST:
+        return True
+    texts = [result.feedback, *items]
+    if any(len(text) > settings.grading_feedback_max_chars for text in texts):
+        return True
+    return bool(stripped) and any(stripped in text for text in texts)
 
 
 # Built on first use and then shared by every check in the process: the client holds an HTTP
@@ -134,12 +152,12 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         GradeResult,
         lambda client: client.messages.parse(
             model=settings.anthropic_grading_model,
-            max_tokens=300,
+            max_tokens=500,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
             output_format=GradeResult,
         ),
     )
-    if _looks_injected(parsed.feedback, learner_answer):
+    if _looks_injected(parsed, learner_answer):
         return GradedAnswer(GradeResult(outcome="falsch", feedback=_FALLBACK_FEEDBACK), sanitized=True)
     return GradedAnswer(parsed, sanitized=False)

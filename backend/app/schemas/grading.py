@@ -19,5 +19,8 @@ class AiGradeRead(BaseModel):
     # A plain str, not the GradingOutcome Literal — see GradingOutcomeField in app/schemas/progress.py.
     outcome: str
     feedback: str
+    # Checklist for teilweise_richtig/falsch; empty for richtig (and from an older backend).
+    richtig_genannt: list[str] = []
+    fehlt: list[str] = []
     # Tokens left in the account's balance after this one (ADR-0043).
     tokens_remaining: int

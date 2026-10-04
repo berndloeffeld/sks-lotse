@@ -30,6 +30,24 @@ interface AiAnswerCheckProps {
   noAnswerHint?: string
 }
 
+// The checklist of a partly right or wrong answer; nothing for a right one (or an older backend).
+function PointList({ title, mark, points }: { title: string; mark: string; points: string[] | undefined }) {
+  if (!points || points.length === 0) return null
+  return (
+    <div className="mt-1">
+      <h4 className="text-xs font-medium text-ink">{title}</h4>
+      <ul className="flex flex-col gap-0.5 text-sm text-ink-soft">
+        {points.map((point) => (
+          <li key={point} className="flex gap-2">
+            <span aria-hidden="true">{mark}</span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 // The Lotsen-Check of a catalog question (ADR-0031, ADR-0043, ADR-0044): the fourth choice under
 // the grade radios. A stateless LLM check of the written answer that only *suggests* a grade, 1
 // token each — the token balance is the sole spending control. The learner who is sure just
@@ -73,6 +91,8 @@ export function AiAnswerCheck({
             Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
           <p className="text-sm text-ink-soft">{result.feedback}</p>
+          <PointList title="Das hast du genannt" mark="✓" points={result.richtig_genannt} />
+          <PointList title="Das fehlt noch" mark="✗" points={result.fehlt} />
           <p className="mt-2 text-xs text-ink-soft">
             Nur ein Vorschlag – du bestätigst die Bewertung selbst (Enter übernimmt ihn).
           </p>

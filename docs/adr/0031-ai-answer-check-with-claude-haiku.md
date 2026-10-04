@@ -27,3 +27,7 @@ Learners without AI grading self-assess against the official answer ([ADR-0023](
 ## Addendum (2026-09-23): data processing agreement
 
 Anthropic's data processing agreement (as of 2026-09-20) is kept in the repo: [docs/anthropic-dpa-2026-09-20.pdf](../anthropic-dpa-2026-09-20.pdf). The Datenschutzerklärung lists Anthropic as a processor for the Lotsen-Check.
+
+## Addendum (2026-10-04): checklist for partly right and wrong answers
+
+The reply gains two lists, `richtig_genannt` and `fehlt` (at most 4 entries of ~12 words each, from the model answer only), filled only for `teilweise_richtig` and `falsch`; the feedback shrinks to an overall impression of at most 2 sentences. The UI shows them as a checklist. Both fields are additive and default to empty, so the frontend and backend can deploy in either order. `max_tokens` rises from 300 to 500, and the sanitizer (ADR-0040) also rejects a checklist with too many or too long entries or one that echoes the learner's answer. Cost: output grows from ~95 to ~200–250 tokens for a non-right answer, so roughly 0.18–0.21 cent for those and ~0.17 cent on average (was ~0.13), the input is unchanged.

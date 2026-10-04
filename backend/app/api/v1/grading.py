@@ -123,5 +123,7 @@ def ai_grade_answer(
     return AiGradeRead(
         outcome=result.outcome,
         feedback=result.feedback,
+        richtig_genannt=result.richtig_genannt,
+        fehlt=result.fehlt,
         tokens_remaining=tokens_remaining,
     )

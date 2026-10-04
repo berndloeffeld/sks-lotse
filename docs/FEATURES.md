@@ -64,7 +64,7 @@ Status today: **open to everyone, guests included** (`CHART_EXERCISES=on` since 
 
 ## Lotsen-Check (AI assessment)
 
-Learners can have their own answer checked by the "Lotse". An AI (Claude by Anthropic) compares it with the model answer and **suggests a grade with a short explanation**. The decision always stays with the learner.
+Learners can have their own answer checked by the "Lotse". An AI (Claude by Anthropic) compares it with the model answer and **suggests a grade with a short explanation**. For a partly right or wrong answer it adds a checklist: what the learner already named (✓) and what is still missing or contradicts the model answer (✗), at most four points each. A right answer gets only a short confirmation. The decision always stays with the learner.
 
 - Costs **1 token** per catalog question, **2 tokens** per Kartenaufgabe task (a stronger model that recomputes the learner's numbers; see above). The price is shown on the button. New accounts get a starting balance; more tokens are available in packages.
 - Only the question, the model answer and the learner's answer (at most 1,000 characters) are sent, nothing personal. For a Kartenaufgabe also the official derivation and the learner's answers to the earlier tasks of the same run, so follow-on errors are recognised. Processing happens at Anthropic in the USA, under a data processing agreement.
