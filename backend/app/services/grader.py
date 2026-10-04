@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import anthropic
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.core.config import settings
 from app.domain.progress import GradingOutcome
@@ -60,8 +60,10 @@ class GradeResult(BaseModel):
     outcome: GradingOutcome
     feedback: str
     # Only filled for teilweise_richtig/falsch (cost: output tokens) — the UI shows them as a checklist.
-    richtig_genannt: list[str] = Field(default_factory=list)
-    fehlt: list[str] = Field(default_factory=list)
+    # Deliberately without defaults: a field with a default is optional in the JSON schema, and the
+    # model then tends to leave it out. For a right answer it writes empty lists.
+    richtig_genannt: list[str]
+    fehlt: list[str]
 
 
 @dataclass(frozen=True)
@@ -159,5 +161,8 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         ),
     )
     if _looks_injected(parsed, learner_answer):
-        return GradedAnswer(GradeResult(outcome="falsch", feedback=_FALLBACK_FEEDBACK), sanitized=True)
+        return GradedAnswer(
+            GradeResult(outcome="falsch", feedback=_FALLBACK_FEEDBACK, richtig_genannt=[], fehlt=[]),
+            sanitized=True,
+        )
     return GradedAnswer(parsed, sanitized=False)
