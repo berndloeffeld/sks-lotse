@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { CatalogExport } from './catalog'
+import { FAQ } from './faq'
 import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
 import { makeChartExport } from './test/fixtures'
 
@@ -63,7 +64,7 @@ describe('learnPages', () => {
     ])
     expect(pages.every((p) => p.withoutAds)).toBe(true)
     expect(pages[0].meta?.description).toContain('Alle 3 Fragen')
-    expect(pages[1].meta).toEqual({
+    expect(pages[1].meta).toMatchObject({
       title: 'Seekarten – SKS-Fragen Navigation – SKS Lotse',
       description:
         'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.',
@@ -101,7 +102,7 @@ describe('chartPages', () => {
       ['/charts/2', 'charts/2.html'],
     ])
     expect(pages.every((p) => p.withoutAds)).toBe(true)
-    expect(pages[1].meta).toEqual({
+    expect(pages[1].meta).toMatchObject({
       title: 'Kartenaufgabe 1: Cuxhaven → Büsum – SKS-Navigation – SKS Lotse',
       description:
         'Amtliche SKS-Kartenaufgabe 1, Cuxhaven → Büsum: Elbabwärts durch die Norderrinne. 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
@@ -110,7 +111,7 @@ describe('chartPages', () => {
   })
 
   it('gives the list its own head', () => {
-    expect(chartPages(makeChartExport())[0].meta).toEqual({
+    expect(chartPages(makeChartExport())[0].meta).toMatchObject({
       title: 'SKS-Kartenaufgaben online üben – SKS Lotse',
       description:
         'Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.',
@@ -141,6 +142,36 @@ describe('every page but "/"', () => {
   })
 })
 
+describe('structured data', () => {
+  const pages = publicPages(CATALOG, makeChartExport())
+  const ld = (path: string) =>
+    pages.find((p) => p.path === path)?.meta?.jsonLd?.[0] as {
+      '@type': string
+      mainEntity: unknown[]
+      itemListElement: { item: string }[]
+    }
+
+  it('gives /faq a FAQPage with every question and its answer as plain text', () => {
+    const faq = ld('/faq')
+    expect(faq['@type']).toBe('FAQPage')
+    expect(faq.mainEntity).toHaveLength(FAQ.length)
+    expect(JSON.stringify(faq)).not.toContain('](/')
+  })
+
+  it('gives the topic and sheet pages a breadcrumb from the start page', () => {
+    const topic = ld('/learn/navigation/seekarten')
+    expect(topic['@type']).toBe('BreadcrumbList')
+    expect(topic.itemListElement.map((i) => i.item)).toEqual([
+      'https://sks-lotse.de/',
+      'https://sks-lotse.de/learn',
+      'https://sks-lotse.de/learn/navigation/seekarten',
+    ])
+    expect(ld('/charts/1').itemListElement).toHaveLength(3)
+    expect(ld('/learn').itemListElement).toHaveLength(2)
+    expect(ld('/charts').itemListElement).toHaveLength(2)
+  })
+})
+
 describe('escapeHtml', () => {
   it('escapes everything that could end an attribute or element', () => {
     expect(escapeHtml(`a & b <c> "d" 'e'`)).toBe('a &amp; b &lt;c&gt; &quot;d&quot; &#39;e&#39;')
@@ -165,6 +196,21 @@ describe('applyMeta', () => {
     expect(html).toContain('<meta name="twitter:description" content="Über &lt;Wind&gt;" />')
     expect(html).not.toContain('ld+json')
     expect(html).not.toContain('content="Start"')
+  })
+
+  it('puts the page\'s own JSON-LD into the head, with "<" masked', () => {
+    const html = applyMeta(SHELL, {
+      title: 'T',
+      description: 'D',
+      canonical: 'https://sks-lotse.de/x',
+      jsonLd: [{ '@type': 'Question', name: '</script><b>' }],
+    })
+
+    expect(html).not.toContain('WebApplication')
+    expect(html).toContain(
+      '<script type="application/ld+json">{"@type":"Question","name":"\\u003c/script>\\u003cb>"}</script>',
+    )
+    expect(html.indexOf('ld+json')).toBeLessThan(html.indexOf('</head>'))
   })
 })
 

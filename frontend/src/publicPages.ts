@@ -1,5 +1,6 @@
 import type { CatalogExport } from './catalog'
 import { sheetMaxPoints, type ChartExport } from './chartCatalog'
+import { FAQ, faqAnswerParts } from './faq'
 import { SUBJECT_LABELS } from './labels'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
@@ -12,6 +13,8 @@ export interface PageMeta {
   title: string
   description: string
   canonical: string
+  // Structured data for the page's head (schema.org), one <script type="application/ld+json"> each.
+  jsonLd?: Record<string, unknown>[]
 }
 
 export interface PublicPage {
@@ -24,12 +27,50 @@ export interface PublicPage {
   withoutAds?: boolean
 }
 
-function page(path: string, title: string, description: string, withoutAds = false): PublicPage {
+function page(
+  path: string,
+  title: string,
+  description: string,
+  withoutAds = false,
+  jsonLd?: Record<string, unknown>[],
+): PublicPage {
   return {
     path,
     file: `${path.slice(1)}.html`,
-    meta: { title, description, canonical: `${SITE}${path}` },
+    meta: { title, description, canonical: `${SITE}${path}`, ...(jsonLd ? { jsonLd } : {}) },
     ...(withoutAds ? { withoutAds } : {}),
+  }
+}
+
+// A trail from the start page: [name, path] per level, the last one being the page itself.
+function breadcrumbs(...trail: [string, string][]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map(([name, path], i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name,
+      item: `${SITE}${path}`,
+    })),
+  }
+}
+
+// The /faq entries as schema.org questions; an answer's `[text](/path)` links become plain text.
+function faqJsonLd(): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faqAnswerParts(answer)
+          .map((part) => part.text)
+          .join(''),
+      },
+    })),
   }
 }
 
@@ -39,6 +80,8 @@ const STATIC_PAGES: PublicPage[] = [
     '/faq',
     'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
     'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
+    false,
+    [faqJsonLd()],
   ),
   page(
     '/imprint',
@@ -79,6 +122,7 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
       'SKS-Fragenkatalog online lernen – alle Themen – SKS Lotse',
       `Alle ${total} Fragen des amtlichen SKS-Fragenkatalogs nach Themen: Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft – kostenlos üben, auch ohne Anmeldung.`,
       true,
+      [breadcrumbs(['SKS Lotse', '/'], ['Fragenkatalog', '/learn'])],
     ),
     ...catalog.topics.map((topic) => {
       const subject = SUBJECT_LABELS[topic.subject] ?? topic.subject
@@ -88,6 +132,13 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
         `${topic.name} – SKS-Fragen ${subject} – SKS Lotse`,
         `Alle ${count} amtlichen SKS-Fragen zum Thema ${topic.name} (${subject}) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.`,
         true,
+        [
+          breadcrumbs(
+            ['SKS Lotse', '/'],
+            ['Fragenkatalog', '/learn'],
+            [topic.name, `/learn/${topic.subject}/${topic.slug}`],
+          ),
+        ],
       )
     }),
   ]
@@ -102,6 +153,7 @@ export function chartPages(charts: ChartExport): PublicPage[] {
       'SKS-Kartenaufgaben online üben – SKS Lotse',
       `Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.`,
       true,
+      [breadcrumbs(['SKS Lotse', '/'], ['Kartenaufgaben', '/charts'])],
     ),
     ...charts.sheets.map((sheet) =>
       page(
@@ -109,6 +161,13 @@ export function chartPages(charts: ChartExport): PublicPage[] {
         `Kartenaufgabe ${sheet.number}: ${sheet.title} – SKS-Navigation – SKS Lotse`,
         `Amtliche SKS-Kartenaufgabe ${sheet.number}, ${sheet.title}: ${sheet.summary} ${sheet.tasks.length} Aufgaben, ${sheetMaxPoints(sheet)} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
         true,
+        [
+          breadcrumbs(
+            ['SKS Lotse', '/'],
+            ['Kartenaufgaben', '/charts'],
+            [`Kartenaufgabe ${sheet.number}`, `/charts/${sheet.number}`],
+          ),
+        ],
       ),
     ),
   ]
@@ -132,11 +191,16 @@ export function escapeHtml(text: string): string {
 
 // Gives a prerendered page its own title/description/OG/Twitter/canonical instead of index.html's,
 // via targeted replacement on the shared shell. The "/"-scoped WebApplication JSON-LD block
-// (index.html) doesn't fit any of these pages, so it's dropped rather than duplicated per page.
+// (index.html) doesn't fit any of these pages, so it's dropped and replaced by the page's own, if any.
 export function applyMeta(html: string, meta: PageMeta): string {
   const title = escapeHtml(meta.title)
   const description = escapeHtml(meta.description)
   const canonical = escapeHtml(meta.canonical)
+  const ld = (meta.jsonLd ?? [])
+    .map(
+      (data) => `    <script type="application/ld+json">${JSON.stringify(data).replaceAll('<', '\\u003c')}</script>\n`,
+    )
+    .join('')
   // Replacement functions, so a "$" in the text is never read as a replacement pattern.
   return html
     .replace(/<title>.*?<\/title>/s, () => `<title>${title}</title>`)
@@ -157,6 +221,7 @@ export function applyMeta(html: string, meta: PageMeta): string {
       () => `<meta name="twitter:description" content="${description}" />`,
     )
     .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
+    .replace(/\s*<\/head>/, () => `\n${ld}  </head>`)
 }
 
 // dist/sitemap.xml: every prerendered page.

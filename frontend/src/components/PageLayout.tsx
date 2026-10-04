@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useAuthStore } from '../store/authStore'
 import { Header } from './Header'
 import { HeroBand } from './HeroBand'
@@ -40,6 +41,7 @@ export function PageLayout({
   immersive = false,
   children,
 }: PageLayoutProps) {
+  useDocumentTitle(`${title} – SKS Lotse`)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   // Public pages (Impressum, Datenschutz) show the account nav once logged in.
   const showAccountNav = nav === 'account' || (nav === 'public' && isAuthenticated)
