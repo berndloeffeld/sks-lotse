@@ -409,6 +409,16 @@ export interface components {
             outcome: string;
             /** Feedback */
             feedback: string;
+            /**
+             * Richtig Genannt
+             * @default []
+             */
+            richtig_genannt: string[];
+            /**
+             * Fehlt
+             * @default []
+             */
+            fehlt: string[];
             /** Tokens Remaining */
             tokens_remaining: number;
         };

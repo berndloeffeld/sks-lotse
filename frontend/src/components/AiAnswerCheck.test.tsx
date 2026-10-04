@@ -129,6 +129,8 @@ describe('AiAnswerCheck', () => {
       jsonResponse({
         outcome: 'teilweise_richtig',
         feedback: 'Es fehlt die Seite.',
+        richtig_genannt: ['Backbord ist links'],
+        fehlt: ['Die Seite des Schiffes'],
         tokens_remaining: 0,
       }),
     )
@@ -144,6 +146,10 @@ describe('AiAnswerCheck', () => {
 
     expect(await screen.findByText('Es fehlt die Seite.')).toBeInTheDocument()
     expect(screen.getByText('Lotsen-Vorschlag: Teilweise Richtig')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Das hast du genannt' })).toBeInTheDocument()
+    expect(screen.getByText('Backbord ist links')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Das fehlt noch' })).toBeInTheDocument()
+    expect(screen.getByText('Die Seite des Schiffes')).toBeInTheDocument()
     expect(onSuggest).toHaveBeenCalledWith('teilweise_richtig')
     expect(track).toHaveBeenCalledWith('ai_check_used', undefined)
     expect(useAuthStore.getState().user?.token_balance).toBe(0)
@@ -153,6 +159,20 @@ describe('AiAnswerCheck', () => {
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toMatch(/\/api\/v1\/questions\/7\/ai-grade$/)
     expect(JSON.parse(String(init.body))).toEqual({ answer: 'links' })
+  })
+
+  it('shows no checklist for a right answer or a reply without the lists', async () => {
+    useAuthStore.setState({ user })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ outcome: 'richtig', feedback: 'Passt.', tokens_remaining: 0 })),
+    )
+    render(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
+
+    await userEvent.setup().click(screen.getByRole('button', ROW))
+
+    expect(await screen.findByText('Passt.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /Das hast du genannt|Das fehlt noch/ })).not.toBeInTheDocument()
   })
 
   it.each([
