@@ -113,15 +113,34 @@ export function makeChartAttempt(overrides: Partial<ChartAttempt> = {}): ChartAt
   }
 }
 
+function tour(number: number, title: string, summary: string) {
+  return { number, title, summary, task_count: 18, max_points: 30 }
+}
+
 export function makeChartOverview(overrides: Partial<ChartExercisesOverview> = {}): ChartExercisesOverview {
   return {
     source: 'WSV, Navigationsaufgaben SKS',
     hints: ['Erlaubte Hilfsmittel: Übungskarte 49.', 'Hinweise: Kurse auf volle Grade runden.'],
     tide_form: { src: 'formblatt-gezeiten.png', width: 1428, height: 1667 },
     exercises: [
-      { number: 1, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 0, last_points: null },
-      { number: 2, task_count: 18, max_points: 30, open_attempt_id: 9, completed_count: 0, last_points: null },
-      { number: 3, task_count: 18, max_points: 30, open_attempt_id: null, completed_count: 2, last_points: 24 },
+      {
+        ...tour(1, 'Cuxhaven → Büsum', 'Elbabwärts durch die Norderrinne.'),
+        open_attempt_id: null,
+        completed_count: 0,
+        last_points: null,
+      },
+      {
+        ...tour(2, 'Büsum → Helgoland', 'Bei Nordwind mit Kreuzpeilung.'),
+        open_attempt_id: 9,
+        completed_count: 0,
+        last_points: null,
+      },
+      {
+        ...tour(3, 'Helgoland → Baltrum', 'Quer durch das Verkehrstrennungsgebiet.'),
+        open_attempt_id: null,
+        completed_count: 2,
+        last_points: 24,
+      },
     ],
     ...overrides,
   }
@@ -142,8 +161,13 @@ export function makeChartExport(overrides: Partial<ChartExport> = {}): ChartExpo
     hints: ['Erlaubte Hilfsmittel: Übungskarte 49.'],
     tide_form: { src: 'formblatt-gezeiten.png', width: 1428, height: 1667 },
     sheets: [
-      { number: 1, tasks: [task(1, 2), task(2, 1)] },
-      { number: 2, tasks: [task(1, 3)] },
+      {
+        number: 1,
+        title: 'Cuxhaven → Büsum',
+        summary: 'Elbabwärts durch die Norderrinne.',
+        tasks: [task(1, 2), task(2, 1)],
+      },
+      { number: 2, title: 'Büsum → Helgoland', summary: 'Bei Nordwind mit Kreuzpeilung.', tasks: [task(1, 3)] },
     ],
     ...overrides,
   }

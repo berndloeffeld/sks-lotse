@@ -31,8 +31,26 @@ describe('chartCatalog', () => {
       hints: charts.hints,
       tide_form: charts.tide_form,
       exercises: [
-        { number: 1, task_count: 2, max_points: 3, open_attempt_id: null, completed_count: 0, last_points: null },
-        { number: 2, task_count: 1, max_points: 3, open_attempt_id: null, completed_count: 0, last_points: null },
+        {
+          number: 1,
+          title: 'Cuxhaven → Büsum',
+          summary: 'Elbabwärts durch die Norderrinne.',
+          task_count: 2,
+          max_points: 3,
+          open_attempt_id: null,
+          completed_count: 0,
+          last_points: null,
+        },
+        {
+          number: 2,
+          title: 'Büsum → Helgoland',
+          summary: 'Bei Nordwind mit Kreuzpeilung.',
+          task_count: 1,
+          max_points: 3,
+          open_attempt_id: null,
+          completed_count: 0,
+          last_points: null,
+        },
       ],
     })
   })

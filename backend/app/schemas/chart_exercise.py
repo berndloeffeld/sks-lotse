@@ -62,6 +62,9 @@ class ChartTask(BaseModel):
 
 class ChartExercise(BaseModel):
     number: int
+    # Our own words, not the WSV's: the tour ("Cuxhaven → Büsum") and a one-line summary for the list.
+    title: str = Field(min_length=1)
+    summary: str = Field(min_length=1)
     tasks: list[ChartTask]
 
 
@@ -76,6 +79,8 @@ class ChartExerciseCatalog(BaseModel):
 
 class ChartExerciseSummary(BaseModel):
     number: int
+    title: str
+    summary: str
     task_count: int
     max_points: int
     # The learner's run still in progress for this exercise, if any.

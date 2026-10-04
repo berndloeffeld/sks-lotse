@@ -29,11 +29,12 @@ describe('ChartExercisesPage', () => {
 
     const first = await screen.findByRole('link', { name: /Kartenaufgabe 1/ })
     expect(first).toHaveAttribute('href', '/charts/1')
-    expect(within(first).getByText('Noch nicht bearbeitet')).toBeInTheDocument()
-    expect(within(screen.getByRole('link', { name: /Kartenaufgabe 2/ })).getByText('Begonnen')).toBeInTheDocument()
-    expect(
-      within(screen.getByRole('link', { name: /Kartenaufgabe 3/ })).getByText('Zuletzt 24 / 30 Punkte'),
-    ).toBeInTheDocument()
+    expect(within(first).getByRole('heading', { name: 'Cuxhaven → Büsum' })).toBeInTheDocument()
+    expect(within(first).getByText('Elbabwärts durch die Norderrinne.')).toBeInTheDocument()
+    expect(first).toHaveTextContent('18 Aufgaben · 30 Punkte')
+    expect(first).toHaveTextContent('Noch nicht bearbeitet')
+    expect(screen.getByRole('link', { name: /Kartenaufgabe 2/ })).toHaveTextContent('Begonnen')
+    expect(screen.getByRole('link', { name: /Kartenaufgabe 3/ })).toHaveTextContent('Zuletzt 24 / 30 Punkte')
   })
 
   it('says so when the exercises cannot be loaded', async () => {
@@ -62,7 +63,9 @@ describe('ChartExercisesPage for a guest', () => {
 
     const first = screen.getByRole('link', { name: /Kartenaufgabe 1/ })
     expect(first).toHaveAttribute('href', '/charts/1')
-    expect(within(first).getByText('2 Aufgaben · 3 Punkte')).toBeInTheDocument()
+    expect(within(first).getByRole('heading', { name: 'Cuxhaven → Büsum' })).toBeInTheDocument()
+    expect(first).toHaveTextContent('2 Aufgaben · 3 Punkte')
+    expect(first).not.toHaveTextContent('Noch nicht bearbeitet')
     expect(screen.getByRole('link', { name: 'Mit einem Konto' })).toHaveAttribute('href', '/login')
     expect(fetchMock).not.toHaveBeenCalled()
   })
