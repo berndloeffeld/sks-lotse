@@ -24,6 +24,22 @@ describe('ChartTile', () => {
   })
 })
 
+describe('ChartTile label and footer', () => {
+  it('renders a label above the title and a footer below the description', () => {
+    render(
+      <ChartTile
+        title="Cuxhaven → Büsum"
+        label="Kartenaufgabe 1"
+        description="Elbabwärts"
+        footer={<span>18 Aufgaben</span>}
+      />,
+    )
+
+    expect(screen.getByText('Kartenaufgabe 1')).toBeInTheDocument()
+    expect(screen.getByText('18 Aufgaben')).toBeInTheDocument()
+  })
+})
+
 describe('ChartTile badge', () => {
   it('renders a badge when given one', () => {
     render(<ChartTile title="Prüfung" badge="Demnächst verfügbar" size="lg" />)

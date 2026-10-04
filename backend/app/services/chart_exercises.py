@@ -205,6 +205,8 @@ def overview(db: Session, user: User) -> ChartExercisesOverview:
         summaries.append(
             ChartExerciseSummary(
                 number=sheet.number,
+                title=sheet.title,
+                summary=sheet.summary,
                 task_count=len(sheet.tasks),
                 max_points=max_points(sheet),
                 open_attempt_id=open_attempt.id if open_attempt else None,
