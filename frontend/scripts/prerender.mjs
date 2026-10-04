@@ -54,7 +54,17 @@ function withoutAdScript(html, file) {
   return html
 }
 
-writeFileSync(`${dist}app.html`, withoutAdScript(shell, 'app.html'))
+// app.html answers every path without a page of its own (/login, /profile, /admin, unknown paths):
+// not the home page's canonical or title, and not for the index.
+const appShell = withoutAdScript(shell, 'app.html')
+  .replace(/\s*<link rel="canonical"[^>]*\/>/, '')
+  .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
+  .replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />\n    <meta name="robots" content="noindex" />')
+  .replace(/<title>.*?<\/title>/s, '<title>SKS Lotse</title>')
+if (!appShell.includes('noindex') || appShell.includes('canonical')) {
+  throw new Error('prerender: app.html must be noindex and carry no canonical')
+}
+writeFileSync(`${dist}app.html`, appShell)
 for (const { path, file, meta, withoutAds } of pages) {
   const root = `<div id="root" data-prerendered="${path}">${render(path)}</div>`
   let html = shell.replace(ROOT, () => root)

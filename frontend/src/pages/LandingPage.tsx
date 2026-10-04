@@ -12,6 +12,7 @@ import { MainNav } from '../components/MainNav'
 import { MobileTabBar } from '../components/MobileTabBar'
 import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
+import { HOME_TITLE, useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useAuthStore } from '../store/authStore'
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
@@ -190,6 +191,7 @@ function ChartExercisesPreview() {
 }
 
 export function LandingPage() {
+  useDocumentTitle(HOME_TITLE)
   // Logged-in visitors get the main nav (and the phone tab bar) and links into the app instead
   // of the sign-up form.
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
