@@ -5549,6 +5549,1159 @@
      ]
     }
    ]
+  },
+  {
+   "number": 6,
+   "title": "Spiekeroog → Helgoland",
+   "summary": "Von der Otzumer Balje durch das Verkehrstrennungsgebiet, mit Stromatlas, Stromdreieck und Leuchtfeuer von Helgoland.",
+   "tasks": [
+    {
+     "number": 1,
+     "points": 2,
+     "text": "Am 08.07.2013 will man mit einer Yacht von Spiekeroog nach Helgoland fahren. Um nicht durch die verkehrsreiche Wesermündung navigieren zu müssen, wählt man von der Ansteuerungstonne „Otzumer Balje“ (WPT 1) einen Weg westlich des Verkehrstrennungsgebietes (VTG) „Jade Approach“ über die Tonne „GW/Jade“ (WPT 2) und die Tonne „E 1“ (WPT 3) zur Nordeinfahrt von Helgoland zur Tonne „Nathurn-N“ (WPT 4). Man will überschlägig die Reisedauer ermitteln und setzt dazu direkte Kurse auf die Wegpunkte ab. Verkehrsrechtliche Besonderheiten werden hierbei zunächst nicht berücksichtigt. Dabei rechnet man mit einer Fahrt über Grund (FüG) = 7 kn.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Gesamtdistanz von Spiekeroog nach Helgoland Nordeinfahrt (Tonne „Nathurn-N“, WPT 4), wobei die Distanz vom Yachthafen Spiekeroog bis zur Tonne „Otzumer Balje“ mit 5,5 sm der Seekarte entnommen wird. Die Kurse sind in die Seekarte einzutragen."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die voraussichtliche Reisedauer in Stunden und Minuten."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "d (gesamt) = 40,9 sm",
+         "tolerance": "± 0,5 sm"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Reisedauer = 5 h 51 min",
+         "tolerance": "± 5 min"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Gesamtdistanz ist die Summe der Teilstrecken. Die erste (5,5 sm) ist vorgegeben, die anderen werden in der Karte abgegriffen.",
+       "table": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "Spiekeroog bis WPT 1",
+          "5,5 sm",
+          ""
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "WPT 1 bis WPT 2",
+          "21,3 sm",
+          "[± 0,3 sm]"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "WPT 2 bis WPT 3",
+          "4,4 sm",
+          "[± 0,1 sm]"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "WPT 3 bis WPT 4",
+          "9,7 sm",
+          "[± 0,1 sm]"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**d (gesamt)**",
+          "**40,9 sm**",
+          ""
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ]
+      },
+      {
+       "text": "Reisedauer: t (Zeit in Stunden) = d (Distanz) / FüG (Geschwindigkeit) = 40,9 sm / 7 kn, mal 60 für Minuten: 40,9 sm / 7 kn · 60 = 351 min. Das sind 5 · 60 = 300 min plus 51 min, also **5 h 51 min**.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 2,
+     "points": 2,
+     "text": "",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Bestimmen Sie den Kartenkurs (KaK) und den Magnetkompasskurs (MgK) von der Tonne „Otzumer Balje“ bis zur südlichen Begrenzung des VTG „Terschelling – German Bight“, als Teilstück des zuvor eingezeichneten Kurses von der Tonne „Otzumer Balje“ direkt zum WPT 2. Wegen des böigen Westwindes rechnet man mit |BW| = 5°, Strom wird zunächst nicht berücksichtigt."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "MgK = 344°",
+         "tolerance": "± 1°"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "KaK = 340°",
+         "tolerance": "± 1°"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Gerechnet wird von unten nach oben: Der KaK wird als Teilstück des Kurses von der Tonne „Otzumer Balje“ zum WPT 2 in der Karte gemessen (340°), daraus ergibt sich über BS, BW, Mw und Abl der MgK. In dieser Richtung werden die Beschickungen mit umgekehrtem Vorzeichen angebracht.",
+       "table": null
+      },
+      {
+       "text": "BS = 0°, weil Strom zunächst nicht berücksichtigt wird. BW ist positiv, weil der Westwind bei einem Kurs von etwa 340° von Backbord einfällt: Die Yacht wird nach Steuerbord versetzt. Bei einem Versatz nach Steuerbord durch Wind ist der Wert immer positiv zu rechnen. Mw = 0°.",
+       "table": null
+      },
+      {
+       "text": "Die Ablenkung wird in der Steuertafel für den anliegenden MgK abgelesen (−9°). Abl = −8° kann akzeptiert werden, mit entsprechender Toleranz beim MgK.",
+       "table": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "**MgK**",
+          "=",
+          "**344°**"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "−9°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwK",
+          "=",
+          "335°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "0°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "rwK",
+          "=",
+          "335°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BW",
+          "=",
+          "+5°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KdW",
+          "=",
+          "340°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BS",
+          "=",
+          "0°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**KaK**",
+          "=",
+          "**340°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "number": 3,
+     "points": 1,
+     "text": "Man plant die Abfahrt in Spiekeroog so, dass man noch vor dem Mittagshochwasser an der Tonne „Otzumer Balje“ steht. Bordzeit (BZ) ist gesetzliche Zeit (GZ).",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Hochwasserzeit (HWZ) und Hochwasserhöhe (HWH) am 08.07.2013 mittags an der Tonne „Otzumer Balje“."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "HWZ = 12:39 MESZ/BZ",
+         "tolerance": "Keine Toleranz"
+        },
+        {
+         "text": "HWH = 3,2 m",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Alter der Gezeit am 08.07.2013: **Springzeit (SpZ)**",
+       "table": null
+      },
+      {
+       "text": "Die Tonne „Otzumer Balje“ ist ein Anschlussort von Norderney: Zeit und Höhe von Norderney plus die Unterschiede ZUG/HUG. Das Mittagshochwasser ist das 1. HW des 08.07.2013. Für die Höhe gibt es keinen Höhenunterschied (k. A.), sie bleibt also unverändert bei 3,2 m.",
+       "table": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "1. HW Norderney",
+          "08.07.2013",
+          "11:38 MEZ",
+          "3,2 m"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "ZUG / HUG",
+          "",
+          "+00:01",
+          "k. A.*"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**1. HW Otzumer Balje**",
+          "08.07.2013",
+          "**11:39 MEZ**",
+          "**3,2 m**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ]
+      },
+      {
+       "text": "*k. A. = keine Angabe",
+       "table": null
+      },
+      {
+       "text": "Die Gezeitentafel ist in MEZ angegeben. Im Juli gilt MESZ, also +1 h: 11:39 MEZ = **12:39 MESZ/BZ**.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 4,
+     "points": 2,
+     "text": "Um 11:00 BZ verlässt man den Yachthafen von Spiekeroog. Auf dem Weg von Spiekeroog zur Tonne „Otzumer Balje“ wird in der Seekarte eine breite grüne Linie überfahren, an der parallel eine feingestrichelte magentafarbene Linie verläuft.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Was besagt diese Linie?"
+      },
+      {
+       "points": 1,
+       "text": "Erklären Sie die Bedeutung dieses Gebietes."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Gebiet mit Schifffahrtsbeschränkungen, Begrenzung eines sensiblen Meeresgebiets",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "PSSA: Nationalpark „Niedersächsisches Wattenmeer“",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die breite grüne Linie mit der parallelen magentafarbenen Strichlinie (Seekartensymbol, siehe Karte 1/INT 1) begrenzt ein Gebiet mit Schifffahrtsbeschränkungen: Es ist die Begrenzung eines sensiblen Meeresgebiets.",
+       "table": null
+      },
+      {
+       "text": "PSSA steht für Particularly Sensitive Sea Area, auf Deutsch besonders empfindliches Meeresgebiet. Es wird von der IMO ausgewiesen, um ein ökologisch besonders wertvolles Gebiet vor den Folgen der Schifffahrt zu schützen. Hier ist es der Nationalpark „Niedersächsisches Wattenmeer“.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 5,
+     "points": 1,
+     "text": "Beim Passieren der Tonne „Otzumer Balje“ gegen 12:00 BZ möchte man die Stromverhältnisse feststellen. Ein Blick in die Seekarte zeigt, dass dieses bequem mittels Seekarte geschehen kann.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie für 12:00 BZ der Seekarte?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "StR = 088°",
+         "tolerance": "Keine Toleranz"
+        },
+        {
+         "text": "StG = 0,8 kn",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Stromangaben der Karte beziehen sich auf die Hochwasserzeit von Helgoland: HWZ Helgoland am 08.07.2013 = 12:04 MEZ. Die Tafel ist in MEZ angegeben, im Juli gilt MESZ, also +1 h: 12:04 MEZ = **13:04 MESZ/BZ**.",
+       "table": null
+      },
+      {
+       "text": "Alter der Gezeit: **Springzeit (SpZ)**",
+       "table": null
+      },
+      {
+       "text": "In der Nähe der Tonne liegt der Strommesspunkt „A“ (ca. 2 sm nordwestlich).",
+       "table": null
+      },
+      {
+       "text": "Die Passierzeit 12:00 BZ liegt etwa 1 h vor der HWZ Helgoland (13:04 BZ). Für Springzeit und „1 h vor HW Helgoland“ wird in der Stromtabelle des Messpunkts „A“ **StR = 088°** und **StG = 0,8 kn** abgelesen.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 6,
+     "points": 2,
+     "text": "Die Stromverhältnisse zwei Stunden später für 14:00 BZ werden anhand des Gezeitenstromatlasses ermittelt. Um 14:00 BZ will man überschlagsmäßig auf φ = 54°03‘N, λ = 007°32‘E stehen.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Mit welchem Strom nach Richtung (StR) und Stärke (StG) rechnen Sie um 14:00 BZ nach Gezeitenstromatlas (der Strom ist ggf. zu mitteln)?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "StR = 067°",
+         "tolerance": "± 10°"
+        },
+        {
+         "text": "StG = 0,2 kn",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Der Gezeitenstromatlas ist auf die Hochwasserzeit von Helgoland bezogen: HWZ Helgoland am 08.07.2013 = 12:04 MEZ = **13:04 MESZ/BZ**. Alter der Gezeit: **Springzeit (SpZ)**.",
+       "table": null
+      },
+      {
+       "text": "14:00 BZ liegt 56 min nach der HWZ Helgoland, das ist ≈ **1 h nach HW Helgoland**. Das ist die Kartenseite des Atlas, die abgelesen wird.",
+       "table": null
+      },
+      {
+       "text": "Die Position liegt zwischen 2 Strompfeilen, und der Strom kentert. Deshalb muss gemittelt werden: Richtung und Stärke werden aus den beiden Pfeilen gemittelt. Das Ergebnis ist ein schwacher Strom von 0,2 kn.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 7,
+     "points": 1,
+     "text": "Man startet um 12:00 BZ von der Tonne „Otzumer Balje“ mit dem unter Aufgabe 2 berechneten MgK.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Kann man mit diesem Kurs das vor Ihnen liegende VTG „Terschelling – German Bight“ queren? Begründen Sie Ihre Antwort. Was ist ggf. zu veranlassen?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Nein. Die vorgeschriebene Verkehrsrichtung im VTG beträgt ca. 077° bzw. 255° bis 257°. Das bedeutet beim rechtwinkligen Queren mit der Kielrichtung einen rwK = 345° bis 347°. Nach Aufgabe 2 beträgt der rwK = 335° [Toleranz]. Es muss also der Kurs beim Queren gut 10° nach Stb. geändert werden.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Ein Verkehrstrennungsgebiet ist so weit wie möglich im rechten Winkel zur allgemeinen Verkehrsrichtung zu queren (Kollisionsverhütungsregeln, Regel 10).",
+       "table": null
+      },
+      {
+       "text": "Rechtwinklig zur Verkehrsrichtung von 255° bis 257° heißt, mit der Kielrichtung gerechnet: 255° + 90° = 345° und 257° + 90° = 347°, also rwK = 345° bis 347°.",
+       "table": null
+      },
+      {
+       "text": "Der rwK aus Aufgabe 2 ist 335°, das sind 10° bis 12° weniger. Mit diesem Kurs quert man das VTG also nicht rechtwinklig.",
+       "table": null
+      },
+      {
+       "text": "Ein größerer Kurs liegt weiter rechts, also muss der Kurs beim Queren um gut 10° nach Steuerbord geändert werden.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 8,
+     "points": 1,
+     "text": "Auf dem Weg zum WPT 2 passiert man die Tonne „TG 18/Jade“.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Beschreiben Sie das Schifffahrtszeichen „TG 18/Jade“ vollständig (Kennung und Wiederkehr, Aussehen am Tage)."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Kennung: Unterbrochenes Funkelfeuer bzw. Interrupted Quick rot",
+         "tolerance": null
+        },
+        {
+         "text": "Wiederkehr: 13 s",
+         "tolerance": null
+        },
+        {
+         "text": "Form: Bakentonne",
+         "tolerance": null
+        },
+        {
+         "text": "Farbe: rot",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Kennung und Wiederkehr stehen an der Tonne in der Seekarte und im Leuchtfeuerverzeichnis. Die Tonne ist ein Seezeichen mit Feuer.",
+       "table": null
+      },
+      {
+       "text": "Ein Funkelfeuer gibt sehr schnell hintereinander Lichterscheinungen ab (Quick). „Unterbrochen“ heißt, dass die Folge in regelmäßigen Abständen von einer Dunkelpause unterbrochen wird (Interrupted Quick, in der Karte „IQ“).",
+       "table": null
+      },
+      {
+       "text": "Die Wiederkehr ist die Dauer, nach der sich die Kennung wiederholt: hier 13 s.",
+       "table": null
+      },
+      {
+       "text": "Das Aussehen am Tage (Form und Farbe) zeigt das Tonnensymbol in der Karte: eine rote Bakentonne.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 9,
+     "points": 2,
+     "text": "",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Welche navigatorische Bedeutung hat die Tonne „TG 18/Jade“?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Nördliche Begrenzung des VTG „Terschelling – German Bight“ und westliche Begrenzung des VTG „Jade Approach“",
+         "tolerance": "es müssen beide VTGe genannt sein"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "SE-liche Begrenzung der Tiefwasserreede",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Tonne „TG 18/Jade“ liegt an der Ecke, an der zwei Verkehrstrennungsgebiete aneinanderstoßen. Sie markiert für das VTG „Terschelling – German Bight“ dessen nördliche Grenze und für das VTG „Jade Approach“ dessen westliche Grenze. Beide VTGe müssen genannt werden.",
+       "table": null
+      },
+      {
+       "text": "Außerdem begrenzt sie die Tiefwasserreede im Südosten. Das ist das Gebiet, in dem tiefgehende Schiffe ankern.",
+       "table": null
+      },
+      {
+       "text": "Für den Skipper heißt das: In der Nähe der Tonne herrscht dichter Verkehr, die Gebiete sind beim Queren zu beachten.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 10,
+     "points": 2,
+     "text": "Man bestimmt den Koppelort für 12:50 BZ ausgehend von dem Startkurs nach Aufgabe 2 zum WPT 2. Die angenommene Fahrt über Grund beträgt: FüG = 6,5 kn.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Bestimmen Sie den Koppelort (O_k) für 12:50 BZ."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "O_k 12:50 BZ: φ = 53°53,3′ N, λ = 007°36,0′ E",
+         "tolerance": "± 0,2′"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Gestartet wurde um 12:00 BZ an der Tonne „Otzumer Balje“ (Aufgabe 7). Von 12:00 BZ bis 12:50 BZ sind es 0 h 50 min = 50 min.",
+       "table": null
+      },
+      {
+       "text": "d = v · t / 60 = 6,5 kn · 50 min / 60 = 5,4 sm",
+       "table": null
+      },
+      {
+       "text": "Von der Tonne „Otzumer Balje“ aus 5,4 sm auf dem Kurs aus Aufgabe 2 abtragen (KaK = 340°, in der Karte eingezeichnet): Der Endpunkt ist der Koppelort. Breite und Länge werden dort abgelesen.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 11,
+     "points": 3,
+     "text": "Man peilt um 12:50 BZ über den Steuerkompass die Tonne „TG 17/Weser 1“ in der Magnetkompasspeilung (MgP) = 274°, anliegender MgK = 341°, während nahezu zeitgleich am Radar in Head-Up-Darstellung die Tonne „Jade-Weser“ in Radarseitenpeilung (RaSP) = 037° ausgemacht wird, anliegender MgK = 345°.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die rechtweisenden Peilungen (rwP)."
+      },
+      {
+       "points": 2,
+       "text": "Bestimmen Sie den beobachteten Ort (O_b)."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "rwP = 265°, Tonne „TG 17/Weser 1“",
+         "tolerance": "Keine Toleranz / Mw beachten"
+        },
+        {
+         "text": "rwP = 014°, Tonne „Jade/Weser“",
+         "tolerance": "Keine Toleranz / Mw beachten"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "O_b 12:50 BZ: φ = 53°53,7′ N, λ = 007°36,8′ E",
+         "tolerance": "± 0,2′"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Bei „Head Up“ ist die Radar-Seitenpeilung auf den Bug bezogen: RaSP + MgK = MgP (037° + 345° = 382° − 360° = 022°). Die Peilung der Tonne „TG 17/Weser 1“ wurde schon als MgP gemessen (274°).",
+       "table": null
+      },
+      {
+       "text": "Die Ablenkung hängt vom anliegenden Kurs ab, nicht von der Peilung. Sie wird in der Steuertafel für MgK = 341° (−9°) bzw. MgK = 345° (−8°) abgelesen.",
+       "table": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "",
+          "",
+          "**Tn. TG 17/Weser 1**",
+          "**Tn. Jade-Weser**"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "RaSP",
+          "=",
+          "",
+          "037°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "MgK",
+          "=",
+          "",
+          "345°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "MgP",
+          "=",
+          "274°",
+          "022°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "−9°",
+          "−8°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwP",
+          "=",
+          "265°",
+          "014°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "0°",
+          "0°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**rwP**",
+          "=",
+          "**265°**",
+          "**014°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ]
+      },
+      {
+       "text": "Auch Mw = +1° ist hier zu akzeptieren. Die rwP ändern sich entsprechend, O_b und BV ändern sich entsprechend zuzüglich der jeweils angegebenen Toleranz.",
+       "table": null
+      },
+      {
+       "text": "O_b: Die Peilung zeigt vom Schiff zur Tonne. Deshalb von jeder Tonne aus die Gegenpeilung abtragen (265° − 180° = 085° und 014° + 180° = 194°). Der Schnittpunkt ist der beobachtete Ort, an dem Breite und Länge abgelesen werden.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 12,
+     "points": 1,
+     "text": "",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Besteckversetzung (BV)."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "BV = 050° / 0,6 sm",
+         "tolerance": "± 20° / ± 0,2 sm"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Besteckversetzung ist der Weg vom Koppelort (O_k aus Aufgabe 10) zum beobachteten Ort (O_b aus Aufgabe 11). Richtung und Länge dieser Strecke in der Karte abgreifen.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 13,
+     "points": 3,
+     "text": "Man quert das VTG „Terschelling – German Bight“ wie vorgeschrieben. Man steht um 15:10 BZ nach GPS auf: φ = 54°06,4‘N, λ = 007°24,5‘E. Man setzt den KaK = 031° auf die Tonne „GW/Jade“ ab. Man rechnet jetzt wegen des abnehmenden W-lichen Windes nur noch mit einer BW von |2°|. Der Strom setzt jetzt in 320° mit 1,3 kn. Die Logge zeigt FdW = 6,8 kn.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 kn) und beschriften Sie es vollständig mit Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den Magnetkompasskurs (MgK)."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Fahrt über Grund (FüG)."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Stromdreieck",
+         "tolerance": null
+        }
+       ],
+       "image": {
+        "src": "bogen-06/aufgabe-13-stromdreieck.png",
+        "width": 632,
+        "height": 586
+       }
+      },
+      {
+       "results": [
+        {
+         "text": "MgK = 032°",
+         "tolerance": "± 1° / Abl beachten"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "FüG = 7,1 kn",
+         "tolerance": "± 0,1 kn"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "So entsteht das Stromdreieck: Vom Startpunkt den Stromvektor zeichnen (320°, 1,3 cm). Um seine Spitze einen Kreis mit dem Radius FdW = 6,8 cm schlagen. Wo der Kreis die KüG-Linie (031°) schneidet, endet der KdW-Vektor. Abgelesen werden KdW = 041° und FüG = 7,1 kn.",
+       "table": null
+      },
+      {
+       "text": "Gerechnet wird wieder von unten nach oben: Der KüG = 031° ist vorgegeben (der abgesetzte KaK), über BS, BW, Mw und Abl ergibt sich der MgK.",
+       "table": null
+      },
+      {
+       "text": "BS kommt aus dem Stromdreieck: BS = KüG − KdW = 031° − 041° = −10° [± 1°, zeichnerische Toleranz].",
+       "table": null
+      },
+      {
+       "text": "BW ist positiv, weil der Westwind bei einem Kurs von etwa 030° von Backbord einfällt: Die Yacht wird nach Steuerbord versetzt. Bei einem Versatz nach Steuerbord durch Wind ist der Wert immer positiv zu rechnen.",
+       "table": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "**MgK**",
+          "=",
+          "**032°**"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "+6°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwK",
+          "=",
+          "038°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "rwK",
+          "=",
+          "039°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BW",
+          "=",
+          "+2°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KdW",
+          "=",
+          "041°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BS",
+          "=",
+          "−10°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KüG",
+          "=",
+          "031°"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ]
+      },
+      {
+       "text": "Auch Abl = +5° ist zu akzeptieren.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 14,
+     "points": 1,
+     "text": "Der Kurs vom WPT 3 zum WPT 4 in der Nordeinfahrt nach Helgoland führt knapp 2 sm ENE-lich der „Tonne E 1“ über folgende Karteneintragung: nach oben offenes Rechteck mit der Zahl 34₄, umrahmt von einem gepunkteten Kreis sowie daneben „2 Wks“",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Welche Bedeutung hat diese Karteneintragung?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "2 Wracks, geringste Tiefe mit KT [nicht WT] = 34,4 m bekannt; abgesucht mit Schleppgerät oder durch Taucher.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "„Wks“ ist die Abkürzung für Wracks: Hier liegen 2 Wracks.",
+       "table": null
+      },
+      {
+       "text": "Tiefen in der Karte sind Kartentiefen (KT), bezogen auf Kartennull. Die Wassertiefe (WT) ergibt sich erst, wenn man die aktuelle Gezeitenhöhe dazurechnet. Die Angabe hier ist die KT.",
+       "table": null
+      },
+      {
+       "text": "Das Symbol (nach oben offenes Rechteck mit der Zahl, gepunkteter Kreis) steht für eine abgesuchte geringste Tiefe: Die Stelle wurde mit Schleppgerät oder durch Taucher abgesucht, die angegebene Tiefe über den Wracks ist also bekannt.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 15,
+     "points": 2,
+     "text": "Ca. 2,5 sm weiter auf dem Kurs zur Tonne „Nathurn-N“ überfährt man eine magentafarbene Linie in Nord-Süd Richtung, an deren oberem und unterem Ende magentafarben die Zahl „3“ steht.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Was bedeutet diese Linie und was ist von Ihnen zu unternehmen?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Hinweis auf eine Karte größeren Maßstabs, hier: „Deutsche Seekarte 3“.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Die Navigation ist in der Karte 3 weiter zu führen, weil dort mehr navigatorisch wichtige Angaben (z. B. Tonnen, Tiefenangaben usw.) vorhanden sind.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": []
+    },
+    {
+     "number": 16,
+     "points": 1,
+     "text": "Um weiterhin möglichst geschickt zu manövrieren, werden die vor der Nordeinfahrt von Helgoland für 18:00 BZ vorherrschenden Stromverhältnisse am dortigen Messpunkt ermittelt.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Wie setzt in der Nähe der Tonne „Nathurn-N“ um 18:00 BZ der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "StR = 250°",
+         "tolerance": "Keine Toleranz"
+        },
+        {
+         "text": "StG = 1,3 kn",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Stromangaben der Karte beziehen sich auf die Hochwasserzeit von Helgoland: HWZ Helgoland am 08.07.2013 = 12:04 MEZ = **13:04 MESZ/BZ**. Alter der Gezeit: **Springzeit (SpZ)**.",
+       "table": null
+      },
+      {
+       "text": "Der Messpunkt ist die magentafarbene Raute „B“ der Gezeitenstromangabe.",
+       "table": null
+      },
+      {
+       "text": "18:00 BZ liegt 4 h 56 min nach der HWZ Helgoland, das ist ≈ **5 h nach HW Helgoland**. Für Springzeit und „5 h nach HW Helgoland“ wird in der Stromtabelle des Messpunkts „B“ **StR = 250°** und **StG = 1,3 kn** abgelesen.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 17,
+     "points": 2,
+     "text": "Der Leuchtturm von Helgoland kommt in Sicht.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Beschreiben Sie das Leuchtfeuer vollständig nach Seekarte und Leuchtfeuerverzeichnis: – Kennung, Wiederkehr, Nenntragweite, – Höhe des Feuers über dem Wasser, Aussehen am Tage, Höhe des Feuerträgers über dem Erdboden."
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Kennung: Blitzfeuer bzw. Flash weiß",
+         "tolerance": null
+        },
+        {
+         "text": "Wiederkehr: 5 s; Lichterscheinung 0,1 s, Verdunkelung 4,9 s",
+         "tolerance": null
+        },
+        {
+         "text": "Nenntragweite: 28 sm",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Höhe Feuer ü. Wasser: 82 m",
+         "tolerance": null
+        },
+        {
+         "text": "Aussehen am Tage: rotbrauner, viereckiger Turm, weißer Turmkopf, Antennen",
+         "tolerance": null
+        },
+        {
+         "text": "Höhe FT ü. Erdboden: 34 m",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Angaben stehen in der Karte am Leuchtturm und, vollständig, im Leuchtfeuerverzeichnis.",
+       "table": null
+      },
+      {
+       "text": "Ein Blitzfeuer hat kurze Lichterscheinungen und lange Dunkelzeiten. Die Wiederkehr ist die Dauer, nach der sich die Kennung wiederholt: hier 5 s, davon 0,1 s Licht und 4,9 s Dunkel.",
+       "table": null
+      },
+      {
+       "text": "Die Nenntragweite ist die Sichtweite des Feuers bei meteorologischer Sicht von 10 sm, ohne Berücksichtigung von Augenhöhe und Erdkrümmung.",
+       "table": null
+      },
+      {
+       "text": "Die Höhe des Feuers bezieht sich auf das Wasser (bei Kartenbezugsniveau MHW), die Höhe des Feuerträgers (FT, des Turms) auf den Erdboden.",
+       "table": null
+      }
+     ]
+    },
+    {
+     "number": 18,
+     "points": 1,
+     "text": "",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Welche navigatorische Hilfe entnehmen Sie der Seekarte bzw. dem Leuchtfeuerverzeichnis für die Einfahrt nach Helgoland bei Dunkelheit aus nördlicher Richtung?"
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Helgoland Düne-Oberfeuer: Leitfeuer als Gleichtaktfeuer (Isophase) 4 s weiß mit Warnsektoren grün an Stb. und rot an Bb.",
+         "tolerance": "Helgoland Düne-Oberfeuer muss genannt sein"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Bei Dunkelheit hilft ein Leitfeuer: Wer in seinem weißen Sektor fährt, ist auf dem richtigen Weg.",
+       "table": null
+      },
+      {
+       "text": "Ein Gleichtaktfeuer (Isophase) hat Licht und Dunkel gleich lang. Hier wiederholt sich die Kennung nach 4 s.",
+       "table": null
+      },
+      {
+       "text": "Die Warnsektoren zeigen, auf welcher Seite man vom Leitweg abkommt: Sieht man grünes Licht, liegt man an Steuerbord des Leitwegs, sieht man rotes Licht, liegt man an Backbord.",
+       "table": null
+      }
+     ]
+    }
+   ]
   }
  ]
 }
