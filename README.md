@@ -9,7 +9,7 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 ## Status
 
-Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 and 2 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 6 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Tech stack
 
