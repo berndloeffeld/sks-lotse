@@ -106,8 +106,8 @@ export function chartPages(charts: ChartExport): PublicPage[] {
     ...charts.sheets.map((sheet) =>
       page(
         `/charts/${sheet.number}`,
-        `Kartenaufgabe ${sheet.number} – SKS-Navigation – SKS Lotse`,
-        `Amtliche SKS-Kartenaufgabe ${sheet.number}: ${sheet.tasks.length} Aufgaben, ${sheetMaxPoints(sheet)} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
+        `Kartenaufgabe ${sheet.number}: ${sheet.title} – SKS-Navigation – SKS Lotse`,
+        `Amtliche SKS-Kartenaufgabe ${sheet.number}, ${sheet.title}: ${sheet.summary} ${sheet.tasks.length} Aufgaben, ${sheetMaxPoints(sheet)} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
         true,
       ),
     ),

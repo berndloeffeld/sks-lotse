@@ -13,6 +13,8 @@
  "sheets": [
   {
    "number": 1,
+   "title": "Cuxhaven → Büsum",
+   "summary": "Elbabwärts durch die Norderrinne, mit Gezeiten, Stromdreieck und Radarpeilung.",
    "tasks": [
     {
      "number": 1,
@@ -1012,6 +1014,8 @@
   },
   {
    "number": 2,
+   "title": "Büsum → Helgoland",
+   "summary": "Bei Nordwind mit Kreuzpeilung und Stromdreieck, Anlaufen von Helgoland.",
    "tasks": [
     {
      "number": 1,
@@ -2120,6 +2124,8 @@
   },
   {
    "number": 3,
+   "title": "Helgoland → Baltrum",
+   "summary": "Mit dem Morgenhochwasser quer durch das Verkehrstrennungsgebiet Jade Approach.",
    "tasks": [
     {
      "number": 1,
@@ -3159,6 +3165,8 @@
   },
   {
    "number": 4,
+   "title": "Horumersiel → Wurster Watt",
+   "summary": "Über Jade und Alte Weser, Umkehr zum Niedrigwasser, mit Sektorenfeuer.",
    "tasks": [
     {
      "number": 1,
@@ -4320,6 +4328,8 @@
   },
   {
    "number": 5,
+   "title": "Helgoland → Wangerooge",
+   "summary": "Nachtfahrt mit Versetzung durch Wind, Warnsektor und Kompasskontrolle.",
    "tasks": [
     {
      "number": 1,

@@ -87,6 +87,8 @@ def test_the_catalog_has_consecutive_sheets_of_thirty_points():
     assert [sheet.number for sheet in sheets] == list(range(1, len(sheets) + 1))
     for sheet in sheets:
         assert service.max_points(sheet) == 30
+        assert sheet.title.strip()
+        assert sheet.summary.strip()
         assert [task.number for task in sheet.tasks] == list(range(1, len(sheet.tasks) + 1))
 
 
@@ -163,6 +165,8 @@ def test_overview_lists_the_exercises_with_the_shared_material(client, auth_head
     assert [e["number"] for e in body["exercises"]] == [sheet.number for sheet in service.catalog().sheets]
     assert body["exercises"][0] == {
         "number": 1,
+        "title": "Cuxhaven → Büsum",
+        "summary": service.catalog().sheets[0].summary,
         "task_count": 18,
         "max_points": 30,
         "open_attempt_id": None,

@@ -23,6 +23,8 @@ export interface ChartSheetTask {
 
 export interface ChartSheet {
   number: number
+  title: string
+  summary: string
   tasks: ChartSheetTask[]
 }
 
@@ -50,6 +52,8 @@ export function guestOverview(data: ChartExport): ChartExercisesOverview {
     tide_form: data.tide_form,
     exercises: data.sheets.map((sheet) => ({
       number: sheet.number,
+      title: sheet.title,
+      summary: sheet.summary,
       task_count: sheet.tasks.length,
       max_points: sheetMaxPoints(sheet),
       open_attempt_id: null,

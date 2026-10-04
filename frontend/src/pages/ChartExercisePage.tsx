@@ -193,7 +193,7 @@ interface SheetPageProps {
 
 function SheetPage({ number, overview, exercise, sheet, loadError, nav, children }: SheetPageProps) {
   return (
-    <PageLayout title={`Kartenaufgabe ${number}`} nav={nav} compact>
+    <PageLayout title={`Kartenaufgabe ${number}`} subtitle={exercise?.title} nav={nav} compact>
       {loadError ? (
         <p role="alert" className="text-danger">
           {loadError}

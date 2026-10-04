@@ -510,6 +510,10 @@ export interface components {
         ChartExerciseSummary: {
             /** Number */
             number: number;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
             /** Task Count */
             task_count: number;
             /** Max Points */

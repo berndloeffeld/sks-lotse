@@ -102,9 +102,9 @@ describe('chartPages', () => {
     ])
     expect(pages.every((p) => p.withoutAds)).toBe(true)
     expect(pages[1].meta).toEqual({
-      title: 'Kartenaufgabe 1 – SKS-Navigation – SKS Lotse',
+      title: 'Kartenaufgabe 1: Cuxhaven → Büsum – SKS-Navigation – SKS Lotse',
       description:
-        'Amtliche SKS-Kartenaufgabe 1: 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
+        'Amtliche SKS-Kartenaufgabe 1, Cuxhaven → Büsum: Elbabwärts durch die Norderrinne. 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/charts/1',
     })
   })

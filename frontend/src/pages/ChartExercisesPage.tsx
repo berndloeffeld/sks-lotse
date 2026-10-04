@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import type { ChartExerciseSummary } from '../api/types'
 import { guestOverview } from '../chartCatalog'
+import { ChartTile } from '../components/ChartTile'
 import { PageLayout } from '../components/PageLayout'
 import { useChartOverview } from '../hooks/useChartAttempt'
 import { useChartCatalog } from '../hooks/useChartCatalog'
@@ -38,7 +39,6 @@ function GuestChartExercises() {
       <ExerciseList
         exercises={charts ? guestOverview(charts).exercises : null}
         error={failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null}
-        status={(exercise) => `${exercise.task_count} Aufgaben · ${exercise.max_points} Punkte`}
       />
       <p className="text-sm text-ink-soft">
         Ohne Konto wird nichts gespeichert.{' '}
@@ -72,7 +72,8 @@ function ChartExercisesLayout({ nav, children }: { nav: 'account' | 'public'; ch
 interface ExerciseListProps {
   exercises: ChartExerciseSummary[] | null
   error: string | null
-  status: (exercise: ChartExerciseSummary) => string
+  // Where the learner stands; guests have none.
+  status?: (exercise: ChartExerciseSummary) => string
 }
 
 function ExerciseList({ exercises, error, status }: ExerciseListProps) {
@@ -84,15 +85,27 @@ function ExerciseList({ exercises, error, status }: ExerciseListProps) {
         </p>
       ) : null}
       {exercises === null && !error ? <p className="text-ink-soft">Wird geladen…</p> : null}
-      <ul className="flex flex-col">
+      <ul className="grid gap-4 sm:grid-cols-2">
         {exercises?.map((exercise) => (
-          <li key={exercise.number} className="border-b border-border last:border-b-0">
-            <Link
-              to={`/charts/${exercise.number}`}
-              className="flex items-center justify-between gap-4 px-2 py-3 hover:bg-surface-alt"
-            >
-              <span className="text-ink">Kartenaufgabe {exercise.number}</span>
-              <span className="text-right font-mono text-xs text-ink-soft">{status(exercise)}</span>
+          <li key={exercise.number} className="flex">
+            <Link to={`/charts/${exercise.number}`} className="flex flex-1">
+              <ChartTile
+                className="flex-1 hover:bg-surface-alt"
+                label={`Kartenaufgabe ${exercise.number}`}
+                title={exercise.title}
+                description={exercise.summary}
+                footer={
+                  <p className="font-mono text-xs">
+                    {exercise.task_count} Aufgaben · {exercise.max_points} Punkte
+                    {status ? (
+                      <>
+                        <br />
+                        {status(exercise)}
+                      </>
+                    ) : null}
+                  </p>
+                }
+              />
             </Link>
           </li>
         ))}

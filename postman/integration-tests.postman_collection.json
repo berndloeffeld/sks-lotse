@@ -9502,6 +9502,7 @@
                   "    pm.expect(o.exercises.length).to.be.above(0);",
                   "    pm.expect(o.exercises.map(function (e) { return e.number; })).to.eql(o.exercises.map(function (e, i) { return i + 1; }));",
                   "    o.exercises.forEach(function (e) { pm.expect(e.max_points).to.eql(30); });",
+                  "    o.exercises.forEach(function (e) { pm.expect(e.title).to.be.a('string').and.not.empty; pm.expect(e.summary).to.be.a('string').and.not.empty; });",
                   "    pm.expect(o.tide_form.src).to.eql('formblatt-gezeiten.png');",
                   "    pm.expect(o.hints.length).to.be.above(0);",
                   "});"
