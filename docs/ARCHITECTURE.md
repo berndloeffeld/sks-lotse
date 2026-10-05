@@ -33,7 +33,7 @@ graph LR
         STT[Web Speech API]
     end
 
-    subgraph "Render · Frankfurt EU"
+    subgraph "Render · Frankfurt EU (static site: global CDN)"
         Static[Static site<br/>sks-lotse.de]
         API[Backend API<br/>FastAPI · api.sks-lotse.de]
         DB[(PostgreSQL 18)]
@@ -66,7 +66,7 @@ graph LR
     SPA -.-> STT
 ```
 
-The dotted line is planned and not built yet (see [Not yet built](#not-yet-built)); AdSense loads only for accounts that see ads, and no ad units are rendered yet. All runtime services run in the EU, except the Anthropic API (US, see ADR-0031); Stripe contracts through its Irish entity, with a US parent (as stated in the Datenschutzerklärung). The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+The dotted line is planned and not built yet (see [Not yet built](#not-yet-built)); AdSense loads only for accounts that see ads, and no ad units are rendered yet. All runtime services run in the EU (apart from the static site's CDN delivery), except the Anthropic API (US, see ADR-0031); Stripe contracts through its Irish entity, with a US parent (as stated in the Datenschutzerklärung). The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
 Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
@@ -222,7 +222,7 @@ The details (subjects, the Seemannschaft merge, images, the three stages and how
 ### Deployment
 Everything is declared in `render.yaml`:
 
-- **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). All run in Frankfurt, and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
+- **Services**: a backend web service, a frontend static site, a managed Postgres and a daily Cron Job that mails the KPI report ([ADR-0032](adr/0032-daily-kpi-report.md)). The app, the cron job and the database run in Frankfurt (the static site has no region and is served from Render's global CDN), and there is only a production environment ([ADR-0005](adr/0005-render-deployment-topology.md), [ADR-0015](adr/0015-frontend-deployment-topology.md)).
 - **Deploys**: a push to `main` deploys once its GitHub checks have passed (`autoDeployTrigger: checksPass`). The backend migrates in a pre-deploy step (a failed migration aborts the deploy, the old instance keeps serving), runs exactly one uvicorn worker (the in-process limiter and cache assume a single process) and only receives traffic once `/health` passes.
 - **Monitoring**: Better Stack checks availability of the website and `/health` and hosts the public status page at [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) (configured in the Better Stack dashboard, not in this repo).
 - **Logs**: the backend and the cron job write one JSON object per line (`LOG_FORMAT=json`, `backend/app/core/log_config.py`). Render's log stream forwards them to Better Stack via syslog-ng. Every line logged during a request carries its `request_id`, which the response also returns as `X-Request-ID`. An unhandled exception becomes a single `level=ERROR` record with its traceback. Error alerts match on those fields. The daily-report cron pings a Better Stack heartbeat after a fully successful run, so a failed or skipped run alerts as well.

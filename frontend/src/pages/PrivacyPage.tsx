@@ -16,14 +16,16 @@ export function PrivacyPage() {
 
       <ProseSection title="Hosting">
         <p>
-          Diese Website sowie die zugehörige Datenbank werden bei Render (Frankfurt, EU) gehostet. Render verarbeitet
-          dabei in unserem Auftrag personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse
-          verarbeitet, u. a. um Missbrauch durch übermäßig viele Anfragen zu begrenzen (Rate-Limiting). Schriftarten
-          werden von unserem eigenen Server ausgeliefert, nicht von Google oder anderen Dritten. Server- und
-          Zugriffslogs (u. a. mit Ihrer IP-Adresse) leiten wir zur Fehlersuche und Verfügbarkeitsüberwachung an den
-          Logging- und Monitoring-Dienst Better Stack weiter, der die Logs für einen begrenzten Zeitraum speichert und
-          zudem die Erreichbarkeit unserer Website überwacht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
-          (berechtigtes Interesse am zuverlässigen, sicheren Betrieb der Website).
+          Die Anwendung (Server) sowie die zugehörige Datenbank werden bei Render in Frankfurt (EU) gehostet. Die
+          statischen Seiten dieser Website liefert Render über sein weltweites Content Delivery Network (CDN) aus; dabei
+          kann Ihre IP-Adresse auch auf Servern außerhalb der EU verarbeitet werden. Render verarbeitet dabei in unserem
+          Auftrag personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse verarbeitet, u. a. um
+          Missbrauch durch übermäßig viele Anfragen zu begrenzen (Rate-Limiting). Schriftarten werden von unserem
+          eigenen Server ausgeliefert, nicht von Google oder anderen Dritten. Server- und Zugriffslogs (u. a. mit Ihrer
+          IP-Adresse) leiten wir zur Fehlersuche und Verfügbarkeitsüberwachung an den Logging- und Monitoring-Dienst
+          Better Stack weiter, der die Logs für einen begrenzten Zeitraum speichert und zudem die Erreichbarkeit unserer
+          Website überwacht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am zuverlässigen,
+          sicheren Betrieb der Website).
         </p>
       </ProseSection>
 
@@ -258,7 +260,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 2. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 5. Oktober 2026</p>
     </PageLayout>
   )
 }
