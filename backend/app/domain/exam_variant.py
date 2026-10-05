@@ -5,12 +5,8 @@ The official catalog is split by propulsion type: "Motor" (engine only) and
 Schifffahrtsrecht and Wetterkunde in full, plus the common Seemannschaft
 questions (seemannschaft_allgemein); only the variant-specific Seemannschaft
 questions (seemannschaft_motor / seemannschaft_segeln) differ. See
-backend/scripts/merge_seemannschaft.py and CLAUDE.md → Question Catalog.
+backend/scripts/merge_seemannschaft.py and docs/catalog-pipeline.md.
 """
-
-from typing import Literal
-
-ExamVariant = Literal["motor", "segeln_und_motor"]
 
 EXAM_VARIANTS: dict[str, set[str]] = {
     "motor": {
