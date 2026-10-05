@@ -110,3 +110,32 @@ export function faqAnswerParts(answer: string): FaqAnswerPart[] {
   if (last < answer.length) parts.push({ text: answer.slice(last) })
   return parts
 }
+
+// The short answers at the foot of /exam-process: shown on the page and, word for word, the
+// page's FAQPage JSON-LD (publicPages.ts), so crawlers and answer engines can quote them.
+export const EXAM_PROCESS_FAQ: { question: string; answer: string }[] = [
+  {
+    question: 'Wie läuft die SKS-Theorieprüfung ab?',
+    answer:
+      'Der Fragebogen hat 30 Fragen in 90 Minuten: 9 zur Navigation, 7 zur Rechtskunde, 5 zur Wetterkunde und 9 zur Seemannschaft. Dazu kommt eine separate Karten- und Gezeitenaufgabe, die in weiteren 90 Minuten bearbeitet und getrennt bewertet wird.',
+  },
+  {
+    question: 'Was brauche ich, um zur SKS-Prüfung zugelassen zu werden?',
+    answer:
+      'Voraussetzung ist der Sportbootführerschein See (SBF See). Für die praktische SKS-Prüfung verlangt die Prüfungsordnung außerdem 300 Seemeilen Erfahrung auf Yachten in Küstengewässern.',
+  },
+  {
+    question: 'In welcher Reihenfolge und Frist legt man Theorie und Praxis ab?',
+    answer: 'Die Reihenfolge ist beliebig, beide Teile müssen aber innerhalb von 24 Monaten abgeschlossen sein.',
+  },
+  {
+    question: 'Wie lange dauert die praktische SKS-Prüfung?',
+    answer:
+      'Höchstens 30 Minuten pro Prüfling, auf einer Segelyacht in Küstengewässern, mit Manövern, Navigation und Seemannschaft.',
+  },
+  {
+    question: 'Brauche ich den SKS als privater Skipper?',
+    answer:
+      'Gesetzlich vorgeschrieben ist er nur für die gewerbliche Nutzung von Sportbooten in Küstengewässern. Privat wird er trotzdem oft verlangt, denn viele Vercharterer fordern den SKS als Befähigungsnachweis.',
+  },
+]

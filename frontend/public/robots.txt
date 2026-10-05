@@ -3,4 +3,14 @@ Allow: /
 Disallow: /admin
 Disallow: /profile
 
+# AI search and answer engines (they fetch a page to cite it) — welcome on the public pages.
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /profile
+
 Sitemap: https://sks-lotse.de/sitemap.xml
