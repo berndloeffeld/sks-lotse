@@ -35,11 +35,13 @@ export function AgbPage() {
 
       <ProseSection title="3. Registrierung und Nutzerkonto">
         <p>
-          Die Nutzung setzt ein Konto voraus, das per E-Mail-Adresse und Login-Code (OTP) angemeldet wird. Der Nutzer
-          verpflichtet sich zu wahrheitsgemäßen Angaben und darf nur ein Konto pro Person unterhalten. Die Nutzung setzt
-          außerdem die Zustimmung zu diesen AGB voraus: Nach der Anmeldung wird einmalig eine Bestätigung abgefragt (und
-          erneut, sobald sich diese AGB inhaltlich ändern). Version und Zeitpunkt der Zustimmung werden zum Konto
-          gespeichert.
+          Die Nutzung der Funktionen, die Daten speichern oder Leistungen auslösen (Lernfortschritt, Probeprüfung,
+          Lotsen-Check, Käufe), setzt ein Konto voraus, das per E-Mail-Adresse und Login-Code (OTP) angemeldet wird.
+          Weitere Bereiche können ohne Konto zugänglich sein; welche das sind, ergibt sich aus der Anwendung selbst. Der
+          Nutzer verpflichtet sich zu wahrheitsgemäßen Angaben und darf nur ein Konto pro Person unterhalten. Die
+          Nutzung mit Konto setzt außerdem die Zustimmung zu diesen AGB voraus: Nach der Anmeldung wird einmalig eine
+          Bestätigung abgefragt (und erneut, sobald sich diese AGB inhaltlich ändern). Version und Zeitpunkt der
+          Zustimmung werden zum Konto gespeichert.
         </p>
       </ProseSection>
 

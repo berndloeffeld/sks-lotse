@@ -98,7 +98,7 @@ Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam 
 ## Privacy
 
 - Access with an email address only, no password, no passing of data to advertising networks without consent; ad consent is managed through the cookie settings in the footer.
-- Hosted in Frankfurt (EU). Usage analytics without cookies.
+- App and database hosted in Frankfurt (EU); the static pages are delivered through Render's global CDN. Usage analytics without cookies.
 - Learners can delete their account and all learning data at any time themselves. Access and data export are handled on request through the operator.
 
 ## Operator tools (not for learners)
