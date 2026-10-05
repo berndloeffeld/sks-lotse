@@ -1,56 +1,44 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { ShareLinks } from './ShareLinks'
 
+function linkFor(name: string): HTMLAnchorElement {
+  render(<ShareLinks />)
+  return screen.getByRole('link', { name }) as HTMLAnchorElement
+}
+
 describe('ShareLinks', () => {
-  it('opens a WhatsApp share dialog for the site', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
-    render(<ShareLinks />)
+  it('links to a WhatsApp share dialog for the site, in a new tab', () => {
+    const link = linkFor('Auf WhatsApp teilen')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Auf WhatsApp teilen' }))
-
-    expect(open).toHaveBeenCalledTimes(1)
-    const [url] = open.mock.calls[0]
-    expect(url).toContain('https://api.whatsapp.com/send')
-    expect(url).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link.href).toContain('https://api.whatsapp.com/send')
+    expect(link.href).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('opens a Facebook share dialog for the site', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
-    render(<ShareLinks />)
+  it('links to a Facebook share dialog for the site, in a new tab', () => {
+    const link = linkFor('Auf Facebook teilen')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Auf Facebook teilen' }))
-
-    expect(open).toHaveBeenCalledTimes(1)
-    const [url] = open.mock.calls[0]
-    expect(url).toContain('https://www.facebook.com/sharer/sharer.php')
-    expect(url).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link.href).toContain('https://www.facebook.com/sharer/sharer.php')
+    expect(link.href).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link).toHaveAttribute('target', '_blank')
   })
 
-  it('opens a Telegram share dialog for the site', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
-    render(<ShareLinks />)
+  it('links to a Telegram share dialog for the site, in a new tab', () => {
+    const link = linkFor('Auf Telegram teilen')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Auf Telegram teilen' }))
-
-    expect(open).toHaveBeenCalledTimes(1)
-    const [url] = open.mock.calls[0]
-    expect(url).toContain('https://telegram.me/share/url')
-    expect(url).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link.href).toContain('https://telegram.me/share/url')
+    expect(link.href).toContain(encodeURIComponent('sks-lotse.de'))
+    expect(link).toHaveAttribute('target', '_blank')
   })
 
-  it('opens a mailto share dialog for the site', async () => {
-    // The email button navigates via `window.location.href` instead of
-    // opening a popup — stub `location` so that assignment is observable.
-    const location = { href: '' }
-    vi.stubGlobal('location', location)
-    render(<ShareLinks />)
+  it('links to a mail with the site, without opening a tab', () => {
+    const link = linkFor('Per E-Mail teilen')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Per E-Mail teilen' }))
-
-    expect(location.href).toContain('mailto:')
-    expect(location.href).toContain(encodeURIComponent('SKS Lotse'))
+    expect(link.href).toContain('mailto:')
+    expect(link.href).toContain(encodeURIComponent('SKS Lotse'))
+    expect(link).not.toHaveAttribute('target')
   })
 })

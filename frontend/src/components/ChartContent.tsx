@@ -5,7 +5,7 @@ import { RichText } from './RichText'
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).
 
 /** The drawn Stromdreieck, cut from the PDF at twice its size: sharp when scaled up to the column. */
-export function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
+function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
   return (
     <div className="flex flex-col gap-2">
       {images.map((image, i) => (

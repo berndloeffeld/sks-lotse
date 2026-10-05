@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { HelmIcon } from './icons/FeatureIcons'
 
 // Below this many tokens the counter turns red: only a handful of Lotsen-Checks are left.
-export const LOW_TOKEN_THRESHOLD = 5
+const LOW_TOKEN_THRESHOLD = 5
 
 // The header's token balance: the ship's wheel (the Lotsen-Check's symbol, HelmIcon) and the number, nothing else. Links to the token packages.
 // Green while `/pricing?checkout=success` is showing (the learner just bought tokens), red below

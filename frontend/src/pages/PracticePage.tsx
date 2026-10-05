@@ -1,4 +1,3 @@
-import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
@@ -9,6 +8,7 @@ import { PracticeRun } from '../components/PracticeRun'
 import { TopicQuestionList } from '../components/TopicQuestionList'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useCatalog } from '../hooks/useCatalog'
+import { useStandingsUpdate } from '../hooks/usePracticeSession'
 import { SUBJECT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 
@@ -94,11 +94,7 @@ const ignoreGrade = () => {}
 function MemberPractice({ subject, topicSlug }: TopicProps) {
   const { data, setData, isLoading, error } = usePracticeData(subject, topicSlug)
 
-  const onGraded = useCallback(
-    (result: QuestionProgress) =>
-      setData((current) => ({ ...current, standings: new Map(current.standings).set(result.question_id, result) })),
-    [setData],
-  )
+  const onGraded = useStandingsUpdate(setData)
 
   return (
     <PageLayout

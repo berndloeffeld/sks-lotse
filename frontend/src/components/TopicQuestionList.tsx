@@ -1,4 +1,5 @@
 import type { Question } from '../api/types'
+import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 
@@ -28,12 +29,7 @@ export function TopicQuestionList({ questions }: { questions: Question[] }) {
                 <QuestionImages images={question.question_images} part="question" />
                 <div className="rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
                   <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
-                  {question.answer_text ? (
-                    <p className="text-sm whitespace-pre-line text-ink">
-                      <RichText text={question.answer_text} />
-                    </p>
-                  ) : null}
-                  <QuestionImages images={question.answer_images} part="answer" />
+                  <OfficialAnswer text={question.answer_text} images={question.answer_images} textClassName="text-sm" />
                 </div>
               </div>
             </details>

@@ -19,12 +19,14 @@
 //                       and drops the "/"-scoped JSON-LD block — see ADR-0025's
 //                       2026-09-24 update. /pricing and the /learn pages are
 //                       built without the static ad script (like app.html).
+//                       The /learn and /charts pages also preload the guests'
+//                       data chunk, which their hydration waits for.
 //
 //   dist/sitemap.xml  — every one of those pages.
 //
 // The rendered root is tagged data-prerendered="<path>" so main.tsx only
 // hydrates markup that belongs to the route it is actually showing.
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -41,6 +43,20 @@ const shell = readFileSync(`${dist}index.html`, 'utf8')
 if (!shell.includes(ROOT)) {
   throw new Error(`prerender: ${ROOT} not found in dist/index.html`)
 }
+
+// The guests' data export (catalog.ts, chartCatalog.ts) is its own chunk, and the page hydrates
+// only once it has loaded (main.tsx). Without a hint the browser finds it only after the entry
+// script has run, one request after the other; with <link rel="modulepreload"> it fetches in
+// parallel with the entry script. The file name carries a content hash, so it is looked up here.
+function dataChunkPreload(prefix) {
+  const file = readdirSync(`${dist}assets`).find((name) => name.startsWith(`${prefix}-`) && name.endsWith('.js'))
+  if (!file) throw new Error(`prerender: no ${prefix} chunk found in dist/assets`)
+  return `<link rel="modulepreload" crossorigin href="/assets/${file}" />\n  </head>`
+}
+const catalogPreload = dataChunkPreload('catalog.gen')
+const chartCatalogPreload = dataChunkPreload('chart_exercises.gen')
+const preloadFor = (path) =>
+  path.startsWith('/learn') ? catalogPreload : path.startsWith('/charts') ? chartCatalogPreload : null
 
 // The only ad-related tag the build emits (vite.config.ts, adsense-snippet). The public pages keep
 // it — AdSense's site verification reads their source. The shell must start without it: once
@@ -70,6 +86,8 @@ for (const { path, file, meta, withoutAds } of pages) {
   let html = shell.replace(ROOT, () => root)
   if (meta) html = applyMeta(html, meta)
   if (withoutAds) html = withoutAdScript(html, file)
+  const preload = preloadFor(path)
+  if (preload) html = html.replace('</head>', () => preload)
   mkdirSync(dirname(`${dist}${file}`), { recursive: true })
   writeFileSync(`${dist}${file}`, html)
 }

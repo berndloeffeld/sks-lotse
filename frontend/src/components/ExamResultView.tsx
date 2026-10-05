@@ -7,6 +7,7 @@ import { formatDateTime, percentOf } from '../format'
 import { EXAM_RESULT_LABELS, OUTCOME_LABELS, SUBJECT_GROUP_LABELS, VARIANT_LABELS } from '../labels'
 import type { ExamVariant } from '../api/types'
 import { formStyles } from './formStyles'
+import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 
@@ -98,14 +99,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
                 </div>
                 <div>
                   <h3 className="text-sm text-ink-soft">Amtliche Antwort</h3>
-                  <p className="whitespace-pre-line text-ink">
-                    {q.official_answer ? (
-                      <RichText text={q.official_answer} />
-                    ) : q.official_answer_images.length === 0 ? (
-                      '—'
-                    ) : null}
-                  </p>
-                  <QuestionImages images={q.official_answer_images} part="answer" />
+                  <OfficialAnswer text={q.official_answer} images={q.official_answer_images} />
                 </div>
               </div>
             </details>

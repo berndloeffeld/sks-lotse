@@ -109,7 +109,7 @@ describe('LandingPage', () => {
   it('offers share buttons after the "Kostenlos starten" pitch', () => {
     renderLandingPage()
 
-    expect(screen.getByRole('button', { name: 'Auf WhatsApp teilen' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Auf WhatsApp teilen' })).toBeInTheDocument()
   })
 
   it('shows no beta or speech-input notice', () => {

@@ -38,7 +38,10 @@
     "src/chartCatalog.ts",
     "src/chartGuestRun.ts",
     "src/lotseErrorMessage.ts",
-    "src/hooks/useChartCatalog.ts"
+    "src/hooks/useChartCatalog.ts",
+    "src/lazyExport.ts",
+    "src/hooks/useLazyExport.ts",
+    "src/hooks/usePracticeSession.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true
