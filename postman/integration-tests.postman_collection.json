@@ -2765,6 +2765,7 @@
                   "pm.test('records the current AGB version', function () {",
                   "    var me = pm.response.json();",
                   "    pm.expect(me.agb_accepted_version).to.eql('2026-10-02');",
+                  "    pm.expect(me.needs_agb_acceptance).to.eql(false);",
                   "});"
                 ]
               }

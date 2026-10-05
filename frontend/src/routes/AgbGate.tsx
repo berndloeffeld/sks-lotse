@@ -3,14 +3,13 @@ import { Link, Outlet } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { User } from '../api/types'
-import { AGB_VERSION } from '../legal'
 import { useAuthStore } from '../store/authStore'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 
 // Wraps the logged-in routes and the pages open to guests too (/learn, ADR-0054); it only ever
 // asks a logged-in learner. The page always renders (via Outlet) so the app doesn't visually disappear;
-// when the account's stored AGB version doesn't match the current one — a
-// fresh acceptance, or AGB_VERSION was bumped since the last login — a modal
+// when the backend says the account owes a confirmation — a fresh acceptance,
+// or the AGB version was bumped since the last login — a modal
 // overlay blocks it until confirmed. No per-login checkbox: friction only
 // when a confirmation is actually owed.
 export function AgbGate() {
@@ -18,7 +17,7 @@ export function AgbGate() {
   const setUser = useAuthStore((state) => state.setUser)
   const { run, isPending: isSubmitting, error } = useAsyncAction()
 
-  const needsAcceptance = user !== null && user.agb_accepted_version !== AGB_VERSION
+  const needsAcceptance = user?.needs_agb_acceptance === true
 
   // Mandatory dialog: block scrolling/interacting with the page behind it
   // for as long as it's up.
