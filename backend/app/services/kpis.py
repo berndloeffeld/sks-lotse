@@ -206,7 +206,7 @@ def _monetization(db: Session, now: datetime) -> MonetizationKpis:
                 Purchase.granted_by == "stripe", Purchase.created_at >= since
             )
         ).one()
-        return count, cents
+        return count, cents or 0
 
     purchases_24h, revenue_24h = purchases(now - day)
     purchases_7d, revenue_7d = purchases(now - week)

@@ -574,7 +574,7 @@ def _copy_taken_rows(connection: Connection, copies: list[tuple[CatalogQuestion,
     progress = sa.Table("question_progress", sa.MetaData(), autoload_with=connection)
     carried = [c for c in progress.c if c.name not in ("id", "question_id")]
     for q, source_id in copies:
-        new_id = connection.execute(
+        new_id: int = connection.execute(
             sa.insert(_questions)
             .values(
                 subject=q.subject,
