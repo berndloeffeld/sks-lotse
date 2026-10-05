@@ -89,7 +89,11 @@ def build_checkout_params(
 
 def _client() -> stripe.StripeClient:
     # No stripe_version: the SDK's own pinned API version is used.
-    return stripe.StripeClient(settings.stripe_secret_key)
+    # The SDK retries nothing and waits 80 s by default; a Checkout request is interactive, so a
+    # short timeout and two retries (the SDK sends an idempotency key, so a retry can't double-create).
+    return stripe.StripeClient(
+        settings.stripe_secret_key, max_network_retries=2, http_client=stripe.RequestsClient(timeout=15)
+    )
 
 
 def create_checkout_url(db: Session, user: User, product: str) -> str:

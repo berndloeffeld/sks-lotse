@@ -5,6 +5,7 @@ import threading
 import anthropic
 import httpx
 import pytest
+from pydantic import ValidationError
 
 from app.api.v1 import grading as grading_api
 from app.core.config import settings
@@ -442,6 +443,22 @@ def test_service_wraps_api_errors_and_empty_replies(monkeypatch):
     _patch_client(monkeypatch, _FakeMessages(_FakeResponse(None)))
     with pytest.raises(GradingUnavailable, match=r"^unparseable reply$"):
         grader.grade_answer("F", "M", "A")
+
+
+def test_a_reply_cut_off_at_max_tokens_is_unavailable_without_quoting_it(monkeypatch):
+    # `parse` validates the JSON itself: a truncated reply raises pydantic's ValidationError, whose
+    # text quotes the reply (which can quote the learner). Only the type name may be kept.
+    try:
+        GradeResult.model_validate_json('{"outcome": "falsch", "feedback": "Dein Satz: geheim')
+    except ValidationError as cut_off:
+        error = cut_off
+    _patch_client(monkeypatch, _FakeMessages(error=error))
+
+    with pytest.raises(GradingUnavailable, match=r"^ValidationError$") as raised:
+        grader.grade_answer("F", "M", "A")
+
+    assert raised.value.__cause__ is None
+    assert raised.value.__suppress_context__
 
 
 def test_service_escapes_tags_in_the_learner_answer(monkeypatch):

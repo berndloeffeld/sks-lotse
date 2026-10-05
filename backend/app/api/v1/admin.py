@@ -28,7 +28,11 @@ from app.services.user import delete_user_and_progress
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
-_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+def _not_found() -> HTTPException:
+    # Built per failure: a shared instance would keep every raise's traceback frames alive.
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +47,7 @@ def _audit(admin: User, action: str, **details: object) -> None:
 def _get_user_or_404(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:
-        raise _NOT_FOUND
+        raise _not_found()
     return user
 
 
@@ -198,7 +202,7 @@ def question_history(
 ) -> AdminQuestionHistory:
     """Who graded this question when and how, and the half-life each grading produced (ADR-0051)."""
     if db.get(Question, question_id) is None:
-        raise _NOT_FOUND
+        raise _not_found()
     _audit(admin, "question_history", question_id=question_id)
     return admin_users.question_history(db, question_id)
 
@@ -273,6 +277,6 @@ def delete_blocklist_entry(
     block_id: int, request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
 ) -> None:
     if not blocklist.remove_block(db, block_id):
-        raise _NOT_FOUND
+        raise _not_found()
     blocklist.commit(db, request.app)
     _audit(admin, "delete_block", block_id=block_id)

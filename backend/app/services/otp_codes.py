@@ -172,7 +172,7 @@ def consume_code(db: Session, email: str, purpose: str, code: str, user_id: int 
     otp_max_attempts, and a code issued for another purpose (or, for an
     email change, requested by another account) never matches.
     Callers raise their own error on False (401 for login, 400 for an
-    email change — see _INVALID_EMAIL_CHANGE_CODE).
+    email change — see _invalid_email_change_code).
     """
     otp = _latest_code(db, email, purpose, user_id=user_id, for_update=True)
     if otp is None:
