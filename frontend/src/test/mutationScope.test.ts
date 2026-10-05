@@ -12,6 +12,7 @@ const SOURCES = import.meta.glob(['/src/*.ts', '/src/api/*.ts', '/src/store/*.ts
 const EXCLUDED = new Set([
   'src/api/types.ts', // types only, no runtime code
   'src/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
+  'src/publicPageTexts.ts', // SEO wording of the prerendered pages: a mutant changing a sentence is no bug
 ])
 
 function mutateScope(): Set<string> {
