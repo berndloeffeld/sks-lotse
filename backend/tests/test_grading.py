@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from app.api.v1 import grading as grading_api
 from app.core.config import settings
 from app.core.jwt import create_access_token
-from app.models import Question, User
+from app.models import LotseCheckLog, Question, User
 from app.services import grader, token_wallet
 from app.services.grader import GradedAnswer, GradeResult, GradingUnavailable
 
@@ -157,6 +157,32 @@ def test_unavailable_is_503(client, db_session, monkeypatch):
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
     assert _post(client, q.id, headers).status_code == 503
+    # A check that never ran is not counted for the KPI report.
+    assert db_session.query(LotseCheckLog).count() == 0
+
+
+def test_a_check_that_ran_is_logged_for_the_kpi_report_without_a_user(client, db_session, fake_grader):
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    assert _post(client, q.id, headers).status_code == 200
+
+    [row] = db_session.query(LotseCheckLog).all()
+    assert (row.kind, row.tokens) == ("catalog", token_wallet.TOKENS_PER_ANSWER_CHECK)
+    assert row.checked_at is not None
+
+
+def test_a_failing_kpi_log_does_not_cost_the_learner_the_result(client, db_session, fake_grader, monkeypatch):
+    def broken_commit_after_add(self, *args, **kwargs):
+        raise RuntimeError("log table gone")
+
+    q = _question(db_session)
+    headers = _headers(db_session, enabled=True)
+    monkeypatch.setattr(LotseCheckLog, "__init__", broken_commit_after_add)
+
+    response = _post(client, q.id, headers)
+
+    assert response.status_code == 200
+    assert response.json()["tokens_remaining"] == _PLENTY_OF_TOKENS - 1
 
 
 # --- abuse monitoring (ADR-0040) --------------------------------------------

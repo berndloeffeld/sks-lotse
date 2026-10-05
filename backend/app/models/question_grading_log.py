@@ -14,7 +14,11 @@ class QuestionGradingLog(Base):
     """
 
     __tablename__ = "question_grading_log"
-    __table_args__ = (Index("ix_question_grading_log_question_id_graded_at", "question_id", "graded_at"),)
+    __table_args__ = (
+        Index("ix_question_grading_log_question_id_graded_at", "question_id", "graded_at"),
+        # The daily KPI report counts gradings in a time window across all questions.
+        Index("ix_question_grading_log_graded_at", "graded_at"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(

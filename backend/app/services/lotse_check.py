@@ -8,12 +8,15 @@ refunds or caps lands here once, not in two copies (ADR-0040, ADR-0043, ADR-0044
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 from fastapi import HTTPException
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.rate_limit import enforce_limit, forget_last
+from app.models.lotse_check_log import LotseCheckLog
 from app.models.user import User
 from app.services import ai_abuse_monitoring, token_wallet
 from app.services.grader import GradingUnavailable
@@ -21,6 +24,8 @@ from app.services.grader import GradingUnavailable
 logger = logging.getLogger(__name__)
 
 DAY_SECONDS = 24 * 3600
+# The KPI report looks back 7 days; the log keeps a month for margin (ADR-0032 addendum 2026-10-05).
+CHECK_LOG_RETENTION = timedelta(days=30)
 USER_BUCKET = "ai_grade:user"
 
 
@@ -65,6 +70,7 @@ def run_paid_check[T](
     db: Session,
     user: User,
     *,
+    kind: str,
     amount: int,
     caps: CheckCaps,
     grade: Callable[[], T],
@@ -74,7 +80,8 @@ def run_paid_check[T](
 
     A check that never happened costs the learner nothing: the tokens and both caps are given back
     for any failure, not just the expected GradingUnavailable (which becomes a 503; anything else
-    propagates). Never logs the learner's answer, only the reason.
+    propagates). A check that ran is logged for the KPI report (`kind`: "catalog" or "chart").
+    Never logs the learner's answer, only the reason.
     """
     caps.enforce(app, user.id)
     tokens_remaining = token_wallet.reserve(db, user.id, amount)
@@ -91,6 +98,14 @@ def run_paid_check[T](
             raise
         logger.warning("%s unavailable: %s", log_label, exc)
         raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc
+    # Counted for the KPI report only (no user, no content); a failure here must not cost the
+    # learner the result they already paid for.
+    try:
+        db.add(LotseCheckLog(kind=kind, tokens=amount))
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Could not record a Lotsen-Check for the KPI report")
     return graded, tokens_remaining
 
 
@@ -111,3 +126,10 @@ def record_sanitizer_flag_and_log(
             sanitized,
             flags,
         )
+
+
+def purge_check_log(db: Session, now: datetime) -> int:
+    """Delete the log rows the KPI report no longer needs; returns how many."""
+    result = db.execute(delete(LotseCheckLog).where(LotseCheckLog.checked_at < now - CHECK_LOG_RETENTION))
+    db.commit()
+    return result.rowcount  # type: ignore[attr-defined] # a DELETE's result is a CursorResult

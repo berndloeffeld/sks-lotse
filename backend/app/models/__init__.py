@@ -3,6 +3,7 @@ from app.models.blocked_email import BlockedEmail
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
+from app.models.lotse_check_log import LotseCheckLog
 from app.models.otp_code import OtpCode
 from app.models.purchase import Purchase
 from app.models.question import Question
@@ -19,6 +20,7 @@ __all__ = [
     "ExamAttempt",
     "ExamAttemptQuestion",
     "FocusTopic",
+    "LotseCheckLog",
     "OtpCode",
     "Purchase",
     "Question",

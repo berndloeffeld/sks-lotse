@@ -7,6 +7,7 @@ from app.api.v1 import chart_exercises as chart_api
 from app.core.config import settings
 from app.core.features import chart_exercises_enabled_for
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
+from app.models.lotse_check_log import LotseCheckLog
 from app.models.user import User
 from app.services import chart_exercises as service
 from app.services import token_wallet
@@ -422,6 +423,8 @@ def test_ai_check_stores_the_suggestion_and_spends_two_tokens(
     ]
     assert task.number == 3
     assert learner_answer == "Meine Antwort 3"
+    [logged] = db_session.query(LotseCheckLog).all()
+    assert (logged.kind, logged.tokens) == ("chart", token_wallet.TOKENS_PER_CHART_CHECK)
 
 
 def test_ai_check_is_once_per_task(client, db_session, auth_headers, fake_chart_grader):

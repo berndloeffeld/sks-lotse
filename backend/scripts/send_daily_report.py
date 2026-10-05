@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from app.core.config import settings
 from app.core.database import SessionLocal
 from app.core.log_config import configure_logging
+from app.services import lotse_check
 from app.services.email import send_kpi_report_email
 from app.services.kpis import compute_kpis, format_report
 
@@ -31,6 +32,7 @@ def main() -> int:
     now = datetime.now(UTC)
     with SessionLocal() as db:
         report = compute_kpis(db, now)
+        lotse_check.purge_check_log(db, now)
     subject = f"SKS Lotse Tagesreport {now:%d.%m.%Y}"
     body = format_report(report)
     failed = 0

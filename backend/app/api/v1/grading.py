@@ -49,6 +49,7 @@ def ai_grade_answer(
         request.app,
         db,
         current_user,
+        kind="catalog",
         amount=token_wallet.TOKENS_PER_ANSWER_CHECK,
         caps=_caps(current_user.id, question_id),
         grade=lambda: grade_answer(question.question_text, question.answer_text, payload.answer),
