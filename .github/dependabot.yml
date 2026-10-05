@@ -48,8 +48,8 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  # Keeps the pre-commit hook revisions (e.g. ruff) from drifting away from
-  # the pinned versions in backend/requirements-dev.in.
+  # Keeps the revisions of the remote pre-commit hooks (pre-commit-hooks) current. Ruff is a local
+  # hook that runs the venv's version, so backend/requirements-dev.in is what pins it.
   - package-ecosystem: pre-commit
     directory: /
     schedule:

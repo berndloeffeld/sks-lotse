@@ -174,7 +174,7 @@ services:
       # Umami Cloud website id (see ADR-0016). Not a security secret — it's
       # visible to any visitor via view-source on the deployed site anyway
       # — but kept out of this committed file rather than made a
-      # zero-effort grep, since the repo may go open-source. Set manually
+      # zero-effort grep, since the repo is public. Set manually
       # in the Render dashboard (CLAUDE.md, Deployment, One-time manual
       # steps).
       - key: VITE_UMAMI_WEBSITE_ID

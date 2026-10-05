@@ -144,9 +144,9 @@ class Settings(BaseSettings):
     grading_max_per_question_per_day: int = 2
     # LLM calls in flight at once, across all accounts. The endpoint is sync, so each call holds one of
     # the server's worker threads for up to the timeout — without a cap a few accounts could starve the
-    # whole API. Past the cap the check answers 503 (budget refunded) instead of queueing.
+    # whole API. Past the cap the check answers 503 (tokens refunded) instead of queueing.
     grading_max_concurrent_calls: int = 5
-    # Sanitizer backstop (ADR-0040): normal feedback is "höchstens 3 kurze Sätze", so this cap is
+    # Sanitizer backstop (ADR-0040): normal feedback is "höchstens 2 kurze Sätze", so this cap is
     # generous headroom that only trips on injected/off-topic content the model echoed back.
     grading_feedback_max_chars: int = 500
     # After this many sanitizer trips, subsequent ai-grade calls for that account log extra detail

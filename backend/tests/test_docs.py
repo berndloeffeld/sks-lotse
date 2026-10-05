@@ -5,6 +5,7 @@ still points at the old place, or an index that forgot an ADR, fails here instea
 """
 
 import re
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -57,3 +58,25 @@ def test_relative_links_point_at_existing_files(doc):
         if not (doc.parent / path).exists():
             broken.append(target)
     assert broken == []
+
+
+# --- security.txt (RFC 9116) ------------------------------------------------------------------
+
+SECURITY_TXT = REPO / "frontend" / "public" / ".well-known" / "security.txt"
+# Renewing means a PR; two months is time enough to notice a red CI and do it.
+SECURITY_TXT_RENEW_BEFORE = timedelta(days=60)
+
+
+def test_security_txt_expires_far_enough_ahead_to_renew_in_time():
+    # Goes red 60 days before the date in `Expires`: move it forward (at most a year ahead, RFC 9116)
+    # and keep docs/RUNBOOK.md → security.txt in step.
+    match = re.search(r"^Expires:\s*(\S+)\s*$", SECURITY_TXT.read_text(encoding="utf-8"), re.MULTILINE)
+    assert match, "security.txt has no Expires field"
+    expires = datetime.fromisoformat(match.group(1).replace("Z", "+00:00"))
+
+    remaining = expires - datetime.now(UTC)
+
+    assert remaining > SECURITY_TXT_RENEW_BEFORE, (
+        f"security.txt expires {expires:%Y-%m-%d}, in {remaining.days} days: renew its Expires field "
+        "(docs/RUNBOOK.md → security.txt)"
+    )
