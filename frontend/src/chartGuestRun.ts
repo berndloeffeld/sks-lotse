@@ -29,7 +29,7 @@ export function currentTask(sheet: ChartSheet, run: GuestRun): number | null {
 
 // Whether the Lotsen-Check could look at the task: not when a drawing (the current triangle) scores,
 // as backend/app/services/chart_grader.py decides for a learner's run (ADR-0058).
-export function isAiCheckable(task: ChartSheetTask): boolean {
+function isAiCheckable(task: ChartSheetTask): boolean {
   return !task.solution.some((part) => part.image)
 }
 

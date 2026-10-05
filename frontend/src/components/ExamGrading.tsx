@@ -2,6 +2,7 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { SUBJECT_GROUP_LABELS } from '../labels'
+import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
@@ -51,14 +52,7 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
       </section>
       <section className="rounded-tile border-l-4 border-primary bg-surface-alt p-4">
         <h2 className="text-sm text-ink-soft">Amtliche Antwort</h2>
-        <p className="whitespace-pre-line text-ink">
-          {question.official_answer ? (
-            <RichText text={question.official_answer} />
-          ) : question.official_answer_images.length === 0 ? (
-            '—'
-          ) : null}
-        </p>
-        <QuestionImages images={question.official_answer_images} part="answer" />
+        <OfficialAnswer text={question.official_answer} images={question.official_answer_images} />
       </section>
       <SelfAssessment
         key={question.position}

@@ -11,7 +11,7 @@ import { LotseCheckButton } from './LotseCheckButton'
 const styles = formStyles('light')
 
 // Mirrors TOKENS_PER_CHART_CHECK in the backend (app/services/token_wallet.py, ADR-0058).
-export const CHART_CHECK_TOKENS = 2
+const CHART_CHECK_TOKENS = 2
 
 /** The Lotsen-Check's suggestion for a task: points, what's right or wrong, and the probable mistake. */
 export function ChartAiSuggestionView({

@@ -5,7 +5,7 @@ import { RichText } from './RichText'
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).
 
 /** Rendered at twice the PDF's size (scripts/extract_chart_exercises.py): sharp when scaled up to the column. */
-export function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
+function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
   return (
     <div className="flex flex-col gap-2">
       {images.map((image, i) => (

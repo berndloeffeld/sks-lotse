@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { apiClient } from '../api/client'
 import type { Question, Topic } from '../api/types'
 import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
+import { OfficialAnswer } from '../components/OfficialAnswer'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
@@ -116,20 +117,8 @@ export function AdminQuestionsPage() {
                 <QuestionImages images={question.question_images} part="question" />
                 <div className="border-t border-border pt-3 text-sm text-ink">
                   <p className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</p>
-                  {question.answer_text ? (
-                    <p className="whitespace-pre-line">
-                      <RichText text={question.answer_text} />
-                    </p>
-                  ) : question.answer_images.length === 0 ? (
-                    // A few official answers are only a sketch in the catalog PDF, with no text at all;
-                    // their sketch is an answer image, so this is only reached if that image is missing.
-                    <p className="text-ink-soft italic">
-                      Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen
-                      kann.
-                    </p>
-                  ) : null}
+                  <OfficialAnswer text={question.answer_text} images={question.answer_images} />
                 </div>
-                <QuestionImages images={question.answer_images} part="answer" />
                 <AdminQuestionHistory questionId={question.id} />
               </li>
             ))}

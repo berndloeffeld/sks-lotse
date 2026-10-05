@@ -8,6 +8,7 @@ import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { CourseGauge } from './CourseGauge'
 import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
+import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
@@ -289,18 +290,7 @@ export function PracticeRun({
           ) : null}
           <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
             <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
-            {question.answer_text ? (
-              <p className="text-sm whitespace-pre-line text-ink">
-                <RichText text={question.answer_text} />
-              </p>
-            ) : question.answer_images.length === 0 ? (
-              // A few official answers are only a sketch in the catalog PDF, with no text at all;
-              // their sketch is an answer image, so this is only reached if that image is missing.
-              <p className="text-ink-soft italic">
-                Die amtliche Antwort zu dieser Frage besteht nur aus einer Skizze, die SKS Lotse nicht anzeigen kann.
-              </p>
-            ) : null}
-            <QuestionImages images={question.answer_images} part="answer" />
+            <OfficialAnswer text={question.answer_text} images={question.answer_images} textClassName="text-sm" />
           </section>
 
           {guest ? (
