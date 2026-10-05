@@ -4,7 +4,7 @@ import { RichText } from './RichText'
 
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).
 
-/** Rendered at twice the PDF's size (scripts/extract_chart_exercises.py): sharp when scaled up to the column. */
+/** The drawn Stromdreieck, cut from the PDF at twice its size: sharp when scaled up to the column. */
 function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
   return (
     <div className="flex flex-col gap-2">

@@ -58,9 +58,9 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
   },
   {
     id: 'ki-pruefung',
-    question: 'Was ist die KI-Antwortprüfung?',
+    question: 'Was ist der Lotsen-Check?',
     answer:
-      'Solange dein Token-Guthaben reicht (1 Token je Katalogfrage, 2 je Aufgabe einer Kartenaufgabe), schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
+      'Der Lotsen-Check ist die KI-Antwortprüfung. Solange dein Token-Guthaben reicht (1 Token je Katalogfrage, 2 je Aufgabe einer Kartenaufgabe), schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
   },
   {
     id: 'fokus-themen',
@@ -69,10 +69,16 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
       'Mit dem Stern in der Lernübersicht markierst du Themen, auf die du dich gerade konzentrieren willst. Dort siehst du gesammelt, wie weit du bei genau diesen Themen bist, und mit „Fokus starten“ übst du alle offenen Fragen dieser Themen, die älteste richtige Antwort zuerst.',
   },
   {
+    id: 'kartenaufgaben',
+    question: 'Was sind die Kartenaufgaben?',
+    answer:
+      'Die Kartenaufgabe ist der zweite Teil der schriftlichen SKS-Theorieprüfung im Fach Navigation: Du trägst Orte, Kurse und Peilungen in die Seekarte ein und rechnest mit Gezeiten und Strom. Unter [Kartenaufgaben](/charts) übst du mit den amtlichen Aufgabenbögen der WSV: Aufgabe für Aufgabe schreibst du deine Antwort auf, siehst die amtliche Lösung samt Herleitung und vergibst dir selbst Punkte. Der Lotsen-Check rechnet auf Wunsch deine Werte nach und sucht deinen Fehler.',
+  },
+  {
     id: 'pruefungssimulation',
     question: 'Was ist die Probeprüfung?',
     answer:
-      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Fragen, die du im Examen richtig beantwortet hast, zählen für deinen Lernstand wie Praxis-Fragen – das macht das Examen zu einem echten Test deines aktuellen Wissensstands. Die praktische Kartenaufgabe wird nicht simuliert.',
+      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Fragen, die du in der Probeprüfung richtig beantwortet hast, zählen für deinen Lernstand wie beim Lernen – das macht die Probeprüfung zu einem echten Test deines aktuellen Wissensstands. Die Kartenaufgabe ist nicht Teil der Probeprüfung; sie hat einen eigenen Bereich, siehe „Was sind die Kartenaufgaben?“.',
   },
   {
     id: 'daten',
@@ -117,7 +123,7 @@ export const EXAM_PROCESS_FAQ: { question: string; answer: string }[] = [
   {
     question: 'Wie läuft die SKS-Theorieprüfung ab?',
     answer:
-      'Der Fragebogen hat 30 Fragen in 90 Minuten: 9 zur Navigation, 7 zur Rechtskunde, 5 zur Wetterkunde und 9 zur Seemannschaft. Dazu kommt eine separate Karten- und Gezeitenaufgabe, die in weiteren 90 Minuten bearbeitet und getrennt bewertet wird.',
+      'Der Fragebogen hat 30 Fragen in 90 Minuten: 9 zur Navigation, 7 zum Schifffahrtsrecht, 5 zur Wetterkunde und 9 zur Seemannschaft. Dazu kommt eine separate Karten- und Gezeitenaufgabe, die in weiteren 90 Minuten bearbeitet und getrennt bewertet wird.',
   },
   {
     question: 'Was brauche ich, um zur SKS-Prüfung zugelassen zu werden?',
