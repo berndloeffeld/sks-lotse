@@ -6,22 +6,21 @@ Usage (reads the PDF directly, no DB needed; needs PyMuPDF from requirements-dev
     # review app/data/chart_exercises.yaml by hand against the PDF
 
 A one-off (the source PDF doesn't change), so no pipeline: this proposes
-app/data/chart_exercises.yaml and renders the images to
-frontend/public/charts/, both committed. The app reads the YAML at runtime
-(app/services/chart_exercises.py, ADR-0052).
+app/data/chart_exercises.yaml (and renders the blank form to
+frontend/public/charts/). The app reads the YAML at runtime
+(app/services/chart_exercises.py, ADR-0052, amended by ADR-0053).
 
 What becomes what:
 - The task text (scenario in black, questions in blue with their point
   bullets) is extracted as text: the learner reads it on a phone, and the
   later AI check needs it. PDF line wraps are joined; the Greek phi/lambda
   the PDF draws from a private-use font are mapped back.
-- The official solution is rendered as images of its region in the PDF
-  (from below "Lösung:" to the next task, split at page breaks). Its tables
-  (MgK -> Abl -> ... -> KüG, underlines marking additions) and the drawn
-  current triangle don't survive text extraction, and an image keeps the
-  official wording and layout exactly. The region is cut in two at its first
-  point bullet: above it the derivation (tide tables, stream diamond, ...),
-  from it on the results that score — the solution proper.
+- The official solution is NOT extracted: since ADR-0053 it is text, transcribed
+  and confirmed by hand against the PDF, so each task is proposed with empty
+  `derivation` and `solution` lists. The one image left is the drawn current
+  triangle (Stromdreieck) of a task: cut it from the PDF by hand into
+  frontend/public/charts/bogen-NN/aufgabe-NN-stromdreieck.png and reference it
+  from its solution part (`image: {src, width, height}`).
 - The "Formblatt Gezeiten" is the same scanned form in every sheet; the
   last sheet's copy is rendered once.
 
@@ -53,10 +52,7 @@ TEXT_FIXES = {
     "Rechteck mit der Zahl 344,": "Rechteck mit der Zahl 34₄,",
 }
 FORM_CLIP = pymupdf.Rect(36, 22, 550, 582)
-ZOOM = 2.0  # 144 dpi: sharp on high-density screens at ~520 CSS px
-CONTENT_X = (40.0, 560.0)
-FOOTER_Y = 800.0  # below: the page number (the grey bottom bar is skipped as a bar)
-MARGIN = 4.0
+FOOTER_Y = 800.0  # below: the page number
 
 
 def _span_text(span: dict) -> str:
@@ -147,25 +143,6 @@ def _join(parts: list[str]) -> str:
     return text
 
 
-def _content_bottom(page: pymupdf.Page, top: float, limit: float) -> float:
-    """Lowest text or drawing between top and limit (ignoring full-width grey bars)."""
-    bottom = top
-    for line in _lines(page):
-        # Lines sit edge to edge: the first solution line starts where "Lösung:" ends.
-        if line["y1"] > top + 1 and line["y1"] <= limit:
-            bottom = max(bottom, line["y1"])
-    for drawing in page.get_drawings():
-        rect = drawing["rect"]
-        if (
-            rect.y1 > top + 1
-            and rect.y0 >= top - MARGIN
-            and rect.y1 <= limit
-            and not (rect.width > 400 and rect.height < 25)
-        ):
-            bottom = max(bottom, rect.y1)
-    return bottom
-
-
 class Sheet:
     def __init__(self, number: int) -> None:
         self.number = number
@@ -177,9 +154,6 @@ class Sheet:
             "points": points,
             "text": [],
             "questions": [],
-            "solution_regions": [],
-            # (page, top, bottom, bullets) of every solution line, to find where the results start.
-            "solution_lines": [],
         }
         self.tasks.append(task)
         return task
@@ -195,89 +169,27 @@ def _add_task_line(task: dict, line: dict) -> None:
         task["text"].append(line["text"])
 
 
-def _add_line(task: dict, line: dict, page_no: int, in_solution: bool) -> None:
-    """A task line goes into the task; a solution line is only noted, for where its results start."""
-    if not in_solution:
-        _add_task_line(task, line)
-    else:
-        task["solution_lines"].append((page_no, line["text_y0"], line["y1"], line["bullets"]))
-
-
 def _parse_sheet(doc: pymupdf.Document, number: int, pages: list[int]) -> Sheet:
+    """A sheet's tasks; the lines from "Lösung:" to the next task header are the solution, not extracted."""
     sheet = Sheet(number)
     task: dict | None = None
     in_solution = False
     for page_no in pages:
-        page = doc[page_no]
-        lines = [line for line in _lines(page) if line["y1"] < FOOTER_Y]
-        solution_top = 30.0 if in_solution else None
-        for line in lines:
+        for line in (line for line in _lines(doc[page_no]) if line["y1"] < FOOTER_Y):
             header = HEADER_RE.match(line["text"])
             if header or line["text"] == "Notizen":
-                if in_solution and task is not None and solution_top is not None:
-                    task["solution_regions"].append((page_no, solution_top, line["y0"] - MARGIN))
                 if not header:  # the sheet's blank "Notizen" section ends its last task
-                    in_solution, solution_top = False, None
+                    in_solution = False
                     break
                 task = sheet.task(int(header.group(1)), line["bullets"])
-                in_solution, solution_top = False, None
+                in_solution = False
+            elif task is None:
                 continue
-            if task is None:
-                continue
-            if line["text"].startswith("Lösung:"):
-                in_solution, solution_top = True, line["y1"] + MARGIN / 2
-                continue
-            _add_line(task, line, page_no, in_solution)
-        if in_solution and task is not None and solution_top is not None:
-            task["solution_regions"].append((page_no, solution_top, FOOTER_Y))
+            elif line["text"].startswith("Lösung:"):
+                in_solution = True
+            elif not in_solution:
+                _add_task_line(task, line)
     return sheet
-
-
-def _results_start(lines: list[tuple[int, float, float, int]]) -> tuple[int, float] | None:
-    """Where the results start: the top of the text block holding the solution's first bullet.
-
-    A bullet can sit on the last row of a calculation table (rwP = ...); then the whole table is the
-    result, so the cut goes above the block — at the blank line before it, not through the table.
-    """
-    first = next((i for i, line in enumerate(lines) if line[3]), None)
-    if first is None:
-        return None
-    while first > 0 and lines[first - 1][0] == lines[first][0] and lines[first - 1][2] >= lines[first][1] - 3:
-        first -= 1
-    page_no, top, _, _ = lines[first]
-    return page_no, top - 1
-
-
-def _split_regions(task: dict) -> list[tuple[str, int, float, float]]:
-    """The solution regions as ("herleitung" | "loesung", page, top, limit), cut at the first bullet."""
-    start = _results_start(task["solution_lines"])
-    if start is None:  # no bullet: all of it is the solution
-        return [("loesung", *region) for region in task["solution_regions"]]
-    split_page, split_y = start
-    parts = []
-    for page_no, top, limit in task["solution_regions"]:
-        if page_no < split_page or (page_no == split_page and limit <= split_y):
-            parts.append(("herleitung", page_no, top, limit))
-        elif page_no > split_page or top >= split_y:
-            parts.append(("loesung", page_no, top, limit))
-        else:
-            parts += [("herleitung", page_no, top, split_y), ("loesung", page_no, split_y, limit)]
-    return parts
-
-
-def _render_region(doc: pymupdf.Document, page_no: int, top: float, limit: float, path: Path) -> dict | None:
-    """Render one solution region; None when it holds nothing (a solution that ended on the page before)."""
-    page = doc[page_no]
-    content = _content_bottom(page, top, limit)
-    if content - top < MARGIN:
-        return None
-    # The grey bars are 12pt-wide strokes: their top edge is half a stroke above the path.
-    bars = [d["rect"].y0 - (d.get("width") or 0) / 2 for d in page.get_drawings() if d["rect"].width > 400]
-    bottom = min([content + MARGIN, *(y for y in bars if y > content - MARGIN)])  # never into a bar
-    clip = pymupdf.Rect(CONTENT_X[0], top, CONTENT_X[1], bottom)
-    pix = page.get_pixmap(matrix=pymupdf.Matrix(ZOOM, ZOOM), clip=clip)
-    pix.save(path)
-    return {"src": f"{path.parent.name}/{path.name}", "width": pix.width, "height": pix.height}
 
 
 def _sheet_pages(doc: pymupdf.Document) -> dict[int, list[int]]:
@@ -323,28 +235,18 @@ def main() -> None:
     sheets = []
     for number, pages in _sheet_pages(doc).items():
         sheet = _parse_sheet(doc, number, pages)
-        out_dir = IMAGES_DIR / f"bogen-{number:02d}"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        tasks = []
-        for task in sheet.tasks:
-            images: dict[str, list[dict]] = {"herleitung": [], "loesung": []}
-            for part, page_no, top, limit in _split_regions(task):
-                path = out_dir / f"aufgabe-{task['number']:02d}-{part}-{len(images[part]) + 1}.png"
-                image = _render_region(doc, page_no, top, limit, path)
-                if image:
-                    images[part].append(image)
-            tasks.append(
-                {
-                    "number": task["number"],
-                    "points": task["points"],
-                    "text": _join(task["text"]),
-                    "questions": [
-                        {"points": q["points"], "text": _join(q["lines"])} for q in task["questions"]
-                    ],
-                    "derivation_images": images["herleitung"],
-                    "solution_images": images["loesung"],
-                }
-            )
+        tasks = [
+            {
+                "number": task["number"],
+                "points": task["points"],
+                "text": _join(task["text"]),
+                "questions": [{"points": q["points"], "text": _join(q["lines"])} for q in task["questions"]],
+                # To be transcribed by hand against the PDF (ADR-0053).
+                "derivation": [],
+                "solution": [],
+            }
+            for task in sheet.tasks
+        ]
         sheets.append({"number": number, "tasks": tasks})
 
     form_page = max(i for i, page in enumerate(doc) if "FORMBLATT GEZEITEN" in page.get_text())
@@ -363,7 +265,7 @@ def main() -> None:
     DATA_PATH.write_text(
         yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=110), encoding="utf-8"
     )
-    print(f"wrote {DATA_PATH} ({len(sheets)} sheets) and images under {IMAGES_DIR}")
+    print(f"wrote {DATA_PATH} ({len(sheets)} sheets) and {form_path}; transcribe each solution by hand")
 
 
 if __name__ == "__main__":

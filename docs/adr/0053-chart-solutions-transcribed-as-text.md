@@ -20,5 +20,5 @@ Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.m
 
 - Solutions read like the rest of the app, scale on a phone, reach screen readers, and are input a Lotsen-Check for Kartenaufgaben can use.
 - Transcription is slow (one task at a time, each confirmed) and a typo is possible where an image could not have one — the review against the PDF is what guards it, and the tests only check structure (every task has a solution, sheets numbered without gaps, every referenced image exists).
-- `scripts/extract_chart_exercises.py --force` would now overwrite the transcribed solutions with images; it stays as the source for the next sheets' task text, its output merged by hand rather than taken over.
+- `scripts/extract_chart_exercises.py` no longer renders solution images (changed 2026-10-05): it proposes the task text and the blank form and leaves `derivation` and `solution` empty. `--force` would still overwrite the transcribed solutions with those empty lists, so its output is merged by hand rather than taken over.
 - Rejected: keeping the images and adding text alongside (two sources of truth for every result); OCR of the solution images (the tables' structure and the sum lines are what matters, and OCR loses both); marking our explanations as "Ergänzung SKS Lotse" (tried, and it made the derivations noisier without helping the learner).
