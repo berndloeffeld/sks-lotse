@@ -1,12 +1,27 @@
 const UMAMI_SCRIPT_SRC = 'https://cloud.umami.is/script.js'
 
+// Not on the admin tools, the same rule as for Google's ad script (ads.ts): third-party JavaScript
+// runs with the page's rights, and an operator session there can export and delete accounts.
+// /pricing keeps it on purpose: that is where the purchase funnel is measured, the payment itself
+// happens on Stripe's page, and Umami sets no cookie and sees no form content.
+export function wantsAnalytics(pathname: string) {
+  return !/^\/admin(\/|$)/.test(pathname)
+}
+
+const UMAMI_SCRIPT_SELECTOR = 'script[data-website-id]'
+
+// Whether this document runs the Umami script (it can't be unloaded again).
+export function analyticsLoaded(doc: Document = document) {
+  return doc.querySelector(UMAMI_SCRIPT_SELECTOR) !== null
+}
+
 // Cookieless analytics (Umami Cloud, see ADR-0016) — no consent banner
 // needed. Gated on the env var being set at all, which doubles as the
 // dev/prod switch: unset locally (frontend/.env.example), set in production
 // (render.yaml), so local/test traffic never gets tracked.
-export function initAnalytics() {
+export function initAnalytics(pathname: string = window.location.pathname) {
   const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID
-  if (!websiteId) return
+  if (!websiteId || !wantsAnalytics(pathname)) return
 
   const script = document.createElement('script')
   script.defer = true

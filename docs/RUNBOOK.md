@@ -45,6 +45,7 @@ A manual kill switch for an ongoing malfunction, deliberately not wired through 
 - The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/terms`, which stay reachable (§5 DDG Impressumspflicht).
 - Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/pages/MaintenancePage.tsx`).
 - No live reload (`backend/app/core/config.py`): flipping it always costs a redeploy of the backend, on the order of a minute.
+- **Limit: not a switch for a database outage.** The redeploy runs `preDeployCommand: alembic upgrade head` (`render.yaml`), which needs the database; if that is unreachable the deploy fails (Render: a failing pre-deploy command fails the whole deploy) and the old instance keeps serving, so the switch never takes effect. Whether an environment-variable-only deploy runs the pre-deploy step at all is not stated in Render's docs — check it on the next trial run of the switch and note the result here. In a database outage, tell visitors by other means (the uptime monitor's status page, a pinned note on the contact channels).
 
 **Fast path — Render dashboard**: `sks-lotse-backend` → Environment → set `MAINTENANCE_MODE` to `true` (or `false` to turn it back off) → Save. Redeploys automatically.
 

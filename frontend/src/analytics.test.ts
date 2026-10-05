@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { initAnalytics, trackEvent } from './analytics'
+import { initAnalytics, trackEvent, wantsAnalytics } from './analytics'
 
 function umamiScript() {
   return document.head.querySelector<HTMLScriptElement>('script[data-website-id]')
@@ -27,6 +27,25 @@ describe('initAnalytics', () => {
     expect(script?.src).toBe('https://cloud.umami.is/script.js')
     expect(script?.defer).toBe(true)
     expect(script?.dataset.websiteId).toBe('test-id')
+  })
+
+  it('stays out of the admin tools but loads on /pricing', () => {
+    vi.stubEnv('VITE_UMAMI_WEBSITE_ID', 'test-id')
+
+    initAnalytics('/admin/users')
+    expect(umamiScript()).toBeNull()
+
+    initAnalytics('/pricing')
+    expect(umamiScript()).not.toBeNull()
+  })
+})
+
+describe('wantsAnalytics', () => {
+  it('excludes /admin and below, nothing that merely starts with it', () => {
+    expect(wantsAnalytics('/admin')).toBe(false)
+    expect(wantsAnalytics('/admin/users/3')).toBe(false)
+    expect(wantsAnalytics('/administration')).toBe(true)
+    expect(wantsAnalytics('/')).toBe(true)
   })
 })
 

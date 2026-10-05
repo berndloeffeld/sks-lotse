@@ -4,7 +4,7 @@ SKS Lotse is an early-stage, solo-maintained project. If you find a security vul
 
 ## Reporting a vulnerability
 
-Email **kontakt@sks-lotse.de** with a description of the issue and steps to reproduce. I aim to acknowledge reports within a few days and will keep you updated as it's fixed.
+Either use GitHub's [private vulnerability reporting](https://github.com/berndloeffeld/sks-lotse/security/advisories/new) (Security tab → "Report a vulnerability"), or email **kontakt@sks-lotse.de**, with a description of the issue and steps to reproduce. I aim to acknowledge reports within a few days and will keep you updated as it's fixed.
 
 ## Scope
 
