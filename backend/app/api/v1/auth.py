@@ -34,17 +34,26 @@ from app.services.user import delete_user_and_progress
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-_INVALID_CODE = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired code")
-# Deliberately NOT 401 like _INVALID_CODE above: this endpoint is called by an
+
+# These are built per failure (functions, not module-level instances): re-raising one shared
+# exception object chains every traceback onto it, so each failed login would pin its frames (email,
+# submitted code, request, session) in memory until the next restart.
+def _invalid_code() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired code")
+
+
+# Deliberately NOT 401 like _invalid_code above: this endpoint is called by an
 # already-authenticated caller (unlike login's verify_otp), and the frontend's
 # apiClient treats any 401 response, from any endpoint, as "the session is
 # dead" and force-clears the logged-in user (see setUnauthorizedHandler in
 # frontend/src/api/client.ts). Reusing 401 here would log the learner out of
 # their still-valid session just for mistyping a confirmation code.
-_INVALID_EMAIL_CHANGE_CODE = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code"
-)
-_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+def _invalid_email_change_code() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code")
+
+
+def _not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 
 def _admission_error(app, db: Session, email: str) -> HTTPException | None:
@@ -102,11 +111,11 @@ def verify_otp(
     payload: OtpVerifyRequest, request: Request, response: Response, db: Session = Depends(get_db)
 ):
     if not otp_codes.consume_code(db, payload.email, OTP_PURPOSE_LOGIN, payload.code):
-        raise _INVALID_CODE
+        raise _invalid_code()
     if blocklist.is_email_blocked(request.app, db, payload.email):
         # A code requested before the block (ADR-0045) must not still open a session. Same
         # answer as a wrong code, so the caller learns nothing about the block.
-        raise _INVALID_CODE
+        raise _invalid_code()
 
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if user is None:
@@ -149,10 +158,10 @@ def dev_peek_otp_code(email: str, request: Request):
     # 404s outright unless settings.exposes_dev_tooling, same gate as the docs
     # endpoints (see _docs_kwargs in app/main.py). See ADR-0011.
     if not settings.exposes_dev_tooling:
-        raise _NOT_FOUND
+        raise _not_found()
     code = otp_codes.dev_otp_codes(request.app).get(canonicalize_email(email))
     if code is None:
-        raise _NOT_FOUND
+        raise _not_found()
     return OtpDevPeekRead(code=code)
 
 
@@ -265,7 +274,7 @@ def verify_email_change(
     if not otp_codes.consume_code(
         db, payload.new_email, OTP_PURPOSE_EMAIL_CHANGE, payload.code, user_id=current_user.id
     ):
-        raise _INVALID_EMAIL_CHANGE_CODE
+        raise _invalid_email_change_code()
 
     old_email = current_user.email
     current_user.email = payload.new_email

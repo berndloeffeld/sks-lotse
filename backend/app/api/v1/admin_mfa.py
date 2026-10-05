@@ -20,9 +20,12 @@ logger = logging.getLogger(__name__)
 # how an admin session gets the TOTP check every other /admin route requires (require_admin).
 router = APIRouter(prefix="/admin/mfa", tags=["admin"], dependencies=[Depends(require_admin_identity)])
 
+
 # 400, not 401: the caller's session is valid, and the frontend logs out on any 401
-# (same reasoning as _INVALID_EMAIL_CHANGE_CODE in app/api/v1/auth.py).
-_INVALID_CODE = HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
+# (same reasoning as _invalid_email_change_code in app/api/v1/auth.py).
+# A function, so every failure raises a fresh exception (see _invalid_code there).
+def _invalid_code() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
 
 
 @router.get("/status", response_model=AdminMfaStatus)
@@ -68,7 +71,7 @@ def verify(
     was_enrolled = admin_mfa.is_enrolled(admin)
     now = datetime.now(UTC)
     if not admin_mfa.confirm_code(db, admin, payload.code, now):
-        raise _INVALID_CODE
+        raise _invalid_code()
     if not was_enrolled:
         logger.info("admin 2fa enabled: admin=%s", admin.id)
     return TokenRead(access_token=issue_session(response, admin, mfa_at=int(now.timestamp())))
