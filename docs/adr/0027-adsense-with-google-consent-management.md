@@ -1,6 +1,6 @@
 # 0027. Google AdSense behind Google's own consent management
 
-Status: Accepted — partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md); amended by the addenda below (2026-09-20 to 2026-09-25).
+Status: Accepted — partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md); amended by the addenda below (2026-09-20 to 2026-10-05).
 
 ## Context
 
@@ -60,3 +60,7 @@ The footer button is now labelled "Cookies" (was "Cookie-Einstellungen"), still 
 ## Addendum (2026-09-25): the click was still silent when the CMP is inactive
 
 On sks-lotse.de the script loads and `showRevocationMessage` exists, yet the click showed nothing and, since the function was there, no hint either: Google's CMP had added a `googlefcInactive` iframe, its signal that it has no message for this page load (none for the visitor's location, or none published), and `showRevocationMessage` is then a silent no-op. `openConsentSettings()` now also reports the dialog unavailable when that iframe is present after the two seconds, and the footer text no longer says the dialog "can't load" (it can be inactive) nor promises that Google sets no cookies meanwhile — the privacy policy's ad section is where that is explained.
+
+## Addendum (2026-10-05): no ad script in the app until there is an ad unit
+
+The review of 2026-10-05 found that the app loaded Google's script on every page but `/admin` and `/pricing` although no ad unit exists anywhere (no `<ins>`, no `data-ad-slot`): no revenue, load time, and the accepted risk of third-party JavaScript next to the session for nothing. `wantsAdScript()` now also needs the build switch `VITE_AD_UNITS=on` (`adUnitsEnabled()` in `src/ads.ts`; declared `off` in `render.yaml`). With it off, `AdScriptGate` loads nothing and leaves a document that arrived with the script by the usual reload. The static tag on the prerendered public pages is unchanged, since AdSense's site review reads it, as is the consent dialog there. The switch is turned on in the PR that adds the first ad unit; that PR also revisits the threat model's residual risk and the ad section of the privacy policy, which describes ads as shown.

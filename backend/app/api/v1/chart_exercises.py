@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -8,7 +6,6 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.features import chart_exercises_enabled_for
 from app.core.jwt import get_current_user
-from app.core.rate_limit import enforce_limit, forget_last
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.user import User
 from app.schemas.chart_exercise import (
@@ -19,14 +16,9 @@ from app.schemas.chart_exercise import (
     ChartExercisesOverview,
     ChartPointsUpdate,
 )
-from app.services import ai_abuse_monitoring, token_wallet
 from app.services import chart_exercises as service
-from app.services.chart_grader import GradedChartAnswer, grade_chart_answer
-from app.services.grader import GradingUnavailable
-
-logger = logging.getLogger(__name__)
-
-_DAY_SECONDS = 24 * 3600
+from app.services import lotse_check, token_wallet
+from app.services.chart_grader import grade_chart_answer
 
 
 def require_chart_exercises(current_user: User = Depends(get_current_user)) -> User:
@@ -82,67 +74,17 @@ def _check_target(
     return answer
 
 
-def _enforce_caps(app, user_id: int, task_key: str) -> None:
+def _caps(task_key: str) -> lotse_check.CheckCaps:
     """Once per task of a run (a guard against a double click paying twice — the stored suggestion
     refuses a second check anyway), then the hourly cap the catalog check uses too (ADR-0058)."""
-    enforce_limit(app, "chart_ai_check:task", task_key, 1, _DAY_SECONDS, "This task is already being checked")
-    try:
-        enforce_limit(
-            app,
-            "ai_grade:user",
-            str(user_id),
-            settings.grading_max_per_window,
-            settings.grading_window_seconds,
-            "Too many answer checks",
-            f"chart-ai-check rate limit: user={user_id} bucket=per_hour",
-        )
-    except HTTPException:
-        forget_last(app, "chart_ai_check:task", task_key)
-        raise
-
-
-def _give_back_caps(app, user_id: int, task_key: str) -> None:
-    forget_last(app, "chart_ai_check:task", task_key)
-    forget_last(app, "ai_grade:user", str(user_id))
-
-
-def _grade_or_refund(
-    request: Request, db: Session, user: User, task_key: str, grade
-) -> tuple[GradedChartAnswer, int]:
-    """Reserve the tokens, run the check; a check that never happened costs nothing (ADR-0043)."""
-    amount = token_wallet.TOKENS_PER_CHART_CHECK
-    _enforce_caps(request.app, user.id, task_key)
-    tokens_remaining = token_wallet.reserve(db, user.id, amount)
-    if tokens_remaining is None:
-        _give_back_caps(request.app, user.id, task_key)
-        raise HTTPException(status_code=402, detail="Not enough tokens for an answer check")
-    try:
-        graded = grade()
-    except Exception as exc:
-        token_wallet.refund(db, user.id, amount)
-        _give_back_caps(request.app, user.id, task_key)
-        if not isinstance(exc, GradingUnavailable):
-            raise
-        # Reason only — the learner's answer is never logged.
-        logger.warning("Chart AI check unavailable: %s", exc)
-        raise HTTPException(status_code=503, detail="AI answer check is currently unavailable") from exc
-    return graded, tokens_remaining
-
-
-def _record_if_flagged(db: Session, user: User, task_key: str, graded: GradedChartAnswer) -> None:
-    """Abuse monitoring as for the catalog check (ADR-0040): metadata only, never the texts."""
-    flags = (
-        ai_abuse_monitoring.record_sanitizer_flag(db, user.id) if graded.sanitized else user.ai_flags_count
+    return lotse_check.CheckCaps(
+        bucket="chart_ai_check:task",
+        key=task_key,
+        limit=1,
+        window_seconds=lotse_check.DAY_SECONDS,
+        detail="This task is already being checked",
+        log_label="chart-ai-check",
     )
-    if flags >= settings.grading_sanitizer_log_threshold:
-        logger.warning(
-            "chart-ai-check flagged-account activity: user=%s task=%s points=%s sanitized=%s flags=%s",
-            user.id,
-            task_key,
-            graded.result.points,
-            graded.sanitized,
-            flags,
-        )
 
 
 @router.get("", response_model=ChartExercisesOverview)
@@ -225,14 +167,22 @@ def ai_check_chart_task(
     answer = _check_target(current_user, attempt, sheet, task_number)
     task = next(task for task in sheet.tasks if task.number == task_number)
     earlier = service.earlier_answers(attempt, sheet, task_number)
-    graded, tokens_remaining = _grade_or_refund(
-        request,
+    graded, tokens_remaining = lotse_check.run_paid_check(
+        request.app,
         db,
         current_user,
-        f"{current_user.id}:{attempt.id}:{task_number}",
-        lambda: grade_chart_answer(service.catalog().hints, earlier, task, answer.answer_text),
+        amount=token_wallet.TOKENS_PER_CHART_CHECK,
+        caps=_caps(f"{current_user.id}:{attempt.id}:{task_number}"),
+        grade=lambda: grade_chart_answer(service.catalog().hints, earlier, task, answer.answer_text),
+        log_label="Chart AI check",
     )
     service.store_suggestion(answer, graded.result)
     db.commit()
-    _record_if_flagged(db, current_user, f"{attempt.exercise_number}/{task_number}", graded)
+    lotse_check.record_sanitizer_flag_and_log(
+        db,
+        current_user,
+        sanitized=graded.sanitized,
+        log_label="chart-ai-check",
+        detail=f"task={attempt.exercise_number}/{task_number} points={graded.result.points}",
+    )
     return ChartAiCheckRead(attempt=service.read_attempt(attempt, sheet), tokens_remaining=tokens_remaining)

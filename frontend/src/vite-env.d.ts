@@ -15,6 +15,7 @@ interface ImportMetaEnv {
   // Google AdSense publisher id (ca-pub-…, see ADR-0027). Unset in local dev/CI
   // so vite.config.ts leaves the ad script out of the built HTML — only set in production.
   readonly VITE_ADSENSE_CLIENT_ID?: string
+  readonly VITE_AD_UNITS?: string
 
   // The Kartenaufgaben flag for the build: off | admins | on (src/chartFlag.ts, ADR-0056). At "on"
   // guests get /charts without a login, prerendered. render.yaml sets it like the API's CHART_EXERCISES.
