@@ -35,9 +35,9 @@ while IFS= read -r segment; do
 done <<< "$(printf '%s' "$command" | sed -E 's/(&&|\;|\|)/\n/g')"
 
 if [[ "$command" =~ run_mutation_tests\.sh.*(gate|handlers) ]]; then
-  label="Backend-Mutation-Tests (mutmut, ~5 Min)"
+  label="Backend-Mutation-Tests (mutmut, ~30 Min)"
 elif [[ "$command" =~ run_frontend_mutation_tests\.sh.*gate ]]; then
-  label="Frontend-Mutation-Tests (Stryker, ~3 Min)"
+  label="Frontend-Mutation-Tests (Stryker, ~6 Min)"
 elif [[ "$command" =~ run_integration_tests\.sh ]]; then
   label="Integration-Tests gegen einen laufenden lokalen Backend-Server"
 elif [[ "$pytest_invoked" == true ]] \

@@ -2,6 +2,24 @@ import type { CatalogExport } from './catalog'
 import { sheetMaxPoints, type ChartExport } from './chartCatalog'
 import { EXAM_PROCESS_FAQ, FAQ, faqAnswerParts } from './faq'
 import { SUBJECT_LABELS } from './labels'
+import {
+  CHARTS_CRUMB,
+  CHARTS_INDEX_TEXT,
+  EXAM_PROCESS_CRUMB,
+  EXAM_PROCESS_TEXT,
+  FAQ_TEXT,
+  IMPRINT_TEXT,
+  LEARN_CRUMB,
+  PRICING_TEXT,
+  PRIVACY_TEXT,
+  ROOT_CRUMB,
+  TERMS_TEXT,
+  learnIndexText,
+  sheetCrumb,
+  sheetText,
+  topicText,
+  type PageText,
+} from './publicPageTexts'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
 // sitemap lists them, and render.yaml rewrites each path to its file (for the /learn pages,
@@ -29,8 +47,7 @@ export interface PublicPage {
 
 function page(
   path: string,
-  title: string,
-  description: string,
+  { title, description }: PageText,
   withoutAds = false,
   jsonLd?: Record<string, unknown>[],
 ): PublicPage {
@@ -89,72 +106,32 @@ function examProcessJsonLd(): Record<string, unknown> {
 
 const STATIC_PAGES: PublicPage[] = [
   { path: '/', file: 'index.html' },
-  page(
-    '/faq',
-    'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
-    'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
-    false,
-    [faqJsonLd()],
-  ),
-  page(
-    '/imprint',
-    'Impressum – SKS Lotse',
-    'Impressum und Anbieterkennzeichnung von SKS Lotse, der App zum Lernen für die SKS-Theorieprüfung.',
-  ),
-  page(
-    '/privacy',
-    'Datenschutz – SKS Lotse',
-    'Datenschutzerklärung von SKS Lotse: welche Daten beim Lernen für die SKS-Theorieprüfung verarbeitet werden und wie du sie löschen kannst.',
-  ),
-  page(
-    '/terms',
-    'AGB – SKS Lotse',
-    'Allgemeine Geschäftsbedingungen von SKS Lotse, der Online-App für die Vorbereitung auf die SKS-Theorieprüfung.',
-  ),
-  page(
-    '/exam-process',
-    'So läuft die SKS-Prüfung ab – SBF See, Theorie und Praxis',
-    'Der komplette Weg zum Sportküstenschifferschein: vom Bootsführerschein SBF See über die SKS-Theorieprüfung bis zur Praxisprüfung – kompakt erklärt.',
-    false,
-    [breadcrumbs(['SKS Lotse', '/'], ['So läuft die SKS-Prüfung ab', '/exam-process']), examProcessJsonLd()],
-  ),
+  page('/faq', FAQ_TEXT, false, [faqJsonLd()]),
+  page('/imprint', IMPRINT_TEXT),
+  page('/privacy', PRIVACY_TEXT),
+  page('/terms', TERMS_TEXT),
+  page('/exam-process', EXAM_PROCESS_TEXT, false, [
+    breadcrumbs([ROOT_CRUMB, '/'], [EXAM_PROCESS_CRUMB, '/exam-process']),
+    examProcessJsonLd(),
+  ]),
   // No Google script on /pricing, where the purchase starts, not even during it.
-  page(
-    '/pricing',
-    'Preise – SKS Lotse',
-    'Was SKS Lotse kostet: Fragen üben, Musterantwort und Lernfortschritt bleiben kostenlos, Tokens für den Lotsen-Check gibt es in Paketen ohne Abo.',
-    true,
-  ),
+  page('/pricing', PRICING_TEXT, true),
 ]
 
 // /learn and one page per topic. Logged-in learners land on these too, including ads-removed
 // accounts, so they are built without the static ad script.
 export function learnPages(catalog: CatalogExport): PublicPage[] {
-  const total = catalog.questions.length
   return [
-    page(
-      '/learn',
-      'SKS-Fragenkatalog online lernen – alle Themen – SKS Lotse',
-      `Alle ${total} Fragen des amtlichen SKS-Fragenkatalogs nach Themen: Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft – kostenlos üben, auch ohne Anmeldung.`,
-      true,
-      [breadcrumbs(['SKS Lotse', '/'], ['Fragenkatalog', '/learn'])],
-    ),
+    page('/learn', learnIndexText(catalog.questions.length), true, [
+      breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn']),
+    ]),
     ...catalog.topics.map((topic) => {
       const subject = SUBJECT_LABELS[topic.subject] ?? topic.subject
       const count = catalog.questions.filter((q) => q.subject === topic.subject && q.topic === topic.slug).length
-      return page(
-        `/learn/${topic.subject}/${topic.slug}`,
-        `${topic.name} – SKS-Fragen ${subject} – SKS Lotse`,
-        `Alle ${count} amtlichen SKS-Fragen zum Thema ${topic.name} (${subject}) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.`,
-        true,
-        [
-          breadcrumbs(
-            ['SKS Lotse', '/'],
-            ['Fragenkatalog', '/learn'],
-            [topic.name, `/learn/${topic.subject}/${topic.slug}`],
-          ),
-        ],
-      )
+      const path = `/learn/${topic.subject}/${topic.slug}`
+      return page(path, topicText(topic.name, subject, count), true, [
+        breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn'], [topic.name, path]),
+      ])
     }),
   ]
 }
@@ -163,28 +140,13 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
 // (ADR-0056). Logged-in learners land on them too, so they are built without the ad script as well.
 export function chartPages(charts: ChartExport): PublicPage[] {
   return [
-    page(
-      '/charts',
-      'SKS-Kartenaufgaben online üben – SKS Lotse',
-      `Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.`,
-      true,
-      [breadcrumbs(['SKS Lotse', '/'], ['Kartenaufgaben', '/charts'])],
-    ),
-    ...charts.sheets.map((sheet) =>
-      page(
-        `/charts/${sheet.number}`,
-        `Kartenaufgabe ${sheet.number}: ${sheet.title} – SKS-Navigation – SKS Lotse`,
-        `Amtliche SKS-Kartenaufgabe ${sheet.number}, ${sheet.title}: ${sheet.summary} ${sheet.tasks.length} Aufgaben, ${sheetMaxPoints(sheet)} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
-        true,
-        [
-          breadcrumbs(
-            ['SKS Lotse', '/'],
-            ['Kartenaufgaben', '/charts'],
-            [`Kartenaufgabe ${sheet.number}`, `/charts/${sheet.number}`],
-          ),
-        ],
-      ),
-    ),
+    page('/charts', CHARTS_INDEX_TEXT, true, [breadcrumbs([ROOT_CRUMB, '/'], [CHARTS_CRUMB, '/charts'])]),
+    ...charts.sheets.map((sheet) => {
+      const path = `/charts/${sheet.number}`
+      return page(path, sheetText(sheet, sheetMaxPoints(sheet)), true, [
+        breadcrumbs([ROOT_CRUMB, '/'], [CHARTS_CRUMB, '/charts'], [sheetCrumb(sheet.number), path]),
+      ])
+    }),
   ]
 }
 
