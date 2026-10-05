@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
+import { EXAM_PROCESS_FAQ } from '../faq'
 import { ExamProcessPage } from './ExamProcessPage'
 
 function renderExamProcessPage() {
@@ -13,6 +14,10 @@ function renderExamProcessPage() {
 }
 
 describe('ExamProcessPage', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('renders the process overview without requiring a login', () => {
     renderExamProcessPage()
 
@@ -29,11 +34,33 @@ describe('ExamProcessPage', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Warum sich der SKS lohnt' })).toBeInTheDocument()
   })
 
-  it('is honest that SKS Lotse only covers the theory question sheet, not the chart task or the practical exam', () => {
+  it('is honest that SKS Lotse does not cover the chart task while the Kartenaufgaben are closed, nor the practical exam', () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'off')
     renderExamProcessPage()
 
     expect(screen.getByText(/SKS Lotse hilft dir dabei bisher nicht/)).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).queryByRole('link', { name: 'Kartenaufgaben' })).not.toBeInTheDocument()
     expect(screen.getByText(/SKS Lotse deckt ausschließlich die Theorie ab/)).toBeInTheDocument()
+  })
+
+  it('points to the Kartenaufgaben once they are open', () => {
+    vi.stubEnv('VITE_CHART_EXERCISES', 'on')
+    renderExamProcessPage()
+
+    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Kartenaufgaben' })).toHaveAttribute(
+      'href',
+      '/charts',
+    )
+    expect(screen.queryByText(/SKS Lotse hilft dir dabei bisher nicht/)).not.toBeInTheDocument()
+  })
+
+  it('shows the short answers that also go into the FAQPage markup', () => {
+    renderExamProcessPage()
+
+    for (const { question, answer } of EXAM_PROCESS_FAQ) {
+      expect(screen.getByRole('heading', { level: 3, name: question })).toBeInTheDocument()
+      expect(screen.getByText(answer)).toBeInTheDocument()
+    }
   })
 
   it('links back into the app', () => {

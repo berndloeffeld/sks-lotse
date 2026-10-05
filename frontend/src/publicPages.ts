@@ -1,6 +1,6 @@
 import type { CatalogExport } from './catalog'
 import { sheetMaxPoints, type ChartExport } from './chartCatalog'
-import { FAQ, faqAnswerParts } from './faq'
+import { EXAM_PROCESS_FAQ, FAQ, faqAnswerParts } from './faq'
 import { SUBJECT_LABELS } from './labels'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
@@ -74,6 +74,19 @@ function faqJsonLd(): Record<string, unknown> {
   }
 }
 
+// /exam-process: its short answers as schema.org questions (the same text the page shows).
+function examProcessJsonLd(): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: EXAM_PROCESS_FAQ.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: { '@type': 'Answer', text: answer },
+    })),
+  }
+}
+
 const STATIC_PAGES: PublicPage[] = [
   { path: '/', file: 'index.html' },
   page(
@@ -102,6 +115,8 @@ const STATIC_PAGES: PublicPage[] = [
     '/exam-process',
     'So läuft die SKS-Prüfung ab – SBF See, Theorie und Praxis',
     'Der komplette Weg zum Sportküstenschifferschein: vom Bootsführerschein SBF See über die SKS-Theorieprüfung bis zur Praxisprüfung – kompakt erklärt.',
+    false,
+    [breadcrumbs(['SKS Lotse', '/'], ['So läuft die SKS-Prüfung ab', '/exam-process']), examProcessJsonLd()],
   ),
   // No Google script on /pricing, where the purchase starts, not even during it.
   page(

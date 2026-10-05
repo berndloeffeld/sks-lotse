@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { chartExercisesForGuests } from '../chartCatalog'
+import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
 
@@ -64,10 +66,22 @@ export function ExamProcessPage() {
           Seekarte bestimmst du mit Kursdreieck und Zirkel Kurse, Distanzen und Gezeitenzeiten – in weiteren 90 Minuten,
           getrennt vom Fragebogen bewertet.
         </p>
-        <p>
-          SKS Lotse hilft dir dabei bisher nicht – die Kartenaufgabe übst du am besten mit einer echten Seekarte, zum
-          Beispiel im Vorbereitungskurs einer Segelschule oder bei Online-Kursen.
-        </p>
+        {chartExercisesForGuests() ? (
+          <p>
+            Bei SKS Lotse übst du die amtlichen{' '}
+            <Link to="/charts" className="text-primary underline hover:no-underline">
+              Kartenaufgaben
+            </Link>{' '}
+            der WSV Aufgabe für Aufgabe, mit amtlicher Lösung und Herleitung – kostenlos, auch ohne Anmeldung. Die
+            Handhabung von Kursdreieck und Zirkel übst du zusätzlich am besten mit einer echten Seekarte, zum Beispiel
+            im Vorbereitungskurs einer Segelschule.
+          </p>
+        ) : (
+          <p>
+            SKS Lotse hilft dir dabei bisher nicht – die Kartenaufgabe übst du am besten mit einer echten Seekarte, zum
+            Beispiel im Vorbereitungskurs einer Segelschule oder bei Online-Kursen.
+          </p>
+        )}
       </Section>
 
       <Section icon={<BoatIcon className="h-8 w-8" />} title="So läuft die SKS-Praxisprüfung ab">
@@ -91,6 +105,15 @@ export function ExamProcessPage() {
           Willst du privat eine Segelyacht chartern, kommst du trotzdem kaum an ihm vorbei: Viele Vercharterer verlangen
           den SKS als Befähigungsnachweis, bevor sie dir eine Yacht anvertrauen.
         </p>
+      </Section>
+
+      <Section title="Kurz beantwortet">
+        {EXAM_PROCESS_FAQ.map(({ question, answer }) => (
+          <div key={question} className="flex flex-col gap-1">
+            <h3 className="font-serif text-lg text-primary">{question}</h3>
+            <p>{answer}</p>
+          </div>
+        ))}
       </Section>
 
       <Section icon={<CatalogIcon className="h-8 w-8" />} title="Auf die SKS-Theorieprüfung vorbereiten mit SKS Lotse">

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { CatalogExport } from './catalog'
-import { FAQ } from './faq'
+import { EXAM_PROCESS_FAQ, FAQ } from './faq'
 import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
 import { makeChartExport } from './test/fixtures'
 
@@ -156,6 +156,18 @@ describe('structured data', () => {
     expect(faq['@type']).toBe('FAQPage')
     expect(faq.mainEntity).toHaveLength(FAQ.length)
     expect(JSON.stringify(faq)).not.toContain('](/')
+  })
+
+  it('gives /exam-process a breadcrumb and a FAQPage with the answers the page shows', () => {
+    const [crumbs, faq] = pages.find((p) => p.path === '/exam-process')?.meta?.jsonLd as {
+      '@type': string
+      mainEntity: { name: string; acceptedAnswer: { text: string } }[]
+    }[]
+    expect(crumbs['@type']).toBe('BreadcrumbList')
+    expect(faq['@type']).toBe('FAQPage')
+    expect(faq.mainEntity.map((q) => [q.name, q.acceptedAnswer.text])).toEqual(
+      EXAM_PROCESS_FAQ.map(({ question, answer }) => [question, answer]),
+    )
   })
 
   it('gives the topic and sheet pages a breadcrumb from the start page', () => {
