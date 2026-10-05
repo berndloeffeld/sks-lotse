@@ -17,3 +17,8 @@ class PublicPricing(BaseModel):
     # "coming soon". The "admins" stage stays invisible here; the per-account answer is
     # UserRead.can_buy_tokens.
     checkout_enabled: bool
+    # What a Lotsen-Check costs and how long an answer it takes, so the frontend states the same
+    # numbers the backend enforces (services/token_wallet.py, GRADING_MAX_ANSWER_CHARS).
+    catalog_check_tokens: int
+    chart_check_tokens: int
+    check_max_answer_chars: int

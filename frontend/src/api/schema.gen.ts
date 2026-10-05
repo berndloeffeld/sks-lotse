@@ -814,6 +814,12 @@ export interface components {
             packages: components["schemas"]["PublicTokenPackage"][];
             /** Checkout Enabled */
             checkout_enabled: boolean;
+            /** Catalog Check Tokens */
+            catalog_check_tokens: number;
+            /** Chart Check Tokens */
+            chart_check_tokens: number;
+            /** Check Max Answer Chars */
+            check_max_answer_chars: number;
         };
         /** PublicTokenPackage */
         PublicTokenPackage: {

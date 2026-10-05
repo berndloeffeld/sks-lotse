@@ -91,22 +91,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T
 }
 
+interface RequestOptions {
+  // Lets the request outlive the page (the tab is closing); the browser caps the body at 64 KB.
+  keepalive?: boolean
+}
+
+const withBody =
+  (method: string) =>
+  <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    request<T>(path, { method, body: body === undefined ? undefined : JSON.stringify(body), ...options })
+
 export const apiClient = {
   get: <T>(path: string): Promise<T> => request<T>(path),
-  post: <T>(path: string, body?: unknown): Promise<T> =>
-    request<T>(path, {
-      method: 'POST',
-      body: body === undefined ? undefined : JSON.stringify(body),
-    }),
-  put: <T>(path: string, body?: unknown): Promise<T> =>
-    request<T>(path, {
-      method: 'PUT',
-      body: body === undefined ? undefined : JSON.stringify(body),
-    }),
-  patch: <T>(path: string, body?: unknown): Promise<T> =>
-    request<T>(path, {
-      method: 'PATCH',
-      body: body === undefined ? undefined : JSON.stringify(body),
-    }),
+  post: withBody('POST'),
+  put: withBody('PUT'),
+  patch: withBody('PATCH'),
   delete: <T>(path: string): Promise<T> => request<T>(path, { method: 'DELETE' }),
 }

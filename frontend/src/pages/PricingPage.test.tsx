@@ -109,6 +109,22 @@ describe('PricingPage', () => {
     expect(assign).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_1')
   })
 
+  it('does not follow a checkout address that is not Stripe’s', async () => {
+    useAuthStore.setState({ user: BUYER })
+    const assign = vi.fn()
+    vi.stubGlobal('location', { ...window.location, assign })
+    stubFetch(PRICING, jsonResponse({ url: 'https://evil.example/c/pay/cs_1' }))
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(await screen.findByRole('radio', { name: /Paket M/ }))
+    await user.click(screen.getByRole('checkbox', { name: /Widerrufsrecht/ }))
+    await user.click(screen.getByRole('button', { name: /Paket M für 5,99\s€ kaufen/ }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Zahlung konnte nicht gestartet werden.')
+    expect(assign).not.toHaveBeenCalled()
+  })
+
   it.each([
     [403, 'Der Kauf ist gerade nicht möglich.'],
     [502, 'Die Zahlung konnte nicht gestartet werden. Versuche es später noch einmal.'],

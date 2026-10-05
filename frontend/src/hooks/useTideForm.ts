@@ -110,6 +110,18 @@ export function forgetTideForm(attemptId: string | number) {
   }
 }
 
+// Everything of this kind in the browser: on logout and after deleting the account, so a shared
+// device keeps no Formblatt of the person who used it (and the entries of discarded runs don't pile up).
+export function forgetAllTideForms() {
+  try {
+    const prefix = storageKey('')
+    const keys = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i))
+    for (const key of keys) if (key?.startsWith(prefix)) window.localStorage.removeItem(key)
+  } catch {
+    // Storage blocked: there is nothing stored to forget either.
+  }
+}
+
 export function useTideForm(attemptId: string | number) {
   const [form, setForm] = useState<TideForm>(() => loadTideForm(attemptId))
 

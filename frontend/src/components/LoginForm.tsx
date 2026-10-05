@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 type Step = 'email' | 'code'
 
@@ -19,7 +19,7 @@ interface LoginFormProps {
 // styled like the template's contact form: outlined fields, one accent
 // button, required fields marked with *.
 export function LoginForm({ tone = 'light' }: LoginFormProps) {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const checkSession = useAuthStore((state) => state.checkSession)
 
   const [step, setStep] = useState<Step>('email')

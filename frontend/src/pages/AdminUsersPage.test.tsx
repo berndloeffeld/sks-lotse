@@ -31,7 +31,7 @@ function renderPage(state?: unknown) {
 }
 
 function stubFetch(
-  respond: (params: URLSearchParams) => Response,
+  respond: (params: URLSearchParams) => Response | Promise<Response>,
   onBlock?: (id: string, init?: RequestInit) => Response,
 ) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -113,6 +113,33 @@ describe('AdminUsersPage', () => {
     expect(await screen.findByRole('link', { name: /user1@example\.com/ })).toBeInTheDocument()
     expect(screen.getAllByRole('link')).toHaveLength(3)
     expect(screen.queryByRole('button', { name: 'Mehr laden' })).not.toBeInTheDocument()
+  })
+
+  it('drops a late next page of an earlier search instead of appending it to the new one', async () => {
+    const user = userEvent.setup()
+    let releaseMore!: () => void
+    const moreHeld = new Promise<void>((resolve) => {
+      releaseMore = resolve
+    })
+    stubFetch(async (params) => {
+      if (params.get('q') === 'anna') return jsonResponse({ items: [listItem(9, { first_name: 'Anna' })], total: 1 })
+      if (params.get('offset') === '0') return jsonResponse({ items: [listItem(3), listItem(2)], total: 3 })
+      await moreHeld
+      return jsonResponse({ items: [listItem(1)], total: 3 })
+    })
+    renderPage()
+    await screen.findByText('3 Benutzer')
+    await user.click(screen.getByRole('button', { name: 'Mehr laden' }))
+
+    // Search while the next page of the old list is still on its way.
+    await user.type(screen.getByLabelText('E-Mail oder Name'), 'anna')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    expect(await screen.findByText('1 Benutzer für „anna“')).toBeInTheDocument()
+    releaseMore()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.queryByRole('link', { name: /user1@example\.com/ })).not.toBeInTheDocument()
   })
 
   it('reports a failed next page and keeps the list', async () => {

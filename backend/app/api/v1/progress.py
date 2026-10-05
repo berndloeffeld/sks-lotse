@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.jwt import get_current_user
-from app.domain.exam_variant import subjects_for_variant
+from app.domain.exam_variant import restrict_to_variant, subjects_for_variant
 from app.domain.progress import (
     REFRESH_SESSION_SIZE,
     is_learned,
@@ -44,8 +44,7 @@ def progress_summary(
     current_user: User = Depends(get_current_user),
 ) -> list[TopicProgressRead]:
     topics_stmt = select(Topic).order_by(Topic.subject, Topic.display_order)
-    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
-        topics_stmt = topics_stmt.where(Topic.subject.in_(allowed))
+    topics_stmt = restrict_to_variant(topics_stmt, Topic.subject, current_user.exam_variant)
     topics = db.execute(topics_stmt).scalars().all()
 
     # One pass over the catalog, joined to this learner's progress: count() skips
@@ -162,8 +161,7 @@ def focus_session_questions(
             Question.id,
         )
     )
-    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
-        stmt = stmt.where(Question.subject.in_(allowed))
+    stmt = restrict_to_variant(stmt, Question.subject, current_user.exam_variant)
 
     catalog = catalog_by_id(request, db)
     return [catalog[question_id] for question_id in db.execute(stmt).scalars()]
@@ -186,8 +184,7 @@ def refresh_summary(
         .join(Question, Question.id == QuestionProgress.question_id)
         .where(QuestionProgress.user_id == current_user.id)
     )
-    if (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
-        stmt = stmt.where(Question.subject.in_(allowed))
+    stmt = restrict_to_variant(stmt, Question.subject, current_user.exam_variant)
 
     lapsed, expiring, fresh = db.execute(stmt).one()
     return RefreshSummaryRead(lapsed=lapsed, expiring=expiring, fresh=fresh)
@@ -205,8 +202,7 @@ def _random_refresh_ids(db: Session, user: User, clause: ColumnElement[bool]) ->
         .order_by(func.random())
         .limit(REFRESH_SESSION_SIZE)
     )
-    if (allowed := subjects_for_variant(user.exam_variant)) is not None:
-        stmt = stmt.where(Question.subject.in_(allowed))
+    stmt = restrict_to_variant(stmt, Question.subject, user.exam_variant)
     return list(db.execute(stmt).scalars())
 
 

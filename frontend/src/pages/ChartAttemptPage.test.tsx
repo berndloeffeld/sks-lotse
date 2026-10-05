@@ -375,9 +375,14 @@ describe('ChartAttemptPage', () => {
     await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
     await user.click(screen.getByRole('button', { name: 'Diesen Durchgang löschen' }))
     fetchMock.mockImplementationOnce(async () => new Response(null, { status: 204 }))
+    window.localStorage.setItem('sks-lotse:tide-form:5', '{}')
+    window.localStorage.setItem('sks-lotse:tide-form:6', '{}')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
     expect(await screen.findByText('Vorbereitung')).toBeInTheDocument()
+    // Only the discarded run's Formblatt goes with it.
+    expect(window.localStorage.getItem('sks-lotse:tide-form:5')).toBeNull()
+    expect(window.localStorage.getItem('sks-lotse:tide-form:6')).toBe('{}')
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/chart-exercises/attempts/5'),
       expect.objectContaining({ method: 'DELETE' }),

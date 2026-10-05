@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { ApiError, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
 import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
@@ -8,6 +8,7 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatDateTime, getFullName } from '../format'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 function downloadJson(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -58,7 +59,7 @@ export function AdminUserPage() {
 }
 
 function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user: AdminUser) => void }) {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const currentUser = useAuthStore((s) => s.user)
   const setCurrentUser = useAuthStore((s) => s.setUser)
 

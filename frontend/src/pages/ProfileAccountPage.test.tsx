@@ -263,12 +263,14 @@ describe('ProfileAccountPage', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
+    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
     renderAccountPage()
     await user.click(screen.getByRole('button', { name: 'Account löschen' }))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
     expect(await screen.findByText('Landing page')).toBeInTheDocument()
+    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
     expect(useAuthStore.getState().isAuthenticated).toBe(false)
     // The account is already gone server-side — no pointless POST /auth/logout.
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/logout'))).toBe(false)

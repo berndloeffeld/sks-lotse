@@ -137,10 +137,13 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('has every package and the checkout flag', function () {",
                   "    var body = pm.response.json();",
-                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages', 'checkout_enabled');",
+                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages', 'checkout_enabled', 'catalog_check_tokens', 'chart_check_tokens', 'check_max_answer_chars');",
                   "    pm.expect(body.packages).to.have.lengthOf(4);",
                   "    // This server runs with STRIPE_CHECKOUT off (the default).",
                   "    pm.expect(body.checkout_enabled).to.eql(false);",
+                  "    pm.expect(body.catalog_check_tokens).to.eql(1);",
+                  "    pm.expect(body.chart_check_tokens).to.eql(2);",
+                  "    pm.expect(body.check_max_answer_chars).to.eql(1000);",
                   "    pm.expect(body.packages.map(function (p) { return p.product; })).to.eql(['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl']);",
                   "});"
                 ]

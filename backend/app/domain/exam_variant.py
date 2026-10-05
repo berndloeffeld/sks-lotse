@@ -8,6 +8,8 @@ questions (seemannschaft_motor / seemannschaft_segeln) differ. See
 backend/scripts/merge_seemannschaft.py and docs/catalog-pipeline.md.
 """
 
+from sqlalchemy import Select
+
 EXAM_VARIANTS: dict[str, set[str]] = {
     "motor": {
         "navigation",
@@ -35,3 +37,9 @@ def subjects_for_variant(exam_variant: str | None) -> set[str] | None:
     if exam_variant is None:
         return None
     return EXAM_VARIANTS.get(exam_variant)
+
+
+def restrict_to_variant[S: Select](stmt: S, subject_column, exam_variant: str | None) -> S:
+    """`stmt` limited to the subjects of this exam variant; unchanged when there is nothing to filter by."""
+    allowed = subjects_for_variant(exam_variant)
+    return stmt if allowed is None else stmt.where(subject_column.in_(allowed))

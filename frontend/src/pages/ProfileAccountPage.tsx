@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { User } from '../api/types'
@@ -8,6 +8,8 @@ import { formStyles } from '../components/formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { forgetAllTideForms } from '../hooks/useTideForm'
 
 type EmailChangeStep = 'view' | 'email' | 'code'
 
@@ -40,7 +42,7 @@ function Section({
 // (personal data, email, delete). Styled after the Lernstand tab right next
 // to it — plain sections on the page background, not boxed-in cards.
 export function ProfileAccountPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const updateUser = useAuthStore((state) => state.updateUser)
@@ -150,6 +152,7 @@ export function ProfileAccountPage() {
       // Not logout(): the backend already dropped the account and cleared the
       // cookie, so POST /auth/logout could only 401. The local session is
       // cleared by the effect above once this navigation lands.
+      forgetAllTideForms()
       setIsAccountDeleted(true)
       navigate('/', { replace: true })
     }, 'Der Account konnte nicht gelöscht werden.')

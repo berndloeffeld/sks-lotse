@@ -4,14 +4,11 @@ import { trackEvent } from '../analytics'
 import type { ChartAiSuggestion, ChartAttemptTask } from '../api/types'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { formStyles } from './formStyles'
-import { AI_CHECK_MAX_ANSWER_CHARS } from './AiAnswerCheck'
+import { useCheckLimits } from '../hooks/useCheckLimits'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
 
 const styles = formStyles('light')
-
-// Mirrors TOKENS_PER_CHART_CHECK in the backend (app/services/token_wallet.py, ADR-0058).
-const CHART_CHECK_TOKENS = 2
 
 /** The Lotsen-Check's suggestion for a task: points, what's right or wrong, and the probable mistake. */
 export function ChartAiSuggestionView({
@@ -54,14 +51,14 @@ interface ChartAiCheckProps {
 // stored with the answer, so it is shown again after a reload. Not for a task where a drawing scores.
 export function ChartAiCheck({ task, onAiCheck, buttonRef, onButtonKeyDown }: ChartAiCheckProps) {
   const { run, isPending, error } = useAsyncAction()
+  const { chartCheckTokens, maxAnswerChars } = useCheckLimits()
   if (!task.ai_checkable) return null
   if (task.ai_suggestion) return <ChartAiSuggestionView suggestion={task.ai_suggestion} maxPoints={task.max_points} />
 
   const answer = task.answer_text ?? ''
   let blockedHint: string | null = null
   if (answer.trim().length === 0) blockedHint = 'Ohne Antwort gibt es nichts zu prüfen'
-  else if (answer.length > AI_CHECK_MAX_ANSWER_CHARS)
-    blockedHint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
+  else if (answer.length > maxAnswerChars) blockedHint = `Nur für Antworten bis ${maxAnswerChars} Zeichen`
 
   function check() {
     if (!onAiCheck) return
@@ -75,7 +72,7 @@ export function ChartAiCheck({ task, onAiCheck, buttonRef, onButtonKeyDown }: Ch
     <div className="flex flex-col gap-3">
       <LotseCheckButton
         noticeId={`chart-ai-check-notice-${task.number}`}
-        cost={CHART_CHECK_TOKENS}
+        cost={chartCheckTokens}
         pitch="Die KI schlägt dir Punkte vor und sucht deinen Fehler"
         isChecking={isPending}
         blockedHint={blockedHint}

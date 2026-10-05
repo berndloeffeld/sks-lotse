@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   EVENT_ORDINALS,
   emptyTideForm,
+  forgetAllTideForms,
   forgetTideForm,
   guestTideFormId,
   loadTideForm,
@@ -74,6 +75,27 @@ describe('loadTideForm', () => {
     forgetTideForm('guest-2')
     expect(window.localStorage.getItem(storageKey('guest-2'))).toBeNull()
     expect(window.localStorage.getItem(storageKey('guest-1'))).toBe('kept')
+  })
+
+  it('forgets every stored Formblatt and nothing else', () => {
+    window.localStorage.setItem(storageKey(7), 'a')
+    window.localStorage.setItem(storageKey('guest-1'), 'b')
+    window.localStorage.setItem('sks-lotse:other', 'kept')
+    window.localStorage.setItem('unrelated', 'kept')
+
+    forgetAllTideForms()
+
+    expect(window.localStorage.getItem(storageKey(7))).toBeNull()
+    expect(window.localStorage.getItem(storageKey('guest-1'))).toBeNull()
+    expect(window.localStorage.getItem('sks-lotse:other')).toBe('kept')
+    expect(window.localStorage.getItem('unrelated')).toBe('kept')
+  })
+
+  it('forgets everything quietly when storage throws', () => {
+    vi.spyOn(Storage.prototype, 'key').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    expect(() => forgetAllTideForms()).not.toThrow()
   })
 
   it('forgets quietly when storage throws', () => {

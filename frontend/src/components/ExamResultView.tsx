@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { Exam } from '../api/types'
@@ -10,6 +10,7 @@ import { formStyles } from './formStyles'
 import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const styles = formStyles('light')
 
@@ -17,7 +18,7 @@ const styles = formStyles('light')
 // with the learner's own answer, the official one and the self-assessment.
 // Also what an old exam looks like when opened from the history.
 export function ExamResultView({ exam }: { exam: Exam }) {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)

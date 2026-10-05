@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { getDisplayName } from '../format'
 import { useAuthStore } from '../store/authStore'
 import { HEADER_MENU_BUTTON, tabBarItemClass } from './headerLink'
 import { AccountIcon } from './icons/FeatureIcons'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const ITEM = 'block w-full px-4 py-2 text-left text-sm text-ink hover:bg-surface-alt'
 
@@ -41,7 +42,7 @@ const PANEL = {
 export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuPlacement }) {
   const menuId = placement === 'header' ? 'account-menu' : 'account-menu-tabbar'
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const [openOn, setOpenOn] = useState<string | null>(null)

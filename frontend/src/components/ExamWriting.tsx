@@ -60,39 +60,56 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
   // overwrite it, or the submit could overtake a save still in flight. Each run reads what's
   // dirty only when it starts, so one queued behind another picks up the latest text.
   const saving = useRef<Promise<void>>(Promise.resolve())
-  const flush = useCallback(() => {
-    window.clearTimeout(timer.current)
-    const run = saving.current.then(async () => {
-      const positions = [...dirty.current]
-      dirty.current.clear()
-      for (const position of positions) {
-        try {
-          await apiClient.put(`/exams/${exam.id}/questions/${position}/answer`, {
-            answer_text: answersRef.current[position],
-          })
-          setSaveError(null)
-        } catch (error) {
-          if (error instanceof ApiError && error.status === 409) {
-            // The exam ended meanwhile — show the server's state.
-            onChangeRef.current(null)
-            return
+  const flush = useCallback(
+    (options?: { keepalive: boolean }) => {
+      window.clearTimeout(timer.current)
+      const run = saving.current.then(async () => {
+        const positions = [...dirty.current]
+        dirty.current.clear()
+        for (const position of positions) {
+          try {
+            await apiClient.put(
+              `/exams/${exam.id}/questions/${position}/answer`,
+              { answer_text: answersRef.current[position] },
+              options,
+            )
+            setSaveError(null)
+          } catch (error) {
+            if (error instanceof ApiError && error.status === 409) {
+              // The exam ended meanwhile — show the server's state.
+              onChangeRef.current(null)
+              return
+            }
+            dirty.current.add(position)
+            setSaveError('Die Antwort konnte nicht gespeichert werden. Wir versuchen es erneut.')
           }
-          dirty.current.add(position)
-          setSaveError('Die Antwort konnte nicht gespeichert werden. Wir versuchen es erneut.')
         }
-      }
-    })
-    saving.current = run
-    return run
-  }, [exam.id])
+      })
+      saving.current = run
+      return run
+    },
+    [exam.id],
+  )
 
   // Retry saves that failed, and never lose the last edit when leaving the page.
   useEffect(() => {
     const retry = window.setInterval(() => {
       if (dirty.current.size > 0) void flush()
     }, 5000)
+    // Closing the tab or switching away doesn't unmount the component, so the cleanup below never
+    // runs for it: save what the 800 ms timer hasn't sent yet, as a request that outlives the page.
+    const saveBeforeLeaving = () => {
+      if (dirty.current.size > 0) void flush({ keepalive: true })
+    }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') saveBeforeLeaving()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('pagehide', saveBeforeLeaving)
     return () => {
       window.clearInterval(retry)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('pagehide', saveBeforeLeaving)
       void flush()
     }
   }, [flush])
