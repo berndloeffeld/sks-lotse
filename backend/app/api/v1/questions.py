@@ -6,7 +6,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
 from app.core.rate_limit import enforce_limit
-from app.domain.exam_variant import subjects_for_variant
+from app.domain.exam_variant import restrict_to_variant, subjects_for_variant
 from app.models.question import Question
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
@@ -92,6 +92,6 @@ def list_topics(
     if subject is not None:
         # An explicit subject always wins over the learner's exam variant.
         stmt = stmt.where(Topic.subject == subject)
-    elif (allowed := subjects_for_variant(current_user.exam_variant)) is not None:
-        stmt = stmt.where(Topic.subject.in_(allowed))
+    else:
+        stmt = restrict_to_variant(stmt, Topic.subject, current_user.exam_variant)
     return db.execute(stmt).scalars().all()

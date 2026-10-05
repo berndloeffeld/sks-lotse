@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { CheckoutRead, PublicPricing, PublicTokenPackage, User } from '../api/types'
+import { isCheckoutUrl } from '../checkout'
 import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { formatEurCents } from '../format'
@@ -85,6 +86,7 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
         product: pkg.product,
         waive_withdrawal: true,
       })
+      if (!isCheckoutUrl(url)) throw new Error('Unexpected checkout address')
       window.location.assign(url)
     }, checkoutErrorMessage)
   }

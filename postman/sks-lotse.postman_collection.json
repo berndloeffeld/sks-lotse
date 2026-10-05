@@ -8642,7 +8642,7 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"ads_removed_price_cents\": \"<integer>\",\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ],\n  \"checkout_enabled\": \"<boolean>\"\n}",
+                      "body": "{\n  \"ads_removed_price_cents\": \"<integer>\",\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ],\n  \"checkout_enabled\": \"<boolean>\",\n  \"catalog_check_tokens\": \"<integer>\",\n  \"chart_check_tokens\": \"<integer>\",\n  \"check_max_answer_chars\": \"<integer>\"\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     }

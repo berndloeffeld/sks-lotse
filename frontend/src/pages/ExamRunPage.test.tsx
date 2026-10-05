@@ -149,6 +149,55 @@ describe('ExamRunPage', () => {
     await waitFor(() => expect(puts).toEqual(['Kom', 'Kompass']))
   })
 
+  it('sends the unsaved text as a request that outlives the page when the tab is hidden or closed', async () => {
+    const user = userEvent.setup()
+    const puts: RequestInit[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'PUT') {
+          puts.push(init)
+          return new Response(null, { status: 204 })
+        }
+        return jsonResponse(makeExam())
+      }),
+    )
+    renderRun()
+    await user.type(await screen.findByLabelText('Deine Antwort'), 'Kompass')
+
+    // Typed a moment ago: the 800 ms timer has not sent it yet.
+    expect(puts).toHaveLength(0)
+    window.dispatchEvent(new Event('pagehide'))
+
+    await waitFor(() => expect(puts).toHaveLength(1))
+    expect(puts[0].keepalive).toBe(true)
+    expect(JSON.parse(String(puts[0].body))).toEqual({ answer_text: 'Kompass' })
+  })
+
+  it('sends nothing extra when the tab is hidden with everything saved', async () => {
+    const user = userEvent.setup()
+    const puts: RequestInit[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'PUT') {
+          puts.push(init)
+          return new Response(null, { status: 204 })
+        }
+        return jsonResponse(makeExam())
+      }),
+    )
+    renderRun()
+    await user.type(await screen.findByLabelText('Deine Antwort'), 'K')
+    await waitFor(() => expect(puts).toHaveLength(1))
+
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    await act(async () => {})
+
+    expect(puts).toHaveLength(1)
+  })
+
   it('shows an error when saving fails and reloads when the exam has ended', async () => {
     const user = userEvent.setup()
     let putStatus = 500

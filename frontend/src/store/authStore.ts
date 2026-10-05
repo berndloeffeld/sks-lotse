@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 import { ApiError, apiClient, setUnauthorizedHandler } from '../api/client'
 import type { User } from '../api/types'
+import { forgetAllTideForms } from '../hooks/useTideForm'
 
 // The PATCH /auth/me body — mirrors backend/app/schemas/auth.py::UserUpdate.
 export type UserUpdate = Partial<Pick<User, 'exam_variant' | 'first_name' | 'last_name' | 'gender'>>
@@ -65,6 +66,8 @@ export const useAuthStore = create<AuthState>((set) => {
         // Session was already invalid — fall through and clear local state
         // regardless, there's nothing else to undo.
       }
+      // Whoever uses this browser next must not find this learner's Formblatt in it.
+      forgetAllTideForms()
       set({ user: null, isAuthenticated: false })
     },
   }

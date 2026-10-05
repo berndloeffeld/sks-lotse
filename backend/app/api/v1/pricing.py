@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 
 from app.core import cache
 from app.core.checkout import checkout_open_to_everyone
+from app.core.config import settings
 from app.core.database import get_db
 from app.schemas.pricing import PublicPricing, PublicTokenPackage
 from app.services import pricing as pricing_service
+from app.services import token_wallet
 
 # Deliberately no auth dependency: the landing page (unauthenticated marketing) needs these
 # numbers too, not just the logged-in in-app teaser. See CLAUDE.md → Auth & rate limiting for the
@@ -27,6 +29,9 @@ def get_pricing(request: Request, db: Session = Depends(get_db)) -> PublicPricin
                 for p in pricing_service.token_packages(db)
             ],
             checkout_enabled=checkout_open_to_everyone(),
+            catalog_check_tokens=token_wallet.TOKENS_PER_ANSWER_CHECK,
+            chart_check_tokens=token_wallet.TOKENS_PER_CHART_CHECK,
+            check_max_answer_chars=settings.grading_max_answer_chars,
         )
 
     return cache.get_or_set(

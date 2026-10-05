@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAuthStore } from '../store/authStore'
-import { AI_CHECK_MAX_ANSWER_CHARS, AiAnswerCheck } from './AiAnswerCheck'
+import { AiAnswerCheck } from './AiAnswerCheck'
 import { jsonResponse, makeUser } from '../test/fixtures'
 
 const user = makeUser({ token_balance: 1 })
@@ -95,7 +95,7 @@ describe('AiAnswerCheck', () => {
     useAuthStore.setState({ user })
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(AI_CHECK_MAX_ANSWER_CHARS + 1)} onSuggest={vi.fn()} />)
+    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(1001)} onSuggest={vi.fn()} />)
 
     const row = screen.getByRole('button', ROW)
     expect(row).toBeDisabled()
@@ -105,7 +105,7 @@ describe('AiAnswerCheck', () => {
 
   it('accepts an answer of exactly the maximum length', () => {
     useAuthStore.setState({ user })
-    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(AI_CHECK_MAX_ANSWER_CHARS)} onSuggest={vi.fn()} />)
+    render(<AiAnswerCheck questionId={7} answer={'x'.repeat(1000)} onSuggest={vi.fn()} />)
 
     expect(screen.getByRole('button', ROW)).toBeEnabled()
   })

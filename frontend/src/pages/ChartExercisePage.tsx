@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { ChartAttempt, ChartExerciseSummary, ChartExercisesOverview } from '../api/types'
@@ -15,6 +15,7 @@ import { useChartOverview } from '../hooks/useChartAttempt'
 import { useChartCatalog } from '../hooks/useChartCatalog'
 import { forgetTideForm, guestTideFormId } from '../hooks/useTideForm'
 import { useAuthStore } from '../store/authStore'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const styles = formStyles('light')
 
@@ -40,7 +41,7 @@ export function ChartExercisePage() {
 }
 
 function MemberChartExercise({ number }: { number: string }) {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const { overview, reload, error: loadError } = useChartOverview()
   const { charts } = useChartCatalog()
   const [ready, setReady] = useState(false)

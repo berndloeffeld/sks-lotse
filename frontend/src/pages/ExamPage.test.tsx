@@ -161,6 +161,25 @@ describe('ExamPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
   })
 
+  it('lets the learner reload the exams after a failed load, and the start button follows', async () => {
+    setUser('motor')
+    let failing = true
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => (failing ? jsonResponse({ detail: 'x' }, 500) : jsonResponse([]))),
+    )
+    renderPage()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
+    expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeDisabled()
+
+    failing = false
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Erneut laden' }))
+
+    expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeEnabled()
+  })
+
   it('leads to the Probeprüfung tab of /learn with the Kartenaufgaben', async () => {
     useAuthStore.setState({ user: makeUser({ can_use_chart_exercises: true }), isAuthenticated: true })
     renderPage()

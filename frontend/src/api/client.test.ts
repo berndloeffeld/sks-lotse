@@ -195,6 +195,17 @@ describe('apiClient', () => {
     expect(init.headers).toHaveProperty('Content-Type', 'application/json')
   })
 
+  it('passes keepalive through for a request that must outlive the page', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiClient.put('/x', { a: 1 }, { keepalive: true })
+    await apiClient.put('/x', { a: 1 })
+
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'PUT', keepalive: true })
+    expect(fetchMock.mock.calls[1][1]).not.toHaveProperty('keepalive')
+  })
+
   it('DELETE uses the DELETE method', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
     vi.stubGlobal('fetch', fetchMock)

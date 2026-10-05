@@ -560,3 +560,14 @@ def test_the_stripe_client_retries_and_times_out_instead_of_waiting_80_seconds(m
 
     assert client._requestor._options.max_network_retries == 2
     assert client._requestor._client._timeout == 15
+
+
+def test_public_pricing_states_what_a_check_costs_and_how_long_an_answer_it_takes(client):
+    from app.core.config import settings
+    from app.services import token_wallet
+
+    body = client.get("/api/v1/pricing").json()
+
+    assert body["catalog_check_tokens"] == token_wallet.TOKENS_PER_ANSWER_CHECK
+    assert body["chart_check_tokens"] == token_wallet.TOKENS_PER_CHART_CHECK
+    assert body["check_max_answer_chars"] == settings.grading_max_answer_chars

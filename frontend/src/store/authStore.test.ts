@@ -119,6 +119,16 @@ describe('authStore', () => {
     expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
   })
 
+  it('logout also forgets the Formblatt Gezeiten kept in this browser', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
+
+    await useAuthStore.getState().logout()
+
+    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
+  })
+
   it('logout clears local state even if the backend call fails', async () => {
     useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))

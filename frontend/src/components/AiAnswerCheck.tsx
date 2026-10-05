@@ -9,13 +9,9 @@ import { formStyles } from './formStyles'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useCheckLimits } from '../hooks/useCheckLimits'
 
 const styles = formStyles('light')
-
-// Mirrors GRADING_MAX_ANSWER_CHARS in the backend (app/core/config.py): a longer answer is rejected
-// with 422 before the model sees it. Exam answers may be much longer (up to 10,000 characters),
-// so the button says so up front instead of failing with "nicht erreichbar".
-export const AI_CHECK_MAX_ANSWER_CHARS = 1000
 
 interface AiAnswerCheckProps {
   questionId: number
@@ -60,21 +56,24 @@ export function AiAnswerCheck({
   onButtonKeyDown,
   noAnswerHint,
 }: AiAnswerCheckProps) {
-  const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
+  // A longer answer is rejected (422) before the model sees it. Exam answers may be much longer, so
+  // the button says so up front instead of failing with "nicht erreichbar".
+  const { catalogCheckTokens, maxAnswerChars } = useCheckLimits()
   const { run, isPending: isChecking, error } = useAsyncAction()
   const [result, setResult] = useState<AiGrade | null>(null)
 
   let blockedHint: string | null = null
   if (answer.trim().length === 0) blockedHint = noAnswerHint ?? 'Schreibe zuerst eine Antwort'
-  else if (answer.length > AI_CHECK_MAX_ANSWER_CHARS)
-    blockedHint = `Nur für Antworten bis ${AI_CHECK_MAX_ANSWER_CHARS} Zeichen`
+  else if (answer.length > maxAnswerChars) blockedHint = `Nur für Antworten bis ${maxAnswerChars} Zeichen`
 
   function check() {
     return run(async () => {
       const grade = await apiClient.post<AiGrade>(`/questions/${questionId}/ai-grade`, { answer })
       trackEvent('ai_check_used')
-      if (user) setUser({ ...user, token_balance: grade.tokens_remaining })
+      // The user as it is now, not as it was when this render started: the answer can take a while.
+      const current = useAuthStore.getState().user
+      if (current) setUser({ ...current, token_balance: grade.tokens_remaining })
       setResult(grade)
       onSuggest(grade.outcome)
     }, lotseErrorMessage)
@@ -100,7 +99,7 @@ export function AiAnswerCheck({
       ) : (
         <LotseCheckButton
           noticeId={`ai-check-notice-${questionId}`}
-          cost={1}
+          cost={catalogCheckTokens}
           pitch="Die KI schlägt dir eine Bewertung vor"
           isChecking={isChecking}
           blockedHint={blockedHint}

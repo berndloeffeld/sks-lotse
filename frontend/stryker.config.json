@@ -42,7 +42,11 @@
     "src/lazyExport.ts",
     "src/hooks/useLazyExport.ts",
     "src/hooks/usePracticeSession.ts",
-    "src/hooks/useAdminWithoutAnalytics.ts"
+    "src/hooks/useAdminWithoutAnalytics.ts",
+    "src/checkLimits.ts",
+    "src/hooks/useCheckLimits.ts",
+    "src/hooks/useNavigateWhileMounted.ts",
+    "src/checkout.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

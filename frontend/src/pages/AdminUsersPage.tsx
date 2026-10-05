@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
@@ -27,6 +27,11 @@ export function AdminUsersPage() {
   const [input, setInput] = useState('')
   const [q, setQ] = useState('')
   const query = useApiQuery(`admin-users?q=${q}`, () => fetchPage(q, 0))
+  // The search the list currently shows: a "Mehr laden" answer for an older one must not join it.
+  const currentQ = useRef(q)
+  useEffect(() => {
+    currentQ.current = q
+  })
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [moreFailed, setMoreFailed] = useState(false)
   const [blockingId, setBlockingId] = useState<number | null>(null)
@@ -62,8 +67,10 @@ export function AdminUsersPage() {
     if (!query.data) return
     setMoreFailed(false)
     setIsLoadingMore(true)
+    const searched = q
     try {
-      const next = await fetchPage(q, query.data.items.length)
+      const next = await fetchPage(searched, query.data.items.length)
+      if (currentQ.current !== searched) return
       query.setData((current) => ({ items: [...current.items, ...next.items], total: next.total }))
     } catch {
       setMoreFailed(true)

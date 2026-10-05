@@ -1,6 +1,15 @@
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+
+import { checkLimitsSource } from '../checkLimits'
+import type { PublicPricing } from '../api/types'
+
+const PRICING = {
+  catalog_check_tokens: 1,
+  chart_check_tokens: 2,
+  check_max_answer_chars: 1000,
+} as PublicPricing
 
 // Not using Vitest's `globals: true` (explicit imports only, per this
 // project's style) means @testing-library/react's auto-cleanup — which
@@ -24,3 +33,10 @@ const dom = (globalThis as { jsdom?: { window: Window } }).jsdom
 if (typeof window.localStorage === 'undefined' && dom) {
   Object.defineProperty(window, 'localStorage', { value: dom.window.localStorage, configurable: true })
 }
+
+// The Lotsen-Check screens ask GET /pricing for the check costs (checkLimits.ts). Tests start with
+// the answer already there, so none of them has to expect or mock that request; checkLimits.test.ts
+// resets it to test the fetch itself.
+beforeEach(() => {
+  checkLimitsSource.prime(PRICING)
+})

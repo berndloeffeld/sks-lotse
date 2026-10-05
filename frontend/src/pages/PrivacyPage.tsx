@@ -108,7 +108,8 @@ export function PrivacyPage() {
           gespeichert, solange Ihr Konto besteht; einzelne Durchgänge können Sie jederzeit selbst löschen, mit dem Konto
           werden alle gelöscht. Was Sie in das Formblatt Gezeiten eintragen und welche Hilfsmittel-Bereiche Sie auf-
           oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht an uns
-          übertragen und lässt sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
+          übertragen. Das Formblatt eines Durchgangs wird mit dem Durchgang gelöscht, alle Formblätter beim Abmelden und
+          beim Löschen des Kontos; sonst lässt es sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
         </p>
       </ProseSection>
 

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
@@ -11,6 +11,7 @@ import { EXAM_RESULT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { formStyles } from './formStyles'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const styles = formStyles('light')
 
@@ -23,7 +24,7 @@ const STATUS_LABELS = {
 // The Probeprüfung's entry: the rules, start/resume, and the history of earlier exams (each opens
 // its full review). Its own page (ExamPage), or the fourth tab of /learn with the Kartenaufgaben.
 export function ExamOverview() {
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const user = useAuthStore((state) => state.user)
   const examsQuery = useApiQuery('exams', () => apiClient.get<ExamSummary[]>('/exams'))
   const exams = examsQuery.data ?? null
@@ -65,6 +66,17 @@ export function ExamOverview() {
           <p role="alert" className={styles.error}>
             {error}
           </p>
+        ) : null}
+        {examsQuery.failed ? (
+          // Without the list the start button stays off (a running exam would have to be resumed
+          // instead), so the learner needs a way to ask again.
+          <button
+            type="button"
+            className="self-start text-sm text-primary underline"
+            onClick={() => void examsQuery.reload()}
+          >
+            Erneut laden
+          </button>
         ) : null}
         {!hasVariant ? (
           // Picked right here the first time (the same setting as on /learn and /profile), so the

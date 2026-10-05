@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { apiClient } from '../api/client'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { forgetTideForm } from '../hooks/useTideForm'
 import { formStyles } from './formStyles'
 
 const styles = formStyles('light')
@@ -24,6 +25,8 @@ export function DiscardChartRun({
   function discard() {
     return run(async () => {
       await apiClient.delete(`/chart-exercises/attempts/${attemptId}`)
+      // The run's Formblatt is scratch work of the run: it goes with it.
+      forgetTideForm(attemptId)
       await onDiscarded()
     }, 'Der Durchgang konnte nicht gelöscht werden.')
   }

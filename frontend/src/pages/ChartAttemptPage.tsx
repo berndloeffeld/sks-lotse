@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { ChartTaskRun } from '../components/ChartTaskRun'
 import { ChartSidePanel, ChartToolBar } from '../components/ChartTools'
@@ -6,12 +6,13 @@ import { DiscardChartRun } from '../components/DiscardChartRun'
 import { PageLayout } from '../components/PageLayout'
 import { useChartAttempt, useChartOverview } from '../hooks/useChartAttempt'
 import { useTideForm } from '../hooks/useTideForm'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 // One run through a Kartenaufgabe: the current task on the left, the Formblatt and the tasks so far
 // beside it — or, on a phone, behind the bar at the bottom of the screen.
 export function ChartAttemptPage() {
   const { id } = useParams()
-  const navigate = useNavigate()
+  const navigate = useNavigateWhileMounted()
   const { attempt, isLoading, error, answer, awardPoints, aiCheck } = useChartAttempt(id)
   const { overview } = useChartOverview()
   const tideForm = useTideForm(id ?? '')
