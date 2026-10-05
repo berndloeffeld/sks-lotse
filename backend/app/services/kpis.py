@@ -5,9 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.domain.exam import result_for
 from app.domain.progress import learned_clause
+from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.exam_attempt import ExamAttempt
 from app.models.focus_topic import FocusTopic
+from app.models.lotse_check_log import LotseCheckLog
+from app.models.purchase import Purchase
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.user import User
@@ -16,6 +20,7 @@ from app.schemas.kpis import (
     GrowthKpis,
     KpiReport,
     LearningKpis,
+    MonetizationKpis,
     QualityKpis,
     ReportedQuestion,
     SubjectLearned,
@@ -34,14 +39,19 @@ def _count(db: Session, query) -> int:
 
 
 def _active_user_ids(since: datetime, until: datetime):
-    """Learners with a graded question or a started exam in [since, until)."""
+    """Learners with a graded question, an answered Kartenaufgabe task or a started exam in [since, until)."""
     graded = select(QuestionProgress.user_id).where(
         QuestionProgress.updated_at >= since, QuestionProgress.updated_at < until
     )
     started = select(ExamAttempt.user_id).where(
         ExamAttempt.started_at >= since, ExamAttempt.started_at < until
     )
-    return union(graded, started)
+    charted = (
+        select(ChartAttempt.user_id)
+        .join(ChartAttemptTask, ChartAttemptTask.attempt_id == ChartAttempt.id)
+        .where(ChartAttemptTask.answered_at >= since, ChartAttemptTask.answered_at < until)
+    )
+    return union(graded, started, charted)
 
 
 def _active_users(db: Session, since: datetime, until: datetime) -> int:
@@ -83,7 +93,7 @@ def _engagement(db: Session, now: datetime) -> EngagementKpis:
     cohort = select(User.id).where(User.created_at >= now - 2 * week, User.created_at < now - week)
     retained = cohort.where(User.id.in_(_active_user_ids(now - week, now)))
     ratings_24h = db.execute(
-        select(func.count()).select_from(QuestionProgress).where(QuestionProgress.updated_at >= now - day)
+        select(func.count()).select_from(QuestionGradingLog).where(QuestionGradingLog.graded_at >= now - day)
     ).scalar_one()
     cohort_size = _count(db, cohort)
     return EngagementKpis(
@@ -105,9 +115,10 @@ def _exams_passed(db: Session, since: datetime) -> tuple[int, int]:
     return len(attempts), passed
 
 
-def _exam_count(db: Session, column, since: datetime, until: datetime) -> int:
+def _count_between(db: Session, column, since: datetime, until: datetime) -> int:
+    """Rows of the column's table with the column in [since, until)."""
     return db.execute(
-        select(func.count()).select_from(ExamAttempt).where(column >= since, column < until)
+        select(func.count()).select_from(column.class_).where(column >= since, column < until)
     ).scalar_one()
 
 
@@ -133,8 +144,8 @@ def _learning(db: Session, now: datetime) -> LearningKpis:
         learned_per_learner=_ratio(learned_total, learners),
         learned_by_subject=by_subject,
         focus_users=db.execute(select(func.count(distinct(FocusTopic.user_id)))).scalar_one(),
-        exams_started_24h=_exam_count(db, ExamAttempt.started_at, now - day, now),
-        exams_submitted_24h=_exam_count(db, ExamAttempt.submitted_at, now - day, now),
+        exams_started_24h=_count_between(db, ExamAttempt.started_at, now - day, now),
+        exams_submitted_24h=_count_between(db, ExamAttempt.submitted_at, now - day, now),
         exams_timed_out_24h=db.execute(
             select(func.count())
             .select_from(ExamAttempt)
@@ -142,6 +153,8 @@ def _learning(db: Session, now: datetime) -> LearningKpis:
         ).scalar_one(),
         exams_graded_7d=graded,
         exams_passed_7d=passed,
+        chart_attempts_started_24h=_count_between(db, ChartAttempt.started_at, now - day, now),
+        chart_attempts_completed_24h=_count_between(db, ChartAttempt.completed_at, now - day, now),
     )
 
 
@@ -171,6 +184,44 @@ def _quality(db: Session, now: datetime) -> QualityKpis:
     )
 
 
+def _monetization(db: Session, now: datetime) -> MonetizationKpis:
+    day = timedelta(days=1)
+    week = 7 * day
+
+    def checks(kind: str) -> int:
+        return db.execute(
+            select(func.count())
+            .select_from(LotseCheckLog)
+            .where(LotseCheckLog.kind == kind, LotseCheckLog.checked_at >= now - day)
+        ).scalar_one()
+
+    def tokens_spent(since: datetime) -> int:
+        return db.execute(
+            select(func.coalesce(func.sum(LotseCheckLog.tokens), 0)).where(LotseCheckLog.checked_at >= since)
+        ).scalar_one()
+
+    def purchases(since: datetime) -> tuple[int, int]:
+        count, cents = db.execute(
+            select(func.count(), func.coalesce(func.sum(Purchase.amount_eur_cents), 0)).where(
+                Purchase.granted_by == "stripe", Purchase.created_at >= since
+            )
+        ).one()
+        return count, cents
+
+    purchases_24h, revenue_24h = purchases(now - day)
+    purchases_7d, revenue_7d = purchases(now - week)
+    return MonetizationKpis(
+        lotse_checks_catalog_24h=checks("catalog"),
+        lotse_checks_chart_24h=checks("chart"),
+        tokens_spent_24h=tokens_spent(now - day),
+        tokens_spent_7d=tokens_spent(now - week),
+        purchases_24h=purchases_24h,
+        purchases_7d=purchases_7d,
+        revenue_cents_24h=revenue_24h,
+        revenue_cents_7d=revenue_7d,
+    )
+
+
 def compute_kpis(db: Session, now: datetime) -> KpiReport:
     """Aggregate usage numbers as of `now` (timezone-aware UTC)."""
     return KpiReport(
@@ -179,11 +230,16 @@ def compute_kpis(db: Session, now: datetime) -> KpiReport:
         engagement=_engagement(db, now),
         learning=_learning(db, now),
         quality=_quality(db, now),
+        monetization=_monetization(db, now),
     )
 
 
 def _pct(value: float | None) -> str:
     return "-" if value is None else f"{value * 100:.0f} %"
+
+
+def _eur(cents: int) -> str:
+    return f"{cents / 100:.2f} EUR".replace(".", ",")
 
 
 def _num(value: float | None) -> str:
@@ -192,7 +248,13 @@ def _num(value: float | None) -> str:
 
 def format_report(report: KpiReport) -> str:
     """German plain-text rendering of the report, for the daily mail."""
-    g, e, learn, q = report.growth, report.engagement, report.learning, report.quality
+    g, e, learn, q, m = (
+        report.growth,
+        report.engagement,
+        report.learning,
+        report.quality,
+        report.monetization,
+    )
     subjects = ", ".join(f"{item.subject} {item.learned_questions}" for item in learn.learned_by_subject)
     top = [f"  - {r.subject} Nr. {r.number}: {r.reports}x" for r in q.top_reported_7d]
     lines = [
@@ -220,6 +282,15 @@ def format_report(report: KpiReport) -> str:
         "Prüfungen 24 h gestartet / abgegeben / Zeit abgelaufen: "
         f"{learn.exams_started_24h} / {learn.exams_submitted_24h} / {learn.exams_timed_out_24h}",
         f"Prüfungen 7 Tage bewertet / bestanden: {learn.exams_graded_7d} / {learn.exams_passed_7d}",
+        "Kartenaufgaben-Läufe 24 h gestartet / abgeschlossen: "
+        f"{learn.chart_attempts_started_24h} / {learn.chart_attempts_completed_24h}",
+        "",
+        "LOTSEN-CHECK UND UMSATZ",
+        "Lotsen-Checks 24 h Katalog / Kartenaufgabe: "
+        f"{m.lotse_checks_catalog_24h} / {m.lotse_checks_chart_24h}",
+        f"Verbrauchte Tokens 24 h / 7 Tage: {m.tokens_spent_24h} / {m.tokens_spent_7d}",
+        f"Käufe 24 h / 7 Tage: {m.purchases_24h} / {m.purchases_7d}",
+        f"Umsatz 24 h / 7 Tage: {_eur(m.revenue_cents_24h)} / {_eur(m.revenue_cents_7d)}",
         "",
         "QUALITÄT",
         f"Fragenmeldungen 24 h / gesamt: {q.reports_24h} / {q.reports_total}",

@@ -3,14 +3,19 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.core.config import settings
+from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
+from app.models.lotse_check_log import LotseCheckLog
+from app.models.purchase import Purchase
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.services import email as email_service
+from app.services import lotse_check
 from app.services.kpis import compute_kpis, format_report
 from scripts import send_daily_report
 from tests.helpers import progress_state
@@ -60,6 +65,20 @@ def _populate(db) -> None:
                 **progress_state(1),
                 created_at=_ago(days=3),
                 updated_at=_ago(days=3),
+            ),
+            QuestionGradingLog(
+                user_id=active.id,
+                question_id=nav.id,
+                outcome="richtig",
+                graded_at=_ago(hours=1),
+                half_life_days=1,
+            ),
+            QuestionGradingLog(
+                user_id=cohort.id,
+                question_id=weather.id,
+                outcome="richtig",
+                graded_at=_ago(days=3),
+                half_life_days=1,
             ),
             FocusTopic(user_id=active.id, topic_id=topic.id),
             QuestionReport(user_id=active.id, question_id=nav.id, category="wrong", created_at=_ago(hours=1)),
@@ -204,6 +223,11 @@ def _user(db, name, created=timedelta(days=60)) -> User:
 def _rated(db, user, question, ago) -> None:
     at = NOW - ago
     db.add(
+        QuestionGradingLog(
+            user_id=user.id, question_id=question.id, outcome="richtig", graded_at=at, half_life_days=1
+        )
+    )
+    db.add(
         QuestionProgress(
             user_id=user.id, question_id=question.id, **progress_state(1), created_at=at, updated_at=at
         )
@@ -337,3 +361,138 @@ def test_heartbeat_is_skipped_without_url_and_its_failure_is_only_logged(monkeyp
     monkeypatch.setattr(settings, "betterstack_heartbeat_url", "https://heartbeat.example/x")
     send_daily_report._ping_heartbeat()
     assert [r.getMessage() for r in caplog.records] == ["Heartbeat ping failed"]
+
+
+def _chart_run(db, user, *, started, answered=None, completed=None) -> None:
+    attempt = ChartAttempt(
+        user_id=user.id,
+        exercise_number=1,
+        started_at=NOW - started,
+        completed_at=None if completed is None else NOW - completed,
+    )
+    db.add(attempt)
+    db.flush()
+    if answered is not None:
+        db.add(
+            ChartAttemptTask(
+                attempt_id=attempt.id, task_number=1, answer_text="x", answered_at=NOW - answered
+            )
+        )
+
+
+def test_a_learner_who_only_does_chart_exercises_counts_as_active(db_session):
+    _chart_run(
+        db_session, _user(db_session, "chart-only"), started=timedelta(hours=3), answered=timedelta(hours=2)
+    )
+    _chart_run(
+        db_session, _user(db_session, "chart-old"), started=timedelta(days=40), answered=timedelta(days=40)
+    )
+    db_session.commit()
+
+    report = compute_kpis(db_session, NOW)
+
+    assert (report.engagement.dau, report.engagement.mau) == (1, 1)
+
+
+def test_chart_runs_started_and_completed_in_the_last_24h(db_session):
+    user = _user(db_session, "runner")
+    _chart_run(
+        db_session,
+        user,
+        started=timedelta(hours=5),
+        answered=timedelta(hours=4),
+        completed=timedelta(hours=1),
+    )
+    _chart_run(db_session, _user(db_session, "other"), started=timedelta(hours=2))
+    _chart_run(db_session, _user(db_session, "old"), started=timedelta(days=3), completed=timedelta(days=2))
+    db_session.commit()
+
+    learning = compute_kpis(db_session, NOW).learning
+
+    assert (learning.chart_attempts_started_24h, learning.chart_attempts_completed_24h) == (2, 1)
+
+
+def test_lotsen_checks_tokens_and_stripe_purchases_are_counted_in_their_windows(db_session):
+    user = _user(db_session, "buyer")
+
+    def check(kind, tokens, ago):
+        db_session.add(LotseCheckLog(kind=kind, tokens=tokens, checked_at=NOW - ago))
+
+    check("catalog", 1, timedelta(hours=1))
+    check("catalog", 1, timedelta(hours=2))
+    check("chart", 2, timedelta(hours=3))
+    check("catalog", 1, timedelta(days=3))
+    check("chart", 2, timedelta(days=8))
+
+    def purchase(by, cents, ago, tokens=100):
+        db_session.add(
+            Purchase(
+                user_id=user.id,
+                product="tokens_m",
+                tokens_granted=tokens,
+                amount_eur_cents=cents,
+                granted_by=by,
+                created_at=NOW - ago,
+            )
+        )
+
+    purchase("stripe", 499, timedelta(hours=5))
+    purchase("stripe", 999, timedelta(days=4))
+    purchase("stripe", 1999, timedelta(days=9))
+    purchase("admin_manual", 500, timedelta(hours=1))  # an off-platform payment is not Stripe revenue
+    purchase("signup", None, timedelta(hours=1))
+    db_session.commit()
+
+    money = compute_kpis(db_session, NOW).monetization
+
+    assert (money.lotse_checks_catalog_24h, money.lotse_checks_chart_24h) == (2, 1)
+    assert (money.tokens_spent_24h, money.tokens_spent_7d) == (4, 5)
+    assert (money.purchases_24h, money.purchases_7d) == (1, 2)
+    assert (money.revenue_cents_24h, money.revenue_cents_7d) == (499, 1498)
+
+
+def test_the_report_text_has_the_new_sections(db_session):
+    db_session.add(LotseCheckLog(kind="chart", tokens=2, checked_at=NOW - timedelta(hours=1)))
+    db_session.add(
+        Purchase(
+            user_id=None,
+            product="tokens_m",
+            tokens_granted=100,
+            amount_eur_cents=1250,
+            granted_by="stripe",
+            created_at=NOW - timedelta(hours=1),
+        )
+    )
+    db_session.commit()
+
+    text = format_report(compute_kpis(db_session, NOW))
+
+    assert "Kartenaufgaben-Läufe 24 h gestartet / abgeschlossen: 0 / 0" in text
+    assert "Lotsen-Checks 24 h Katalog / Kartenaufgabe: 0 / 1" in text
+    assert "Verbrauchte Tokens 24 h / 7 Tage: 2 / 2" in text
+    assert "Käufe 24 h / 7 Tage: 1 / 1" in text
+    assert "Umsatz 24 h / 7 Tage: 12,50 EUR / 12,50 EUR" in text
+
+
+def test_purge_removes_only_log_rows_older_than_the_retention(db_session):
+    for days in (1, 29, 31, 90):
+        db_session.add(LotseCheckLog(kind="catalog", tokens=1, checked_at=NOW - timedelta(days=days)))
+    db_session.commit()
+
+    assert lotse_check.purge_check_log(db_session, NOW) == 2
+
+    left = db_session.query(LotseCheckLog).count()
+    assert left == 2
+
+
+def test_the_daily_report_job_purges_the_old_log_rows(db_session, monkeypatch):
+    old = datetime.now(UTC) - timedelta(days=45)
+    db_session.add(LotseCheckLog(kind="catalog", tokens=1, checked_at=old))
+    db_session.commit()
+    monkeypatch.setattr(settings, "admin_emails", "one@example.com")
+    monkeypatch.setattr(send_daily_report, "SessionLocal", lambda: db_session)
+    monkeypatch.setattr(send_daily_report, "send_kpi_report_email", lambda *args: None)
+
+    assert send_daily_report.main() == 0
+
+    assert db_session.query(LotseCheckLog).count() == 0

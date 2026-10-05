@@ -48,6 +48,21 @@ class LearningKpis(BaseModel):
     exams_timed_out_24h: int
     exams_graded_7d: int
     exams_passed_7d: int
+    chart_attempts_started_24h: int
+    chart_attempts_completed_24h: int
+
+
+class MonetizationKpis(BaseModel):
+    # Lotsen-Checks that ran (a failed one is refunded and not counted), by kind, and their tokens.
+    lotse_checks_catalog_24h: int
+    lotse_checks_chart_24h: int
+    tokens_spent_24h: int
+    tokens_spent_7d: int
+    # Stripe purchases only (purchases.granted_by = "stripe"); revenue in euro cents, gross.
+    purchases_24h: int
+    purchases_7d: int
+    revenue_cents_24h: int
+    revenue_cents_7d: int
 
 
 class ReportedQuestion(BaseModel):
@@ -74,3 +89,4 @@ class KpiReport(BaseModel):
     engagement: EngagementKpis
     learning: LearningKpis
     quality: QualityKpis
+    monetization: MonetizationKpis

@@ -108,4 +108,4 @@ Protected by an allowlist and a two-factor code (authenticator app):
 - Blocklist for email addresses and domains against abuse; a blocked address is deleted automatically 24 months after the block, a domain stays until removed.
 - Set prices and packages.
 - Search questions and model answers across the whole catalog (by text, number, subject and topic), and see per question who graded it when, how, and which memory estimate (half-life) came of it (recorded since this view went live).
-- Daily KPI report by email; a maintenance mode for when something goes wrong.
+- Daily KPI report by email (growth, activity incl. Kartenaufgaben, learning success, quality, Lotsen-Checks with the tokens they cost, Stripe purchases and revenue); a maintenance mode for when something goes wrong.

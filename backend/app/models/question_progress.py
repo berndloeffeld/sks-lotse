@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, UniqueConstraint, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -10,6 +10,8 @@ class QuestionProgress(Base):
     __tablename__ = "question_progress"
     __table_args__ = (
         UniqueConstraint("user_id", "question_id", name="uq_question_progress_user_id_question_id"),
+        # The daily KPI report counts activity in a time window across all users.
+        Index("ix_question_progress_updated_at", "updated_at"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

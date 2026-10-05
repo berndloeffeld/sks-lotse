@@ -171,6 +171,7 @@ def ai_check_chart_task(
         request.app,
         db,
         current_user,
+        kind="chart",
         amount=token_wallet.TOKENS_PER_CHART_CHECK,
         caps=_caps(f"{current_user.id}:{attempt.id}:{task_number}"),
         grade=lambda: grade_chart_answer(service.catalog().hints, earlier, task, answer.answer_text),
