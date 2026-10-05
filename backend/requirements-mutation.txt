@@ -25,9 +25,9 @@ annotated-types==0.8.0 \
     #   -c requirements-dev.txt
     #   -c requirements.txt
     #   pydantic
-anthropic==1.8.0 \
-    --hash=sha256:79a4516a21e64fd7b15be1a49ebf544bd6376c96a971a77365358823a2717bc6 \
-    --hash=sha256:9c1783ed90f409617749a61c5ab98e20624a572626f2e0a15cea03ed8e1401e5
+anthropic==1.9.0 \
+    --hash=sha256:a7fe05a9e4b72113b934501698df5d56484ac89f05677f0f793f8bfddb15cfff \
+    --hash=sha256:da5191a0af0b853a797fc0c6b09fc5b05cb5d9da063ba80fdd03c736abe81b6c
     # via
     #   -c requirements-dev.txt
     #   -c requirements.txt
@@ -618,9 +618,9 @@ defusedxml==0.7.1 \
     # via
     #   -c requirements-dev.txt
     #   py-serializable
-disposable-email-domains==0.0.267 \
-    --hash=sha256:272f663de4907cd970b94dc75275e6c5c866f1da397355a12842d57aa2fd2d6e \
-    --hash=sha256:278fcba9e26151adb9a54ca1554ee5229cd765c3b538ceb7cbb67e26dc72f563
+disposable-email-domains==0.0.271 \
+    --hash=sha256:472234b267b7edaa3e4e5a9168831b09229b7351304b45de2b5058d840b0ce58 \
+    --hash=sha256:df24549004ea84df84fbd4f38ba12b2ea6a8e1fbc615c43e3442c79eb605d033
     # via
     #   -c requirements-dev.txt
     #   -c requirements.txt
@@ -652,9 +652,9 @@ email-validator==2.3.0 \
     #   -c requirements-dev.txt
     #   -c requirements.txt
     #   -r requirements.in
-fastapi==0.141.1 \
-    --hash=sha256:bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3 \
-    --hash=sha256:e8822fc40db1e1858054d7a949a888695bc9bdce70139178e33bd2871a453ca1
+fastapi==0.142.2 \
+    --hash=sha256:06366626f2e70576367714d9ab2fe8472e6c8456dba69b399f9f797ab5e92570 \
+    --hash=sha256:bd5f4d81f1e93a88bcd77caf4dfe3c2dbffc3805407a0007e9a114c18b3a670b
     # via
     #   -c requirements-dev.txt
     #   -c requirements.txt
@@ -751,7 +751,6 @@ greenlet==3.5.6 \
     #   -c requirements-dev.txt
     #   -c requirements.txt
     #   -r requirements.in
-    #   sqlalchemy
 h11==0.16.0 \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
@@ -1492,6 +1491,13 @@ nodeenv==1.10.0 \
     # via
     #   -c requirements-dev.txt
     #   pre-commit
+opentelemetry-api==1.45.0 \
+    --hash=sha256:711ede81773c8025c2c03dac0450bc89f3d30aea6eabcc815c570d4e35a963f7 \
+    --hash=sha256:80e068aba7cd56c8b58512d6a36f8d25cb1dfaa0c0a4cc1c938ccf9f362d9cb3
+    # via
+    #   -c requirements-dev.txt
+    #   -c requirements.txt
+    #   fastapi
 packageurl-python==0.17.6 \
     --hash=sha256:1252ce3a102372ca6f86eb968e16f9014c4ba511c5c37d95a7f023e2ca6e5c25 \
     --hash=sha256:31a85c2717bc41dd818f3c62908685ff9eebcb68588213745b14a6ee9e7df7c9
@@ -1793,9 +1799,9 @@ pygments==2.21.0 \
     #   pytest
     #   rich
     #   textual
-pyjwt==2.15.0 \
-    --hash=sha256:7a3742debf6b879e912dbb9819ceec1594be812452b78c5f2e2dfc56564954f8 \
-    --hash=sha256:b11c5f9791d7bf51c2b39a81ed669f6b2dbbd669df2942f6c60167e9e3d1abe4
+pyjwt==2.15.1 \
+    --hash=sha256:42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193 \
+    --hash=sha256:4f259e80cdfb6b3fc18a7de51fd1ef9ec79652f25019bae68975ca2468a34df8
     # via
     #   -c requirements-dev.txt
     #   -c requirements.txt
@@ -1961,9 +1967,9 @@ requests==2.34.2 \
     #   pip-audit
     #   resend
     #   stripe
-resend==2.48.0 \
-    --hash=sha256:3a4a8ab1bfd70825f3e92e932cddcf7da36bc55f0afafa4a2df2f77e6f94997d \
-    --hash=sha256:ff44f36f36f4612a4479ed10564995cc60da829a5bd2815b559380f00e2eadd8
+resend==2.49.0 \
+    --hash=sha256:9ffbaccfd917e648b14a89f0f267aa4545b485ee51d0053872ebedcfa7da83d5 \
+    --hash=sha256:b1bf6ab669e3b9268321a9999d23f20b6caced0b4184ff1f487e0fcb9e806860
     # via
     #   -c requirements-dev.txt
     #   -c requirements.txt
@@ -2276,6 +2282,7 @@ typing-extensions==4.16.0 \
     #   fastapi
     #   httpx2
     #   mypy
+    #   opentelemetry-api
     #   pydantic
     #   pydantic-core
     #   resend
