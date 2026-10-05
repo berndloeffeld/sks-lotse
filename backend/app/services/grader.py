@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import anthropic
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from app.core.config import settings
 from app.domain.progress import GradingOutcome
@@ -133,8 +133,10 @@ def structured_call[T](output_format: type[T], call: Callable[[anthropic.Anthrop
         raise GradingUnavailable("too many concurrent checks")
     try:
         response = call(_client())
-    except anthropic.APIError as exc:
-        raise GradingUnavailable(type(exc).__name__) from exc
+    except (anthropic.APIError, ValidationError) as exc:
+        # ValidationError: `parse` could not read the JSON, typically a reply cut off at max_tokens.
+        # Its message quotes the reply (which can quote the learner), so only the type name goes on.
+        raise GradingUnavailable(type(exc).__name__) from None
     finally:
         _call_slots.release()
     if getattr(response, "stop_reason", None) == "refusal":

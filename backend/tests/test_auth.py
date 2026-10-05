@@ -732,6 +732,23 @@ def test_me_reports_no_agb_acceptance_by_default(client, auth_headers):
     assert response.json()["needs_agb_acceptance"] is True
 
 
+def test_a_wrong_login_code_raises_a_fresh_exception_each_time(client):
+    # A shared module-level exception would collect every failure's traceback (and the frames' locals:
+    # email, code, session) until the process restarts.
+    from app.api.v1 import auth as auth_api
+
+    assert auth_api._invalid_code() is not auth_api._invalid_code()
+    assert auth_api._invalid_email_change_code() is not auth_api._invalid_email_change_code()
+    assert auth_api._not_found() is not auth_api._not_found()
+    for _ in range(3):
+        assert (
+            client.post(
+                "/api/v1/auth/otp/verify", json={"email": "x@example.com", "code": "000000"}
+            ).status_code
+            == 401
+        )
+
+
 def test_accept_agb_sets_version_and_timestamp(client, db_session, auth_headers):
     response = client.post("/api/v1/auth/me/agb-accept", headers=auth_headers)
 
