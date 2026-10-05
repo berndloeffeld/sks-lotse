@@ -52,7 +52,7 @@ export function ExamProcessPage() {
       <Section icon={<CatalogIcon className="h-8 w-8" />} title="So läuft die SKS-Theorieprüfung ab">
         <p>
           Die Theorieprüfung besteht aus einem Fragebogen mit 30 Fragen in 90 Minuten, aufgeteilt auf Navigation (9),
-          Rechtskunde (7), Wetterkunde (5) und Seemannschaft (9).
+          Schifffahrtsrecht (7), Wetterkunde (5) und Seemannschaft (9).
         </p>
         <p>
           SKS Lotse bereitet dich mit dem kompletten amtlichen Fragenkatalog auf genau diesen Fragebogen vor – mit
