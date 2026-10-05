@@ -44,7 +44,7 @@ Hinweis, dass nur die gestellte Frage beantwortet werden kann — ohne den Inhal
 zu wiederholen oder darauf einzugehen."""
 
 # Backstop for the rare case the model doesn't follow that last instruction (ADR-0040): normal
-# feedback is "höchstens 3 kurze Sätze", so anything past this is already suspicious, and a model
+# feedback is "höchstens 2 kurze Sätze", so anything past this is already suspicious, and a model
 # that just mirrors the learner's answer back clearly isn't grading it.
 _FALLBACK_FEEDBACK = "Deine Antwort konnte nicht ausgewertet werden. Bitte antworte nur zur gestellten Frage."
 

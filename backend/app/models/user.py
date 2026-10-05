@@ -32,10 +32,10 @@ class User(Base):
     gender: Mapped[str | None] = mapped_column(String(16), nullable=True)
     # Pay-per-use balance for the AI answer check (ADR-0043, superseding the old boolean
     # ai_grading_enabled entitlement): 1 token = 1 check. Credited by the signup bonus and by
-    # admin grants (app/services/token_wallet.py) until a real payment provider is wired up.
+    # Stripe purchases (ADR-0048) and admin grants (app/services/token_wallet.py).
     token_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    # Entitlement "ads removed" — flipped by hand until payment exists. Hides the UI's ad elements; the
-    # AdSense script in the frontend's <head> stays (ADR-0027).
+    # Entitlement "ads removed" — flipped by the operator on /admin. Hides the UI's ad elements and keeps
+    # the app from loading Google's ad script (ADR-0027, addenda 2026-09-23 and 2026-10-05).
     ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     # How often the sanitizer backstop (app/services/grader.py) fired for this account — a signal
     # for prompt-injection abuse, never the triggering text itself (ADR-0031, ADR-0040).
