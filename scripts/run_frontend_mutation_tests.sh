@@ -11,10 +11,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/../frontend"
 
-# Ratchet: a few points under the current score (~95%, 94.8% on 2026-09-25), like the coverage gates. Raise it when
+# Ratchet: a few points under the current score (85.2% on 2026-10-05, measured with ignoreStatic, which
+# drops the mostly-killed module-level mutants; 94.8% on 2026-09-25 was without it), like the coverage gates. Raise it when
 # the score settles higher; don't lower it to get a PR through — write the missing test (a
 # handful of equivalent survivors are already priced in).
-MUTATION_MIN_SCORE="${MUTATION_MIN_SCORE:-90}"
+MUTATION_MIN_SCORE="${MUTATION_MIN_SCORE:-83}"
 
 case "${1:-run}" in
   run) npx stryker run ;;

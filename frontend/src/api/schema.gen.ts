@@ -975,6 +975,8 @@ export interface components {
             agb_accepted_version: string | null;
             /** Is Admin */
             readonly is_admin: boolean;
+            /** Needs Agb Acceptance */
+            readonly needs_agb_acceptance: boolean;
             /** Can Buy Tokens */
             readonly can_buy_tokens: boolean;
             /** Can Use Chart Exercises */

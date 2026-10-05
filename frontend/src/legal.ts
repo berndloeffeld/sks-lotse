@@ -1,7 +1,5 @@
-// Single source of truth for the AGB version currently in force — bump this
-// and AGB_VERSION_LABEL (and backend/app/domain/legal.py's CURRENT_AGB_VERSION)
+// Only the display label lives here. Which AGB version is in force, and whether an account
+// still owes the confirmation (UserRead.needs_agb_acceptance), is decided by the backend
+// (backend/app/domain/legal.py's CURRENT_AGB_VERSION): bump that together with this label
 // whenever the AGB text changes materially; AgbPage.tsx shows the label.
-// Every account whose stored agb_accepted_version differs sees the AGB-Gate
-// again on next login (see routes/AgbGate.tsx).
-export const AGB_VERSION = '2026-10-02'
 export const AGB_VERSION_LABEL = '2. Oktober 2026'

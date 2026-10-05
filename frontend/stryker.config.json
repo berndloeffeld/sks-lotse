@@ -4,6 +4,7 @@
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.app.json",
   "coverageAnalysis": "perTest",
+  "ignoreStatic": true,
   "mutate": [
     "src/format.ts",
     "src/ads.ts",

@@ -729,6 +729,7 @@ def test_me_reports_no_agb_acceptance_by_default(client, auth_headers):
     response = client.get("/api/v1/auth/me", headers=auth_headers)
 
     assert response.json()["agb_accepted_version"] is None
+    assert response.json()["needs_agb_acceptance"] is True
 
 
 def test_accept_agb_sets_version_and_timestamp(client, db_session, auth_headers):
@@ -736,10 +737,19 @@ def test_accept_agb_sets_version_and_timestamp(client, db_session, auth_headers)
 
     assert response.status_code == 200
     assert response.json()["agb_accepted_version"] == CURRENT_AGB_VERSION
+    assert response.json()["needs_agb_acceptance"] is False
 
     user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
     assert user.agb_accepted_version == CURRENT_AGB_VERSION
     assert user.agb_accepted_at is not None
+
+
+def test_an_older_accepted_agb_version_needs_acceptance_again(client, db_session, auth_headers):
+    user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
+    user.agb_accepted_version = "2020-01-01"
+    db_session.commit()
+
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["needs_agb_acceptance"] is True
 
 
 def test_delete_me_removes_user_and_cascades_progress(client, db_session, auth_headers):

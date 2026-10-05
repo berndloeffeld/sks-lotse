@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.email_address import canonicalize_email
 from app.core.features import chart_exercises_enabled_for
 from app.domain.exam_variant import EXAM_VARIANTS
+from app.domain.legal import CURRENT_AGB_VERSION
 from app.schemas.common import one_of
 
 # EmailStr only lowercases the domain, not the local part. Canonicalize the
@@ -106,6 +107,13 @@ class UserRead(BaseModel):
     @property
     def is_admin(self) -> bool:
         return self.email in settings.admin_emails_set
+
+    @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
+    @property
+    def needs_agb_acceptance(self) -> bool:
+        # The backend alone decides whether the AGB-Gate is owed (frontend/src/routes/AgbGate.tsx),
+        # so the version lives in one place (domain/legal.py).
+        return self.agb_accepted_version != CURRENT_AGB_VERSION
 
     @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
     @property

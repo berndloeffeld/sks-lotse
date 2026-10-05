@@ -327,7 +327,8 @@ export function LandingPage() {
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
                 Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
-                KI-Bewertung, ohne Abo), dazu gibt es optional „Werbefrei“. Die aktuellen Preise stehen auf der{' '}
+                Katalogfrage, zwei pro Kartenaufgabe, ohne Abo), dazu gibt es optional „Werbefrei“. Die aktuellen Preise
+                stehen auf der{' '}
                 <Link to="/pricing" className="underline hover:text-surface">
                   Preise-Seite
                 </Link>

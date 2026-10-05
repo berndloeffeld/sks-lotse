@@ -6,8 +6,9 @@ line — a "mutant") and re-runs the tests. A mutant a test fails on is **killed
 passes **survived**, i.e. the tests don't pin that behavior down. Mutation score = killed / all.
 
 **It runs daily** (03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
-Actions tab), not on every PR, so it never holds up merges. A CI run takes about 5 minutes for the backend job
-and about 3 for the frontend job; those are the only runtimes this page states. A failed run opens an issue
+Actions tab), not on every PR, so it never holds up merges. A CI run takes about 30 minutes for the backend job
+(timeout 45) and about 6 for the frontend job (2026-10-05); those are the only runtimes this page states. A job that
+runs into its timeout ends as `cancelled`, and the alert job treats every result but `success` as a failed run. A failed run opens an issue
 ("Mutation testing failed"); a regression therefore surfaces up to a day after the change that caused it. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
 points under the current score (~90%), like the coverage gates: raise it when the score settles higher, never
@@ -85,8 +86,15 @@ cd frontend && npm ci                                   # once
 - **Setup**: `@stryker-mutator/core` + `vitest-runner` + `typescript-checker` (exact versions), `coverageAnalysis: perTest`
   (each mutant only runs the tests that cover it, ~12 per mutant). The TypeScript checker drops mutants that don't compile
   (≈60 of ~300) instead of counting them as survivors.
-- **Score (2026-09-25): 417 of 440 counted mutants killed (94.8%)** (2026-09-21: 226 of 236, 95.8%). Minimum in CI: **90%**
-  (`MUTATION_MIN_SCORE`), a ratchet like the others. The first run (7 modules) scored 81%; the survivors were real
+- **`ignoreStatic: true`** (2026-10-05): a mutant in module-level code (the page list, constants) is "static", i.e. it
+  changes what runs at import time, so Stryker re-runs the *whole* suite for it. 353 of them were estimated to take 81% of
+  the time and pushed the job into its timeout. They are ignored now (not counted), which also takes mostly-*killed* mutants
+  out of the score, so the score dropped without the tests getting worse. The SEO wording of the prerendered pages lives
+  in `src/publicPageTexts.ts`, which is not mutated (a changed sentence is no bug); the logic of `publicPages.ts` is.
+- **Score (2026-10-05): 604 of 709 counted mutants killed (85.2%)**, ~5 min. Minimum in CI: **83%**
+  (`MUTATION_MIN_SCORE`, re-set because the measurement changed, see above), a ratchet like the others; raise it as survivors
+  (`useTideForm`, `api/client`, `useApiQuery`, `useCatalog`, `ads`, `authStore`) get tests.
+  Before: **417 of 440 (94.8%)** on 2026-09-25 (2026-09-21: 226 of 236, 95.8%) at a minimum of 90%. The first run (7 modules) scored 81%; the survivors were real
   gaps (no test for `formatDateTime`, `put`/`delete`, body-less requests, the countdown's expiry boundary and
   latest-callback handling, the auth store's loading state, logout URL, wiring of the unauthorized handler) and the
   hooks, which had only been exercised through pages, got their own tests.
