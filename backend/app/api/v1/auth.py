@@ -1,4 +1,3 @@
-import logging
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
@@ -32,8 +31,6 @@ from app.schemas.auth import (
 from app.services import blocklist, otp_codes, token_wallet
 from app.services.pricing import signup_bonus_tokens
 from app.services.user import delete_user_and_progress
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
