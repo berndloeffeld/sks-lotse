@@ -76,6 +76,14 @@ def send_email_change_code(email: str, code: str) -> None:
         logger.exception("Failed to send email-change confirmation to %s", _mask_email(email))
 
 
+def send_email_change_notice(old_email: str, new_email: str) -> None:
+    # Background task after a confirmed change; a failed send must not undo or fail the change.
+    try:
+        email_service.send_email_change_notice_email(old_email, _mask_email(new_email))
+    except Exception:
+        logger.exception("Failed to send email-change notice to %s", _mask_email(old_email))
+
+
 def _cleanup_expired_codes(session_factory: sessionmaker[Session], now: datetime) -> None:
     # otp_codes is pure transient data (see docs/adr/0010) — nothing outside
     # the OTP flow itself reads a code once it's past its retention window.

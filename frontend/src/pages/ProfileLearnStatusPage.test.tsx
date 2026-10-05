@@ -64,4 +64,23 @@ describe('ProfileLearnStatusPage', () => {
       expect(useAuthStore.getState().user?.exam_variant).toBe('motor')
     })
   })
+
+  it('reloads the summary once the exam variant has changed', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/progress/summary')) return jsonResponse(emptyProgress)
+      if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(makeUser({ exam_variant: 'motor' }))
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const summaryCalls = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/progress/summary')).length
+
+    renderPage()
+    await waitFor(() => expect(summaryCalls()).toBe(1))
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Variante' }), 'motor')
+
+    await waitFor(() => expect(summaryCalls()).toBe(2))
+  })
 })

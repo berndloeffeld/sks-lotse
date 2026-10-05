@@ -955,6 +955,55 @@ def test_verify_email_change_updates_user_email(client, db_session, monkeypatch,
     assert user.email == "new@example.com"
 
 
+def test_verify_email_change_notifies_the_old_address(client, monkeypatch, auth_headers):
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+    notices = []
+    monkeypatch.setattr(
+        "app.services.email.send_email_change_notice_email", lambda old, masked: notices.append((old, masked))
+    )
+
+    client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+
+    assert notices == [("fixture-user@example.com", "n***@example.com")]
+
+
+def test_a_failed_notice_mail_does_not_fail_the_email_change(client, monkeypatch, auth_headers):
+    code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+
+    def boom(old, masked):
+        raise RuntimeError("resend down")
+
+    monkeypatch.setattr("app.services.email.send_email_change_notice_email", boom)
+
+    response = client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": code},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+
+def test_verify_email_change_wrong_code_sends_no_notice(client, monkeypatch, auth_headers):
+    _request_email_change_and_get_code(client, monkeypatch, auth_headers)
+    notices = []
+    monkeypatch.setattr(
+        "app.services.email.send_email_change_notice_email", lambda old, masked: notices.append(old)
+    )
+
+    client.post(
+        "/api/v1/auth/me/email/verify",
+        json={"new_email": "new@example.com", "code": "000000"},
+        headers=auth_headers,
+    )
+
+    assert notices == []
+
+
 def test_verify_email_change_wrong_code_returns_400(client, monkeypatch, auth_headers):
     _request_email_change_and_get_code(client, monkeypatch, auth_headers)
 

@@ -35,9 +35,10 @@ export function PrivacyPage() {
           gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch JavaScript) und Sie bis zur
           Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
           (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für
-          den Versand der Login-Codes und der Kaufbestätigung per E-Mail setzen wir den Dienst Resend ein, der dabei in
-          unserem Auftrag tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie,
-          welcher Version unserer{' '}
+          den Versand der Login-Codes, der Kaufbestätigung und – nach einer Änderung der E-Mail-Adresse – eines
+          Hinweises an die bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag
+          tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
+          unserer{' '}
           <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}

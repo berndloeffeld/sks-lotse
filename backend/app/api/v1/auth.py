@@ -261,6 +261,7 @@ def request_email_change(
 @router.post("/me/email/verify", response_model=UserRead)
 def verify_email_change(
     payload: EmailChangeVerifyRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -269,6 +270,7 @@ def verify_email_change(
     ):
         raise _INVALID_EMAIL_CHANGE_CODE
 
+    old_email = current_user.email
     current_user.email = payload.new_email
     try:
         db.commit()
@@ -279,6 +281,10 @@ def verify_email_change(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="This email address is already in use"
         ) from None
+
+    # The old address hears about it too: a stolen session could otherwise take the account over
+    # for good (change the address, log in by code later) without the owner ever noticing.
+    background_tasks.add_task(otp_codes.send_email_change_notice, old_email, payload.new_email)
 
     # No token_version bump / re-login needed: the JWT doesn't embed the
     # email, so the existing session stays valid after this change.

@@ -4,14 +4,18 @@ import { Band } from '../components/Bands'
 import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useProgressSummary } from '../hooks/useProgressSummary'
+import { useAuthStore } from '../store/authStore'
 
 // /profile's "Lernstand" tab (the default): the same Lernstand overview as
 // /learn (progress, subjects, exam variant), plus the exam statistics.
 export function ProfileLearnStatusPage() {
+  const examVariant = useAuthStore((state) => state.user?.exam_variant)
+
   return (
     <>
       <Band className="pt-10 pb-16">
-        <ProfileProgress />
+        {/* Keyed on exam_variant so a change remounts (and refetches) the summary, like /learn. */}
+        <ProfileProgress key={examVariant ?? 'none'} />
       </Band>
 
       <Band className="pt-0 pb-16">

@@ -265,7 +265,7 @@ A short overview of what is protected against whom; the mechanisms are described
 **Accepted residual risks**:
 
 - **The ad script runs next to the session** for every account that sees ads, including on `/login` while the code is typed. Any compromise along the ad chain could call the API with that learner's rights; it is bounded by those rights and kept off `/pricing` and `/admin` ([ADR-0027](adr/0027-adsense-with-google-consent-management.md), addendum 2026-09-23).
-- **The mailbox is the account.** Whoever reads a learner's email can log in; learners have no second factor (admins do).
+- **The mailbox is the account.** Whoever reads a learner's email can log in; learners have no second factor (admins do). A changed address is announced to the old one (a short mail with the new address masked), so a stolen session that swaps the address does not go unnoticed; the old mailbox can then only warn the owner, who reaches the operator by mail.
 - **A stolen session token stays valid until it expires** (there is no refresh token) or until the learner logs out, which invalidates all their tokens ([ADR-0008](adr/0008-token-version-based-logout.md)).
 - **Rate limits and caps live in process memory**: a deploy or restart resets them, and they hold only while there is a single instance ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 - **The Lotsen-Check sends text to the US** (question, official answer, the learner's answer; for a Kartenaufgabe also the derivation and the run's earlier answers; no identity), under a data processing agreement ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0058](adr/0058-lotsen-check-for-chart-exercises.md)).

@@ -19,7 +19,7 @@ What sets it apart from simply paging through the catalog:
 - **Sign-in with an email address and a one-time code only.** There is no password. Without signing in there is no progress; with it, progress is the same on every device.
 - **Without signing in**, "Lernen nach Thema" is open: every topic of the catalog (both Seemannschaft variants), each question with the official answer. Guests write their answer, reveal the official one, grade themselves and get the round's summary, but nothing is saved: no Lernstand, nothing sent. Fokus, Auffrischen, the Probeprüfung and the Lotsen-Check need an account.
 - **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.
-- **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address), delete the account oneself.
+- **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address; the old address gets a notice), delete the account oneself.
 - The terms (AGB) are confirmed once per version.
 
 ## Learning
