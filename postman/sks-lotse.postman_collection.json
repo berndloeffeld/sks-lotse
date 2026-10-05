@@ -414,7 +414,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"needs_agb_acceptance\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         }
@@ -600,7 +600,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
+                          "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"needs_agb_acceptance\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -752,7 +752,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"needs_agb_acceptance\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             }
@@ -1064,7 +1064,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
+                                  "body": "{\n  \"id\": \"<integer>\",\n  \"email\": \"<string>\",\n  \"created_at\": \"<dateTime>\",\n  \"exam_variant\": \"<string>\",\n  \"first_name\": \"<string>\",\n  \"last_name\": \"<string>\",\n  \"gender\": \"<string>\",\n  \"token_balance\": \"<integer>\",\n  \"ads_removed\": \"<boolean>\",\n  \"agb_accepted_version\": \"<string>\",\n  \"is_admin\": \"<boolean>\",\n  \"needs_agb_acceptance\": \"<boolean>\",\n  \"can_buy_tokens\": \"<boolean>\",\n  \"can_use_chart_exercises\": \"<boolean>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },

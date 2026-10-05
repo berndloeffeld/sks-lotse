@@ -60,7 +60,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'ki-pruefung',
     question: 'Was ist die KI-Antwortprüfung?',
     answer:
-      'Solange dein Token-Guthaben reicht (1 Token pro Antwort), schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
+      'Solange dein Token-Guthaben reicht (1 Token je Katalogfrage, 2 je Aufgabe einer Kartenaufgabe), schlägt eine KI zu deiner Antwort eine Bewertung samt Begründung vor. Die endgültige Bewertung triffst weiterhin du selbst.',
   },
   {
     id: 'fokus-themen',

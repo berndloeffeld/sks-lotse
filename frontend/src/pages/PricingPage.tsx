@@ -244,9 +244,9 @@ export function PricingPage() {
           <section className="flex flex-col gap-2">
             <h2 className="font-serif text-xl text-primary">Tokens für den Lotsen-Check</h2>
             <p className="text-ink-soft">
-              Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Antwort. Bei der Anmeldung
-              gibt es {data.signup_bonus_tokens} Tokens geschenkt; weitere Tokens lassen sich in Paketen nachkaufen.
-              Kein Abo, keine wiederkehrende Zahlung.
+              Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Katalogfrage, eine Aufgabe
+              einer Kartenaufgabe kostet zwei Tokens. Bei der Anmeldung gibt es {data.signup_bonus_tokens} Tokens
+              geschenkt; weitere Tokens lassen sich in Paketen nachkaufen. Kein Abo, keine wiederkehrende Zahlung.
             </p>
             {canBuy ? <p className="text-ink-soft">Dein aktueller Stand: {user?.token_balance ?? 0} Tokens.</p> : null}
             {canBuy ? (

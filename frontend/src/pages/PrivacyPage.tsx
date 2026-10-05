@@ -152,8 +152,8 @@ export function PrivacyPage() {
           Rückfragen antworten können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
           Korrektur und Qualitätssicherung des Fragenkatalogs). Die Meldungen werden gespeichert, solange Ihr Konto
           besteht, und mit dem Konto gelöscht. Bitte geben Sie in der Anmerkung keine personenbezogenen Daten ein.
-          Feedback per E-Mail über den Link „Kontakt“ am Seitenende oder „Feedback“ im Menü geht direkt an die oben
-          genannte Adresse und wird nur zur Beantwortung und Verbesserung des Angebots verwendet.
+          Feedback per E-Mail über den Link „Kontakt“ am Seitenende geht direkt an die oben genannte Adresse und wird
+          nur zur Beantwortung und Verbesserung des Angebots verwendet.
         </p>
       </ProseSection>
 

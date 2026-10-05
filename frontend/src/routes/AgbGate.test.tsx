@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { AGB_VERSION } from '../legal'
 import { useAuthStore } from '../store/authStore'
 import { AgbGate } from './AgbGate'
 import { jsonResponse, makeUser } from '../test/fixtures'
@@ -23,7 +22,7 @@ function renderGate() {
 
 describe('AgbGate', () => {
   it('renders the protected content without a dialog when the current AGB version is already accepted', () => {
-    useAuthStore.setState({ user: makeUser({ agb_accepted_version: AGB_VERSION }) })
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: false }) })
 
     renderGate()
 
@@ -32,7 +31,7 @@ describe('AgbGate', () => {
   })
 
   it('overlays a confirmation dialog on the still-visible page when no version has been accepted yet', () => {
-    useAuthStore.setState({ user: makeUser({ agb_accepted_version: null }) })
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true }) })
 
     renderGate()
 
@@ -43,7 +42,7 @@ describe('AgbGate', () => {
   })
 
   it('overlays a confirmation dialog when an older version was accepted', () => {
-    useAuthStore.setState({ user: makeUser({ agb_accepted_version: '2020-01-01' }) })
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true, agb_accepted_version: '2020-01-01' }) })
 
     renderGate()
 
@@ -52,8 +51,8 @@ describe('AgbGate', () => {
 
   it('dismisses the dialog after confirming', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: makeUser({ agb_accepted_version: null }) })
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(makeUser({ agb_accepted_version: AGB_VERSION })))
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true }) })
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(makeUser({ needs_agb_acceptance: false })))
     vi.stubGlobal('fetch', fetchMock)
 
     renderGate()
@@ -69,7 +68,7 @@ describe('AgbGate', () => {
 
   it('shows an error message and keeps the dialog open when confirming fails', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: makeUser({ agb_accepted_version: null }) })
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true }) })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'nope' }, 500)))
 
     renderGate()
