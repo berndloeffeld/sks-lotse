@@ -71,7 +71,7 @@ def test_token_spent_between_the_gate_check_and_the_reserve_is_402(client, db_se
     # authoritative (row-locked) and can still say no if the balance changed in between.
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
-    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id: None)
+    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id, amount: None)
     assert _post(client, q.id, headers).status_code == 402
 
 
@@ -305,7 +305,7 @@ def test_a_402_at_the_reserve_gives_both_caps_back(client, db_session, fake_grad
     q = _question(db_session)
     headers = _headers(db_session, enabled=True)
     real_reserve = token_wallet.reserve
-    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id: None)
+    monkeypatch.setattr(token_wallet, "reserve", lambda db, user_id, amount: None)
     assert _post(client, q.id, headers).status_code == 402
 
     monkeypatch.setattr(token_wallet, "reserve", real_reserve)

@@ -41,6 +41,7 @@ describe('ads', () => {
   })
 
   it('wants the script wherever ads are shown, except on the admin tools', () => {
+    vi.stubEnv('VITE_AD_UNITS', 'on')
     expect(wantsAdScript(true, '/learn')).toBe(true)
     expect(wantsAdScript(true, '/login')).toBe(true)
     expect(wantsAdScript(true, '/administration-guide')).toBe(true)
@@ -49,6 +50,16 @@ describe('ads', () => {
     expect(wantsAdScript(true, '/pricing')).toBe(false)
     expect(wantsAdScript(true, '/pricing-guide')).toBe(true)
     expect(wantsAdScript(false, '/learn')).toBe(false)
+  })
+
+  it('wants no script in the app while ad units are off, whatever else says', () => {
+    expect(wantsAdScript(true, '/learn')).toBe(false)
+
+    vi.stubEnv('VITE_AD_UNITS', 'off')
+    expect(wantsAdScript(true, '/learn')).toBe(false)
+
+    vi.stubEnv('VITE_AD_UNITS', 'on')
+    expect(wantsAdScript(true, '/learn')).toBe(true)
   })
 
   it('injects the same tag the build writes into the public pages, once', () => {

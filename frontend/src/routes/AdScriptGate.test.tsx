@@ -53,6 +53,7 @@ function signedIn(adsRemoved: boolean, store = useAuthStore) {
 describe('AdScriptGate', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_ADSENSE_CLIENT_ID', 'ca-pub-123')
+    vi.stubEnv('VITE_AD_UNITS', 'on')
   })
 
   afterEach(() => {

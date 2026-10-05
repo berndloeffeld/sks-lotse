@@ -183,6 +183,11 @@ services:
       # script is loaded at all.
       - key: VITE_ADSENSE_CLIENT_ID
         sync: false
+      # Ad units in the app (ADR-0027 addendum 2026-10-05). "off" until the first
+      # ad unit exists: the app then loads no ad script (the public pages keep the
+      # static tag for AdSense's site review). Switched on in the PR adding the unit.
+      - key: VITE_AD_UNITS
+        value: "off"
       # The Kartenaufgaben flag for the build (ADR-0056): at "on" the guests'
       # pages /charts and /charts/<n> are prerendered and open without a login.
       # Always the same value as the API's CHART_EXERCISES above

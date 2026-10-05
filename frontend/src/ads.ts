@@ -32,11 +32,19 @@ export function useShowAds() {
   return adsEnabled() && !adsRemoved
 }
 
-// Whether a page of the app should run Google's script. Not on the admin tools: the script runs
+// The build switch for ad units in the app, VITE_AD_UNITS ("on"; unset or anything else = off). There
+// is no ad unit yet, so the runtime script would bring no revenue and only widen the attack surface
+// next to the session (ADR-0027 addendum 2026-10-05). The static tag on the public pages stays
+// either way: AdSense's site review reads it. Switch it on in the same PR that adds the first unit.
+export function adUnitsEnabled() {
+  return import.meta.env.VITE_AD_UNITS === 'on'
+}
+
+// Whether a page of the app should run Google's script. Only with ad units (adUnitsEnabled). Not on the admin tools: the script runs
 // as same-origin JavaScript, and an operator session there can export and delete accounts. Not on
 // /pricing either, where the purchase starts — no third-party script next to the checkout.
 export function wantsAdScript(showAds: boolean, pathname: string) {
-  return showAds && !/^\/(admin|pricing)(\/|$)/.test(pathname)
+  return adUnitsEnabled() && showAds && !/^\/(admin|pricing)(\/|$)/.test(pathname)
 }
 
 const ADSENSE_SCRIPT_SELECTOR = 'script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]'
