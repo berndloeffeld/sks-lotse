@@ -64,5 +64,16 @@ def test_email_change_email_uses_confirmation_copy(sent):
     assert "Neue E-Mail-Adresse bestätigen" in params["html"]
 
 
+def test_email_change_notice_goes_to_the_old_address_with_the_masked_new_one(sent):
+    email_service.send_email_change_notice_email("old@example.com", "n***@example.com")
+
+    [params] = sent
+    assert params["to"] == "old@example.com"
+    assert params["subject"] == "Deine E-Mail-Adresse bei SKS Lotse wurde geändert"
+    assert "n***@example.com" in params["text"]
+    assert "n***@example.com" in params["html"]
+    assert "kontakt@sks-lotse.de" in params["text"]
+
+
 def test_default_sender_shows_the_product_name():
     assert Settings.model_fields["email_from_address"].default == "SKS Lotse <noreply@sks-lotse.de>"

@@ -197,7 +197,7 @@ export function LandingPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden">
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       {isAuthenticated ? <Header homeTo="/learn" nav={<MainNav />} /> : <Header />}
 
       <main className="flex-1">

@@ -49,6 +49,23 @@ def send_email_change_otp_email(to_email: str, code: str) -> None:
     )
 
 
+def send_email_change_notice_email(old_email: str, masked_new_email: str) -> None:
+    # To the address the account has just left: a stolen session could change the address, and this
+    # is the only way the real owner finds out (the new address is masked, not written out in full).
+    heading = "Deine E-Mail-Adresse wurde geändert"
+    intro = f"Die E-Mail-Adresse deines SKS-Lotse-Kontos wurde auf {masked_new_email} geändert."
+    outro = (
+        f"Warst du das nicht? Dann schreib uns bitte sofort an {_CONTACT_EMAIL}, "
+        "damit wir dein Konto sichern können."
+    )
+    _send(
+        old_email,
+        "Deine E-Mail-Adresse bei SKS Lotse wurde geändert",
+        html=_notice_email_html(heading, intro, outro, settings.cors_allowed_origins[0]),
+        text=f"{intro}\n\n{outro}\n",
+    )
+
+
 # Brand colours of the web app (frontend/src/index.css), inlined: mail clients ignore stylesheets.
 _BG, _INK, _INK_SOFT = "#e9f0f3", "#1e2a32", "#5b6670"
 _PRIMARY, _PRIMARY_DARK, _SUCCESS, _ACCENT = "#1f6f78", "#164f56", "#3d7a5c", "#b8763c"
@@ -114,6 +131,16 @@ def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, base_u
         f"background:{_PRIMARY};"
         f'color:#ffffff;text-decoration:none;font-size:14px;letter-spacing:.04em;text-transform:uppercase">'
         f"Weiterlernen</a></td></tr>"
+    )
+    return _branded_layout(inner, base_url)
+
+
+def _notice_email_html(heading: str, intro: str, outro: str, base_url: str) -> str:
+    inner = (
+        f'<tr><td style="padding:28px 24px 24px">{_heading(heading)}'
+        f'<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:{_INK}">{escape(intro)}</p>'
+        f'<p style="margin:0;padding:10px 14px;font-size:14px;line-height:1.5;color:{_INK};'
+        f'border-left:4px solid {_ACCENT};background:#fbf5ee">{escape(outro)}</p></td></tr>'
     )
     return _branded_layout(inner, base_url)
 
