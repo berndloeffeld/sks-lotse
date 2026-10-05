@@ -128,12 +128,14 @@ def _derivation_lines(task: ChartTask) -> list[str]:
 
 
 def _earlier_block(earlier: EarlierTask) -> str:
+    # Cut like the current answer is (the stored ones may be longer), so a check's cost stays bounded.
+    answer = earlier.answer_text[: settings.grading_max_answer_chars]
     lines = [
         f'<aufgabe nummer="{earlier.task.number}">',
         *_task_lines(earlier.task),
         "Amtliche Ergebnisse:",
         *_result_lines(earlier.task),
-        f"Antwort des Lernenden: {escape_tags(earlier.answer_text) or '(keine)'}",
+        f"Antwort des Lernenden: {escape_tags(answer) or '(keine)'}",
         "</aufgabe>",
     ]
     return "\n".join(lines)

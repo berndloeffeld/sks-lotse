@@ -551,3 +551,12 @@ def test_purchase_confirmation_mail_has_the_required_content_exactly(monkeypatch
     labels = re.findall(r'width:38%">([^<]*)</td>', html)
     assert labels == ["Bestellung", "Preis", "Zahlung am", "Zahlungsreferenz", "Art des Kaufs"]
     assert "XX" not in html  # rows are joined without a separator
+
+
+def test_the_stripe_client_retries_and_times_out_instead_of_waiting_80_seconds(monkeypatch):
+    monkeypatch.setattr(settings, "stripe_secret_key", "sk_test_x")
+
+    client = payments._client()
+
+    assert client._requestor._options.max_network_retries == 2
+    assert client._requestor._client._timeout == 15
