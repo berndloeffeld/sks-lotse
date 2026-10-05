@@ -24,7 +24,8 @@ How to operate SKS Lotse in production: where to look, what to do when something
 - **Signals worth an alert or a saved search**:
   - `level=ERROR`: every unhandled crash, a failed health check, failed OTP or report emails.
   - `message` starting with `ai-grade flagged-account`: an account past the AI-check sanitizer threshold ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md)).
-  - `message` starting with `ai-grade rate limit` or `AI answer check unavailable`: budget/rate caps hit, or Anthropic failing.
+  - `message` starting with `ai-grade rate limit` or `AI answer check unavailable`: rate caps hit, or Anthropic failing.
+  - The same for a Kartenaufgabe's Lotsen-Check: `chart-ai-check flagged-account`, `chart-ai-check rate limit`, `Chart AI check unavailable`.
   - `message` starting with `admin action`: the audit trail of admin updates, exports and deletions (ids only).
 - **Uptime**: Better Stack monitors the website and `/health`. `/health` is readiness: it answers `503` when the database is unreachable.
 - **Daily report heartbeat**: the cron pings `BETTERSTACK_HEARTBEAT_URL` only after every recipient got the report. A missing ping means the run failed or never started.
@@ -119,7 +120,7 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 
 Learners email the operator ([ADR-0019](adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)). Every admin action is logged (`admin action`, ids only).
 
-- **Auskunft / Datenübertragbarkeit (Art. 15/20)**: `/admin/users` → search the email → open the account → "Daten exportieren" downloads the JSON (profile, progress, Fokus marks, reports, exams, Kartenaufgaben runs). Send it to the verified address of the account only.
+- **Auskunft / Datenübertragbarkeit (Art. 15/20)**: `/admin/users` → search the email → open the account → "Daten exportieren" downloads the JSON (profile, progress, grading log, Fokus marks, reports, exams, Kartenaufgaben runs, purchases and blocklist entries). Send it to the verified address of the account only.
 - **Berichtigung (Art. 16)**: learners edit name, gender, exam variant and email themselves on `/profile`; anything else by hand on request.
 - **Löschung (Art. 17)**: learners can delete themselves on `/profile`. On request, `/admin/users` → open the account → "Account löschen" removes the account and everything attached to it (`services/user.py`).
 - **Einschränkung / Widerspruch (Art. 18/21)**: handled case by case; there is no tooling. An objection to a block on the blocklist: review the reason, and if the block is no longer needed, remove the entry on `/admin` → Sperrliste (or "Sperre aufheben" on the account). Answer either way.
@@ -156,7 +157,7 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 
 ## security.txt
 
-`frontend/public/.well-known/security.txt` (RFC 9116) names `kontakt@sks-lotse.de` and links `SECURITY.md`. Its `Expires` field (currently 2027-09-30) must stay in the future and at most a year ahead: move it forward in a PR before it runs out.
+`frontend/public/.well-known/security.txt` (RFC 9116) names `kontakt@sks-lotse.de` and links `SECURITY.md`. Its `Expires` field (currently 2027-09-30) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
 
 ## Security alerts (Aikido)
 
@@ -170,7 +171,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 ## AI-check abuse
 
 - `/admin` shows each account's "Sanitizer-Flags" (`ai_flags_count`). Past `GRADING_SANITIZER_LOG_THRESHOLD`, every further check of that account is logged with question id and outcome, never the text ([ADR-0040](adr/0040-ai-grading-sanitizer-and-abuse-monitoring.md)).
-- The token balance is the only spending control ([ADR-0044](adr/0044-drop-weekly-ai-check-budget.md)): an account runs out on its own once its tokens are spent, and stays blocked until an admin credits more on `/admin`.
+- The token balance is the only spending control ([ADR-0044](adr/0044-drop-weekly-ai-check-budget.md)): an account runs out on its own once its tokens are spent, and stays blocked until the learner buys tokens in the shop or an admin credits more on `/admin`.
 - Cost ceiling: the Anthropic workspace's own spend limit backs up the per-account token balance.
 
 ## Daily KPI report
@@ -195,7 +196,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 Account-level steps, done by the project owner:
 
 1. Connect the GitHub repo to Render and "Deploy from Blueprint" with `render.yaml`.
-2. Set every `sync: false` key in the dashboard (see [Rotating secrets](#rotating-secrets)): on the backend `JWT_SECRET`, `ANTHROPIC_GRADING_API_KEY`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS`; on the cron `JWT_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS` (same values) and `BETTERSTACK_HEARTBEAT_URL` (a daily heartbeat with a grace period of a few hours); on the frontend `VITE_UMAMI_WEBSITE_ID` (from Umami's tracking snippet, [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)) and `VITE_ADSENSE_CLIENT_ID`.
+2. Set every `sync: false` key in the dashboard (see [Rotating secrets](#rotating-secrets)): on the backend `JWT_SECRET`, `ANTHROPIC_GRADING_API_KEY`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS` and the Stripe settings `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` (see [Payments](#stripe-checkout), with the webhook endpoint); on the cron `JWT_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS` (same values) and `BETTERSTACK_HEARTBEAT_URL` (a daily heartbeat with a grace period of a few hours); on the frontend `VITE_UMAMI_WEBSITE_ID` (from Umami's tracking snippet, [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)) and `VITE_ADSENSE_CLIENT_ID`.
 3. Domains ([ADR-0015](adr/0015-frontend-deployment-topology.md)):
    - `sks-lotse.de` and `www.sks-lotse.de` → Custom Domains on `sks-lotse-frontend`. A domain can only be attached to one service.
    - `api.sks-lotse.de` → Custom Domain on the backend, plus `CNAME api → sks-lotse-backend.onrender.com` at IONOS. The frontend's `VITE_API_BASE_URL` points here.
