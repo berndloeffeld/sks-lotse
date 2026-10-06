@@ -1,6 +1,6 @@
 # 0022. Sync the question catalog by upsert, through frozen table definitions
 
-Status: Accepted
+Status: Accepted — supersedes the seeding mechanics (delete + insert, per-stage `apply` scripts) of [ADR-0017](0017-official-topic-taxonomy-and-seemannschaft-merge.md) and [ADR-0020](0020-merge-sparse-topics-into-collective-groups.md)
 
 ## Context
 

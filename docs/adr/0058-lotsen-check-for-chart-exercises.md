@@ -1,4 +1,4 @@
-# 58. Lotsen-Check for the Kartenaufgaben: Sonnet, the derivation and the run's earlier answers, stored, 2 tokens
+# 0058. Lotsen-Check for the Kartenaufgaben: Sonnet, the derivation and the run's earlier answers, stored, 2 tokens
 
 Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) and [ADR-0043](0043-token-based-ai-grading-monetization.md) (a second kind of check, on another model, at 2 tokens) and [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (the AI check it left for later).
 

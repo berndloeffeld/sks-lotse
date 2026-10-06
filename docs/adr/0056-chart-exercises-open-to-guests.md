@@ -1,4 +1,4 @@
-# 56. Kartenaufgaben open to guests, run in the page from a committed export
+# 0056. Kartenaufgaben open to guests, run in the page from a committed export
 
 Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (at `on`, guests run the sheets without a login, the server's order applies to accounts only) and [ADR-0054](0054-learning-by-topic-open-without-login.md) (the Kartenaufgaben join "Lernen nach Thema" as open without a login).
 
