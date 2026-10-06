@@ -31,8 +31,9 @@ class User(Base):
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     gender: Mapped[str | None] = mapped_column(String(16), nullable=True)
     # Pay-per-use balance for the AI answer check (ADR-0043, superseding the old boolean
-    # ai_grading_enabled entitlement): 1 token = 1 check. Credited by the signup bonus and by
-    # Stripe purchases (ADR-0048) and admin grants (app/services/token_wallet.py).
+    # ai_grading_enabled entitlement): a catalog check costs 1 token, a Kartenaufgabe check 2.
+    # Credited by the signup bonus, Stripe purchases (ADR-0048) and admin grants
+    # (app/services/token_wallet.py, which also sets the costs).
     token_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     # Entitlement "ads removed" — flipped by the operator on /admin. Hides the UI's ad elements and keeps
     # the app from loading Google's ad script (ADR-0027, addenda 2026-09-23 and 2026-10-05).

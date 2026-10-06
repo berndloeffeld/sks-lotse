@@ -25,7 +25,7 @@ class Question(Base):
     )
     # Only set for subject in {seemannschaft_allgemein, seemannschaft_motor, seemannschaft_segeln} —
     # the original "Nummer N" this question had in the official Seemannschaft I / II catalog before
-    # merge_seemannschaft.py collapsed the two into three subjects (see CLAUDE.md → Question Catalog).
+    # merge_seemannschaft.py collapsed the two into three subjects (see docs/catalog-pipeline.md).
     # A seemannschaft_allgemein row (merged duplicate) has both set; segeln/motor rows have only one.
     seemannschaft_1_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     seemannschaft_2_number: Mapped[int | None] = mapped_column(Integer, nullable=True)

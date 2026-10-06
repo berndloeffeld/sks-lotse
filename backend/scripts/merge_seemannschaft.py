@@ -6,7 +6,7 @@ only rigging/sail-trim (I) and engine/boat-type (II) content really differs
 between the two exam variants. Storing every shared question twice is pure
 redundancy, so this script collapses the two into three subjects:
 seemannschaft_allgemein (shared), seemannschaft_segeln (I-only) and
-seemannschaft_motor (II-only). See CLAUDE.md → Question Catalog and
+seemannschaft_motor (II-only). See docs/catalog-pipeline.md and
 docs/adr/ for the reasoning.
 
 Usage (reads the PDF directly, no DB needed; run before manage_topics.py,
