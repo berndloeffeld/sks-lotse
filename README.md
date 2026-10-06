@@ -7,6 +7,24 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 **What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), a learning status based on an estimated memory half-life rather than a streak, and the official Kartenaufgaben worked through task by task. Monetization is freemium — remove ads for a one-time fee, pay per use for the AI check with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
 
+## How it was built
+
+**Fully AI-built, human-directed, live in production.** The code, tests, migrations, workflows and documents in this repo were written by Claude (Anthropic's models, through [Claude Code](https://claude.com/claude-code)), apart from Dependabot's version bumps. The human side is everything that isn't writing them: what the product is and for whom, which option to take when there are several, what counts as done, what goes live, and what only a person can settle — the sailing domain, the usage rights for the official catalog and the charts, prices, the accounts with the services it runs on, production operations. From the first commit on 2026-09-16 the app went to production on Render and has been running there since, with real logins, payments through Stripe and the Lotsen-Check.
+
+How the AI is kept on course — the same means you'd use for a team, made explicit because the "team" starts each session without memory:
+
+- **Written rules instead of tribal knowledge.** [CLAUDE.md](CLAUDE.md) holds the rules for working on the code (branching, conventions, what may never change, e.g. the official catalog wording); each topic's description has exactly one owner document (see [Architecture & decisions](#architecture--decisions)), and a change that makes one wrong fixes it in the same PR.
+- **Decisions are recorded, not just made.** Every non-obvious or costly-to-reverse choice is an [ADR](docs/adr/README.md) with context, the options and the consequences; superseded ones stay, marked as such. They are what a new session (or reader) reads to learn *why*.
+- **Gates that don't rely on anyone paying attention.** Required CI checks on every PR (lint, types, tests with a line+branch coverage ratchet, migrations against real Postgres, generated API types and Postman collection in sync, black-box integration tests), daily mutation testing with its own ratchet, dependency audits — see [Testing & quality gates](#testing--quality-gates). Tests in the suite also guard the conventions themselves: every route needs auth unless listed as public, the mutation scope must cover every logic module, ADR statuses must match their index.
+- **Hooks for what rules alone don't catch.** [`.claude/hooks/`](.claude/hooks/) blocks edits outside the project root and reminds to regenerate the Postman collection after an API change; pre-commit refuses commits on `main`.
+- **A human merges.** Trunk-based, one short-lived branch per change, squash-merged via PR; auto-merge is off, so nothing reaches `main` — and with it production — without a person merging it.
+
+The git history shows it: commits name the model that wrote them in a `Co-Authored-By` trailer.
+
+```bash
+git log --format='%(trailers:key=Co-Authored-By,valueonly)' | sort | uniq -c | sort -rn
+```
+
 ## Status
 
 Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 6 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
