@@ -77,7 +77,7 @@ Two independent add-ons, valid in any combination:
 - **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance of 6 tokens. Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices, and they are shown publicly on the pricing page.
 - **Ad-free** (one-time payment, starting price 5 €). Without it, ads are planned to be shown later.
 
-Status today: buying tokens is open to all learners. Ad-free is still credited by hand, and no ads are shown yet.
+Status today: buying tokens is open to all learners (the live state of the flag is kept in the [RUNBOOK](RUNBOOK.md#settings-that-live-only-in-dashboards)). Ad-free is still credited by hand, and no ads are shown yet.
 
 ## Feedback and quality
 
