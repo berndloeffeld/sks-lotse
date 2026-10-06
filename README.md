@@ -7,6 +7,23 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 **What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), a learning status based on an estimated memory half-life rather than a streak, and the official Kartenaufgaben worked through task by task. Monetization is freemium — remove ads for a one-time fee, pay per use for the AI check with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
 
+## How it was built
+
+**Fully AI-built, human-directed, live in production.** Code, tests, migrations, workflows and docs were written by Claude through [Claude Code](https://claude.com/claude-code) (apart from Dependabot's bumps). The human part: what the product is, which option to take, what counts as done and goes live, plus what only a person can settle — sailing domain, catalog and chart rights, prices, operations. Live on Render; first commit 2026-09-16.
+
+What keeps the AI on course:
+
+- **Written rules:** [CLAUDE.md](CLAUDE.md) for working on the code; one owner document per topic, fixed in the same PR that makes it wrong.
+- **Recorded decisions:** every non-obvious choice is an [ADR](docs/adr/README.md), so a new session (or reader) learns *why*.
+- **Automatic gates:** required CI checks with coverage and mutation-score ratchets, plus tests that guard the conventions themselves — see [Testing & quality gates](#testing--quality-gates). [Hooks](.claude/hooks/) and pre-commit catch the rest.
+- **A human merges:** one branch per change, squash-merged via PR, auto-merge off.
+
+Commits name the model that wrote them (`Co-Authored-By`):
+
+```bash
+git log --format='%(trailers:key=Co-Authored-By,valueonly)' | sort | uniq -c | sort -rn
+```
+
 ## Status
 
 Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 6 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
