@@ -7,7 +7,8 @@ passes **survived**, i.e. the tests don't pin that behavior down. Mutation score
 
 **It runs daily** (03:00 UTC, `.github/workflows/mutation-testing.yml`, also startable by hand from the
 Actions tab), not on every PR, so it never holds up merges. A CI run takes about 30 minutes for the backend job
-(timeout 45) and about 6 for the frontend job (2026-10-05); those are the only runtimes this page states. A job that
+(timeout 45) and about 25–30 for the frontend job (timeout 60; 2026-10-06), whose 4-vCPU runner Stryker splits into two
+TypeScript-checker and two test-runner processes — locally it takes a few minutes. Those are the only runtimes this page states. A job that
 runs into its timeout ends as `cancelled`, and the alert job treats every result but `success` as a failed run. A failed run opens an issue
 ("Mutation testing failed"); a regression therefore surfaces up to a day after the change that caused it. The backend job fails if fewer than
 `MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
@@ -91,7 +92,7 @@ cd frontend && npm ci                                   # once
   the time and pushed the job into its timeout. They are ignored now (not counted), which also takes mostly-*killed* mutants
   out of the score, so the score dropped without the tests getting worse. The SEO wording of the prerendered pages lives
   in `src/publicPageTexts.ts`, which is not mutated (a changed sentence is no bug); the logic of `publicPages.ts` is.
-- **Score (2026-10-05): 604 of 709 counted mutants killed (85.2%)**, ~5 min. Minimum in CI: **83%**
+- **Score (2026-10-05): 604 of 709 counted mutants killed (85.2%)**. Minimum in CI: **83%**
   (`MUTATION_MIN_SCORE`, re-set because the measurement changed, see above), a ratchet like the others; raise it as survivors
   (`useTideForm`, `api/client`, `useApiQuery`, `useCatalog`, `ads`, `authStore`) get tests.
   Before: **417 of 440 (94.8%)** on 2026-09-25 (2026-09-21: 226 of 236, 95.8%) at a minimum of 90%. The first run (7 modules) scored 81%; the survivors were real
