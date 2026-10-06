@@ -69,6 +69,15 @@ describe('guest chart run', () => {
     expect(awardPoints(SHEET, answered, 1, 2).answers[1].points_awarded).toBe(2)
   })
 
+  it('offers the Lotsen-Check except where a drawing scores', () => {
+    const task = SHEET.tasks[0]
+    const drawing = { src: 'dreieck.png', width: 10, height: 10 }
+    expect(taskView(task).ai_checkable).toBe(true)
+    expect(taskView({ ...task, solution: [...task.solution, { results: [], image: drawing }] }).ai_checkable).toBe(
+      false,
+    )
+  })
+
   it('reveals a task’s solution on request, without an answer', () => {
     const task = SHEET.tasks[1]
     expect(taskView(task)).toMatchObject({ number: 2, max_points: 1, solution: [], derivation: [], answer_text: null })

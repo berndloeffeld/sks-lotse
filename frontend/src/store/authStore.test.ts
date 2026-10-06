@@ -187,3 +187,32 @@ describe('authStore', () => {
     expect(init.method).toBe('POST')
   })
 })
+
+// The store is created when the module loads. Imported afresh, so the mutation run, which switches a
+// change on per test, sees the test that covers that setup.
+describe('authStore as loaded', () => {
+  it('starts out loading, logged out and without an error', async () => {
+    vi.resetModules()
+    const { useAuthStore: fresh } = await import('./authStore')
+    expect(fresh.getState()).toMatchObject({ user: null, isAuthenticated: false, isLoading: true, sessionError: false })
+  })
+
+  it('clears the session when any request answers 401, and can swap in a user', async () => {
+    vi.resetModules()
+    const { useAuthStore: fresh } = await import('./authStore')
+    const { apiClient: freshClient } = await import('../api/client')
+    fresh.getState().setUser(mockUser)
+    expect(fresh.getState().user).toEqual(mockUser)
+    fresh.setState({ isAuthenticated: true, isLoading: true, sessionError: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await freshClient.get('/progress/summary').catch(() => {})
+
+    expect(fresh.getState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      sessionError: false,
+    })
+  })
+})

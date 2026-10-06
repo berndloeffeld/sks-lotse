@@ -174,3 +174,90 @@ def test_short_values_quoted_back_are_normal_feedback(monkeypatch):
     reply = ChartGradeResult(feedback="Dein KaK = 286° stimmt.", suspected_error="", points=2)
     graded, _ = _grade(monkeypatch, reply, answer="KaK = 286°")
     assert graded == GradedChartAnswer(reply, sanitized=False)
+
+
+def test_prompt_is_exactly_the_sections_the_model_is_given():
+    # The whole user turn, pinned: what the Lotsen-Check sends is part of the product rules (ADR-0058).
+    earlier = [EarlierTask(_task(2), "StR 150°"), EarlierTask(_task(3), "x")]
+    assert build_prompt(earlier, _task(4), "y") == (
+        "<fruehere_aufgaben>\n"
+        '<aufgabe nummer="2">\n'
+        "Die Yacht verlässt den Hafen am 04.05.2013 um 05:25 BZ noch vor Sonnenaufgang.\n"
+        "- (1 P.) Wie setzt dort zu dieser Zeit der Strom in Richtung (StR) und Stärke (StG) nach Seekarte?\n"
+        "Amtliche Ergebnisse:\n"
+        "- StR = 150° [Toleranz: Keine Toleranz]\n"
+        "- StG = 2,3 kn [Toleranz: Keine Toleranz]\n"
+        "Antwort des Lernenden: StR 150°\n"
+        "</aufgabe>\n"
+        '<aufgabe nummer="3">\n'
+        "Vor der Tonne „14“ muss man kurzzeitig aufstoppen und treibt mit dem Strom auf die Tonne „NL 2“ zu, "
+        "die man um 07:30 BZ erreicht.\n"
+        "- (1 P.) Beschreiben Sie die Tonne „NL 2“ vollständig (Kennung und Wiederkehr, Aussehen am Tage).\n"
+        "Amtliche Ergebnisse:\n"
+        "- Kennung: Funkelfeuer bzw. Quick weiß mit Gruppe von 9 Funkeln\n"
+        "- Wiederkehr: 15 s\n"
+        "- Form: Bakentonne\n"
+        "- Farbe: gelb mit einem breiten waagerechten schwarzen Band\n"
+        "- Toppzeichen: zwei schwarze Kegel übereinander, Spitzen zueinander\n"
+        "Antwort des Lernenden: x\n"
+        "</aufgabe>\n"
+        "</fruehere_aufgaben>\n"
+        # Task 4 has no lead text, only its questions.
+        '<aufgabe nummer="4" punkte="2">\n'
+        "- (1 P.) Welche Bedeutung hat die Tonne „NL 2“?\n"
+        "- (1 P.) Wie kann man die Tonne „NL 2“ mit dieser Yacht passieren?\n"
+        "</aufgabe>\n"
+        "<loesung>\n"
+        "- Bedeutung: West-Kardinal-Zeichen, Tonne liegt westlich der Gefahrenstelle „Neuer Luechtergrund“ "
+        "(Flachwasserstelle).\n"
+        "- Passieren: Man kann die Tonne mit dieser Yacht gefahrlos an allen Seiten passieren.\n"
+        "</loesung>\n"
+        "<herleitung>\n"
+        "Der „Neue Luechtergrund“ ist zwar eine Flachwasserstelle, die Kartentiefe dort reicht aber für den "
+        "Tiefgang der Yacht von 2,2 m aus. Deshalb kann sie die Tonne auf allen Seiten passieren.\n"
+        "</herleitung>\n"
+        "<antwort>y</antwort>"
+    )
+
+
+def test_call_budget_effort_and_the_earlier_tasks(monkeypatch):
+    messages = _FakeMessages(_FakeResponse(ChartGradeResult(feedback="ok", suspected_error="", points=1)))
+    _patch_client(monkeypatch, messages)
+    earlier = [EarlierTask(_task(5), "d = 9,9 sm")]
+
+    grade_chart_answer(["Regel A"], earlier, _task(6), "2 h")
+
+    kwargs = messages.kwargs
+    assert kwargs["max_tokens"] == 4000
+    assert kwargs["output_config"] == {"effort": "medium"}
+    assert kwargs["system"][1] == {
+        "type": "text",
+        "text": "<regeln_des_bogens>\nRegel A\n</regeln_des_bogens>",
+        "cache_control": {"type": "ephemeral"},
+    }
+    assert kwargs["messages"] == [{"role": "user", "content": build_prompt(earlier, _task(6), "2 h")}]
+
+
+@pytest.mark.parametrize("field", ["feedback", "suspected_error"])
+def test_a_reply_of_exactly_the_maximum_length_is_kept(monkeypatch, field):
+    values = {"feedback": "ok", "suspected_error": "", "points": 2}
+    values[field] = "x" * settings.grading_feedback_max_chars
+    graded, _ = _grade(monkeypatch, ChartGradeResult(**values))
+    assert graded.sanitized is False
+
+
+def test_an_echo_counts_from_exactly_the_minimum_length(monkeypatch):
+    answer = "y" * chart_grader._ECHO_MIN_CHARS
+    graded, _ = _grade(
+        monkeypatch,
+        ChartGradeResult(feedback=f"Du schreibst {answer}", suspected_error="", points=0),
+        answer=answer,
+    )
+    assert graded.sanitized is True
+
+
+def test_a_long_answer_that_isnt_echoed_is_normal_feedback(monkeypatch):
+    answer = "Kurs über Grund 052°, Distanz 9,7 sm, Fahrtzeit 1 h 56 min, ETA 07:21 BZ, alles gerechnet"
+    reply = ChartGradeResult(feedback="Alles richtig gerechnet.", suspected_error="", points=2)
+    graded, _ = _grade(monkeypatch, reply, answer=answer)
+    assert graded == GradedChartAnswer(reply, sanitized=False)

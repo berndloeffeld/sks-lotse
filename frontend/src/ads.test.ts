@@ -49,6 +49,9 @@ describe('ads', () => {
     expect(wantsAdScript(true, '/admin/settings')).toBe(false)
     expect(wantsAdScript(true, '/pricing')).toBe(false)
     expect(wantsAdScript(true, '/pricing-guide')).toBe(true)
+    // Only the path's first segment counts.
+    expect(wantsAdScript(true, '/learn/admin')).toBe(true)
+    expect(wantsAdScript(true, '/learn/pricing')).toBe(true)
     expect(wantsAdScript(false, '/learn')).toBe(false)
   })
 

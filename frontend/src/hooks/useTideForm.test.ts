@@ -15,7 +15,15 @@ import {
 describe('emptyTideForm', () => {
   it('has the printed form’s fields: a head and two halves of four high/low waters', () => {
     const form = emptyTideForm()
-    expect(form.referencePort).toBe('')
+    expect({ ...form, blocks: undefined }).toEqual({
+      referencePort: '',
+      secondaryPort: '',
+      secondaryPortNumber: '',
+      date: '',
+      timeZone: '',
+      boardTime: '',
+      blocks: undefined,
+    })
     expect(form.blocks).toHaveLength(2)
     expect(EVENT_ORDINALS).toEqual([1, 1, 2, 2])
     for (const block of form.blocks) {
@@ -63,6 +71,7 @@ describe('loadTideForm', () => {
     ['a different shape', JSON.stringify({ blocks: [] })],
     ['a block without columns', JSON.stringify({ blocks: [{}, {}] })],
     ['too few columns', JSON.stringify({ blocks: [{ events: [] }, { events: [] }] })],
+    ['one half with too few columns', JSON.stringify({ blocks: [{ events: [{}, {}, {}, {}] }, { events: [{}] }] })],
   ])('drops %s', (_, stored) => {
     window.localStorage.setItem(storageKey(5), stored)
     expect(loadTideForm(5)).toEqual(emptyTideForm())
@@ -154,5 +163,30 @@ describe('useTideForm', () => {
     act(() => result.current.update((form) => ({ ...form, boardTime: 'MESZ' })))
 
     expect(result.current.form.boardTime).toBe('MESZ')
+  })
+})
+
+describe('useTideForm as loaded', () => {
+  it('has four columns per half, imported afresh so the mutation run sees the constant', async () => {
+    vi.resetModules()
+    const fresh = await import('./useTideForm')
+    expect(fresh.EVENT_ORDINALS).toEqual([1, 1, 2, 2])
+    expect(fresh.emptyTideForm().blocks[0].events).toHaveLength(4)
+  })
+})
+
+describe('useTideForm for another run', () => {
+  beforeEach(() => window.localStorage.clear())
+
+  it('saves and clears under the run it is now showing', () => {
+    const { result, rerender } = renderHook(({ id }) => useTideForm(id), { initialProps: { id: 1 } })
+    rerender({ id: 2 })
+
+    act(() => result.current.update((form) => ({ ...form, referencePort: 'Helgoland' })))
+    expect(loadTideForm(2).referencePort).toBe('Helgoland')
+    expect(window.localStorage.getItem(storageKey(1))).toBeNull()
+
+    act(() => result.current.clear())
+    expect(loadTideForm(2).referencePort).toBe('')
   })
 })

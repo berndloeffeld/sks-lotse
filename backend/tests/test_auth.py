@@ -483,6 +483,10 @@ def test_logout_clears_the_session_cookie(client, db_session, monkeypatch):
     assert response.status_code == 204
     cookie = next((c for c in response.cookies.jar if c.name == "access_token"), None)
     assert cookie is None or cookie.value == ""
+    # Deleted with the attributes it was set with (see clear_session).
+    [set_cookie] = response.headers.get_list("set-cookie")
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=lax" in set_cookie
 
     assert client.get("/api/v1/auth/me").status_code == 401
 
@@ -792,8 +796,19 @@ def test_delete_me_anonymizes_paid_purchases_but_deletes_free_grants(client, db_
     # (the signup bonus, a goodwill admin correction) is deleted like the rest of the account.
     user = db_session.query(User).filter_by(email="fixture-user@example.com").one()
     user_id = user.id
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
     db_session.add_all(
         [
+            # Someone else's paid purchase keeps its account link.
+            Purchase(
+                user_id=other.id,
+                product="tokens_m",
+                tokens_granted=60,
+                amount_eur_cents=699,
+                granted_by="stripe",
+            ),
             Purchase(
                 user_id=user_id,
                 product="tokens_s",
@@ -816,11 +831,11 @@ def test_delete_me_anonymizes_paid_purchases_but_deletes_free_grants(client, db_
     assert response.status_code == 204
 
     db_session.expire_all()
-    remaining = db_session.query(Purchase).all()
-    assert len(remaining) == 1
-    assert remaining[0].product == "tokens_s"
-    assert remaining[0].user_id is None
-    assert remaining[0].amount_eur_cents == 299
+    remaining = db_session.query(Purchase).order_by(Purchase.product).all()
+    assert [(p.product, p.user_id, p.amount_eur_cents) for p in remaining] == [
+        ("tokens_m", other.id, 699),
+        ("tokens_s", None, 299),
+    ]
 
 
 def test_delete_me_clears_the_session_cookie(client, db_session, monkeypatch):
@@ -1040,7 +1055,7 @@ def test_verify_email_change_wrong_code_returns_400(client, monkeypatch, auth_he
         headers=auth_headers,
     )
 
-    assert response.status_code == 400
+    assert (response.status_code, response.json()) == (400, {"detail": "Invalid or expired code"})
 
 
 def test_verify_email_change_race_on_uniqueness_returns_409(client, db_session, monkeypatch, auth_headers):
