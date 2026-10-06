@@ -9,17 +9,16 @@ A web app to prepare for the theoretical exam of the German SKS (Sportküstensch
 
 ## How it was built
 
-**Fully AI-built, human-directed, live in production.** The code, tests, migrations, workflows and documents in this repo were written by Claude (Anthropic's models, through [Claude Code](https://claude.com/claude-code)), apart from Dependabot's version bumps. The human side is everything that isn't writing them: what the product is and for whom, which option to take when there are several, what counts as done, what goes live, and what only a person can settle — the sailing domain, the usage rights for the official catalog and the charts, prices, the accounts with the services it runs on, production operations. From the first commit on 2026-09-16 the app went to production on Render and has been running there since, with real logins, payments through Stripe and the Lotsen-Check.
+**Fully AI-built, human-directed, live in production.** Code, tests, migrations, workflows and docs were written by Claude through [Claude Code](https://claude.com/claude-code) (apart from Dependabot's bumps). The human part: what the product is, which option to take, what counts as done and goes live, plus what only a person can settle — sailing domain, catalog and chart rights, prices, operations. Live on Render; first commit 2026-09-16.
 
-How the AI is kept on course — the same means you'd use for a team, made explicit because the "team" starts each session without memory:
+What keeps the AI on course:
 
-- **Written rules instead of tribal knowledge.** [CLAUDE.md](CLAUDE.md) holds the rules for working on the code (branching, conventions, what may never change, e.g. the official catalog wording); each topic's description has exactly one owner document (see [Architecture & decisions](#architecture--decisions)), and a change that makes one wrong fixes it in the same PR.
-- **Decisions are recorded, not just made.** Every non-obvious or costly-to-reverse choice is an [ADR](docs/adr/README.md) with context, the options and the consequences; superseded ones stay, marked as such. They are what a new session (or reader) reads to learn *why*.
-- **Gates that don't rely on anyone paying attention.** Required CI checks on every PR (lint, types, tests with a line+branch coverage ratchet, migrations against real Postgres, generated API types and Postman collection in sync, black-box integration tests), daily mutation testing with its own ratchet, dependency audits — see [Testing & quality gates](#testing--quality-gates). Tests in the suite also guard the conventions themselves: every route needs auth unless listed as public, the mutation scope must cover every logic module, ADR statuses must match their index.
-- **Hooks for what rules alone don't catch.** [`.claude/hooks/`](.claude/hooks/) blocks edits outside the project root and reminds to regenerate the Postman collection after an API change; pre-commit refuses commits on `main`.
-- **A human merges.** Trunk-based, one short-lived branch per change, squash-merged via PR; auto-merge is off, so nothing reaches `main` — and with it production — without a person merging it.
+- **Written rules:** [CLAUDE.md](CLAUDE.md) for working on the code; one owner document per topic, fixed in the same PR that makes it wrong.
+- **Recorded decisions:** every non-obvious choice is an [ADR](docs/adr/README.md), so a new session (or reader) learns *why*.
+- **Automatic gates:** required CI checks with coverage and mutation-score ratchets, plus tests that guard the conventions themselves — see [Testing & quality gates](#testing--quality-gates). [Hooks](.claude/hooks/) and pre-commit catch the rest.
+- **A human merges:** one branch per change, squash-merged via PR, auto-merge off.
 
-The git history shows it: commits name the model that wrote them in a `Co-Authored-By` trailer.
+Commits name the model that wrote them (`Co-Authored-By`):
 
 ```bash
 git log --format='%(trailers:key=Co-Authored-By,valueonly)' | sort | uniq -c | sort -rn
