@@ -78,6 +78,9 @@ For infrequent/one-off operations (e.g. importing the SKS question catalog from 
 ### Naming: English in code and URLs, German in the UI
 Route paths, file and component names and code identifiers are English (`/pricing`, `/terms`, `/learn/focus`, `PricingPage`); only what the learner reads is German (labels, copy, page titles). A path that has to change keeps working: add it to `RETIRED_PATHS` in `frontend/src/App.tsx`, and a public one also gets a `type: redirect` in `render.yaml`. Domain terms from the catalog or the law stay as they are: subject keys like `navigation`, the exam variants, and AGB (`AgbPage`, `AgbGate`, `agb_accepted_*`).
 
+### Long-running tests
+The `PreToolUse` hook `.claude/hooks/ask-before-long-tests.sh` denies a Bash command that starts a mutation run, `scripts/run_integration_tests.sh`, a bare `pytest` (the full coverage gate) or `vitest run --coverage`: ask the user via `AskUserQuestion` first (offering to start backend and frontend), then repeat the command prefixed with `CLAUDE_LOCAL_TEST_CONFIRMED=1`; merely reading those scripts (`sed`, `grep`) isn't affected.
+
 ### Security Scanning (Aikido)
 Aikido rescans the repo about every three days, on its own schedule — **not a merge gate** (no CI job, no required check; removed 2026-09-19 when Aikido's free plan stopped allowing API access from CI, so the job failed every PR). An alert is still handled right away: it takes priority over feature work in flight, triaged the same day it arrives. Steps, `scripts/check_aikido.sh` usage and the API credentials it needs: [docs/RUNBOOK.md](docs/RUNBOOK.md) → Security alerts (Aikido).
 
@@ -165,6 +168,6 @@ Apply these four checks whenever adding or changing a database table — going f
 
 - A new variable goes into `Settings` and `.env.example` in the same PR (a new secret also follows the rule in Deployment (Render) above).
 - An allowlist that grants rights fails closed: `ADMIN_EMAILS` unset/empty means **no admins** (the inverse of `ALLOWED_EMAILS`, where unset means open). Keep it that way for anything similar.
-- Enum-like settings (`ENVIRONMENT`, `CHART_EXERCISES`, `STRIPE_CHECKOUT`) reject unknown values at startup; a typo must never fall back to a default.
+- Enum-like settings (e.g. `ENVIRONMENT`, `CHART_EXERCISES`, `STRIPE_CHECKOUT`) reject unknown values at startup; a typo must never fall back to a default.
 - `CHART_EXERCISES` is declared in `render.yaml`, not the dashboard: switching it is a PR together with `docs/FEATURES.md` ([ADR-0052](docs/adr/0052-chart-exercises-from-reviewed-yaml.md)), and with the static site's `VITE_CHART_EXERCISES` set alike (it opens them to guests, [ADR-0056](docs/adr/0056-chart-exercises-open-to-guests.md)).
 - `ANTHROPIC_GRADING_API_KEY` (the running app's Lotsen-Check) stays a different key, in its own Console workspace, from `ANTHROPIC_API_KEY` (local topic classification only, never set on Render).

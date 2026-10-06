@@ -20,25 +20,40 @@ fi
 
 label=""
 
-# True only when "pytest" starts a command segment (i.e. it's actually being
-# invoked), not when the word merely occurs somewhere in the line - e.g. inside
-# a commit message ("git commit -m 'fix pytest detection'") or a file/branch
-# name ("test_pytest_helpers.py", "feature/fix-pytest-run"). A "segment" is
-# whatever sits between shell command separators (&&, ;, |); an env-var
-# assignment (FOO=bar pytest ...) may precede pytest within the same segment.
-pytest_invoked=false
-while IFS= read -r segment; do
-  trimmed="${segment#"${segment%%[![:space:]]*}"}"
-  if [[ "$trimmed" =~ ^([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*pytest([[:space:]]|$) ]]; then
-    pytest_invoked=true
-  fi
-done <<< "$(printf '%s' "$command" | sed -E 's/(&&|\;|\|)/\n/g')"
+# A long-running command only counts when it is actually being invoked, i.e. when it starts a
+# command segment - not when its name merely occurs somewhere in the line: inside a commit message
+# ("git commit -m 'fix pytest detection'"), a file/branch name ("test_pytest_helpers.py",
+# "feature/fix-pytest-run") or the argument of a read-only command
+# ("sed -n 1,5p scripts/run_integration_tests.sh"). A "segment" is whatever sits between shell
+# command separators (&&, ;, |); an env-var assignment (FOO=bar pytest ...) may precede the
+# command within the same segment, and for the scripts and vitest also an interpreter/runner
+# (bash, sh, npx, npm exec) and a path (./scripts/, scripts/).
+ENV_PREFIX='([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*'
+RUNNER_PREFIX="${ENV_PREFIX}"'((bash|sh|npx|npm[[:space:]]+exec)[[:space:]]+)?([^[:space:]]*/)?'
 
-if [[ "$command" =~ run_mutation_tests\.sh.*(gate|handlers) ]]; then
-  label="Backend-Mutation-Tests (mutmut, ~30 Min)"
-elif [[ "$command" =~ run_frontend_mutation_tests\.sh.*gate ]]; then
-  label="Frontend-Mutation-Tests (Stryker, ~6 Min)"
-elif [[ "$command" =~ run_integration_tests\.sh ]]; then
+# segment_matches REGEX: true if REGEX matches the start of any command segment (leading
+# whitespace removed).
+segment_matches() {
+  local regex=$1 segment trimmed
+  while IFS= read -r segment; do
+    trimmed="${segment#"${segment%%[![:space:]]*}"}"
+    if [[ "$trimmed" =~ $regex ]]; then
+      return 0
+    fi
+  done <<< "$(printf '%s' "$command" | sed -E 's/(&&|\;|\|)/\n/g')"
+  return 1
+}
+
+pytest_invoked=false
+if segment_matches "^${ENV_PREFIX}"'pytest([[:space:]]|$)'; then
+  pytest_invoked=true
+fi
+
+if segment_matches "^${RUNNER_PREFIX}"'run_mutation_tests\.sh[[:space:]].*(gate|handlers)'; then
+  label="Backend-Mutation-Tests (mutmut, in CI ca. 30 Min, siehe docs/mutation-testing.md)"
+elif segment_matches "^${RUNNER_PREFIX}"'run_frontend_mutation_tests\.sh[[:space:]].*gate'; then
+  label="Frontend-Mutation-Tests (Stryker, in CI ca. 25-30 Min, lokal einige Minuten, siehe docs/mutation-testing.md)"
+elif segment_matches "^${RUNNER_PREFIX}"'run_integration_tests\.sh([[:space:]]|$)'; then
   label="Integration-Tests gegen einen laufenden lokalen Backend-Server"
 elif [[ "$pytest_invoked" == true ]] \
   && [[ ! "$command" =~ -o[[:space:]]*addopts= ]] \
@@ -50,7 +65,7 @@ elif [[ "$pytest_invoked" == true ]] \
   # already runs the full coverage gate without "--cov" ever appearing on the
   # command line. A targeted run always names a file/node-id or a -k filter.
   label="voller Backend-Testlauf inkl. 95%-Coverage-Gate (pytest, addopts in backend/pyproject.toml)"
-elif [[ "$command" =~ vitest[[:space:]]+run ]] && [[ "$command" =~ --coverage ]]; then
+elif segment_matches "^${RUNNER_PREFIX}"'vitest[[:space:]]+run([[:space:]]|$)' && [[ "$command" =~ --coverage ]]; then
   label="voller Frontend-Coverage-Lauf (vitest --coverage)"
 fi
 

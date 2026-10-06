@@ -24,7 +24,7 @@ What sets it apart from simply paging through the catalog:
 
 ## Learning
 
-The learning area has three modes, shown as tabs, with the overall progress above them.
+The learning area has three modes, shown as tabs (four for learners with the Kartenaufgaben, where the Probeprüfung is a tab too), with the overall progress above them.
 
 **Flow of a question:** read the question, formulate an answer in the scratchpad (it stays with the learner and is sent nowhere unless they trigger the AI check), reveal the model answer, grade oneself: *Richtig*, *Teilweise richtig* or *Falsch*. Questions with figures show the image. Chart notation (e.g. in navigation questions) is rendered legibly.
 
