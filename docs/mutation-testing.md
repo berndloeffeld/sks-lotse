@@ -11,8 +11,8 @@ Actions tab), not on every PR, so it never holds up merges. A CI run takes about
 TypeScript-checker and two test-runner processes — locally it takes a few minutes. Those are the only runtimes this page states. A job that
 runs into its timeout ends as `cancelled`, and the alert job treats every result but `success` as a failed run. A failed run opens an issue
 ("Mutation testing failed"); a regression therefore surfaces up to a day after the change that caused it. The backend job fails if fewer than
-`MUTATION_MIN_SCORE` (87%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
-points under the current score (~90%), like the coverage gates: raise it when the score settles higher, never
+`MUTATION_MIN_SCORE` (89%, `scripts/run_mutation_tests.sh`) of the mutants are killed. That is a ratchet a few
+points under the current score (~91%), like the coverage gates: raise it when the score settles higher, never
 lower it to get a PR through. 100% is neither reachable (equivalent mutants) nor the goal, and a score
 that is optimised for stops measuring anything — the check is there to catch regressions. Two limits to keep in
 mind: an aggregate score over a few thousand mutants barely moves for a small new function (50 surviving mutants ≈ 1.5 points),
@@ -49,7 +49,14 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   export, per-user limit keys, the hourly code quota — are tested. The two handlers that used to be big enough for
   inline logic to be a smell are split now: the DSGVO export lives in `services/admin_users.py`, the exam statistics
   in `services/exam.py::stats`, so the normal run covers both.
-- **Score (2026-09-25): 3058 of 3386 mutants killed (90.3%)**, after going through the `email` and `payments` survivors
+- **Score (2026-10-06): 4458 of 4872 mutants killed (91.5%, local run)**, up from 88.3% (4304) in CI that morning. What got
+  tested: an exam's credited "Richtig"s touch only the learner's own progress rows, tell a first grading from a regrading
+  (also after a racing double submit) and drop a focus mark once a topic is learned; deleting an account anonymizes only
+  *its* paid purchases; another learner's open run, or one's own finished run, doesn't block starting a Kartenaufgabe; the
+  Art. 15 export lists no other domain's block entry; the exact prompt and call parameters of the chart Lotsen-Check; the
+  `detail` of the API's refusals (401/403 on every route, 404/409/402/422 of exams, Kartenaufgaben, 2FA, email change);
+  and the cookie attributes on logout.
+  Before that (2026-09-25): 3058 of 3386 mutants killed (90.3%), after going through the `email` and `payments` survivors
   (88.4% before: 2992). The mutant count had grown with the admin 2FA, payments and branded-mail modules. What was
   *not* wording and is tested now: the Berlin time in the purchase confirmation, the exact § 312f/§ 356 BGB content of that
   mail (labels, waiver sentence, separators), the legal footer links, the Resend API key, the log lines the runbook
@@ -63,7 +70,7 @@ cd backend && .venv/bin/pip install -r requirements-mutation.txt   # once
   and found more (e.g. `remove_focus_if_topic_learned` deleting *every* learner's mark for a topic, `_running_attempts`
   and `_progress_row` not scoped to the user, an OTP that could be replayed, the KPI window lengths) — all now tested.
 - **What survives is judged, not chased.** The remaining ones are equivalent or not worth a test: `>` vs `>=` on
-  timestamps that never compare equal, log and `detail=` message wording, the text of the KPI report and e-mails
+  timestamps that never compare equal, log and exception message wording, the text of the KPI report and e-mails
   (`kpis.format_report` alone is ~33 of the survivors), `86401` vs `86400`, `partition` vs `rpartition` on validated single-`@`
   addresses, `call_next(None)` (Starlette ignores the argument), renamed throttle/log keys, `XXXX` as an unused
   default, the HMAC label of the OTP key (a pure constant), and `populate_existing` in `services/user.locked_user`
@@ -92,10 +99,16 @@ cd frontend && npm ci                                   # once
   the time and pushed the job into its timeout. They are ignored now (not counted), which also takes mostly-*killed* mutants
   out of the score, so the score dropped without the tests getting worse. The SEO wording of the prerendered pages lives
   in `src/publicPageTexts.ts`, which is not mutated (a changed sentence is no bug); the logic of `publicPages.ts` is.
-- **Score (2026-10-05): 604 of 709 counted mutants killed (85.2%)**. Minimum in CI: **83%**
-  (`MUTATION_MIN_SCORE`, re-set because the measurement changed, see above), a ratchet like the others; raise it as survivors
-  (`useTideForm`, `api/client`, `useApiQuery`, `useCatalog`, `ads`, `authStore`) get tests.
-  Before: **417 of 440 (94.8%)** on 2026-09-25 (2026-09-21: 226 of 236, 95.8%) at a minimum of 90%. The first run (7 modules) scored 81%; the survivors were real
+- **Score (2026-10-06): 703 of 744 counted mutants killed (94.5%, local run)**. Minimum in CI: **91%**
+  (`MUTATION_MIN_SCORE`), a ratchet like the others. Up from 85.6% (637): the breadcrumbs and the head rewrite of the
+  prerendered pages (`publicPages.ts`, with a shell written differently than `index.html`), the empty Formblatt and a
+  half-valid stored one, the Lotsen-Check flag of a guest's task, and the "only the first path segment" rule for ads and
+  analytics. Module-level setup (the client's verbs and constants, the auth store, `EVENT_ORDINALS`) is only seen by a
+  test that imports the module afresh (`vi.resetModules()` + `await import(...)`); those tests exist now. What survives
+  is mostly dependency arrays of `useCallback`/`useEffect` and the cache keys of `useApiQuery` (a different key changes
+  nothing as long as keys don't collide).
+  Before (2026-10-05): 604 of 709 (85.2%), at a minimum of 83% (re-set because the measurement changed, see above).
+  Before that: **417 of 440 (94.8%)** on 2026-09-25 (2026-09-21: 226 of 236, 95.8%) at a minimum of 90%. The first run (7 modules) scored 81%; the survivors were real
   gaps (no test for `formatDateTime`, `put`/`delete`, body-less requests, the countdown's expiry boundary and
   latest-callback handling, the auth store's loading state, logout URL, wiring of the unauthorized handler) and the
   hooks, which had only been exercised through pages, got their own tests.

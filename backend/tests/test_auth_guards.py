@@ -42,9 +42,11 @@ def test_the_public_routes_still_exist():
 
 @pytest.mark.parametrize(("method", "path"), GUARDED)
 def test_route_rejects_a_request_without_a_session(client, method, path):
-    assert client.request(method, _concrete(path)).status_code == 401
+    response = client.request(method, _concrete(path))
+    assert (response.status_code, response.json()) == (401, {"detail": "Not authenticated"})
 
 
 @pytest.mark.parametrize(("method", "path"), ADMIN)
 def test_admin_route_rejects_a_learner(client, auth_headers, method, path):
-    assert client.request(method, _concrete(path), headers=auth_headers).status_code == 403
+    response = client.request(method, _concrete(path), headers=auth_headers)
+    assert (response.status_code, response.json()) == (403, {"detail": "Admin access required"})

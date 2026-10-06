@@ -145,3 +145,13 @@ def test_entries_for_skips_expired_and_unrelated_entries(db_session):
     assert [(e.kind, e.value) for e in blocklist.entries_for(db_session, "Target@Spammy.example")] == [
         ("domain", "spammy.example")
     ]
+
+
+def test_entries_for_ignores_other_domains_and_lists_the_oldest_entry_first(db_session):
+    _aged(db_session, "domain", "spammy.example", 1)
+    _aged(db_session, "domain", "elsewhere.example", 1)
+    _aged(db_session, "email", "target@spammy.example", 2)
+    assert [(e.kind, e.value) for e in blocklist.entries_for(db_session, "target@spammy.example")] == [
+        ("email", "target@spammy.example"),
+        ("domain", "spammy.example"),
+    ]

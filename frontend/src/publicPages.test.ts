@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { CatalogExport } from './catalog'
 import { EXAM_PROCESS_FAQ, FAQ } from './faq'
 import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
+import { CHARTS_CRUMB, LEARN_CRUMB, ROOT_CRUMB, sheetCrumb } from './publicPageTexts'
 import { makeChartExport } from './test/fixtures'
 
 const CATALOG: CatalogExport = {
@@ -70,6 +71,23 @@ describe('learnPages', () => {
         'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/learn/navigation/seekarten',
     })
+  })
+})
+
+describe('learnPages question count', () => {
+  it("counts a topic's questions by subject and topic together", () => {
+    const question = CATALOG.questions[0]
+    const catalog: CatalogExport = {
+      topics: CATALOG.topics,
+      questions: [
+        ...CATALOG.questions,
+        // Same subject as "Seekarten", same slug as "Wind": counts for neither.
+        { ...question, number: 4, subject: 'navigation', topic: 'wind' },
+      ],
+    }
+    const [, seekarten, wind] = learnPages(catalog)
+    expect(seekarten.meta?.description).toContain('Alle 2 amtlichen')
+    expect(wind.meta?.description).toContain('Alle 1 amtlichen')
   })
 })
 
@@ -143,9 +161,9 @@ describe('every page but "/"', () => {
 })
 
 describe('structured data', () => {
-  const pages = publicPages(CATALOG, makeChartExport())
+  // Built inside each test (not once for the describe block), so the mutation run sees which test covers it.
   const ld = (path: string) =>
-    pages.find((p) => p.path === path)?.meta?.jsonLd?.[0] as {
+    publicPages(CATALOG, makeChartExport()).find((p) => p.path === path)?.meta?.jsonLd?.[0] as {
       '@type': string
       mainEntity: unknown[]
       itemListElement: { item: string }[]
@@ -159,7 +177,7 @@ describe('structured data', () => {
   })
 
   it('gives /exam-process a breadcrumb and a FAQPage with the answers the page shows', () => {
-    const [crumbs, faq] = pages.find((p) => p.path === '/exam-process')?.meta?.jsonLd as {
+    const [crumbs, faq] = publicPages(CATALOG).find((p) => p.path === '/exam-process')?.meta?.jsonLd as {
       '@type': string
       mainEntity: { name: string; acceptedAnswer: { text: string } }[]
     }[]
@@ -181,6 +199,36 @@ describe('structured data', () => {
     expect(ld('/charts/1').itemListElement).toHaveLength(3)
     expect(ld('/learn').itemListElement).toHaveLength(2)
     expect(ld('/charts').itemListElement).toHaveLength(2)
+  })
+
+  it('names every level of the trail and numbers it from 1', () => {
+    const crumb = (position: number, name: string, path: string) => ({
+      '@type': 'ListItem',
+      position,
+      name,
+      item: `https://sks-lotse.de${path}`,
+    })
+    const list = (...items: ReturnType<typeof crumb>[]) => ({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items,
+    })
+    expect(ld('/learn')).toEqual(list(crumb(1, ROOT_CRUMB, '/'), crumb(2, LEARN_CRUMB, '/learn')))
+    expect(ld('/learn/wetterkunde/wind')).toEqual(
+      list(
+        crumb(1, ROOT_CRUMB, '/'),
+        crumb(2, LEARN_CRUMB, '/learn'),
+        crumb(3, 'Wind & "Böen"', '/learn/wetterkunde/wind'),
+      ),
+    )
+    expect(ld('/charts')).toEqual(list(crumb(1, ROOT_CRUMB, '/'), crumb(2, CHARTS_CRUMB, '/charts')))
+    expect(ld('/charts/2')).toEqual(
+      list(crumb(1, ROOT_CRUMB, '/'), crumb(2, CHARTS_CRUMB, '/charts'), crumb(3, sheetCrumb(2), '/charts/2')),
+    )
+  })
+
+  it('leaves it out of a page that has none', () => {
+    expect(publicPages(CATALOG).find((p) => p.path === '/imprint')?.meta).not.toHaveProperty('jsonLd')
   })
 })
 
@@ -223,6 +271,40 @@ describe('applyMeta', () => {
       '<script type="application/ld+json">{"@type":"Question","name":"\\u003c/script>\\u003cb>"}</script>',
     )
     expect(html.indexOf('ld+json')).toBeLessThan(html.indexOf('</head>'))
+  })
+})
+
+describe('applyMeta on a shell written differently', () => {
+  it('finds the tags across line breaks and extra spaces, and swaps the JSON-LD exactly', () => {
+    const shell =
+      '<head>\n<title>SKS Lotse</title>\n<meta  name="description"\n  content="Start"/>\n' +
+      '<link rel="canonical" href="https://sks-lotse.de/" />\n' +
+      '<meta property="og:url" content="https://sks-lotse.de/" />\n' +
+      '<meta property="og:title" content="SKS Lotse" />\n' +
+      '<meta\nproperty="og:description"  content="Start"/>\n' +
+      '<meta name="twitter:title" content="SKS Lotse" />\n' +
+      '<meta  name="twitter:description"\ncontent="Start"/>' +
+      '<script type="application/ld+json">\n{"@type": "WebApplication"}\n</script></head>'
+
+    const html = applyMeta(shell, {
+      title: 'T',
+      description: 'D',
+      canonical: 'https://sks-lotse.de/x',
+      jsonLd: [{ a: 1 }, { b: 2 }],
+    })
+
+    expect(html).toBe(
+      '<head>\n<title>T</title>\n<meta name="description" content="D" />\n' +
+        '<link rel="canonical" href="https://sks-lotse.de/x" />\n' +
+        '<meta property="og:url" content="https://sks-lotse.de/x" />\n' +
+        '<meta property="og:title" content="T" />\n' +
+        '<meta property="og:description" content="D" />\n' +
+        '<meta name="twitter:title" content="T" />\n' +
+        '<meta name="twitter:description" content="D" />\n' +
+        '    <script type="application/ld+json">{"a":1}</script>\n' +
+        '    <script type="application/ld+json">{"b":2}</script>\n' +
+        '  </head>',
+    )
   })
 })
 

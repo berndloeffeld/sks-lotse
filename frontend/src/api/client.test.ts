@@ -215,3 +215,43 @@ describe('apiClient', () => {
     expect(fetchMock.mock.calls[0][1].method).toBe('DELETE')
   })
 })
+
+// What the module sets up when it loads (its constants, the per-verb methods). Imported afresh, so the
+// mutation run, which switches a change on per test, sees the test that covers it.
+describe('apiClient as loaded', () => {
+  it('builds each verb with its method and the path under /api/v1 of the same origin', async () => {
+    // Without VITE_API_BASE_URL the API is called on the page's own origin: a relative path.
+    vi.stubEnv('VITE_API_BASE_URL', undefined)
+    vi.resetModules()
+    const fresh = await import('./client')
+    vi.unstubAllEnvs()
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse({})))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await fresh.apiClient.post('/a', {})
+    await fresh.apiClient.put('/b', {})
+    await fresh.apiClient.patch('/c', {})
+
+    expect(fetchMock.mock.calls.map(([url, init]) => [url, init.method])).toEqual([
+      ['/api/v1/a', 'POST'],
+      ['/api/v1/b', 'PUT'],
+      ['/api/v1/c', 'PATCH'],
+    ])
+  })
+
+  it("knows the backend's 2FA details and its maintenance header", async () => {
+    vi.resetModules()
+    const fresh = await import('./client')
+    expect([fresh.MFA_REQUIRED, fresh.RECENT_MFA_REQUIRED]).toEqual(['mfa_required', 'recent_mfa_required'])
+    const handler = vi.fn()
+    fresh.setMaintenanceHandler(handler)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('{}', { status: 200, headers: { 'X-Maintenance-Mode': '1' } })),
+    )
+
+    await fresh.apiClient.get('/x')
+
+    expect(handler).toHaveBeenCalledWith(true)
+  })
+})

@@ -20,6 +20,10 @@ CHARTS_DIR = Path(__file__).resolve().parents[2] / "frontend" / "public" / "char
 BASE = "/api/v1/chart-exercises"
 
 
+def _refused(response, status: int, detail: str) -> None:
+    assert (response.status_code, response.json()) == (status, {"detail": detail})
+
+
 @pytest.fixture(autouse=True)
 def _feature_on(monkeypatch):
     monkeypatch.setattr(settings, "chart_exercises", "on")
@@ -141,7 +145,7 @@ def test_flag_decides_who_sees_the_feature(monkeypatch, flag, admin, expected):
 
 def test_routes_answer_404_when_the_flag_is_off(client, auth_headers, monkeypatch):
     monkeypatch.setattr(settings, "chart_exercises", "off")
-    assert client.get(BASE, headers=auth_headers).status_code == 404
+    _refused(client.get(BASE, headers=auth_headers), 404, "Not found")
     assert client.post(f"{BASE}/1/attempts", headers=auth_headers).status_code == 404
 
 
@@ -194,7 +198,7 @@ def test_start_shows_only_the_first_task_without_its_solution(client, auth_heade
 
 
 def test_start_refuses_an_unknown_exercise(client, auth_headers):
-    assert client.post(f"{BASE}/11/attempts", headers=auth_headers).status_code == 404
+    _refused(client.post(f"{BASE}/11/attempts", headers=auth_headers), 404, "Chart exercise not found")
 
 
 def test_start_refuses_a_second_open_run_of_the_same_exercise(client, auth_headers):
@@ -235,8 +239,8 @@ def test_an_empty_answer_is_allowed(client, auth_headers):
 
 def test_answer_refuses_a_task_out_of_order_twice_or_unknown(client, auth_headers):
     attempt = _start(client, auth_headers)
-    assert _answer(client, auth_headers, attempt["id"], 2).status_code == 409
-    assert _answer(client, auth_headers, attempt["id"], 99).status_code == 404
+    _refused(_answer(client, auth_headers, attempt["id"], 2), 409, "Only the current task can be worked on")
+    _refused(_answer(client, auth_headers, attempt["id"], 99), 404, "Chart task not found")
     assert _answer(client, auth_headers, attempt["id"], 1).status_code == 200
     second = _answer(client, auth_headers, attempt["id"], 1)
     assert second.status_code == 409
@@ -324,7 +328,9 @@ def test_get_returns_the_run_and_hides_other_learners_runs(client, db_session, a
     foreign = ChartAttempt(user_id=other.id, exercise_number=1, started_at=datetime.now(UTC))
     db_session.add(foreign)
     db_session.commit()
-    assert client.get(f"{BASE}/attempts/{foreign.id}", headers=auth_headers).status_code == 404
+    _refused(
+        client.get(f"{BASE}/attempts/{foreign.id}", headers=auth_headers), 404, "Chart attempt not found"
+    )
     assert _answer(client, auth_headers, foreign.id, 1).status_code == 404
 
 
@@ -433,7 +439,7 @@ def test_ai_check_is_once_per_task(client, db_session, auth_headers, fake_chart_
     _give_tokens(db_session)
     assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 200
     response = _ai_check(client, auth_headers, attempt["id"], 1)
-    assert response.status_code == 409
+    _refused(response, 409, "The task is already checked")
     assert len(fake_chart_grader) == 1
 
 
@@ -443,13 +449,13 @@ def test_ai_check_refuses_what_it_cannot_or_may_not_look_at(
     attempt = _start(client, auth_headers)
     _give_tokens(db_session)
     # Not answered yet, the solution isn't even out: nothing to check.
-    assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 409
+    _refused(_ai_check(client, auth_headers, attempt["id"], 1), 409, "Answer the task first")
     # Not the current task.
-    assert _ai_check(client, auth_headers, attempt["id"], 2).status_code == 409
-    assert _ai_check(client, auth_headers, attempt["id"], 99).status_code == 404
+    _refused(_ai_check(client, auth_headers, attempt["id"], 2), 409, "Only the current task can be worked on")
+    _refused(_ai_check(client, auth_headers, attempt["id"], 99), 404, "Chart task not found")
     # An empty answer ("don't know") has nothing to check.
     _answer(client, auth_headers, attempt["id"], 1, "   ")
-    assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 409
+    _refused(_ai_check(client, auth_headers, attempt["id"], 1), 409, "There is no answer to check")
     # Once the points are given, the task is done.
     _points(client, auth_headers, attempt["id"], 1, 0)
     assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 409
@@ -462,7 +468,11 @@ def test_ai_check_is_off_for_a_drawing_task(client, db_session, auth_headers, fa
     run = client.get(f"{BASE}/attempts/{attempt['id']}", headers=auth_headers).json()
     assert run["tasks"][-1]["ai_checkable"] is False
     _give_tokens(db_session)
-    assert _ai_check(client, auth_headers, attempt["id"], _DRAWING_TASK).status_code == 409
+    _refused(
+        _ai_check(client, auth_headers, attempt["id"], _DRAWING_TASK),
+        409,
+        "A drawing scores in this task; the Lotsen-Check can't see it",
+    )
     assert fake_chart_grader == []
 
 
@@ -470,15 +480,26 @@ def test_ai_check_refuses_an_answer_too_long_for_it(client, db_session, auth_hea
     attempt = _start(client, auth_headers)
     _answer(client, auth_headers, attempt["id"], 1, "x" * (settings.grading_max_answer_chars + 1))
     _give_tokens(db_session)
-    assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 422
+    _refused(
+        _ai_check(client, auth_headers, attempt["id"], 1), 422, "The answer is too long for the Lotsen-Check"
+    )
     assert fake_chart_grader == []
+
+
+def test_ai_check_takes_an_answer_of_exactly_the_maximum_length_with_exactly_enough_tokens(
+    client, db_session, auth_headers, fake_chart_grader
+):
+    attempt = _start(client, auth_headers)
+    _answer(client, auth_headers, attempt["id"], 1, "x" * settings.grading_max_answer_chars)
+    _give_tokens(db_session, token_wallet.TOKENS_PER_CHART_CHECK)
+    assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 200
 
 
 def test_ai_check_needs_two_tokens(client, db_session, auth_headers, fake_chart_grader):
     attempt = _start(client, auth_headers)
     _answer(client, auth_headers, attempt["id"], 1, "HWZ 08:53")
     _give_tokens(db_session, token_wallet.TOKENS_PER_CHART_CHECK - 1)
-    assert _ai_check(client, auth_headers, attempt["id"], 1).status_code == 402
+    _refused(_ai_check(client, auth_headers, attempt["id"], 1), 402, "Not enough tokens for an answer check")
     assert fake_chart_grader == []
 
 
@@ -562,3 +583,21 @@ def test_a_sanitized_reply_bumps_the_flag_counter_and_logs_past_the_threshold(
 def test_ai_check_needs_the_feature(client, auth_headers, monkeypatch):
     monkeypatch.setattr(settings, "chart_exercises", "off")
     assert _ai_check(client, auth_headers, 1, 1).status_code == 404
+
+
+def test_another_learners_open_run_does_not_block_a_start(client, db_session, auth_headers):
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    db_session.add(ChartAttempt(user_id=other.id, exercise_number=1, started_at=service.now()))
+    db_session.commit()
+    assert client.post(f"{BASE}/1/attempts", headers=auth_headers).status_code == 201
+
+
+def test_a_finished_run_does_not_block_starting_the_exercise_again(client, db_session, auth_headers):
+    now = service.now()
+    db_session.add(
+        ChartAttempt(user_id=fixture_user(db_session).id, exercise_number=1, started_at=now, completed_at=now)
+    )
+    db_session.commit()
+    assert client.post(f"{BASE}/1/attempts", headers=auth_headers).status_code == 201

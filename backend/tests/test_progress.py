@@ -574,3 +574,152 @@ def test_summary_lists_a_topic_without_questions_as_empty(client, db_session, au
     [row] = client.get("/api/v1/progress/summary", headers=auth_headers).json()
 
     assert (row["total_questions"], row["learned_questions"], row["learning_questions"]) == (0, 0, 0)
+
+
+def test_a_racing_first_grading_is_applied_as_a_regrading_not_a_first_one(
+    client, db_session, auth_headers, monkeypatch
+):
+    # Like the double-submit test above, but the racing row was graded just now: as a regrading
+    # with no spacing it earns nothing, as a (wrong) first grading it would earn the full gain.
+    from app.services import progress as progress_api
+
+    question = _question(db_session)
+    user = fixture_user(db_session)
+    db_session.add(QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)))
+    db_session.commit()
+    real_progress_row = progress_api._progress_row
+    calls = []
+
+    def stale_first_lookup(db, user_id, question_id, for_update=False):
+        calls.append(for_update)
+        return None if len(calls) == 1 else real_progress_row(db, user_id, question_id, for_update=for_update)
+
+    monkeypatch.setattr(progress_api, "_progress_row", stale_first_lookup)
+
+    client.post(
+        f"/api/v1/progress/questions/{question.id}", json={"outcome": "richtig"}, headers=auth_headers
+    )
+
+    db_session.expire_all()
+    assert db_session.query(QuestionProgress).one().half_life_days == pytest.approx(2.5, abs=0.01)
+    # Both lookups lock the row (the comment in _progress_row says why).
+    assert calls == [True, True]
+
+
+def test_record_grading_logs_the_grading_time_and_checks_the_topic_only_once_learned(db_session, monkeypatch):
+    from app.models.question_grading_log import QuestionGradingLog
+    from app.services import progress as progress_service
+
+    topic = Topic(subject="navigation", slug="nav", name="Navigation", display_order=1)
+    db_session.add(topic)
+    db_session.commit()
+    question = Question(
+        subject="navigation", number=1, question_text="Q?", answer_text="A", topic_id=topic.id
+    )
+    db_session.add_all([question, User(email="learner@example.com")])
+    db_session.commit()
+    user = db_session.query(User).filter_by(email="learner@example.com").one()
+    checked = []
+    monkeypatch.setattr(
+        progress_service, "remove_focus_if_topic_learned", lambda db, uid, tid: checked.append(tid)
+    )
+    now = datetime.now(UTC)
+
+    progress_service.record_grading(db_session, user.id, question, "richtig", now)
+
+    [log] = db_session.query(QuestionGradingLog).all()
+    assert log.graded_at.replace(tzinfo=UTC) == now
+    # A first "Richtig" doesn't make the question "gelernt", so no topic can be complete yet.
+    assert checked == []
+
+
+def _credit_setup(db_session):
+    topic = Topic(subject="navigation", slug="nav", name="Navigation", display_order=1)
+    db_session.add(topic)
+    db_session.commit()
+    questions = [
+        Question(subject="navigation", number=n, question_text=f"Q{n}?", answer_text="A", topic_id=topic.id)
+        for n in (1, 2)
+    ]
+    db_session.add_all(questions)
+    db_session.commit()
+    return topic, questions
+
+
+def test_crediting_an_exam_only_touches_the_learners_own_rows(db_session, auth_headers):
+    from app.services.progress import credit_correct_answers
+
+    _, questions = _credit_setup(db_session)
+    me = fixture_user(db_session)
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.commit()
+    theirs = QuestionProgress(user_id=other.id, question_id=questions[0].id, **progress_state(2))
+    db_session.add(theirs)
+    db_session.commit()
+    before = (theirs.half_life_days, theirs.last_graded_at)
+
+    credit_correct_answers(db_session, me.id, [q.id for q in questions], datetime.now(UTC))
+
+    db_session.refresh(theirs)
+    assert (theirs.half_life_days, theirs.last_graded_at) == before
+    mine = db_session.query(QuestionProgress).filter_by(user_id=me.id).all()
+    assert sorted(r.question_id for r in mine) == sorted(q.id for q in questions)
+
+
+def test_crediting_an_exam_treats_new_and_existing_rows_differently(db_session, auth_headers):
+    from app.models.question_grading_log import QuestionGradingLog
+    from app.services.progress import credit_correct_answers
+
+    _, (fresh, regraded) = _credit_setup(db_session)
+    user = fixture_user(db_session)
+    # Graded "Richtig" just now: crediting it again earns no spacing gain.
+    db_session.add(QuestionProgress(user_id=user.id, question_id=regraded.id, **progress_state(1)))
+    db_session.commit()
+    now = datetime.now(UTC)
+
+    credit_correct_answers(db_session, user.id, [fresh.id, regraded.id], now)
+
+    half_lives = {r.question_id: r.half_life_days for r in db_session.query(QuestionProgress)}
+    assert half_lives[fresh.id] == 2.5  # a first "Richtig" gets the full gain
+    assert half_lives[regraded.id] == pytest.approx(2.5, abs=0.01)  # no spacing, no growth
+    logged = {
+        log.question_id: log.graded_at.replace(tzinfo=UTC) for log in db_session.query(QuestionGradingLog)
+    }
+    assert logged == {fresh.id: now, regraded.id: now}
+
+
+def test_crediting_an_exam_that_makes_a_topic_learned_drops_its_focus_mark(db_session, auth_headers):
+    from app.models.focus_topic import FocusTopic
+    from app.services.progress import credit_correct_answers
+
+    topic, questions = _credit_setup(db_session)
+    user = fixture_user(db_session)
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=user.id, question_id=q.id, **progress_state(2, graded_days_ago=7))
+            for q in questions
+        ]
+    )
+    db_session.add(FocusTopic(user_id=user.id, topic_id=topic.id))
+    db_session.commit()
+
+    credit_correct_answers(db_session, user.id, [q.id for q in questions], datetime.now(UTC))
+
+    assert db_session.query(FocusTopic).count() == 0
+
+
+def test_crediting_an_exam_checks_no_topic_when_nothing_became_learned(db_session, auth_headers, monkeypatch):
+    from app.services import progress as progress_service
+
+    _, questions = _credit_setup(db_session)
+    checked = []
+    monkeypatch.setattr(
+        progress_service, "remove_focus_if_topic_learned", lambda db, uid, tid: checked.append(tid)
+    )
+
+    progress_service.credit_correct_answers(
+        db_session, fixture_user(db_session).id, [q.id for q in questions], datetime.now(UTC)
+    )
+
+    assert checked == []
