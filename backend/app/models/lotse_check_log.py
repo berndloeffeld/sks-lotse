@@ -10,8 +10,9 @@ class LotseCheckLog(Base):
     """One row per Lotsen-Check that ran, for the daily KPI report (ADR-0032 addendum 2026-10-05).
 
     Deliberately without a user: it counts checks and the tokens they cost, nothing about who asked
-    or what, so it is no personal data and survives an account deletion. Rows are only needed for the
-    report's 7-day window; the daily report job deletes older ones (`lotse_check.purge_check_log`).
+    or what, so it is no personal data and survives an account deletion. The
+    report looks back 7 days; the daily report job deletes rows older than 30 days
+    (`lotse_check.purge_check_log`, `CHECK_LOG_RETENTION`).
     """
 
     __tablename__ = "lotse_check_log"

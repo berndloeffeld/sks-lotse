@@ -89,8 +89,8 @@ def update_user(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
-    """Remove ads, grant tokens (ADR-0043) — an off-platform payment the operator credits by
-    hand — or take tokens back after a refund or chargeback (never below 0)."""
+    """Remove ads, credit tokens by hand (ADR-0043: a correction, a goodwill grant or a payment made
+    outside the app) or take tokens back after a refund or chargeback (never below 0)."""
     user = _get_user_or_404(db, user_id)
     turning_ads_removed_on = payload.ads_removed is not None and payload.ads_removed and not user.ads_removed
     if payload.ads_removed is not None:

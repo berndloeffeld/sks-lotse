@@ -77,7 +77,7 @@ def test_every_route_is_exercised_by_the_integration_collection():
     assert not missing, (
         "No request in postman/integration-tests.postman_collection.json exercises: "
         + ", ".join(missing)
-        + ". Add requests (with pm.test assertions) by hand — see CLAUDE.md → Integration Tests."
+        + ". Add requests (with pm.test assertions) by hand — see CLAUDE.md → Postman & integration tests."
     )
 
 

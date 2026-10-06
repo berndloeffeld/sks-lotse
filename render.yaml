@@ -92,7 +92,7 @@ services:
       # Token-package checkout (ADR-0048). STRIPE_CHECKOUT is the feature flag
       # (off | admins | on; unset = off), set in the dashboard like
       # MAINTENANCE_MODE; a flip takes a redeploy. The keys and product ids are
-      # the live-mode ones (docs/RUNBOOK.md → Stripe).
+      # the live-mode ones (docs/RUNBOOK.md → Stripe checkout).
       - key: STRIPE_CHECKOUT
         sync: false
       - key: STRIPE_SECRET_KEY
@@ -148,9 +148,9 @@ services:
   # this service type; Render's static sites are edge-served globally, not
   # region-pinned like the compute services above). Serves
   # sks-lotse.de/www.sks-lotse.de once its Custom Domains are set in the
-  # Render dashboard (a manual, account-owner step — see CLAUDE.md,
-  # Deployment (Render)); sks-lotse.com stays on the backend above. See
-  # ADR-0015 for why this is a separate subdomain-split service rather than
+  # Render dashboard (a manual, account-owner step — see
+  # docs/RUNBOOK.md → One-time setup); sks-lotse.com stays on the backend
+  # above. See ADR-0015 for why this is a separate subdomain-split service rather than
   # one origin shared with the backend.
   - name: sks-lotse-frontend
     type: web
@@ -175,8 +175,7 @@ services:
       # visible to any visitor via view-source on the deployed site anyway
       # — but kept out of this committed file rather than made a
       # zero-effort grep, since the repo is public. Set manually
-      # in the Render dashboard (CLAUDE.md, Deployment, One-time manual
-      # steps).
+      # in the Render dashboard (docs/RUNBOOK.md → One-time setup).
       - key: VITE_UMAMI_WEBSITE_ID
         sync: false
       # Google AdSense publisher id (ca-pub-…, ADR-0027). Unset = no ad

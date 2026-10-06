@@ -41,6 +41,17 @@ describe('AdminSettingsPage', () => {
     expect(screen.getByLabelText('Preis (€)', { selector: '#tokens_xl-price' })).toHaveValue(16.99)
   })
 
+  it('tells the operator that package prices apply to real Stripe charges', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(SETTINGS)),
+    )
+    renderPage()
+
+    expect(await screen.findByText(/bei Stripe, also für echte Abbuchungen/)).toBeInTheDocument()
+    expect(screen.getByText(/behält Preis und Menge vom Start/)).toBeInTheDocument()
+  })
+
   it('saves a changed package price, converted to whole cents', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>

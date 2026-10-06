@@ -7,9 +7,9 @@ Create Date: 2026-09-18 09:57:48.384506
 Populates questions/topics from the committed source files (the catalog PDF
 plus the reviewed YAML fixtures under backend/scripts/data/) rather than
 relying on someone remembering to run the manual scripts against every
-environment — see app/services/catalog_seed.py and CLAUDE.md → Question
-Catalog. Runs automatically wherever `alembic upgrade head` runs, including
-Render's startCommand before every deploy. Calls no external API; the LLM
+environment — see app/services/catalog_seed.py and docs/catalog-pipeline.md.
+Runs automatically wherever `alembic upgrade head` runs, including Render's
+preDeployCommand before every deploy. Calls no external API; the LLM
 classification step already ran locally and its output is committed.
 """
 

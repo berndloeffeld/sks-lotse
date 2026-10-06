@@ -1,4 +1,4 @@
-"""In-memory rate limiting, keyed by (path, client IP).
+"""In-memory rate limiting, keyed by (rule, client IP).
 
 In-memory by design: Render currently runs a single instance (see
 docs/adr/0005-render-deployment-topology.md), so there's no need for a

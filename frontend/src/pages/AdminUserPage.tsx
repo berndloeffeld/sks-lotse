@@ -115,7 +115,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }, 'Die Sperre konnte nicht geändert werden.')
   }
 
-  // Manual token top-up (ADR-0043) — an off-platform payment until a payment provider exists.
+  // Manual token credit (ADR-0043): a correction, a goodwill grant or a payment made outside the app.
   // grantAmountInput is optional: it records what the account actually paid (in €), so the
   // resulting purchases row is kept (anonymized) rather than deleted on account deletion.
   async function handleGrantTokens(event: FormEvent) {
