@@ -170,8 +170,16 @@ export function PrivacyPage() {
           die USA übermitteln und mit weiteren Daten verknüpfen.
         </p>
         <p>
-          Werbung und die zugehörigen Zugriffe auf Ihr Endgerät erfolgen nur mit Ihrer Einwilligung (Art. 6 Abs. 1 lit.
-          a DSGVO, § 25 Abs. 1 TDDDG). Diese holen wir über die von Google bereitgestellte Consent-Lösung ein, die dem
+          Auf unseren öffentlichen Informationsseiten (Startseite, Häufige Fragen, Ablauf der Prüfung, Impressum,
+          Datenschutzerklärung und AGB) ist das Skript von Google AdSense fest eingebunden. Ihr Browser lädt es beim
+          Aufruf dieser Seiten, also bevor Sie eine Entscheidung getroffen haben, denn dieses Skript zeigt die
+          Einwilligungsabfrage an. Google erhält dabei technisch bedingt bereits Ihre IP-Adresse, die üblichen Angaben
+          Ihres Browsers und die aufgerufene Seite.
+        </p>
+        <p>
+          Werbung wird erst angezeigt, und Cookies oder ähnliche Technologien werden über das technisch Notwendige
+          hinaus erst auf Ihrem Endgerät gespeichert oder ausgelesen, wenn Sie eingewilligt haben (Art. 6 Abs. 1 lit. a
+          DSGVO, § 25 Abs. 1 TDDDG). Diese holen wir über die von Google bereitgestellte Consent-Lösung ein, die dem
           Transparency &amp; Consent Framework (TCF) der IAB Europe entspricht. Ihre Einwilligung ist freiwillig; ohne
           sie können Sie SKS Lotse weiterhin vollständig nutzen. Sie können Ihre Entscheidung jederzeit mit Wirkung für
           die Zukunft ändern oder widerrufen, über den Link „Cookies“ am Seitenende. Weitere Informationen:{' '}
@@ -261,7 +269,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 5. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 6. Oktober 2026</p>
     </PageLayout>
   )
 }
