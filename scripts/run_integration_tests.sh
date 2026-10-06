@@ -12,8 +12,9 @@
 #   - ADMIN_EMAILS on that server must include the adminEmail collection variable
 #     (default: integration-admin@example.com), or the Admin folder fails.
 #   - If ALLOWED_EMAILS is set, it must include every test address: the testEmail,
-#     profileEmail, profileNewEmail, adminEmail and victimEmail collection variables
-#     (defaults: integration-*@example.com).
+#     profileEmail, profileNewEmail, adminEmail, victimEmail and blockedEmail collection
+#     variables (defaults: integration-*@example.com) - the blocklist part asks for a code
+#     for blockedEmail, which the allowlist would silently swallow.
 #   - Use a freshly started server (in-memory rate-limit counters + dev-peek codes)
 #     and, ideally, a scratch database with the catalog seeded (alembic upgrade head)
 #     - the run creates and deletes throwaway users. Leave RESEND_API_KEY empty

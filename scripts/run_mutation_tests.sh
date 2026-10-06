@@ -4,7 +4,7 @@
 # check); the other modes are for working on survivors locally. See docs/mutation-testing.md for scope,
 # reading the results and the frontend counterpart is scripts/run_frontend_mutation_tests.sh.
 #
-#   ./scripts/run_mutation_tests.sh           # run all mutants (~30 s)
+#   ./scripts/run_mutation_tests.sh           # run all mutants (CI: about 30 min, see docs/mutation-testing.md)
 #   ./scripts/run_mutation_tests.sh results   # list the survivors
 #   ./scripts/run_mutation_tests.sh show <mutant name>   # the diff a survivor made
 #   ./scripts/run_mutation_tests.sh gate      # run, then fail if the score is below MUTATION_MIN_SCORE

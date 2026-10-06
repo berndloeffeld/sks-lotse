@@ -4,7 +4,7 @@
 # is for working on survivors locally. See docs/mutation-testing.md for scope, reading the
 # results and why Vitest is pinned to 4.x.
 #
-#   ./scripts/run_frontend_mutation_tests.sh        # run all mutants (~2 min), HTML report in frontend/reports/mutation/
+#   ./scripts/run_frontend_mutation_tests.sh        # run all mutants (CI: about 25-30 min, locally a few minutes, see docs/mutation-testing.md), HTML report in frontend/reports/mutation/
 #   ./scripts/run_frontend_mutation_tests.sh gate   # run, then fail if the score is below MUTATION_MIN_SCORE
 #
 # Needs `npm ci` in frontend/. No backend, no env.
