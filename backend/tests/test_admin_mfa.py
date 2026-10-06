@@ -197,7 +197,7 @@ def test_a_wrong_code_is_a_400_not_a_logout(client, db_session, admin, no_mfa):
     secret = _enrolled_secret(db_session, admin)
     wrong = f"{(int(pyotp.TOTP(secret).now()) + 1) % 1_000_000:06d}"
     response = client.post(_VERIFY, headers=no_mfa, json={"code": wrong})
-    assert response.status_code == 400
+    assert (response.status_code, response.json()) == (400, {"detail": "Invalid code"})
     assert "access_token" not in response.cookies
 
 

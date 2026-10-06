@@ -189,7 +189,8 @@ def test_answers_are_saved_and_rejected_after_submit(client, db_session, auth_he
 
     assert client.put(url, json={"answer_text": "x" * 10_001}, headers=auth_headers).status_code == 422
     missing = f"/api/v1/exams/{exam['id']}/questions/99/answer"
-    assert client.put(missing, json={"answer_text": "x"}, headers=auth_headers).status_code == 404
+    response = client.put(missing, json={"answer_text": "x"}, headers=auth_headers)
+    assert (response.status_code, response.json()) == (404, {"detail": "Exam question not found"})
 
     client.post(f"/api/v1/exams/{exam['id']}/submit", headers=auth_headers)
     for late in (
@@ -276,7 +277,8 @@ def test_other_users_exam_is_not_found(client, db_session, auth_headers):
     from app.core.jwt import create_access_token
 
     headers = {"Authorization": f"Bearer {create_access_token(other.id, other.token_version)}"}
-    assert client.get(f"/api/v1/exams/{exam['id']}", headers=headers).status_code == 404
+    response = client.get(f"/api/v1/exams/{exam['id']}", headers=headers)
+    assert (response.status_code, response.json()) == (404, {"detail": "Exam not found"})
     assert client.post(f"/api/v1/exams/{exam['id']}/submit", headers=headers).status_code == 404
     assert client.delete(f"/api/v1/exams/{exam['id']}", headers=headers).status_code == 404
     assert client.get("/api/v1/exams", headers=headers).json() == []

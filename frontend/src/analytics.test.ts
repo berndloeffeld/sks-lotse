@@ -45,6 +45,7 @@ describe('wantsAnalytics', () => {
     expect(wantsAnalytics('/admin')).toBe(false)
     expect(wantsAnalytics('/admin/users/3')).toBe(false)
     expect(wantsAnalytics('/administration')).toBe(true)
+    expect(wantsAnalytics('/learn/admin')).toBe(true)
     expect(wantsAnalytics('/')).toBe(true)
   })
 })
