@@ -4,6 +4,9 @@
 # Personal scratch todo list — not part of the repo's tracked docs
 TODO.md
 
+# Local output of the /full-review skill (reports and prompts for new sessions)
+.claude/reviews/
+
 # Python
 __pycache__/
 *.pyc
