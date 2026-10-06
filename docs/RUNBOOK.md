@@ -12,7 +12,8 @@ How to operate SKS Lotse in production: where to look, what to do when something
 | Security findings | Aikido dashboard and alert mails (rescans about every three days; see [Security alerts](#security-alerts-aikido)) |
 | Login emails | Resend (sending domain verified via IONOS DNS) |
 | AI answer check | Anthropic Console, its own workspace and spend limit for `ANTHROPIC_GRADING_API_KEY` |
-| Analytics | Umami Cloud |
+| Payments | Stripe: webhook endpoint, products, refunds, disputes ([Stripe checkout](#stripe-checkout)) |
+| Analytics | Umami Cloud (cookieless). Hosting region: not stated by Umami, which only claims GDPR compliance (checked 2026-10-06); don't describe it as EU elsewhere |
 | Ads and the consent message | Google AdSense → Privacy & messaging |
 | DNS for all domains | IONOS |
 
@@ -46,11 +47,13 @@ A manual kill switch for an ongoing malfunction, deliberately not wired through 
 - The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/terms`, which stay reachable (§5 DDG Impressumspflicht).
 - Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/pages/MaintenancePage.tsx`).
 - No live reload (`backend/app/core/config.py`): flipping it always costs a redeploy of the backend, on the order of a minute.
-- **Limit: not a switch for a database outage.** The redeploy runs `preDeployCommand: alembic upgrade head` (`render.yaml`), which needs the database; if that is unreachable the deploy fails (Render: a failing pre-deploy command fails the whole deploy) and the old instance keeps serving, so the switch never takes effect. Whether an environment-variable-only deploy runs the pre-deploy step at all is not stated in Render's docs — check it on the next trial run of the switch and note the result here. In a database outage, tell visitors by other means (the uptime monitor's status page, a pinned note on the contact channels).
+- **Limit: not a switch for a database outage.** The redeploy runs `preDeployCommand: alembic upgrade head` (`render.yaml`), which needs the database; if that is unreachable the deploy fails (Render: a failing pre-deploy command fails the whole deploy) and the old instance keeps serving, so the switch never takes effect. Whether an environment-variable-only deploy runs the pre-deploy step is not stated in Render's docs; the trial run showed that it does. In a database outage, tell visitors by other means (the uptime monitor's status page, a pinned note on the contact channels).
 
 **Fast path — Render dashboard**: `sks-lotse-backend` → Environment → set `MAINTENANCE_MODE` to `true` (or `false` to turn it back off) → Save. Redeploys automatically.
 
 **Alternate path — GitHub Action**: Actions tab → "Maintenance mode toggle" → Run workflow → choose `on`/`off`. Useful when Render dashboard access isn't at hand. Needs the one-time setup below done once.
+
+**Test log**: Maintenance-mode trial run: done; an environment-variable-only deploy runs `preDeployCommand`.
 
 ## Database
 
@@ -65,6 +68,7 @@ A manual kill switch for an ongoing malfunction, deliberately not wired through 
 
   Deleted data stays in these backups until it ages out of the 3-day window. That is short enough that the Datenschutzerklärung doesn't name a separate backup period; mention it there if the window grows to weeks.
 - **Restore drill** (do it once, and after plan changes): in the Recovery tab, restore to a point in time into a *new* database, connect to it read-only, and check that `users`, `question_progress` and `exam_attempts` look plausible. Then delete the copy (it holds a full set of personal data). A real restore means pointing the backend's `DATABASE_URL` at the restored database, or restoring over the original per Render's instructions. Plan for the gap between the restore point and now. The restored copy is a separate, ad hoc database, not the one declared in `render.yaml` — it isn't covered by `ipAllowList` below, so connect to it directly as before; if Render ever changes that, use the Render Shell approach instead (see External access).
+- **Restore drill log**: done, successful. Repeat it after a plan change and note it here.
 - **External access** is closed (`ipAllowList: []` in `render.yaml`, ADR-0005 addendum 2026-09-23): the database only accepts connections from services in the same Render account over its internal network (the backend, the cron job), not from a local `psql`. The admin UI (`/admin/users`, `/admin/questions`) covers the lookups that used to need direct SQL. For anything it doesn't cover, open a **Shell** on the `sks-lotse-backend` service in the Render dashboard — it runs inside the account's internal network, so it reaches the database despite the allow list — and query it with the app's own SQLAlchemy session, e.g.:
   ```python
   from app.core.database import get_session_factory
@@ -89,6 +93,13 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | backend | Secret key (`sk_live_…`/`sk_test_…`) and the webhook endpoint's signing secret (`whsec_…`). Rotate the key in the Stripe dashboard (roll key), set it, revoke the old one. A new signing secret: roll it on the endpoint, set it at once — deliveries fail with 400 until then and Stripe retries. |
 | `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` | backend | Not secret, dashboard-only. The flag is `off` (default) / `admins` / `on`; the product ids (`prod_…`) differ between Stripe test and live mode. See [Stripe checkout](#stripe-checkout). |
 | `MAINTENANCE_MODE` | backend | Not a secret, but dashboard-only like `ADMIN_EMAILS` above. `true`/`false`, unset = `false`. See [Maintenance mode](#maintenance-mode). |
+
+The next two are GitHub Actions secrets (repo → Settings → Secrets and variables → Actions), not Render settings and not in `render.yaml`; they serve the [Maintenance mode](#maintenance-mode) and [Reset admin 2FA](#reset-an-admins-2fa) workflows, and without them those fail.
+
+| Secret | Set on | Rotating it means |
+|---|---|---|
+| `RENDER_API_KEY` | GitHub Actions | Create the new key in Render (Account Settings → API Keys), replace the secret, run a workflow to check it (e.g. "Maintenance mode toggle" with the current value), then revoke the old key. |
+| `RENDER_BACKEND_SERVICE_ID` | GitHub Actions | Not sensitive. Changes only if `sks-lotse-backend` is recreated: take the new `srv-...` id from its dashboard URL. |
 
 ## Stripe checkout
 
@@ -187,6 +198,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 `render.yaml` doesn't cover everything, and a Blueprint Sync doesn't always remove what the file no longer declares:
 
 - **Render**: Custom Domains; env var *values*. A header or env var removed from `render.yaml` may linger on the service. In PR #150 the old `Content-Security-Policy-Report-Only` header had to be deleted by hand in the frontend service's settings. After such a change, check the live response headers.
+- **Render, `sks-lotse-backend`**: `STRIPE_CHECKOUT` = `on` (every learner can buy tokens). When it is switched, change this line and `docs/FEATURES.md` in the same PR; the flag stays `sync: false`, so no PR would otherwise remind anyone.
 - **Better Stack**: monitors, alert rules, the status page and the heartbeat.
 - **AdSense**: the consent message (TCF) and site approval.
 - **Resend / IONOS**: the sending-domain DNS records.
