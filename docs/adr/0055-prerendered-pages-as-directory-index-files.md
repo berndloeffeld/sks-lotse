@@ -1,6 +1,6 @@
-# 55. Prerendered pages as directory index files, no rewrite per page
+# 0055. Prerendered pages as directory index files, no rewrite per page
 
-Status: Superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): Render answers `/faq` with an empty body when the file is `faq/index.html`.
+Status: Superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): Render answers `/faq` with an empty body when the file is `faq/index.html`. Had amended [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) and [ADR-0054](0054-learning-by-topic-open-without-login.md) (pages as directory index files).
 
 ## Context
 

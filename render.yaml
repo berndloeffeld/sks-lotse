@@ -61,7 +61,7 @@ services:
       - key: LOG_FORMAT
         value: json
       # Set manually in the Render dashboard after the first deploy —
-      # not stored in this file or in git (see CLAUDE.md, Environment Variables).
+      # not stored in this file or in git (see CLAUDE.md, Environment variables).
       - key: JWT_SECRET
         sync: false
       - key: ANTHROPIC_GRADING_API_KEY

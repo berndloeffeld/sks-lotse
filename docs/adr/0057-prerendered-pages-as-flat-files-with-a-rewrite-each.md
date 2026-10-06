@@ -1,6 +1,6 @@
-# 57. Prerendered pages as flat files with a rewrite each
+# 0057. Prerendered pages as flat files with a rewrite each
 
-Status: Accepted — supersedes [ADR-0055](0055-prerendered-pages-as-directory-index-files.md): Render does not serve a directory index for a path without a trailing slash.
+Status: Accepted — supersedes [ADR-0055](0055-prerendered-pages-as-directory-index-files.md): Render does not serve a directory index for a path without a trailing slash. Amends [ADR-0054](0054-learning-by-topic-open-without-login.md) (each page keeps its rewrite in `render.yaml`).
 
 ## Context
 
