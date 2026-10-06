@@ -48,7 +48,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'tokens',
     question: 'Was ist ein Token?',
     answer:
-      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis steht jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise und Shop](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir vorher per E-Mail an).',
+      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis steht jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise und Shop](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir nach Möglichkeit vorher per E-Mail an).',
   },
   {
     id: 'tokens-kaufen',
