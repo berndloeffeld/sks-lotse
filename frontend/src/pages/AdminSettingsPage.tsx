@@ -105,7 +105,11 @@ function SettingsEditor({ initial }: { initial: AdminSettings }) {
   return (
     <form className="flex flex-col gap-6" onSubmit={handleSave}>
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-ink-soft">Preise (ADR-0043) — noch kein Kauf-Flow, nur die Anzeige/Beträge.</p>
+        <p className="text-sm text-ink-soft">
+          Preise (ADR-0043): Preise und Mengen der Token-Pakete gelten nach spätestens einer Minute im Shop und bei
+          Stripe, also für echte Abbuchungen. Ein bereits gestarteter Checkout behält Preis und Menge vom Start. Der
+          Werbefrei-Preis ist nur eine Anzeige; Werbefrei schaltest du pro Konto von Hand frei.
+        </p>
         <label className={LABEL} htmlFor="price-ads-removed">
           Werbefrei, einmalig (€)
           <input

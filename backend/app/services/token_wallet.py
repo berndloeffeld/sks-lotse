@@ -1,8 +1,9 @@
 """Reserving/refunding tokens against a user's balance, granting new ones and taking them back (ADR-0043).
 
 The token balance is the sole spending control for the AI answer check (ADR-0044 dropped the
-separate weekly budget this used to sit alongside) — `app/api/v1/grading.py` reserves one token
-per check and refunds it if the LLM call fails.
+separate weekly budget this used to sit alongside) — `lotse_check.run_paid_check` reserves a
+check's cost (1 token for a catalog question, 2 for a Kartenaufgabe) and refunds it if the LLM
+call fails.
 """
 
 from sqlalchemy.orm import Session

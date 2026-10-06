@@ -17,7 +17,7 @@ BlockKindField = Annotated[str, one_of("kind", BLOCK_KINDS)]
 
 class AdminUserUpdate(BaseModel):
     ads_removed: bool | None = None
-    # A manual token top-up (ADR-0043) — off-platform payment until a payment provider exists.
+    # A manual token credit (ADR-0043): a correction, a goodwill grant or a payment made outside the app.
     # Optional: how much the account actually paid for it, so it's kept (anonymized) rather than
     # deleted on account deletion, like a real purchase (see services/user.py). None for a
     # goodwill grant with no payment behind it.

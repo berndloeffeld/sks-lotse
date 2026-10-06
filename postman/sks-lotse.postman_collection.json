@@ -6557,7 +6557,7 @@
                           "request": {
                             "name": "Update User",
                             "description": {
-                              "content": "Remove ads, grant tokens (ADR-0043) — an off-platform payment the operator credits by\nhand — or take tokens back after a refund or chargeback (never below 0).",
+                              "content": "Remove ads, credit tokens by hand (ADR-0043: a correction, a goodwill grant or a payment made\noutside the app) or take tokens back after a refund or chargeback (never below 0).",
                               "type": "text/plain"
                             },
                             "url": {

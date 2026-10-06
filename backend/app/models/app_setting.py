@@ -7,7 +7,10 @@ from app.core.database import Base
 
 
 class AppSetting(Base):
-    """Operator-tunable, app-wide settings (`/admin/settings`); a missing key means "use the env default"."""
+    """Operator-tunable, app-wide settings (`/admin/settings`).
+
+    A missing key means "use the code default" (app/domain/pricing.py).
+    """
 
     __tablename__ = "app_settings"
 
