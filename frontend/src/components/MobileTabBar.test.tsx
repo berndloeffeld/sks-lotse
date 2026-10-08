@@ -25,8 +25,8 @@ describe('MobileTabBar', () => {
     expect(within(bar).getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
     expect(within(bar).getByRole('link', { name: 'Lernen' })).toHaveAttribute('aria-current', 'page')
     expect(within(bar).getByRole('link', { name: 'Lernen' })).toHaveClass('text-primary')
-    expect(within(bar).getByRole('link', { name: 'Prüfung' })).not.toHaveAttribute('aria-current')
-    expect(within(bar).getByRole('link', { name: 'Prüfung' })).toHaveClass('text-ink-soft')
+    expect(within(bar).getByRole('link', { name: 'Probeprüfung' })).not.toHaveAttribute('aria-current')
+    expect(within(bar).getByRole('link', { name: 'Probeprüfung' })).toHaveClass('text-ink-soft')
     expect(within(bar).getByRole('button', { name: 'Konto' })).toBeInTheDocument()
   })
 

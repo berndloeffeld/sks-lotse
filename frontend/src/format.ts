@@ -40,3 +40,25 @@ export function formatCountdown(ms: number): string {
 export function formatEurCents(cents: number): string {
   return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
 }
+
+const PERCENT_FORMAT = new Intl.NumberFormat('de-DE', { style: 'percent', maximumFractionDigits: 0 })
+
+// A whole-number percentage the German way, "54 %" (with a no-break space) — `ratio` is 0..1.
+export function formatPercent(ratio: number): string {
+  return PERCENT_FORMAT.format(ratio)
+}
+
+// A decimal with the German comma, "37,5" — at most `digits` places, none when whole.
+export function formatDecimal(value: number, digits = 1): string {
+  return value.toLocaleString('de-DE', { maximumFractionDigits: digits })
+}
+
+// "1 Token", "5 Tokens" — the singular where the count is exactly one.
+export function pluralize(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`
+}
+
+// `part` of `total` as "54 %" — "0 %" for an empty total.
+export function formatPercentOf(part: number, total: number): string {
+  return formatPercent(percentOf(part, total) / 100)
+}

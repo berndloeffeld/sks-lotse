@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatDate, formatDateTime, formatEurCents, getDisplayName, getFullName, percentOf } from './format'
+import {
+  formatDate,
+  formatDateTime,
+  formatEurCents,
+  getDisplayName,
+  getFullName,
+  percentOf,
+  formatDecimal,
+  formatPercent,
+  formatPercentOf,
+  pluralize,
+} from './format'
 
 describe('percentOf', () => {
   it('rounds to a whole percentage', () => {
@@ -59,5 +70,25 @@ describe('formatEurCents', () => {
 
   it('formats a round number of euros with two decimals', () => {
     expect(formatEurCents(1699)).toBe('16,99 €')
+  })
+})
+
+describe('German number formats', () => {
+  it('writes percentages with a no-break space', () => {
+    expect(formatPercent(0.54)).toBe('54 %')
+    expect(formatPercentOf(1, 3)).toBe('33 %')
+    expect(formatPercentOf(1, 0)).toBe('0 %')
+  })
+
+  it('writes decimals with a comma and drops a whole fraction', () => {
+    expect(formatDecimal(37.5)).toBe('37,5')
+    expect(formatDecimal(38)).toBe('38')
+    expect(formatDecimal(1.256, 2)).toBe('1,26')
+  })
+
+  it('picks singular only for exactly one', () => {
+    expect(pluralize(1, 'Token', 'Tokens')).toBe('1 Token')
+    expect(pluralize(0, 'Token', 'Tokens')).toBe('0 Tokens')
+    expect(pluralize(5, 'Token', 'Tokens')).toBe('5 Tokens')
   })
 })

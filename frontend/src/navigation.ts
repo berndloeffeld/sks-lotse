@@ -15,7 +15,7 @@ export interface NavItem {
 }
 
 const LEARN: NavItem = { to: '/learn', label: 'Lernen', icon: 'catalog', prefixes: ['/learn'] }
-const EXAM: NavItem = { to: '/exam', label: 'Prüfung', icon: 'exam', prefixes: ['/exam'] }
+const EXAM: NavItem = { to: '/exam', label: 'Probeprüfung', icon: 'exam', prefixes: ['/exam'] }
 
 const QUESTIONS: NavItem = { to: '/learn', label: 'Fragen', icon: 'catalog', prefixes: ['/learn', '/exam'] }
 const CHARTS: NavItem = { to: '/charts', label: 'Kartenaufgaben', icon: 'charts', prefixes: ['/charts'] }

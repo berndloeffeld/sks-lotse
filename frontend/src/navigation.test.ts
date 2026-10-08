@@ -6,7 +6,7 @@ describe('mainNavItems', () => {
   it('keeps Lernen and Prüfung side by side without the Kartenaufgaben', () => {
     expect(mainNavItems(false).map((item) => [item.label, item.to])).toEqual([
       ['Lernen', '/learn'],
-      ['Prüfung', '/exam'],
+      ['Probeprüfung', '/exam'],
     ])
   })
 

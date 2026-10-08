@@ -37,7 +37,9 @@ export function ExamOverview() {
   // load the error above, with its "Erneut laden", already says so.
   const [startedEarly, setStartedEarly] = useState(false)
   const notLoaded =
-    startedEarly && exams === null && !examsQuery.failed ? 'Deine bisherigen Prüfungen sind noch nicht geladen.' : null
+    startedEarly && exams === null && !examsQuery.failed
+      ? 'Deine bisherigen Probeprüfungen sind noch nicht geladen.'
+      : null
 
   function start() {
     if (exams === null) {
@@ -53,8 +55,8 @@ export function ExamOverview() {
       },
       (e) =>
         e instanceof ApiError && e.status === 409
-          ? 'Es läuft bereits eine Prüfung. Setze sie unten fort.'
-          : 'Die Prüfung konnte nicht gestartet werden.',
+          ? 'Es läuft bereits eine Probeprüfung. Setze sie unten fort.'
+          : 'Die Probeprüfung konnte nicht gestartet werden.',
     )
   }
 
@@ -65,8 +67,8 @@ export function ExamOverview() {
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
         <p className="text-ink">
-          Eine zufällige Prüfung aus dem Fragenkatalog, wie im Fragebogen der echten Prüfung: 30 Fragen (9 Navigation, 7
-          Schifffahrtsrecht, 5 Wetterkunde, 9 Seemannschaft) in maximal 90 Minuten, ohne Tipps.
+          Eine zufällige Probeprüfung aus dem Fragenkatalog, wie im Fragebogen der echten Prüfung: 30 Fragen (9
+          Navigation, 7 Schifffahrtsrecht, 5 Wetterkunde, 9 Seemannschaft) in maximal 90 Minuten, ohne Tipps.
         </p>
         <p className="text-sm text-ink-soft">
           Erst beantwortest du alle Fragen, danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein.
@@ -77,7 +79,7 @@ export function ExamOverview() {
         {/* Without the list the exam can't start (a running one would have to be resumed instead), so
             the learner needs a way to ask again. */}
         <ErrorMessage onRetry={examsQuery.reload}>
-          {examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : null}
+          {examsQuery.failed ? 'Die Probeprüfungen konnten nicht geladen werden.' : null}
         </ErrorMessage>
         <ErrorMessage>{startAction.error ?? notLoaded}</ErrorMessage>
         {!hasVariant ? (
@@ -94,7 +96,7 @@ export function ExamOverview() {
           </div>
         ) : running ? (
           <Link to={`/exam/${running.id}`} className={`${buttonClass('primary')} self-start`}>
-            Laufende Prüfung fortsetzen
+            Laufende Probeprüfung fortsetzen
           </Link>
         ) : (
           <button
@@ -103,15 +105,15 @@ export function ExamOverview() {
             disabled={isStarting}
             onClick={() => void start()}
           >
-            {isStarting ? 'Wird gestartet…' : 'Prüfung starten'}
+            {isStarting ? 'Wird gestartet…' : 'Probeprüfung starten'}
           </button>
         )}
       </section>
 
       <section>
-        <h2 className={sectionHeading}>Bisherige Prüfungen</h2>
+        <h2 className={sectionHeading}>Bisherige Probeprüfungen</h2>
         {exams === null && !examsQuery.failed ? <p className="mt-3 text-ink-soft">Wird geladen…</p> : null}
-        {exams?.length === 0 ? <p className="mt-3 text-ink-soft">Noch keine Prüfung abgelegt.</p> : null}
+        {exams?.length === 0 ? <p className="mt-3 text-ink-soft">Noch keine Probeprüfung abgelegt.</p> : null}
         <ul className="mt-3 flex flex-col">
           {exams?.map((exam) => (
             <li key={exam.id} className="border-b border-border last:border-b-0">

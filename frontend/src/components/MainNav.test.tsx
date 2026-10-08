@@ -22,8 +22,8 @@ describe('MainNav', () => {
     renderAt('/profile')
 
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('href', '/learn')
-    expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('href', '/exam')
-    expect(screen.getByRole('link', { name: /Tokens – zum Shop/ })).toHaveAttribute('href', '/pricing')
+    expect(screen.getByRole('link', { name: 'Probeprüfung' })).toHaveAttribute('href', '/exam')
+    expect(screen.getByRole('link', { name: /Tokens – zu den Preisen/ })).toHaveAttribute('href', '/pricing')
     expect(screen.getByRole('button', { name: 'Konto' })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('link', { name: 'Kartenaufgaben' })).not.toBeInTheDocument()
   })
@@ -34,7 +34,7 @@ describe('MainNav', () => {
     expect(screen.getByRole('link', { name: 'Fragen' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'Kartenaufgaben' })).toHaveAttribute('href', '/charts')
     expect(screen.getByRole('link', { name: 'Kartenaufgaben' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.queryByRole('link', { name: 'Prüfung' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Probeprüfung' })).not.toBeInTheDocument()
   })
 
   it('keeps the content pages out of the bar', () => {
@@ -49,12 +49,12 @@ describe('MainNav', () => {
   it('marks the current area, including its sub-pages', () => {
     const { unmount } = renderAt('/learn/focus')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('link', { name: 'Prüfung' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Probeprüfung' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-surface')
     unmount()
 
     renderAt('/exam/7')
-    expect(screen.getByRole('link', { name: 'Prüfung' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Probeprüfung' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Lernen' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'Lernen' })).toHaveClass('border-transparent')
   })

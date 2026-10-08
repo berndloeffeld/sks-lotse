@@ -23,7 +23,7 @@ export function AgbPage() {
           SKS Lotse ist ein kostenloses Lernangebot zur Vorbereitung auf die theoretische Prüfung des
           Sportküstenschifferscheins (SKS). Grundlage ist der amtliche Fragenkatalog mit Musterantworten, bereitgestellt
           über ELWIS; der Wortlaut wird unverändert übernommen. Wir speichern den individuellen Lernfortschritt.
-          Optional steht der „Lotsen-Check" zur Verfügung: ein unverbindlicher, KI-gestützter Bewertungsvorschlag für
+          Optional steht der „Lotsen-Check“ zur Verfügung: ein unverbindlicher, KI-gestützter Bewertungsvorschlag für
           eine selbst formulierte Antwort. Die Bewertung der eigenen Antwort trifft immer der Nutzer selbst.
         </p>
         <p>
@@ -51,9 +51,9 @@ export function AgbPage() {
           kostenlos. Zwei unabhängige, einmalig erwerbbare Erweiterungen stehen optional zur Verfügung:
         </p>
         <ul className="list-disc pl-5">
-          <li>„Werbefrei" (einmalige Zahlung) entfernt die Werbeeinblendungen dauerhaft für das Konto.</li>
+          <li>„Werbefrei“ (einmalige Zahlung) entfernt die Werbeeinblendungen dauerhaft für das Konto.</li>
           <li>
-            „Tokens" für den Lotsen-Check: Tokens berechtigen zu automatisierten KI-Bewertungsvorschlägen für eigene
+            „Tokens“ für den Lotsen-Check: Tokens berechtigen zu automatisierten KI-Bewertungsvorschlägen für eigene
             Antworten. Wie viele Tokens ein Lotsen-Check kostet, hängt von der Art der Aufgabe ab und wird vor dem
             Auslösen angezeigt. Jedes neu angelegte Konto erhält einmalig eine kleine Anzahl Tokens geschenkt; weitere
             Tokens lassen sich in Paketen nachkaufen.
@@ -69,7 +69,7 @@ export function AgbPage() {
           weitergeleitet, der die Zahlung abwickelt und dafür die dort angebotenen Zahlungsmethoden bereitstellt. Der
           Kaufvertrag kommt mit erfolgreicher Zahlung zustande; die Tokens werden dem Konto danach automatisch
           gutgeschrieben, in der Regel innerhalb weniger Sekunden. Bei einer verzögerten Zahlungsmethode erfolgt die
-          Gutschrift erst nach Zahlungseingang. „Werbefrei" wird derzeit noch nicht zum Kauf angeboten.
+          Gutschrift erst nach Zahlungseingang. „Werbefrei“ wird derzeit noch nicht zum Kauf angeboten.
         </p>
       </ProseSection>
 
@@ -101,7 +101,7 @@ export function AgbPage() {
 
       <ProseSection title="8. Laufzeit und Kündigung">
         <p>
-          Der Nutzer kann sein Konto jederzeit fristlos selbst löschen (Funktion „Konto löschen" im Profil). Wir können
+          Der Nutzer kann sein Konto jederzeit fristlos selbst löschen (Funktion „Konto löschen“ im Profil). Wir können
           einzelne Konten bei einem Verstoß gegen diese AGB fristlos sperren.
         </p>
         <p>
@@ -112,7 +112,7 @@ export function AgbPage() {
           oder auf Erstattung besteht nicht, soweit gesetzlich zulässig.
         </p>
         <p>
-          „Werbefrei" und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
+          „Werbefrei“ und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
           keine wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort
           nach Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
           ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das

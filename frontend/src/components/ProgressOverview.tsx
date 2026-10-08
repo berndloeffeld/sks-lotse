@@ -1,4 +1,4 @@
-import { percentOf } from '../format'
+import { formatPercentOf, percentOf } from '../format'
 import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { useAuthStore } from '../store/authStore'
 import { Columns } from './Bands'
@@ -25,7 +25,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
     <Columns>
       <div className="flex flex-col gap-4">
         <h2 className={sectionHeading}>Gesamtfortschritt</h2>
-        <p className="font-serif text-5xl text-ink">{percent}%</p>
+        <p className="font-serif text-5xl text-ink">{formatPercentOf(totals.learned, totals.total)}</p>
         <div className="flex h-1.5 w-full bg-surface-alt">
           <div className="h-full bg-success" style={{ width: `${percent}%` }} />
           <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
@@ -36,7 +36,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <h2 className={sectionHeading}>Fachgebiete</h2>
+        <h2 className={sectionHeading}>Fächer</h2>
         {categories.length > 0 ? <ProgressPie slices={categories} /> : null}
       </div>
       <div className="flex flex-col gap-4">

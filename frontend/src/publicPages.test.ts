@@ -68,7 +68,7 @@ describe('learnPages', () => {
     expect(pages[1].meta).toMatchObject({
       title: 'Seekarten – SKS-Fragen Navigation – SKS Lotse',
       description:
-        'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.',
+        'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit amtlicher Antwort – kostenlos üben, auch ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/learn/navigation/seekarten',
     })
   })

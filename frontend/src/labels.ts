@@ -61,3 +61,19 @@ export const EXAM_RESULT_LABELS: Record<ExamResult, string> = {
   muendliche_nachpruefung: 'Mündliche Nachprüfung erforderlich',
   nicht_bestanden: 'Nicht bestanden',
 }
+
+// One name per thing, in every UI text (app, landing, FAQ, legal pages). `use` is the word to
+// write; `rejected` are the spellings that must not appear in UI text (src/typography.test.ts
+// enforces it). Catalog wording is official and never touched; the exception is the source line in
+// LegalFooter ("Musterantworten"). The Kartenaufgaben keep "amtliche Lösung".
+// Legal texts (Datenschutz, AGB) address the reader with "Sie" or neutrally; the rest of the app says "du".
+export const TERMS = [
+  { use: 'Probeprüfung', rejected: ['Simulation', 'Prüfung starten'] },
+  { use: 'Konto', rejected: ['Account'] },
+  { use: 'Preise', rejected: ['Shop', 'Preise-Seite', 'Preise und Shop'] },
+  { use: 'amtliche Antwort', rejected: ['Musterantwort'] },
+  { use: 'gelernt', rejected: ['sicher gelernt', 'sicher gelernten'] },
+  { use: 'Fach', rejected: ['Fachgebiet', 'Kategorie'] },
+  { use: 'Login-Code', rejected: ['E-Mail-Code'] },
+  { use: 'Bestätigungscode', rejected: [] },
+] as const

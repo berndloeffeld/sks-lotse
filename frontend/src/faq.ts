@@ -4,13 +4,13 @@
 export const FAQ: { id: string; question: string; answer: string }[] = [
   {
     id: 'quelle',
-    question: 'Woher stammen die Fragen und Musterantworten?',
+    question: 'Woher stammen die Fragen und amtlichen Antworten?',
     answer:
       'Aus dem amtlichen Fragenkatalog SKS der Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV), bereitgestellt über ELWIS. Wir verändern den Wortlaut nicht.',
   },
   {
     id: 'varianten',
-    question: 'Was ist der Unterschied zwischen „Segeln und Motor" und „Motor"?',
+    question: 'Was ist der Unterschied zwischen „Segeln und Motor“ und „Motor“?',
     answer:
       'Die Prüfung gibt es in zwei Varianten, je nach Antriebsart. Du legst nur eine davon ab. Wähle deine Variante in der Lernübersicht oder im Profil, dann siehst du nur die passenden Fragen.',
   },
@@ -18,25 +18,25 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'lernen',
     question: 'Wie funktioniert das Lernen?',
     answer:
-      'Du liest die Frage, formulierst die Antwort im Kopf oder schreibst sie auf, vergleichst sie mit der Musterantwort und bewertest dich selbst: richtig, teilweise richtig oder falsch. Daraus ergibt sich dein Lernstand.',
+      'Du liest die Frage, formulierst die Antwort im Kopf oder schreibst sie auf, vergleichst sie mit der amtlichen Antwort und bewertest dich selbst: richtig, teilweise richtig oder falsch. Daraus ergibt sich dein Lernstand.',
   },
   {
     id: 'ohne-anmeldung',
     question: 'Kann ich auch ohne Anmeldung lernen?',
     answer:
-      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der Musterantwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
+      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der amtlichen Antwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
   },
   {
     id: 'lernmodi',
     question: 'Welche Lernmodi gibt es?',
     answer:
-      'Nach Thema: ein Fachgebiet nach dem anderen. Fokus: deine Stern-Themen, was du am längsten nicht richtig hattest, kommt zuerst. Auffrischen: bis zu 20 Fragen, die du schon sicher konntest und die möglicherweise verblasst sind oder bald verblassen könnten. Alle drei findest du unter [Lernen](/learn).',
+      'Nach Thema: ein Thema nach dem anderen. Fokus: deine Stern-Themen, was du am längsten nicht richtig hattest, kommt zuerst. Auffrischen: bis zu 20 Fragen, die du schon sicher konntest und die möglicherweise verblasst sind oder bald verblassen könnten. Alle drei findest du unter [Lernen](/learn).',
   },
   {
     id: 'gelernt',
-    question: 'Wann gilt eine Frage als „gelernt"?',
+    question: 'Wann gilt eine Frage als „gelernt“?',
     answer:
-      'Wenn du sie über mehrere Tage verteilt richtig beantwortet hast und wir davon ausgehen, dass du sie noch weißt. Mehrmals direkt hintereinander „richtig" zu klicken bringt kaum etwas – entscheidend ist, dass du an verschiedenen Tagen wiederkommst.',
+      'Wenn du sie über mehrere Tage verteilt richtig beantwortet hast und wir davon ausgehen, dass du sie noch weißt. Mehrmals direkt hintereinander „richtig“ zu klicken bringt kaum etwas – entscheidend ist, dass du an verschiedenen Tagen wiederkommst.',
   },
   {
     id: 'lernstand-sinkt',
@@ -48,13 +48,13 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'tokens',
     question: 'Was ist ein Token?',
     answer:
-      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis und dein Guthaben stehen jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise und Shop](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir nach Möglichkeit vorher per E-Mail an).',
+      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis und dein Guthaben stehen jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir nach Möglichkeit vorher per E-Mail an).',
   },
   {
     id: 'tokens-kaufen',
     question: 'Wie kaufe ich Tokens und wie zahle ich?',
     answer:
-      'Melde dich an, öffne den Shop, wähle ein Paket und bestätige, dass die Tokens sofort bereitgestellt werden. Danach wirst du zur Zahlung an unseren Zahlungsanbieter weitergeleitet. Die Tokens werden dir nach der Zahlung automatisch gutgeschrieben. Es ist ein Einmalkauf ohne Abo. Weil die Tokens sofort bereitgestellt werden, erlischt das Widerrufsrecht mit deiner ausdrücklichen Zustimmung; Näheres in den [AGB](/terms).',
+      'Melde dich an, öffne die [Preise](/pricing), wähle ein Paket und bestätige, dass die Tokens sofort bereitgestellt werden. Danach wirst du zur Zahlung an unseren Zahlungsanbieter weitergeleitet. Die Tokens werden dir nach der Zahlung automatisch gutgeschrieben. Es ist ein Einmalkauf ohne Abo. Weil die Tokens sofort bereitgestellt werden, erlischt das Widerrufsrecht mit deiner ausdrücklichen Zustimmung; Näheres in den [AGB](/terms).',
   },
   {
     id: 'ki-pruefung',

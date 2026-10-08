@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { ExamStats } from '../api/types'
-import { formatDateTime, percentOf } from '../format'
+import { formatDateTime, formatDecimal, formatPercentOf, percentOf } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { EXAM_RESULT_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
 import { ErrorMessage } from './Messages'
@@ -21,32 +21,31 @@ function Figure({ label, value }: { label: string; value: string }) {
 export function ExamStatsPanel() {
   const query = useApiQuery('exam-stats', () => apiClient.get<ExamStats>('/exams/stats'))
   const stats = query.data ?? null
-  const error = query.failed ? 'Die Prüfungsstatistik konnte nicht geladen werden.' : null
+  const error = query.failed ? 'Die Statistik der Probeprüfungen konnte nicht geladen werden.' : null
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className={sectionHeading}>Prüfungsstatistik</h2>
+      <h2 className={sectionHeading}>Statistik der Probeprüfungen</h2>
       <ErrorMessage onRetry={query.reload}>{error}</ErrorMessage>
       {!stats && !error ? <p className="text-sm text-ink-soft">Wird geladen…</p> : null}
-      {stats && stats.completed_count === 0 ? <p className="text-ink-soft">Noch keine Prüfung abgeschlossen.</p> : null}
+      {stats && stats.completed_count === 0 ? (
+        <p className="text-ink-soft">Noch keine Probeprüfung abgeschlossen.</p>
+      ) : null}
       {stats && stats.completed_count > 0 ? (
         <>
           <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-            <Figure label="Prüfungen" value={String(stats.completed_count)} />
+            <Figure label="Probeprüfungen" value={String(stats.completed_count)} />
             <Figure
               label="Bestanden"
-              value={`${stats.passed_count} (${percentOf(stats.passed_count, stats.completed_count)} %)`}
+              value={`${stats.passed_count} (${formatPercentOf(stats.passed_count, stats.completed_count)})`}
             />
-            <Figure
-              label="Ø Punkte"
-              value={`${String(stats.average_points).replace('.', ',')} / ${stats.max_points}`}
-            />
+            <Figure label="Ø Punkte" value={`${formatDecimal(stats.average_points ?? 0)} / ${stats.max_points}`} />
             <Figure label="Beste Punktzahl" value={`${stats.best_points} / ${stats.max_points}`} />
           </dl>
 
           <section>
             <h3 className="text-sm text-ink-soft">Letzte Ergebnisse (älteste zuerst)</h3>
-            <ol className="mt-2 flex items-end gap-2" aria-label="Letzte Prüfungsergebnisse">
+            <ol className="mt-2 flex items-end gap-2" aria-label="Letzte Ergebnisse der Probeprüfung">
               {stats.recent.map((point) => (
                 <li key={point.exam_id} className="flex-1">
                   <Link
@@ -75,7 +74,7 @@ export function ExamStatsPanel() {
                     <span className="h-full bg-success" style={{ width: `${percentOf(g.points, g.max_points)}%` }} />
                   </span>
                   <span className="w-12 text-right font-mono text-sm text-ink-soft">
-                    {percentOf(g.points, g.max_points)} %
+                    {formatPercentOf(g.points, g.max_points)}
                   </span>
                 </li>
               ))}
@@ -84,7 +83,7 @@ export function ExamStatsPanel() {
         </>
       ) : null}
       <Link to="/exam" className="self-start font-mono text-xs tracking-wide text-primary uppercase hover:underline">
-        Alle Prüfungen ansehen →
+        Alle Probeprüfungen ansehen →
       </Link>
     </div>
   )

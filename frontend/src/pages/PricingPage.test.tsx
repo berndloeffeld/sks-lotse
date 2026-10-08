@@ -141,12 +141,12 @@ describe('PricingPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
   })
 
-  it('calls the page Shop for a logged-in learner', async () => {
+  it('calls the page Preise for a logged-in learner too', async () => {
     useAuthStore.setState({ user: BUYER, isAuthenticated: true })
     stubFetch(PRICING)
     renderPage()
 
-    expect(screen.getByRole('heading', { name: 'Shop', level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Preise', level: 1 })).toBeInTheDocument()
     await screen.findByText('16,99 €')
   })
 

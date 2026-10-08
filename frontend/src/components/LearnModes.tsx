@@ -82,7 +82,7 @@ interface RefreshPanelProps {
   summary: RefreshSummary | null
 }
 
-// The Auffrischen tab: how the learner's sicher gelernt questions are doing, and the start button
+// The Auffrischen tab: how the learner's gelernt questions are doing, and the start button
 // while any could have faded or could fade soon (ADR-0049).
 export function RefreshPanel({ summary }: RefreshPanelProps) {
   const { lapsed, expiring, fresh } = summary ?? { lapsed: 0, expiring: 0, fresh: 0 }
@@ -101,16 +101,12 @@ export function RefreshPanel({ summary }: RefreshPanelProps) {
       </div>
       {summary === null ? null : total === 0 ? (
         <p className="mt-3 max-w-xl text-sm text-ink-soft">
-          Sobald du Fragen sicher gelernt hast, kannst du sie hier auffrischen, bevor sie verblassen.
+          Sobald du Fragen gelernt hast, kannst du sie hier auffrischen, bevor sie verblassen.
         </p>
       ) : (
         <div className="mt-6 flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <div
-              className="flex h-1.5 w-full bg-surface-alt"
-              role="img"
-              aria-label="Zustand der sicher gelernten Fragen"
-            >
+            <div className="flex h-1.5 w-full bg-surface-alt" role="img" aria-label="Zustand der gelernten Fragen">
               <div className="h-full bg-danger" style={{ width: `${percentOf(lapsed, total)}%` }} />
               <div className="h-full bg-accent" style={{ width: `${percentOf(expiring, total)}%` }} />
               <div className="h-full bg-success" style={{ width: `${percentOf(fresh, total)}%` }} />
@@ -121,7 +117,7 @@ export function RefreshPanel({ summary }: RefreshPanelProps) {
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-balance text-ink-soft">
             {due > 0
-              ? 'Jede Runde besteht aus bis zu 20 zufälligen Fragen, überwiegend aus den möglicherweise verblassten, dazu einige, die bald verblassen könnten. Richtig beantwortet, gelten sie wieder als sicher gelernt.'
+              ? 'Jede Runde besteht aus bis zu 20 zufälligen Fragen, überwiegend aus den möglicherweise verblassten, dazu einige, die bald verblassen könnten. Richtig beantwortet, gelten sie wieder als gelernt.'
               : 'Gerade droht nichts zu verblassen. Komm in ein paar Tagen wieder.'}
           </p>
         </div>

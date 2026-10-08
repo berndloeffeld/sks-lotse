@@ -42,7 +42,7 @@ describe('ExamStatsPanel', () => {
     expect(screen.getByText('45 / 60')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /40 von 60 Punkten/ })).toHaveAttribute('href', '/exam/1')
     expect(screen.getByText('Navigation')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Alle Prüfungen/ })).toHaveAttribute('href', '/exam')
+    expect(screen.getByRole('link', { name: /Alle Probeprüfungen/ })).toHaveAttribute('href', '/exam')
   })
 
   it('says so when no exam is complete yet', async () => {
@@ -60,7 +60,7 @@ describe('ExamStatsPanel', () => {
       ),
     )
     renderPanel()
-    expect(await screen.findByText('Noch keine Prüfung abgeschlossen.')).toBeInTheDocument()
+    expect(await screen.findByText('Noch keine Probeprüfung abgeschlossen.')).toBeInTheDocument()
   })
 
   it('reports a failed load', async () => {
@@ -69,6 +69,6 @@ describe('ExamStatsPanel', () => {
       vi.fn(async () => jsonResponse({ detail: 'x' }, 500)),
     )
     renderPanel()
-    expect(await screen.findByText('Die Prüfungsstatistik konnte nicht geladen werden.')).toBeInTheDocument()
+    expect(await screen.findByText('Die Statistik der Probeprüfungen konnte nicht geladen werden.')).toBeInTheDocument()
   })
 })

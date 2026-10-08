@@ -245,7 +245,7 @@ describe('ProfileAccountPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
-    await user.click(screen.getByRole('button', { name: 'Account löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
     expect(screen.getByLabelText(/Zur Bestätigung/)).toHaveClass('border-danger')
@@ -272,7 +272,7 @@ describe('ProfileAccountPage', () => {
 
     window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
     renderAccountPage()
-    await user.click(screen.getByRole('button', { name: 'Account löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 

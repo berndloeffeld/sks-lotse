@@ -25,7 +25,7 @@ export function TokenCounter() {
   return (
     <Link
       to="/pricing"
-      aria-label={`${user.token_balance} Tokens – zum Shop`}
+      aria-label={`${user.token_balance} Tokens – zu den Preisen`}
       className={`inline-flex items-baseline gap-1.5 rounded-full border-2 px-3 py-2 font-mono text-xs transition ${tone}`}
     >
       <HelmIcon className="size-4 self-center" />

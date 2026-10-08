@@ -62,7 +62,7 @@ describe('ExamPage', () => {
     expect(await screen.findByText('44 / 60 · Bestanden')).toBeInTheDocument()
     expect(screen.getByText('Selbsteinschätzung offen')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /2026/ })[0]).toHaveAttribute('href', '/exam/2')
-    expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Probeprüfung starten' })).toBeEnabled()
   })
 
   it('starts an exam and opens it', async () => {
@@ -73,8 +73,8 @@ describe('ExamPage', () => {
     vi.stubGlobal('fetch', fetchMock)
     renderPage()
 
-    expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Prüfung starten' }))
+    expect(await screen.findByText('Noch keine Probeprüfung abgelegt.')).toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Probeprüfung starten' }))
     expect(await screen.findByText('Prüfung Nr. geöffnet')).toBeInTheDocument()
   })
 
@@ -85,8 +85,11 @@ describe('ExamPage', () => {
       vi.fn(async () => jsonResponse([summary({ id: 5, status: 'in_progress', points: null, result: null })])),
     )
     renderPage()
-    expect(await screen.findByRole('link', { name: 'Laufende Prüfung fortsetzen' })).toHaveAttribute('href', '/exam/5')
-    expect(screen.queryByRole('button', { name: 'Prüfung starten' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Laufende Probeprüfung fortsetzen' })).toHaveAttribute(
+      'href',
+      '/exam/5',
+    )
+    expect(screen.queryByRole('button', { name: 'Probeprüfung starten' })).not.toBeInTheDocument()
   })
 
   it('asks for an exam variant first', async () => {
@@ -97,7 +100,7 @@ describe('ExamPage', () => {
     )
     renderPage()
     expect(await screen.findByText(/Wähle zuerst, ob du die Prüfung/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Prüfung starten' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Probeprüfung starten' })).not.toBeInTheDocument()
   })
 
   it('lets the variant be chosen right on the page, then offers the start', async () => {
@@ -110,7 +113,7 @@ describe('ExamPage', () => {
 
     await userEvent.selectOptions(await screen.findByRole('combobox', { name: /Variante/ }), 'motor')
 
-    expect(await screen.findByRole('button', { name: 'Prüfung starten' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Probeprüfung starten' })).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/auth/me'),
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ exam_variant: 'motor' }) }),
@@ -130,7 +133,7 @@ describe('ExamPage', () => {
     await userEvent.selectOptions(await screen.findByRole('combobox', { name: /Variante/ }), 'motor')
 
     expect(await screen.findByText('Die Prüfungsvariante konnte nicht gespeichert werden.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Prüfung starten' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Probeprüfung starten' })).not.toBeInTheDocument()
   })
 
   it('reports a failed start, including the "already running" conflict', async () => {
@@ -144,11 +147,11 @@ describe('ExamPage', () => {
     )
     renderPage()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole('button', { name: 'Prüfung starten' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Es läuft bereits eine Prüfung')
+    await user.click(await screen.findByRole('button', { name: 'Probeprüfung starten' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Es läuft bereits eine Probeprüfung')
     status = 503
-    await user.click(screen.getByRole('button', { name: 'Prüfung starten' }))
-    expect(await screen.findByText('Die Prüfung konnte nicht gestartet werden.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Probeprüfung starten' }))
+    expect(await screen.findByText('Die Probeprüfung konnte nicht gestartet werden.')).toBeInTheDocument()
   })
 
   it('reports a failed load', async () => {
@@ -158,7 +161,7 @@ describe('ExamPage', () => {
       vi.fn(async () => jsonResponse({ detail: 'x' }, 500)),
     )
     renderPage()
-    expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Probeprüfungen konnten nicht geladen werden.')
   })
 
   it('lets the learner reload the exams after a failed load, and the start button follows', async () => {
@@ -169,17 +172,17 @@ describe('ExamPage', () => {
       vi.fn(async () => (failing ? jsonResponse({ detail: 'x' }, 500) : jsonResponse([]))),
     )
     renderPage()
-    expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Probeprüfungen konnten nicht geladen werden.')
     // A start without the list does nothing; the error above already says why.
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Prüfung starten' }))
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Probeprüfung starten' }))
     expect(screen.getAllByRole('alert')).toHaveLength(1)
 
     failing = false
     await userEvent.setup().click(screen.getByRole('button', { name: 'Erneut laden' }))
 
-    expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    expect(await screen.findByText('Noch keine Probeprüfung abgelegt.')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Probeprüfung starten' })).toBeEnabled()
   })
 
   it('says the list is still loading when the exam is started before it arrived', async () => {
@@ -194,12 +197,12 @@ describe('ExamPage', () => {
     renderPage()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole('button', { name: 'Prüfung starten' }))
-    expect(screen.getByRole('alert')).toHaveTextContent('Deine bisherigen Prüfungen sind noch nicht geladen.')
+    await user.click(await screen.findByRole('button', { name: 'Probeprüfung starten' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Deine bisherigen Probeprüfungen sind noch nicht geladen.')
     expect(fetchMock).not.toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ method: 'POST' }))
 
     answer(jsonResponse([]))
-    expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    expect(await screen.findByText('Noch keine Probeprüfung abgelegt.')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 

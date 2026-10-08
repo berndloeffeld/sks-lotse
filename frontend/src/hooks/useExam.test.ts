@@ -34,7 +34,7 @@ describe('useExam', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.exam).toBeNull()
-    expect(result.current.error).toBe('Die Prüfung konnte nicht geladen werden.')
+    expect(result.current.error).toBe('Die Probeprüfung konnte nicht geladen werden.')
   })
 
   it('clears an earlier error when a reload succeeds', async () => {
