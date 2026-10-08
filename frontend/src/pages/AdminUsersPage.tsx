@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { apiClient } from '../api/client'
 import type { AdminUserListItem, AdminUserListPage } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { formatDate, getFullName } from '../format'
+import { formatDate, getFullName, pluralize } from '../format'
 import { ErrorMessage, StatusMessage } from '../components/Messages'
 import { buttonClass } from '../components/buttonStyles'
 
@@ -83,7 +83,7 @@ export function AdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <StatusMessage>{deleted ? `Account ${deleted} wurde gelöscht.` : null}</StatusMessage>
+      <StatusMessage>{deleted ? `Konto ${deleted} wurde gelöscht.` : null}</StatusMessage>
       <form role="search" className="flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleSearch}>
         <label className="flex flex-1 flex-col gap-1 text-sm text-ink-soft" htmlFor="user-search">
           E-Mail oder Name
@@ -124,7 +124,9 @@ export function AdminUsersPage() {
                     <span className="text-sm text-ink-soft">{getFullName(user) || '—'}</span>
                     <span className="flex gap-2 text-xs text-ink-soft">
                       {user.token_balance > 0 ? (
-                        <span className="border border-border px-1">{user.token_balance} Token(s)</span>
+                        <span className="border border-border px-1">
+                          {pluralize(user.token_balance, 'Token', 'Tokens')}
+                        </span>
                       ) : null}
                       {user.ads_removed ? <span className="border border-border px-1">Werbefrei</span> : null}
                       {user.is_blocked ? <span className="border border-danger px-1 text-danger">Gesperrt</span> : null}

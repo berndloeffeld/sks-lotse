@@ -49,7 +49,7 @@ describe('LandingPage', () => {
 
     expect(screen.getByRole('heading', { name: "So funktioniert's" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Originalfragen üben' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Mit der Musterantwort vergleichen' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Mit der amtlichen Antwort vergleichen' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Selbst bewerten' })).toBeInTheDocument()
 
     expect(screen.getByRole('heading', { name: 'Warum SKS Lotse?' })).toBeInTheDocument()

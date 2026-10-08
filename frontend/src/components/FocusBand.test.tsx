@@ -30,7 +30,7 @@ describe('FocusBand', () => {
     renderBand()
 
     expect(screen.getByRole('heading', { name: 'Fokus' })).toBeInTheDocument()
-    expect(screen.getByText('4 sicher gelernt · 2 teilweise · 4 offen (von 10 Fragen)')).toBeInTheDocument()
+    expect(screen.getByText('4 gelernt · 2 teilweise · 4 offen (von 10 Fragen)')).toBeInTheDocument()
     expect(screen.getByText('Ankern (Navigation)')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Lernen starten: Ankern (Navigation)' })).toHaveAttribute(
       'href',
@@ -60,7 +60,7 @@ describe('FocusBand', () => {
     renderBand({ topics: [], totals: { learned: 0, learning: 0, total: 0 } })
 
     expect(screen.getByText(/Markiere Themen mit dem Stern/)).toBeInTheDocument()
-    expect(screen.queryByText(/sicher gelernt ·/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/gelernt ·/)).not.toBeInTheDocument()
   })
 
   it('unmarks a topic via its star', async () => {

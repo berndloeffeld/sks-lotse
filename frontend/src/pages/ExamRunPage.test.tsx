@@ -47,7 +47,7 @@ describe('ExamRunPage', () => {
       vi.fn(async () => jsonResponse({ detail: 'nope' }, 404)),
     )
     renderRun()
-    expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfung konnte nicht geladen werden.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Die Probeprüfung konnte nicht geladen werden.')
   })
 
   it('autosaves answers, moves on with Enter, offers no tips and submits from the overview', async () => {
@@ -317,7 +317,7 @@ describe('ExamRunPage', () => {
     await user.tab()
     await user.keyboard('{Enter}')
 
-    expect(await screen.findByRole('heading', { name: 'Prüfungsergebnis' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Ergebnis der Probeprüfung' })).toBeInTheDocument()
   })
 
   it('also saves a self-assessment chosen with the mouse', async () => {
@@ -332,7 +332,7 @@ describe('ExamRunPage', () => {
     renderRun()
     await user.click(await screen.findByLabelText('Falsch'))
     await user.click(screen.getByRole('button', { name: 'Weiter' }))
-    expect(await screen.findByRole('heading', { name: 'Prüfungsergebnis' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Ergebnis der Probeprüfung' })).toBeInTheDocument()
   })
 
   function aiGradingUser() {
@@ -476,7 +476,7 @@ describe('ExamRunPage', () => {
     expect(screen.getByText('Meine A1')).toBeInTheDocument()
     expect(screen.getByText('Amtlich 1')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Diese Prüfung löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Diese Probeprüfung löschen' }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
     expect(await screen.findByText('Prüfungsübersicht')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
@@ -494,10 +494,10 @@ describe('ExamRunPage', () => {
       ),
     )
     renderRun()
-    await user.click(await screen.findByRole('button', { name: 'Diese Prüfung löschen' }))
+    await user.click(await screen.findByRole('button', { name: 'Diese Probeprüfung löschen' }))
     await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
-    expect(screen.getByRole('button', { name: 'Diese Prüfung löschen' })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Diese Prüfung löschen' }))
+    expect(screen.getByRole('button', { name: 'Diese Probeprüfung löschen' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Diese Probeprüfung löschen' }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('konnte nicht gelöscht werden')
   })

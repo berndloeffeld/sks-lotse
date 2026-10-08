@@ -81,7 +81,7 @@ describe('RefreshPanel', () => {
   it('explains itself before anything was learned', () => {
     renderPanel({ lapsed: 0, expiring: 0, fresh: 0 })
 
-    expect(screen.getByText(/Sobald du Fragen sicher gelernt hast/)).toBeInTheDocument()
+    expect(screen.getByText(/Sobald du Fragen gelernt hast/)).toBeInTheDocument()
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 

@@ -165,7 +165,7 @@ export function ProfileAccountPage() {
       forgetAllTideForms()
       setIsAccountDeleted(true)
       navigate('/', { replace: true })
-    }, 'Der Account konnte nicht gelöscht werden.')
+    }, 'Das Konto konnte nicht gelöscht werden.')
   }
 
   return (
@@ -178,7 +178,7 @@ export function ProfileAccountPage() {
               <>
                 {' · '}
                 <Link to="/pricing" className="underline hover:text-ink">
-                  Tokens im Shop kaufen
+                  Tokens kaufen
                 </Link>
               </>
             ) : null}
@@ -308,7 +308,7 @@ export function ProfileAccountPage() {
 
         <Section title="Konto löschen" danger>
           <p className="text-sm leading-relaxed text-ink-soft">
-            Dein Account und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
+            Dein Konto und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
           </p>
           {!showDeleteConfirm ? (
             <button
@@ -316,7 +316,7 @@ export function ProfileAccountPage() {
               onClick={() => setShowDeleteConfirm(true)}
               className={`${buttonClass('dangerOutline')} self-start`}
             >
-              Account löschen
+              Konto löschen
             </button>
           ) : (
             <form className="flex flex-col gap-4" onSubmit={handleDeleteAccount}>

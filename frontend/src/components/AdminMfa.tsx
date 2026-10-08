@@ -77,7 +77,7 @@ export function AdminMfaEnrol({ onVerified }: Props) {
       <p className="max-w-prose text-sm text-ink-soft">
         Der Admin-Bereich ist zusätzlich durch einen Code aus einer Authenticator-App geschützt (z. B. Authy, Google
         Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich jede Stunde nach einem Code, und
-        vor jedem Export oder Löschen eines Accounts erneut.
+        vor jedem Export oder Löschen eines Kontos erneut.
       </p>
       {enrolment === null ? (
         <>
@@ -118,7 +118,7 @@ export function AdminMfaVerify({ onVerified, recent = false }: Props & { recent?
       <h2 className={sectionHeading}>Code bestätigen</h2>
       <p className="max-w-prose text-sm text-ink-soft">
         {recent
-          ? 'Export und Löschen eines Accounts brauchen einen frischen Code. Bitte den aktuellen Code aus deiner Authenticator-App eingeben und die Aktion danach wiederholen.'
+          ? 'Export und Löschen eines Kontos brauchen einen frischen Code. Bitte den aktuellen Code aus deiner Authenticator-App eingeben und die Aktion danach wiederholen.'
           : 'Für den Admin-Bereich bitte den aktuellen Code aus deiner Authenticator-App eingeben.'}
       </p>
       <CodeForm onVerified={onVerified} submitLabel="Bestätigen" />

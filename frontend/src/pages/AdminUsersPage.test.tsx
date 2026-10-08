@@ -62,7 +62,7 @@ describe('AdminUsersPage', () => {
     const first = screen.getByRole('link', { name: /user2@example\.com/ })
     expect(first).toHaveAttribute('href', '/admin/users/2')
     expect(within(first).getByText('Anna Schmidt')).toBeInTheDocument()
-    expect(within(first).getByText('20 Token(s)')).toBeInTheDocument()
+    expect(within(first).getByText('20 Tokens')).toBeInTheDocument()
     expect(within(first).getByText('Werbefrei')).toBeInTheDocument()
     const second = screen.getByRole('link', { name: /user1@example\.com/ })
     expect(within(second).getByText('—')).toBeInTheDocument()
@@ -199,7 +199,7 @@ describe('AdminUsersPage', () => {
     stubFetch(() => jsonResponse({ items: [], total: 0 }))
     renderPage({ deleted: 'gone@example.com' })
 
-    expect(screen.getByText('Account gone@example.com wurde gelöscht.')).toBeInTheDocument()
+    expect(screen.getByText('Konto gone@example.com wurde gelöscht.')).toBeInTheDocument()
     await screen.findByText('0 Benutzer')
   })
 })

@@ -156,7 +156,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
         onChange(null)
         return
       }
-      setSaveError('Die Prüfung konnte nicht abgegeben werden. Bitte versuche es erneut.')
+      setSaveError('Die Probeprüfung konnte nicht abgegeben werden. Bitte versuche es erneut.')
       setIsSubmitting(false)
     }
   }

@@ -28,7 +28,7 @@ export const IMPRINT_TEXT: PageText = {
 export const PRIVACY_TEXT: PageText = {
   title: 'Datenschutz – SKS Lotse',
   description:
-    'Datenschutzerklärung von SKS Lotse: welche Daten beim Lernen für die SKS-Theorieprüfung verarbeitet werden und wie du sie löschen kannst.',
+    'Datenschutzerklärung von SKS Lotse: welche Daten beim Lernen für die SKS-Theorieprüfung verarbeitet werden und wie Sie sie löschen können.',
 }
 
 export const TERMS_TEXT: PageText = {
@@ -46,7 +46,7 @@ export const EXAM_PROCESS_TEXT: PageText = {
 export const PRICING_TEXT: PageText = {
   title: 'Preise – SKS Lotse',
   description:
-    'Was SKS Lotse kostet: Fragen üben, Musterantwort und Lernfortschritt bleiben kostenlos, Tokens für den Lotsen-Check gibt es in Paketen ohne Abo.',
+    'Was SKS Lotse kostet: Fragen üben, Antwort und Lernfortschritt bleiben kostenlos, Tokens für den Lotsen-Check gibt es in Paketen ohne Abo.',
 }
 
 export function learnIndexText(total: number): PageText {
@@ -59,7 +59,7 @@ export function learnIndexText(total: number): PageText {
 export function topicText(topicName: string, subject: string, count: number): PageText {
   return {
     title: `${topicName} – SKS-Fragen ${subject} – SKS Lotse`,
-    description: `Alle ${count} amtlichen SKS-Fragen zum Thema ${topicName} (${subject}) mit Musterantwort – kostenlos üben, auch ohne Anmeldung.`,
+    description: `Alle ${count} amtlichen SKS-Fragen zum Thema ${topicName} (${subject}) mit amtlicher Antwort – kostenlos üben, auch ohne Anmeldung.`,
   }
 }
 

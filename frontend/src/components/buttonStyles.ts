@@ -1,5 +1,5 @@
 // The button looks of the whole app, for <button>, <Link> and <a> alike — one role, one look:
-// - primary: the one action a screen leads to (Weiter, Prüfung starten, Speichern);
+// - primary: the one action a screen leads to (Weiter, Probeprüfung starten, Speichern);
 // - secondary: an alternative beside it (Alle Fragen wiederholen, Zur Startseite);
 // - tertiary: a quiet text button (Abbrechen, Erneut laden, Frage melden);
 // - dangerOutline: opens a deletion's confirmation; danger: confirms it (Endgültig löschen).

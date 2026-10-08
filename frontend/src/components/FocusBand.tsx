@@ -17,7 +17,7 @@ interface FocusBandProps {
 }
 
 // The topics the learner marked as Fokus, with how many of their questions
-// are "sicher gelernt" and how many "teilweise".
+// are "gelernt" and how many "teilweise".
 // A topic drops out on its own once all its questions are learned (ADR-0028),
 // so there is nothing to do here for that.
 export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandProps) {
@@ -41,7 +41,7 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
       {topics.length === 0 ? (
         <p className="mt-3 max-w-xl text-sm text-ink-soft">
           Markiere Themen mit dem Stern, um sie hier im Blick zu behalten. Ein Thema verschwindet aus dem Fokus, sobald
-          du alle Fragen sicher gelernt hast.
+          du alle Fragen gelernt hast.
         </p>
       ) : (
         <div className="mt-6 flex flex-col gap-8">
@@ -51,7 +51,7 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
               <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
             </div>
             <p className="font-mono text-xs text-ink-soft">
-              {totals.learned} sicher gelernt · {totals.learning} teilweise · {open} offen (von {totals.total} Fragen)
+              {totals.learned} gelernt · {totals.learning} teilweise · {open} offen (von {totals.total} Fragen)
             </p>
           </div>
           <div>

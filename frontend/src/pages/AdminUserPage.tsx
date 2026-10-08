@@ -182,7 +182,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     return deleteAction.run(async () => {
       await apiClient.delete(`/admin/users/${user.id}`)
       navigate('/admin/users', { state: { deleted: user.email } })
-    }, recentCheckError('Der Account konnte nicht gelöscht werden.'))
+    }, recentCheckError('Das Konto konnte nicht gelöscht werden.'))
   }
 
   return (
@@ -309,7 +309,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             onClick={() => setShowDeleteConfirm(true)}
             className={buttonClass('dangerOutline', { tone: 'admin' })}
           >
-            Account löschen
+            Konto löschen
           </button>
         ) : (
           <form className="flex flex-col gap-2" onSubmit={handleDelete}>

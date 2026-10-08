@@ -14,7 +14,7 @@ export function ProtectedRoute() {
   if (isLoading) {
     return (
       <p role="status" className="p-8 text-ink-soft">
-        Lädt…
+        Lädt …
       </p>
     )
   }

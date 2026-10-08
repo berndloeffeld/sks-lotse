@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 
-import { percentOf } from '../format'
+import { formatPercentOf } from '../format'
 
 export interface ProgressSlice {
   key: string
@@ -69,7 +69,7 @@ export function ProgressPie({ slices }: ProgressPieProps) {
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
-        aria-label="Lernstand nach Kategorie"
+        aria-label="Lernstand nach Fach"
         className="h-[130px] w-[130px] shrink-0"
       >
         <defs>
@@ -126,7 +126,7 @@ export function ProgressPie({ slices }: ProgressPieProps) {
             <span aria-hidden className="h-3 w-3 shrink-0" style={{ background: color }} />
             <span>{slice.label}</span>
             <span className="ml-3 font-mono text-xs whitespace-nowrap text-ink-soft">
-              {slice.learned} / {slice.total} · {percentOf(slice.learned, slice.total)}%
+              {slice.learned} / {slice.total} · {formatPercentOf(slice.learned, slice.total)}
             </span>
           </li>
         ))}

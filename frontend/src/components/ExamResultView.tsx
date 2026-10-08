@@ -30,7 +30,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
       await apiClient.delete(`/exams/${exam.id}`)
       navigate('/exam')
     } catch {
-      setDeleteError('Die Prüfung konnte nicht gelöscht werden.')
+      setDeleteError('Die Probeprüfung konnte nicht gelöscht werden.')
       setIsDeleting(false)
     }
   }
@@ -52,7 +52,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
         </p>
         <p className="mt-3 text-sm text-ink-soft">
           Gewertet wird nur der Fragebogen (ab 39 Punkten bestanden, 33–38 mündliche Nachprüfung). Die Kartenaufgabe der
-          echten Prüfung ist nicht Teil der Simulation. Die Punkte beruhen auf deiner Selbsteinschätzung (Richtig 2,
+          echten Prüfung ist nicht Teil der Probeprüfung. Die Punkte beruhen auf deiner Selbsteinschätzung (Richtig 2,
           Teilweise richtig 1, Falsch 0).
         </p>
       </section>
@@ -101,7 +101,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
       <section className="flex flex-col gap-3 border-t border-border pt-6">
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/exam" className={buttonClass('primary')}>
-            Zur Prüfungsübersicht
+            Zur Probeprüfung
           </Link>
           {confirmingDelete ? (
             <>
@@ -119,7 +119,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
             </>
           ) : (
             <button type="button" className={buttonClass('dangerOutline')} onClick={() => setConfirmingDelete(true)}>
-              Diese Prüfung löschen
+              Diese Probeprüfung löschen
             </button>
           )}
         </div>

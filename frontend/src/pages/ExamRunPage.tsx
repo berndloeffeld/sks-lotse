@@ -18,11 +18,11 @@ export function ExamRunPage() {
       ? 'Probeprüfung'
       : exam?.status === 'grading'
         ? 'Selbsteinschätzung'
-        : 'Prüfungsergebnis'
+        : 'Ergebnis der Probeprüfung'
 
   return (
     <PageLayout title={title} compact immersive={exam?.status !== 'completed'}>
-      {isLoading ? <p className="text-ink-soft">Prüfung wird geladen…</p> : null}
+      {isLoading ? <p className="text-ink-soft">Probeprüfung wird geladen …</p> : null}
       <ErrorMessage onRetry={reload}>{error}</ErrorMessage>
       {exam?.status === 'in_progress' ? (
         // Keyed on the id, so a new exam never inherits another's answer state.

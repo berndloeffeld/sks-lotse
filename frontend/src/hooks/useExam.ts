@@ -13,6 +13,6 @@ export function useExam(id: string | undefined) {
     setExam: setData,
     reload,
     isLoading,
-    error: failed ? 'Die Prüfung konnte nicht geladen werden.' : null,
+    error: failed ? 'Die Probeprüfung konnte nicht geladen werden.' : null,
   }
 }

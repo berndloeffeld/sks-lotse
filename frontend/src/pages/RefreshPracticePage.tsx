@@ -7,7 +7,7 @@ const EXIT: RunExit = { to: '/learn?modus=refresh', label: 'Zum Auffrischen' }
 
 const EMPTY_STATE = {
   title: 'Nichts aufzufrischen',
-  text: 'Gerade droht keine deiner sicher gelernten Fragen zu verblassen. Komm in ein paar Tagen wieder.',
+  text: 'Gerade droht keine deiner gelernten Fragen zu verblassen. Komm in ein paar Tagen wieder.',
 }
 
 // The Auffrischen session: a random sample of questions that were gelernt and have lapsed or

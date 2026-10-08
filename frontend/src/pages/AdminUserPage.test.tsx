@@ -117,7 +117,7 @@ describe('AdminUserPage', () => {
     renderUserPage()
     await screen.findByText('learner@example.com')
 
-    await user.click(screen.getByRole('button', { name: 'Account löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
     const confirmButton = screen.getByRole('button', { name: 'Endgültig löschen' })
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'wrong@example.com')
     await user.click(confirmButton)
@@ -140,7 +140,7 @@ describe('AdminUserPage', () => {
       init?.method === 'DELETE' ? jsonResponse({ detail: 'recent_mfa_required' }, 403) : undefined,
     )
     renderUserPage()
-    await user.click(await screen.findByRole('button', { name: 'Account löschen' }))
+    await user.click(await screen.findByRole('button', { name: 'Konto löschen' }))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
@@ -154,11 +154,11 @@ describe('AdminUserPage', () => {
     const user = userEvent.setup()
     stubFetch((_url, init) => (init?.method === 'DELETE' ? new Response(null, { status: 500 }) : undefined))
     renderUserPage()
-    await user.click(await screen.findByRole('button', { name: 'Account löschen' }))
+    await user.click(await screen.findByRole('button', { name: 'Konto löschen' }))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
-    expect(await screen.findByText('Der Account konnte nicht gelöscht werden.')).toBeInTheDocument()
+    expect(await screen.findByText('Das Konto konnte nicht gelöscht werden.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Endgültig löschen' })).toBeEnabled()
   })
 

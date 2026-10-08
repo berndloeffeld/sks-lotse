@@ -66,7 +66,7 @@ describe('LearnPage', () => {
     renderLearnPage()
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Fachgebiete' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Fächer' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Lernen starten: Ankern' })).toHaveAttribute(
       'href',
@@ -165,7 +165,7 @@ describe('LearnPage', () => {
     expect(await screen.findByRole('button', { name: 'Fokus entfernen: Ankern' })).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: 'Fokus' }))
 
-    expect(await screen.findByText('2 sicher gelernt · 1 teilweise · 4 offen (von 7 Fragen)')).toBeInTheDocument()
+    expect(await screen.findByText('2 gelernt · 1 teilweise · 4 offen (von 7 Fragen)')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Fokus entfernen: Ankern (Navigation)' })).toHaveLength(1)
   })
 
@@ -256,8 +256,8 @@ describe('LearnPage', () => {
     const { unmount } = renderLearnPage()
     await user.click(await screen.findByRole('tab', { name: 'Probeprüfung' }))
 
-    expect(await screen.findByRole('button', { name: 'Prüfung starten' })).toBeInTheDocument()
-    expect(screen.getByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Probeprüfung starten' })).toBeInTheDocument()
+    expect(screen.getByText('Noch keine Probeprüfung abgelegt.')).toBeInTheDocument()
     unmount()
 
     useAuthStore.setState({ user: makeUser() })
@@ -279,7 +279,7 @@ describe('LearnPage', () => {
 
     renderLearnPage('/learn?modus=refresh')
 
-    expect(await screen.findByText(/Sobald du Fragen sicher gelernt hast/)).toBeInTheDocument()
+    expect(await screen.findByText(/Sobald du Fragen gelernt hast/)).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Auffrischen starten' })).not.toBeInTheDocument()
   })
 

@@ -20,9 +20,9 @@ describe('ProgressPie', () => {
       />,
     )
 
-    expect(screen.getByText('5 / 10 · 50%')).toBeInTheDocument()
-    expect(screen.getByText('0 / 30 · 0%')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Lernstand nach Kategorie' })).toBeInTheDocument()
+    expect(screen.getByText('5 / 10 · 50 %')).toBeInTheDocument()
+    expect(screen.getByText('0 / 30 · 0 %')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Lernstand nach Fach' })).toBeInTheDocument()
     expect(document.querySelectorAll('path')).toHaveLength(2)
   })
 

@@ -206,7 +206,6 @@ export function PricingPage() {
     apiClient.get<PublicPricing>('/pricing'),
   )
   const user = useAuthStore((s) => s.user)
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const [searchParams] = useSearchParams()
   const checkout = useHydrated() ? searchParams.get('checkout') : null
   const canBuy = user?.can_buy_tokens ?? false
@@ -219,7 +218,7 @@ export function PricingPage() {
 
   return (
     <PageLayout
-      title={isAuthenticated ? 'Shop' : 'Preise'}
+      title="Preise"
       nav="public"
       subtitle={
         tokensSoon ? (
@@ -233,8 +232,8 @@ export function PricingPage() {
 
       {tokensSoon ? (
         <p className="text-ink-soft">
-          Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Musterantwort, Lernfortschritt) bleibt dauerhaft
-          kostenlos. Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das
+          Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Antwort, Lernfortschritt) bleibt dauerhaft kostenlos.
+          Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das
           Zahlungssystem kommt noch.
         </p>
       ) : null}

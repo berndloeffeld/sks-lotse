@@ -60,7 +60,7 @@ export function ExamProcessPage() {
         </p>
         <p>
           SKS Lotse bereitet dich mit dem kompletten amtlichen Fragenkatalog auf genau diesen Fragebogen vor – mit
-          Originalfragen und Musterantworten.
+          Originalfragen und amtlichen Antworten.
         </p>
       </Section>
 
@@ -123,8 +123,8 @@ export function ExamProcessPage() {
       <Section icon={<CatalogIcon className="h-8 w-8" />} title="Auf die SKS-Theorieprüfung vorbereiten mit SKS Lotse">
         <p>
           SKS Lotse deckt den kompletten amtlichen Fragenkatalog für die SKS-Theorieprüfung ab – mit Originalfragen,
-          Musterantworten und einer Probeprüfung unter realistischen Bedingungen. Leg direkt los und lerne kostenlos für
-          deine Theorieprüfung.
+          amtlichen Antworten und einer Probeprüfung unter realistischen Bedingungen. Leg direkt los und lerne kostenlos
+          für deine Theorieprüfung.
         </p>
         <div className="pt-2">
           {/* A guest signs up and goes on to /learn (the login's default target), not back to this page;

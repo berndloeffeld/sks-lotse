@@ -42,8 +42,8 @@ const SCREENSHOTS = [
     src: '/screenshots/selbst-bewerten.png',
     width: 1056,
     height: 502,
-    title: '2. Mit der Musterantwort vergleichen',
-    text: 'Neben deiner Antwort steht die amtliche Musterantwort – so siehst du direkt, was gefehlt hat.',
+    title: '2. Mit der amtlichen Antwort vergleichen',
+    text: 'Neben deiner Antwort steht die amtliche Antwort – so siehst du direkt, was gefehlt hat.',
     alt: 'Screenshot: Deine Antwort zur Frage „Was bedeutet die Abkürzung GPS?“ neben der amtlichen Antwort „Global Positioning System“.',
     wide: false,
   },
@@ -72,9 +72,9 @@ const EXAM_SCREENSHOTS = [
     src: '/screenshots/pruefung-starten.png',
     width: 1056,
     height: 834,
-    title: '1. Prüfung starten',
-    text: 'Eine zufällige Prüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
-    alt: 'Screenshot: Die Probeprüfung mit den Regeln, der Schaltfläche „Prüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
+    title: '1. Probeprüfung starten',
+    text: 'Eine zufällige Probeprüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
+    alt: 'Screenshot: Die Probeprüfung mit den Regeln, der Schaltfläche „Probeprüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
     wide: false,
   },
   {
@@ -83,7 +83,7 @@ const EXAM_SCREENSHOTS = [
     height: 854,
     title: '2. Fragebogen beantworten',
     text: 'Du beantwortest alle Fragen in eigenen Worten, mit Restzeit im Blick. Die Zeit wird serverseitig überwacht.',
-    alt: 'Screenshot: Prüfungsfrage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige „1 / 30“, verbleibender Zeit und den Schaltflächen Zurück, Übersicht und Weiter.',
+    alt: 'Screenshot: Frage der Probeprüfung „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige „1 / 30“, verbleibender Zeit und den Schaltflächen Zurück, Übersicht und Weiter.',
     wide: false,
   },
   {
@@ -91,8 +91,8 @@ const EXAM_SCREENSHOTS = [
     width: 1056,
     height: 918,
     title: '3. Ergebnis und Auswertung',
-    text: 'Danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein. Du siehst deine Punkte, das Ergebnis und die Auswertung nach Fachgebiet.',
-    alt: 'Screenshot: Prüfungsergebnis mit 54 von 60 Punkten, „Bestanden“ und Balken je Fachgebiet für Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft.',
+    text: 'Danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein. Du siehst deine Punkte, das Ergebnis und die Auswertung nach Fach.',
+    alt: 'Screenshot: Ergebnis der Probeprüfung mit 54 von 60 Punkten, „Bestanden“ und Balken je Fach für Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft.',
     wide: false,
   },
 ]
@@ -233,11 +233,11 @@ export function LandingPage() {
             {[
               [
                 'Originalfragen üben',
-                'Online lernen mit allen Fragen aus dem amtlichen SKS-Fragenkatalog – wahlweise für „Segeln und Motor" oder nur „Motor", genau wie in der Theorieprüfung.',
+                'Online lernen mit allen Fragen aus dem amtlichen SKS-Fragenkatalog – wahlweise für „Segeln und Motor“ oder nur „Motor“, genau wie in der Theorieprüfung.',
               ],
               [
-                'Mit der Musterantwort vergleichen',
-                'Überleg dir deine Antwort in eigenen Worten und vergleiche sie mit der amtlichen Musterantwort.',
+                'Mit der amtlichen Antwort vergleichen',
+                'Überleg dir deine Antwort in eigenen Worten und vergleiche sie mit der amtlichen Antwort.',
               ],
               [
                 'Selbst bewerten',
@@ -264,7 +264,7 @@ export function LandingPage() {
                 ],
                 [
                   'Offener Katalog',
-                  'Alle Fragen und Musterantworten des amtlichen Katalogs stehen offen – zum Üben auch ohne Anmeldung.',
+                  'Alle Fragen und amtlichen Antworten des Katalogs stehen offen – zum Üben auch ohne Anmeldung.',
                 ],
               ].map(([title, text]) => (
                 <div key={title} className="flex flex-col gap-6">
@@ -299,8 +299,8 @@ export function LandingPage() {
             Die theoretische SKS-Prüfung deckt vier Fächer ab: Navigation, Schifffahrtsrecht, Wetterkunde und
             Seemannschaft. Im echten Fragebogen sind sie mit 9, 7, 5 und 9 Fragen vertreten – zusammen 30 Fragen in 90
             Minuten, ohne Hilfsmittel. Zweiter Teil der schriftlichen Prüfung ist die Kartenaufgabe in der Übungskarte.
-            SKS Lotse bildet den kompletten amtlichen Fragenkatalog ab, in beiden Prüfungsvarianten „Segeln und Motor"
-            und „Motor" – mit genau den Originalfragen und -musterantworten, die auch im Examen vorkommen, nicht mit
+            SKS Lotse bildet den kompletten amtlichen Fragenkatalog ab, in beiden Prüfungsvarianten „Segeln und Motor“
+            und „Motor“ – mit genau den Originalfragen und -musterantworten, die auch im Examen vorkommen, nicht mit
             umformulierten oder gekürzten Versionen.
           </p>
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -327,9 +327,9 @@ export function LandingPage() {
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
                 Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
-                Katalogfrage, zwei je Aufgabe einer Kartenaufgabe, ohne Abo). Die aktuellen Preise stehen auf der{' '}
+                Katalogfrage, zwei je Aufgabe einer Kartenaufgabe, ohne Abo). Die aktuellen Preise stehen auf der Seite{' '}
                 <Link to="/pricing" className="underline hover:text-surface">
-                  Preise-Seite
+                  Preise
                 </Link>
                 .
               </p>
@@ -370,7 +370,7 @@ export function LandingPage() {
               <dl className="flex flex-col gap-3 text-sm text-surface-alt">
                 {[
                   ['Ohne Anmeldung', 'alle Fragen frei üben, ohne Lernstand'],
-                  ['Anmeldung', 'per E-Mail-Code, ohne Passwort'],
+                  ['Anmeldung', 'per Login-Code, ohne Passwort'],
                   ['Fortschritt', 'wird in deinem Konto gespeichert'],
                   ['Kosten', 'kostenlos, Erweiterungen optional'],
                 ].map(([term, detail]) => (

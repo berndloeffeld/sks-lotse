@@ -27,7 +27,7 @@ import { useAuthStore } from './store/authStore'
 import { useMaintenanceStore } from './store/maintenanceStore'
 
 // Pages that are never prerendered (everything behind ProtectedRoute, whose prerender is just
-// "Lädt…") load on demand, so a visitor of the landing page doesn't download the admin, exam and
+// "Lädt …") load on demand, so a visitor of the landing page doesn't download the admin, exam and
 // profile code. The prerendered public pages stay in the main bundle: a lazy one would not be
 // there on hydration.
 function lazyNamed<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
@@ -52,7 +52,7 @@ const ProfileLayout = lazyNamed(() => import('./components/ProfileLayout'), 'Pro
 function PageFallback() {
   return (
     <p role="status" className="p-8 text-ink-soft">
-      Lädt…
+      Lädt …
     </p>
   )
 }
