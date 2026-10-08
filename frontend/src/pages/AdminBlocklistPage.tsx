@@ -5,7 +5,7 @@ import type { AdminBlockedEmail } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 
-const INPUT = 'border border-border bg-surface px-3 py-2 text-ink'
+const INPUT = 'border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 
 function fetchBlocklist() {

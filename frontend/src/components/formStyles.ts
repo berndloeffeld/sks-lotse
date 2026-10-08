@@ -22,7 +22,8 @@ export function formStyles(tone: FormTone) {
   const t = TONES[tone]
   return {
     label: `flex flex-col gap-1 text-sm ${t.label}`,
-    input: `rounded-tile border-2 px-3 py-2 ${t.input}`,
+    // 16 px at least: iOS Safari zooms into a field with smaller text on focus and stays zoomed.
+    input: `rounded-tile border-2 px-3 py-2 text-base ${t.input}`,
     note: t.note,
     link: `text-sm underline ${t.link}`,
     button:

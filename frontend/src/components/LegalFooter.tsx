@@ -4,11 +4,13 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
 
-const FOOTER_LINK = 'border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface'
+// `pt-1 -mt-1` and `min-w-6` make a short link ("FAQ", "AGB") a 24 px tap target without moving it.
+const TAP_AREA = 'min-w-6 -mt-1 pt-1 text-center'
+const FOOTER_LINK = `${TAP_AREA} border-b-2 border-transparent pb-1 hover:border-surface hover:text-surface`
 
 // The page the visitor is on is underlined, like the header's links (HEADER_LINK_ACTIVE).
 function footerLinkClass({ isActive }: { isActive: boolean }) {
-  return isActive ? 'border-b-2 border-surface pb-1 text-surface' : FOOTER_LINK
+  return isActive ? `${TAP_AREA} border-b-2 border-surface pb-1 text-surface` : FOOTER_LINK
 }
 
 // The content pages (Prüfungsablauf, FAQ), the contact (also the way to send feedback) and the

@@ -25,6 +25,24 @@
   --radius-tile: 2px;
 }
 
+/* Height of the sticky header (Header): what sticky bars sit below and what anchor jumps keep
+   clear of. Below `sm` the header scrolls away with the page (0), from `sm` on it is one line
+   high and sticks. Not in @theme: it changes with the breakpoint. */
+:root {
+  --header-height: 0px;
+}
+
+@media (width >= 40rem) {
+  :root {
+    --header-height: 4.25rem;
+  }
+}
+
+/* Hash links and scrollIntoView land below the sticky header, not under it. */
+html {
+  scroll-padding-top: var(--header-height);
+}
+
 body {
   @apply bg-bg text-ink font-sans;
 }

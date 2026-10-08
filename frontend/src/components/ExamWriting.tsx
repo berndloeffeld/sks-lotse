@@ -3,6 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import type { Exam } from '../api/types'
+import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { useExamCountdown } from '../hooks/useExamCountdown'
 import { formatCountdown } from '../format'
 import { SUBJECT_GROUP_LABELS } from '../labels'
@@ -25,8 +26,9 @@ interface ExamWritingProps {
 // 90-minute countdown is always visible. No tip, no official answer, no grading.
 //
 // Keyboard: Enter in the answer field moves on (the last question leads to
-// the overview), Shift+Enter is a line break, and every new question puts the
-// cursor into the answer field.
+// the overview), Shift+Enter is a line break — on touch devices Enter stays a
+// line break (useEnterShortcut) — and every new question puts the cursor into
+// the answer field.
 export function ExamWriting({ exam, onChange }: ExamWritingProps) {
   const [index, setIndex] = useState(0)
   const [view, setView] = useState<'question' | 'overview'>('question')
@@ -41,6 +43,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
   const answersRef = useRef(answers)
   const timer = useRef<number | undefined>(undefined)
   const answerRef = useRef<HTMLTextAreaElement>(null)
+  const enterShortcut = useEnterShortcut(() => advance())
   // The parent passes a fresh callback every render; flush must stay stable.
   const onChangeRef = useRef(onChange)
   useEffect(() => {
@@ -163,7 +166,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3">
+      <div className="sticky top-(--header-height) z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3">
         {view === 'question' ? (
           // Same boxed count as the practice run (PracticeRun). No boat here: it stands for a
           // question's learning progress, not for the position in a questionnaire.
@@ -218,21 +221,18 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
               ref={answerRef}
               rows={7}
               maxLength={10000}
-              aria-describedby="exam-answer-hint"
+              aria-describedby={enterShortcut.enabled ? 'exam-answer-hint' : undefined}
               value={answers[question.position] ?? ''}
               onChange={(event) => setAnswer(question.position, event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault()
-                  advance()
-                }
-              }}
+              onKeyDown={enterShortcut.onKeyDown}
               className={styles.input}
             />
           </label>
-          <span id="exam-answer-hint" className="-mt-2 text-xs text-ink-soft">
-            Enter: nächste Frage · Shift+Enter: neue Zeile
-          </span>
+          {enterShortcut.enabled ? (
+            <span id="exam-answer-hint" className="-mt-2 text-xs text-ink-soft">
+              Enter: nächste Frage · Shift+Enter: neue Zeile
+            </span>
+          ) : null}
           <div className="flex justify-between gap-4">
             <button type="button" className={styles.button} disabled={index === 0} onClick={() => void goTo(index - 1)}>
               Zurück

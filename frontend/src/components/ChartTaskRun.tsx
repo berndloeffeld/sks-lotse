@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import type { ChartAttempt, ChartAttemptTask } from '../api/types'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
 import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
@@ -36,7 +37,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = f
 
   if (!task) return <ChartRunResult attempt={attempt} guest={guest} />
   return (
-    <article ref={articleRef} className="flex scroll-mt-24 flex-col gap-4">
+    <article ref={articleRef} className="flex scroll-mt-4 flex-col gap-4">
       <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           <span className="rounded-tile border border-primary px-2 py-0.5 text-primary">
@@ -82,9 +83,12 @@ function InfoMarker({ id, text }: { id: string; text: string }) {
         onKeyDown={(event) => {
           if (event.key === 'Escape') setOpen(false)
         }}
-        className="flex size-4 items-center justify-center rounded-full border border-ink-soft font-serif text-[0.65rem] leading-none text-ink-soft italic hover:border-ink hover:text-ink"
+        // The tap area is 24 px (the padding, offset by the margin); the circle inside stays 16 px.
+        className="group/marker -m-1 p-1"
       >
-        i
+        <span className="flex size-4 items-center justify-center rounded-full border border-ink-soft font-serif text-[0.65rem] leading-none text-ink-soft italic group-hover/marker:border-ink group-hover/marker:text-ink">
+          i
+        </span>
       </button>
       <span
         id={id}
@@ -105,6 +109,7 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
   const fieldRef = useRef<HTMLTextAreaElement>(null)
   const fieldId = useId()
   const hintId = useId()
+  const enterShortcut = useEnterShortcut((event) => event.currentTarget.form?.requestSubmit())
 
   useEffect(() => {
     fieldRef.current?.focus({ preventScroll: true })
@@ -133,16 +138,13 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
           ref={fieldRef}
           value={answer}
           onChange={(event) => setAnswer(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-              event.preventDefault()
-              event.currentTarget.form?.requestSubmit()
-            }
-          }}
+          onKeyDown={enterShortcut.onKeyDown}
           rows={4}
           className={styles.input}
         />
-        <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
+        {enterShortcut.enabled ? (
+          <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
+        ) : null}
       </div>
       {error ? (
         <p role="alert" className={styles.error}>

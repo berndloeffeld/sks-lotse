@@ -117,6 +117,29 @@ describe('ExamRunPage', () => {
     expect(await screen.findByRole('heading', { name: 'Selbsteinschätzung' })).toBeInTheDocument()
   })
 
+  it('keeps Enter a line break on a touch device, without the keyboard hint', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: false })),
+    )
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+        init?.method === 'PUT' ? new Response(null, { status: 204 }) : jsonResponse(makeExam()),
+      ),
+    )
+    renderRun()
+    const user = userEvent.setup()
+
+    expect(await screen.findByText('Frage 1?')).toBeInTheDocument()
+    await user.type(screen.getByLabelText('Deine Antwort'), 'Kom{Enter}pass')
+
+    expect(screen.getByLabelText('Deine Antwort')).toHaveValue('Kom\npass')
+    expect(screen.getByText('Frage 1 von 2')).toBeInTheDocument()
+    expect(screen.queryByText(/Shift\+Enter/)).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Deine Antwort')).not.toHaveAttribute('aria-describedby')
+  })
+
   it('saves one answer at a time, so a slow older save can never overwrite a newer text', async () => {
     const user = userEvent.setup()
     const puts: string[] = []
