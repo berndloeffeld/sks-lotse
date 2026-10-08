@@ -248,6 +248,8 @@ describe('ProfileAccountPage', () => {
     await user.click(screen.getByRole('button', { name: 'Account löschen' }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
+    expect(screen.getByLabelText(/Zur Bestätigung/)).toHaveClass('border-danger')
+    expect(screen.getByLabelText(/Zur Bestätigung/)).not.toHaveClass('border-primary')
     expect(screen.getByRole('alert')).toHaveTextContent('Die E-Mail-Adresse stimmt nicht überein.')
     expect(fetchMock).not.toHaveBeenCalledWith(
       expect.stringContaining('/auth/me'),
