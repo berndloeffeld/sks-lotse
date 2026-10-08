@@ -22,7 +22,7 @@ const ROWS: { key: 'reference' | 'difference' | 'secondary'; label: string }[] =
 
 // 16 px on phones, where iOS would otherwise zoom in on focus (see formStyles' input).
 const INPUT =
-  'w-full min-w-0 rounded border border-border bg-surface px-0.5 py-0.5 font-mono text-base text-ink sm:text-[11px]'
+  'w-full min-w-0 rounded-tile border border-ink-soft bg-surface px-0.5 py-0.5 font-mono text-base text-ink sm:text-2xs'
 const CELL = 'border border-border p-0.5'
 
 interface TideFormFieldsProps {
@@ -136,7 +136,7 @@ export function TideFormFields({ form, update, clear }: TideFormFieldsProps) {
                           onChange={(event) =>
                             edit((draft) => void (draft.blocks[b].events[e].kind = event.target.value as TideKind))
                           }
-                          className="rounded border border-border bg-surface font-mono text-base sm:text-xs"
+                          className="rounded-tile border border-ink-soft bg-surface font-mono text-base sm:text-xs"
                         >
                           <option value="">_W</option>
                           <option value="H">HW</option>

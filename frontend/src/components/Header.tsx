@@ -21,7 +21,7 @@ interface HeaderProps {
 // there it scrolls away and leaves the screen to the page.
 export function Header({ homeTo = '/', nav }: HeaderProps) {
   return (
-    <header className="z-40 bg-primary-dark sm:sticky sm:top-0">
+    <header className="z-(--z-header) bg-primary-dark sm:sticky sm:top-0">
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-3 px-4 py-4">
         <div className="flex items-baseline gap-3">
           <Link to={homeTo} aria-label="SKS Lotse – Startseite">

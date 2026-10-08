@@ -24,13 +24,13 @@ const DANGER_OUTLINE = 'border-danger text-danger hover:bg-surface-alt'
 
 const COLORS: Record<ButtonTone, Record<Exclude<ButtonVariant, 'tertiary'>, string>> = {
   light: {
-    primary: 'border-accent bg-accent text-surface hover:border-ink hover:bg-ink',
+    primary: 'border-accent-strong bg-accent-strong text-surface hover:border-ink hover:bg-ink',
     secondary: 'border-primary text-primary hover:bg-primary hover:text-surface',
     danger: DANGER,
     dangerOutline: DANGER_OUTLINE,
   },
   dark: {
-    primary: 'border-accent bg-accent text-surface hover:border-ink hover:bg-ink',
+    primary: 'border-accent-strong bg-accent-strong text-surface hover:border-ink hover:bg-ink',
     secondary: 'border-surface text-surface hover:bg-surface hover:text-primary-dark',
     danger: DANGER,
     dangerOutline: 'border-surface text-surface hover:bg-surface hover:text-danger',

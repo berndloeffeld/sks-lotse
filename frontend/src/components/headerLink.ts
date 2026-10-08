@@ -22,7 +22,7 @@ export const HEADER_MENU_BUTTON =
 // A tab of the phone tab bar (MobileTabBar, and the Konto menu's button in it): icon over label,
 // sharing the bar's width with the others. The current area is in primary, the rest muted.
 export function tabBarItemClass(isActive: boolean): string {
-  return `flex flex-1 flex-col items-center gap-0.5 px-1 pt-2 pb-1.5 text-[11px] ${
+  return `flex flex-1 flex-col items-center gap-0.5 px-1 pt-2 pb-1.5 text-2xs ${
     isActive ? 'text-primary' : 'text-ink-soft hover:text-primary'
   }`
 }

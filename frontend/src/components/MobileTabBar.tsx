@@ -25,7 +25,7 @@ export function MobileTabBar() {
       <div aria-hidden="true" className="h-[calc(3.75rem+env(safe-area-inset-bottom))] bg-primary-dark md:hidden" />
       <nav
         aria-label="Hauptnavigation mobil"
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-(--z-header) flex border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {mainNavItems(chartExercises).map((item) => {
           const active = isActive(item, pathname)

@@ -255,7 +255,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             min={1}
             value={grantTokensInput}
             onChange={(event) => setGrantTokensInput(event.target.value)}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="grant-amount">
@@ -267,7 +267,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             step="0.01"
             value={grantAmountInput}
             onChange={(event) => setGrantAmountInput(event.target.value)}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <ErrorMessage>{grantAction.error}</ErrorMessage>
@@ -285,7 +285,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             min={1}
             value={debitTokensInput}
             onChange={(event) => setDebitTokensInput(event.target.value)}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <ErrorMessage>{debitAction.error}</ErrorMessage>
@@ -323,7 +323,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
                   setDeleteConfirmEmail(event.target.value)
                   deleteAction.setError(null)
                 }}
-                className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+                className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
               />
             </label>
             <ErrorMessage>{deleteAction.error}</ErrorMessage>

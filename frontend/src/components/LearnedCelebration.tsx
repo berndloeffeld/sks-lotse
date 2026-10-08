@@ -35,7 +35,7 @@ export function LearnedCelebration() {
     <div
       data-testid="learned-celebration"
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center motion-reduce:hidden"
+      className="pointer-events-none fixed inset-0 z-(--z-modal) flex items-center justify-center motion-reduce:hidden"
     >
       <div
         className="relative flex max-w-xs flex-col items-center gap-1 rounded-tile bg-success px-10 py-6 text-center text-surface shadow-xl"
@@ -43,7 +43,7 @@ export function LearnedCelebration() {
       >
         <Anchor />
         <p className="font-serif text-3xl">Gelernt!</p>
-        <p className="text-sm text-surface/80">Diese Frage taucht jetzt eine Weile nicht mehr auf.</p>
+        <p className="text-sm text-surface">Diese Frage taucht jetzt eine Weile nicht mehr auf.</p>
         {PIECES.map((piece, i) => (
           <span
             key={i}

@@ -5,17 +5,18 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress } from '../api/types'
 import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
+import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
 import { CourseGauge } from './CourseGauge'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
 import { GuestCta, LoginLink } from './LoginLink'
-import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
 import { SelfAssessment } from './SelfAssessment'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 type Phase = 'answer' | 'assess'
 
@@ -170,7 +171,7 @@ export function PracticeRun({
   if (run.length === 0) {
     return (
       <section className="flex flex-col items-start gap-4">
-        <h2 className="font-serif text-2xl text-primary">{emptyState?.title ?? 'Alles gelernt'}</h2>
+        <h2 className={sectionHeading}>{emptyState?.title ?? 'Alles gelernt'}</h2>
         <p className="text-sm text-ink-soft">
           {emptyState?.text ??
             (keepOrder ? 'Es sind keine Fokus-Fragen offen.' : 'Du hast jede Frage dieses Themas gelernt.')}
@@ -196,7 +197,7 @@ export function PracticeRun({
         <p role="status" className="sr-only">
           {feedback}
         </p>
-        <h2 className="font-serif text-2xl text-primary">Runde beendet</h2>
+        <h2 className={sectionHeading}>Runde beendet</h2>
         <dl className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 font-mono text-sm">
           {OUTCOMES.map((o) => (
             <div key={o} className="contents">
@@ -293,16 +294,8 @@ export function PracticeRun({
         </>
       ) : (
         <>
-          {note.trim() ? (
-            <section className="flex flex-col gap-1 rounded-tile border-l-4 border-ink-soft bg-surface px-3 py-2">
-              <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Deine Antwort</h3>
-              <p className="text-sm whitespace-pre-line text-ink-soft">{note}</p>
-            </section>
-          ) : null}
-          <section className="flex flex-col gap-1 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
-            <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
-            <OfficialAnswer text={question.answer_text} images={question.answer_images} textClassName="text-sm" />
-          </section>
+          {note.trim() ? <OwnAnswer text={note} /> : null}
+          <OfficialAnswerBox text={question.answer_text} images={question.answer_images} />
 
           {guest ? (
             <>

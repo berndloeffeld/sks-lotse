@@ -367,7 +367,7 @@ describe('ChartAttemptPage', () => {
     expect(await screen.findByRole('heading', { name: 'Kartenaufgabe abgeschlossen' })).toBeInTheDocument()
     expect(screen.getByText(/von 4 Punkten gegeben/)).toHaveTextContent('Du hast dir 3 von 4 Punkten gegeben.')
     expect(screen.getByRole('link', { name: 'Zur Übersicht' })).toHaveAttribute('href', '/charts')
-    await waitFor(() => expect(screen.getAllByText('(keine Antwort)').length).toBeGreaterThan(0))
+    await waitFor(() => expect(screen.getAllByText('Nicht beantwortet.').length).toBeGreaterThan(0))
     // A solution of a single part needs no bullet.
     const single = screen.getAllByText('KaK = 059°')[0].closest('section')
     expect(single && within(single).queryByRole('list')).toBeNull()

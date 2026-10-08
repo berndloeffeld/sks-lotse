@@ -93,7 +93,7 @@ export function AdminUsersPage() {
             maxLength={254}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <button type="submit" className={buttonClass('primary', { tone: 'admin' })}>

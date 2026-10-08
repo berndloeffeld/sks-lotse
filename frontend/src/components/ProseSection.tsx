@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { sectionHeading } from './headingStyles'
 
 interface ProseSectionProps {
   id?: string
@@ -10,7 +11,7 @@ interface ProseSectionProps {
 export function ProseSection({ id, title, children }: ProseSectionProps) {
   return (
     <section id={id} className="flex flex-col gap-2 scroll-mt-4 text-ink-soft">
-      <h2 className="font-serif text-xl text-primary">{title}</h2>
+      <h2 className={sectionHeading}>{title}</h2>
       {children}
     </section>
   )

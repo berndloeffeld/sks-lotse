@@ -7,6 +7,7 @@ import { Band } from './Bands'
 import { LedgerRow } from './LedgerRow'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 interface FocusBandProps {
   topics: TopicProgress[]
@@ -28,7 +29,7 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
     <Band className="py-14">
       {/* pr-2 matches the LedgerRow inset, so the button lines up with the "Lernen starten" buttons below. */}
       <div className="flex items-center justify-between gap-4 pr-2">
-        <h2 className="font-serif text-3xl text-primary">Fokus</h2>
+        <h2 className={sectionHeading}>Fokus</h2>
         {/* Everything not yet gelernt (offen + teilweise) is in the session, oldest correct answer first. */}
         {topics.length > 0 && totals.total > totals.learned ? (
           <Link to="/learn/focus" className={buttonClass('primary')}>

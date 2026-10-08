@@ -22,8 +22,8 @@ export function QuestionImages({ images, part }: { images: QuestionImage[]; part
           width={image.width * scaleFor(image)}
           height={image.height * scaleFor(image)}
           alt={images.length > 1 ? `${LABELS[part]} ${i + 1} von ${images.length}` : LABELS[part]}
-          // The catalog's images are drawn on white; keep it white in dark mode.
-          className="h-auto max-w-full rounded border border-border bg-white"
+          // The catalog's images are drawn on white: on `surface` (white), transparent parts stay white.
+          className="h-auto max-w-full rounded-tile border border-border bg-surface"
         />
       ))}
     </div>

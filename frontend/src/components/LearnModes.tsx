@@ -6,6 +6,7 @@ import { percentOf } from '../format'
 import { learnModes, type LearnMode } from '../navigation'
 import { Band } from './Bands'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 const LEARN_MODES: { id: LearnMode; label: string }[] = [
   { id: 'topic', label: 'Nach Thema' },
@@ -91,7 +92,7 @@ export function RefreshPanel({ summary }: RefreshPanelProps) {
   return (
     <Band className="py-14">
       <div className="flex items-center justify-between gap-4 pr-2">
-        <h2 className="font-serif text-3xl text-primary">Auffrischen</h2>
+        <h2 className={sectionHeading}>Auffrischen</h2>
         {due > 0 ? (
           <Link to="/learn/refresh" className={buttonClass('primary')}>
             Auffrischen starten

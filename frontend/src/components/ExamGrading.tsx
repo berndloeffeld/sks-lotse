@@ -2,7 +2,7 @@ import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { SUBJECT_GROUP_LABELS } from '../labels'
-import { OfficialAnswer } from './OfficialAnswer'
+import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
 import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
@@ -42,18 +42,8 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}
       </p>
       <QuestionImages images={question.question_images} part="question" />
-      <section className="rounded-tile border-l-4 border-ink-soft bg-surface p-4">
-        <h2 className="text-sm text-ink-soft">Deine Antwort</h2>
-        {question.answer_text?.trim() ? (
-          <p className="whitespace-pre-line text-ink">{question.answer_text}</p>
-        ) : (
-          <p className="text-ink-soft italic">Nicht beantwortet.</p>
-        )}
-      </section>
-      <section className="rounded-tile border-l-4 border-primary bg-surface-alt p-4">
-        <h2 className="text-sm text-ink-soft">Amtliche Antwort</h2>
-        <OfficialAnswer text={question.official_answer} images={question.official_answer_images} />
-      </section>
+      <OwnAnswer text={question.answer_text} headingLevel={2} />
+      <OfficialAnswerBox text={question.official_answer} images={question.official_answer_images} headingLevel={2} />
       <SelfAssessment
         key={question.position}
         name="exam-outcome"

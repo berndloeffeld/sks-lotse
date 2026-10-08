@@ -18,6 +18,12 @@ interface LedgerRowProps {
   onToggleFocus?: () => void
 }
 
+// The topic in the button's accessible name, so a screen reader's list of links tells the rows'
+// "Lernen starten" apart; the visible label stays first (WCAG 2.5.3).
+export function TopicName({ title }: { title: string }) {
+  return <span className="sr-only">: {title}</span>
+}
+
 // The "ledger list rows" pattern from ADR-0014: flat rows separated by
 // hairlines (not boxed cards), counts set in IBM Plex Mono. Used for the
 // per-topic Lernstand list on /learn.
@@ -46,9 +52,9 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
         </button>
       ) : null}
       <div className="flex-1">
-        <p className={done ? 'font-medium text-success' : 'text-ink'}>
+        <p className={`text-ink ${done ? 'font-medium' : ''}`}>
           {done ? (
-            <span aria-hidden="true" className="mr-1.5">
+            <span aria-hidden="true" className="mr-1.5 text-success">
               ✓
             </span>
           ) : null}
@@ -59,7 +65,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
             <div className="h-full bg-success" style={{ width: `${percent}%` }} />
             <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
           </div>
-          <p className={`font-mono text-xs ${done ? 'text-success' : 'text-ink-soft'}`}>
+          <p className="font-mono text-xs text-ink-soft">
             {learned} von {total} Fragen gelernt
             {learning > 0 ? ` · ${learning} teilweise` : ''}
           </p>
@@ -68,10 +74,12 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
       {to && total > 0 ? (
         <Link to={to} className={action}>
           {done ? 'Wiederholen' : 'Lernen starten'}
+          <TopicName title={title} />
         </Link>
       ) : (
         <button type="button" disabled className={`${action} disabled:cursor-not-allowed`}>
           Lernen starten
+          <TopicName title={title} />
         </button>
       )}
     </div>

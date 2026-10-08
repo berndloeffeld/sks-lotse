@@ -1,7 +1,8 @@
 import type { Question } from '../api/types'
-import { OfficialAnswer } from './OfficialAnswer'
+import { OfficialAnswerBox } from './AnswerBox'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
+import { sectionHeading } from './headingStyles'
 
 // Every question of a topic with its official answer, each folded shut, below the practice run
 // (ADR-0054): to look one up, and so the page's HTML carries the whole topic for search engines,
@@ -9,7 +10,7 @@ import { RichText } from './RichText'
 export function TopicQuestionList({ questions }: { questions: Question[] }) {
   return (
     <section aria-labelledby="topic-questions" className="flex flex-col gap-3 border-t border-border pt-8">
-      <h2 id="topic-questions" className="font-serif text-2xl text-primary">
+      <h2 id="topic-questions" className={sectionHeading}>
         Alle Fragen dieses Themas
       </h2>
       <ul className="flex flex-col">
@@ -27,10 +28,7 @@ export function TopicQuestionList({ questions }: { questions: Question[] }) {
               </summary>
               <div className="mt-3 flex flex-col gap-2 pl-12">
                 <QuestionImages images={question.question_images} part="question" />
-                <div className="rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
-                  <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</h3>
-                  <OfficialAnswer text={question.answer_text} images={question.answer_images} textClassName="text-sm" />
-                </div>
+                <OfficialAnswerBox text={question.answer_text} images={question.answer_images} />
               </div>
             </details>
           </li>

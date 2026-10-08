@@ -5,6 +5,7 @@ import { Columns } from './Bands'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'
 import { ErrorMessage } from './Messages'
+import { sectionHeading } from './headingStyles'
 
 interface ProgressOverviewProps {
   totals: { learned: number; learning: number; total: number }
@@ -23,7 +24,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
   return (
     <Columns>
       <div className="flex flex-col gap-4">
-        <h2 className="font-serif text-2xl text-primary">Gesamtfortschritt</h2>
+        <h2 className={sectionHeading}>Gesamtfortschritt</h2>
         <p className="font-serif text-5xl text-ink">{percent}%</p>
         <div className="flex h-1.5 w-full bg-surface-alt">
           <div className="h-full bg-success" style={{ width: `${percent}%` }} />
@@ -35,11 +36,11 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <h2 className="font-serif text-2xl text-primary">Fachgebiete</h2>
+        <h2 className={sectionHeading}>Fachgebiete</h2>
         {categories.length > 0 ? <ProgressPie slices={categories} /> : null}
       </div>
       <div className="flex flex-col gap-4">
-        <h2 className="font-serif text-2xl text-primary">Prüfungsvariante</h2>
+        <h2 className={sectionHeading}>Prüfungsvariante</h2>
         <p className="text-sm leading-relaxed text-ink-soft">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
         <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSaving} />
         <ErrorMessage>{error}</ErrorMessage>

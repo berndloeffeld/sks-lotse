@@ -168,7 +168,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="sticky top-(--header-height) z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3">
+      <div className="sticky top-(--header-height) z-(--z-sticky) flex items-center justify-between gap-4 border-b border-border bg-bg py-3">
         {view === 'question' ? (
           // Same boxed count as the practice run (PracticeRun). No boat here: it stands for a
           // question's learning progress, not for the position in a questionnaire.

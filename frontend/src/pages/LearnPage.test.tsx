@@ -67,8 +67,11 @@ describe('LearnPage', () => {
 
     expect(await screen.findByText('Ankern')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Fachgebiete' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
+    expect(screen.getByRole('heading', { level: 2, name: 'Navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Lernen starten: Ankern' })).toHaveAttribute(
+      'href',
+      '/learn/navigation/ankern',
+    )
   })
 
   it('shows an error instead of the topics when the Lernstand fails to load', async () => {
@@ -332,11 +335,11 @@ describe('LearnPage without a login', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { level: 3, name: 'Navigation' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 3, name: 'Seemannschaft (Motor)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Seemannschaft (Motor)' })).toBeInTheDocument()
     expect(screen.getByText('Seekarten')).toBeInTheDocument()
     expect(screen.getByText('2 Fragen')).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'Lernen starten' }).map((l) => l.getAttribute('href'))).toEqual([
+    expect(screen.getAllByRole('link', { name: /^Lernen starten: / }).map((l) => l.getAttribute('href'))).toEqual([
       '/learn/navigation/seekarten',
       '/learn/seemannschaft_motor/motor',
     ])

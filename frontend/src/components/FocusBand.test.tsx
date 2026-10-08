@@ -32,7 +32,10 @@ describe('FocusBand', () => {
     expect(screen.getByRole('heading', { name: 'Fokus' })).toBeInTheDocument()
     expect(screen.getByText('4 sicher gelernt · 2 teilweise · 4 offen (von 10 Fragen)')).toBeInTheDocument()
     expect(screen.getByText('Ankern (Navigation)')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
+    expect(screen.getByRole('link', { name: 'Lernen starten: Ankern (Navigation)' })).toHaveAttribute(
+      'href',
+      '/learn/navigation/ankern',
+    )
   })
 
   it('links to the Fokus session while questions are not yet learned', () => {

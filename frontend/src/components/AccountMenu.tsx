@@ -103,7 +103,7 @@ export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuP
       {isOpen ? (
         <div
           id={menuId}
-          className={`absolute z-20 min-w-56 rounded-tile border border-ink bg-surface py-1 text-left shadow-lg ${PANEL[placement]}`}
+          className={`absolute z-(--z-popover) min-w-56 rounded-tile border border-ink bg-surface py-1 text-left shadow-lg ${PANEL[placement]}`}
         >
           {user ? (
             <p className="border-b border-border px-4 pt-2 pb-3 text-xs text-ink-soft">

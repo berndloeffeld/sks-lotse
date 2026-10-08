@@ -6,12 +6,14 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
-import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
+import { OwnAnswer } from './AnswerBox'
+import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
 import { GuestCta } from './LoginLink'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading, subsectionHeading } from './headingStyles'
 
 const styles = formStyles('light')
 
@@ -52,7 +54,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = f
         </p>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-serif text-xl text-ink">Aufgabe {task.number}</h2>
+        <h2 className={sectionHeading}>Aufgabe {task.number}</h2>
         <p className="text-right text-sm text-ink-soft">Max. erreichbare Punkte: {task.max_points}</p>
       </div>
       <ChartTaskText task={task} />
@@ -89,14 +91,14 @@ function InfoMarker({ id, text }: { id: string; text: string }) {
         // The tap area is 24 px (the padding, offset by the margin); the circle inside stays 16 px.
         className="group/marker -m-1 p-1"
       >
-        <span className="flex size-4 items-center justify-center rounded-full border border-ink-soft font-serif text-[0.65rem] leading-none text-ink-soft italic group-hover/marker:border-ink group-hover/marker:text-ink">
+        <span className="flex size-4 items-center justify-center rounded-full border border-ink-soft font-serif text-2xs leading-none text-ink-soft italic group-hover/marker:border-ink group-hover/marker:text-ink">
           i
         </span>
       </button>
       <span
         id={id}
         role="tooltip"
-        className={`absolute bottom-full left-0 z-20 mb-2 w-72 max-w-full rounded-tile border border-ink bg-surface p-3 text-xs leading-relaxed text-ink shadow-lg group-hover:block ${
+        className={`absolute bottom-full left-0 z-(--z-popover) mb-2 w-72 max-w-full rounded-tile border border-ink bg-surface p-3 text-xs leading-relaxed text-ink shadow-lg group-hover:block ${
           open ? 'block' : 'hidden'
         }`}
       >
@@ -230,7 +232,7 @@ function PointsForm({
         save(points)
       }}
     >
-      <OwnAnswer text={task.answer_text ?? ''} />
+      <OwnAnswer text={task.answer_text} />
       <OfficialSolution task={task} />
       <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none">
         <legend className="mb-2 text-sm text-ink-soft">
@@ -295,7 +297,7 @@ function PointsForm({
 function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: boolean }) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="font-serif text-2xl text-primary">Kartenaufgabe abgeschlossen</h2>
+      <h2 className={sectionHeading}>Kartenaufgabe abgeschlossen</h2>
       <p className="text-ink">
         Du hast dir <strong>{attempt.points}</strong> von {attempt.max_points} Punkten gegeben.
       </p>
@@ -308,7 +310,7 @@ function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: bool
       <Link to="/charts" className={`${buttonClass('primary')} self-start`}>
         Zur Übersicht
       </Link>
-      <h3 className="font-serif text-xl text-ink">Alle Aufgaben</h3>
+      <h3 className={subsectionHeading}>Alle Aufgaben</h3>
       <ChartTaskHistory attempt={attempt} />
     </section>
   )

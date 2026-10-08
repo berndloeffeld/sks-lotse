@@ -2,6 +2,7 @@ import type { ChartSheet } from '../chartCatalog'
 import { taskView } from '../chartGuestRun'
 import { pointsLabel } from '../chartPoints'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
+import { sectionHeading } from './headingStyles'
 
 // Every task of a sheet with its official solution, each folded shut, below the sheet's page
 // (ADR-0056, like TopicQuestionList for a topic): to look one up, and so the page's HTML carries the
@@ -9,7 +10,7 @@ import { ChartTaskText, OfficialSolution } from './ChartContent'
 export function ChartSheetTaskList({ sheet }: { sheet: ChartSheet }) {
   return (
     <section aria-labelledby="sheet-tasks" className="flex flex-col gap-3 border-t border-border pt-8">
-      <h2 id="sheet-tasks" className="font-serif text-2xl text-primary">
+      <h2 id="sheet-tasks" className={sectionHeading}>
         Alle Aufgaben dieser Kartenaufgabe
       </h2>
       <ul className="flex flex-col">

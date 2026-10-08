@@ -8,7 +8,7 @@ import { buttonClass } from '../components/buttonStyles'
 import { ExamOverview } from '../components/ExamOverview'
 import { FocusBand } from '../components/FocusBand'
 import { LearnModePanel, LearnModeTabs, RefreshPanel } from '../components/LearnModes'
-import { LedgerRow } from '../components/LedgerRow'
+import { LedgerRow, TopicName } from '../components/LedgerRow'
 import { ErrorMessage } from '../components/Messages'
 import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
@@ -19,6 +19,7 @@ import { useProgressSummary } from '../hooks/useProgressSummary'
 import { SUBJECT_LABELS } from '../labels'
 import { learnModes, type LearnMode } from '../navigation'
 import { useAuthStore } from '../store/authStore'
+import { sectionHeading } from '../components/headingStyles'
 
 // The Lernstand, banded like the landing page: overall progress, the
 // per-category pie and the exam-variant picker as three columns, then the
@@ -85,7 +86,7 @@ function LearnContent() {
             <Columns className="sm:grid-cols-2">
               {Array.from(bySubject.entries()).map(([subject, topics]) => (
                 <div key={subject} className="flex flex-col gap-2">
-                  <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
+                  <h2 className={sectionHeading}>{SUBJECT_LABELS[subject] ?? subject}</h2>
                   <div>
                     {topics.map((topic) => (
                       <LedgerRow
@@ -143,7 +144,7 @@ function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
     <Columns className="sm:grid-cols-2">
       {Array.from(topicsBySubject(catalog.topics).entries()).map(([subject, topics]) => (
         <div key={subject} className="flex flex-col gap-2">
-          <h3 className="font-serif text-2xl text-primary">{SUBJECT_LABELS[subject] ?? subject}</h3>
+          <h2 className={sectionHeading}>{SUBJECT_LABELS[subject] ?? subject}</h2>
           <div>
             {topics.map((topic) => (
               <div
@@ -158,6 +159,7 @@ function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
                 </div>
                 <Link to={`/learn/${subject}/${topic.slug}`} className={buttonClass('secondary', { size: 'compact' })}>
                   Lernen starten
+                  <TopicName title={topic.name} />
                 </Link>
               </div>
             ))}
