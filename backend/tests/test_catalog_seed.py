@@ -1,5 +1,4 @@
 import dataclasses
-import functools
 import re
 
 import pytest
@@ -46,6 +45,16 @@ def test_parse_catalog_pdf_matches_known_counts():
     }
 
 
+def test_parse_catalog_pdf_parses_once_and_hands_out_independent_lists():
+    first = parse_catalog_pdf()
+    hits = catalog_seed._parse_catalog_pdf.cache_info().hits
+    first.clear()
+
+    second = parse_catalog_pdf()
+    assert len(second) == 638
+    assert catalog_seed._parse_catalog_pdf.cache_info().hits == hits + 1
+
+
 def test_every_parsed_question_has_an_answer_apart_from_the_sketches():
     questions = list(_parsed_catalog().values())
 
@@ -55,8 +64,8 @@ def test_every_parsed_question_has_an_answer_apart_from_the_sketches():
     assert not any(ANSWER_START in q.question_text + q.answer_text for q in questions)
 
 
-@functools.cache
 def _parsed_catalog():
+    # parse_catalog_pdf parses once per process, so this is cheap to call per test.
     return {(q.subject, q.number): q for q in parse_catalog_pdf()}
 
 
@@ -268,10 +277,10 @@ def test_sync_updates_changed_rows_and_removes_vanished_ones(db_session):
     assert db_session.query(Question).filter_by(subject=removed.subject, number=removed.number).count() == 0
 
 
-def test_sync_only_needs_the_columns_that_existed_when_the_oldest_syncing_migration_ran():
+def test_sync_only_needs_the_columns_that_existed_when_the_syncing_migration_ran():
     # The data migrations run sync_catalog against the schema of *their*
     # revision, not head's. Tables with exactly the columns as of revision
-    # e5b3a9c1d720 (the oldest one that still syncs) must be enough — a
+    # e5b3a9c1d720 (the only one that still syncs) must be enough — a
     # column the ORM models gained later must never end up in its statements.
     engine = create_engine("sqlite:///:memory:")
     with engine.begin() as connection:
