@@ -296,7 +296,7 @@ describe('ExamRunPage', () => {
     await user.tab()
     expect(screen.getByLabelText('Richtig')).toHaveFocus()
     await user.tab()
-    expect(screen.getByLabelText('Teilweise Richtig')).toHaveFocus()
+    expect(screen.getByLabelText('Teilweise richtig')).toHaveFocus()
     await user.tab()
     expect(screen.getByLabelText('Falsch')).toHaveFocus()
     await user.tab()
@@ -367,7 +367,7 @@ describe('ExamRunPage', () => {
     await user.click(await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
 
     expect(await screen.findByText('Fast richtig.')).toBeInTheDocument()
-    expect(screen.getByLabelText('Teilweise Richtig')).toBeChecked()
+    expect(screen.getByLabelText('Teilweise richtig')).toBeChecked()
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/questions/1/ai-grade'),
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ answer: 'Meine A1' }) }),
@@ -457,7 +457,7 @@ describe('ExamRunPage', () => {
       ),
     )
     renderRun()
-    await user.click(await screen.findByLabelText('Teilweise Richtig'))
+    await user.click(await screen.findByLabelText('Teilweise richtig'))
     await user.click(screen.getByRole('button', { name: 'Weiter' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Bewertung konnte nicht gespeichert werden.')
   })

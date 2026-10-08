@@ -55,7 +55,7 @@ export function LotseCheckButton({
   const canPay = balance >= cost
   const canBuy = user?.can_buy_tokens ?? false
   const cannotPay = isGuest ? 'Mit Anmeldung, Start-Tokens geschenkt' : canBuy ? 'Keine Tokens mehr' : 'bald verfügbar'
-  const price = cost === 1 ? `${balance} Token(s)` : `${cost} Tokens, du hast ${balance}`
+  const price = `${cost} ${cost === 1 ? 'Token' : 'Tokens'} · du hast ${balance}`
 
   let hint = `${pitch} · ${price}`
   if (isChecking) hint = 'Lotse prüft…'

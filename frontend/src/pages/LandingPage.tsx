@@ -52,7 +52,7 @@ const SCREENSHOTS = [
     height: 388,
     title: '3. Selbst bewerten – mit KI-Vorschlag',
     text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Auf Wunsch schlägt dir der Lotsen-Check per KI eine Bewertung vor – die Entscheidung bleibt bei dir.',
-    alt: 'Screenshot: Auswahl Richtig, Teilweise Richtig, Falsch und darunter die Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „Die KI schlägt dir eine Bewertung vor“ und einem KI-Band.',
+    alt: 'Screenshot: Auswahl Richtig, Teilweise richtig, Falsch und darunter die Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „Die KI schlägt dir eine Bewertung vor“ und einem KI-Band.',
     wide: false,
   },
   {
@@ -327,8 +327,7 @@ export function LandingPage() {
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
                 Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
-                Katalogfrage, zwei pro Kartenaufgabe, ohne Abo), dazu gibt es optional „Werbefrei“. Die aktuellen Preise
-                stehen auf der{' '}
+                Katalogfrage, zwei je Aufgabe einer Kartenaufgabe, ohne Abo). Die aktuellen Preise stehen auf der{' '}
                 <Link to="/pricing" className="underline hover:text-surface">
                   Preise-Seite
                 </Link>

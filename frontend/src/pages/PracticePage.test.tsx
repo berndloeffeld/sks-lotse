@@ -158,7 +158,7 @@ describe('PracticePage', () => {
     await user.type(await screen.findByLabelText(/Deine Antwort/), 'irgendwas')
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
     const ask = screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
-    for (const name of ['Richtig', 'Teilweise Richtig', 'Falsch']) {
+    for (const name of ['Richtig', 'Teilweise richtig', 'Falsch']) {
       await user.tab()
       expect(screen.getByRole('radio', { name })).toHaveFocus()
     }
@@ -172,7 +172,7 @@ describe('PracticePage', () => {
     // After the check, focus lands on the suggested radio.
     await user.click(screen.getByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ }))
     await screen.findByText('Fast.')
-    expect(screen.getByRole('radio', { name: 'Teilweise Richtig' })).toHaveFocus()
+    expect(screen.getByRole('radio', { name: 'Teilweise richtig' })).toHaveFocus()
   })
 
   it('Enter on the Lotsen-Check suggestion saves it and moves to the next question', async () => {
@@ -338,7 +338,7 @@ describe('PracticePage', () => {
     })
     renderPracticePage()
 
-    await revealAndGrade('Teilweise Richtig')
+    await revealAndGrade('Teilweise richtig')
 
     expect(await screen.findByRole('status')).toHaveTextContent('Zurückgefallen')
   })
@@ -419,7 +419,7 @@ describe('PracticePage', () => {
     await user.keyboard('{Enter}')
     expect(await screen.findByText('Amtliche Antwort')).toBeInTheDocument()
 
-    const focusOrder = ['Richtig', 'Teilweise Richtig', 'Falsch', 'Richtig']
+    const focusOrder = ['Richtig', 'Teilweise richtig', 'Falsch', 'Richtig']
     for (const name of focusOrder) {
       await user.tab()
       expect(screen.getByRole('radio', { name })).toHaveFocus()

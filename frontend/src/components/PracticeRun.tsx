@@ -69,7 +69,7 @@ interface PracticeRunProps {
 
 // The learning loop for one run (ADR-0023): read the question, optionally
 // jot down an answer, reveal the official answer, assess yourself —
-// Richtig / Teilweise Richtig / Falsch — and watch the boat move (CourseGauge).
+// Richtig / Teilweise richtig / Falsch — and watch the boat move (CourseGauge).
 export function PracticeRun({
   questions,
   standings,
