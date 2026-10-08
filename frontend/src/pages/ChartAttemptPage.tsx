@@ -7,13 +7,14 @@ import { PageLayout } from '../components/PageLayout'
 import { useChartAttempt, useChartOverview } from '../hooks/useChartAttempt'
 import { useTideForm } from '../hooks/useTideForm'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { ErrorMessage } from '../components/Messages'
 
 // One run through a Kartenaufgabe: the current task on the left, the Formblatt and the tasks so far
 // beside it — or, on a phone, behind the bar at the bottom of the screen.
 export function ChartAttemptPage() {
   const { id } = useParams()
   const navigate = useNavigateWhileMounted()
-  const { attempt, isLoading, error, answer, awardPoints, aiCheck } = useChartAttempt(id)
+  const { attempt, isLoading, error, reload, answer, awardPoints, aiCheck } = useChartAttempt(id)
   const { overview } = useChartOverview()
   const tideForm = useTideForm(id ?? '')
 
@@ -25,11 +26,7 @@ export function ChartAttemptPage() {
       immersive
     >
       {isLoading ? <p className="text-ink-soft">Kartenaufgabe wird geladen…</p> : null}
-      {error ? (
-        <p role="alert" className="text-danger">
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage onRetry={reload}>{error}</ErrorMessage>
       {attempt ? (
         <div className="grid gap-8 pb-16 lg:grid-cols-[minmax(0,1fr)_28rem] lg:pb-0">
           <div className="flex flex-col gap-8">

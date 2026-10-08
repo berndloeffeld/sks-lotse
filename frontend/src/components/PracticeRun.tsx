@@ -15,6 +15,7 @@ import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
 import { SelfAssessment } from './SelfAssessment'
+import { buttonClass } from './buttonStyles'
 
 type Phase = 'answer' | 'assess'
 
@@ -176,15 +177,11 @@ export function PracticeRun({
         </p>
         <div className="flex flex-wrap gap-3">
           {keepOrder || keepLearned ? null : (
-            <button
-              type="button"
-              className="rounded-tile border border-primary px-4 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"
-              onClick={() => startRun(true)}
-            >
+            <button type="button" className={buttonClass('secondary')} onClick={() => startRun(true)}>
               Alle Fragen wiederholen
             </button>
           )}
-          <Link to={exit.to} className={styles.button}>
+          <Link to={exit.to} className={buttonClass('primary')}>
             {exit.label}
           </Link>
         </div>
@@ -220,7 +217,7 @@ export function PracticeRun({
             Verblasstes zurück und zeigt deinen Lernstand auf jedem Gerät.
           </GuestCta>
         ) : null}
-        <Link to={exit.to} className={styles.button}>
+        <Link to={exit.to} className={buttonClass('primary')}>
           {exit.label}
         </Link>
       </section>
@@ -290,7 +287,7 @@ export function PracticeRun({
               <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
             ) : null}
           </label>
-          <button type="button" className={styles.button} onClick={() => setPhase('assess')}>
+          <button type="button" className={buttonClass('primary')} onClick={() => setPhase('assess')}>
             Lösung anzeigen
           </button>
         </>

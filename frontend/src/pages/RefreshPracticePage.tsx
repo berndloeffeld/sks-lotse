@@ -1,6 +1,7 @@
 import { PageLayout } from '../components/PageLayout'
 import { PracticeRun, type RunExit } from '../components/PracticeRun'
 import { usePracticeSession } from '../hooks/usePracticeSession'
+import { ErrorMessage } from '../components/Messages'
 
 const EXIT: RunExit = { to: '/learn?modus=refresh', label: 'Zum Auffrischen' }
 
@@ -13,7 +14,7 @@ const EMPTY_STATE = {
 // are about to (ADR-0049). The server picks them; the list is fetched once, so the run stays as
 // it was when it started.
 export function RefreshPracticePage() {
-  const { data, isLoading, failed, onGraded, contextLabel } = usePracticeSession(
+  const { data, isLoading, failed, reload, onGraded, contextLabel } = usePracticeSession(
     'refresh-session',
     '/progress/refresh/questions',
     'refresh_session_start',
@@ -29,7 +30,7 @@ export function RefreshPracticePage() {
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : failed || !data ? (
-        <p className="text-sm text-danger">Die Fragen konnten nicht geladen werden.</p>
+        <ErrorMessage onRetry={reload}>Die Fragen konnten nicht geladen werden.</ErrorMessage>
       ) : (
         <PracticeRun
           questions={data.questions}

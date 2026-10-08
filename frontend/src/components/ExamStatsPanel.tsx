@@ -5,6 +5,7 @@ import type { ExamStats } from '../api/types'
 import { formatDateTime, percentOf } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { EXAM_RESULT_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
+import { ErrorMessage } from './Messages'
 
 function Figure({ label, value }: { label: string; value: string }) {
   return (
@@ -24,7 +25,7 @@ export function ExamStatsPanel() {
   return (
     <div className="flex flex-col gap-6">
       <h2 className="font-serif text-3xl text-ink">Prüfungsstatistik</h2>
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      <ErrorMessage onRetry={query.reload}>{error}</ErrorMessage>
       {!stats && !error ? <p className="text-sm text-ink-soft">Wird geladen…</p> : null}
       {stats && stats.completed_count === 0 ? <p className="text-ink-soft">Noch keine Prüfung abgeschlossen.</p> : null}
       {stats && stats.completed_count > 0 ? (

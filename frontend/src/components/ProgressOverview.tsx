@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { Columns } from './Bands'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'
+import { ErrorMessage } from './Messages'
 
 interface ProgressOverviewProps {
   totals: { learned: number; learning: number; total: number }
@@ -41,7 +42,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
         <h2 className="font-serif text-2xl text-primary">Prüfungsvariante</h2>
         <p className="text-sm leading-relaxed text-ink-soft">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
         <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSaving} />
-        {error ? <p className="text-sm text-danger">{error}</p> : null}
+        <ErrorMessage>{error}</ErrorMessage>
       </div>
     </Columns>
   )

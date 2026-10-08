@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { percentOf } from '../format'
+import { buttonClass } from './buttonStyles'
 
 interface LedgerRowProps {
   title: string
@@ -24,7 +25,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
   const percent = percentOf(learned, total)
   const learningPercent = percentOf(learning, total)
   const done = total > 0 && learned >= total
-  const action = 'border px-3 py-1.5 font-mono text-xs tracking-wide uppercase'
+  const action = buttonClass('secondary', { size: 'compact' })
 
   return (
     <div
@@ -65,11 +66,11 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
         </div>
       </div>
       {to && total > 0 ? (
-        <Link to={to} className={`${action} border-primary text-primary hover:bg-primary hover:text-surface`}>
+        <Link to={to} className={action}>
           {done ? 'Wiederholen' : 'Lernen starten'}
         </Link>
       ) : (
-        <button type="button" disabled className={`${action} border-border text-ink-soft disabled:cursor-not-allowed`}>
+        <button type="button" disabled className={`${action} disabled:cursor-not-allowed`}>
           Lernen starten
         </button>
       )}

@@ -25,6 +25,7 @@ export function Modal({
   onClose,
   initialFocusRef,
   placement = 'center',
+  describedBy,
   className = '',
   children,
   ...labelled
@@ -32,6 +33,7 @@ export function Modal({
   onClose?: () => void
   initialFocusRef?: RefObject<HTMLElement | null>
   placement?: keyof typeof PLACEMENT
+  describedBy?: string
   className?: string
   children: ReactNode
 }) {
@@ -56,6 +58,7 @@ export function Modal({
         aria-modal="true"
         aria-label={labelled.label}
         aria-labelledby={labelled.labelledBy}
+        aria-describedby={describedBy}
         className={`${styles.panel} ${className}`}
       >
         {children}

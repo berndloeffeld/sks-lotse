@@ -5,7 +5,7 @@ import type { RefreshSummary } from '../api/types'
 import { percentOf } from '../format'
 import { learnModes, type LearnMode } from '../navigation'
 import { Band } from './Bands'
-import { formStyles } from './formStyles'
+import { buttonClass } from './buttonStyles'
 
 const LEARN_MODES: { id: LearnMode; label: string }[] = [
   { id: 'topic', label: 'Nach Thema' },
@@ -93,7 +93,7 @@ export function RefreshPanel({ summary }: RefreshPanelProps) {
       <div className="flex items-center justify-between gap-4 pr-2">
         <h2 className="font-serif text-3xl text-primary">Auffrischen</h2>
         {due > 0 ? (
-          <Link to="/learn/refresh" className={formStyles('light').button}>
+          <Link to="/learn/refresh" className={buttonClass('primary')}>
             Auffrischen starten
           </Link>
         ) : null}

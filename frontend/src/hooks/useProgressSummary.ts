@@ -108,6 +108,7 @@ export function useProgressSummary() {
     progress,
     isLoading,
     error,
+    reload: fetchProgress,
     totals,
     categories: Array.from(categoryMap.values()),
     bySubject,

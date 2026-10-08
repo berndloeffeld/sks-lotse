@@ -5,9 +5,8 @@ import type { GradingOutcome } from '../api/types'
 import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { scrollBelowIntoView } from '../scroll'
 import { AiAnswerCheck } from './AiAnswerCheck'
-import { formStyles } from './formStyles'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 interface SelfAssessmentProps {
   // Radio group name, unique per page.
@@ -139,16 +138,12 @@ export function SelfAssessment({ name, onSave, saveErrorMessage, aiCheck, layout
         />
       ) : null}
 
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage>{error}</ErrorMessage>
 
       <button
         ref={continueRef}
         type="button"
-        className={styles.button}
+        className={buttonClass('primary')}
         disabled={!outcome || isSaving}
         onClick={() => void save(outcome)}
       >

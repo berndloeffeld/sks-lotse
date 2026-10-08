@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { loginState } from '../returnPath'
-import { formStyles } from './formStyles'
+import { buttonClass } from './buttonStyles'
 
 // The way to /login for a guest, from wherever they are: the login brings them back here
 // afterwards (returnPath.ts).
@@ -21,7 +21,7 @@ export function GuestCta({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-tile border border-primary bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="max-w-xl text-sm text-ink">{children}</p>
-      <LoginLink className={`${formStyles('light').button} shrink-0`}>Kostenlos anmelden</LoginLink>
+      <LoginLink className={`${buttonClass('primary')} shrink-0`}>Kostenlos anmelden</LoginLink>
     </div>
   )
 }

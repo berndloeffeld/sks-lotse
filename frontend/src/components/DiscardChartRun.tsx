@@ -3,9 +3,8 @@ import { useState } from 'react'
 import { apiClient } from '../api/client'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { forgetTideForm } from '../hooks/useTideForm'
-import { formStyles } from './formStyles'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 // Deletes a run (its answers and points) after a confirmation — the way to start the same
 // Kartenaufgabe over, since only one run per exercise can be open. Offered where the run is seen as
@@ -36,23 +35,23 @@ export function DiscardChartRun({
       {confirming ? (
         <div className="flex flex-wrap items-center gap-4">
           <p className="text-sm text-ink">Antworten und Punkte dieses Durchgangs werden gelöscht.</p>
-          <button type="button" className={styles.button} disabled={isPending} onClick={() => void discard()}>
+          <button type="button" className={buttonClass('danger')} disabled={isPending} onClick={() => void discard()}>
             {isPending ? 'Wird gelöscht…' : 'Endgültig löschen'}
           </button>
-          <button type="button" className={styles.link} onClick={() => setConfirming(false)}>
+          <button type="button" className={buttonClass('tertiary')} onClick={() => setConfirming(false)}>
             Abbrechen
           </button>
         </div>
       ) : (
-        <button type="button" className={`${styles.link} self-start`} onClick={() => setConfirming(true)}>
+        <button
+          type="button"
+          className={`${buttonClass('dangerOutline')} self-start`}
+          onClick={() => setConfirming(true)}
+        >
           {label}
         </button>
       )}
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage>{error}</ErrorMessage>
     </section>
   )
 }
