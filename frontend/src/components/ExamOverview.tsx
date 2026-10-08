@@ -14,6 +14,7 @@ import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 const STATUS_LABELS = {
   in_progress: 'Läuft',
@@ -108,7 +109,7 @@ export function ExamOverview() {
       </section>
 
       <section>
-        <h2 className="font-serif text-2xl text-ink">Bisherige Prüfungen</h2>
+        <h2 className={sectionHeading}>Bisherige Prüfungen</h2>
         {exams === null && !examsQuery.failed ? <p className="mt-3 text-ink-soft">Wird geladen…</p> : null}
         {exams?.length === 0 ? <p className="mt-3 text-ink-soft">Noch keine Prüfung abgelegt.</p> : null}
         <ul className="mt-3 flex flex-col">

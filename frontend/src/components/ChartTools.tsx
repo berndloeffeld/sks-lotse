@@ -4,7 +4,8 @@ import type { ChartAttempt, ChartExercisesOverview } from '../api/types'
 import { pointsLabel } from '../chartPoints'
 import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
-import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
+import { OwnAnswer } from './AnswerBox'
+import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { TideFormFields } from './TideFormFields'
 import { buttonClass } from './buttonStyles'
 import { Modal } from './Modal'
@@ -38,7 +39,7 @@ export function TideForm({ overview }: { overview: ChartExercisesOverview | null
         width={overview.tide_form.width}
         height={overview.tide_form.height}
         alt="Formblatt Gezeiten (leer)"
-        className="h-auto max-w-full rounded border border-border bg-white"
+        className="h-auto max-w-full rounded-tile border border-border bg-surface"
       />
     </div>
   )
@@ -75,7 +76,7 @@ export function ChartTaskHistory({ attempt }: { attempt: ChartAttempt }) {
             </summary>
             <div className="flex flex-col gap-3 pb-3">
               <ChartTaskText task={task} />
-              <OwnAnswer text={task.answer_text ?? ''} />
+              <OwnAnswer text={task.answer_text} />
               <OfficialSolution task={task} />
               {task.ai_suggestion ? (
                 <ChartAiSuggestionView suggestion={task.ai_suggestion} maxPoints={task.max_points} hint={false} />
@@ -179,7 +180,7 @@ export function ChartToolBar(props: ToolsProps) {
     <>
       <nav
         aria-label="Hilfsmittel"
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-surface py-2"
+        className="fixed inset-x-0 bottom-0 z-(--z-bar) flex justify-around border-t border-border bg-surface py-2"
       >
         {PANEL_KEYS.map((key) => (
           <button

@@ -42,7 +42,7 @@ function LearnerHistory({ users }: { users: History['users'] }) {
             id={selectId}
             value={learner.user_id}
             onChange={(event) => setSelectedId(Number(event.target.value))}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           >
             {users.map((u) => (
               <option key={u.user_id} value={u.user_id}>

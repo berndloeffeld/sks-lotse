@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { apiClient } from '../api/client'
 import type { Question, Topic } from '../api/types'
 import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
-import { OfficialAnswer } from '../components/OfficialAnswer'
+import { OfficialAnswerBox } from '../components/AnswerBox'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
@@ -55,7 +55,7 @@ export function AdminQuestionsPage() {
             maxLength={200}
             value={input.q}
             onChange={(event) => setInput({ ...input, q: event.target.value })}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="question-subject">
@@ -64,7 +64,7 @@ export function AdminQuestionsPage() {
             id="question-subject"
             value={input.subject}
             onChange={(event) => setInput({ ...input, subject: event.target.value, topic: '' })}
-            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           >
             <option value="">Alle Fächer</option>
             {Object.entries(SUBJECT_LABELS).map(([subject, label]) => (
@@ -81,7 +81,7 @@ export function AdminQuestionsPage() {
               id="question-topic"
               value={input.topic}
               onChange={(event) => setInput({ ...input, topic: event.target.value })}
-              className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+              className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
             >
               <option value="">Alle Themen</option>
               {topics.data.map((topic) => (
@@ -114,10 +114,7 @@ export function AdminQuestionsPage() {
                   <RichText text={question.question_text} />
                 </p>
                 <QuestionImages images={question.question_images} part="question" />
-                <div className="border-t border-border pt-3 text-sm text-ink">
-                  <p className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Antwort</p>
-                  <OfficialAnswer text={question.answer_text} images={question.answer_images} />
-                </div>
+                <OfficialAnswerBox text={question.answer_text} images={question.answer_images} headingLevel={2} />
                 <AdminQuestionHistory questionId={question.id} />
               </li>
             ))}

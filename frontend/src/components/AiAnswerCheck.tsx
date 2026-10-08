@@ -84,7 +84,7 @@ export function AiAnswerCheck({
           role="status"
           className="flex flex-col gap-1 rounded-tile border-l-4 border-accent bg-surface px-3 py-2"
         >
-          <h3 className="font-mono text-xs tracking-wide text-accent uppercase">
+          <h3 className="font-mono text-xs tracking-wide text-accent-strong uppercase">
             Lotsen-Vorschlag: {OUTCOME_LABELS[result.outcome]}
           </h3>
           <p className="text-sm text-ink-soft">{result.feedback}</p>

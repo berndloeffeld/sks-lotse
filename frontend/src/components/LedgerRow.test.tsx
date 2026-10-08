@@ -16,13 +16,13 @@ describe('LedgerRow', () => {
   it('renders "Lernen starten" as disabled without a target', () => {
     render(<LedgerRow title="Ankern" learned={0} total={7} />)
 
-    expect(screen.getByRole('button', { name: 'Lernen starten' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Lernen starten: Ankern' })).toBeDisabled()
   })
 
   it('renders "Lernen starten" as disabled for a topic without questions', () => {
     render(<LedgerRow title="Ankern" learned={0} total={0} to="/learn/navigation/ankern" />)
 
-    expect(screen.getByRole('button', { name: 'Lernen starten' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Lernen starten: Ankern' })).toBeDisabled()
   })
 
   it('links "Lernen starten" to the topic', () => {
@@ -32,7 +32,10 @@ describe('LedgerRow', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('link', { name: 'Lernen starten' })).toHaveAttribute('href', '/learn/navigation/ankern')
+    expect(screen.getByRole('link', { name: 'Lernen starten: Ankern' })).toHaveAttribute(
+      'href',
+      '/learn/navigation/ankern',
+    )
   })
 
   it('shows the count of partially learned questions', () => {
@@ -68,7 +71,7 @@ describe('LedgerRow', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('link', { name: 'Wiederholen' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Wiederholen: Ankern' })).toBeInTheDocument()
     expect(screen.getByText('✓')).toBeInTheDocument()
   })
 

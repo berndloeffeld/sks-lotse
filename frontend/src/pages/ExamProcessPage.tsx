@@ -7,6 +7,7 @@ import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
 import { useAuthStore } from '../store/authStore'
 import { buttonClass } from '../components/buttonStyles'
+import { sectionHeading, subsectionHeading } from '../components/headingStyles'
 
 interface SectionProps {
   icon?: ReactNode
@@ -23,7 +24,7 @@ function Section({ icon, title, children }: SectionProps) {
             {icon}
           </span>
         ) : null}
-        <h2 className="font-serif text-xl text-primary">{title}</h2>
+        <h2 className={sectionHeading}>{title}</h2>
       </div>
       <div className="flex flex-col gap-3 text-ink-soft">{children}</div>
     </section>
@@ -113,7 +114,7 @@ export function ExamProcessPage() {
       <Section title="Kurz beantwortet">
         {EXAM_PROCESS_FAQ.map(({ question, answer }) => (
           <div key={question} className="flex flex-col gap-1">
-            <h3 className="font-serif text-lg text-primary">{question}</h3>
+            <h3 className={subsectionHeading}>{question}</h3>
             <p>{answer}</p>
           </div>
         ))}

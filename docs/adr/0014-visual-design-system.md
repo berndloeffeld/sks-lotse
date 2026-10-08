@@ -1,6 +1,6 @@
 # 0014. Visual design system: palette, typography, and core UI patterns
 
-Status: Accepted — the "Lot gauge" bullet is superseded by [ADR-0024](0024-course-gauge-without-visible-step-count.md)
+Status: Accepted — the "Lot gauge" bullet is superseded by [ADR-0024](0024-course-gauge-without-visible-step-count.md); amended by the addendum below (2026-10-08): contrast tokens, the pill exception, heading looks and the answer box
 
 ## Context
 
@@ -58,3 +58,17 @@ The mockups themselves live in a private, external design tool (interactive HTML
 - Rejected: a semicircular "engine telegraph" dial, and separately a bordered 3-cell segmented control, for the self-assessment step — both felt bulky and out of place next to the plain hairline-separated sections around them. A bare vertical radio list, with no color or icon coding, was simpler and read better.
 - Rejected: color-coding (red/amber/green) and icon glyphs (✕ / half-filled circle / ✓) for the three grading outcomes — plain text labels only, to avoid leaning on color as the only signal and to avoid another "traffic light" cliché already used by competitors.
 - The design canvas itself is not preserved in this repository; this ADR is the source of truth if that external link is ever lost. Screens can be reconstructed from the tokens and component descriptions above if needed.
+
+## Addendum (2026-10-08): contrast, size and stacking tokens, the pill exception, two heading looks, one answer box
+
+A UX review recomputed the token pairs with the WCAG formula. The primary button (`surface` on `accent`, 3.69:1) was the weakest text in the app, and several other pairs fell just short of 4.5:1. The review also found components bypassing the tokens (`white`, `rounded`, pixel font sizes, bare z-index numbers) and three different looks for the same "your answer vs. the official answer" comparison. The tokens live in `frontend/src/index.css`; what changed:
+
+- **`accent-strong` `#A0561E`**, new: the accent wherever it carries text, i.e. the primary button's fill (5.46:1 with `surface` on it) and accent-coloured words (5.46:1 on `surface`, 4.74:1 on `bg`). `accent` stays for lines, icons, bars and focus rings, which need 3:1. Chosen over `#935E30` and `#8A5A2E` from a rendered comparison.
+- **`primary` `#1F6F78` → `#1E6D76`**, barely darker. This lifts `surface-alt` text on primary bands (page subtitles, landing bands) and `primary` text on `surface-alt` from 4.49 to 4.62:1. Chosen over setting the subtitles in `surface`, which would have left the second pair failing.
+- Fully learned topics set their title in `ink` (green stays for the ✓); input borders are `ink-soft` (5.87:1 on `surface`), not `border` (1.70:1). Hairlines and dividers keep `border`, since they bound no control.
+- **`--text-2xs`** (0.6875rem): the one size below `xs`, for the tab-bar labels, the footer's copyright line and the "KI" ribbon. No pixel or rem literals for font sizes.
+- **z-index tokens** in `:root`, beside `--header-height`, used as `z-(--z-…)`: `--z-sticky` 10, `--z-popover` 20, `--z-bar` 30, `--z-header` 40 (the header and the phone tab bar), `--z-modal` 50.
+- `surface` instead of `white`, and `rounded-tile` instead of Tailwind's `rounded`. The exception is the admin's TOTP QR code, which needs true white whatever `surface` becomes.
+- **Pill exception**: the header's token counter and the "Gerade gekauft" label on the pricing page stay pills (`rounded-full`). They read as a counter and a sticker, not as buttons or cards, and the square-corner rule is about the latter. Nothing else is a pill.
+- **Two heading looks** (`frontend/src/components/headingStyles.ts`), following the level: `sectionHeading` for an h2 (`font-serif text-2xl text-primary`), `subsectionHeading` for an h3 (`font-serif text-xl text-ink`). The landing page's bands, the page title and dialog titles keep their own scale.
+- **One answer box** (`frontend/src/components/AnswerBox.tsx`): "Deine Antwort" with an `ink-soft` rule on `surface`, and "Amtliche Antwort"/"Amtliche Lösung" with a `primary` rule on `surface-alt`. It is used in practice, the topic's question list, the exam's grading and result, the Kartenaufgaben and the admin question search.

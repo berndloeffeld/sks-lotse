@@ -21,7 +21,7 @@ export function ChartAiSuggestionView({
 }) {
   return (
     <section role="status" className="flex flex-col gap-1 rounded-tile border-l-4 border-accent bg-surface px-3 py-2">
-      <h3 className="font-mono text-xs tracking-wide text-accent uppercase">
+      <h3 className="font-mono text-xs tracking-wide text-accent-strong uppercase">
         Lotsen-Vorschlag: {suggestion.points} von {maxPoints} {maxPoints === 1 ? 'Punkt' : 'Punkten'}
       </h3>
       <p className="text-sm text-ink-soft">{suggestion.feedback}</p>

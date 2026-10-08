@@ -7,7 +7,7 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import { ErrorMessage } from '../components/Messages'
 import { buttonClass } from '../components/buttonStyles'
 
-const INPUT = 'border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm'
+const INPUT = 'border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 
 function fetchBlocklist() {

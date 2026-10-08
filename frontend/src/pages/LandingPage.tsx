@@ -153,7 +153,7 @@ function ChartExercisesPreview() {
         <h3 id="kartenaufgaben" className="font-serif text-2xl text-primary">
           Kartenaufgaben
         </h3>
-        <span className="rounded-tile bg-accent px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase">
+        <span className="rounded-tile bg-accent-strong px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase">
           {open ? 'Neu' : 'Vorschau · bald verfügbar'}
         </span>
       </div>

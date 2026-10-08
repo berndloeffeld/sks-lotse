@@ -1,5 +1,6 @@
 import type { ChartAttemptTask, ChartDerivationBlock, ChartImage, ChartSolutionPart } from '../api/types'
 import { pointsLabel } from '../chartPoints'
+import { AnswerBox } from './AnswerBox'
 import { RichText } from './RichText'
 
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).
@@ -17,9 +18,9 @@ function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
             height={Math.round(image.height / 2)}
             alt={images.length > 1 ? `${alt}, Teil ${i + 1} von ${images.length}` : alt}
             // As wide as the column allows (the print is small at 1:1), but never past full resolution.
-            // Cut from the white PDF page; keep it white in dark mode.
+            // Cut from the white PDF page: on `surface` (white), transparent parts stay white.
             style={{ maxWidth: image.width }}
-            className="h-auto w-full rounded border border-border bg-white"
+            className="h-auto w-full rounded-tile border border-border bg-surface"
           />
         </a>
       ))}
@@ -43,15 +44,6 @@ export function ChartTaskText({ task }: { task: ChartAttemptTask }) {
         </p>
       ))}
     </div>
-  )
-}
-
-export function OwnAnswer({ text }: { text: string }) {
-  return (
-    <section className="flex flex-col gap-1 rounded-tile border-l-4 border-ink-soft bg-surface px-3 py-2">
-      <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Deine Antwort</h3>
-      <p className="text-sm whitespace-pre-line text-ink-soft">{text.trim() || '(keine Antwort)'}</p>
-    </section>
   )
 }
 
@@ -90,13 +82,13 @@ function SolutionResults({ part }: { part: ChartSolutionPart }) {
 function SolutionText({ parts }: { parts: ChartSolutionPart[] }) {
   if (parts.length === 1) {
     return (
-      <div className="text-sm text-ink">
+      <div className="text-ink">
         <SolutionResults part={parts[0]} />
       </div>
     )
   }
   return (
-    <ul className="flex flex-col gap-2 text-sm text-ink">
+    <ul className="flex flex-col gap-2 text-ink">
       {parts.map((part, i) => (
         <li key={i} className="flex gap-2">
           <span aria-hidden="true">•</span>
@@ -154,17 +146,16 @@ function DerivationText({ blocks }: { blocks: ChartDerivationBlock[] }) {
 /** The official results; the working that leads to them (tide tables, course conversions …) only on request. */
 export function OfficialSolution({ task }: { task: ChartAttemptTask }) {
   return (
-    <section className="flex flex-col gap-2 rounded-tile border-l-4 border-primary bg-surface-alt px-3 py-2">
-      <h3 className="font-mono text-xs tracking-wide text-ink-soft uppercase">Amtliche Lösung</h3>
+    <AnswerBox variant="official" title="Amtliche Lösung">
       <SolutionText parts={task.solution} />
       {task.derivation.length > 0 ? (
         <details>
-          <summary className="cursor-pointer text-sm text-primary">Herleitung anzeigen</summary>
+          <summary className="cursor-pointer text-primary">Herleitung anzeigen</summary>
           <div className="pt-2">
             <DerivationText blocks={task.derivation} />
           </div>
         </details>
       ) : null}
-    </section>
+    </AnswerBox>
   )
 }

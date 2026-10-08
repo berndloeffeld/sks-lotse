@@ -19,6 +19,7 @@ import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { NotFoundPage } from './NotFoundPage'
 import { ErrorMessage } from '../components/Messages'
 import { buttonClass } from '../components/buttonStyles'
+import { sectionHeading } from '../components/headingStyles'
 
 // What the learner needs on the table — none of it is part of SKS Lotse.
 const OWN_MATERIAL = [
@@ -254,7 +255,7 @@ function OwnMaterial({ confirm, ready, onReady }: OwnMaterialProps) {
       aria-labelledby="own-material"
       className="flex flex-col gap-3 rounded-tile border-2 border-accent bg-surface p-4"
     >
-      <h2 id="own-material" className="font-serif text-xl text-ink">
+      <h2 id="own-material" className={sectionHeading}>
         Das brauchst du selbst
       </h2>
       <p className="text-sm text-ink">

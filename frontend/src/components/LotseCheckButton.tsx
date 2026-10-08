@@ -13,7 +13,7 @@ function Ribbon() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute top-[8px] -right-[22px] w-[74px] rotate-45 bg-primary py-px text-center text-[0.7rem] leading-4 font-bold tracking-widest text-surface shadow-sm"
+      className="pointer-events-none absolute top-[8px] -right-[22px] w-[74px] rotate-45 bg-primary py-px text-center text-2xs leading-4 font-bold tracking-widest text-surface shadow-sm"
     >
       KI
     </span>

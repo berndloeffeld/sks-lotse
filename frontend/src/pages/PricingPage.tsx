@@ -13,6 +13,7 @@ import { PACKAGE_LABELS, type PackageProduct } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { ErrorMessage, StatusMessage } from '../components/Messages'
 import { buttonClass } from '../components/buttonStyles'
+import { sectionHeading } from '../components/headingStyles'
 
 // How long after the return from Stripe the balance is fetched once more: the webhook that credits
 // the tokens (ADR-0048) usually lands before the redirect, but isn't guaranteed to.
@@ -34,7 +35,7 @@ function useHydrated() {
 // The "bald verfügbar" kicker used throughout the app (LandingPage's PLANS cards, AiAnswerCheck's
 // teaser) for a feature that's designed but not purchasable yet.
 function SoonKicker() {
-  return <span className="font-mono text-xs font-bold tracking-wide text-accent uppercase">Bald verfügbar</span>
+  return <span className="font-mono text-xs font-bold tracking-wide text-accent-strong uppercase">Bald verfügbar</span>
 }
 
 function packageLabel(pkg: PublicTokenPackage) {
@@ -111,8 +112,9 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
               }}
               className="sr-only"
             />
+            {/* A pill like the header's token counter, the exception to ADR-0014's square corners. */}
             {boughtProduct === p.product ? (
-              <span className="absolute -top-3 right-3 rounded-full bg-success px-2.5 py-0.5 font-mono text-xs tracking-wide whitespace-nowrap text-white uppercase">
+              <span className="absolute -top-3 right-3 rounded-full bg-success px-2.5 py-0.5 font-mono text-xs tracking-wide whitespace-nowrap text-surface uppercase">
                 Gerade gekauft
               </span>
             ) : null}
@@ -243,7 +245,7 @@ export function PricingPage() {
       {data ? (
         <>
           <section className="flex flex-col gap-2">
-            <h2 className="font-serif text-xl text-primary">Tokens für den Lotsen-Check</h2>
+            <h2 className={sectionHeading}>Tokens für den Lotsen-Check</h2>
             <p className="text-ink-soft">
               Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Katalogfrage, eine Aufgabe
               einer Kartenaufgabe kostet zwei Tokens. Bei der Anmeldung gibt es {data.signup_bonus_tokens} Tokens

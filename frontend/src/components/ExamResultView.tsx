@@ -6,12 +6,13 @@ import type { Exam } from '../api/types'
 import { formatDateTime, percentOf } from '../format'
 import { EXAM_RESULT_LABELS, OUTCOME_LABELS, SUBJECT_GROUP_LABELS, VARIANT_LABELS } from '../labels'
 import type { ExamVariant } from '../api/types'
-import { OfficialAnswer } from './OfficialAnswer'
+import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 // The finished exam: points, result, per-subject score and every question
 // with the learner's own answer, the official one and the self-assessment.
@@ -58,7 +59,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
 
       {exam.group_scores ? (
         <section>
-          <h2 className="font-serif text-2xl text-ink">Nach Fach</h2>
+          <h2 className={sectionHeading}>Nach Fach</h2>
           <ul className="mt-3 flex flex-col gap-2">
             {exam.group_scores.map((g) => (
               <li key={g.subject_group} className="flex items-center gap-3">
@@ -76,7 +77,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
       ) : null}
 
       <section>
-        <h2 className="font-serif text-2xl text-ink">Alle Fragen</h2>
+        <h2 className={sectionHeading}>Alle Fragen</h2>
         <div className="mt-3 flex flex-col">
           {exam.questions.map((q) => (
             <details key={q.position} className="border-b border-border py-3">
@@ -89,18 +90,8 @@ export function ExamResultView({ exam }: { exam: Exam }) {
               </summary>
               <div className="mt-3 flex flex-col gap-3 pl-4">
                 <QuestionImages images={q.question_images} part="question" />
-                <div>
-                  <h3 className="text-sm text-ink-soft">Deine Antwort</h3>
-                  {q.answer_text?.trim() ? (
-                    <p className="whitespace-pre-line text-ink">{q.answer_text}</p>
-                  ) : (
-                    <p className="text-ink-soft italic">Nicht beantwortet.</p>
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-sm text-ink-soft">Amtliche Antwort</h3>
-                  <OfficialAnswer text={q.official_answer} images={q.official_answer_images} />
-                </div>
+                <OwnAnswer text={q.answer_text} />
+                <OfficialAnswerBox text={q.official_answer} images={q.official_answer_images} />
               </div>
             </details>
           ))}

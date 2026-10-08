@@ -6,6 +6,7 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import { formStyles } from './formStyles'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 const f = formStyles('light')
 
@@ -72,7 +73,7 @@ export function AdminMfaEnrol({ onVerified }: Props) {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="font-serif text-2xl text-ink">Zwei-Faktor-Anmeldung einrichten</h2>
+      <h2 className={sectionHeading}>Zwei-Faktor-Anmeldung einrichten</h2>
       <p className="max-w-prose text-sm text-ink-soft">
         Der Admin-Bereich ist zusätzlich durch einen Code aus einer Authenticator-App geschützt (z. B. Authy, Google
         Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich jede Stunde nach einem Code, und
@@ -114,7 +115,7 @@ export function AdminMfaEnrol({ onVerified }: Props) {
 export function AdminMfaVerify({ onVerified, recent = false }: Props & { recent?: boolean }) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="font-serif text-2xl text-ink">Code bestätigen</h2>
+      <h2 className={sectionHeading}>Code bestätigen</h2>
       <p className="max-w-prose text-sm text-ink-soft">
         {recent
           ? 'Export und Löschen eines Accounts brauchen einen frischen Code. Bitte den aktuellen Code aus deiner Authenticator-App eingeben und die Aktion danach wiederholen.'

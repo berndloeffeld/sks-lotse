@@ -72,7 +72,7 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
           onKeyDown={(event) => {
             if (event.key === 'Escape') close()
           }}
-          className="absolute top-full right-0 z-20 mt-2 w-[min(22rem,100%)] rounded-tile border border-ink bg-surface p-4 shadow-lg"
+          className="absolute top-full right-0 z-(--z-popover) mt-2 w-[min(22rem,100%)] rounded-tile border border-ink bg-surface p-4 shadow-lg"
         >
           {isSent ? (
             <div className="flex flex-col gap-3">

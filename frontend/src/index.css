@@ -10,9 +10,12 @@
   --color-border: #b9c9d0;
   --color-ink: #1e2a32;
   --color-ink-soft: #5b6670;
-  --color-primary: #1f6f78;
+  --color-primary: #1e6d76;
   --color-primary-dark: #164f56;
   --color-accent: #b8763c;
+  /* The accent where it carries text: the primary button's fill and accent-coloured words.
+     `accent` itself is for lines, icons, bars and focus rings, which need 3:1, not 4.5:1. */
+  --color-accent-strong: #a0561e;
   --color-success: #3d7a5c;
   --color-danger: #b24632;
 
@@ -23,6 +26,10 @@
   /* Flat, mostly square-cornered chrome (0-2px radius) per ADR-0014 — not
      Tailwind's default rounded-card idiom. */
   --radius-tile: 2px;
+
+  /* The smallest type: tab-bar labels, the footer's copyright line, corner ribbons. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: calc(1 / 0.6875);
 }
 
 /* Height of the sticky header (Header): what sticky bars sit below and what anchor jumps keep
@@ -30,6 +37,14 @@
    high and sticks. Not in @theme: it changes with the breakpoint. */
 :root {
   --header-height: 0px;
+
+  /* Stacking order, lowest first: bars that stick within the page, pop-overs opened from it, fixed
+     bottom bars, the header (and its phone counterpart, the tab bar), modal overlays. */
+  --z-sticky: 10;
+  --z-popover: 20;
+  --z-bar: 30;
+  --z-header: 40;
+  --z-modal: 50;
 }
 
 @media (width >= 40rem) {

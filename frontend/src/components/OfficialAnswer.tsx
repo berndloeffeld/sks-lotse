@@ -5,21 +5,13 @@ import { RichText } from './RichText'
 /**
  * The body of an official answer: its text, its images, and, for the few answers that are only a
  * sketch in the catalog PDF and whose sketch is missing, a sentence saying so. The heading and the
- * box around it are the caller's.
+ * box around it are OfficialAnswerBox's (AnswerBox.tsx).
  */
-export function OfficialAnswer({
-  text,
-  images,
-  textClassName = '',
-}: {
-  text: string | null | undefined
-  images: QuestionImage[]
-  textClassName?: string
-}) {
+export function OfficialAnswer({ text, images }: { text: string | null | undefined; images: QuestionImage[] }) {
   return (
     <>
       {text ? (
-        <p className={`whitespace-pre-line text-ink ${textClassName}`}>
+        <p className="whitespace-pre-line text-ink">
           <RichText text={text} />
         </p>
       ) : images.length === 0 ? (

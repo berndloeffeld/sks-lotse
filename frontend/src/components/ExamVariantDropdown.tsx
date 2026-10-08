@@ -18,7 +18,7 @@ export function ExamVariantDropdown({ value, onChange, disabled }: ExamVariantDr
         value={value ?? ''}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value as ExamVariant)}
-        className="border border-border bg-surface px-2 py-1 font-mono text-base text-ink normal-case sm:text-xs"
+        className="border border-ink-soft bg-surface px-2 py-1 font-mono text-base text-ink normal-case sm:text-xs"
       >
         <option value="" disabled>
           Wählen…

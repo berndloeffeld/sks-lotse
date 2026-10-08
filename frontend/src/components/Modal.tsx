@@ -47,7 +47,7 @@ export function Modal({
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- see above
     <div
       data-testid="modal-backdrop"
-      className={`fixed inset-0 z-50 flex ${styles.overlay}`}
+      className={`fixed inset-0 z-(--z-modal) flex ${styles.overlay}`}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose?.()
       }}

@@ -40,7 +40,7 @@ export function ChartTile({
       />
       {icon ? <div className={`mb-3 ${large ? 'text-primary' : 'text-ink'}`}>{icon}</div> : null}
       {label ? <span className="mb-1 font-mono text-xs tracking-wide text-ink-soft uppercase">{label}</span> : null}
-      <h3 className={`font-serif text-ink ${large ? 'text-2xl' : 'text-lg'}`}>{title}</h3>
+      <h2 className={`font-serif text-ink ${large ? 'text-2xl' : 'text-lg'}`}>{title}</h2>
       {description ? <p className="mt-1 text-sm text-ink-soft">{description}</p> : null}
       {footer ? <div className="mt-3 text-sm text-ink-soft">{footer}</div> : null}
       {badge ? (
