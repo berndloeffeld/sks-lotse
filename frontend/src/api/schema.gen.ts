@@ -63,6 +63,11 @@ export interface components {
             started_at: string;
             /** Completed At */
             completed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
             /** Tasks */
             tasks: components["schemas"]["AdminChartTaskExport"][];
         };
@@ -108,6 +113,11 @@ export interface components {
             graded_at: string | null;
             /** Timed Out */
             timed_out: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
             /** Questions */
             questions: components["schemas"]["AdminExamQuestionExport"][];
         };

@@ -166,6 +166,7 @@ class AdminExamAttemptExport(BaseModel):
     submitted_at: datetime | None
     graded_at: datetime | None
     timed_out: bool
+    created_at: datetime
     questions: list[AdminExamQuestionExport]
 
 
@@ -185,6 +186,7 @@ class AdminChartAttemptExport(BaseModel):
     exercise_number: int
     started_at: datetime
     completed_at: datetime | None
+    created_at: datetime
     tasks: list[AdminChartTaskExport]
 
 

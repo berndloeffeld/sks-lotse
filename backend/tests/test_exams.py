@@ -352,6 +352,7 @@ def test_admin_export_includes_exams(client, db_session, auth_headers, monkeypat
     assert len(export["exam_attempts"]) == 1
     attempt = export["exam_attempts"][0]
     assert attempt["exam_id"] == exam["id"]
+    assert attempt["created_at"]
     assert len(attempt["questions"]) == 30
     assert attempt["questions"][0]["answer_text"] == "Meine Antwort 1"
 

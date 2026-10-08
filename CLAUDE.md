@@ -38,7 +38,7 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer — for a Kartenaufgabe also the official derivation and the learner's answers to the earlier tasks of the same run (ADR-0058). Never anything about the account.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
 - **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/pricing` or `/admin` (ADR-0027 addendum 2026-09-23).
-- **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung.
+- **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung. `backend/tests/test_personal_data_coverage.py` fails on a table or column that deletion and export don't cover, until it is added there or listed with the reason it needs neither.
 
 ---
 
