@@ -53,7 +53,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
         <p className="mt-3 text-sm text-ink-soft">
           Gewertet wird nur der Fragebogen (ab 39 Punkten bestanden, 33–38 mündliche Nachprüfung). Die Kartenaufgabe der
           echten Prüfung ist nicht Teil der Simulation. Die Punkte beruhen auf deiner Selbsteinschätzung (Richtig 2,
-          Teilweise Richtig 1, Falsch 0).
+          Teilweise richtig 1, Falsch 0).
         </p>
       </section>
 

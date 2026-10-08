@@ -30,7 +30,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'lernmodi',
     question: 'Welche Lernmodi gibt es?',
     answer:
-      'Nach Thema: ein Fachgebiet nach dem anderen. Fokus: deine Stern-Themen, was du am längsten nicht richtig hattest, kommt zuerst. Auffrischen: 20 Fragen, die du schon sicher konntest und die möglicherweise verblasst sind oder bald verblassen könnten. Alle drei findest du unter [Lernen](/learn).',
+      'Nach Thema: ein Fachgebiet nach dem anderen. Fokus: deine Stern-Themen, was du am längsten nicht richtig hattest, kommt zuerst. Auffrischen: bis zu 20 Fragen, die du schon sicher konntest und die möglicherweise verblasst sind oder bald verblassen könnten. Alle drei findest du unter [Lernen](/learn).',
   },
   {
     id: 'gelernt',
@@ -48,7 +48,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'tokens',
     question: 'Was ist ein Token?',
     answer:
-      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis steht jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise und Shop](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir nach Möglichkeit vorher per E-Mail an).',
+      'Ein Token ist die Einheit, mit der der Lotsen-Check (die KI-Antwortprüfung) bezahlt wird: 1 Token je Frage aus dem Katalog, 2 Tokens je Aufgabe einer Kartenaufgabe (dort rechnet der Lotse deine Werte nach und sucht deinen Fehler); der Preis und dein Guthaben stehen jeweils auf dem Knopf. Bei der Anmeldung bekommst du ein paar Tokens geschenkt; weitere lassen sich in Paketen nachkaufen; die aktuellen Pakete und Preise stehen unter [Preise und Shop](/pricing). Tokens verfallen nicht durch Zeitablauf, gehen aber mit deinem Konto verloren, wenn es gelöscht wird – auch wenn wir es nach zwölf Monaten ohne Login löschen (das kündigen wir nach Möglichkeit vorher per E-Mail an).',
   },
   {
     id: 'tokens-kaufen',
@@ -66,7 +66,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'fokus-themen',
     question: 'Was sind Fokus-Themen?',
     answer:
-      'Mit dem Stern in der Lernübersicht markierst du Themen, auf die du dich gerade konzentrieren willst. Dort siehst du gesammelt, wie weit du bei genau diesen Themen bist, und mit „Fokus starten“ übst du alle offenen Fragen dieser Themen, die älteste richtige Antwort zuerst.',
+      'Mit dem Stern in der Lernübersicht markierst du Themen, auf die du dich gerade konzentrieren willst. Dort siehst du gesammelt, wie weit du bei genau diesen Themen bist, und mit „Fokus-Lernen starten“ übst du alle offenen Fragen dieser Themen, die älteste richtige Antwort zuerst.',
   },
   {
     id: 'kartenaufgaben',

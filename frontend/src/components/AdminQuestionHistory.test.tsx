@@ -64,7 +64,7 @@ describe('AdminQuestionHistory', () => {
     expect(rows).toHaveLength(2)
     expect(within(rows[0]).getByText('Richtig')).toBeInTheDocument()
     expect(within(rows[0]).getByText('2,5 Tage')).toBeInTheDocument()
-    expect(within(rows[1]).getByText('Teilweise Richtig')).toBeInTheDocument()
+    expect(within(rows[1]).getByText('Teilweise richtig')).toBeInTheDocument()
     expect(within(rows[1]).getByText('1 Tag')).toBeInTheDocument()
 
     await userEvent.setup().selectOptions(picker, 'carl@example.com')

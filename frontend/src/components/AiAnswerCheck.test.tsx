@@ -75,7 +75,7 @@ describe('AiAnswerCheck', () => {
 
     rerender(<AiAnswerCheck questionId={7} answer="links" onSuggest={vi.fn()} />)
     expect(screen.getByRole('button', ROW)).toBeEnabled()
-    expect(screen.getByRole('button', ROW)).toHaveTextContent('1 Token(s)')
+    expect(screen.getByRole('button', ROW)).toHaveTextContent('1 Token · du hast 1')
   })
 
   it('shows a custom hint instead of "write an answer first" when the caller overrides it', () => {
@@ -145,7 +145,7 @@ describe('AiAnswerCheck', () => {
     await userEvent.setup().click(screen.getByRole('button', ROW))
 
     expect(await screen.findByText('Es fehlt die Seite.')).toBeInTheDocument()
-    expect(screen.getByText('Lotsen-Vorschlag: Teilweise Richtig')).toBeInTheDocument()
+    expect(screen.getByText('Lotsen-Vorschlag: Teilweise richtig')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Das hast du genannt' })).toBeInTheDocument()
     expect(screen.getByText('Backbord ist links')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Das fehlt noch' })).toBeInTheDocument()

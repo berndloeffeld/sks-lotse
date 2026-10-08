@@ -454,7 +454,7 @@ describe('ChartAttemptPage – Lotsen-Check', () => {
     renderPage()
 
     const button = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
-    expect(button).toHaveTextContent('2 Tokens, du hast 6')
+    expect(button).toHaveTextContent('2 Tokens · du hast 6')
     await user.click(button)
 
     const box = await screen.findByRole('status')

@@ -34,8 +34,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <PageLayout title="Da ist etwas schiefgelaufen" nav="none">
         <p className="text-ink-soft">
-          Beim Anzeigen dieser Seite ist ein unerwarteter Fehler aufgetreten. Lade die Seite neu – dein Lernfortschritt
-          ist im Konto gespeichert und geht nicht verloren.
+          Beim Anzeigen dieser Seite ist ein unerwarteter Fehler aufgetreten. Lade die Seite neu – bereits gespeicherter
+          Lernfortschritt geht dabei nicht verloren.
         </p>
         <div className="flex flex-wrap gap-4">
           <button

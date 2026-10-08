@@ -59,8 +59,9 @@ export function ExamOverview() {
         </p>
         <p className="text-sm text-ink-soft">
           Erst beantwortest du alle Fragen, danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein.
-          Ab 39 von 60 Punkten ist der Fragebogen bestanden. Die Kartenaufgabe ist nicht enthalten. Deine
-          Lernfortschritte bleiben davon unberührt.
+          Ab 39 von 60 Punkten ist der Fragebogen bestanden. Die Kartenaufgabe ist nicht enthalten. Als „Richtig“
+          bewertete Fragen zählen nach der Auswertung für deinen Lernstand, teilweise richtige und falsche ändern ihn
+          nicht.
         </p>
         {error ? (
           <p role="alert" className={styles.error}>

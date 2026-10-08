@@ -19,7 +19,7 @@ export const GENDER_LABELS: Record<string, string> = {
 // plain labels, no color-coding.
 export const OUTCOME_LABELS: Record<GradingOutcome, string> = {
   richtig: 'Richtig',
-  teilweise_richtig: 'Teilweise Richtig',
+  teilweise_richtig: 'Teilweise richtig',
   falsch: 'Falsch',
 }
 

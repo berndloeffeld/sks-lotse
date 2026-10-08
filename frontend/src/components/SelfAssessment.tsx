@@ -23,7 +23,7 @@ interface SelfAssessmentProps {
   layout: 'row' | 'column'
 }
 
-// Richtig / Teilweise Richtig / Falsch for one question, then "Weiter" — shared by practice and
+// Richtig / Teilweise richtig / Falsch for one question, then "Weiter" — shared by practice and
 // the exam's self-assessment (ADR-0023/0029). Rendered once per question (the parent keys it), so
 // each question starts unselected.
 //
