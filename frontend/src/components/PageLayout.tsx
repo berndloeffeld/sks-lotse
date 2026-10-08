@@ -9,6 +9,7 @@ import { LegalFooter } from './LegalFooter'
 import { LoginLink } from './LoginLink'
 import { MainNav } from './MainNav'
 import { MobileTabBar } from './MobileTabBar'
+import { buttonClass } from './buttonStyles'
 
 interface PageLayoutProps {
   title: string
@@ -43,7 +44,7 @@ function SessionExpiredNotice() {
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3 text-sm text-ink">
         <p>Deine Sitzung ist abgelaufen.</p>
         {pathname === '/login' ? null : <LoginLink className="text-primary underline">Anmelden</LoginLink>}
-        <button type="button" onClick={dismiss} className="ml-auto text-ink-soft underline">
+        <button type="button" onClick={dismiss} className={`${buttonClass('tertiary')} ml-auto`}>
           Schließen
         </button>
       </div>

@@ -7,7 +7,6 @@ import { guestOverview, type ChartSheet } from '../chartCatalog'
 import { ChartSheetTaskList } from '../components/ChartSheetTaskList'
 import { ChartHints, TideForm } from '../components/ChartTools'
 import { DiscardChartRun } from '../components/DiscardChartRun'
-import { formStyles } from '../components/formStyles'
 import { GuestChartRun } from '../components/GuestChartRun'
 import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
@@ -18,8 +17,8 @@ import { forgetTideForm, guestTideFormId } from '../hooks/useTideForm'
 import { useAuthStore } from '../store/authStore'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { NotFoundPage } from './NotFoundPage'
-
-const styles = formStyles('light')
+import { ErrorMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 // What the learner needs on the table — none of it is part of SKS Lotse.
 const OWN_MATERIAL = [
@@ -78,6 +77,7 @@ function MemberChartExercise({ number }: { number: string }) {
       exercise={exercise}
       sheet={sheet}
       loadError={loadError}
+      onRetry={reload}
       nav="account"
     >
       {exercise ? (
@@ -90,14 +90,13 @@ function MemberChartExercise({ number }: { number: string }) {
               startAction.setError(null)
             }}
           />
-          {startAction.error ? (
-            <p role="alert" className={styles.error}>
-              {startAction.error}
-            </p>
-          ) : null}
+          <ErrorMessage>{startAction.error}</ErrorMessage>
           {exercise.open_attempt_id !== null ? (
             <>
-              <Link to={`/charts/attempts/${exercise.open_attempt_id}`} className={`${styles.button} self-start`}>
+              <Link
+                to={`/charts/attempts/${exercise.open_attempt_id}`}
+                className={`${buttonClass('primary')} self-start`}
+              >
                 Begonnene Kartenaufgabe fortsetzen
               </Link>
               <DiscardChartRun
@@ -109,7 +108,7 @@ function MemberChartExercise({ number }: { number: string }) {
           ) : (
             <button
               type="button"
-              className={`${styles.button} self-start`}
+              className={`${buttonClass('primary')} self-start`}
               disabled={startAction.isPending}
               onClick={start}
             >
@@ -123,7 +122,7 @@ function MemberChartExercise({ number }: { number: string }) {
 }
 
 function GuestChartExercise({ number }: { number: string }) {
-  const { charts, failed } = useChartCatalog()
+  const { charts, failed, reload } = useChartCatalog()
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // The run lives in this page only (ADR-0056), so ?run alone doesn't bring one back: after a
@@ -156,6 +155,7 @@ function GuestChartExercise({ number }: { number: string }) {
       exercise={exercise}
       sheet={sheet}
       loadError={failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null}
+      onRetry={reload}
       nav="public"
     >
       <OwnMaterial
@@ -166,14 +166,10 @@ function GuestChartExercise({ number }: { number: string }) {
           setError(null)
         }}
       />
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage>{error}</ErrorMessage>
       <button
         type="button"
-        className={`${styles.button} self-start`}
+        className={`${buttonClass('primary')} self-start`}
         onClick={() => {
           if (!ready) {
             setError(NOT_READY)
@@ -200,22 +196,19 @@ interface SheetPageProps {
   exercise: ChartExerciseSummary | undefined
   sheet: ChartSheet | undefined
   loadError: string | null
+  onRetry: () => unknown
   nav: 'account' | 'public'
   // The start (or continue) controls, shown once the exercise is known.
   children: ReactNode
 }
 
-function SheetPage({ number, overview, exercise, sheet, loadError, nav, children }: SheetPageProps) {
+function SheetPage({ number, overview, exercise, sheet, loadError, onRetry, nav, children }: SheetPageProps) {
   if (overview && !exercise) {
     return <NotFoundPage what="Diese Kartenaufgabe gibt es nicht." backTo="/charts" backLabel="Alle Kartenaufgaben" />
   }
   return (
     <PageLayout title={`Kartenaufgabe ${number}`} subtitle={exercise?.title} nav={nav} compact>
-      {loadError ? (
-        <p role="alert" className="text-danger">
-          {loadError}
-        </p>
-      ) : null}
+      <ErrorMessage onRetry={onRetry}>{loadError}</ErrorMessage>
       {overview === null && !loadError ? <p className="text-ink-soft">Wird geladen…</p> : null}
       {overview && exercise ? (
         <>
@@ -238,7 +231,7 @@ function SheetPage({ number, overview, exercise, sheet, loadError, nav, children
               <TideForm overview={overview} />
             </div>
           </details>
-          <Link to="/charts" className={styles.link}>
+          <Link to="/charts" className={buttonClass('tertiary')}>
             Alle Kartenaufgaben
           </Link>
           {sheet ? <ChartSheetTaskList sheet={sheet} /> : null}

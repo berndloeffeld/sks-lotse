@@ -4,6 +4,8 @@ import { ApiError, apiClient } from '../api/client'
 import type { AdminMfaEnrolment } from '../api/types'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { formStyles } from './formStyles'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const f = formStyles('light')
 
@@ -48,12 +50,8 @@ function CodeForm({ onVerified, submitLabel }: Props & { submitLabel: string }) 
           className={`${f.input} font-mono tracking-widest`}
         />
       </label>
-      {error ? (
-        <p role="alert" className={f.error}>
-          {error}
-        </p>
-      ) : null}
-      <button type="submit" disabled={isPending} className={f.button}>
+      <ErrorMessage>{error}</ErrorMessage>
+      <button type="submit" disabled={isPending} className={buttonClass('primary')}>
         {submitLabel}
       </button>
     </form>
@@ -82,12 +80,8 @@ export function AdminMfaEnrol({ onVerified }: Props) {
       </p>
       {enrolment === null ? (
         <>
-          {error ? (
-            <p role="alert" className={`${f.error} max-w-xs`}>
-              {error}
-            </p>
-          ) : null}
-          <button type="button" onClick={start} disabled={isPending} className={`${f.button} self-start`}>
+          <ErrorMessage className="max-w-xs">{error}</ErrorMessage>
+          <button type="button" onClick={start} disabled={isPending} className={`${buttonClass('primary')} self-start`}>
             Einrichtung starten
           </button>
         </>

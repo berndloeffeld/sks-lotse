@@ -14,6 +14,7 @@ import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
 import { HOME_TITLE, useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
 // preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
@@ -96,8 +97,7 @@ const EXAM_SCREENSHOTS = [
   },
 ]
 
-const HERO_CTA =
-  'mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide uppercase transition hover:bg-surface hover:text-primary-dark'
+const HERO_CTA = `mt-10 ${buttonClass('secondary', { tone: 'dark' })}`
 
 function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; className: string }) {
   return (
@@ -384,10 +384,7 @@ export function LandingPage() {
             {isAuthenticated ? (
               <div className="flex flex-col justify-center gap-4">
                 <p className="text-sm text-surface-alt">Du bist bereits angemeldet.</p>
-                <Link
-                  to="/learn"
-                  className="rounded-tile bg-accent px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
-                >
+                <Link to="/learn" className={buttonClass('primary', { tone: 'dark' })}>
                   Zum Lernen
                 </Link>
               </div>

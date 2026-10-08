@@ -21,7 +21,7 @@ export function useChartOverview() {
 // answering reveals the task's solution, the Lotsen-Check adds its suggestion (and spends tokens),
 // giving points moves on to the next task.
 export function useChartAttempt(id: string | undefined) {
-  const { data, setData, isLoading, failed } = useApiQuery(`chart-attempt:${id}`, () =>
+  const { data, setData, isLoading, failed, reload } = useApiQuery(`chart-attempt:${id}`, () =>
     apiClient.get<ChartAttempt>(`/chart-exercises/attempts/${id}`),
   )
 
@@ -56,6 +56,7 @@ export function useChartAttempt(id: string | undefined) {
   return {
     attempt: data ?? null,
     isLoading,
+    reload,
     error: failed ? 'Die Kartenaufgabe konnte nicht geladen werden.' : null,
     answer,
     awardPoints,

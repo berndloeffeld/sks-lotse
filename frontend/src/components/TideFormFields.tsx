@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { TideAge, TideCell, TideEvent, TideForm, TideKind } from '../hooks/useTideForm'
 import { EVENT_ORDINALS } from '../hooks/useTideForm'
+import { buttonClass } from './buttonStyles'
 
 // The "Formblatt Gezeiten" as fields, laid out like the printed form: head (ports, date, time zone,
 // board time), then two halves each with the age of the tide and a table of four high/low waters
@@ -202,11 +203,7 @@ export function TideFormFields({ form, update, clear }: TideFormFieldsProps) {
         ZUG = Zeitunterschied der Gezeiten, HUG = Höhenunterschied der Gezeiten. Deine Eintragungen bleiben nur in
         diesem Browser gespeichert.
       </p>
-      <button
-        type="button"
-        onClick={clear}
-        className="self-start font-mono text-xs tracking-wide text-ink-soft uppercase underline"
-      >
+      <button type="button" onClick={clear} className={`${buttonClass('tertiary')} self-start`}>
         Formblatt leeren
       </button>
     </div>

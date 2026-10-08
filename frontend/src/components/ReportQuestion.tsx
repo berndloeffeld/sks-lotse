@@ -5,6 +5,8 @@ import { apiClient } from '../api/client'
 import { ReportIcon } from './icons/FeatureIcons'
 import { formStyles } from './formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { ErrorMessage, StatusMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 // Mirrors REPORT_CATEGORIES in backend/app/schemas/question_report.py.
 const CATEGORIES = {
@@ -74,15 +76,8 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
         >
           {isSent ? (
             <div className="flex flex-col gap-3">
-              <p role="status" className="text-ink">
-                Danke für deine Meldung!
-              </p>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={close}
-                className="self-start px-2 font-mono text-xs tracking-wide text-ink-soft uppercase underline"
-              >
+              <StatusMessage>Danke für deine Meldung!</StatusMessage>
+              <button ref={closeRef} type="button" onClick={close} className={`${buttonClass('tertiary')} self-start`}>
                 Schließen
               </button>
             </div>
@@ -119,20 +114,12 @@ export function ReportQuestion({ questionId }: { questionId: number }) {
                   className={styles.input}
                 />
               </label>
-              {error ? (
-                <p role="alert" className={styles.error}>
-                  {error}
-                </p>
-              ) : null}
+              <ErrorMessage>{error}</ErrorMessage>
               <div className="flex flex-wrap gap-3">
-                <button type="submit" className={styles.button} disabled={isSending}>
+                <button type="submit" className={buttonClass('primary')} disabled={isSending}>
                   {isSending ? 'Wird gesendet…' : 'Meldung senden'}
                 </button>
-                <button
-                  type="button"
-                  onClick={close}
-                  className="px-2 font-mono text-xs tracking-wide text-ink-soft uppercase underline"
-                >
+                <button type="button" onClick={close} className={buttonClass('tertiary')}>
                   Abbrechen
                 </button>
               </div>

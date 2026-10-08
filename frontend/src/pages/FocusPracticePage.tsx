@@ -1,6 +1,7 @@
 import { PageLayout } from '../components/PageLayout'
 import { PracticeRun, type RunExit } from '../components/PracticeRun'
 import { usePracticeSession } from '../hooks/usePracticeSession'
+import { ErrorMessage } from '../components/Messages'
 
 const EXIT: RunExit = { to: '/learn?modus=focus', label: 'Zum Fokus' }
 
@@ -8,7 +9,7 @@ const EXIT: RunExit = { to: '/learn?modus=focus', label: 'Zum Fokus' }
 // answer first regardless of topic (ADR-0028). The server orders and filters;
 // the list is fetched once, so the run stays as it was when it started.
 export function FocusPracticePage() {
-  const { data, isLoading, failed, onGraded, contextLabel } = usePracticeSession(
+  const { data, isLoading, failed, reload, onGraded, contextLabel } = usePracticeSession(
     'focus-session',
     '/progress/focus/questions',
     'focus_session_start',
@@ -24,7 +25,7 @@ export function FocusPracticePage() {
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : failed || !data ? (
-        <p className="text-sm text-danger">Die Fragen konnten nicht geladen werden.</p>
+        <ErrorMessage onRetry={reload}>Die Fragen konnten nicht geladen werden.</ErrorMessage>
       ) : (
         <PracticeRun
           questions={data.questions}

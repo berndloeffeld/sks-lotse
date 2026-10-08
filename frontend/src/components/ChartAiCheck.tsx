@@ -3,12 +3,10 @@ import type { KeyboardEvent, Ref } from 'react'
 import { trackEvent } from '../analytics'
 import type { ChartAiSuggestion, ChartAttemptTask } from '../api/types'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import { formStyles } from './formStyles'
 import { useCheckLimits } from '../hooks/useCheckLimits'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
 
 /** The Lotsen-Check's suggestion for a task: points, what's right or wrong, and the probable mistake. */
 export function ChartAiSuggestionView({
@@ -80,11 +78,7 @@ export function ChartAiCheck({ task, onAiCheck, buttonRef, onButtonKeyDown }: Ch
         buttonRef={buttonRef}
         onButtonKeyDown={onButtonKeyDown}
       />
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage>{error}</ErrorMessage>
     </div>
   )
 }

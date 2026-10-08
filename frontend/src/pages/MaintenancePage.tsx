@@ -1,5 +1,6 @@
 import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 // Shown app-wide while the backend is in maintenance mode (app/core/maintenance.py),
 // except on the three legal routes App.tsx keeps exempt. No plain reload button,
@@ -19,7 +20,7 @@ export function MaintenancePage() {
         SKS Lotse befindet sich aktuell im Wartungsmodus. Wir sind in Kürze wieder erreichbar – dein Lernfortschritt
         bleibt dabei unverändert erhalten.
       </p>
-      <button type="button" onClick={() => void checkSession()} className="self-start underline">
+      <button type="button" onClick={() => void checkSession()} className={`${buttonClass('tertiary')} self-start`}>
         Erneut prüfen
       </button>
     </PageLayout>

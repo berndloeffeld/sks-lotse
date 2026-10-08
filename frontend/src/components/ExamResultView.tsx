@@ -6,13 +6,12 @@ import type { Exam } from '../api/types'
 import { formatDateTime, percentOf } from '../format'
 import { EXAM_RESULT_LABELS, OUTCOME_LABELS, SUBJECT_GROUP_LABELS, VARIANT_LABELS } from '../labels'
 import type { ExamVariant } from '../api/types'
-import { formStyles } from './formStyles'
 import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 // The finished exam: points, result, per-subject score and every question
 // with the learner's own answer, the official one and the self-assessment.
@@ -110,29 +109,30 @@ export function ExamResultView({ exam }: { exam: Exam }) {
 
       <section className="flex flex-col gap-3 border-t border-border pt-6">
         <div className="flex flex-wrap items-center gap-4">
-          <Link to="/exam" className={styles.button}>
+          <Link to="/exam" className={buttonClass('primary')}>
             Zur Prüfungsübersicht
           </Link>
           {confirmingDelete ? (
             <>
-              <button type="button" className={styles.button} disabled={isDeleting} onClick={() => void remove()}>
+              <button
+                type="button"
+                className={buttonClass('danger')}
+                disabled={isDeleting}
+                onClick={() => void remove()}
+              >
                 {isDeleting ? 'Wird gelöscht…' : 'Endgültig löschen'}
               </button>
-              <button type="button" className={styles.link} onClick={() => setConfirmingDelete(false)}>
+              <button type="button" className={buttonClass('tertiary')} onClick={() => setConfirmingDelete(false)}>
                 Abbrechen
               </button>
             </>
           ) : (
-            <button type="button" className={styles.link} onClick={() => setConfirmingDelete(true)}>
+            <button type="button" className={buttonClass('dangerOutline')} onClick={() => setConfirmingDelete(true)}>
               Diese Prüfung löschen
             </button>
           )}
         </div>
-        {deleteError ? (
-          <p role="alert" className={styles.error}>
-            {deleteError}
-          </p>
-        ) : null}
+        <ErrorMessage>{deleteError}</ErrorMessage>
       </section>
     </div>
   )

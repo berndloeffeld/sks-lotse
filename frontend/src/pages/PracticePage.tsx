@@ -12,6 +12,7 @@ import { useCatalog } from '../hooks/useCatalog'
 import { useStandingsUpdate } from '../hooks/usePracticeSession'
 import { SUBJECT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
+import { ErrorMessage } from '../components/Messages'
 
 interface PracticeData {
   questions: Question[]
@@ -22,20 +23,23 @@ interface PracticeData {
 // Loads the topic's questions, the learner's per-question standings and the
 // topic's display name, in parallel — again when the route moves to another topic.
 function usePracticeData(subject: string, topicSlug: string) {
-  const { data, setData, isLoading, failed } = useApiQuery<PracticeData>(`${subject}/${topicSlug}`, async () => {
-    const query = `subject=${encodeURIComponent(subject)}`
-    const [questions, progress, topics] = await Promise.all([
-      apiClient.get<Question[]>(`/questions?${query}&topic=${encodeURIComponent(topicSlug)}`),
-      apiClient.get<QuestionProgress[]>('/progress/questions'),
-      apiClient.get<Topic[]>(`/topics?${query}`),
-    ])
-    return {
-      questions,
-      standings: new Map(progress.map((p) => [p.question_id, p])),
-      topic: topics.find((t) => t.slug === topicSlug) ?? null,
-    }
-  })
-  return { data, setData, isLoading, error: failed ? 'Die Fragen konnten nicht geladen werden.' : null }
+  const { data, setData, isLoading, failed, reload } = useApiQuery<PracticeData>(
+    `${subject}/${topicSlug}`,
+    async () => {
+      const query = `subject=${encodeURIComponent(subject)}`
+      const [questions, progress, topics] = await Promise.all([
+        apiClient.get<Question[]>(`/questions?${query}&topic=${encodeURIComponent(topicSlug)}`),
+        apiClient.get<QuestionProgress[]>('/progress/questions'),
+        apiClient.get<Topic[]>(`/topics?${query}`),
+      ])
+      return {
+        questions,
+        standings: new Map(progress.map((p) => [p.question_id, p])),
+        topic: topics.find((t) => t.slug === topicSlug) ?? null,
+      }
+    },
+  )
+  return { data, setData, isLoading, reload, error: failed ? 'Die Fragen konnten nicht geladen werden.' : null }
 }
 
 const NO_QUESTIONS = <p className="text-sm text-ink-soft">Zu diesem Thema gibt es keine Fragen.</p>
@@ -65,7 +69,7 @@ interface TopicProps {
 }
 
 function GuestPractice({ subject, topicSlug }: TopicProps) {
-  const { catalog, failed } = useCatalog()
+  const { catalog, failed, reload } = useCatalog()
   const topic = catalog ? findTopic(catalog, subject, topicSlug) : undefined
   const questions = catalog ? topicQuestions(catalog, subject, topicSlug) : []
 
@@ -73,7 +77,7 @@ function GuestPractice({ subject, topicSlug }: TopicProps) {
   return (
     <PageLayout title={topic?.name ?? 'Lernen'} subtitle={SUBJECT_LABELS[subject] ?? subject} nav="public" compact>
       {failed ? (
-        <p className="text-sm text-danger">Die Fragen konnten nicht geladen werden.</p>
+        <ErrorMessage onRetry={reload}>Die Fragen konnten nicht geladen werden.</ErrorMessage>
       ) : !catalog ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : questions.length === 0 ? (
@@ -99,7 +103,7 @@ const NO_STANDINGS = new Map<number, QuestionProgress>()
 const ignoreGrade = () => {}
 
 function MemberPractice({ subject, topicSlug }: TopicProps) {
-  const { data, setData, isLoading, error } = usePracticeData(subject, topicSlug)
+  const { data, setData, isLoading, error, reload } = usePracticeData(subject, topicSlug)
 
   const onGraded = useStandingsUpdate(setData)
 
@@ -116,7 +120,7 @@ function MemberPractice({ subject, topicSlug }: TopicProps) {
       {isLoading ? (
         <p className="text-sm text-ink-soft">Fragen werden geladen…</p>
       ) : error ? (
-        <p className="text-sm text-danger">{error}</p>
+        <ErrorMessage onRetry={reload}>{error}</ErrorMessage>
       ) : !data || data.questions.length === 0 ? (
         NO_QUESTIONS
       ) : (

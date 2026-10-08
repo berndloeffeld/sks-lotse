@@ -10,6 +10,8 @@ import { SUBJECT_GROUP_LABELS } from '../labels'
 import { formStyles } from './formStyles'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const AUTOSAVE_DELAY_MS = 800
 const styles = formStyles('light')
@@ -195,11 +197,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
         </p>
       </div>
 
-      {saveError ? (
-        <p role="alert" className={styles.error}>
-          {saveError}
-        </p>
-      ) : null}
+      <ErrorMessage>{saveError}</ErrorMessage>
 
       {view === 'question' ? (
         <article className="flex flex-col gap-4">
@@ -234,13 +232,18 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
             </span>
           ) : null}
           <div className="flex justify-between gap-4">
-            <button type="button" className={styles.button} disabled={index === 0} onClick={() => void goTo(index - 1)}>
+            <button
+              type="button"
+              className={buttonClass('primary')}
+              disabled={index === 0}
+              onClick={() => void goTo(index - 1)}
+            >
               Zurück
             </button>
-            <button type="button" className={styles.button} onClick={() => void showOverview()}>
+            <button type="button" className={buttonClass('primary')} onClick={() => void showOverview()}>
               Übersicht
             </button>
-            <button type="button" className={styles.button} onClick={advance}>
+            <button type="button" className={buttonClass('primary')} onClick={advance}>
               {index === total - 1 ? 'Zur Übersicht' : 'Weiter'}
             </button>
           </div>
@@ -261,7 +264,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
                   </p>
                   <button
                     type="button"
-                    className={styles.link}
+                    className={buttonClass('tertiary')}
                     aria-label={`Frage ${q.position} bearbeiten`}
                     onClick={() => void goTo(i)}
                   >
@@ -285,12 +288,17 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
                   abgeben?
                 </p>
                 <div className="flex gap-4">
-                  <button type="button" className={styles.button} disabled={isSubmitting} onClick={() => void submit()}>
+                  <button
+                    type="button"
+                    className={buttonClass('primary')}
+                    disabled={isSubmitting}
+                    onClick={() => void submit()}
+                  >
                     {isSubmitting ? 'Wird abgegeben…' : 'Ja, abgeben'}
                   </button>
                   <button
                     type="button"
-                    className={styles.link}
+                    className={buttonClass('tertiary')}
                     disabled={isSubmitting}
                     onClick={() => setConfirmingSubmit(false)}
                   >
@@ -299,7 +307,7 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
                 </div>
               </div>
             ) : (
-              <button type="button" className={styles.button} onClick={() => setConfirmingSubmit(true)}>
+              <button type="button" className={buttonClass('primary')} onClick={() => setConfirmingSubmit(true)}>
                 Prüfung abgeben
               </button>
             )}

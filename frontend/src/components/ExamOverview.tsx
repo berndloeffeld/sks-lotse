@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
@@ -10,10 +11,9 @@ import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
 import { EXAM_RESULT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
-import { formStyles } from './formStyles'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const STATUS_LABELS = {
   in_progress: 'Läuft',
@@ -31,9 +31,19 @@ export function ExamOverview() {
   const variantUpdate = useExamVariantUpdate()
   const startAction = useAsyncAction()
   const isStarting = startAction.isPending
-  const error = examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : startAction.error
+  // A start clicked before the list arrived: it decides between starting and resuming, so say that
+  // it is missing (until it arrives) instead of locking the button without a reason. After a failed
+  // load the error above, with its "Erneut laden", already says so.
+  const [startedEarly, setStartedEarly] = useState(false)
+  const notLoaded =
+    startedEarly && exams === null && !examsQuery.failed ? 'Deine bisherigen Prüfungen sind noch nicht geladen.' : null
 
   function start() {
+    if (exams === null) {
+      startAction.setError(null)
+      setStartedEarly(true)
+      return
+    }
     return startAction.run(
       async () => {
         const exam = await apiClient.post<Exam>('/exams')
@@ -63,22 +73,12 @@ export function ExamOverview() {
           bewertete Fragen zählen nach der Auswertung für deinen Lernstand, teilweise richtige und falsche ändern ihn
           nicht.
         </p>
-        {error ? (
-          <p role="alert" className={styles.error}>
-            {error}
-          </p>
-        ) : null}
-        {examsQuery.failed ? (
-          // Without the list the start button stays off (a running exam would have to be resumed
-          // instead), so the learner needs a way to ask again.
-          <button
-            type="button"
-            className="self-start text-sm text-primary underline"
-            onClick={() => void examsQuery.reload()}
-          >
-            Erneut laden
-          </button>
-        ) : null}
+        {/* Without the list the exam can't start (a running one would have to be resumed instead), so
+            the learner needs a way to ask again. */}
+        <ErrorMessage onRetry={examsQuery.reload}>
+          {examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : null}
+        </ErrorMessage>
+        <ErrorMessage>{startAction.error ?? notLoaded}</ErrorMessage>
         {!hasVariant ? (
           // Picked right here the first time (the same setting as on /learn and /profile), so the
           // first exam doesn't start with a detour.
@@ -89,17 +89,17 @@ export function ExamOverview() {
               onChange={variantUpdate.changeVariant}
               disabled={variantUpdate.isSaving}
             />
-            {variantUpdate.error ? <p className="text-sm text-danger">{variantUpdate.error}</p> : null}
+            <ErrorMessage>{variantUpdate.error}</ErrorMessage>
           </div>
         ) : running ? (
-          <Link to={`/exam/${running.id}`} className={`${styles.button} self-start`}>
+          <Link to={`/exam/${running.id}`} className={`${buttonClass('primary')} self-start`}>
             Laufende Prüfung fortsetzen
           </Link>
         ) : (
           <button
             type="button"
-            className={`${styles.button} self-start`}
-            disabled={isStarting || exams === null}
+            className={`${buttonClass('primary')} self-start`}
+            disabled={isStarting}
             onClick={() => void start()}
           >
             {isStarting ? 'Wird gestartet…' : 'Prüfung starten'}
@@ -109,7 +109,7 @@ export function ExamOverview() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink">Bisherige Prüfungen</h2>
-        {exams === null && !error ? <p className="mt-3 text-ink-soft">Wird geladen…</p> : null}
+        {exams === null && !examsQuery.failed ? <p className="mt-3 text-ink-soft">Wird geladen…</p> : null}
         {exams?.length === 0 ? <p className="mt-3 text-ink-soft">Noch keine Prüfung abgelegt.</p> : null}
         <ul className="mt-3 flex flex-col">
           {exams?.map((exam) => (

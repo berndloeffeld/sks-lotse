@@ -10,10 +10,16 @@ import { GENDER_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { forgetAllTideForms } from '../hooks/useTideForm'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 type EmailChangeStep = 'view' | 'email' | 'code'
 
 const light = formStyles('light')
+
+// Deleting stays clickable until the address matches, and then says why it didn't (one pattern for a
+// missing step across the app); the handler checks it, not a disabled button.
+const DELETE_MISMATCH = 'Die E-Mail-Adresse stimmt nicht überein.'
 
 // A settings section in the same voice as the Lernstand tab's columns
 // (ProgressOverview): a colored serif heading, no box around it. Sections
@@ -147,6 +153,10 @@ export function ProfileAccountPage() {
 
   async function handleDeleteAccount(event: FormEvent) {
     event.preventDefault()
+    if (!canConfirmDelete) {
+      deleteAction.setError(DELETE_MISMATCH)
+      return
+    }
     await deleteAction.run(async () => {
       await apiClient.delete('/auth/me')
       // Not logout(): the backend already dropped the account and cleared the
@@ -215,9 +225,9 @@ export function ProfileAccountPage() {
                 ))}
               </select>
             </label>
-            {personalInfoAction.error ? <p className={light.error}>{personalInfoAction.error}</p> : null}
-            {personalInfoSuccess ? <p className="text-sm text-ink">{personalInfoSuccess}</p> : null}
-            <button type="submit" disabled={personalInfoAction.isPending} className={light.button}>
+            <ErrorMessage>{personalInfoAction.error}</ErrorMessage>
+            <StatusMessage>{personalInfoSuccess}</StatusMessage>
+            <button type="submit" disabled={personalInfoAction.isPending} className={buttonClass('primary')}>
               Speichern
             </button>
           </form>
@@ -227,9 +237,13 @@ export function ProfileAccountPage() {
           <p className="text-sm text-ink-soft">
             Aktuelle Adresse: <span className="font-mono text-ink">{user.email}</span>
           </p>
-          {emailSuccess ? <p className="text-sm text-ink">{emailSuccess}</p> : null}
+          <StatusMessage>{emailSuccess}</StatusMessage>
           {emailStep === 'view' ? (
-            <button type="button" onClick={() => setEmailStep('email')} className="self-start text-sm underline">
+            <button
+              type="button"
+              onClick={() => setEmailStep('email')}
+              className={`${buttonClass('tertiary')} self-start`}
+            >
               E-Mail-Adresse ändern
             </button>
           ) : emailStep === 'email' ? (
@@ -246,12 +260,12 @@ export function ProfileAccountPage() {
                 />
               </label>
               <p className={`text-xs ${light.note}`}>Wir senden dir einen Bestätigungscode an die neue Adresse.</p>
-              {emailAction.error ? <p className={light.error}>{emailAction.error}</p> : null}
+              <ErrorMessage>{emailAction.error}</ErrorMessage>
               <div className="flex items-center gap-4">
-                <button type="submit" disabled={emailAction.isPending} className={light.button}>
+                <button type="submit" disabled={emailAction.isPending} className={buttonClass('primary')}>
                   Code anfordern
                 </button>
-                <button type="button" onClick={closeEmailEditor} className={light.link}>
+                <button type="button" onClick={closeEmailEditor} className={buttonClass('tertiary')}>
                   Abbrechen
                 </button>
               </div>
@@ -271,9 +285,9 @@ export function ProfileAccountPage() {
                   className={`${light.input} font-mono`}
                 />
               </label>
-              {emailAction.error ? <p className={light.error}>{emailAction.error}</p> : null}
+              <ErrorMessage>{emailAction.error}</ErrorMessage>
               <div className="flex items-center gap-4">
-                <button type="submit" disabled={emailAction.isPending} className={light.button}>
+                <button type="submit" disabled={emailAction.isPending} className={buttonClass('primary')}>
                   Bestätigen
                 </button>
                 <button
@@ -283,7 +297,7 @@ export function ProfileAccountPage() {
                     setEmailCode('')
                     emailAction.setError(null)
                   }}
-                  className={light.link}
+                  className={buttonClass('tertiary')}
                 >
                   Andere E-Mail-Adresse verwenden
                 </button>
@@ -300,7 +314,7 @@ export function ProfileAccountPage() {
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="self-start rounded-tile border-2 border-danger px-4 py-3 font-mono text-sm tracking-wide text-danger uppercase hover:bg-surface-alt"
+              className={`${buttonClass('dangerOutline')} self-start`}
             >
               Account löschen
             </button>
@@ -312,16 +326,15 @@ export function ProfileAccountPage() {
                   id="delete-confirm-email"
                   type="email"
                   value={deleteConfirmEmail}
-                  onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                  onChange={(event) => {
+                    setDeleteConfirmEmail(event.target.value)
+                    deleteAction.setError(null)
+                  }}
                   className={`${light.input} border-danger`}
                 />
               </label>
-              {deleteAction.error ? <p className={light.error}>{deleteAction.error}</p> : null}
-              <button
-                type="submit"
-                disabled={!canConfirmDelete || deleteAction.isPending}
-                className="rounded-tile bg-danger px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
-              >
+              <ErrorMessage>{deleteAction.error}</ErrorMessage>
+              <button type="submit" disabled={deleteAction.isPending} className={buttonClass('danger')}>
                 Endgültig löschen
               </button>
             </form>

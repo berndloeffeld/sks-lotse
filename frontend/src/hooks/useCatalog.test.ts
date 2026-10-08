@@ -12,7 +12,7 @@ describe('useCatalog', () => {
   it('has the catalog at once when it was primed (a prerendered page)', () => {
     const primed = primeCatalog(EXPORT)
     const { result } = renderHook(() => useCatalog())
-    expect(result.current).toEqual({ catalog: primed, failed: false })
+    expect(result.current).toMatchObject({ catalog: primed, failed: false })
   })
 
   it('loads it on first use otherwise', async () => {

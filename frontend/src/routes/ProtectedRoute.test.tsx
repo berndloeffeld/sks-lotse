@@ -61,7 +61,7 @@ describe('ProtectedRoute', () => {
     renderProtected()
 
     expect(screen.queryByText('Login page')).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Erneut laden' }))
     expect(checkSession).toHaveBeenCalledOnce()
   })
 })

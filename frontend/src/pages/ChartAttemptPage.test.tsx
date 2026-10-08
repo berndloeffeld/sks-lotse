@@ -335,6 +335,21 @@ describe('ChartAttemptPage', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('keeps Tab inside the phone sheet and closes it on a tap on the page above', async () => {
+    const user = userEvent.setup()
+    stubBackend(makeChartAttempt())
+    renderPage()
+
+    const bar = await screen.findByRole('navigation', { name: 'Hilfsmittel' })
+    await user.click(within(bar).getByRole('button', { name: 'Verlauf' }))
+    const close = within(screen.getByRole('dialog', { name: 'Verlauf' })).getByRole('button', { name: 'Schließen' })
+    await user.tab()
+    expect(close).toHaveFocus()
+
+    await user.click(screen.getByTestId('modal-backdrop'))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
   it('shows the result and every task once the run is complete', async () => {
     stubBackend(
       makeChartAttempt({

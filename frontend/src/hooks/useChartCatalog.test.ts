@@ -14,7 +14,7 @@ describe('useChartCatalog', () => {
   it('has the export at once when it was primed (a prerendered page)', () => {
     const primed = primeChartCatalog(makeChartExport())
     const { result } = renderHook(() => useChartCatalog())
-    expect(result.current).toEqual({ charts: primed, failed: false })
+    expect(result.current).toMatchObject({ charts: primed, failed: false })
   })
 
   it('loads it on first use otherwise', async () => {

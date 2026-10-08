@@ -5,13 +5,11 @@ import { apiClient } from '../api/client'
 import type { AiGrade, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
-import { formStyles } from './formStyles'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useCheckLimits } from '../hooks/useCheckLimits'
-
-const styles = formStyles('light')
+import { ErrorMessage } from './Messages'
 
 interface AiAnswerCheckProps {
   questionId: number
@@ -108,11 +106,7 @@ export function AiAnswerCheck({
           onButtonKeyDown={onButtonKeyDown}
         />
       )}
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage>{error}</ErrorMessage>
     </div>
   )
 }

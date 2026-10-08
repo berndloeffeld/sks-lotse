@@ -4,10 +4,12 @@ import { apiClient } from '../api/client'
 import type { RefreshSummary } from '../api/types'
 import { topicQuestions, topicsBySubject, type GuestCatalog } from '../catalog'
 import { Band, Columns } from '../components/Bands'
+import { buttonClass } from '../components/buttonStyles'
 import { ExamOverview } from '../components/ExamOverview'
 import { FocusBand } from '../components/FocusBand'
 import { LearnModePanel, LearnModeTabs, RefreshPanel } from '../components/LearnModes'
 import { LedgerRow } from '../components/LedgerRow'
+import { ErrorMessage } from '../components/Messages'
 import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
@@ -27,6 +29,7 @@ function LearnContent() {
     progress,
     isLoading,
     error,
+    reload,
     totals,
     categories,
     bySubject,
@@ -50,7 +53,7 @@ function LearnContent() {
   const status = isLoading ? (
     <p className="text-sm text-ink-soft">Lernstand wird geladen…</p>
   ) : error ? (
-    <p className="text-sm text-danger">{error}</p>
+    <ErrorMessage onRetry={reload}>{error}</ErrorMessage>
   ) : progress.length === 0 ? (
     <p className="text-sm text-ink-soft">Keine Themen gefunden.</p>
   ) : null
@@ -78,7 +81,7 @@ function LearnContent() {
           <FocusBand topics={focusTopics} totals={focusTotals} onToggleFocus={toggleFocus} error={focusError} />
         ) : (
           <Band className="py-10">
-            {focusError ? <p className="mb-6 text-sm text-danger">{focusError}</p> : null}
+            <ErrorMessage className="mb-6">{focusError}</ErrorMessage>
             <Columns className="sm:grid-cols-2">
               {Array.from(bySubject.entries()).map(([subject, topics]) => (
                 <div key={subject} className="flex flex-col gap-2">
@@ -107,14 +110,11 @@ function LearnContent() {
   )
 }
 
-const GUEST_ROW_ACTION =
-  'border border-primary px-3 py-1.5 font-mono text-xs tracking-wide text-primary uppercase hover:bg-primary hover:text-surface'
-
 // /learn without a login (ADR-0054): every topic of the catalog, open to practise, and what an account
 // adds. No Lernstand, Fokus, Auffrischen or Probeprüfung, and no exam variant, so both
 // Seemannschaft variants are listed.
 function GuestLearnContent() {
-  const { catalog, failed } = useCatalog()
+  const { catalog, failed, reload } = useCatalog()
 
   return (
     <>
@@ -127,7 +127,7 @@ function GuestLearnContent() {
       </Band>
       <Band className="py-10">
         {failed ? (
-          <p className="text-sm text-danger">Die Themen konnten nicht geladen werden.</p>
+          <ErrorMessage onRetry={reload}>Die Themen konnten nicht geladen werden.</ErrorMessage>
         ) : !catalog ? (
           <p className="text-sm text-ink-soft">Themen werden geladen…</p>
         ) : (
@@ -156,7 +156,7 @@ function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
                     {topicQuestions(catalog, subject, topic.slug).length} Fragen
                   </p>
                 </div>
-                <Link to={`/learn/${subject}/${topic.slug}`} className={GUEST_ROW_ACTION}>
+                <Link to={`/learn/${subject}/${topic.slug}`} className={buttonClass('secondary', { size: 'compact' })}>
                   Lernen starten
                 </Link>
               </div>

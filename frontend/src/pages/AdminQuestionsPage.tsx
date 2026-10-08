@@ -8,6 +8,8 @@ import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
 import { useApiQuery } from '../hooks/useApiQuery'
+import { buttonClass } from '../components/buttonStyles'
+import { ErrorMessage } from '../components/Messages'
 
 interface Search {
   q: string
@@ -90,16 +92,13 @@ export function AdminQuestionsPage() {
             </select>
           </label>
         ) : null}
-        <button
-          type="submit"
-          className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase"
-        >
+        <button type="submit" className={buttonClass('primary', { tone: 'admin' })}>
           Suchen
         </button>
       </form>
 
       {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      {query.failed ? <p className="text-sm text-danger">Die Suche ist fehlgeschlagen.</p> : null}
+      <ErrorMessage onRetry={query.reload}>{query.failed ? 'Die Suche ist fehlgeschlagen.' : null}</ErrorMessage>
       {results === null ? <p className="text-sm text-ink-soft">Suchbegriff eingeben oder ein Fach wählen.</p> : null}
       {results ? (
         <>

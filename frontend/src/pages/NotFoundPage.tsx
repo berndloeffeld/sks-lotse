@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 
-import { formStyles } from '../components/formStyles'
 import { PageLayout } from '../components/PageLayout'
 import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 interface NotFoundPageProps {
   // What isn't there, in one sentence.
@@ -18,7 +18,7 @@ export function NotFoundPage({ what, backTo, backLabel }: NotFoundPageProps) {
   return (
     <PageLayout title="Seite nicht gefunden" nav="public" compact>
       <p className="text-ink">{what} Vielleicht ist der Link veraltet oder vertippt.</p>
-      <Link to={backTo} className={`${formStyles('light').button} self-start`}>
+      <Link to={backTo} className={`${buttonClass('primary')} self-start`}>
         {backLabel}
       </Link>
     </PageLayout>

@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import type { TopicProgress } from '../api/types'
 import { percentOf } from '../format'
 import { SUBJECT_LABELS } from '../labels'
-import { formStyles } from './formStyles'
 import { Band } from './Bands'
 import { LedgerRow } from './LedgerRow'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 interface FocusBandProps {
   topics: TopicProgress[]
@@ -30,12 +31,12 @@ export function FocusBand({ topics, totals, onToggleFocus, error }: FocusBandPro
         <h2 className="font-serif text-3xl text-primary">Fokus</h2>
         {/* Everything not yet gelernt (offen + teilweise) is in the session, oldest correct answer first. */}
         {topics.length > 0 && totals.total > totals.learned ? (
-          <Link to="/learn/focus" className={formStyles('light').button}>
+          <Link to="/learn/focus" className={buttonClass('primary')}>
             Fokus-Lernen starten
           </Link>
         ) : null}
       </div>
-      {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
+      <ErrorMessage className="mt-3">{error}</ErrorMessage>
       {topics.length === 0 ? (
         <p className="mt-3 max-w-xl text-sm text-ink-soft">
           Markiere Themen mit dem Stern, um sie hier im Blick zu behalten. Ein Thema verschwindet aus dem Fokus, sobald

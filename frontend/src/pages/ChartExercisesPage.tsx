@@ -9,6 +9,7 @@ import { PageLayout } from '../components/PageLayout'
 import { useChartOverview } from '../hooks/useChartAttempt'
 import { useChartCatalog } from '../hooks/useChartCatalog'
 import { useAuthStore } from '../store/authStore'
+import { ErrorMessage } from '../components/Messages'
 
 function statusLabel(exercise: ChartExerciseSummary) {
   if (exercise.open_attempt_id !== null) return 'Begonnen'
@@ -25,21 +26,22 @@ export function ChartExercisesPage() {
 }
 
 function MemberChartExercises() {
-  const { overview, error } = useChartOverview()
+  const { overview, error, reload } = useChartOverview()
   return (
     <ChartExercisesLayout nav="account">
-      <ExerciseList exercises={overview?.exercises ?? null} error={error} status={statusLabel} />
+      <ExerciseList exercises={overview?.exercises ?? null} error={error} onRetry={reload} status={statusLabel} />
     </ChartExercisesLayout>
   )
 }
 
 function GuestChartExercises() {
-  const { charts, failed } = useChartCatalog()
+  const { charts, failed, reload } = useChartCatalog()
   return (
     <ChartExercisesLayout nav="public">
       <ExerciseList
         exercises={charts ? guestOverview(charts).exercises : null}
         error={failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null}
+        onRetry={reload}
       />
       <GuestCta>Ohne Konto wird nichts gespeichert. Mit einem Konto behältst du deine Durchgänge und Punkte.</GuestCta>
     </ChartExercisesLayout>
@@ -67,18 +69,15 @@ function ChartExercisesLayout({ nav, children }: { nav: 'account' | 'public'; ch
 interface ExerciseListProps {
   exercises: ChartExerciseSummary[] | null
   error: string | null
+  onRetry: () => unknown
   // Where the learner stands; guests have none.
   status?: (exercise: ChartExerciseSummary) => string
 }
 
-function ExerciseList({ exercises, error, status }: ExerciseListProps) {
+function ExerciseList({ exercises, error, onRetry, status }: ExerciseListProps) {
   return (
     <>
-      {error ? (
-        <p role="alert" className="text-danger">
-          {error}
-        </p>
-      ) : null}
+      <ErrorMessage onRetry={onRetry}>{error}</ErrorMessage>
       {exercises === null && !error ? <p className="text-ink-soft">Wird geladen…</p> : null}
       <ul className="grid gap-4 sm:grid-cols-2">
         {exercises?.map((exercise) => (

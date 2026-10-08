@@ -107,7 +107,7 @@ describe('AdminUserPage', () => {
     expect(screen.queryByText('Benutzer nicht gefunden.')).not.toBeInTheDocument()
   })
 
-  it('keeps the final delete button disabled until the exact email is retyped, then deletes', async () => {
+  it('deletes only once the exact email is retyped, and says why not before', async () => {
     const user = userEvent.setup()
     stubFetch((url, init) =>
       url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'DELETE'
@@ -119,14 +119,14 @@ describe('AdminUserPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Account löschen' }))
     const confirmButton = screen.getByRole('button', { name: 'Endgültig löschen' })
-    expect(confirmButton).toBeDisabled()
-
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'wrong@example.com')
-    expect(confirmButton).toBeDisabled()
+    await user.click(confirmButton)
+    expect(screen.getByRole('alert')).toHaveTextContent('Die E-Mail-Adresse stimmt nicht überein.')
+    expect(screen.getByText('learner@example.com')).toBeInTheDocument()
 
     await user.clear(screen.getByLabelText(/Zur Bestätigung/))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'LEARNER@example.com ')
-    expect(confirmButton).toBeEnabled()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 
     await user.click(confirmButton)
 

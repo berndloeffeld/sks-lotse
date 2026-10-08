@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 import { PageLayout } from './PageLayout'
+import { buttonClass } from './buttonStyles'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -38,17 +39,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           Lernfortschritt geht dabei nicht verloren.
         </p>
         <div className="flex flex-wrap gap-4">
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="rounded-tile bg-accent px-6 py-3 font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
-          >
+          <button type="button" onClick={() => window.location.reload()} className={buttonClass('primary')}>
             Seite neu laden
           </button>
-          <a
-            href="/"
-            className="rounded-tile border-2 border-primary px-6 py-3 font-mono text-sm tracking-wide text-primary uppercase transition hover:bg-primary hover:text-surface"
-          >
+          <a href="/" className={buttonClass('secondary')}>
             Zur Startseite
           </a>
         </div>

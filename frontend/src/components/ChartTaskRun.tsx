@@ -10,6 +10,8 @@ import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
 import { GuestCta } from './LoginLink'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const styles = formStyles('light')
 
@@ -147,12 +149,8 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
           <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
         ) : null}
       </div>
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
-      <button type="submit" className={`${styles.button} self-start`} disabled={isPending}>
+      <ErrorMessage>{error}</ErrorMessage>
+      <button type="submit" className={`${buttonClass('primary')} self-start`} disabled={isPending}>
         {isPending ? 'Wird gespeichert…' : 'Lösung anzeigen'}
       </button>
     </form>
@@ -286,12 +284,8 @@ function PointsForm({
           }
         }}
       />
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
-      ) : null}
-      <button ref={continueRef} type="submit" className={`${styles.button} self-start`} disabled={isPending}>
+      <ErrorMessage>{error}</ErrorMessage>
+      <button ref={continueRef} type="submit" className={`${buttonClass('primary')} self-start`} disabled={isPending}>
         {isPending ? 'Wird gespeichert…' : 'Weiter'}
       </button>
     </form>
@@ -311,7 +305,7 @@ function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: bool
           viele Punkte du zuletzt hattest.
         </GuestCta>
       ) : null}
-      <Link to="/charts" className={`${styles.button} self-start`}>
+      <Link to="/charts" className={`${buttonClass('primary')} self-start`}>
         Zur Übersicht
       </Link>
       <h3 className="font-serif text-xl text-ink">Alle Aufgaben</h3>
