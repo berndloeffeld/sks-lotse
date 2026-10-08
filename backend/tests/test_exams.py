@@ -325,8 +325,11 @@ def test_removed_catalog_question_keeps_history(client, db_session, auth_headers
     exam = _start(client, auth_headers)
     _answer_and_submit(client, auth_headers, exam)
     eq = db_session.query(ExamAttemptQuestion).filter_by(attempt_id=exam["id"], position=1).one()
-    eq.question_id = None
+    # A real delete: the exam row keeps its answer through the FK's ondelete="SET NULL".
+    db_session.delete(db_session.get(Question, eq.question_id))
     db_session.commit()
+    db_session.expire_all()
+    assert db_session.get(ExamAttemptQuestion, eq.id).question_id is None
     first = client.get(f"/api/v1/exams/{exam['id']}", headers=auth_headers).json()["questions"][0]
     assert first["question_text"] is None
     assert first["answer_text"] == "Meine Antwort 1"
@@ -349,6 +352,7 @@ def test_admin_export_includes_exams(client, db_session, auth_headers, monkeypat
     assert len(export["exam_attempts"]) == 1
     attempt = export["exam_attempts"][0]
     assert attempt["exam_id"] == exam["id"]
+    assert attempt["created_at"]
     assert len(attempt["questions"]) == 30
     assert attempt["questions"][0]["answer_text"] == "Meine Antwort 1"
 

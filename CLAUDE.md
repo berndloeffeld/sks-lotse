@@ -38,7 +38,7 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer — for a Kartenaufgabe also the official derivation and the learner's answers to the earlier tasks of the same run (ADR-0058). Never anything about the account.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
 - **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/pricing` or `/admin` (ADR-0027 addendum 2026-09-23).
-- **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung.
+- **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung. `backend/tests/test_personal_data_coverage.py` fails on a table or column that deletion and export don't cover, until it is added there or listed with the reason it needs neither.
 
 ---
 
@@ -90,7 +90,7 @@ The dependency audit that *is* a merge gate: `pip-audit` over `backend/requireme
 Both sides enforce a line + branch coverage minimum: backend in `backend/pyproject.toml` (`--cov-fail-under`, via `pytest-cov`), frontend in `frontend/vite.config.ts` (`test.coverage.thresholds`). Those files hold the numbers; the gates run in the required `backend-test`/`frontend-test` jobs. The rules:
 
 - **The minimum is a ratchet**, set a few points under the actual value: raise it when the actual value settles higher; never lower it to get a PR through — test the code.
-- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override), so the suite never runs the Alembic migrations. The `migrations` CI job does, against the production Postgres major version (`alembic upgrade head`, `alembic check`, `downgrade base`, `upgrade head`): a model change without a migration fails there.
+- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override), so the suite never runs the Alembic migrations. `conftest.py` turns `PRAGMA foreign_keys` on for every SQLite connection, so `ondelete` CASCADE/SET NULL behave as in Postgres. The `migrations` CI job does, against the production Postgres major version (`alembic upgrade head`, `alembic check`, `downgrade base`, `upgrade head`): a model change without a migration fails there.
 
 ### Mutation testing
 Runs daily, not per PR (`.github/workflows/mutation-testing.yml`); how it works, the commands, the current scores and how to read survivors: [docs/mutation-testing.md](docs/mutation-testing.md). The rules:

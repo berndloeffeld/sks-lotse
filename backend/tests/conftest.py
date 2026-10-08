@@ -3,7 +3,8 @@ from collections import defaultdict, deque
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -13,6 +14,18 @@ from app.core.jwt import create_access_token
 from app.main import app
 from app.models import User
 from tests.helpers import FIXTURE_EMAIL
+
+
+@event.listens_for(Engine, "connect")
+def _enforce_sqlite_foreign_keys(dbapi_connection, _record):
+    # SQLite ignores foreign keys, and with them ondelete="CASCADE"/"SET NULL", unless asked per
+    # connection; Postgres (production, the migrations job) always enforces them. On every Engine,
+    # so a test's own create_engine gets it too — and a dangling reference or a blocked delete
+    # fails here, not in the preDeployCommand.
+    if type(dbapi_connection).__module__.startswith("sqlite3"):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 
 @pytest.fixture(autouse=True)

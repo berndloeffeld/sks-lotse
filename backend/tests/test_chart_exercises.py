@@ -367,6 +367,7 @@ def test_admin_export_includes_chart_runs(client, db_session, auth_headers, monk
     assert run["attempt_id"] == attempt["id"]
     assert run["exercise_number"] == 1
     assert run["completed_at"] is None
+    assert run["created_at"]
     assert run["tasks"] == [
         {
             "task_number": 1,
