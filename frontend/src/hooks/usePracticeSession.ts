@@ -27,7 +27,7 @@ export function useStandingsUpdate<D extends { standings: Map<number, QuestionPr
 // learner's standings and the topic names. Fetched once, so the run stays as it was when it
 // started; `startEvent` is tracked when the data arrived.
 export function usePracticeSession(key: string, questionsPath: string, startEvent: string) {
-  const { data, setData, isLoading, failed } = useApiQuery<PracticeSession>(key, async () => {
+  const { data, setData, isLoading, failed, reload } = useApiQuery<PracticeSession>(key, async () => {
     const [questions, progress, topics] = await Promise.all([
       apiClient.get<Question[]>(questionsPath),
       apiClient.get<QuestionProgress[]>('/progress/questions'),
@@ -51,5 +51,5 @@ export function usePracticeSession(key: string, questionsPath: string, startEven
     [topics],
   )
 
-  return { data, isLoading, failed, onGraded, contextLabel }
+  return { data, isLoading, failed, reload, onGraded, contextLabel }
 }
