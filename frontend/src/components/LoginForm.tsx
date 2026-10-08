@@ -8,6 +8,8 @@ import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { buttonClass } from './buttonStyles'
+import { ErrorMessage } from './Messages'
 
 type Step = 'email' | 'code'
 
@@ -39,12 +41,8 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const f = formStyles(tone)
   const labelClass = f.label
   const inputClass = f.input
-  const buttonClass = f.button
-  const errorMessage = error ? (
-    <p role="alert" className={f.error}>
-      {error}
-    </p>
-  ) : null
+  const submitClass = buttonClass('primary', { tone })
+  const errorMessage = <ErrorMessage>{error}</ErrorMessage>
 
   async function handleRequestCode(event: FormEvent) {
     event.preventDefault()
@@ -91,7 +89,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         </label>
         <p className={`text-xs ${f.note}`}>Wir senden dir einen Login-Code per E-Mail – ganz ohne Passwort.</p>
         {errorMessage}
-        <button type="submit" disabled={isSubmitting} className={buttonClass}>
+        <button type="submit" disabled={isSubmitting} className={submitClass}>
           Code anfordern
         </button>
       </form>
@@ -116,7 +114,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         />
       </label>
       {errorMessage}
-      <button type="submit" disabled={isSubmitting} className={buttonClass}>
+      <button type="submit" disabled={isSubmitting} className={submitClass}>
         Anmelden
       </button>
       <button
@@ -126,7 +124,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
           setCode('')
           setError(null)
         }}
-        className={f.link}
+        className={buttonClass('tertiary', { tone })}
       >
         Andere E-Mail-Adresse verwenden
       </button>

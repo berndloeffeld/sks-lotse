@@ -4,6 +4,8 @@ import { apiClient } from '../api/client'
 import type { AdminBlockedEmail } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { ErrorMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 const INPUT = 'border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
@@ -92,19 +94,17 @@ export function AdminBlocklistPage() {
             className={INPUT}
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
-        >
+        <button type="submit" disabled={isSaving} className={buttonClass('primary', { tone: 'admin' })}>
           Sperren
         </button>
       </form>
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      <ErrorMessage>{error}</ErrorMessage>
 
       {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      {query.failed ? <p className="text-sm text-danger">Die Sperrliste konnte nicht geladen werden.</p> : null}
-      {removeError ? <p className="text-sm text-danger">{removeError}</p> : null}
+      <ErrorMessage onRetry={query.reload}>
+        {query.failed ? 'Die Sperrliste konnte nicht geladen werden.' : null}
+      </ErrorMessage>
+      <ErrorMessage>{removeError}</ErrorMessage>
 
       {query.data ? (
         entries.length > 0 ? (
@@ -120,7 +120,7 @@ export function AdminBlocklistPage() {
                   type="button"
                   onClick={() => handleRemove(entry)}
                   disabled={removingId === entry.id}
-                  className="shrink-0 border border-ink px-3 py-1 font-mono text-xs tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+                  className={`shrink-0 ${buttonClass('secondary', { tone: 'admin', size: 'compact' })}`}
                 >
                   Entsperren
                 </button>

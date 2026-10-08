@@ -5,14 +5,14 @@ import { apiClient } from '../api/client'
 import type { AdminUserListItem, AdminUserListPage } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { formatDate, getFullName } from '../format'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 const PAGE_SIZE = 50
 
-const BUTTON =
-  'border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60'
+const BUTTON = buttonClass('secondary', { tone: 'admin' })
 
-const ROW_BUTTON =
-  'shrink-0 border border-ink px-2 py-1 font-mono text-xs tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60'
+const ROW_BUTTON = `shrink-0 ${buttonClass('secondary', { tone: 'admin', size: 'compact' })}`
 
 function fetchPage(q: string, offset: number) {
   const params = new URLSearchParams({ q, offset: String(offset), limit: String(PAGE_SIZE) })
@@ -83,7 +83,7 @@ export function AdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {deleted ? <p className="text-sm text-ink">Account {deleted} wurde gelöscht.</p> : null}
+      <StatusMessage>{deleted ? `Account ${deleted} wurde gelöscht.` : null}</StatusMessage>
       <form role="search" className="flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleSearch}>
         <label className="flex flex-1 flex-col gap-1 text-sm text-ink-soft" htmlFor="user-search">
           E-Mail oder Name
@@ -96,23 +96,22 @@ export function AdminUsersPage() {
             className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
-        <button
-          type="submit"
-          className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase"
-        >
+        <button type="submit" className={buttonClass('primary', { tone: 'admin' })}>
           Suchen
         </button>
       </form>
 
       {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      {query.failed ? <p className="text-sm text-danger">Die Benutzerliste konnte nicht geladen werden.</p> : null}
+      <ErrorMessage onRetry={query.reload}>
+        {query.failed ? 'Die Benutzerliste konnte nicht geladen werden.' : null}
+      </ErrorMessage>
       {page ? (
         <>
           <p className="text-sm text-ink-soft">
             {page.total === 1 ? '1 Benutzer' : `${page.total} Benutzer`}
             {q ? ` für „${q}“` : ''}
           </p>
-          {blockError ? <p className="text-sm text-danger">{blockError}</p> : null}
+          <ErrorMessage>{blockError}</ErrorMessage>
           {page.items.length > 0 ? (
             <ul className="flex flex-col divide-y divide-border border-y border-border">
               {page.items.map((user) => (
@@ -144,7 +143,9 @@ export function AdminUsersPage() {
               ))}
             </ul>
           ) : null}
-          {moreFailed ? <p className="text-sm text-danger">Weitere Benutzer konnten nicht geladen werden.</p> : null}
+          <ErrorMessage onRetry={handleLoadMore}>
+            {moreFailed ? 'Weitere Benutzer konnten nicht geladen werden.' : null}
+          </ErrorMessage>
           {page.items.length < page.total ? (
             <button type="button" onClick={handleLoadMore} disabled={isLoadingMore} className={BUTTON}>
               Mehr laden

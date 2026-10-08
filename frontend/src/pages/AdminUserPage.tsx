@@ -9,6 +9,8 @@ import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatDateTime, getFullName } from '../format'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 function downloadJson(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -31,6 +33,8 @@ function recentCheckError(fallback: string) {
       : fallback
 }
 
+const ADMIN_BUTTON = buttonClass('secondary', { tone: 'admin' })
+
 const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
 
 // One account in the admin area (/admin/users/:id): view, export or delete it
@@ -51,8 +55,10 @@ export function AdminUserPage() {
         ← Alle Benutzer
       </Link>
       {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      {query.failed ? <p className="text-sm text-danger">Der Benutzer konnte nicht geladen werden.</p> : null}
-      {query.data === null ? <p className="text-sm text-danger">Benutzer nicht gefunden.</p> : null}
+      <ErrorMessage onRetry={query.reload}>
+        {query.failed ? 'Der Benutzer konnte nicht geladen werden.' : null}
+      </ErrorMessage>
+      <ErrorMessage>{query.data === null ? 'Benutzer nicht gefunden.' : null}</ErrorMessage>
       {query.data ? <AdminUserDetail user={query.data} onChange={query.setData} /> : null}
     </div>
   )
@@ -221,25 +227,20 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       </dl>
 
       <div className="flex flex-col gap-2">
-        {toggleAction.error ? <p className="text-sm text-danger">{toggleAction.error}</p> : null}
+        <ErrorMessage>{toggleAction.error}</ErrorMessage>
         <button
           type="button"
           onClick={() => handleToggle('ads_removed', 'Die Werbung konnte nicht geändert werden.')}
           disabled={isUpdating}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
+          className={ADMIN_BUTTON}
         >
           {user.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
         </button>
       </div>
 
       <div className="flex flex-col gap-2">
-        {blockAction.error ? <p className="text-sm text-danger">{blockAction.error}</p> : null}
-        <button
-          type="button"
-          onClick={handleBlockToggle}
-          disabled={blockAction.isPending}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-        >
+        <ErrorMessage>{blockAction.error}</ErrorMessage>
+        <button type="button" onClick={handleBlockToggle} disabled={blockAction.isPending} className={ADMIN_BUTTON}>
           {user.is_blocked ? 'Sperre aufheben' : 'Nutzer sperren'}
         </button>
       </div>
@@ -268,12 +269,8 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
-        {grantAction.error ? <p className="text-sm text-danger">{grantAction.error}</p> : null}
-        <button
-          type="submit"
-          disabled={isUpdating}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-        >
+        <ErrorMessage>{grantAction.error}</ErrorMessage>
+        <button type="submit" disabled={isUpdating} className={ADMIN_BUTTON}>
           Tokens gutschreiben
         </button>
       </form>
@@ -290,25 +287,16 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
             className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
-        {debitAction.error ? <p className="text-sm text-danger">{debitAction.error}</p> : null}
-        {debited !== null ? <p className="text-sm text-ink-soft">{debited} Tokens abgebucht.</p> : null}
-        <button
-          type="submit"
-          disabled={isUpdating}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-        >
+        <ErrorMessage>{debitAction.error}</ErrorMessage>
+        <StatusMessage>{debited !== null ? `${debited} Tokens abgebucht.` : null}</StatusMessage>
+        <button type="submit" disabled={isUpdating} className={ADMIN_BUTTON}>
           Tokens abbuchen
         </button>
       </form>
 
       <div className="flex flex-col gap-2">
-        {exportAction.error ? <p className="text-sm text-danger">{exportAction.error}</p> : null}
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={exportAction.isPending}
-          className="border border-ink px-4 py-2 font-mono text-sm tracking-wide text-ink uppercase hover:bg-surface-alt disabled:opacity-60"
-        >
+        <ErrorMessage>{exportAction.error}</ErrorMessage>
+        <button type="button" onClick={handleExport} disabled={exportAction.isPending} className={ADMIN_BUTTON}>
           Daten exportieren
         </button>
       </div>
@@ -318,7 +306,7 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
           <button
             type="button"
             onClick={() => setShowDeleteConfirm(true)}
-            className="border border-danger px-4 py-2 font-mono text-sm tracking-wide text-danger uppercase hover:bg-surface-alt"
+            className={buttonClass('dangerOutline', { tone: 'admin' })}
           >
             Account löschen
           </button>
@@ -334,11 +322,11 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
                 className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
               />
             </label>
-            {deleteAction.error ? <p className="text-sm text-danger">{deleteAction.error}</p> : null}
+            <ErrorMessage>{deleteAction.error}</ErrorMessage>
             <button
               type="submit"
               disabled={!canConfirmDelete || deleteAction.isPending}
-              className="border border-danger bg-danger px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
+              className={buttonClass('danger', { tone: 'admin' })}
             >
               Endgültig löschen
             </button>

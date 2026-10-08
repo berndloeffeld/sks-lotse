@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 import { loginState } from '../returnPath'
 import { useAuthStore } from '../store/authStore'
+import { ErrorMessage } from '../components/Messages'
 
 export function ProtectedRoute() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -20,11 +21,10 @@ export function ProtectedRoute() {
 
   if (sessionError) {
     return (
-      <div role="alert" className="flex flex-col items-start gap-3 p-8 text-ink-soft">
-        <p>Der Server ist gerade nicht erreichbar. Deine Sitzung ist davon nicht betroffen.</p>
-        <button type="button" onClick={() => void checkSession()} className="underline">
-          Erneut versuchen
-        </button>
+      <div className="p-8">
+        <ErrorMessage onRetry={checkSession}>
+          Der Server ist gerade nicht erreichbar. Deine Sitzung ist davon nicht betroffen.
+        </ErrorMessage>
       </div>
     )
   }

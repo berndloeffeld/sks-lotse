@@ -6,6 +6,8 @@ import type { AdminQuestionHistory as History } from '../api/types'
 import { formatDateTime } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { OUTCOME_LABELS } from '../labels'
+import { buttonClass } from './buttonStyles'
+import { ErrorMessage } from './Messages'
 
 // "2,5 Tage" — the half-life a grading produced. Admin-only: the learner UI never shows it (ADR-0024).
 function formatHalfLife(days: number): string {
@@ -18,7 +20,7 @@ function HistoryTable({ questionId }: { questionId: number }) {
     apiClient.get<History>(`/admin/questions/${questionId}/history`),
   )
   if (query.isLoading) return <p className="text-sm text-ink-soft">Lädt …</p>
-  if (!query.data) return <p className="text-sm text-danger">Der Verlauf ließ sich nicht laden.</p>
+  if (!query.data) return <ErrorMessage onRetry={query.reload}>Der Verlauf ließ sich nicht laden.</ErrorMessage>
   const { users } = query.data
   if (users.length === 0) return <p className="text-sm text-ink-soft">Noch von niemandem bewertet.</p>
   return <LearnerHistory users={users} />
@@ -85,7 +87,7 @@ export function AdminQuestionHistory({ questionId }: { questionId: number }) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="font-mono text-xs tracking-wide text-ink-soft uppercase underline"
+        className={buttonClass('tertiary', { tone: 'admin' })}
       >
         {open ? 'Antwortverlauf ausblenden' : 'Antwortverlauf anzeigen'}
       </button>

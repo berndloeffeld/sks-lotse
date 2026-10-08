@@ -4,7 +4,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ApiError, apiClient } from '../api/client'
 import type { CheckoutRead, PublicPricing, PublicTokenPackage, User } from '../api/types'
 import { isCheckoutUrl } from '../checkout'
-import { formStyles } from '../components/formStyles'
 import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { formatEurCents } from '../format'
@@ -12,8 +11,8 @@ import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { PACKAGE_LABELS, type PackageProduct } from '../labels'
 import { useAuthStore } from '../store/authStore'
-
-const styles = formStyles('light')
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 // How long after the return from Stripe the balance is fetched once more: the webhook that credits
 // the tokens (ADR-0048) usually lands before the redirect, but isn't guaranteed to.
@@ -142,7 +141,12 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
             ).
           </span>
         </label>
-        <button type="button" onClick={() => void buy()} disabled={isPending} className={`self-start ${styles.button}`}>
+        <button
+          type="button"
+          onClick={() => void buy()}
+          disabled={isPending}
+          className={`self-start ${buttonClass('primary')}`}
+        >
           {isPending
             ? 'Weiter zur Zahlung …'
             : pkg
@@ -152,11 +156,7 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
         <p className="text-xs text-ink-soft">
           Du wirst zur Zahlung an unseren Zahlungsanbieter weitergeleitet und kommst danach hierher zurück.
         </p>
-        {error ? (
-          <p role="alert" className={styles.error}>
-            {error}
-          </p>
-        ) : null}
+        <ErrorMessage>{error}</ErrorMessage>
       </div>
     </div>
   )
@@ -183,18 +183,14 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
 
   if (status === 'success') {
     return (
-      <p role="status" className="rounded-tile border-l-4 border-success bg-surface px-3 py-2 text-ink">
+      <StatusMessage>
         Danke für deinen Kauf! Die Tokens werden deinem Konto gutgeschrieben
         {user ? ` – aktueller Stand: ${user.token_balance} Tokens` : ''}.
-      </p>
+      </StatusMessage>
     )
   }
   if (status === 'cancelled') {
-    return (
-      <p role="status" className="rounded-tile border-l-4 border-border bg-surface px-3 py-2 text-ink-soft">
-        Zahlung abgebrochen – es wurde nichts berechnet.
-      </p>
-    )
+    return <StatusMessage tone="neutral">Zahlung abgebrochen – es wurde nichts berechnet.</StatusMessage>
   }
   return null
 }
@@ -204,7 +200,9 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
 // (`user.can_buy_tokens`, ADR-0048); until then the
 // "bald verfügbar" framing repeats at every level so it can't be skimmed past as a live offer.
 export function PricingPage() {
-  const { data, isLoading, failed } = useApiQuery('pricing-page', () => apiClient.get<PublicPricing>('/pricing'))
+  const { data, isLoading, failed, reload } = useApiQuery('pricing-page', () =>
+    apiClient.get<PublicPricing>('/pricing'),
+  )
   const user = useAuthStore((s) => s.user)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const [searchParams] = useSearchParams()
@@ -240,7 +238,7 @@ export function PricingPage() {
       ) : null}
 
       {isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      {failed ? <p className="text-sm text-danger">Die Preise konnten nicht geladen werden.</p> : null}
+      <ErrorMessage onRetry={reload}>{failed ? 'Die Preise konnten nicht geladen werden.' : null}</ErrorMessage>
 
       {data ? (
         <>

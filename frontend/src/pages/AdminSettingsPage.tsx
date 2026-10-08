@@ -5,6 +5,8 @@ import type { AdminSettings, TokenPackageSettings } from '../api/types'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { PACKAGE_LABELS, PACKAGE_PRODUCTS, type PackageProduct } from '../labels'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 // Euro-and-cent input as a plain string, e.g. "2.99" — kept as text (not a number) so a half-typed
 // value ("2.") doesn't get silently mangled while the operator is still typing.
@@ -71,7 +73,9 @@ const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 // the full set, not just the field the operator touched.
 export function AdminSettingsPage() {
   const query = useApiQuery('admin-settings', () => apiClient.get<AdminSettings>('/admin/settings'))
-  if (query.failed) return <p className="text-sm text-danger">Die Einstellungen konnten nicht geladen werden.</p>
+  if (query.failed) {
+    return <ErrorMessage onRetry={query.reload}>Die Einstellungen konnten nicht geladen werden.</ErrorMessage>
+  }
   if (!query.data) return <p className="text-sm text-ink-soft">Lädt …</p>
   return <SettingsEditor initial={query.data} />
 }
@@ -163,13 +167,9 @@ function SettingsEditor({ initial }: { initial: AdminSettings }) {
         ))}
       </div>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-      {saved ? <p className="text-sm text-ink">Gespeichert.</p> : null}
-      <button
-        type="submit"
-        disabled={isSaving}
-        className="border border-ink bg-ink px-4 py-2 font-mono text-sm tracking-wide text-surface uppercase disabled:opacity-60"
-      >
+      <ErrorMessage>{error}</ErrorMessage>
+      <StatusMessage>{saved ? 'Gespeichert.' : null}</StatusMessage>
+      <button type="submit" disabled={isSaving} className={buttonClass('primary', { tone: 'admin' })}>
         Speichern
       </button>
     </form>

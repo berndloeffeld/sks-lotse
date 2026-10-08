@@ -4,6 +4,7 @@ import { useAdminMfaStatus } from '../hooks/useAdminMfaStatus'
 import { useAuthStore } from '../store/authStore'
 import { AdminMfaEnrol, AdminMfaVerify } from './AdminMfa'
 import { PageLayout } from './PageLayout'
+import { ErrorMessage } from './Messages'
 
 // The admin area's sections. A new admin page is one entry here plus its route in App.tsx.
 const SECTIONS = [
@@ -39,11 +40,7 @@ function AdminArea() {
   const { status, failed, reload, recentCheckRequired, recentCheckDone } = useAdminMfaStatus()
 
   if (failed) {
-    return (
-      <p role="alert" className="text-sm text-danger">
-        Der Admin-Bereich konnte nicht geladen werden. Bitte die Seite neu laden.
-      </p>
-    )
+    return <ErrorMessage onRetry={reload}>Der Admin-Bereich konnte nicht geladen werden.</ErrorMessage>
   }
   if (!status) return <p className="text-sm text-ink-soft">Lädt …</p>
   if (!status.enrolled) return <AdminMfaEnrol onVerified={() => void reload()} />

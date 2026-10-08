@@ -6,6 +6,7 @@ import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
 import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 interface SectionProps {
   icon?: ReactNode
@@ -127,10 +128,7 @@ export function ExamProcessPage() {
         <div className="pt-2">
           {/* A guest signs up and goes on to /learn (the login's default target), not back to this page;
               a learner goes there directly. */}
-          <Link
-            to={isAuthenticated ? '/learn' : '/login'}
-            className="rounded-tile bg-primary px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
-          >
+          <Link to={isAuthenticated ? '/learn' : '/login'} className={buttonClass('primary')}>
             {isAuthenticated ? 'Zum Lernen' : 'Kostenlos anmelden'}
           </Link>
         </div>
