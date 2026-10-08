@@ -238,19 +238,24 @@ describe('ProfileAccountPage', () => {
     expect(await screen.findByText('Der Code ist ungültig oder abgelaufen.')).toBeInTheDocument()
   })
 
-  it('gates the delete-confirm button until the email matches', async () => {
+  it('deletes nothing until the email matches, and says so on a click', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404)))
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404))
+    vi.stubGlobal('fetch', fetchMock)
 
     renderAccountPage()
     await user.click(screen.getByRole('button', { name: 'Account löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
-    const confirmButton = screen.getByRole('button', { name: 'Endgültig löschen' })
-    expect(confirmButton).toBeDisabled()
+    expect(screen.getByRole('alert')).toHaveTextContent('Die E-Mail-Adresse stimmt nicht überein.')
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('/auth/me'),
+      expect.objectContaining({ method: 'DELETE' }),
+    )
 
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
-    expect(confirmButton).toBeEnabled()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('deletes the account and navigates to the landing page', async () => {

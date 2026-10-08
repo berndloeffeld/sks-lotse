@@ -170,7 +170,9 @@ describe('ExamPage', () => {
     )
     renderPage()
     expect(await screen.findByRole('alert')).toHaveTextContent('Die Prüfungen konnten nicht geladen werden.')
-    expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeDisabled()
+    // A start without the list does nothing; the error above already says why.
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Prüfung starten' }))
+    expect(screen.getAllByRole('alert')).toHaveLength(1)
 
     failing = false
     await userEvent.setup().click(screen.getByRole('button', { name: 'Erneut laden' }))
@@ -178,6 +180,27 @@ describe('ExamPage', () => {
     expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Prüfung starten' })).toBeEnabled()
+  })
+
+  it('says the list is still loading when the exam is started before it arrived', async () => {
+    setUser('motor')
+    let answer: (response: Response) => void = () => {}
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === 'POST'
+        ? Promise.resolve(jsonResponse({}, 500))
+        : new Promise<Response>((resolve) => (answer = resolve)),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Prüfung starten' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Deine bisherigen Prüfungen sind noch nicht geladen.')
+    expect(fetchMock).not.toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ method: 'POST' }))
+
+    answer(jsonResponse([]))
+    expect(await screen.findByText('Noch keine Prüfung abgelegt.')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('leads to the Probeprüfung tab of /learn with the Kartenaufgaben', async () => {

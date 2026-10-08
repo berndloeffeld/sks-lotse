@@ -174,15 +174,16 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
     }, 'Die Tokens konnten nicht abgebucht werden.')
   }
 
+  const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()
+
   function handleDelete(event: FormEvent) {
     event.preventDefault()
+    if (!canConfirmDelete) return deleteAction.setError('Die E-Mail-Adresse stimmt nicht überein.')
     return deleteAction.run(async () => {
       await apiClient.delete(`/admin/users/${user.id}`)
       navigate('/admin/users', { state: { deleted: user.email } })
     }, recentCheckError('Der Account konnte nicht gelöscht werden.'))
   }
-
-  const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()
 
   return (
     <section className="flex flex-col gap-6 border border-border p-4">
@@ -318,14 +319,17 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
                 id="delete-confirm-email"
                 type="email"
                 value={deleteConfirmEmail}
-                onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                onChange={(event) => {
+                  setDeleteConfirmEmail(event.target.value)
+                  deleteAction.setError(null)
+                }}
                 className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
               />
             </label>
             <ErrorMessage>{deleteAction.error}</ErrorMessage>
             <button
               type="submit"
-              disabled={!canConfirmDelete || deleteAction.isPending}
+              disabled={deleteAction.isPending}
               className={buttonClass('danger', { tone: 'admin' })}
             >
               Endgültig löschen

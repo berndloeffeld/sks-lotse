@@ -17,6 +17,10 @@ type EmailChangeStep = 'view' | 'email' | 'code'
 
 const light = formStyles('light')
 
+// Deleting stays clickable until the address matches, and then says why it didn't (one pattern for a
+// missing step across the app); the handler checks it, not a disabled button.
+const DELETE_MISMATCH = 'Die E-Mail-Adresse stimmt nicht überein.'
+
 // A settings section in the same voice as the Lernstand tab's columns
 // (ProgressOverview): a colored serif heading, no box around it. Sections
 // after the first get a hairline top divider instead of a border all round —
@@ -149,6 +153,10 @@ export function ProfileAccountPage() {
 
   async function handleDeleteAccount(event: FormEvent) {
     event.preventDefault()
+    if (!canConfirmDelete) {
+      deleteAction.setError(DELETE_MISMATCH)
+      return
+    }
     await deleteAction.run(async () => {
       await apiClient.delete('/auth/me')
       // Not logout(): the backend already dropped the account and cleared the
@@ -318,16 +326,15 @@ export function ProfileAccountPage() {
                   id="delete-confirm-email"
                   type="email"
                   value={deleteConfirmEmail}
-                  onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                  onChange={(event) => {
+                    setDeleteConfirmEmail(event.target.value)
+                    deleteAction.setError(null)
+                  }}
                   className={`${light.input} border-danger`}
                 />
               </label>
               <ErrorMessage>{deleteAction.error}</ErrorMessage>
-              <button
-                type="submit"
-                disabled={!canConfirmDelete || deleteAction.isPending}
-                className={buttonClass('danger')}
-              >
+              <button type="submit" disabled={deleteAction.isPending} className={buttonClass('danger')}>
                 Endgültig löschen
               </button>
             </form>

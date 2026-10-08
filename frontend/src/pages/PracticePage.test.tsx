@@ -224,7 +224,11 @@ describe('PracticePage', () => {
 
     expect(screen.getByText('Antwort 7.')).toBeInTheDocument()
     expect(screen.getByText('Mein Versuch')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
+    // Not locked without a grade: a click says what is missing.
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Wähle zuerst, wie gut deine Antwort war.')
+    await user.click(screen.getByRole('radio', { name: 'Richtig' }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('scrolls down until the "Weiter" button clears the fold, plus 2px, when the answer is revealed', async () => {

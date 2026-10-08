@@ -8,6 +8,8 @@ import { AiAnswerCheck } from './AiAnswerCheck'
 import { ErrorMessage } from './Messages'
 import { buttonClass } from './buttonStyles'
 
+const NO_GRADE = 'Wähle zuerst, wie gut deine Antwort war.'
+
 interface SelfAssessmentProps {
   // Radio group name, unique per page.
   name: string
@@ -57,14 +59,23 @@ export function SelfAssessment({ name, onSave, saveErrorMessage, aiCheck, layout
   // and Tab keeps cycling through the radios like in the manual loop. Its suggestion box can
   // push "Weiter" further down than the first scroll reached, so scroll again.
   function suggestOutcome(suggested: GradingOutcome) {
-    flushSync(() => setOutcome(suggested))
+    flushSync(() => {
+      setOutcome(suggested)
+      setError(null)
+    })
     radioRefs.current[OUTCOMES.indexOf(suggested)]?.focus({ preventScroll: true })
     scrollBelowIntoView(continueRef.current)
   }
 
   // `chosen` lets Enter on a radio save the grade it just selected, before state has caught up.
+  // "Weiter" stays clickable without a grade and says what is missing (the app's one pattern for a
+  // missing step); only a save in progress locks it.
   async function save(chosen: GradingOutcome | null) {
-    if (!chosen || isSaving) return
+    if (isSaving) return
+    if (!chosen) {
+      setError(NO_GRADE)
+      return
+    }
     setIsSaving(true)
     setError(null)
     try {
@@ -103,7 +114,10 @@ export function SelfAssessment({ name, onSave, saveErrorMessage, aiCheck, layout
               name={name}
               value={o}
               checked={outcome === o}
-              onChange={() => setOutcome(o)}
+              onChange={() => {
+                setOutcome(o)
+                setError(null)
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Tab') {
                   event.preventDefault()
@@ -144,7 +158,7 @@ export function SelfAssessment({ name, onSave, saveErrorMessage, aiCheck, layout
         ref={continueRef}
         type="button"
         className={buttonClass('primary')}
-        disabled={!outcome || isSaving}
+        disabled={isSaving}
         onClick={() => void save(outcome)}
       >
         {isSaving ? 'Wird gespeichert…' : 'Weiter'}

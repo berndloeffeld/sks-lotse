@@ -288,7 +288,7 @@ describe('ExamRunPage', () => {
     expect(await screen.findByText('Frage 1?')).toBeInTheDocument()
     expect(screen.getByText('Meine A1')).toBeInTheDocument()
     expect(screen.getByText('Amtlich 1')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled()
 
     // Focus sits on the group, so the first Tab lands on "Richtig", then it cycles.
     // (waitFor: the focus effect runs after the first paint, so it can lag the text appearing.)

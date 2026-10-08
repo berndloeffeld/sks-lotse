@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
@@ -30,8 +31,19 @@ export function ExamOverview() {
   const variantUpdate = useExamVariantUpdate()
   const startAction = useAsyncAction()
   const isStarting = startAction.isPending
+  // A start clicked before the list arrived: it decides between starting and resuming, so say that
+  // it is missing (until it arrives) instead of locking the button without a reason. After a failed
+  // load the error above, with its "Erneut laden", already says so.
+  const [startedEarly, setStartedEarly] = useState(false)
+  const notLoaded =
+    startedEarly && exams === null && !examsQuery.failed ? 'Deine bisherigen Prüfungen sind noch nicht geladen.' : null
 
   function start() {
+    if (exams === null) {
+      startAction.setError(null)
+      setStartedEarly(true)
+      return
+    }
     return startAction.run(
       async () => {
         const exam = await apiClient.post<Exam>('/exams')
@@ -66,7 +78,7 @@ export function ExamOverview() {
         <ErrorMessage onRetry={examsQuery.reload}>
           {examsQuery.failed ? 'Die Prüfungen konnten nicht geladen werden.' : null}
         </ErrorMessage>
-        <ErrorMessage>{startAction.error}</ErrorMessage>
+        <ErrorMessage>{startAction.error ?? notLoaded}</ErrorMessage>
         {!hasVariant ? (
           // Picked right here the first time (the same setting as on /learn and /profile), so the
           // first exam doesn't start with a detour.
@@ -87,7 +99,7 @@ export function ExamOverview() {
           <button
             type="button"
             className={`${buttonClass('primary')} self-start`}
-            disabled={isStarting || exams === null}
+            disabled={isStarting}
             onClick={() => void start()}
           >
             {isStarting ? 'Wird gestartet…' : 'Prüfung starten'}
