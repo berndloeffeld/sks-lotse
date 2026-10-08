@@ -330,7 +330,7 @@ export function ProfileAccountPage() {
                     setDeleteConfirmEmail(event.target.value)
                     deleteAction.setError(null)
                   }}
-                  className={`${light.input} border-danger`}
+                  className={light.dangerInput}
                 />
               </label>
               <ErrorMessage>{deleteAction.error}</ErrorMessage>
