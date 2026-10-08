@@ -90,7 +90,7 @@ The dependency audit that *is* a merge gate: `pip-audit` over `backend/requireme
 Both sides enforce a line + branch coverage minimum: backend in `backend/pyproject.toml` (`--cov-fail-under`, via `pytest-cov`), frontend in `frontend/vite.config.ts` (`test.coverage.thresholds`). Those files hold the numbers; the gates run in the required `backend-test`/`frontend-test` jobs. The rules:
 
 - **The minimum is a ratchet**, set a few points under the actual value: raise it when the actual value settles higher; never lower it to get a PR through — test the code.
-- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override), so the suite never runs the Alembic migrations. The `migrations` CI job does, against the production Postgres major version (`alembic upgrade head`, `alembic check`, `downgrade base`, `upgrade head`): a model change without a migration fails there.
+- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override), so the suite never runs the Alembic migrations. `conftest.py` turns `PRAGMA foreign_keys` on for every SQLite connection, so `ondelete` CASCADE/SET NULL behave as in Postgres. The `migrations` CI job does, against the production Postgres major version (`alembic upgrade head`, `alembic check`, `downgrade base`, `upgrade head`): a model change without a migration fails there.
 
 ### Mutation testing
 Runs daily, not per PR (`.github/workflows/mutation-testing.yml`); how it works, the commands, the current scores and how to read survivors: [docs/mutation-testing.md](docs/mutation-testing.md). The rules:

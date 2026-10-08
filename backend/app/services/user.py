@@ -23,12 +23,10 @@ def locked_user(db: Session, user_id: int) -> User:
 
 
 def delete_user_and_progress(db: Session, user: User) -> None:
-    # Deleted explicitly rather than relying on the question_progress.user_id
-    # FK's ondelete="CASCADE": that fires reliably on Postgres (production),
-    # but SQLite (used by the test suite) only enforces FK actions when
-    # PRAGMA foreign_keys=ON is set on the connection, which app/core/database.py
-    # doesn't do — an ORM-level session.delete(user) alone can't be trusted to
-    # cascade under both engines.
+    # Deleted explicitly, children before parents, although most user_id FKs carry ondelete="CASCADE":
+    # the explicit statements make this function complete by itself (the tests run it with and
+    # without foreign-key enforcement, tests/test_personal_data_coverage.py), and the purchases below
+    # need their own handling anyway — their FKs have no cascade, and paid rows must survive.
     db.execute(delete(QuestionProgress).where(QuestionProgress.user_id == user.id))
     db.execute(delete(QuestionGradingLog).where(QuestionGradingLog.user_id == user.id))
     db.execute(delete(FocusTopic).where(FocusTopic.user_id == user.id))
