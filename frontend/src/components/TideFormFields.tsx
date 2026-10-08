@@ -19,7 +19,9 @@ const ROWS: { key: 'reference' | 'difference' | 'secondary'; label: string }[] =
   { key: 'secondary', label: 'Anschlussort' },
 ]
 
-const INPUT = 'w-full min-w-0 rounded border border-border bg-surface px-0.5 py-0.5 font-mono text-[11px] text-ink'
+// 16 px on phones, where iOS would otherwise zoom in on focus (see formStyles' input).
+const INPUT =
+  'w-full min-w-0 rounded border border-border bg-surface px-0.5 py-0.5 font-mono text-base text-ink sm:text-[11px]'
 const CELL = 'border border-border p-0.5'
 
 interface TideFormFieldsProps {
@@ -107,8 +109,9 @@ export function TideFormFields({ form, update, clear }: TideFormFieldsProps) {
               </label>
             ))}
           </div>
+          {/* Wider on phones, where the fields' 16 px text needs room for a time like 08:53. */}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[26rem] table-fixed border-collapse text-xs">
+            <table className="w-full min-w-[36rem] table-fixed border-collapse text-xs sm:min-w-[26rem]">
               <thead>
                 <tr>
                   <th className={`${CELL} w-20 text-left font-normal text-ink-soft`}>
@@ -132,7 +135,7 @@ export function TideFormFields({ form, update, clear }: TideFormFieldsProps) {
                           onChange={(event) =>
                             edit((draft) => void (draft.blocks[b].events[e].kind = event.target.value as TideKind))
                           }
-                          className="rounded border border-border bg-surface font-mono text-xs"
+                          className="rounded border border-border bg-surface font-mono text-base sm:text-xs"
                         >
                           <option value="">_W</option>
                           <option value="H">HW</option>

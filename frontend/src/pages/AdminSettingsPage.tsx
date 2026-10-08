@@ -63,7 +63,7 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
   }
 }
 
-const INPUT = 'border border-border bg-surface px-3 py-2 text-ink'
+const INPUT = 'border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 
 // App-wide admin settings (/admin/settings): every token-package/Werbefrei price (ADR-0043).

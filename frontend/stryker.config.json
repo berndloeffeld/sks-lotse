@@ -46,6 +46,7 @@
     "src/checkLimits.ts",
     "src/hooks/useCheckLimits.ts",
     "src/hooks/useNavigateWhileMounted.ts",
+    "src/hooks/useEnterShortcut.ts",
     "src/checkout.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],

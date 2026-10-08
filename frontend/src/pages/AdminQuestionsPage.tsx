@@ -53,7 +53,7 @@ export function AdminQuestionsPage() {
             maxLength={200}
             value={input.q}
             onChange={(event) => setInput({ ...input, q: event.target.value })}
-            className="border border-border bg-surface px-3 py-2 text-ink"
+            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="question-subject">
@@ -62,7 +62,7 @@ export function AdminQuestionsPage() {
             id="question-subject"
             value={input.subject}
             onChange={(event) => setInput({ ...input, subject: event.target.value, topic: '' })}
-            className="border border-border bg-surface px-3 py-2 text-ink"
+            className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
           >
             <option value="">Alle Fächer</option>
             {Object.entries(SUBJECT_LABELS).map(([subject, label]) => (
@@ -79,7 +79,7 @@ export function AdminQuestionsPage() {
               id="question-topic"
               value={input.topic}
               onChange={(event) => setInput({ ...input, topic: event.target.value })}
-              className="border border-border bg-surface px-3 py-2 text-ink"
+              className="border border-border bg-surface px-3 py-2 text-base text-ink sm:text-sm"
             >
               <option value="">Alle Themen</option>
               {topics.data.map((topic) => (

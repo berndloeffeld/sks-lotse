@@ -15,9 +15,12 @@ interface HeaderProps {
 
 // Full-width primary-dark bar — the top band of every page's banded layout. Everything in it
 // sits on one text baseline: the wordmark, the links and the bordered buttons' labels.
+// It sticks from `sm` on, where it is one line high: `--header-height` in index.css, which the
+// sticky bars below it and the anchor jumps go by. On phones it wraps to up to three lines, so
+// there it scrolls away and leaves the screen to the page.
 export function Header({ homeTo = '/', nav }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-primary-dark">
+    <header className="z-40 bg-primary-dark sm:sticky sm:top-0">
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-3 px-4 py-4">
         <div className="flex items-baseline gap-3">
           <Link to={homeTo} aria-label="SKS Lotse – Startseite">

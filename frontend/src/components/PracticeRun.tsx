@@ -6,6 +6,7 @@ import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress } from '../api/types'
 import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { CourseGauge } from './CourseGauge'
+import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
 import { OfficialAnswer } from './OfficialAnswer'
@@ -89,6 +90,7 @@ export function PracticeRun({
   // Whether a question just became gelernt, while its celebration runs.
   const [celebrating, setCelebrating] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement>(null)
+  const enterShortcut = useEnterShortcut(() => setPhase('assess'))
   const styles = formStyles('light')
 
   // Keyboard flow: each phase hands focus to the control the learner needs next, so the whole
@@ -265,16 +267,13 @@ export function PracticeRun({
               ref={noteRef}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault()
-                  setPhase('assess')
-                }
-              }}
+              onKeyDown={enterShortcut.onKeyDown}
               rows={4}
               className={styles.input}
             />
-            <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
+            {enterShortcut.enabled ? (
+              <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
+            ) : null}
           </label>
           <button type="button" className={styles.button} onClick={() => setPhase('assess')}>
             Lösung anzeigen

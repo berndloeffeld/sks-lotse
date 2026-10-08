@@ -39,7 +39,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
           aria-pressed={isFocus}
           aria-label={isFocus ? `Fokus entfernen: ${title}` : `Als Fokus markieren: ${title}`}
           title={isFocus ? 'Fokus entfernen' : 'Als Fokus markieren'}
-          className={`text-xl leading-none ${isFocus ? 'text-accent' : 'text-ink-soft hover:text-accent'}`}
+          className={`-m-1 p-1 text-xl leading-none ${isFocus ? 'text-accent' : 'text-ink-soft hover:text-accent'}`}
         >
           <span aria-hidden="true">{isFocus ? '★' : '☆'}</span>
         </button>

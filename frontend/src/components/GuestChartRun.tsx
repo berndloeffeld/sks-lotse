@@ -30,7 +30,7 @@ export function GuestChartRun({ charts, sheet }: { charts: ChartExport; sheet: C
         <ChartTaskRun attempt={attempt} onAnswer={onAnswer} onPoints={onPoints} guest />
       </div>
       <div className="hidden lg:block">
-        <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+        <div className="sticky top-[calc(var(--header-height)+1.75rem)] max-h-[calc(100vh-var(--header-height)-2.75rem)] overflow-y-auto">
           <ChartSidePanel attempt={attempt} overview={overview} tideForm={tideForm} />
         </div>
       </div>

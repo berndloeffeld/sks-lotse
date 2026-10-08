@@ -77,10 +77,14 @@ async function revealAndGrade(outcome: string) {
   return user
 }
 
-function mockReducedMotion(reduced: boolean) {
+// Any other query (the fine pointer of useEnterShortcut) matches: a desktop with a keyboard.
+function mockReducedMotion(reduced: boolean, finePointer = true) {
   vi.stubGlobal(
     'matchMedia',
-    vi.fn((query: string) => ({ matches: reduced && query.includes('reduce'), media: query })),
+    vi.fn((query: string) => ({
+      matches: query.includes('reduce') ? reduced : finePointer,
+      media: query,
+    })),
   )
 }
 
@@ -429,6 +433,20 @@ describe('PracticePage', () => {
     expect(screen.getByText('Nr. 7')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('textbox')).toHaveFocus())
     expect(fetchMock).toHaveBeenCalled()
+  })
+
+  it('keeps Enter a line break on a touch device, without the keyboard hint', async () => {
+    mockBackend({ questions: [question(1, 7)] })
+    mockReducedMotion(true, false)
+    renderPracticePage()
+    const user = userEvent.setup()
+
+    const textbox = await screen.findByRole('textbox')
+    await user.type(textbox, 'Zeile eins{Enter}Zeile zwei')
+
+    expect(textbox).toHaveValue('Zeile eins\nZeile zwei')
+    expect(screen.queryByText('Amtliche Antwort')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Shift\+Enter/)).not.toBeInTheDocument()
   })
 
   it('offers to repeat everything once the whole topic is learned', async () => {
