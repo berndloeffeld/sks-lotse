@@ -90,7 +90,7 @@ describe('RefreshPracticePage', () => {
 
     expect(await screen.findByText('Nichts aufzufrischen')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Alle Fragen wiederholen' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Zum Auffrischen' })).toHaveAttribute('href', '/learn?modus=refresh')
   })
 
   it('shows an error when the questions cannot be loaded', async () => {

@@ -17,6 +17,11 @@ interface AuthState {
   // session" (network down, 5xx). The session may well still be valid, so
   // ProtectedRoute offers a retry instead of bouncing the learner to /login.
   sessionError: boolean
+  // True once a request found the session of a learner who was signed in gone (a 401): the pages
+  // say so (PageLayout) instead of silently turning into the guest's. Cleared by the next login or
+  // dismissSessionExpired.
+  sessionExpired: boolean
+  dismissSessionExpired: () => void
   // The only source of truth for "logged in" (ADR-0013) — never derived from
   // inspecting a token, since the frontend never holds one (ADR-0012).
   checkSession: () => Promise<void>
@@ -34,18 +39,25 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => {
   const clearSession = () => set({ user: null, isAuthenticated: false, isLoading: false, sessionError: false })
-  setUnauthorizedHandler(clearSession)
+  // A 401 during logout() means the same thing as the logout itself: nothing to point out.
+  let loggingOut = false
+  setUnauthorizedHandler(() => {
+    set((state) => ({ sessionExpired: state.sessionExpired || (state.isAuthenticated && !loggingOut) }))
+    clearSession()
+  })
 
   return {
     user: null,
     isAuthenticated: false,
     isLoading: true,
     sessionError: false,
+    sessionExpired: false,
+    dismissSessionExpired: () => set({ sessionExpired: false }),
     checkSession: async () => {
       set({ isLoading: true, sessionError: false })
       try {
         const user = await apiClient.get<User>('/auth/me')
-        set({ user, isAuthenticated: true, isLoading: false })
+        set({ user, isAuthenticated: true, isLoading: false, sessionExpired: false })
       } catch (error) {
         // Only a 401 means "logged out" (the client's unauthorized handler has
         // already cleared the session by then); anything else is a failed check.
@@ -60,15 +72,18 @@ export const useAuthStore = create<AuthState>((set) => {
     },
     clearSession,
     logout: async () => {
+      loggingOut = true
       try {
         await apiClient.post('/auth/logout')
       } catch {
         // Session was already invalid — fall through and clear local state
         // regardless, there's nothing else to undo.
+      } finally {
+        loggingOut = false
       }
       // Whoever uses this browser next must not find this learner's Formblatt in it.
       forgetAllTideForms()
-      set({ user: null, isAuthenticated: false })
+      set({ user: null, isAuthenticated: false, sessionExpired: false })
     },
   }
 })

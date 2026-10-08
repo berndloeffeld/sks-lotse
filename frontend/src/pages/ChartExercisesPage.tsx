@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import type { ChartExerciseSummary } from '../api/types'
 import { guestOverview } from '../chartCatalog'
 import { ChartTile } from '../components/ChartTile'
+import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { useChartOverview } from '../hooks/useChartAttempt'
 import { useChartCatalog } from '../hooks/useChartCatalog'
@@ -40,13 +41,7 @@ function GuestChartExercises() {
         exercises={charts ? guestOverview(charts).exercises : null}
         error={failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null}
       />
-      <p className="text-sm text-ink-soft">
-        Ohne Konto wird nichts gespeichert.{' '}
-        <Link to="/login" className="text-primary underline">
-          Mit einem Konto
-        </Link>{' '}
-        behältst du deine Durchgänge und Punkte.
-      </p>
+      <GuestCta>Ohne Konto wird nichts gespeichert. Mit einem Konto behältst du deine Durchgänge und Punkte.</GuestCta>
     </ChartExercisesLayout>
   )
 }

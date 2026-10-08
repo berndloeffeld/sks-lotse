@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, RouterProvider, createMemoryRouter } from 'react-router-dom'
 
-import App, { AppRoutes } from './App'
+import { AppRoutes } from './App'
+import { appRoutes } from './appRoutes'
 import { useMaintenanceStore } from './store/maintenanceStore'
 import { jsonResponse, makeUser } from './test/fixtures'
 
@@ -15,7 +16,7 @@ describe('App', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401))
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<App />)
+    render(<RouterProvider router={createMemoryRouter(appRoutes)} />)
 
     expect(await screen.findByRole('heading', { name: 'Sicher durch die SKS-Theorie' })).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/v1/auth/me'), expect.anything())
@@ -93,6 +94,36 @@ describe('App', () => {
     )
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
+  })
+
+  it('says an unknown address was not found, with the way to the start page', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    render(
+      <MemoryRouter initialEntries={['/gibt-es-nicht']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    expect(screen.getByText(/Unter dieser Adresse gibt es keine Seite\./)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Zur Startseite' })).toHaveAttribute('href', '/')
+  })
+
+  it('sends a learner from an unknown address back to learning', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => Promise.resolve(url.includes('/auth/me') ? jsonResponse(makeUser()) : jsonResponse([]))),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/admin/gibt-es-nicht']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('link', { name: 'Zum Lernen' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
   })
 
   it.each([

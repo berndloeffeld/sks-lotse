@@ -66,7 +66,7 @@ describe('ChartExercisesPage for a guest', () => {
     expect(within(first).getByRole('heading', { name: 'Cuxhaven → Büsum' })).toBeInTheDocument()
     expect(first).toHaveTextContent('2 Aufgaben · 3 Punkte')
     expect(first).not.toHaveTextContent('Noch nicht bearbeitet')
-    expect(screen.getByRole('link', { name: 'Mit einem Konto' })).toHaveAttribute('href', '/login')
+    expect(screen.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
     expect(fetchMock).not.toHaveBeenCalled()
   })
 

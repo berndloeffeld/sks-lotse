@@ -6,9 +6,9 @@ import { topicQuestions, topicsBySubject, type GuestCatalog } from '../catalog'
 import { Band, Columns } from '../components/Bands'
 import { ExamOverview } from '../components/ExamOverview'
 import { FocusBand } from '../components/FocusBand'
-import { formStyles } from '../components/formStyles'
 import { LearnModePanel, LearnModeTabs, RefreshPanel } from '../components/LearnModes'
 import { LedgerRow } from '../components/LedgerRow'
+import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useApiQuery } from '../hooks/useApiQuery'
@@ -119,16 +119,11 @@ function GuestLearnContent() {
   return (
     <>
       <Band className="pt-10 pb-0">
-        <div className="flex flex-col items-start gap-3 rounded-tile border border-primary bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-xl text-sm text-ink">
-            Alle Fragen des amtlichen Katalogs, frei zum Üben. Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung
-            speichert SKS Lotse deinen Lernstand, und du bekommst Fokus-Themen, Auffrischen, die Probeprüfung und den
-            Lotsen-Check.
-          </p>
-          <Link to="/login" className={formStyles('light').button}>
-            Kostenlos anmelden
-          </Link>
-        </div>
+        <GuestCta>
+          Alle Fragen des amtlichen Katalogs, frei zum Üben. Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung
+          speichert SKS Lotse deinen Lernstand, und du bekommst Fokus-Themen, Auffrischen, die Probeprüfung und den
+          Lotsen-Check.
+        </GuestCta>
       </Band>
       <Band className="py-10">
         {failed ? (

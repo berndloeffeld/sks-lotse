@@ -74,6 +74,8 @@ describe('FocusPracticePage', () => {
     expect(await screen.findByText('Frage 9?')).toBeInTheDocument()
     expect(screen.getByText('Frage 1 von 2')).toBeInTheDocument()
     expect(screen.getByText('Wetterkunde (Wind) – Nr. 9')).toBeInTheDocument()
+    // The way out mid-run leads back to the Fokus tab, not the topic list.
+    expect(screen.getByRole('link', { name: 'Runde beenden' })).toHaveAttribute('href', '/learn?modus=focus')
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
@@ -94,7 +96,7 @@ describe('FocusPracticePage', () => {
 
     expect(await screen.findByText('Es sind keine Fokus-Fragen offen.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Alle Fragen wiederholen' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
+    expect(screen.getByRole('link', { name: 'Zum Fokus' })).toHaveAttribute('href', '/learn?modus=focus')
   })
 
   it('shows an error when the questions cannot be loaded', async () => {

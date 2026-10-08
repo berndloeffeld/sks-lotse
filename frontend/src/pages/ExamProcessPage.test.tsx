@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { EXAM_PROCESS_FAQ } from '../faq'
+import { useAuthStore } from '../store/authStore'
 import { ExamProcessPage } from './ExamProcessPage'
 
 function renderExamProcessPage() {
@@ -63,9 +64,19 @@ describe('ExamProcessPage', () => {
     }
   })
 
-  it('links back into the app', () => {
+  it('invites a guest to sign up', () => {
+    useAuthStore.setState({ isAuthenticated: false })
     renderExamProcessPage()
 
-    expect(screen.getByRole('link', { name: 'Jetzt kostenlos lernen' })).toHaveAttribute('href', '/#anmelden')
+    expect(screen.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
+  })
+
+  it('takes a learner straight to learning, without a login', () => {
+    useAuthStore.setState({ isAuthenticated: true })
+    renderExamProcessPage()
+
+    expect(screen.getByRole('link', { name: 'Zum Lernen' })).toHaveAttribute('href', '/learn')
+    expect(screen.queryByRole('link', { name: 'Kostenlos anmelden' })).not.toBeInTheDocument()
+    useAuthStore.setState({ isAuthenticated: false })
   })
 })

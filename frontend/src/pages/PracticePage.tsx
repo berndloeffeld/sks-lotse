@@ -4,6 +4,7 @@ import { apiClient } from '../api/client'
 import type { Question, QuestionProgress, Topic } from '../api/types'
 import { findTopic, topicQuestions } from '../catalog'
 import { PageLayout } from '../components/PageLayout'
+import { NotFoundPage } from './NotFoundPage'
 import { PracticeRun } from '../components/PracticeRun'
 import { TopicQuestionList } from '../components/TopicQuestionList'
 import { useApiQuery } from '../hooks/useApiQuery'
@@ -39,6 +40,11 @@ function usePracticeData(subject: string, topicSlug: string) {
 
 const NO_QUESTIONS = <p className="text-sm text-ink-soft">Zu diesem Thema gibt es keine Fragen.</p>
 
+// A topic (or subject) the catalog doesn't have — an outdated or mistyped link.
+const UNKNOWN_TOPIC = (
+  <NotFoundPage what="Dieses Thema gibt es im Fragenkatalog nicht." backTo="/learn" backLabel="Zur Themenübersicht" />
+)
+
 // One topic's practice run, open without a login (ADR-0054): guests get the run from the catalog
 // export, in catalog order, their gradings only for the round's summary; logged in, the questions, standings and grading come
 // from the API as before. Both get every question of the topic below the run (TopicQuestionList).
@@ -63,6 +69,7 @@ function GuestPractice({ subject, topicSlug }: TopicProps) {
   const topic = catalog ? findTopic(catalog, subject, topicSlug) : undefined
   const questions = catalog ? topicQuestions(catalog, subject, topicSlug) : []
 
+  if (catalog && !topic) return UNKNOWN_TOPIC
   return (
     <PageLayout title={topic?.name ?? 'Lernen'} subtitle={SUBJECT_LABELS[subject] ?? subject} nav="public" compact>
       {failed ? (
@@ -96,6 +103,8 @@ function MemberPractice({ subject, topicSlug }: TopicProps) {
 
   const onGraded = useStandingsUpdate(setData)
 
+  // The API answers an unknown subject or topic with empty lists.
+  if (data && data.topic === null) return UNKNOWN_TOPIC
   return (
     <PageLayout
       title={data?.topic?.name ?? 'Lernen'}

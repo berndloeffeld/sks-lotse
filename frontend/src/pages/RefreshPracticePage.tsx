@@ -1,6 +1,8 @@
 import { PageLayout } from '../components/PageLayout'
-import { PracticeRun } from '../components/PracticeRun'
+import { PracticeRun, type RunExit } from '../components/PracticeRun'
 import { usePracticeSession } from '../hooks/usePracticeSession'
+
+const EXIT: RunExit = { to: '/learn?modus=refresh', label: 'Zum Auffrischen' }
 
 const EMPTY_STATE = {
   title: 'Nichts aufzufrischen',
@@ -37,6 +39,7 @@ export function RefreshPracticePage() {
           keepLearned
           emptyState={EMPTY_STATE}
           contextLabel={contextLabel}
+          exit={EXIT}
         />
       )}
     </PageLayout>

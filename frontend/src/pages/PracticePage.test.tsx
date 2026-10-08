@@ -59,9 +59,9 @@ function mockBackend({ questions = [question(1, 7)], progress = [], grades = [],
   return fetchMock
 }
 
-function renderPracticePage() {
+function renderPracticePage(path = '/learn/navigation/ankern') {
   return render(
-    <MemoryRouter initialEntries={['/learn/navigation/ankern']}>
+    <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="/learn/:subject/:topic" element={<PracticePage />} />
       </Routes>
@@ -109,6 +109,8 @@ describe('PracticePage', () => {
     expect(screen.getByText('Frage 1 von 1')).toBeInTheDocument()
     expect(screen.getByText('1 / 1')).toBeInTheDocument()
     expect(screen.getByText('Nr. 7')).toBeInTheDocument()
+    // The way out of the run, on a phone the only one (the run hides the tab bar).
+    expect(screen.getByRole('link', { name: 'Runde beenden' })).toHaveAttribute('href', '/learn')
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/questions?subject=navigation&topic=ankern'))).toBe(
       true,
     )
@@ -469,6 +471,15 @@ describe('PracticePage', () => {
     expect(await screen.findByText('Zu diesem Thema gibt es keine Fragen.')).toBeInTheDocument()
   })
 
+  it('says a topic the catalog does not have was not found, with the way to the topic list', async () => {
+    mockBackend({ questions: [] })
+    renderPracticePage('/learn/navigation/gibt-es-nicht')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    expect(screen.getByText(/Dieses Thema gibt es im Fragenkatalog nicht\./)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
+  })
+
   it('shows an error when loading fails', async () => {
     mockBackend({ failLoad: true })
     renderPracticePage()
@@ -536,20 +547,17 @@ describe('PracticePage without a login', () => {
     expect(main.getByText('Richtig').nextElementSibling).toHaveTextContent('1')
     expect(main.getByText('Falsch').nextElementSibling).toHaveTextContent('1')
     expect(main.queryByText('Neu gelernt')).not.toBeInTheDocument()
-    expect(main.getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
+    expect(main.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
+    expect(main.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
     expect(window.localStorage.length).toBe(0)
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('says so for a topic the catalog does not have', () => {
-    render(
-      <MemoryRouter initialEntries={['/learn/navigation/gibtsnicht']}>
-        <Routes>
-          <Route path="/learn/:subject/:topic" element={<PracticePage />} />
-        </Routes>
-      </MemoryRouter>,
-    )
-    expect(screen.getByText('Zu diesem Thema gibt es keine Fragen.')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
+  it('says a topic the catalog does not have was not found, with the way to the topic list', () => {
+    renderPracticePage('/learn/navigation/gibtsnicht')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    expect(screen.getByText(/Dieses Thema gibt es im Fragenkatalog nicht\./)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
   })
 })

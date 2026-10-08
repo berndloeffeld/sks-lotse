@@ -1,6 +1,6 @@
 # 0025. Build-time prerender of the landing page
 
-Status: Accepted — amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) (the open /learn pages are prerendered too) and [ADR-0055](0055-prerendered-pages-as-directory-index-files.md) (pages as directory index files, superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): flat files with a rewrite each)
+Status: Accepted — amended by [ADR-0054](0054-learning-by-topic-open-without-login.md) (the open /learn pages are prerendered too), [ADR-0055](0055-prerendered-pages-as-directory-index-files.md) (pages as directory index files, superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): flat files with a rewrite each) and [ADR-0059](0059-data-router-for-leave-confirmation.md) (rendered under a memory data router, not a `StaticRouter`)
 
 ## Context
 

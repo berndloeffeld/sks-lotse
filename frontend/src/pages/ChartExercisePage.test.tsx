@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
@@ -9,16 +9,22 @@ import { useAuthStore } from '../store/authStore'
 import { jsonResponse, makeChartAttempt, makeChartExport, makeChartOverview } from '../test/fixtures'
 import { ChartExercisePage } from './ChartExercisePage'
 
-function renderPage(number: string) {
-  return render(
-    <MemoryRouter initialEntries={[`/charts/${number}`]}>
-      <Routes>
-        <Route path="/charts/:number" element={<ChartExercisePage />} />
-        <Route path="/charts/attempts/:id" element={<p>Run page</p>} />
-      </Routes>
-    </MemoryRouter>,
+// A data router (ADR-0059), as in the app: a guest's run asks before it is left (useBlocker). The
+// overview comes first in the history, so Back from the sheet's page has somewhere to go.
+function renderPage(number: string, path = `/charts/${number}`) {
+  const router = createMemoryRouter(
+    [
+      { path: '/charts', element: <p>Overview page</p> },
+      { path: '/charts/:number', element: <ChartExercisePage /> },
+      { path: '/charts/attempts/:id', element: <p>Run page</p> },
+    ],
+    { initialEntries: ['/charts', path] },
   )
+  render(<RouterProvider router={router} />)
+  return router
 }
+
+const goBack = (router: ReturnType<typeof renderPage>) => act(() => router.navigate(-1))
 
 function stubBackend(start: () => Response = () => jsonResponse(makeChartAttempt({ id: 42 }), 201)) {
   const fetchMock = vi.fn(async (_url: string, init?: RequestInit) =>
@@ -136,11 +142,13 @@ describe('ChartExercisePage', () => {
     )
   })
 
-  it('says when there is no such exercise', async () => {
+  it('says when there is no such exercise, with the way to all of them', async () => {
     stubBackend()
     renderPage('11')
 
-    expect(await screen.findByText('Diese Kartenaufgabe gibt es nicht.')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    expect(screen.getByText(/Diese Kartenaufgabe gibt es nicht\./)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Alle Kartenaufgaben' })).toHaveAttribute('href', '/charts')
   })
 
   it('says so when the exercises cannot be loaded', async () => {
@@ -169,6 +177,7 @@ describe('ChartExercisePage for a guest', () => {
     renderPage('1')
 
     expect(screen.getByText(/Ohne Konto wird nichts gespeichert/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
     await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
     expect(screen.getByRole('alert')).toHaveTextContent('Bestätige zuerst')
     await user.click(screen.getByRole('checkbox', { name: /bereitgelegt/ }))
@@ -193,6 +202,71 @@ describe('ChartExercisePage for a guest', () => {
     expect(screen.getByText(/Du hast dir/)).toHaveTextContent('Du hast dir 3 von 3 Punkten gegeben.')
     expect(screen.getByText(/Ohne Konto wird dieser Durchgang nicht gespeichert/)).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+
+    // Complete, the run is left without a question: its result already says nothing is kept.
+    await user.click(screen.getByRole('link', { name: 'Zur Übersicht' }))
+    expect(await screen.findByText('Overview page')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('starts the run as its own history entry, so Back leads to the page before the start', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn())
+    const router = renderPage('1')
+
+    await user.click(screen.getByRole('checkbox', { name: /bereitgelegt/ }))
+    await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
+    expect(router.state.location.search).toBe('?run=1')
+    expect(screen.getAllByText('Aufgabe 1 / 2').length).toBeGreaterThan(0)
+
+    // Nothing answered yet, so nothing to lose: no question.
+    await goBack(router)
+    expect(await screen.findByRole('button', { name: 'Kartenaufgabe starten' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/charts/1')
+    expect(router.state.location.search).toBe('')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('asks before a run with answers is left, and stays or leaves as chosen', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn())
+    const router = renderPage('1')
+
+    await user.click(screen.getByRole('checkbox', { name: /bereitgelegt/ }))
+    await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
+    await user.type(screen.getByRole('textbox', { name: 'Deine Antwort' }), 'HW 12:30')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+
+    await goBack(router)
+    const dialog = await screen.findByRole('dialog', { name: 'Durchgang verwerfen?' })
+    expect(dialog).toHaveTextContent('Antworten und Punkte')
+    expect(screen.getByRole('button', { name: 'Weiterarbeiten' })).toHaveFocus()
+    expect(router.state.location.search).toBe('?run=1')
+
+    await user.click(screen.getByRole('button', { name: 'Weiterarbeiten' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Ergebnis 1').length).toBeGreaterThan(0)
+
+    // A link out of the page (the header's), and Escape keeps the run too.
+    await user.click(screen.getByRole('link', { name: 'Anmelden' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(router.state.location.search).toBe('?run=1')
+
+    await goBack(router)
+    await user.click(await screen.findByRole('button', { name: 'Verwerfen' }))
+    expect(await screen.findByRole('button', { name: 'Kartenaufgabe starten' })).toBeInTheDocument()
+    expect(router.state.location.search).toBe('')
+  })
+
+  it('shows the page before the start for ?run without a run started here (a reload)', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    const router = renderPage('1', '/charts/1?run=1')
+
+    expect(screen.getByRole('button', { name: 'Kartenaufgabe starten' })).toBeInTheDocument()
+    await vi.waitFor(() => expect(router.state.location.search).toBe(''))
+    expect(router.state.location.pathname).toBe('/charts/1')
   })
 
   it('lists every task with its solution below, folded shut', () => {
@@ -210,9 +284,11 @@ describe('ChartExercisePage for a guest', () => {
     expect(list).toHaveTextContent('Ergebnis 2')
   })
 
-  it('says when there is no such sheet', () => {
+  it('says when there is no such sheet, with the way to all of them', () => {
     renderPage('7')
-    expect(screen.getByText('Diese Kartenaufgabe gibt es nicht.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    expect(screen.getByText(/Diese Kartenaufgabe gibt es nicht\./)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Alle Kartenaufgaben' })).toHaveAttribute('href', '/charts')
   })
 
   it('says so when the export cannot be loaded', async () => {

@@ -29,7 +29,7 @@ describe('LoginForm', () => {
     )
 
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
-    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
     expect(await screen.findByLabelText('Login-Code')).toHaveFocus()
   })
@@ -47,7 +47,7 @@ describe('LoginForm', () => {
     )
 
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
-    await user.click(screen.getByRole('button', { name: 'Jetzt starten' }))
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
     await user.click(await screen.findByRole('button', { name: 'Andere E-Mail-Adresse verwenden' }))
 
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()

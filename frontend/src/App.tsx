@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, type ComponentType } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ExamProcessPage } from './pages/ExamProcessPage'
 import { chartExercisesForGuests } from './chartCatalog'
@@ -11,6 +11,7 @@ import { ImprintPage } from './pages/ImprintPage'
 import { LandingPage } from './pages/LandingPage'
 import { LearnPage } from './pages/LearnPage'
 import { MaintenancePage } from './pages/MaintenancePage'
+import { UnknownPathPage } from './pages/NotFoundPage'
 import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
 import { PricingPage } from './pages/PricingPage'
@@ -74,8 +75,8 @@ const RETIRED_PATHS: Record<string, string> = {
 // Paths taken verbatim from the <Routes> below.
 const MAINTENANCE_EXEMPT_PATHS = new Set(['/imprint', '/privacy', '/terms'])
 
-// Everything below the router, so the build-time prerender
-// (entry-server.tsx) can render the same tree under a StaticRouter.
+// Everything below the router: the one route of the data router (appRoutes.tsx), so the client
+// (main.tsx) and the build-time prerender (entry-server.tsx) render the same tree.
 export function AppRoutes() {
   const checkSession = useAuthStore((state) => state.checkSession)
   const maintenanceMode = useMaintenanceStore((state) => state.maintenanceMode)
@@ -163,19 +164,10 @@ export function AppRoutes() {
           {Object.entries(RETIRED_PATHS).map(([from, to]) => (
             <Route key={from} path={from} element={<Navigate to={to} replace />} />
           ))}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Anything else says so, with a way back, instead of dropping the visitor on / unexplained. */}
+          <Route path="*" element={<UnknownPathPage />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
   )
 }
-
-function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  )
-}
-
-export default App

@@ -9,6 +9,7 @@ import { CourseGauge } from './CourseGauge'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
+import { GuestCta, LoginLink } from './LoginLink'
 import { OfficialAnswer } from './OfficialAnswer'
 import { QuestionImages } from './QuestionImages'
 import { ReportQuestion } from './ReportQuestion'
@@ -51,6 +52,14 @@ function letBoatSettle(ms = BOAT_SETTLE_MS): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+// Where a run leads back to: the tab of /learn it was started from.
+export interface RunExit {
+  to: string
+  label: string
+}
+
+const TOPIC_EXIT: RunExit = { to: '/learn', label: 'Zur Themenübersicht' }
+
 interface PracticeRunProps {
   questions: Question[]
   standings: Map<number, QuestionProgress>
@@ -62,6 +71,9 @@ interface PracticeRunProps {
   keepLearned?: boolean
   // What to say when the run is empty; the default is the topic run's "everything learned".
   emptyState?: { title: string; text: string }
+  // The way back, from the run's header ("Runde beenden"), its end and its empty state; the topic
+  // list by default.
+  exit?: RunExit
   // Without a login (ADR-0054): in catalog order, and the self-assessment only counts for this
   // round's summary; nothing is stored or sent — the Lotsen-Check only as a teaser, no report, no gauge.
   guest?: boolean
@@ -78,6 +90,7 @@ export function PracticeRun({
   contextLabel,
   keepLearned = false,
   emptyState,
+  exit = TOPIC_EXIT,
   guest = false,
 }: PracticeRunProps) {
   const [run, setRun] = useState(() => buildRun(questions, standings, keepLearned, keepOrder))
@@ -171,8 +184,8 @@ export function PracticeRun({
               Alle Fragen wiederholen
             </button>
           )}
-          <Link to="/learn" className={styles.button}>
-            Zur Themenübersicht
+          <Link to={exit.to} className={styles.button}>
+            {exit.label}
           </Link>
         </div>
       </section>
@@ -202,21 +215,14 @@ export function PracticeRun({
           )}
         </dl>
         {guest ? (
-          <p className="max-w-xl text-sm text-ink-soft">
+          <GuestCta>
             Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung merkt sich SKS Lotse, was du sicher kannst, holt
             Verblasstes zurück und zeigt deinen Lernstand auf jedem Gerät.
-          </p>
+          </GuestCta>
         ) : null}
-        <div className="flex flex-wrap gap-3">
-          {guest ? (
-            <Link to="/login" className={styles.button}>
-              Anmelden
-            </Link>
-          ) : null}
-          <Link to="/learn" className={styles.button}>
-            Zur Themenübersicht
-          </Link>
-        </div>
+        <Link to={exit.to} className={styles.button}>
+          {exit.label}
+        </Link>
       </section>
     )
   }
@@ -229,8 +235,8 @@ export function PracticeRun({
       {celebrating ? <LearnedCelebration /> : null}
       <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         {/* Where the learner is in this run (the boxed count) sits above the line; which question
-            this is (topic and number) sits below it, on its own full-width line, so a long topic
-            wraps cleanly instead of fighting the gauge and report button for space. */}
+            this is (topic and number) sits below it, on a line without the gauge and report button,
+            so a long topic wraps cleanly instead of fighting them for space. */}
         <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
           <span className="sr-only">
             Frage {index + 1} von {run.length}
@@ -250,9 +256,18 @@ export function PracticeRun({
         )}
       </div>
 
-      <p className="-mb-2 font-mono text-xs tracking-wide text-ink-soft uppercase">
-        {contextLabel ? `${contextLabel(question)} – ` : ''}Nr. {question.number}
-      </p>
+      <div className="-mb-2 flex items-baseline justify-between gap-3 font-mono text-xs tracking-wide text-ink-soft uppercase">
+        <p className="min-w-0">
+          {contextLabel ? `${contextLabel(question)} – ` : ''}Nr.{'\u00a0'}
+          {question.number}
+        </p>
+        {/* Leaving loses nothing: each grading is saved as it is given (a guest's only counts for the
+            round). On a phone, where the run hides the tab bar, this is the way out. Not beside the
+            count: with the gauge, that row has no room for it on a phone. */}
+        <Link to={exit.to} className="-my-2 shrink-0 py-2 underline">
+          Runde beenden
+        </Link>
+      </div>
 
       <h2 className="font-serif text-base leading-snug whitespace-pre-line text-ink outline-none">
         <RichText text={question.question_text} />
@@ -305,10 +320,8 @@ export function PracticeRun({
               />
               <p className="text-xs text-ink-soft">
                 Ohne Anmeldung zählt deine Bewertung nur für diese Runde.{' '}
-                <Link to="/login" className="text-primary underline">
-                  Mit Anmeldung
-                </Link>{' '}
-                behältst du deinen Lernstand auf jedem Gerät.
+                <LoginLink className="text-primary underline">Mit Anmeldung</LoginLink> behältst du deinen Lernstand auf
+                jedem Gerät.
               </p>
             </>
           ) : (

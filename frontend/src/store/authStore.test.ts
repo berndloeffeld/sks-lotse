@@ -8,7 +8,13 @@ const mockUser = makeUser()
 
 describe('authStore', () => {
   beforeEach(() => {
-    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: true, sessionError: false })
+    useAuthStore.setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+      sessionExpired: false,
+    })
   })
 
   it('checkSession sets the user on a successful /auth/me call', async () => {
@@ -144,6 +150,7 @@ describe('authStore', () => {
       isAuthenticated: false,
       isLoading: true,
       sessionError: false,
+      sessionExpired: false,
     })
   })
 
@@ -176,6 +183,78 @@ describe('authStore', () => {
     expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
   })
 
+  it('a 401 for a learner who was signed in says the session expired', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/progress/questions').catch(() => {})
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, sessionExpired: true })
+  })
+
+  it('a 401 for a guest (the first session check) says nothing expired', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('keeps an expiry already pointed out when the next request answers 401 too', async () => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/progress/questions').catch(() => {})
+
+    expect(useAuthStore.getState().sessionExpired).toBe(true)
+  })
+
+  it('a 401 from the logout itself says nothing expired, and a later one does again', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().logout()
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, sessionExpired: false })
+
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true })
+    await apiClient.get('/progress/questions').catch(() => {})
+    expect(useAuthStore.getState().sessionExpired).toBe(true)
+  })
+
+  it('logout drops a pending expiry notice', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
+
+    await useAuthStore.getState().logout()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('clearSession (the account is gone) says nothing expired', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+
+    useAuthStore.getState().clearSession()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('the next login clears the expiry notice', async () => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: true, sessionExpired: false })
+  })
+
+  it('dismissSessionExpired clears the expiry notice', () => {
+    useAuthStore.setState({ sessionExpired: true })
+
+    useAuthStore.getState().dismissSessionExpired()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
   it('logout calls POST /auth/logout', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
     vi.stubGlobal('fetch', fetchMock)
@@ -194,7 +273,13 @@ describe('authStore as loaded', () => {
   it('starts out loading, logged out and without an error', async () => {
     vi.resetModules()
     const { useAuthStore: fresh } = await import('./authStore')
-    expect(fresh.getState()).toMatchObject({ user: null, isAuthenticated: false, isLoading: true, sessionError: false })
+    expect(fresh.getState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+      sessionExpired: false,
+    })
   })
 
   it('clears the session when any request answers 401, and can swap in a user', async () => {
@@ -213,6 +298,7 @@ describe('authStore as loaded', () => {
       isAuthenticated: false,
       isLoading: false,
       sessionError: false,
+      sessionExpired: true,
     })
   })
 })
