@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { ChartAttempt, ChartExerciseSummary, ChartExercisesOverview } from '../api/types'
@@ -9,6 +9,7 @@ import { ChartHints, TideForm } from '../components/ChartTools'
 import { DiscardChartRun } from '../components/DiscardChartRun'
 import { formStyles } from '../components/formStyles'
 import { GuestChartRun } from '../components/GuestChartRun'
+import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useChartOverview } from '../hooks/useChartAttempt'
@@ -16,6 +17,7 @@ import { useChartCatalog } from '../hooks/useChartCatalog'
 import { forgetTideForm, guestTideFormId } from '../hooks/useTideForm'
 import { useAuthStore } from '../store/authStore'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { NotFoundPage } from './NotFoundPage'
 
 const styles = formStyles('light')
 
@@ -30,6 +32,9 @@ const OWN_MATERIAL = [
 ]
 
 const NOT_READY = 'Bestätige zuerst, dass du Karte, Begleitheft und Besteck bereitgelegt hast.'
+
+// A guest's run is its own history entry (?run), so "Zurück" leads from it to this page.
+const RUN_PARAM = 'run'
 
 // Before a Kartenaufgabe starts: what to have ready, the sheet's rules, the Formblatt — then start
 // or continue the run; below, every task with its solution folded shut. Open without a login when
@@ -121,10 +126,20 @@ function GuestChartExercise({ number }: { number: string }) {
   const { charts, failed } = useChartCatalog()
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [started, setStarted] = useState(false)
+  // The run lives in this page only (ADR-0056), so ?run alone doesn't bring one back: after a
+  // reload, or from a link that carries it, this is the page before the start again. That also
+  // keeps the first render the prerendered one.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [startedHere, setStartedHere] = useState(false)
+  const inRun = searchParams.has(RUN_PARAM)
+  const started = inRun && startedHere
   const overview = charts ? guestOverview(charts) : null
   const exercise = overview?.exercises.find((e) => String(e.number) === number)
   const sheet = charts?.sheets.find((s) => String(s.number) === number)
+
+  useEffect(() => {
+    if (inRun && !startedHere) setSearchParams({}, { replace: true })
+  }, [inRun, startedHere, setSearchParams])
 
   if (charts && sheet && started) {
     return (
@@ -165,18 +180,16 @@ function GuestChartExercise({ number }: { number: string }) {
             return
           }
           forgetTideForm(guestTideFormId(Number(number)))
-          setStarted(true)
+          setStartedHere(true)
+          setSearchParams({ [RUN_PARAM]: '1' })
         }}
       >
         Kartenaufgabe starten
       </button>
-      <p className="text-sm text-ink-soft">
-        Ohne Konto wird nichts gespeichert: Antworten und Punkte sind weg, sobald du die Seite verlässt.{' '}
-        <Link to="/login" className="text-primary underline">
-          Mit einem Konto
-        </Link>{' '}
+      <GuestCta>
+        Ohne Konto wird nichts gespeichert: Antworten und Punkte sind weg, sobald du die Seite verlässt. Mit einem Konto
         kannst du unterbrechen und später weitermachen.
-      </p>
+      </GuestCta>
     </SheetPage>
   )
 }
@@ -193,6 +206,9 @@ interface SheetPageProps {
 }
 
 function SheetPage({ number, overview, exercise, sheet, loadError, nav, children }: SheetPageProps) {
+  if (overview && !exercise) {
+    return <NotFoundPage what="Diese Kartenaufgabe gibt es nicht." backTo="/charts" backLabel="Alle Kartenaufgaben" />
+  }
   return (
     <PageLayout title={`Kartenaufgabe ${number}`} subtitle={exercise?.title} nav={nav} compact>
       {loadError ? (
@@ -201,7 +217,6 @@ function SheetPage({ number, overview, exercise, sheet, loadError, nav, children
         </p>
       ) : null}
       {overview === null && !loadError ? <p className="text-ink-soft">Wird geladen…</p> : null}
-      {overview && !exercise ? <p className="text-ink">Diese Kartenaufgabe gibt es nicht.</p> : null}
       {overview && exercise ? (
         <>
           <section className="flex flex-col gap-2">

@@ -47,7 +47,9 @@
     "src/hooks/useCheckLimits.ts",
     "src/hooks/useNavigateWhileMounted.ts",
     "src/hooks/useEnterShortcut.ts",
-    "src/checkout.ts"
+    "src/checkout.ts",
+    "src/returnPath.ts",
+    "src/hooks/useLeaveConfirmation.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "cleanTempDir": true

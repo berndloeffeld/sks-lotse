@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 // Self-hosted web fonts (ADR-0021): bundled by Vite and served from our own
 // origin — never fetched from Google Fonts, which would hand every visitor's
 // IP address to Google. Only the weights/styles the design system uses.
@@ -12,7 +13,7 @@ import '@fontsource/public-sans/600.css'
 import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import './index.css'
-import App from './App.tsx'
+import { appRoutes } from './appRoutes.tsx'
 import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
 import { loadCatalog } from './catalog.ts'
@@ -23,9 +24,10 @@ initAnalytics()
 openConsentSettingsIfRequested()
 
 const container = document.getElementById('root')!
+const router = createBrowserRouter(appRoutes)
 const app = (
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>
 )
 

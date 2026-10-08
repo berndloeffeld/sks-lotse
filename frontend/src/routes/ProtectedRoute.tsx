@@ -1,5 +1,6 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
+import { loginState } from '../returnPath'
 import { useAuthStore } from '../store/authStore'
 
 export function ProtectedRoute() {
@@ -7,6 +8,7 @@ export function ProtectedRoute() {
   const isLoading = useAuthStore((state) => state.isLoading)
   const sessionError = useAuthStore((state) => state.sessionError)
   const checkSession = useAuthStore((state) => state.checkSession)
+  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -27,8 +29,9 @@ export function ProtectedRoute() {
     )
   }
 
+  // The login sends the learner back here afterwards (a deep link, or the page whose session ran out).
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={loginState(location)} />
   }
 
   return <Outlet />

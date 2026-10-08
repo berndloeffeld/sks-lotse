@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
-import { answerTask, awardPoints, currentTask, guestAttempt, startGuestRun, taskView } from './chartGuestRun'
+import {
+  answerTask,
+  awardPoints,
+  currentTask,
+  guestAttempt,
+  isRunInProgress,
+  startGuestRun,
+  taskView,
+} from './chartGuestRun'
 import { makeChartExport } from './test/fixtures'
 
 const SHEET = makeChartExport().sheets[0]
@@ -54,6 +62,19 @@ describe('guest chart run', () => {
     expect(currentTask(SHEET, run)).toBeNull()
     expect(attempt).toMatchObject({ current_task: null, points: 1, completed_at: '2026-10-01T11:00:00.000Z' })
     expect(attempt.tasks.map((t) => t.points_awarded)).toEqual([0, 1])
+  })
+
+  it('counts as in progress from the first answer until the run is complete', () => {
+    let run = startGuestRun(START)
+    expect(isRunInProgress(run)).toBe(false)
+
+    run = answerTask(SHEET, run, 1, 'a')
+    expect(isRunInProgress(run)).toBe(true)
+    run = awardPoints(SHEET, run, 1, 0, END)
+    expect(isRunInProgress(run)).toBe(true)
+
+    run = awardPoints(SHEET, answerTask(SHEET, run, 2, 'b'), 2, 1, END)
+    expect(isRunInProgress(run)).toBe(false)
   })
 
   it('refuses work out of order, twice, or beyond the task’s points', () => {

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { HEADER_CTA } from './headerLink'
+import { LoginLink } from './LoginLink'
 import { Logo } from './Logo'
 import { MarketingLinks } from './MarketingLinks'
 
@@ -30,9 +31,7 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
         {nav === undefined ? (
           <nav className="ml-auto flex flex-wrap items-baseline justify-end gap-x-5 gap-y-2">
             <MarketingLinks />
-            <Link to="/login" className={HEADER_CTA}>
-              Anmelden
-            </Link>
+            <LoginLink className={HEADER_CTA}>Anmelden</LoginLink>
           </nav>
         ) : (
           nav

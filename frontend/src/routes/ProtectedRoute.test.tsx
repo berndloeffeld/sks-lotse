@@ -1,18 +1,24 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { ProtectedRoute } from './ProtectedRoute'
 
-function renderProtected() {
+function LoginStub() {
+  const { state } = useLocation()
+  return <p>Login page {JSON.stringify(state)}</p>
+}
+
+function renderProtected(path = '/learn') {
   return render(
-    <MemoryRouter initialEntries={['/learn']}>
+    <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path="/login" element={<p>Login page</p>} />
+        <Route path="/login" element={<LoginStub />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/learn" element={<p>Learn page</p>} />
+          <Route path="/charts/attempts/:id" element={<p>Chart run page</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -32,12 +38,12 @@ describe('ProtectedRoute', () => {
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
-  it('redirects to /login when not authenticated', () => {
+  it('redirects to /login when not authenticated, handing over the page to return to', () => {
     useAuthStore.setState({ isLoading: false, isAuthenticated: false })
 
-    renderProtected()
+    renderProtected('/charts/attempts/5?task=2')
 
-    expect(screen.getByText('Login page')).toBeInTheDocument()
+    expect(screen.getByText('Login page {"from":"/charts/attempts/5?task=2"}')).toBeInTheDocument()
   })
 
   it('renders the protected content when authenticated', () => {

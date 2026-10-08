@@ -9,6 +9,7 @@ import { ChartAiCheck } from './ChartAiCheck'
 import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
+import { GuestCta } from './LoginLink'
 
 const styles = formStyles('light')
 
@@ -305,13 +306,10 @@ function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: bool
         Du hast dir <strong>{attempt.points}</strong> von {attempt.max_points} Punkten gegeben.
       </p>
       {guest ? (
-        <p className="text-sm text-ink-soft">
-          Ohne Konto wird dieser Durchgang nicht gespeichert.{' '}
-          <Link to="/login" className="text-primary underline">
-            Mit einem Konto
-          </Link>{' '}
-          siehst du bei jeder Kartenaufgabe, wie viele Punkte du zuletzt hattest.
-        </p>
+        <GuestCta>
+          Ohne Konto wird dieser Durchgang nicht gespeichert. Mit einem Konto siehst du bei jeder Kartenaufgabe, wie
+          viele Punkte du zuletzt hattest.
+        </GuestCta>
       ) : null}
       <Link to="/charts" className={`${styles.button} self-start`}>
         Zur Übersicht

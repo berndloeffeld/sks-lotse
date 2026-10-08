@@ -30,6 +30,7 @@ Derived load (planning figure):
 | | Hashed, short-lived, purpose-bound email codes |
 | | Session cookie not readable by scripts, `__Host-` prefixed when deployed; logout ends all sessions |
 | | Every route needs a session unless listed as public |
+| | After login, only a path of the app itself is accepted as the return target (no open redirect) |
 | | Layered abuse protection (IP and email limits, blocklists) |
 | | Admin: allowlist plus TOTP (one code per hour; export and deletion need one from the last 5 min) |
 | | Enforced CSP, HSTS, frame denial (API responses: `default-src 'none'`) |

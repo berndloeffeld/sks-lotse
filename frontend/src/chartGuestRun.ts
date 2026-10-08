@@ -21,6 +21,12 @@ export function startGuestRun(now: Date = new Date()): GuestRun {
   return { startedAt: now.toISOString(), completedAt: null, answers: {} }
 }
 
+// Whether leaving would lose work: some answer given, and the run not yet complete (the result,
+// once shown, says itself that nothing is kept).
+export function isRunInProgress(run: GuestRun): boolean {
+  return run.completedAt === null && Object.keys(run.answers).length > 0
+}
+
 // The first task without points yet — answered or not; null once every task has points.
 export function currentTask(sheet: ChartSheet, run: GuestRun): number | null {
   const task = sheet.tasks.find((t) => run.answers[t.number]?.points_awarded == null)

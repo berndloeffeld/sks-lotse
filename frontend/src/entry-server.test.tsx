@@ -1,5 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { act } from '@testing-library/react'
+import { StrictMode } from 'react'
+import { hydrateRoot } from 'react-dom/client'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { describe, expect, it, vi } from 'vitest'
 
+import { appRoutes } from './appRoutes'
 import { render } from './entry-server'
 
 describe('entry-server render', () => {
@@ -33,4 +38,38 @@ describe('entry-server render', () => {
     expect(html).not.toContain('Shop')
     expect(html).not.toContain('role="status"')
   })
+
+  // The client hydrates the prerendered markup under its own data router (main.tsx, ADR-0059). Both
+  // must render the same tree, or React's ids (useId) and markup no longer match.
+  it.each(['/', '/learn', '/learn/navigation/seekarten', '/charts/1', '/exam-process'])(
+    'hydrates %s under the client’s router without a mismatch',
+    async (path) => {
+      // The session check stays open, as it is during the client's first render.
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => new Promise(() => {})),
+      )
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const onRecoverableError = vi.fn()
+      const container = document.createElement('div')
+      container.innerHTML = render(path)
+      document.body.append(container)
+
+      const root = await act(async () =>
+        hydrateRoot(
+          container,
+          <StrictMode>
+            <RouterProvider router={createMemoryRouter(appRoutes, { initialEntries: [path] })} />
+          </StrictMode>,
+          { onRecoverableError },
+        ),
+      )
+
+      expect(onRecoverableError).not.toHaveBeenCalled()
+      expect(consoleError).not.toHaveBeenCalled()
+      act(() => root.unmount())
+      container.remove()
+      consoleError.mockRestore()
+    },
+  )
 })

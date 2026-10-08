@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
+import { safeReturnPath } from '../returnPath'
 import { useAuthStore } from '../store/authStore'
 import { formStyles, type FormTone } from './formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
@@ -20,6 +22,7 @@ interface LoginFormProps {
 // button, required fields marked with *.
 export function LoginForm({ tone = 'light' }: LoginFormProps) {
   const navigate = useNavigateWhileMounted()
+  const location = useLocation()
   const checkSession = useAuthStore((state) => state.checkSession)
 
   const [step, setStep] = useState<Step>('email')
@@ -61,7 +64,8 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         await apiClient.post('/auth/otp/verify', { email, code })
         await checkSession()
         trackEvent('login')
-        navigate('/learn')
+        // Back to the page the login was asked for (ProtectedRoute, a guest's login link), else /learn.
+        navigate(safeReturnPath(location.state))
       },
       (err) =>
         err instanceof ApiError && err.status === 401
@@ -88,7 +92,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         <p className={`text-xs ${f.note}`}>Wir senden dir einen Login-Code per E-Mail – ganz ohne Passwort.</p>
         {errorMessage}
         <button type="submit" disabled={isSubmitting} className={buttonClass}>
-          Jetzt starten
+          Code anfordern
         </button>
       </form>
     )

@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { renderToString } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 
-import { AppRoutes } from './App'
+import { appRoutes } from './appRoutes'
 import { primeCatalog, type CatalogExport } from './catalog'
 import { chartExercisesForGuests, primeChartCatalog, type ChartExport } from './chartCatalog'
 import catalogExport from './data/catalog.gen.json'
@@ -24,13 +24,13 @@ export { applyMeta, sitemapXml }
 // public route and writes the HTML into dist/, so crawlers and link previews
 // see real content instead of an empty #root. Renders the logged-out state —
 // the same state the client's first render starts from (authStore.isLoading
-// until checkSession resolves), so hydration matches.
+// until checkSession resolves), so hydration matches. A memory data router, not a StaticRouter:
+// it renders the same tree as the client's RouterProvider, so useId gives the same ids on both
+// sides (ADR-0059); no route loads data, so it is ready at once and the render stays synchronous.
 export function render(url: string): string {
   return renderToString(
     <StrictMode>
-      <StaticRouter location={url}>
-        <AppRoutes />
-      </StaticRouter>
+      <RouterProvider router={createMemoryRouter(appRoutes, { initialEntries: [url] })} />
     </StrictMode>,
   )
 }

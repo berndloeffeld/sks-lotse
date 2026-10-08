@@ -5,6 +5,7 @@ import { ApiError, apiClient } from '../api/client'
 import type { CheckoutRead, PublicPricing, PublicTokenPackage, User } from '../api/types'
 import { isCheckoutUrl } from '../checkout'
 import { formStyles } from '../components/formStyles'
+import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { formatEurCents } from '../format'
 import { useApiQuery } from '../hooks/useApiQuery'
@@ -260,14 +261,7 @@ export function PricingPage() {
                     <PackageCard key={pkg.product} pkg={pkg} soon={tokensSoon} />
                   ))}
                 </div>
-                {loginToBuy ? (
-                  <p className="text-ink-soft">
-                    <Link to="/login" className="underline">
-                      Melde dich an
-                    </Link>
-                    , um ein Paket zu kaufen.
-                  </p>
-                ) : null}
+                {loginToBuy ? <GuestCta>Melde dich an, um ein Paket zu kaufen.</GuestCta> : null}
               </>
             )}
           </section>

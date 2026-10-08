@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -69,5 +70,35 @@ describe('PageLayout', () => {
     expect(within(banner).queryByRole('link', { name: 'Anmelden' })).not.toBeInTheDocument()
     expect(within(banner).getByRole('button', { name: 'Konto' })).toBeInTheDocument()
     useAuthStore.setState({ isAuthenticated: false })
+  })
+
+  it('says when the session expired, with the way back to the login, until it is closed', async () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, sessionExpired: true })
+    const user = userEvent.setup()
+    renderLayout({ nav: 'public' }, '/learn/navigation/seekarten')
+
+    const notice = screen.getByRole('status')
+    expect(notice).toHaveTextContent('Deine Sitzung ist abgelaufen.')
+    expect(within(notice).getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
+
+    await user.click(within(notice).getByRole('button', { name: 'Schließen' }))
+    expect(screen.queryByText('Deine Sitzung ist abgelaufen.')).not.toBeInTheDocument()
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('leaves out the login link on the login page itself', () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, sessionExpired: true })
+    renderLayout({ nav: 'none' }, '/login')
+
+    expect(screen.getByRole('status')).toHaveTextContent('Deine Sitzung ist abgelaufen.')
+    expect(within(screen.getByRole('status')).queryByRole('link')).not.toBeInTheDocument()
+    useAuthStore.setState({ sessionExpired: false })
+  })
+
+  it('says nothing while the session is fine', () => {
+    useAuthStore.setState({ user: null, sessionExpired: false })
+    renderLayout()
+
+    expect(screen.queryByText('Deine Sitzung ist abgelaufen.')).not.toBeInTheDocument()
   })
 })

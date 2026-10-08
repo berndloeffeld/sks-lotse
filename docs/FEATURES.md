@@ -17,6 +17,7 @@ What sets it apart from simply paging through the catalog:
 ## Access and account
 
 - **Sign-in with an email address and a one-time code only.** There is no password. Without signing in there is no progress; with it, progress is the same on every device.
+- **After signing in, the learner is back where they started**: on the page that asked for the login (the pricing page, a Kartenaufgabe, a link to an exam), otherwise in the learning area. If a session runs out while a page is open, the page says so ("Deine Sitzung ist abgelaufen") instead of quietly turning into the guest view.
 - **Without signing in**, "Lernen nach Thema" is open: every topic of the catalog (both Seemannschaft variants), each question with the official answer. Guests write their answer, reveal the official one, grade themselves and get the round's summary, but nothing is saved: no Lernstand, nothing sent. Fokus, Auffrischen, the Probeprüfung and the Lotsen-Check need an account.
 - **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.
 - **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address; the old address gets a notice), delete the account oneself.
@@ -58,7 +59,7 @@ The second part of the written exam, practised with the **official solved Karten
 - The overview is a grid of tiles, one per sheet, each with the tour (e.g. "Cuxhaven → Büsum") and a one-line summary of what it practises, also for guests; the tour and summary are our own words and reappear on the sheet's page and in its search-engine title and description. It shows per exercise whether it's untouched, begun, or the points of the last completed run. A run begun can be discarded on its exercise page to start over (not beside each task), a finished one deleted from its result. The runs don't count towards the learning status.
 - **Lotsen-Check for a task** (with an account): after the solution, the Lotse can look at the answer for **2 tokens**. It suggests the points the task would have earned, says what is right and what is missing, and **guesses where the learner went wrong**, recomputing their number from the official derivation (a correction with the wrong sign, MESZ forgotten, decimal hours read as minutes, a follow-on error from an earlier task, …). The suggestion picks its points, the learner gives them. Once per task; it stays with the run and is shown again later. Not offered for the task where the current triangle is drawn, and for guests only as a preview.
 - No time limit.
-- **Without a login**: the list and every sheet's page are open to guests, and a guest works through a whole sheet the same way, task by task with the official solution and their own points. Nothing is saved: answers and points are gone when the page is left, and a run can't be interrupted. Below every sheet, all its tasks with their official solutions to unfold, for search engines and to look one up.
+- **Without a login**: the list and every sheet's page are open to guests, and a guest works through a whole sheet the same way, task by task with the official solution and their own points. Nothing is saved: answers and points are gone when the page is left, and a run can't be interrupted. Leaving a run in progress (Back, a link, closing or reloading the tab) asks first, and Back from a run leads to the sheet's page. Below every sheet, all its tasks with their official solutions to unfold, for search engines and to look one up.
 
 Status today: **open to everyone, guests included** (`CHART_EXERCISES=on` since 2026-10-02; the usage rights of the WSV material are cleared since 2026-10-01). The landing page previews them with a screenshot and links to them.
 
@@ -90,6 +91,8 @@ Status today: buying tokens is open to all learners (the live state of the flag 
 - Logged in, the header leads with the areas: **Lernen** and **Prüfung** (the Probeprüfung). For learners with the Kartenaufgaben it follows the written exam's two parts instead: **Fragen** and **Kartenaufgaben**, with the Probeprüfung as a fourth tab of the learning area (next to Auffrischen).
 - Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. Prüfungsablauf, FAQ and Kontakt are in the footer of every page.
 - On phones the areas and the Konto menu are a tab bar at the bottom of the screen. While a practice round, an exam or a Kartenaufgabe is running, the tab bar is hidden.
+- A practice round has **Runde beenden** in its header. That link and the end of a round lead back to where the round was started: the topic list, Fokus or Auffrischen.
+- An address that doesn't exist, or an unknown topic or Kartenaufgabe, says **Seite nicht gefunden** and links to the matching overview.
 
 ## Public pages
 

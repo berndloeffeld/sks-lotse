@@ -1,6 +1,8 @@
 import { PageLayout } from '../components/PageLayout'
-import { PracticeRun } from '../components/PracticeRun'
+import { PracticeRun, type RunExit } from '../components/PracticeRun'
 import { usePracticeSession } from '../hooks/usePracticeSession'
+
+const EXIT: RunExit = { to: '/learn?modus=focus', label: 'Zum Fokus' }
 
 // The Fokus session: the open questions of all Fokus topics, oldest correct
 // answer first regardless of topic (ADR-0028). The server orders and filters;
@@ -30,6 +32,7 @@ export function FocusPracticePage() {
           onGraded={onGraded}
           keepOrder
           contextLabel={contextLabel}
+          exit={EXIT}
         />
       )}
     </PageLayout>

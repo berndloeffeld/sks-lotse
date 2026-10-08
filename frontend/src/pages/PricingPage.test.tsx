@@ -71,7 +71,7 @@ describe('PricingPage', () => {
     stubFetch({ ...PRICING, checkout_enabled: true })
     renderPage()
 
-    expect(await screen.findByRole('link', { name: 'Melde dich an' })).toHaveAttribute('href', '/login')
+    expect(await screen.findByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
     expect(screen.queryByText('Bald verfügbar')).not.toBeInTheDocument()
     expect(screen.queryByText(/noch nicht möglich/)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()

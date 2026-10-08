@@ -5,6 +5,7 @@ import { chartExercisesForGuests } from '../chartCatalog'
 import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
+import { useAuthStore } from '../store/authStore'
 
 interface SectionProps {
   icon?: ReactNode
@@ -29,6 +30,7 @@ function Section({ icon, title, children }: SectionProps) {
 }
 
 export function ExamProcessPage() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   return (
     <PageLayout title="So läuft die SKS-Prüfung ab" nav="public">
       <Section title="Der Weg zum Sportküstenschifferschein auf einen Blick">
@@ -123,11 +125,13 @@ export function ExamProcessPage() {
           deine Theorieprüfung.
         </p>
         <div className="pt-2">
+          {/* A guest signs up and goes on to /learn (the login's default target), not back to this page;
+              a learner goes there directly. */}
           <Link
-            to="/#anmelden"
+            to={isAuthenticated ? '/learn' : '/login'}
             className="rounded-tile bg-primary px-4 py-3 text-center font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink"
           >
-            Jetzt kostenlos lernen
+            {isAuthenticated ? 'Zum Lernen' : 'Kostenlos anmelden'}
           </Link>
         </div>
       </Section>

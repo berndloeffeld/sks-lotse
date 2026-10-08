@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useAuthStore } from '../store/authStore'
 import { Header } from './Header'
 import { HeroBand } from './HeroBand'
 import { LegalFooter } from './LegalFooter'
+import { LoginLink } from './LoginLink'
 import { MainNav } from './MainNav'
 import { MobileTabBar } from './MobileTabBar'
 
@@ -27,6 +29,27 @@ interface PageLayoutProps {
 }
 
 const WIDTH = { sm: 'max-w-sm', md: 'max-w-2xl', lg: 'max-w-6xl', bands: 'max-w-4xl' }
+
+// Said once a request found the learner's session gone, so the page doesn't just turn into the
+// guest's without a word (authStore.sessionExpired) — on /login, where ProtectedRoute sends them,
+// as on the public pages that stay. Until the next login or "Schließen".
+function SessionExpiredNotice() {
+  const sessionExpired = useAuthStore((state) => state.sessionExpired)
+  const dismiss = useAuthStore((state) => state.dismissSessionExpired)
+  const { pathname } = useLocation()
+  if (!sessionExpired) return null
+  return (
+    <div role="status" className="border-b border-border bg-surface-alt">
+      <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3 text-sm text-ink">
+        <p>Deine Sitzung ist abgelaufen.</p>
+        {pathname === '/login' ? null : <LoginLink className="text-primary underline">Anmelden</LoginLink>}
+        <button type="button" onClick={dismiss} className="ml-auto text-ink-soft underline">
+          Schließen
+        </button>
+      </div>
+    </div>
+  )
+}
 
 // The banded page shell every non-landing page shares: dark header, primary
 // title band with a slanted edge, content on the light background, dark
@@ -53,6 +76,7 @@ export function PageLayout({
         homeTo={showAccountNav ? '/learn' : '/'}
         nav={showAccountNav ? <MainNav /> : nav === 'none' ? null : undefined}
       />
+      <SessionExpiredNotice />
       <main className="flex-1">
         <HeroBand className={`${compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
           <div className={column}>

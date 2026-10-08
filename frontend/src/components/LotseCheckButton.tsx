@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
 import { HelmIcon } from './icons/FeatureIcons'
+import { LoginLink } from './LoginLink'
 
 // What happens to the answer lives in the tooltip and the accessible description, not in a caption.
 const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'
@@ -92,9 +93,7 @@ export function LotseCheckButton({
         <Ribbon />
       </button>
       {isGuest ? (
-        <Link to="/login" className="self-start text-sm text-primary underline">
-          Anmelden und den Lotsen fragen
-        </Link>
+        <LoginLink className="self-start text-sm text-primary underline">Anmelden und den Lotsen fragen</LoginLink>
       ) : null}
       {!canPay && canBuy ? (
         <Link to="/pricing" className="self-start text-sm text-primary underline">
