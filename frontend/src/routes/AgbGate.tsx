@@ -1,34 +1,27 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
 import { apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { useAsyncAction } from '../hooks/useAsyncAction'
+import { buttonClass } from '../components/buttonStyles'
+import { ErrorMessage } from '../components/Messages'
+import { Modal } from '../components/Modal'
 
 // Wraps the logged-in routes and the pages open to guests too (/learn, ADR-0054); it only ever
 // asks a logged-in learner. The page always renders (via Outlet) so the app doesn't visually disappear;
-// when the backend says the account owes a confirmation — a fresh acceptance,
-// or the AGB version was bumped since the last login — a modal
-// overlay blocks it until confirmed. No per-login checkbox: friction only
-// when a confirmation is actually owed.
+// when the backend says the account owes a confirmation — a fresh acceptance, or the AGB version
+// was bumped since the last login — a modal dialog blocks it until confirmed (the page behind it is
+// inert meanwhile, see Modal). No per-login checkbox: friction only when a confirmation is actually
+// owed.
 export function AgbGate() {
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const { run, isPending: isSubmitting, error } = useAsyncAction()
 
   const needsAcceptance = user?.needs_agb_acceptance === true
-
-  // Mandatory dialog: block scrolling/interacting with the page behind it
-  // for as long as it's up.
-  useEffect(() => {
-    if (!needsAcceptance) return
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [needsAcceptance])
+  const headingRef = useRef<HTMLHeadingElement>(null)
 
   function handleAccept() {
     return run(
@@ -37,42 +30,38 @@ export function AgbGate() {
     )
   }
 
+  // Mandatory: no onClose, so neither Escape nor a click beside it closes the dialog. Focus starts
+  // on the heading, so a screen reader reads the dialog from its title on.
   return (
     <>
       <Outlet />
       {needsAcceptance ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="agb-gate-title"
-            className="flex w-full max-w-md flex-col gap-4 rounded-tile border border-ink bg-surface p-6 text-center shadow-xl"
+        <Modal labelledBy="agb-gate-title" initialFocusRef={headingRef} className="text-center">
+          <h2
+            id="agb-gate-title"
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-serif text-xl text-primary outline-none"
           >
-            <h2 id="agb-gate-title" className="font-serif text-xl text-primary">
-              Aktualisierte Nutzungsbedingungen
-            </h2>
-            <p className="text-ink-soft">
-              Bitte bestätige, dass du unsere{' '}
-              <Link to="/terms" className="text-primary underline">
-                AGB
-              </Link>{' '}
-              akzeptierst, um SKS Lotse weiter zu nutzen.
-            </p>
-            {error ? (
-              <p role="alert" className="rounded-tile bg-danger px-3 py-2 text-sm text-surface">
-                {error}
-              </p>
-            ) : null}
-            <button
-              type="button"
-              onClick={() => void handleAccept()}
-              disabled={isSubmitting}
-              className="rounded-tile bg-accent px-4 py-3 font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-ink disabled:opacity-60"
-            >
-              Ich akzeptiere die AGB
-            </button>
-          </div>
-        </div>
+            Aktualisierte Nutzungsbedingungen
+          </h2>
+          <p className="text-ink-soft">
+            Bitte bestätige, dass du unsere{' '}
+            <Link to="/terms" className="text-primary underline">
+              AGB
+            </Link>{' '}
+            akzeptierst, um SKS Lotse weiter zu nutzen.
+          </p>
+          <ErrorMessage>{error}</ErrorMessage>
+          <button
+            type="button"
+            onClick={() => void handleAccept()}
+            disabled={isSubmitting}
+            className={buttonClass('primary')}
+          >
+            Ich akzeptiere die AGB
+          </button>
+        </Modal>
       ) : null}
     </>
   )

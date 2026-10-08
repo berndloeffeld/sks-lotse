@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import type { ChartAttempt, ChartExercisesOverview } from '../api/types'
 import { pointsLabel } from '../chartPoints'
@@ -6,6 +6,8 @@ import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
 import { ChartTaskText, OfficialSolution, OwnAnswer } from './ChartContent'
 import { TideFormFields } from './TideFormFields'
+import { buttonClass } from './buttonStyles'
+import { Modal } from './Modal'
 
 // What stays at hand during a Kartenaufgabe: the Formblatt Gezeiten to fill in, the tasks done so far
 // with the learner's answers and the solutions. (The sheet's rules are read before the start, on
@@ -169,18 +171,10 @@ export function ChartSidePanel(props: ToolsProps) {
 
 export function ChartToolBar(props: ToolsProps) {
   const [open, setOpen] = useState<Panel | null>(null)
-  const openerRef = useRef<HTMLButtonElement | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    if (open) closeRef.current?.focus()
-  }, [open])
-
-  function close() {
-    setOpen(null)
-    openerRef.current?.focus()
-  }
-
+  // The sheet is a Modal: focus starts on "Schließen", stays inside, and goes back to the bar's
+  // button on close; Escape and a tap on the dimmed page above it close it too.
   return (
     <>
       <nav
@@ -192,10 +186,7 @@ export function ChartToolBar(props: ToolsProps) {
             key={key}
             type="button"
             aria-expanded={open === key}
-            onClick={(event) => {
-              openerRef.current = event.currentTarget
-              setOpen(key)
-            }}
+            onClick={() => setOpen(key)}
             className="px-3 py-1 font-mono text-xs tracking-wide text-primary uppercase"
           >
             {PANELS[key]}
@@ -203,31 +194,15 @@ export function ChartToolBar(props: ToolsProps) {
         ))}
       </nav>
       {open ? (
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog, standard dialog behavior
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={PANELS[open]}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') close()
-          }}
-          className="fixed inset-0 z-50 flex flex-col justify-end bg-ink/40"
-        >
-          <div className="flex max-h-[85vh] flex-col gap-3 overflow-y-auto rounded-t-tile bg-surface p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-serif text-xl text-ink">{PANELS[open]}</h2>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={close}
-                className="px-2 font-mono text-xs tracking-wide text-ink-soft uppercase underline"
-              >
-                Schließen
-              </button>
-            </div>
-            <PanelContent panel={open} {...props} />
+        <Modal label={PANELS[open]} placement="sheet" onClose={() => setOpen(null)} initialFocusRef={closeRef}>
+          <div className="flex items-center justify-between">
+            <h2 className="font-serif text-xl text-ink">{PANELS[open]}</h2>
+            <button ref={closeRef} type="button" onClick={() => setOpen(null)} className={buttonClass('tertiary')}>
+              Schließen
+            </button>
           </div>
-        </div>
+          <PanelContent panel={open} {...props} />
+        </Modal>
       ) : null}
     </>
   )

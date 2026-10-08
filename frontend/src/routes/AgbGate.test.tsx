@@ -77,4 +77,30 @@ describe('AgbGate', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Das hat nicht geklappt.')
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
+
+  it('starts on its heading, makes the page inert and stays open on Escape — confirming is mandatory', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true }) })
+    const root = document.createElement('div')
+    root.id = 'root'
+    document.body.appendChild(root)
+
+    render(
+      <MemoryRouter initialEntries={['/learn']}>
+        <Routes>
+          <Route element={<AgbGate />}>
+            <Route path="/learn" element={<p>Learn page</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+      { container: root },
+    )
+
+    expect(screen.getByRole('heading', { name: 'Aktualisierte Nutzungsbedingungen' })).toHaveFocus()
+    expect(root).toHaveAttribute('inert')
+    expect(root).not.toContainElement(screen.getByRole('dialog'))
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    root.remove()
+  })
 })
