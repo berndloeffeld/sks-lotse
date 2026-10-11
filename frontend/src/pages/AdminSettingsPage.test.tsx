@@ -7,7 +7,6 @@ import { AdminSettingsPage } from './AdminSettingsPage'
 import { jsonResponse } from '../test/fixtures'
 
 const SETTINGS = {
-  price_ads_removed_cents: 500,
   signup_bonus_tokens: 6,
   tokens_s: { tokens: 20, price_cents: 299 },
   tokens_m: { tokens: 50, price_cents: 599 },
@@ -33,8 +32,7 @@ describe('AdminSettingsPage', () => {
     )
     renderPage()
 
-    expect(await screen.findByLabelText('Werbefrei, einmalig (€)')).toHaveValue(5)
-    expect(screen.getByLabelText('Geschenkte Tokens bei Anmeldung')).toHaveValue(6)
+    expect(await screen.findByLabelText('Geschenkte Tokens bei Anmeldung')).toHaveValue(6)
     expect(screen.getByLabelText('Tokens', { selector: '#tokens_s-tokens' })).toHaveValue(20)
     expect(screen.getByLabelText('Preis (€)', { selector: '#tokens_s-price' })).toHaveValue(2.99)
     expect(screen.getByLabelText('Tokens', { selector: '#tokens_xl-tokens' })).toHaveValue(200)
@@ -70,14 +68,13 @@ describe('AdminSettingsPage', () => {
     expect(JSON.parse(String(put?.[1]?.body))).toEqual({ ...SETTINGS, tokens_s: { tokens: 20, price_cents: 349 } })
   })
 
-  it('saves changed ads-removal price, signup bonus and package token count together', async () => {
+  it('saves a changed signup bonus and package token count together', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
       jsonResponse(
         init?.method === 'PUT'
           ? {
               ...SETTINGS,
-              price_ads_removed_cents: 799,
               signup_bonus_tokens: 3,
               tokens_s: { tokens: 15, price_cents: 299 },
             }
@@ -87,10 +84,7 @@ describe('AdminSettingsPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderPage()
-    const adsPrice = await screen.findByLabelText('Werbefrei, einmalig (€)')
-    await user.clear(adsPrice)
-    await user.type(adsPrice, '7.99')
-    const bonus = screen.getByLabelText('Geschenkte Tokens bei Anmeldung')
+    const bonus = await screen.findByLabelText('Geschenkte Tokens bei Anmeldung')
     await user.clear(bonus)
     await user.type(bonus, '3')
     const tokensS = screen.getByLabelText('Tokens', { selector: '#tokens_s-tokens' })
@@ -102,7 +96,6 @@ describe('AdminSettingsPage', () => {
     const put = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
     expect(JSON.parse(String(put?.[1]?.body))).toEqual({
       ...SETTINGS,
-      price_ads_removed_cents: 799,
       signup_bonus_tokens: 3,
       tokens_s: { tokens: 15, price_cents: 299 },
     })
@@ -114,7 +107,7 @@ describe('AdminSettingsPage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderPage()
-    const input = await screen.findByLabelText('Werbefrei, einmalig (€)')
+    const input = await screen.findByLabelText('Preis (€)', { selector: '#tokens_s-price' })
     await user.clear(input)
     await user.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(screen.getByText('Bitte bei jedem Feld eine gültige, nicht-negative Zahl eingeben.')).toBeInTheDocument()
@@ -130,7 +123,7 @@ describe('AdminSettingsPage', () => {
       ),
     )
     renderPage()
-    await screen.findByLabelText('Werbefrei, einmalig (€)')
+    await screen.findByLabelText('Geschenkte Tokens bei Anmeldung')
     await user.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(await screen.findByText('Die Einstellungen konnten nicht gespeichert werden.')).toBeInTheDocument()
   })

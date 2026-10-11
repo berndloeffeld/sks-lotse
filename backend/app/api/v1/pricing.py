@@ -18,11 +18,10 @@ router = APIRouter(prefix="/pricing", tags=["pricing"])
 
 @router.get("", response_model=PublicPricing)
 def get_pricing(request: Request, db: Session = Depends(get_db)) -> PublicPricing:
-    """Current token-package and ads-removal prices, and whether the packages can be bought (ADR-0048)."""
+    """Current token-package prices, and whether the packages can be bought (ADR-0048)."""
 
     def load() -> PublicPricing:
         return PublicPricing(
-            ads_removed_price_cents=pricing_service.ads_removed_price_cents(db),
             signup_bonus_tokens=pricing_service.signup_bonus_tokens(db),
             packages=[
                 PublicTokenPackage(product=p.product, tokens=p.tokens, price_cents=p.price_cents)

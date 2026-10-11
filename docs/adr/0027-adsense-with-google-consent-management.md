@@ -1,6 +1,6 @@
 # 0027. Google AdSense behind Google's own consent management
 
-Status: Accepted — partially supersedes the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md); amended by the addenda below (2026-09-20 to 2026-10-05).
+Status: Superseded by [ADR-0060](0060-no-advertising.md) (no advertising). Partially superseded the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md); amended by the addenda below (2026-09-20 to 2026-10-05).
 
 ## Context
 

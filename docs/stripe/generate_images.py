@@ -46,16 +46,7 @@ def tokens_art(n):
     coins = "".join(coin(512, 250 + total / 2 - i * step) for i in range(n))
     return f'<svg width="1024" height="440" viewBox="0 0 1024 440">{coins}</svg>'
 
-def werbefrei_art():
-    return """<svg width="1024" height="440" viewBox="0 0 1024 440">
-<rect x="262" y="90" width="500" height="260" fill="#fff" stroke="#b9c9d0" stroke-width="5" stroke-dasharray="18 12"/>
-<text x="512" y="170" text-anchor="middle" font-family="Public Sans" font-weight="600" font-size="34" letter-spacing="8" fill="#b9c9d0">ANZEIGE</text>
-<rect x="322" y="210" width="380" height="22" fill="#d8e4e9"/><rect x="322" y="254" width="280" height="22" fill="#d8e4e9"/>
-<line x1="232" y1="385" x2="792" y2="55" stroke="#b24632" stroke-width="26" stroke-linecap="round"/>
-</svg>"""
-
 PAGES = {
-    "werbefrei": (werbefrei_art(), "Werbefrei", "Einmalig zahlen – dauerhaft ohne Werbung", "EINMALIG"),
     "tokens_s": (tokens_art(1), '20 <small>Tokens</small>', "für den Lotsen-Check", "PAKET S"),
     "tokens_m": (tokens_art(2), '50 <small>Tokens</small>', "für den Lotsen-Check", "PAKET M"),
     "tokens_l": (tokens_art(3), '100 <small>Tokens</small>', "für den Lotsen-Check", "PAKET L"),

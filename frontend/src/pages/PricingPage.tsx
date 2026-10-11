@@ -197,7 +197,7 @@ function CheckoutReturnNotice({ status }: { status: string | null }) {
   return null
 }
 
-// A standalone page for the token prices (ADR-0043; Werbefrei isn't offered here yet), linked from the header nav. The
+// A standalone page for the token prices (ADR-0043), linked from the header nav. The
 // token packages can be bought here once the STRIPE_CHECKOUT flag lets this account
 // (`user.can_buy_tokens`, ADR-0048); until then the
 // "bald verfügbar" framing repeats at every level so it can't be skimmed past as a live offer.

@@ -7,7 +7,6 @@
   "ignoreStatic": true,
   "mutate": [
     "src/format.ts",
-    "src/ads.ts",
     "src/analytics.ts",
     "src/labels.ts",
     "src/api/client.ts",

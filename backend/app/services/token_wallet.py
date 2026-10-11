@@ -39,21 +39,19 @@ def grant(
     user_id: int,
     *,
     product: str,
-    tokens: int | None,
+    tokens: int,
     amount_eur_cents: int | None,
     granted_by: str,
     admin_user_id: int | None = None,
     stripe_payment_intent_id: str | None = None,
 ) -> Purchase:
-    """Credit tokens (if any) to the balance and record the grant in the purchases ledger.
+    """Credit tokens to the balance and record the grant in the purchases ledger.
 
-    `tokens=None` records a grant with no token effect (e.g. the ads-removed fee). `amount_eur_cents`
-    stays `None` for grants that involved no money — see `app/models/purchase.py` on why that
-    distinction matters for account deletion.
+    `amount_eur_cents` stays `None` for grants that involved no money — see
+    `app/models/purchase.py` on why that distinction matters for account deletion.
     """
     user = locked_user(db, user_id)
-    if tokens:
-        user.token_balance += tokens
+    user.token_balance += tokens
     purchase = Purchase(
         user_id=user_id,
         product=product,

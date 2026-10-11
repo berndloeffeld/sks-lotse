@@ -16,7 +16,6 @@ import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
-import { AdScriptGate } from './routes/AdScriptGate'
 import { AgbGate } from './routes/AgbGate'
 import { ChartExercisesGate } from './routes/ChartExercisesGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -104,53 +103,47 @@ export function AppRoutes() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<AgbPage />} />
           <Route path="/exam-process" element={<ExamProcessPage />} />
-          {/* The prerendered public pages above carry the ad script statically; these load it
-            only where wanted — not for ads-removed accounts, never on /pricing or /admin (ads.ts).
-            /pricing and the open /learn pages are prerendered without it, and the gate leaves a
-            document that already runs it (arriving from a page with ads). */}
-          <Route element={<AdScriptGate />}>
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            {/* AgbGate only ever asks a logged-in learner; guests pass straight through. */}
-            <Route element={<AgbGate />}>
-              {/* Open without a login (ADR-0054): the topic list and a topic's run, prerendered for
-                search engines; logged in they are the learner's Lernstand and graded run. */}
-              <Route path="/learn" element={<LearnPage />} />
-              <Route path="/learn/:subject/:topic" element={<PracticePage />} />
-              {/* The Kartenaufgaben open without a login too, while the build's flag is "on"
-                (ADR-0056): a guest runs a sheet in the page, nothing saved. */}
-              {chartsOpen ? (
-                <Route element={<ChartExercisesGate />}>
-                  <Route path="/charts" element={<ChartExercisesPage />} />
-                  <Route path="/charts/:number" element={<ChartExercisePage />} />
-                </Route>
-              ) : null}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/learn/focus" element={<FocusPracticePage />} />
-                <Route path="/learn/refresh" element={<RefreshPracticePage />} />
-                <Route path="/exam" element={<ExamPage />} />
-                <Route path="/exam/:id" element={<ExamRunPage />} />
-                <Route element={<ChartExercisesGate />}>
-                  {chartsOpen ? null : (
-                    <>
-                      <Route path="/charts" element={<ChartExercisesPage />} />
-                      <Route path="/charts/:number" element={<ChartExercisePage />} />
-                    </>
-                  )}
-                  <Route path="/charts/attempts/:id" element={<ChartAttemptPage />} />
-                </Route>
-                <Route path="/profile" element={<ProfileLayout />}>
-                  <Route index element={<ProfileLearnStatusPage />} />
-                  <Route path="account" element={<ProfileAccountPage />} />
-                </Route>
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="users" replace />} />
-                  <Route path="users" element={<AdminUsersPage />} />
-                  <Route path="users/:id" element={<AdminUserPage />} />
-                  <Route path="questions" element={<AdminQuestionsPage />} />
-                  <Route path="blocklist" element={<AdminBlocklistPage />} />
-                  <Route path="settings" element={<AdminSettingsPage />} />
-                </Route>
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          {/* AgbGate only ever asks a logged-in learner; guests pass straight through. */}
+          <Route element={<AgbGate />}>
+            {/* Open without a login (ADR-0054): the topic list and a topic's run, prerendered for
+              search engines; logged in they are the learner's Lernstand and graded run. */}
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/learn/:subject/:topic" element={<PracticePage />} />
+            {/* The Kartenaufgaben open without a login too, while the build's flag is "on"
+              (ADR-0056): a guest runs a sheet in the page, nothing saved. */}
+            {chartsOpen ? (
+              <Route element={<ChartExercisesGate />}>
+                <Route path="/charts" element={<ChartExercisesPage />} />
+                <Route path="/charts/:number" element={<ChartExercisePage />} />
+              </Route>
+            ) : null}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/learn/focus" element={<FocusPracticePage />} />
+              <Route path="/learn/refresh" element={<RefreshPracticePage />} />
+              <Route path="/exam" element={<ExamPage />} />
+              <Route path="/exam/:id" element={<ExamRunPage />} />
+              <Route element={<ChartExercisesGate />}>
+                {chartsOpen ? null : (
+                  <>
+                    <Route path="/charts" element={<ChartExercisesPage />} />
+                    <Route path="/charts/:number" element={<ChartExercisePage />} />
+                  </>
+                )}
+                <Route path="/charts/attempts/:id" element={<ChartAttemptPage />} />
+              </Route>
+              <Route path="/profile" element={<ProfileLayout />}>
+                <Route index element={<ProfileLearnStatusPage />} />
+                <Route path="account" element={<ProfileAccountPage />} />
+              </Route>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="users" replace />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="users/:id" element={<AdminUserPage />} />
+                <Route path="questions" element={<AdminQuestionsPage />} />
+                <Route path="blocklist" element={<AdminBlocklistPage />} />
+                <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
             </Route>
           </Route>

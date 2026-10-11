@@ -78,7 +78,7 @@ export function PrivacyPage() {
           Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben. Dabei speichern
           wir nichts zu Ihnen: Was Sie als Antwort eingeben, und Ihre Selbsteinschätzung bleiben in der geöffneten Seite
           und werden weder übertragen noch gespeichert; einen Lernstand gibt es nur mit Konto. Es gelten nur die Angaben
-          zum Hosting und zur Werbung.
+          zum Hosting.
         </p>
         <p>
           Mit Konto speichern wir Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete
@@ -161,40 +161,6 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <ProseSection id="werbung" title="Werbung (Google AdSense)">
-        <p>
-          Zur Finanzierung des kostenlosen Angebots blenden wir Werbung des Dienstes Google AdSense ein (Google Ireland
-          Limited, Gordon House, Barrow Street, Dublin 4, Irland; Muttergesellschaft Google LLC, USA). Dabei werden auf
-          Ihrem Gerät Cookies oder ähnliche Technologien gespeichert bzw. ausgelesen, und Daten wie Ihre IP-Adresse,
-          Browser- und Geräteinformationen sowie die aufgerufene Seite an Google übermittelt. Google kann diese Daten in
-          die USA übermitteln und mit weiteren Daten verknüpfen.
-        </p>
-        <p>
-          Auf unseren öffentlichen Informationsseiten (Startseite, Häufige Fragen, Ablauf der Prüfung, Impressum,
-          Datenschutzerklärung und AGB) ist das Skript von Google AdSense fest eingebunden. Ihr Browser lädt es beim
-          Aufruf dieser Seiten, also bevor Sie eine Entscheidung getroffen haben, denn dieses Skript zeigt die
-          Einwilligungsabfrage an. Google erhält dabei technisch bedingt bereits Ihre IP-Adresse, die üblichen Angaben
-          Ihres Browsers und die aufgerufene Seite.
-        </p>
-        <p>
-          Werbung wird erst angezeigt, und Cookies oder ähnliche Technologien werden über das technisch Notwendige
-          hinaus erst auf Ihrem Endgerät gespeichert oder ausgelesen, wenn Sie eingewilligt haben (Art. 6 Abs. 1 lit. a
-          DSGVO, § 25 Abs. 1 TDDDG). Diese holen wir über die von Google bereitgestellte Consent-Lösung ein, die dem
-          Transparency &amp; Consent Framework (TCF) der IAB Europe entspricht. Ihre Einwilligung ist freiwillig; ohne
-          sie können Sie SKS Lotse weiterhin vollständig nutzen. Sie können Ihre Entscheidung jederzeit mit Wirkung für
-          die Zukunft ändern oder widerrufen, über den Link „Cookies“ am Seitenende. Weitere Informationen:{' '}
-          <a
-            href="https://policies.google.com/technologies/partner-sites"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-primary"
-          >
-            Wie Google Daten von Websites und Apps nutzt
-          </a>
-          .
-        </p>
-      </ProseSection>
-
       <ProseSection title="KI-Prüfung Ihrer Antwort (Lotsen-Check, Anthropic)">
         <p>
           Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie eine Antwort per Klick von einer KI prüfen
@@ -243,11 +209,10 @@ export function PrivacyPage() {
         <p>
           Empfänger Ihrer Daten sind ausschließlich die oben genannten Dienstleister: Render (Hosting), Better Stack
           (Logging und Verfügbarkeitsüberwachung), Resend (E-Mail-Versand), Anthropic (KI-Prüfung, nur bei Nutzung),
-          Stripe (Zahlungsabwicklung, nur bei einem Kauf), Umami (Webanalyse) und Google (Werbung). Mit den
-          Dienstleistern, die in unserem Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit
-          Anbieter ihren Sitz in den USA haben oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen
-          Angemessenheitsbeschluss der EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln
-          (Art. 44 ff. DSGVO).
+          Stripe (Zahlungsabwicklung, nur bei einem Kauf) und Umami (Webanalyse). Mit den Dienstleistern, die in unserem
+          Auftrag Daten verarbeiten, bestehen Auftragsverarbeitungsverträge. Soweit Anbieter ihren Sitz in den USA haben
+          oder Daten dorthin übermitteln, stützt sich die Übermittlung auf einen Angemessenheitsbeschluss der
+          EU-Kommission (EU-US Data Privacy Framework) oder auf EU-Standardvertragsklauseln (Art. 44 ff. DSGVO).
         </p>
       </ProseSection>
 
@@ -269,7 +234,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 6. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 11. Oktober 2026</p>
     </PageLayout>
   )
 }

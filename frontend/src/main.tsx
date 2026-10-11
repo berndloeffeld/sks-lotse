@@ -14,14 +14,11 @@ import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import './index.css'
 import { appRoutes } from './appRoutes.tsx'
-import { openConsentSettingsIfRequested } from './ads.ts'
 import { initAnalytics } from './analytics.ts'
 import { loadCatalog } from './catalog.ts'
 import { loadChartCatalog } from './chartCatalog.ts'
 
 initAnalytics()
-// Arriving from "Cookies" (footer) on a page without the consent API (ads.ts).
-openConsentSettingsIfRequested()
 
 const container = document.getElementById('root')!
 const router = createBrowserRouter(appRoutes)

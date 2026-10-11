@@ -35,8 +35,8 @@ class User(Base):
     # Credited by the signup bonus, Stripe purchases (ADR-0048) and admin grants
     # (app/services/token_wallet.py, which also sets the costs).
     token_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    # Entitlement "ads removed" — flipped by the operator on /admin. Hides the UI's ad elements and keeps
-    # the app from loading Google's ad script (ADR-0027, addenda 2026-09-23 and 2026-10-05).
+    # Unused since SKS Lotse dropped ads (ADR-0060); kept only until the follow-up migration drops
+    # the column, so the version still running during that deploy can read it.
     ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     # How often the sanitizer backstop (app/services/grader.py) fired for this account — a signal
     # for prompt-injection abuse, never the triggering text itself (ADR-0031, ADR-0040).

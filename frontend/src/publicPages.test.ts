@@ -55,7 +55,7 @@ const SHELL = `<head>
 </head>`
 
 describe('learnPages', () => {
-  it('has /learn and one page per topic, all without the static ad script', () => {
+  it('has /learn and one page per topic', () => {
     const pages = learnPages(CATALOG)
 
     expect(pages.map((p) => [p.path, p.file])).toEqual([
@@ -63,7 +63,6 @@ describe('learnPages', () => {
       ['/learn/navigation/seekarten', 'learn/navigation/seekarten.html'],
       ['/learn/wetterkunde/wind', 'learn/wetterkunde/wind.html'],
     ])
-    expect(pages.every((p) => p.withoutAds)).toBe(true)
     expect(pages[0].meta?.description).toContain('Alle 3 Fragen')
     expect(pages[1].meta).toMatchObject({
       title: 'Seekarten – SKS-Fragen Navigation – SKS Lotse',
@@ -92,7 +91,7 @@ describe('learnPages question count', () => {
 })
 
 describe('publicPages', () => {
-  it('keeps the static pages, the ad script off /pricing only among them', () => {
+  it('keeps the static pages first', () => {
     const pages = publicPages(CATALOG)
     const statics = pages.slice(0, 7)
     expect(statics.map((p) => p.path)).toEqual([
@@ -104,14 +103,13 @@ describe('publicPages', () => {
       '/exam-process',
       '/pricing',
     ])
-    expect(statics.filter((p) => p.withoutAds).map((p) => p.path)).toEqual(['/pricing'])
     expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
     expect(statics[1].file).toBe('faq.html')
   })
 })
 
 describe('chartPages', () => {
-  it('has /charts and one page per sheet, all without the static ad script', () => {
+  it('has /charts and one page per sheet', () => {
     const pages = chartPages(makeChartExport())
 
     expect(pages.map((p) => [p.path, p.file])).toEqual([
@@ -119,7 +117,6 @@ describe('chartPages', () => {
       ['/charts/1', 'charts/1.html'],
       ['/charts/2', 'charts/2.html'],
     ])
-    expect(pages.every((p) => p.withoutAds)).toBe(true)
     expect(pages[1].meta).toMatchObject({
       title: 'Kartenaufgabe 1: Cuxhaven → Büsum – SKS-Navigation – SKS Lotse',
       description:

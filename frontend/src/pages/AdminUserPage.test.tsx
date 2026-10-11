@@ -32,7 +32,6 @@ const foundUser = {
   last_name: 'Beispiel',
   gender: 'weiblich',
   token_balance: 0,
-  ads_removed: false,
   ai_flags_count: 0,
   ai_flags_last_at: null,
   question_progress_count: 3,
@@ -53,12 +52,6 @@ function stubFetch(
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }
-
-// PATCH echoes the change back, like the backend does.
-const echoPatch = (url: string, init?: RequestInit) =>
-  url.endsWith(`/admin/users/${foundUser.id}`) && init?.method === 'PATCH'
-    ? jsonResponse({ ...foundUser, ...JSON.parse(String(init.body)) })
-    : undefined
 
 const failPatch = (_url: string, init?: RequestInit) =>
   init?.method === 'PATCH' ? new Response(null, { status: 500 }) : undefined
@@ -301,53 +294,6 @@ describe('AdminUserPage', () => {
     await user.click(screen.getByRole('button', { name: 'Tokens abbuchen' }))
 
     expect(await screen.findByText('Die Tokens konnten nicht abgebucht werden.')).toBeInTheDocument()
-  })
-
-  it('removes and restores ads', async () => {
-    const user = userEvent.setup()
-    stubFetch(echoPatch)
-    renderUserPage()
-    await screen.findByText('learner@example.com')
-    expect(screen.getByText('Werbung').nextElementSibling).toHaveTextContent('Aktiv')
-
-    await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
-    expect(await screen.findByText('Entfernt')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Werbung wieder aktivieren' }))
-    await screen.findByRole('button', { name: 'Werbung entfernen' })
-    expect(screen.getByText('Werbung').nextElementSibling).toHaveTextContent('Aktiv')
-  })
-
-  it("syncs the admin's own session when they remove ads on their own account", async () => {
-    const user = userEvent.setup()
-    useAuthStore.setState({
-      user: {
-        ...foundUser,
-        is_admin: true,
-        can_buy_tokens: false,
-        can_use_chart_exercises: false,
-        agb_accepted_version: null,
-        needs_agb_acceptance: true,
-      } as ReturnType<typeof useAuthStore.getState>['user'],
-      isAuthenticated: true,
-      isLoading: false,
-    })
-    stubFetch(echoPatch)
-    renderUserPage()
-    await screen.findByText('learner@example.com')
-
-    await user.click(screen.getByRole('button', { name: 'Werbung entfernen' }))
-    expect(await screen.findByText('Entfernt')).toBeInTheDocument()
-    expect(useAuthStore.getState().user?.ads_removed).toBe(true)
-  })
-
-  it('shows an error when changing the ads setting fails', async () => {
-    const user = userEvent.setup()
-    stubFetch(failPatch)
-    renderUserPage()
-    await user.click(await screen.findByRole('button', { name: 'Werbung entfernen' }))
-
-    expect(await screen.findByText('Die Werbung konnte nicht geändert werden.')).toBeInTheDocument()
   })
 
   it('blocks and unblocks the account', async () => {

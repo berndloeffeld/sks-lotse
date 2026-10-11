@@ -3,9 +3,6 @@ from app.services import pricing as pricing_service
 
 
 def test_defaults_apply_when_nothing_is_configured(db_session):
-    assert (
-        pricing_service.ads_removed_price_cents(db_session) == pricing_domain.DEFAULT_ADS_REMOVED_PRICE_CENTS
-    )
     assert pricing_service.signup_bonus_tokens(db_session) == pricing_domain.DEFAULT_SIGNUP_BONUS_TOKENS
     packages = pricing_service.token_packages(db_session)
     assert [p.product for p in packages] == list(pricing_domain.PACKAGE_PRODUCTS)
@@ -15,11 +12,9 @@ def test_defaults_apply_when_nothing_is_configured(db_session):
 def test_set_prices_overrides_the_defaults(db_session):
     pricing_service.set_prices(
         db_session,
-        price_ads_removed_cents=799,
         signup_bonus_tokens=3,
         packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 15, 249)},
     )
-    assert pricing_service.ads_removed_price_cents(db_session) == 799
     assert pricing_service.signup_bonus_tokens(db_session) == 3
     changed = pricing_service.token_package(db_session, "tokens_s")
     assert (changed.tokens, changed.price_cents) == (15, 249)
@@ -29,22 +24,20 @@ def test_set_prices_overrides_the_defaults(db_session):
 
 
 def test_set_prices_updates_an_existing_row_rather_than_duplicating_it(db_session):
-    pricing_service.set_prices(db_session, price_ads_removed_cents=500, signup_bonus_tokens=6, packages={})
-    pricing_service.set_prices(db_session, price_ads_removed_cents=700, signup_bonus_tokens=6, packages={})
-    assert pricing_service.ads_removed_price_cents(db_session) == 700
+    pricing_service.set_prices(db_session, signup_bonus_tokens=6, packages={})
+    pricing_service.set_prices(db_session, signup_bonus_tokens=7, packages={})
+    assert pricing_service.signup_bonus_tokens(db_session) == 7
 
 
 def test_public_pricing_endpoint_reflects_the_configured_prices(client, db_session):
     pricing_service.set_prices(
         db_session,
-        price_ads_removed_cents=799,
         signup_bonus_tokens=3,
         packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 15, 249)},
     )
     response = client.get("/api/v1/pricing")
     assert response.status_code == 200
     body = response.json()
-    assert body["ads_removed_price_cents"] == 799
     assert body["signup_bonus_tokens"] == 3
     assert body["packages"][0] == {"product": "tokens_s", "tokens": 15, "price_cents": 249}
     assert len(body["packages"]) == 4

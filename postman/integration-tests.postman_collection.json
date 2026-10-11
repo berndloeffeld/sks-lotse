@@ -137,7 +137,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('has every package and the checkout flag', function () {",
                   "    var body = pm.response.json();",
-                  "    pm.expect(body).to.have.all.keys('ads_removed_price_cents', 'signup_bonus_tokens', 'packages', 'checkout_enabled', 'catalog_check_tokens', 'chart_check_tokens', 'check_max_answer_chars');",
+                  "    pm.expect(body).to.have.all.keys('signup_bonus_tokens', 'packages', 'checkout_enabled', 'catalog_check_tokens', 'chart_check_tokens', 'check_max_answer_chars');",
                   "    pm.expect(body.packages).to.have.lengthOf(4);",
                   "    // This server runs with STRIPE_CHECKOUT off (the default).",
                   "    pm.expect(body.checkout_enabled).to.eql(false);",
@@ -2245,7 +2245,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"product\": \"ads_removed\", \"waive_withdrawal\": true}",
+              "raw": "{\"product\": \"signup_bonus\", \"waive_withdrawal\": true}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2253,7 +2253,7 @@
               }
             }
           },
-          "description": "Werbefrei isn't sold through the checkout (yet) - only the four token packages.",
+          "description": "Only the four token packages are sold through the checkout.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -2767,7 +2767,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('records the current AGB version', function () {",
                   "    var me = pm.response.json();",
-                  "    pm.expect(me.agb_accepted_version).to.eql('2026-10-05');",
+                  "    pm.expect(me.agb_accepted_version).to.eql('2026-10-11');",
                   "    pm.expect(me.needs_agb_acceptance).to.eql(false);",
                   "});"
                 ]
@@ -5808,7 +5808,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ads_removed\": true}",
+              "raw": "{\"grant_tokens\": 1}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6064,7 +6064,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"price_ads_removed_cents\": 500, \"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
+              "raw": "{\"signup_bonus_tokens\": 6, \"tokens_s\": {\"tokens\": 20, \"price_cents\": 299}, \"tokens_m\": {\"tokens\": 50, \"price_cents\": 599}, \"tokens_l\": {\"tokens\": 100, \"price_cents\": 999}, \"tokens_xl\": {\"tokens\": 200, \"price_cents\": 1699}}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7170,7 +7170,7 @@
                   "pm.test('a page of accounts with the total', function () {",
                   "    pm.expect(page).to.have.all.keys('items', 'total');",
                   "    pm.expect(page.total).to.be.at.least(2);",
-                  "    pm.expect(page.items[0]).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'created_at', 'token_balance', 'ads_removed', 'is_blocked');",
+                  "    pm.expect(page.items[0]).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'created_at', 'token_balance', 'is_blocked');",
                   "});"
                 ]
               }
@@ -7317,7 +7317,7 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ads_removed', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
@@ -8949,61 +8949,6 @@
           }
         },
         {
-          "name": "Remove ads for a user (leaves the token balance untouched)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('ads_removed is now true and token_balance unchanged', function () { var u = pm.response.json(); pm.expect(u.ads_removed).to.eql(true); pm.expect(u.token_balance).to.eql(26); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/users/{{victimId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{{victimId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"ads_removed\": true}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
           "name": "Debit tokens from a user (refund or chargeback)",
           "event": [
             {
@@ -9478,7 +9423,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"ads_removed\": true}",
+              "raw": "{\"grant_tokens\": 1}",
               "options": {
                 "raw": {
                   "language": "json"

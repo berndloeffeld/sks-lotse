@@ -1,6 +1,6 @@
 # SKS Lotse — Claude Code Context
 
-SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official catalog is free text: the learner writes an answer and grades it against the official model answer, optionally helped by an LLM that *suggests* a grade (the Lotsen-Check). Web-only, freemium (remove ads / unlock the Lotsen-Check, set by the operator until payment exists).
+SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official catalog is free text: the learner writes an answer and grades it against the official model answer, optionally helped by an LLM that *suggests* a grade (the Lotsen-Check). Web-only, freemium without ads: the Lotsen-Check is paid per use with tokens, bought through Stripe.
 
 This file holds the **rules for working on the code**. Everything descriptive lives in one place each:
 
@@ -37,7 +37,7 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 - **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand; the guests' copy `frontend/src/data/catalog.gen.json` only from `backend/scripts/export_catalog.py`, and `chart_exercises.gen.json` only from `backend/scripts/export_chart_exercises.py`. Topic names are transcribed from the catalog, never invented by a script or an LLM.
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer — for a Kartenaufgabe also the official derivation and the learner's answers to the earlier tasks of the same run (ADR-0058). Never anything about the account.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
-- **Monetization flags are independent**: `ads_removed` and the `token_balance` pay-per-use balance, all four combinations valid (ADR-0006, ADR-0043). The ad script runs only where ads are shown and never on `/pricing` or `/admin` (ADR-0027 addendum 2026-09-23).
+- **No advertising** (ADR-0060): the only paid product is the `token_balance` pay-per-use balance (ADR-0043). No third-party script but Umami, and that never on `/admin`.
 - **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung. `backend/tests/test_personal_data_coverage.py` fails on a table or column that deletion and export don't cover, until it is added there or listed with the reason it needs neither.
 
 ---

@@ -46,7 +46,7 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     # erasure request. (user_id's FK cascade would cover the latter on
     # Postgres, but not on SQLite — same reasoning as above.)
     db.execute(delete(OtpCode).where(or_(OtpCode.email == user.email, OtpCode.user_id == user.id)))
-    # Purchases tied to real money (Werbefrei, Token-Pakete) are kept for the statutory bookkeeping
+    # Purchases tied to real money (Token-Pakete) are kept for the statutory bookkeeping
     # retention period (§147 AO/§257 HGB can forbid deleting payment records) but anonymized: the
     # account link is severed, the product/amount/date stay. Grants that involved no money (the
     # signup bonus, a goodwill admin correction) carry no such obligation and are deleted normally,

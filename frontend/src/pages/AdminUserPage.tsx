@@ -38,7 +38,7 @@ const ADMIN_BUTTON = buttonClass('secondary', { tone: 'admin' })
 const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
 
 // One account in the admin area (/admin/users/:id): view, export or delete it
-// (Art. 15/17/20 DSGVO), remove ads, credit AI-check tokens (ADR-0043) or take them back.
+// (Art. 15/17/20 DSGVO), credit AI-check tokens (ADR-0043) or take them back.
 export function AdminUserPage() {
   const { id } = useParams()
   // An unknown id is a normal answer here (null), not a failed load.
@@ -69,23 +69,22 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
   const currentUser = useAuthStore((s) => s.user)
   const setCurrentUser = useAuthStore((s) => s.setUser)
 
-  // An admin editing their own account (self-testing ads/tokens) otherwise sees no effect
+  // An admin editing their own account (self-testing tokens) otherwise sees no effect
   // outside /admin until the next full page load: the logged-in session's own User is a
   // separate copy in authStore, not touched by this page's AdminUser state.
   function syncIfSelf(updated: AdminUser) {
     if (currentUser && currentUser.id === updated.id) {
-      setCurrentUser({ ...currentUser, ads_removed: updated.ads_removed, token_balance: updated.token_balance })
+      setCurrentUser({ ...currentUser, token_balance: updated.token_balance })
     }
   }
 
   const exportAction = useAsyncAction()
-  const toggleAction = useAsyncAction()
   const blockAction = useAsyncAction()
   const grantAction = useAsyncAction()
   const debitAction = useAsyncAction()
   const deleteAction = useAsyncAction()
-  // A toggle, a grant and a debit all PATCH the account; none starts while another runs.
-  const isUpdating = toggleAction.isPending || grantAction.isPending || debitAction.isPending
+  // A grant and a debit both PATCH the account; neither starts while the other runs.
+  const isUpdating = grantAction.isPending || debitAction.isPending
 
   const [grantTokensInput, setGrantTokensInput] = useState('')
   const [grantAmountInput, setGrantAmountInput] = useState('')
@@ -100,14 +99,6 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
       const data = await apiClient.get<AdminUserExport>(`/admin/users/${user.id}/export`)
       downloadJson(data, `sks-lotse-export-${user.id}.json`)
     }, recentCheckError('Der Export konnte nicht erstellt werden.'))
-  }
-
-  function handleToggle(field: 'ads_removed', errorMessage: string) {
-    return toggleAction.run(async () => {
-      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { [field]: !user[field] })
-      onChange(updated)
-      syncIfSelf(updated)
-    }, errorMessage)
   }
 
   // Blocking ends the account's current session immediately (ADR-0045); unblocking just lets it
@@ -221,23 +212,9 @@ function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user:
           {user.ai_flags_count}
           {user.ai_flags_last_at ? ` (zuletzt ${formatDateTime(user.ai_flags_last_at)})` : ''}
         </dd>
-        <dt className="text-ink-soft">Werbung</dt>
-        <dd className="text-ink">{user.ads_removed ? 'Entfernt' : 'Aktiv'}</dd>
         <dt className="text-ink-soft">Zugang</dt>
         <dd className="text-ink">{user.is_blocked ? 'Gesperrt' : 'Aktiv'}</dd>
       </dl>
-
-      <div className="flex flex-col gap-2">
-        <ErrorMessage>{toggleAction.error}</ErrorMessage>
-        <button
-          type="button"
-          onClick={() => handleToggle('ads_removed', 'Die Werbung konnte nicht geändert werden.')}
-          disabled={isUpdating}
-          className={ADMIN_BUTTON}
-        >
-          {user.ads_removed ? 'Werbung wieder aktivieren' : 'Werbung entfernen'}
-        </button>
-      </div>
 
       <div className="flex flex-col gap-2">
         <ErrorMessage>{blockAction.error}</ErrorMessage>

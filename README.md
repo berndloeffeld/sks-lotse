@@ -5,7 +5,7 @@
 
 A web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official exam catalog is free-text, not multiple choice — the learner writes an answer and has to judge for themselves whether it's close enough to the model answer. SKS Lotse tracks what a learner has actually retained, simulates the exam, and — on request — has an LLM compare the learner's free-text answer with the official one, *suggest* a grade and explain what was missing or wrong; the learner always confirms the grade.
 
-**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), a learning status based on an estimated memory half-life rather than a streak, and the official Kartenaufgaben worked through task by task. Monetization is freemium — remove ads for a one-time fee, pay per use for the AI check with a token balance — see [docs/adr/0006](docs/adr/0006-mandatory-login-and-feature-gated-monetization.md) and [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) for the reasoning.
+**What's different from existing apps** (SKS-Buddy, the official SKS App — both already offer AI-graded free text): web-only (no app store), a learning status based on an estimated memory half-life rather than a streak, and the official Kartenaufgaben worked through task by task. Monetization is freemium without ads — pay per use for the AI check with a token balance — see [docs/adr/0043](docs/adr/0043-token-based-ai-grading-monetization.md) and [docs/adr/0060](docs/adr/0060-no-advertising.md) for the reasoning.
 
 ## How it was built
 
@@ -26,7 +26,7 @@ git log --format='%(trailers:key=Co-Authored-By,valueonly)' | sort | uniq -c | s
 
 ## Status
 
-Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 6 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, paying for Werbefrei, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 6 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Tech stack
 
@@ -39,7 +39,6 @@ Live: email+OTP login, learning by topic with self-assessment against the offici
 | Transactional email | Resend |
 | Answer check (LLM) | Anthropic API (Claude Haiku for catalog questions, Claude Sonnet for Kartenaufgaben), pay-per-use with tokens — [ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0043](docs/adr/0043-token-based-ai-grading-monetization.md), [ADR-0058](docs/adr/0058-lotsen-check-for-chart-exercises.md) |
 | Payments | Stripe Hosted Checkout, fulfilled by webhook — [ADR-0048](docs/adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md) |
-| Ads | Google AdSense *(script + consent are in, no ad units yet)* |
 | Analytics | Umami Cloud (cookieless; hosting region: see [RUNBOOK](docs/RUNBOOK.md#where-things-live)) |
 | Monitoring | Better Stack (uptime, status page, logs) |
 | Hosting | Render (Frankfurt EU) |
@@ -52,11 +51,11 @@ Login is mandatory, so handling personal data properly is part of the design, no
 - **Passwordless login without magic links:** email + one-time code. Codes are stored only as keyed hashes, short-lived, single-purpose (a login code can't confirm an email change) and cleaned up automatically ([ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)). Disposable-email domains are blocked, and email addresses are canonicalized so one inbox can't become many accounts.
 - **Session:** JWT in an httpOnly cookie, never readable by JavaScript or kept in `localStorage` ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)). Every `/api/v1` route requires it except the login (`POST /auth/otp/request` and `/auth/otp/verify`), `GET /pricing` and the Stripe webhook; per-IP rate limiting applies throughout, with tighter limits on login and email change.
 - **Data residency:** app and database run on Render in Frankfurt (EU); the static frontend is served through Render's global CDN. Fonts are self-hosted. Transport is HTTPS-only; disk encryption at rest is provided by the hosting platform, not by the app.
-- **Data minimisation:** name and gender are optional. Analytics is Umami Cloud, cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). Google's AdSense script is on the public pages, where it shows the consent dialog, so Google receives the visitor's IP address from the first page view; ads are shown and non-essential storage on the device is used only after consent via Google's TCF consent management ([ADR-0027](docs/adr/0027-adsense-with-google-consent-management.md)).
+- **Data minimisation:** name and gender are optional. Analytics is Umami Cloud, cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). No advertising and no consent banner: the only third-party script is Umami ([ADR-0060](docs/adr/0060-no-advertising.md)).
 - **AI check is on request:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email or name is sent. For a catalog question nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md)); for a Kartenaufgabe the official derivation and the learner's answers to the earlier tasks of the same run are sent too, and the suggestion is stored with the run ([ADR-0058](docs/adr/0058-lotsen-check-for-chart-exercises.md)).
 - **Data-subject rights:** learners can delete their account, including progress and its grading log, exams, Kartenaufgaben runs, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
 - **Payments:** card and other payment details are entered on Stripe's own checkout page only; the app stores the purchase (product, amount, Stripe's payment id), never payment details ([ADR-0048](docs/adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)).
-- **Processors and recipients:** Render (hosting), Resend (login and purchase emails), Better Stack (logs, uptime), Umami (analytics), Anthropic (AI check), Stripe (payments), Google (ads), all listed in the Datenschutzerklärung.
+- **Processors and recipients:** Render (hosting), Resend (login and purchase emails), Better Stack (logs, uptime), Umami (analytics), Anthropic (AI check), Stripe (payments), all listed in the Datenschutzerklärung.
 - **Vulnerabilities:** report privately, see [SECURITY.md](SECURITY.md).
 
 ## Architecture & decisions

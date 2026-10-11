@@ -14,7 +14,6 @@ function listItem(id: number, overrides: object = {}) {
     last_name: null,
     created_at: '2026-01-01T00:00:00Z',
     token_balance: 0,
-    ads_removed: false,
     is_blocked: false,
     ...overrides,
   }
@@ -49,10 +48,7 @@ describe('AdminUsersPage', () => {
   it('lists the accounts, each linking to its detail page', async () => {
     const fetchMock = stubFetch(() =>
       jsonResponse({
-        items: [
-          listItem(2, { first_name: 'Anna', last_name: 'Schmidt', token_balance: 20, ads_removed: true }),
-          listItem(1),
-        ],
+        items: [listItem(2, { first_name: 'Anna', last_name: 'Schmidt', token_balance: 20 }), listItem(1)],
         total: 2,
       }),
     )
@@ -63,7 +59,6 @@ describe('AdminUsersPage', () => {
     expect(first).toHaveAttribute('href', '/admin/users/2')
     expect(within(first).getByText('Anna Schmidt')).toBeInTheDocument()
     expect(within(first).getByText('20 Tokens')).toBeInTheDocument()
-    expect(within(first).getByText('Werbefrei')).toBeInTheDocument()
     const second = screen.getByRole('link', { name: /user1@example\.com/ })
     expect(within(second).getByText('—')).toBeInTheDocument()
     expect(within(second).queryByText(/Token\(s\)/)).not.toBeInTheDocument()

@@ -128,7 +128,6 @@ export function AdminUsersPage() {
                           {pluralize(user.token_balance, 'Token', 'Tokens')}
                         </span>
                       ) : null}
-                      {user.ads_removed ? <span className="border border-border px-1">Werbefrei</span> : null}
                       {user.is_blocked ? <span className="border border-danger px-1 text-danger">Gesperrt</span> : null}
                       <span>seit {formatDate(user.created_at)}</span>
                     </span>

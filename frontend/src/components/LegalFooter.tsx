@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-import { openConsentSettings, useShowAds } from '../ads'
 import { FEEDBACK_MAILTO } from '../contact'
 
 // `pt-1 -mt-1` and `min-w-6` make a short link ("FAQ", "AGB") a 24 px tap target without moving it.
@@ -20,17 +18,6 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
 export function LegalFooter() {
-  // Not on /admin: the admin pages never load the ad script (ADR-0027 addendum 2026-09-23), so
-  // there is no dialog to open — the button would only lead to /privacy, a page that carries it.
-  const isAdmin = useLocation().pathname.startsWith('/admin')
-  const showConsentButton = useShowAds() && !isAdmin
-  const [consentUnavailable, setConsentUnavailable] = useState(false)
-
-  function handleConsentClick() {
-    setConsentUnavailable(false)
-    openConsentSettings(() => setConsentUnavailable(true))
-  }
-
   return (
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
@@ -53,26 +40,7 @@ export function LegalFooter() {
           <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>
             Kontakt
           </a>
-          {showConsentButton && (
-            <button
-              type="button"
-              onClick={handleConsentClick}
-              className={`${FOOTER_LINK} font-mono tracking-wide uppercase`}
-            >
-              Cookies
-            </button>
-          )}
         </nav>
-        {consentUnavailable ? (
-          <p role="status" className="max-w-md text-xs text-surface">
-            Googles Einstellungsdialog wird gerade nicht angezeigt – z. B. wegen eines Werbeblockers oder weil für
-            deinen Standort keine Abfrage vorgesehen ist. Mehr dazu in der{' '}
-            <Link to="/privacy#werbung" className="underline hover:text-surface-alt">
-              Datenschutzerklärung
-            </Link>
-            .
-          </p>
-        ) : null}
         <p className="font-mono text-2xs">© {new Date().getFullYear()} SKS Lotse</p>
         <p className="max-w-md text-xs">
           Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS, Wasserstraßen- und

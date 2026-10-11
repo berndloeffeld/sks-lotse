@@ -16,7 +16,6 @@ BlockKindField = Annotated[str, one_of("kind", BLOCK_KINDS)]
 
 
 class AdminUserUpdate(BaseModel):
-    ads_removed: bool | None = None
     # A manual token credit (ADR-0043): a correction, a goodwill grant or a payment made outside the app.
     # Optional: how much the account actually paid for it, so it's kept (anonymized) rather than
     # deleted on account deletion, like a real purchase (see services/user.py). None for a
@@ -29,8 +28,8 @@ class AdminUserUpdate(BaseModel):
 
     @model_validator(mode="after")
     def _require_a_field(self) -> "AdminUserUpdate":
-        if self.ads_removed is None and self.grant_tokens is None and self.debit_tokens is None:
-            raise ValueError("at least one of ads_removed, grant_tokens, debit_tokens required")
+        if self.grant_tokens is None and self.debit_tokens is None:
+            raise ValueError("at least one of grant_tokens, debit_tokens required")
         if self.grant_tokens is not None and self.debit_tokens is not None:
             raise ValueError("grant_tokens and debit_tokens are mutually exclusive")
         return self
@@ -43,7 +42,6 @@ class TokenPackageSettings(BaseModel):
 
 class AdminSettings(BaseModel):
     # Both what GET /admin/settings returns and what PUT takes (the page submits the full form).
-    price_ads_removed_cents: int = Field(ge=0, le=MAX_PRICE_CENTS)
     signup_bonus_tokens: int = Field(ge=0, le=1_000)
     tokens_s: TokenPackageSettings
     tokens_m: TokenPackageSettings
@@ -61,7 +59,6 @@ class AdminUserListItem(BaseModel):
     last_name: str | None
     created_at: datetime
     token_balance: int
-    ads_removed: bool
     # Derived from the blocklist table (app/services/blocklist.py), not a User column — see
     # docs/adr/0045.
     is_blocked: bool = False
