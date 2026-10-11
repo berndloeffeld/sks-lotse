@@ -6,7 +6,9 @@ Status: Accepted — supersedes [ADR-0027](0027-adsense-with-google-consent-mana
 
 [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) planned SKS Lotse as freemium with two add-ons: remove ads, and the AI answer check. [ADR-0027](0027-adsense-with-google-consent-management.md) chose Google AdSense behind Google's own consent dialog, and its addenda built everything around it: the AdSense script on the public pages for the site review, a runtime gate (`AdScriptGate`) for the app, a "Cookies" footer button to withdraw consent, `ads.txt`, a CSP allowlist for Google's ad hosts, the `users.ads_removed` flag with its price in `app_settings`, and an AdSense section in the Datenschutzerklärung. No ad unit was ever rendered, and "Werbefrei" was never on sale.
 
-The operator has decided the site will carry no advertising. The AI check, paid with tokens ([ADR-0043](0043-token-based-ai-grading-monetization.md), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md)), is the only source of revenue.
+Ads were never possible in practice: AdSense's site review keeps rejecting sks-lotse.de as "low value content". Without an approved site there are no ad units, so all of the above ran for nothing. It still cost something: Google's script on the public pages, Google receiving every visitor's IP address before any choice, a consent dialog to keep working, CSP exceptions for Google's hosts and a "Werbefrei" add-on that couldn't be sold.
+
+The operator has therefore decided the site will carry no advertising. The AI check, paid with tokens ([ADR-0043](0043-token-based-ai-grading-monetization.md), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md)), is the only source of revenue.
 
 ## Decision
 
