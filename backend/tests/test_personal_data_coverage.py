@@ -86,7 +86,6 @@ EXCLUDED: dict[str, dict[str, str]] = {
         "token_version": "session counter that revokes tokens, not data about the person",
         "totp_secret_encrypted": "authentication secret (ADR-0047); totp_enabled_at is exported",
         "totp_last_counter": "replay guard of the authentication secret",
-        "ads_removed": "unused since the ads were dropped (ADR-0060); the follow-up migration drops it",
     },
     "question_progress": {"id": _ROW_ID, "user_id": _OWNER},
     "question_grading_log": {"id": _ROW_ID, "user_id": _OWNER},

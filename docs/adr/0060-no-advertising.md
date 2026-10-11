@@ -14,7 +14,7 @@ The operator has therefore decided the site will carry no advertising. The AI ch
 
 Remove all of it: the ad script and its gate, the consent button and dialog handling, `ads.txt`, the build variables `VITE_ADSENSE_CLIENT_ID` and `VITE_AD_UNITS`, Google's ad hosts in the CSP, the "Werbefrei" add-on (flag, price, admin toggle, the API fields `ads_removed`, `ads_removed_price_cents` and `price_ads_removed_cents`) and the ad passages in the Datenschutzerklärung and the AGB. The AGB change is material (Ziffer 4 now names one add-on), so the AGB version moves on and every account confirms again.
 
-The column `users.ads_removed` is dropped in a follow-up migration, not in the same change: the backend that is still running while `preDeployCommand` migrates reads every mapped column of `users`, so dropping it then would fail its queries until the new version serves (CLAUDE.md → Deployment). Purchases rows with `product = "ads_removed"`, if any, stay in the ledger as bookkeeping records.
+The column `users.ads_removed` is dropped in a follow-up migration (`c5e8a1f3b927_drop_ads_removed.py`, together with the stored price), not in the same change: the backend that is still running while `preDeployCommand` migrates reads every mapped column of `users`, so dropping it then would fail its queries until the new version serves (CLAUDE.md → Deployment). Purchases rows with `product = "ads_removed"`, if any, stay in the ledger as bookkeeping records.
 
 ## Consequences
 

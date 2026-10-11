@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, false, func
+from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -35,9 +35,6 @@ class User(Base):
     # Credited by the signup bonus, Stripe purchases (ADR-0048) and admin grants
     # (app/services/token_wallet.py, which also sets the costs).
     token_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    # Unused since SKS Lotse dropped ads (ADR-0060); kept only until the follow-up migration drops
-    # the column, so the version still running during that deploy can read it.
-    ads_removed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     # How often the sanitizer backstop (app/services/grader.py) fired for this account — a signal
     # for prompt-injection abuse, never the triggering text itself (ADR-0031, ADR-0040).
     ai_flags_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
