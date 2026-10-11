@@ -41,6 +41,7 @@ describe('AdminMfaEnrol', () => {
     )
     expect(screen.getByText(ENROLMENT.secret)).toBeInTheDocument()
     expect(fetchMock.mock.calls[0][0]).toMatch(/\/admin\/mfa\/enrol$/)
+    expect(screen.getByLabelText('Code aus der Authenticator-App')).toHaveFocus()
 
     await userEvent.type(screen.getByLabelText('Code aus der Authenticator-App'), '123 456')
     await userEvent.click(screen.getByRole('button', { name: 'Aktivieren' }))
@@ -69,6 +70,12 @@ describe('AdminMfaVerify', () => {
     await userEvent.type(screen.getByLabelText('Code aus der Authenticator-App'), code)
     await userEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
   }
+
+  it('puts the focus in the code field right away', () => {
+    render(<AdminMfaVerify onVerified={vi.fn()} />)
+
+    expect(screen.getByLabelText('Code aus der Authenticator-App')).toHaveFocus()
+  })
 
   it('opens the admin area with a valid code', async () => {
     const fetchMock = stubFetch(jsonResponse({ access_token: 't', token_type: 'bearer' }))

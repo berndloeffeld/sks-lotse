@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ApiError, apiClient } from '../api/client'
 import type { AdminMfaEnrolment } from '../api/types'
@@ -26,6 +26,12 @@ function CodeForm({ onVerified, submitLabel }: Props & { submitLabel: string }) 
   const [code, setCode] = useState('')
   const { run, isPending, error } = useAsyncAction()
 
+  // The field takes focus as soon as it appears, so the code can be typed (or pasted) right away.
+  const codeInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    codeInput.current?.focus()
+  }, [])
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     await run(async () => {
@@ -40,6 +46,7 @@ function CodeForm({ onVerified, submitLabel }: Props & { submitLabel: string }) 
         Code aus der Authenticator-App
         <input
           id="totp-code"
+          ref={codeInput}
           type="text"
           inputMode="numeric"
           pattern="[0-9]{6}"
