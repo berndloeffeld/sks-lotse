@@ -293,8 +293,6 @@ export interface components {
         };
         /** AdminSettings */
         AdminSettings: {
-            /** Price Ads Removed Cents */
-            price_ads_removed_cents: number;
             /** Signup Bonus Tokens */
             signup_bonus_tokens: number;
             tokens_s: components["schemas"]["TokenPackageSettings"];
@@ -344,8 +342,6 @@ export interface components {
             created_at: string;
             /** Token Balance */
             token_balance: number;
-            /** Ads Removed */
-            ads_removed: boolean;
             /**
              * Is Blocked
              * @default false
@@ -376,8 +372,6 @@ export interface components {
             created_at: string;
             /** Token Balance */
             token_balance: number;
-            /** Ads Removed */
-            ads_removed: boolean;
             /**
              * Is Blocked
              * @default false
@@ -404,8 +398,6 @@ export interface components {
         };
         /** AdminUserUpdate */
         AdminUserUpdate: {
-            /** Ads Removed */
-            ads_removed?: boolean | null;
             /** Grant Tokens */
             grant_tokens?: number | null;
             /** Grant Amount Eur Cents */
@@ -816,8 +808,6 @@ export interface components {
          * @description What the (unauthenticated) landing page / pricing page show (ADR-0043).
          */
         PublicPricing: {
-            /** Ads Removed Price Cents */
-            ads_removed_price_cents: number;
             /** Signup Bonus Tokens */
             signup_bonus_tokens: number;
             /** Packages */
@@ -985,8 +975,6 @@ export interface components {
             gender: string | null;
             /** Token Balance */
             token_balance: number;
-            /** Ads Removed */
-            ads_removed: boolean;
             /** Agb Accepted Version */
             agb_accepted_version: string | null;
             /** Is Admin */

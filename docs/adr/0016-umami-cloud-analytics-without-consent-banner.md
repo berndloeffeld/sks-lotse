@@ -1,6 +1,6 @@
 # 0016. Umami Cloud for analytics, no consent banner
 
-Status: Accepted (consent for AdSense is decided in [ADR-0027](0027-adsense-with-google-consent-management.md); the Umami part stands)
+Status: Accepted (consent for AdSense was decided in [ADR-0027](0027-adsense-with-google-consent-management.md), superseded by [ADR-0060](0060-no-advertising.md): no ads, so no consent banner; the Umami part stands)
 
 ## Context
 

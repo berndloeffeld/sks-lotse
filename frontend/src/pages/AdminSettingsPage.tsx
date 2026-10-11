@@ -16,7 +16,6 @@ interface PackageForm {
 }
 
 interface SettingsForm {
-  priceAdsRemoved: string
   signupBonusTokens: string
   packages: Record<PackageProduct, PackageForm>
 }
@@ -29,7 +28,6 @@ function toForm(settings: AdminSettings): SettingsForm {
     ]),
   ) as Record<PackageProduct, PackageForm>
   return {
-    priceAdsRemoved: (settings.price_ads_removed_cents / 100).toFixed(2),
     signupBonusTokens: String(settings.signup_bonus_tokens),
     packages,
   }
@@ -48,7 +46,6 @@ function parseEurCents(value: string): number | null {
 }
 
 function buildPayload(form: SettingsForm): AdminSettings | null {
-  const priceAdsRemovedCents = parseEurCents(form.priceAdsRemoved)
   const signupBonusTokens = parseWholeNumber(form.signupBonusTokens)
   const packages: Partial<Record<PackageProduct, TokenPackageSettings>> = {}
   for (const product of PACKAGE_PRODUCTS) {
@@ -57,9 +54,8 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
     if (tokens === null || priceCents === null) return null
     packages[product] = { tokens, price_cents: priceCents }
   }
-  if (priceAdsRemovedCents === null || signupBonusTokens === null) return null
+  if (signupBonusTokens === null) return null
   return {
-    price_ads_removed_cents: priceAdsRemovedCents,
     signup_bonus_tokens: signupBonusTokens,
     ...(packages as Record<PackageProduct, TokenPackageSettings>),
   }
@@ -68,7 +64,7 @@ function buildPayload(form: SettingsForm): AdminSettings | null {
 const INPUT = 'border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'
 
-// App-wide admin settings (/admin/settings): every token-package/Werbefrei price (ADR-0043).
+// App-wide admin settings (/admin/settings): every token-package price and the signup bonus (ADR-0043).
 // AdminLayout does the admin check. PUT replaces all of it at once, so the form always submits
 // the full set, not just the field the operator touched.
 export function AdminSettingsPage() {
@@ -112,20 +108,7 @@ function SettingsEditor({ initial }: { initial: AdminSettings }) {
         <p className="text-sm text-ink-soft">
           Preise (ADR-0043): Preise und Mengen der Token-Pakete gelten nach spätestens einer Minute auf der Seite Preise
           und bei Stripe, also für echte Abbuchungen. Ein bereits gestarteter Checkout behält Preis und Menge vom Start.
-          Der Werbefrei-Preis ist nur eine Anzeige; Werbefrei schaltest du pro Konto von Hand frei.
         </p>
-        <label className={LABEL} htmlFor="price-ads-removed">
-          Werbefrei, einmalig (€)
-          <input
-            id="price-ads-removed"
-            type="number"
-            min={0}
-            step="0.01"
-            value={form.priceAdsRemoved}
-            onChange={(event) => setForm({ ...form, priceAdsRemoved: event.target.value })}
-            className={INPUT}
-          />
-        </label>
         <label className={LABEL} htmlFor="signup-bonus-tokens">
           Geschenkte Tokens bei Anmeldung
           <input

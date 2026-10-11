@@ -48,17 +48,11 @@ export function AgbPage() {
       <ProseSection title="4. Kostenpflichtige Zusatzfunktionen">
         <p>
           Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Musterantwort, Lernfortschritt) ist dauerhaft
-          kostenlos. Zwei unabhängige, einmalig erwerbbare Erweiterungen stehen optional zur Verfügung:
+          kostenlos. Optional können „Tokens“ für den Lotsen-Check erworben werden: Tokens berechtigen zu
+          automatisierten KI-Bewertungsvorschlägen für eigene Antworten. Wie viele Tokens ein Lotsen-Check kostet, hängt
+          von der Art der Aufgabe ab und wird vor dem Auslösen angezeigt. Jedes neu angelegte Konto erhält einmalig eine
+          kleine Anzahl Tokens geschenkt; weitere Tokens lassen sich in Paketen nachkaufen.
         </p>
-        <ul className="list-disc pl-5">
-          <li>„Werbefrei“ (einmalige Zahlung) entfernt die Werbeeinblendungen dauerhaft für das Konto.</li>
-          <li>
-            „Tokens“ für den Lotsen-Check: Tokens berechtigen zu automatisierten KI-Bewertungsvorschlägen für eigene
-            Antworten. Wie viele Tokens ein Lotsen-Check kostet, hängt von der Art der Aufgabe ab und wird vor dem
-            Auslösen angezeigt. Jedes neu angelegte Konto erhält einmalig eine kleine Anzahl Tokens geschenkt; weitere
-            Tokens lassen sich in Paketen nachkaufen.
-          </li>
-        </ul>
         <p>
           Die aktuellen Preise und Paketgrößen werden vor dem Kauf klar mitgeteilt (siehe Startseite und App). Alle
           genannten Preise sind Endpreise in Euro; gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
@@ -69,7 +63,7 @@ export function AgbPage() {
           weitergeleitet, der die Zahlung abwickelt und dafür die dort angebotenen Zahlungsmethoden bereitstellt. Der
           Kaufvertrag kommt mit erfolgreicher Zahlung zustande; die Tokens werden dem Konto danach automatisch
           gutgeschrieben, in der Regel innerhalb weniger Sekunden. Bei einer verzögerten Zahlungsmethode erfolgt die
-          Gutschrift erst nach Zahlungseingang. „Werbefrei“ wird derzeit noch nicht zum Kauf angeboten.
+          Gutschrift erst nach Zahlungseingang.
         </p>
       </ProseSection>
 
@@ -112,9 +106,9 @@ export function AgbPage() {
           oder auf Erstattung besteht nicht, soweit gesetzlich zulässig.
         </p>
         <p>
-          „Werbefrei“ und Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt
-          keine wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort
-          nach Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
+          Token-Pakete (Ziffer 4) sind einmalige Käufe digitaler Inhalte, keine Abonnements – es gibt keine
+          wiederkehrende Zahlung und daher auch keine laufende Kündigung dafür. Da diese digitalen Inhalte sofort nach
+          Zahlungseingang bereitgestellt werden, erlischt das gesetzliche Widerrufsrecht für Verbraucher mit der
           ausdrücklichen Zustimmung zum sofortigen Beginn der Vertragserfüllung und der Kenntnisnahme, dass dadurch das
           Widerrufsrecht erlischt (§ 356 Abs. 5 BGB); diese Zustimmung wird beim Kauf durch ein gesondertes
           Bestätigungsfeld vor der Zahlung eingeholt; ohne sie ist der Kauf nicht möglich. Geschenkte Tokens

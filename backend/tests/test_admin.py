@@ -16,7 +16,6 @@ from tests.helpers import FIXTURE_EMAIL, fixture_user, make_admin, progress_stat
 # A full, valid settings payload — PUT replaces every price/package at once, so tests that don't
 # care about a specific value still have to send one.
 _SETTINGS_PAYLOAD = {
-    "price_ads_removed_cents": 500,
     "signup_bonus_tokens": 6,
     "tokens_s": {"tokens": 20, "price_cents": 299},
     "tokens_m": {"tokens": 50, "price_cents": 599},
@@ -322,37 +321,6 @@ def test_admin_debit_rejects_invalid_values(client, db_session, auth_headers, mo
     assert client.patch(f"/api/v1/admin/users/{user.id}", json=body, headers=auth_headers).status_code == 422
 
 
-def test_admin_can_toggle_ads_removed_independently(client, db_session, auth_headers, monkeypatch):
-    make_admin(monkeypatch)
-    user = fixture_user(db_session)
-    assert user.ads_removed is False
-
-    response = client.patch(
-        f"/api/v1/admin/users/{user.id}",
-        json={"ads_removed": True, "grant_amount_eur_cents": 500},
-        headers=auth_headers,
-    )
-    assert response.status_code == 200
-    assert response.json()["ads_removed"] is True
-    assert response.json()["token_balance"] == 0
-    db_session.refresh(user)
-    assert user.ads_removed is True
-    purchase = db_session.query(Purchase).filter_by(user_id=user.id, product="ads_removed").one()
-    assert (purchase.tokens_granted, purchase.amount_eur_cents) == (None, 500)
-
-    response = client.patch(f"/api/v1/admin/users/{user.id}", json={"grant_tokens": 20}, headers=auth_headers)
-    assert response.json()["ads_removed"] is True
-    assert response.json()["token_balance"] == 20
-
-    # Turning ads_removed off again doesn't record a second (refund) purchase row.
-    response = client.patch(
-        f"/api/v1/admin/users/{user.id}", json={"ads_removed": False}, headers=auth_headers
-    )
-    assert response.json()["ads_removed"] is False
-    assert response.json()["token_balance"] == 20
-    assert db_session.query(Purchase).filter_by(user_id=user.id, product="ads_removed").count() == 1
-
-
 def test_admin_update_rejects_invalid_body_and_unknown_user(client, db_session, auth_headers, monkeypatch):
     make_admin(monkeypatch)
     user = fixture_user(db_session)
@@ -452,7 +420,6 @@ def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, 
     make_admin(monkeypatch)
     changed = {
         **_SETTINGS_PAYLOAD,
-        "price_ads_removed_cents": 799,
         "signup_bonus_tokens": 3,
         "tokens_s": {"tokens": 15, "price_cents": 249},
     }
@@ -461,7 +428,6 @@ def test_admin_can_change_prices_and_packages(client, db_session, auth_headers, 
     assert response.json() == changed
     assert client.get("/api/v1/admin/settings", headers=auth_headers).json() == changed
     assert client.get("/api/v1/pricing").json() == {
-        "ads_removed_price_cents": 799,
         "signup_bonus_tokens": 3,
         "packages": [
             {"product": "tokens_s", "tokens": 15, "price_cents": 249},
@@ -481,7 +447,7 @@ def test_admin_settings_reject_invalid_price(client, db_session, auth_headers, m
     make_admin(monkeypatch)
     response = client.put(
         "/api/v1/admin/settings",
-        json={**_SETTINGS_PAYLOAD, "price_ads_removed_cents": value},
+        json={**_SETTINGS_PAYLOAD, "tokens_s": {"tokens": 20, "price_cents": value}},
         headers=auth_headers,
     )
     assert response.status_code == 422
@@ -497,7 +463,7 @@ def test_ai_flags_count_is_read_only_on_the_admin_patch(client, db_session, auth
 
     response = client.patch(
         f"/api/v1/admin/users/{user.id}",
-        json={"ads_removed": True, "ai_flags_count": 0},
+        json={"grant_tokens": 1, "ai_flags_count": 0},
         headers=auth_headers,
     )
     assert response.status_code == 200
@@ -517,7 +483,7 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     with caplog.at_level("INFO", logger="app.api.v1.admin"):
         client.get("/api/v1/admin/users", params={"q": "target@example"}, headers=auth_headers)
         client.get(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
-        client.patch(f"/api/v1/admin/users/{target_id}", json={"ads_removed": True}, headers=auth_headers)
+        client.patch(f"/api/v1/admin/users/{target_id}", json={"grant_tokens": 5}, headers=auth_headers)
         client.put("/api/v1/admin/settings", json=_SETTINGS_PAYLOAD, headers=auth_headers)
         client.get(f"/api/v1/admin/users/{target_id}/export", headers=auth_headers)
         client.delete(f"/api/v1/admin/users/{target_id}", headers=auth_headers)
@@ -526,9 +492,9 @@ def test_admin_actions_are_audit_logged_without_personal_data(
     assert messages == [
         f"admin action: admin={admin.id} action=list_users offset=0 results=1",
         f"admin action: admin={admin.id} action=get_user target_user={target_id}",
-        f"admin action: admin={admin.id} action=update_user target_user={target_id} ads_removed=True",
+        f"admin action: admin={admin.id} action=update_user target_user={target_id} grant_tokens=5",
         f"admin action: admin={admin.id} action=update_settings "
-        "price_ads_removed_cents=500 signup_bonus_tokens=6 tokens_s=(20, 299) tokens_m=(50, 599) "
+        "signup_bonus_tokens=6 tokens_s=(20, 299) tokens_m=(50, 599) "
         "tokens_l=(100, 999) tokens_xl=(200, 1699)",
         f"admin action: admin={admin.id} action=export_user target_user={target_id}",
         f"admin action: admin={admin.id} action=delete_user target_user={target_id}",
@@ -569,7 +535,6 @@ def test_admin_user_list_is_newest_first(client, db_session, auth_headers, monke
         "last_name": "Neu",
         "created_at": body["items"][1]["created_at"],
         "token_balance": 0,
-        "ads_removed": False,
         "is_blocked": False,
     }
 

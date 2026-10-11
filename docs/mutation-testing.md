@@ -102,7 +102,7 @@ cd frontend && npm ci                                   # once
 - **Score (2026-10-06): 703 of 744 counted mutants killed (94.5%, local run)**. Minimum in CI: **91%**
   (`MUTATION_MIN_SCORE`), a ratchet like the others. Up from 85.6% (637): the breadcrumbs and the head rewrite of the
   prerendered pages (`publicPages.ts`, with a shell written differently than `index.html`), the empty Formblatt and a
-  half-valid stored one, the Lotsen-Check flag of a guest's task, and the "only the first path segment" rule for ads and
+  half-valid stored one, the Lotsen-Check flag of a guest's task, and the "only the first path segment" rule for
   analytics. Module-level setup (the client's verbs and constants, the auth store, `EVENT_ORDINALS`) is only seen by a
   test that imports the module afresh (`vi.resetModules()` + `await import(...)`); those tests exist now. What survives
   is mostly dependency arrays of `useCallback`/`useEffect` and the cache keys of `useApiQuery` (a different key changes

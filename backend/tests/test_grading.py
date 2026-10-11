@@ -391,16 +391,6 @@ def test_grant_credits_the_balance_and_records_a_purchase(db_session):
     )
 
 
-def test_grant_with_no_tokens_only_records_the_ledger_row(db_session):
-    user = User(email="ads-only@example.com", token_balance=5)
-    db_session.add(user)
-    db_session.commit()
-    token_wallet.grant(
-        db_session, user.id, product="ads_removed", tokens=None, amount_eur_cents=500, granted_by="signup"
-    )
-    assert user.token_balance == 5
-
-
 # --- service ---
 
 

@@ -1,4 +1,4 @@
-"""Token-package and ads-removal prices (ADR-0043): the code defaults and `app_settings` keys.
+"""Token-package prices and the signup bonus (ADR-0043): the code defaults and `app_settings` keys.
 
 The operator can override every value via `/admin/settings`; reading the effective price (an
 `app_settings` row if set, else the default here) is `app/services/pricing.py`. There is no
@@ -8,9 +8,6 @@ per-user override — prices are the same for everyone. A package's identifier
 """
 
 from dataclasses import dataclass
-
-ADS_REMOVED_PRICE_KEY = "price_ads_removed_cents"
-DEFAULT_ADS_REMOVED_PRICE_CENTS = 500
 
 SIGNUP_BONUS_TOKENS_KEY = "signup_bonus_tokens"
 DEFAULT_SIGNUP_BONUS_TOKENS = 6

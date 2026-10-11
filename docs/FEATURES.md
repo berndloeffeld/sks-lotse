@@ -74,11 +74,10 @@ Learners can have their own answer checked by the "Lotse". An AI (Claude by Anth
 
 ## Buying and prices
 
-Two independent add-ons, valid in any combination:
+One add-on, and no advertising:
 - **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance of 6 tokens. Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices, and they are shown publicly on the pricing page.
-- **Ad-free** (one-time payment, starting price 5 €). Without it, ads are planned to be shown later.
 
-Status today: buying tokens is open to all learners (the live state of the flag is kept in the [RUNBOOK](RUNBOOK.md#settings-that-live-only-in-dashboards)). Ad-free is still credited by hand, and no ads are shown yet.
+Status today: buying tokens is open to all learners (the live state of the flag is kept in the [RUNBOOK](RUNBOOK.md#settings-that-live-only-in-dashboards)).
 
 ## Feedback and quality
 
@@ -100,14 +99,14 @@ Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam 
 
 ## Privacy
 
-- Access with an email address only, no password. Ads and cookies beyond the necessary ones only with consent, managed through the cookie settings in the footer; to ask for it, the public pages load Google's script, which already receives the visitor's IP address.
+- Access with an email address only, no password. No advertising and no cookies beyond the session cookie of a logged-in account, so there is no consent banner.
 - App and database hosted in Frankfurt (EU); the static pages are delivered through Render's global CDN. Usage analytics without cookies.
 - Learners can delete their account and all learning data at any time themselves. Access and data export are handled on request through the operator.
 
 ## Operator tools (not for learners)
 
 Protected by an allowlist and a two-factor code (authenticator app):
-- Search, view, export, delete and block accounts; credit tokens or ad-free by hand, take tokens back after a refund or chargeback (never below 0).
+- Search, view, export, delete and block accounts; credit tokens by hand, take them back after a refund or chargeback (never below 0).
 - Blocklist for email addresses and domains against abuse; a blocked address is deleted automatically 24 months after the block, a domain stays until removed.
 - Set prices and packages.
 - Search questions and model answers across the whole catalog (by text, number, subject and topic), and see per question who graded it when, how, and which memory estimate (half-life) came of it (recorded since this view went live).

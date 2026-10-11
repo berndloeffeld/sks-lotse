@@ -40,22 +40,13 @@ export interface PublicPage {
   file: string
   // "/" carries none: its head is index.html's own.
   meta?: PageMeta
-  // Built without the static ad script (like the app shell), for pages whose visitors may be
-  // logged-in accounts that removed ads; AdScriptGate loads it at runtime where wanted.
-  withoutAds?: boolean
 }
 
-function page(
-  path: string,
-  { title, description }: PageText,
-  withoutAds = false,
-  jsonLd?: Record<string, unknown>[],
-): PublicPage {
+function page(path: string, { title, description }: PageText, jsonLd?: Record<string, unknown>[]): PublicPage {
   return {
     path,
     file: `${path.slice(1)}.html`,
     meta: { title, description, canonical: `${SITE}${path}`, ...(jsonLd ? { jsonLd } : {}) },
-    ...(withoutAds ? { withoutAds } : {}),
   }
 }
 
@@ -106,30 +97,26 @@ function examProcessJsonLd(): Record<string, unknown> {
 
 const STATIC_PAGES: PublicPage[] = [
   { path: '/', file: 'index.html' },
-  page('/faq', FAQ_TEXT, false, [faqJsonLd()]),
+  page('/faq', FAQ_TEXT, [faqJsonLd()]),
   page('/imprint', IMPRINT_TEXT),
   page('/privacy', PRIVACY_TEXT),
   page('/terms', TERMS_TEXT),
-  page('/exam-process', EXAM_PROCESS_TEXT, false, [
+  page('/exam-process', EXAM_PROCESS_TEXT, [
     breadcrumbs([ROOT_CRUMB, '/'], [EXAM_PROCESS_CRUMB, '/exam-process']),
     examProcessJsonLd(),
   ]),
-  // No Google script on /pricing, where the purchase starts, not even during it.
-  page('/pricing', PRICING_TEXT, true),
+  page('/pricing', PRICING_TEXT),
 ]
 
-// /learn and one page per topic. Logged-in learners land on these too, including ads-removed
-// accounts, so they are built without the static ad script.
+// /learn and one page per topic.
 export function learnPages(catalog: CatalogExport): PublicPage[] {
   return [
-    page('/learn', learnIndexText(catalog.questions.length), true, [
-      breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn']),
-    ]),
+    page('/learn', learnIndexText(catalog.questions.length), [breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn'])]),
     ...catalog.topics.map((topic) => {
       const subject = SUBJECT_LABELS[topic.subject] ?? topic.subject
       const count = catalog.questions.filter((q) => q.subject === topic.subject && q.topic === topic.slug).length
       const path = `/learn/${topic.subject}/${topic.slug}`
-      return page(path, topicText(topic.name, subject, count), true, [
+      return page(path, topicText(topic.name, subject, count), [
         breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn'], [topic.name, path]),
       ])
     }),
@@ -137,13 +124,13 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
 }
 
 // /charts and one page per transcribed sheet, open to guests while the build's flag is "on"
-// (ADR-0056). Logged-in learners land on them too, so they are built without the ad script as well.
+// (ADR-0056).
 export function chartPages(charts: ChartExport): PublicPage[] {
   return [
-    page('/charts', CHARTS_INDEX_TEXT, true, [breadcrumbs([ROOT_CRUMB, '/'], [CHARTS_CRUMB, '/charts'])]),
+    page('/charts', CHARTS_INDEX_TEXT, [breadcrumbs([ROOT_CRUMB, '/'], [CHARTS_CRUMB, '/charts'])]),
     ...charts.sheets.map((sheet) => {
       const path = `/charts/${sheet.number}`
-      return page(path, sheetText(sheet, sheetMaxPoints(sheet)), true, [
+      return page(path, sheetText(sheet, sheetMaxPoints(sheet)), [
         breadcrumbs([ROOT_CRUMB, '/'], [CHARTS_CRUMB, '/charts'], [sheetCrumb(sheet.number), path]),
       ])
     }),

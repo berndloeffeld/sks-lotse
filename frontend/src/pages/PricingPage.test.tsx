@@ -10,7 +10,6 @@ import { useAuthStore } from '../store/authStore'
 import { jsonResponse, makeUser } from '../test/fixtures'
 
 const PRICING = {
-  ads_removed_price_cents: 500,
   signup_bonus_tokens: 6,
   packages: [
     { product: 'tokens_s', tokens: 20, price_cents: 299 },

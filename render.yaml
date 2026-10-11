@@ -178,15 +178,6 @@ services:
       # in the Render dashboard (docs/RUNBOOK.md → One-time setup).
       - key: VITE_UMAMI_WEBSITE_ID
         sync: false
-      # Google AdSense publisher id (ca-pub-…, ADR-0027). Unset = no ad
-      # script is loaded at all.
-      - key: VITE_ADSENSE_CLIENT_ID
-        sync: false
-      # Ad units in the app (ADR-0027 addendum 2026-10-05). "off" until the first
-      # ad unit exists: the app then loads no ad script (the public pages keep the
-      # static tag for AdSense's site review). Switched on in the PR adding the unit.
-      - key: VITE_AD_UNITS
-        value: "off"
       # The Kartenaufgaben flag for the build (ADR-0056): at "on" the guests'
       # pages /charts and /charts/<n> are prerendered and open without a login.
       # Always the same value as the API's CHART_EXERCISES above
@@ -358,19 +349,15 @@ services:
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
-      # Enforced (ADR-0027 addendum): ran as Content-Security-Policy-Report-Only
-      # first since Google's ad stack pulls in many hosts and an incomplete
-      # enforced list would silently break ads or the consent dialog. Checked
-      # the browser console on the live site on 2026-09-22 for "[Report Only]"
-      # violations: the only one was gateway.umami.is missing from connect-src
-      # (the Umami SDK's script and send-beacon endpoints are different
-      # subdomains) — added below, then promoted to enforced. 'unsafe-inline'
-      # for styles is needed for the style="" attributes React's prerender
-      # emits. (Render sends one header per name, so this is a single
-      # combined value.)
+      # Enforced. Scripts and connections only from our own origin, the API
+      # and Umami (whose script and send-beacon endpoints are different
+      # subdomains); no third-party frames or images since the ads were
+      # dropped (ADR-0060). 'unsafe-inline' for styles is needed for the
+      # style="" attributes React's prerender emits. (Render sends one header
+      # per name, so this is a single combined value.)
       - path: /*
         name: Content-Security-Policy
-        value: "default-src 'self'; script-src 'self' https://cloud.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://www.googletagservices.com https://partner.googleadservices.com https://tpc.googlesyndication.com; connect-src 'self' https://api.sks-lotse.de https://cloud.umami.is https://gateway.umami.is https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com https://ep1.adtrafficquality.google https://*.g.doubleclick.net; img-src 'self' data: https://*.googlesyndication.com https://*.g.doubleclick.net https://*.google.com https://*.google.de; frame-src https://*.googlesyndication.com https://googleads.g.doubleclick.net https://fundingchoicesmessages.google.com; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+        value: "default-src 'self'; script-src 'self' https://cloud.umami.is; connect-src 'self' https://api.sks-lotse.de https://cloud.umami.is https://gateway.umami.is; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
       # Legacy counterpart of frame-ancestors, for browsers that predate it.
       - path: /*
         name: X-Frame-Options

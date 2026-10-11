@@ -14,7 +14,6 @@ describe('PrivacyPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Datenschutzerklärung', level: 1 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Webanalyse' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Werbung (Google AdSense)' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Lernfortschritt und Profil' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Käufe (Tokens)' })).toBeInTheDocument()
     expect(screen.getByText(/Stripe Payments Europe/)).toBeInTheDocument()

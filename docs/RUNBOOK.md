@@ -14,7 +14,6 @@ How to operate SKS Lotse in production: where to look, what to do when something
 | AI answer check | Anthropic Console, its own workspace and spend limit for `ANTHROPIC_GRADING_API_KEY` |
 | Payments | Stripe: webhook endpoint, products, refunds, disputes ([Stripe checkout](#stripe-checkout)) |
 | Analytics | Umami Cloud (cookieless). Hosting region: not stated by Umami, which only claims GDPR compliance (checked 2026-10-06); don't describe it as EU elsewhere |
-| Ads and the consent message | Google AdSense → Privacy & messaging |
 | DNS for all domains | IONOS |
 
 ## Observability
@@ -89,7 +88,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the reserved token is refunded. |
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
-| `VITE_UMAMI_WEBSITE_ID`, `VITE_ADSENSE_CLIENT_ID` | frontend | Build-time values: changing them triggers a rebuild of the static site. |
+| `VITE_UMAMI_WEBSITE_ID` | frontend | Build-time values: changing them triggers a rebuild of the static site. |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | backend | Secret key (`sk_live_…`/`sk_test_…`) and the webhook endpoint's signing secret (`whsec_…`). Rotate the key in the Stripe dashboard (roll key), set it, revoke the old one. A new signing secret: roll it on the endpoint, set it at once — deliveries fail with 400 until then and Stripe retries. |
 | `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` | backend | Not secret, dashboard-only. The flag is `off` (default) / `admins` / `on`; the product ids (`prod_…`) differ between Stripe test and live mode. See [Stripe checkout](#stripe-checkout). |
 | `MAINTENANCE_MODE` | backend | Not a secret, but dashboard-only like `ADMIN_EMAILS` above. `true`/`false`, unset = `false`. See [Maintenance mode](#maintenance-mode). |
@@ -200,7 +199,6 @@ Aikido rescans the repo about every three days and mails when it finds something
 - **Render**: Custom Domains; env var *values*. A header or env var removed from `render.yaml` may linger on the service. In PR #150 the old `Content-Security-Policy-Report-Only` header had to be deleted by hand in the frontend service's settings. After such a change, check the live response headers.
 - **Render, `sks-lotse-backend`**: `STRIPE_CHECKOUT` = `on` (every learner can buy tokens). When it is switched, change this line and `docs/FEATURES.md` in the same PR; the flag stays `sync: false`, so no PR would otherwise remind anyone.
 - **Better Stack**: monitors, alert rules, the status page and the heartbeat.
-- **AdSense**: the consent message (TCF) and site approval.
 - **Resend / IONOS**: the sending-domain DNS records.
 
 ## One-time setup (recreating the environment)
@@ -208,7 +206,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 Account-level steps, done by the project owner:
 
 1. Connect the GitHub repo to Render and "Deploy from Blueprint" with `render.yaml`.
-2. Set every `sync: false` key in the dashboard (see [Rotating secrets](#rotating-secrets)): on the backend `JWT_SECRET`, `ANTHROPIC_GRADING_API_KEY`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS` and the Stripe settings `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` (see [Payments](#stripe-checkout), with the webhook endpoint); on the cron `JWT_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS` (same values) and `BETTERSTACK_HEARTBEAT_URL` (a daily heartbeat with a grace period of a few hours); on the frontend `VITE_UMAMI_WEBSITE_ID` (from Umami's tracking snippet, [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)) and `VITE_ADSENSE_CLIENT_ID`.
+2. Set every `sync: false` key in the dashboard (see [Rotating secrets](#rotating-secrets)): on the backend `JWT_SECRET`, `ANTHROPIC_GRADING_API_KEY`, `RESEND_API_KEY`, `ALLOWED_EMAILS`, `ADMIN_EMAILS` and the Stripe settings `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT`, `STRIPE_PRODUCT_TOKENS_S`/`_M`/`_L`/`_XL` (see [Payments](#stripe-checkout), with the webhook endpoint); on the cron `JWT_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS` (same values) and `BETTERSTACK_HEARTBEAT_URL` (a daily heartbeat with a grace period of a few hours); on the frontend `VITE_UMAMI_WEBSITE_ID` (from Umami's tracking snippet, [ADR-0016](adr/0016-umami-cloud-analytics-without-consent-banner.md)).
 3. Domains ([ADR-0015](adr/0015-frontend-deployment-topology.md)):
    - `sks-lotse.de` and `www.sks-lotse.de` → Custom Domains on `sks-lotse-frontend`. A domain can only be attached to one service.
    - `api.sks-lotse.de` → Custom Domain on the backend, plus `CNAME api → sks-lotse-backend.onrender.com` at IONOS. The frontend's `VITE_API_BASE_URL` points here.

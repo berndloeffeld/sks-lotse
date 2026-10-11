@@ -7,7 +7,7 @@ from app.core.database import Base
 
 
 class Purchase(Base):
-    """A ledger of paid/granted entitlements — tokens, the ads-removed fee, the signup bonus (ADR-0043).
+    """A ledger of paid/granted entitlements — token packages, admin grants, the signup bonus (ADR-0043).
 
     One row per grant, so the Stripe webhook (ADR-0048) writes here the same way a manual admin
     grant does (`granted_by`). `amount_eur_cents` is NULL for grants that involved no money (the
@@ -31,8 +31,8 @@ class Purchase(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     # NULL once anonymized (see class docstring) — never re-populated afterwards.
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    # "ads_removed" | "tokens_s" | "tokens_m" | "tokens_l" | "tokens_xl" | "signup_bonus" | "admin_grant"
-    # | "admin_debit"
+    # "tokens_s" | "tokens_m" | "tokens_l" | "tokens_xl" | "signup_bonus" | "admin_grant" | "admin_debit";
+    # older rows may also hold "ads_removed", the add-on dropped with the ads (ADR-0060), kept as records.
     product: Mapped[str] = mapped_column(String(32), nullable=False)
     # Negative for "admin_debit" (tokens taken back, services/token_wallet.py::debit).
     tokens_granted: Mapped[int | None] = mapped_column(Integer, nullable=True)

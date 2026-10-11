@@ -106,7 +106,7 @@ def test_stripe_product_id_maps_each_package(monkeypatch):
         "prod_tokens_l",
         "prod_tokens_xl",
     ]
-    assert checkout.stripe_product_id("ads_removed") == ""
+    assert checkout.stripe_product_id("signup_bonus") == ""
 
 
 def test_me_reports_whether_the_account_can_buy(client, auth_headers, monkeypatch):
@@ -164,7 +164,6 @@ def test_checkout_returns_the_stripe_url_with_the_configured_price(
 ):
     pricing_service.set_prices(
         db_session,
-        price_ads_removed_cents=500,
         signup_bonus_tokens=6,
         packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 25, 349)},
     )
@@ -207,7 +206,7 @@ def test_checkout_needs_the_withdrawal_waiver(client, auth_headers, stripe_confi
 def test_checkout_rejects_a_product_that_is_not_a_token_package(
     client, auth_headers, stripe_configured, fake_stripe
 ):
-    assert _checkout(client, auth_headers, product="ads_removed").status_code == 422
+    assert _checkout(client, auth_headers, product="signup_bonus").status_code == 422
 
 
 def test_checkout_without_a_product_id_answers_502(

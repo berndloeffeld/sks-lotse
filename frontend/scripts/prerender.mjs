@@ -1,12 +1,9 @@
 // Build-time prerender of the public pages (ADR-0025). Runs after the
 // client build (dist/) and the SSR build of src/entry-server.tsx (dist-ssr/):
 //
-//   dist/app.html     — the SPA shell (empty #root), minus the static ad
-//                       script: render.yaml's SPA fallback rewrites every
-//                       unknown path here, which includes /login and every
-//                       logged-in route, and those load the script at runtime
-//                       only where wanted (src/routes/AdScriptGate.tsx,
-//                       ADR-0027 addendum 2026-09-23).
+//   dist/app.html     — the SPA shell (empty #root): render.yaml's SPA
+//                       fallback rewrites every unknown path here, which
+//                       includes /login and every logged-in route.
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
 //   dist/<path>.html  — likewise for every page in src/publicPages.ts: /faq,
@@ -17,9 +14,7 @@
 //                       Each of these (everything but "/") also gets its own
 //                       <title>/description/OG/Twitter/canonical via applyMeta,
 //                       and drops the "/"-scoped JSON-LD block — see ADR-0025's
-//                       2026-09-24 update. /pricing and the /learn pages are
-//                       built without the static ad script (like app.html).
-//                       The /learn and /charts pages also preload the guests'
+//                       2026-09-24 update. The /learn and /charts pages also preload the guests'
 //                       data chunk, which their hydration waits for.
 //
 //   dist/sitemap.xml  — every one of those pages.
@@ -58,21 +53,9 @@ const chartCatalogPreload = dataChunkPreload('chart_exercises.gen')
 const preloadFor = (path) =>
   path.startsWith('/learn') ? catalogPreload : path.startsWith('/charts') ? chartCatalogPreload : null
 
-// The only ad-related tag the build emits (vite.config.ts, adsense-snippet). The public pages keep
-// it — AdSense's site verification reads their source. The shell must start without it: once
-// loaded it can't be removed again, and ads-removed accounts and /admin must not run it.
-const ADSENSE_TAG = /<script\b[^>]*pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^>]*><\/script>\s*/g
-function withoutAdScript(html, file) {
-  html = html.replace(ADSENSE_TAG, '')
-  if (html.includes('adsbygoogle')) {
-    throw new Error(`prerender: Google ad script still present in ${file}`)
-  }
-  return html
-}
-
 // app.html answers every path without a page of its own (/login, /profile, /admin, unknown paths):
 // not the home page's canonical or title, and not for the index.
-const appShell = withoutAdScript(shell, 'app.html')
+const appShell = shell
   .replace(/\s*<link rel="canonical"[^>]*\/>/, '')
   .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
   .replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />\n    <meta name="robots" content="noindex" />')
@@ -81,11 +64,10 @@ if (!appShell.includes('noindex') || appShell.includes('canonical')) {
   throw new Error('prerender: app.html must be noindex and carry no canonical')
 }
 writeFileSync(`${dist}app.html`, appShell)
-for (const { path, file, meta, withoutAds } of pages) {
+for (const { path, file, meta } of pages) {
   const root = `<div id="root" data-prerendered="${path}">${render(path)}</div>`
   let html = shell.replace(ROOT, () => root)
   if (meta) html = applyMeta(html, meta)
-  if (withoutAds) html = withoutAdScript(html, file)
   const preload = preloadFor(path)
   if (preload) html = html.replace('</head>', () => preload)
   mkdirSync(dirname(`${dist}${file}`), { recursive: true })
@@ -94,7 +76,4 @@ for (const { path, file, meta, withoutAds } of pages) {
 writeFileSync(`${dist}sitemap.xml`, sitemapXml(pages))
 rmSync(ssrDir, { recursive: true, force: true })
 
-const withAds = pages.filter((p) => !p.withoutAds).map((p) => p.file)
-console.log(
-  `prerender: wrote ${pages.length} pages and app.html (SPA shell), sitemap.xml; with the static ad script only: ${withAds.join(', ')}`,
-)
+console.log(`prerender: wrote ${pages.length} pages and app.html (SPA shell), sitemap.xml`)

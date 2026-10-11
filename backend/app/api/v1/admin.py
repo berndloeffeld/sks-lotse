@@ -89,26 +89,9 @@ def update_user(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ) -> AdminUserRead:
-    """Remove ads, credit tokens by hand (ADR-0043: a correction, a goodwill grant or a payment made
+    """Credit tokens by hand (ADR-0043: a correction, a goodwill grant or a payment made
     outside the app) or take tokens back after a refund or chargeback (never below 0)."""
     user = _get_user_or_404(db, user_id)
-    turning_ads_removed_on = payload.ads_removed is not None and payload.ads_removed and not user.ads_removed
-    if payload.ads_removed is not None:
-        user.ads_removed = payload.ads_removed
-    # token_wallet.grant() below re-fetches this row with populate_existing=True (it must, to lock
-    # it) — with the session's autoflush off, that would silently overwrite the plain attribute
-    # assignments above with their still-unflushed-to-the-DB old values unless flushed first.
-    db.flush()
-    if turning_ads_removed_on:
-        token_wallet.grant(
-            db,
-            user.id,
-            product="ads_removed",
-            tokens=None,
-            amount_eur_cents=payload.grant_amount_eur_cents,
-            granted_by="admin_manual",
-            admin_user_id=admin.id,
-        )
     if payload.grant_tokens is not None:
         token_wallet.grant(
             db,
@@ -139,7 +122,6 @@ def update_user(
 def _settings_read(db: Session) -> AdminSettings:
     return AdminSettings.model_validate(
         {
-            "price_ads_removed_cents": pricing_service.ads_removed_price_cents(db),
             "signup_bonus_tokens": pricing_service.signup_bonus_tokens(db),
             **{
                 package.product: {"tokens": package.tokens, "price_cents": package.price_cents}
@@ -166,7 +148,6 @@ def update_settings(
     packages = _payload_packages(payload)
     pricing_service.set_prices(
         db,
-        price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
         packages={
             product: pricing_domain.TokenPackage(product, package.tokens, package.price_cents)
@@ -176,7 +157,6 @@ def update_settings(
     _audit(
         admin,
         "update_settings",
-        price_ads_removed_cents=payload.price_ads_removed_cents,
         signup_bonus_tokens=payload.signup_bonus_tokens,
         **{product: (package.tokens, package.price_cents) for product, package in packages.items()},
     )

@@ -10,7 +10,6 @@ class PublicTokenPackage(BaseModel):
 class PublicPricing(BaseModel):
     """What the (unauthenticated) landing page / pricing page show (ADR-0043)."""
 
-    ads_removed_price_cents: int
     signup_bonus_tokens: int
     packages: list[PublicTokenPackage]
     # STRIPE_CHECKOUT is "on" (ADR-0048): a logged-out visitor sees "log in to buy" instead of
