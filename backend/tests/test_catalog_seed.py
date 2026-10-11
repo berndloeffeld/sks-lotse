@@ -1,13 +1,17 @@
 import dataclasses
-import functools
 import re
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import yaml
 from sqlalchemy import create_engine, text
 
 from app.models import QuestionProgress, User
+from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
+from app.models.focus_topic import FocusTopic
 from app.models.question import Question
+from app.models.question_grading_log import QuestionGradingLog
+from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.services import catalog_seed
 from app.services.catalog_seed import (
@@ -46,6 +50,16 @@ def test_parse_catalog_pdf_matches_known_counts():
     }
 
 
+def test_parse_catalog_pdf_parses_once_and_hands_out_independent_lists():
+    first = parse_catalog_pdf()
+    hits = catalog_seed._parse_catalog_pdf.cache_info().hits
+    first.clear()
+
+    second = parse_catalog_pdf()
+    assert len(second) == 638
+    assert catalog_seed._parse_catalog_pdf.cache_info().hits == hits + 1
+
+
 def test_every_parsed_question_has_an_answer_apart_from_the_sketches():
     questions = list(_parsed_catalog().values())
 
@@ -55,8 +69,8 @@ def test_every_parsed_question_has_an_answer_apart_from_the_sketches():
     assert not any(ANSWER_START in q.question_text + q.answer_text for q in questions)
 
 
-@functools.cache
 def _parsed_catalog():
+    # parse_catalog_pdf parses once per process, so this is cheap to call per test.
     return {(q.subject, q.number): q for q in parse_catalog_pdf()}
 
 
@@ -268,10 +282,115 @@ def test_sync_updates_changed_rows_and_removes_vanished_ones(db_session):
     assert db_session.query(Question).filter_by(subject=removed.subject, number=removed.number).count() == 0
 
 
-def test_sync_only_needs_the_columns_that_existed_when_the_oldest_syncing_migration_ran():
+def _topics_file(*slugs: str) -> dict[str, list[dict]]:
+    return {
+        "navigation": [
+            {"slug": slug, "name": slug.upper(), "display_order": i} for i, slug in enumerate(slugs)
+        ]
+    }
+
+
+def _learner_data_on(db_session, user: User, question: Question) -> None:
+    now = datetime.now(UTC)
+    attempt = ExamAttempt(
+        user_id=user.id,
+        exam_variant="motor",
+        started_at=now,
+        deadline_at=now + timedelta(minutes=90),
+        submitted_at=now,  # one running exam per learner at most
+    )
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=user.id, question_id=question.id, **progress_state(1)),
+            QuestionGradingLog(
+                user_id=user.id, question_id=question.id, outcome="richtig", half_life_days=2.5
+            ),
+            QuestionReport(user_id=user.id, question_id=question.id, category="wrong_answer"),
+            attempt,
+        ]
+    )
+    db_session.flush()
+    db_session.add(
+        ExamAttemptQuestion(
+            attempt_id=attempt.id,
+            question_id=question.id,
+            position=1,
+            subject_group="navigation",
+            answer_text="Meine Antwort",
+        )
+    )
+    db_session.commit()
+
+
+def test_sync_removing_a_question_cascades_its_learner_rows_and_nulls_the_exam_reference(
+    db_session, monkeypatch
+):
+    # The deploy's catalog sync runs these foreign-key actions on Postgres; here they run for real
+    # too (conftest.py turns PRAGMA foreign_keys on).
+    monkeypatch.setattr(catalog_seed, "load_topics", lambda: _topics_file("t1"))
+
+    def question(number):
+        return CatalogQuestion("navigation", number, f"Frage {number}", "Antwort", topic_slug="t1")
+
+    sync_catalog(db_session.connection(), [question(1), question(2)])
+    db_session.commit()
+    user = User(email="learner@example.com")
+    db_session.add(user)
+    db_session.commit()
+    kept, vanishing = (db_session.query(Question).filter_by(number=n).one() for n in (1, 2))
+    _learner_data_on(db_session, user, kept)
+    _learner_data_on(db_session, user, vanishing)
+
+    sync_catalog(db_session.connection(), [question(1)])
+    db_session.commit()
+    db_session.expire_all()
+
+    assert db_session.query(Question).count() == 1
+    # CASCADE: the vanished question's rows are gone, the kept question's untouched.
+    for model in (QuestionProgress, QuestionGradingLog, QuestionReport):
+        assert [row.question_id for row in db_session.query(model)] == [kept.id], model.__name__
+    # SET NULL: the exam keeps its answer when the question is gone.
+    exam_questions = db_session.query(ExamAttemptQuestion).order_by(ExamAttemptQuestion.id).all()
+    assert [(eq.question_id, eq.answer_text) for eq in exam_questions] == [
+        (kept.id, "Meine Antwort"),
+        (None, "Meine Antwort"),
+    ]
+
+
+def test_sync_removing_a_topic_cascades_its_focus_rows_and_keeps_the_questions(db_session, monkeypatch):
+    topics = {"value": _topics_file("t1", "t2")}
+    monkeypatch.setattr(catalog_seed, "load_topics", lambda: topics["value"])
+    catalog = [
+        CatalogQuestion("navigation", 1, "Frage 1", "Antwort", topic_slug="t1"),
+        CatalogQuestion("navigation", 2, "Frage 2", "Antwort", topic_slug="t2"),
+    ]
+    sync_catalog(db_session.connection(), catalog)
+    db_session.commit()
+    user = User(email="learner@example.com")
+    db_session.add(user)
+    db_session.commit()
+    t1, t2 = (db_session.query(Topic).filter_by(slug=slug).one() for slug in ("t1", "t2"))
+    db_session.add_all(
+        [FocusTopic(user_id=user.id, topic_id=t1.id), FocusTopic(user_id=user.id, topic_id=t2.id)]
+    )
+    db_session.commit()
+
+    # topics.yaml drops t2 (see ADR-0020); its question stays, now without a topic.
+    topics["value"] = _topics_file("t1")
+    sync_catalog(db_session.connection(), [catalog[0], dataclasses.replace(catalog[1], topic_slug=None)])
+    db_session.commit()
+    db_session.expire_all()
+
+    assert [t.slug for t in db_session.query(Topic)] == ["t1"]
+    assert [f.topic_id for f in db_session.query(FocusTopic)] == [t1.id]
+    assert db_session.query(Question).count() == 2
+    assert db_session.query(Question).filter_by(number=2).one().topic_id is None
+
+
+def test_sync_only_needs_the_columns_that_existed_when_the_syncing_migration_ran():
     # The data migrations run sync_catalog against the schema of *their*
     # revision, not head's. Tables with exactly the columns as of revision
-    # e5b3a9c1d720 (the oldest one that still syncs) must be enough — a
+    # e5b3a9c1d720 (the only one that still syncs) must be enough — a
     # column the ORM models gained later must never end up in its statements.
     engine = create_engine("sqlite:///:memory:")
     with engine.begin() as connection:

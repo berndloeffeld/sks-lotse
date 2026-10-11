@@ -26,14 +26,15 @@ below, never the ORM models: those always describe the schema at head,
 while a data migration runs against the schema of *its* revision. A column
 added to `Question` later would otherwise end up in the INSERT of a
 migration that runs before the column exists, breaking every fresh
-`alembic upgrade head`. The oldest migration that still syncs is
-e5b3a9c1d720 (the earlier ones are no-ops now), so the columns below are
+`alembic upgrade head`. The only migration that still syncs is
+e5b3a9c1d720 (the others are no-ops now), so the columns below are
 the ones `questions`/`topics` have as of that revision. If a later migration
 renames or drops one of them, the older data migrations need their own copy
 of this module's logic.
 """
 
 import dataclasses
+import functools
 import json
 import re
 from collections.abc import Mapping, Sequence
@@ -259,7 +260,16 @@ def _apply_fix(
 
 
 def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
-    """The raw PDF parse — Seemannschaft still as seemannschaft_1/seemannschaft_2."""
+    """The raw PDF parse — Seemannschaft still as seemannschaft_1/seemannschaft_2.
+
+    Parsed once per process and path (it takes about a second): the rows are frozen, so a copy of
+    the list is all a caller needs to be safe from another caller.
+    """
+    return list(_parse_catalog_pdf(pdf_path))
+
+
+@functools.cache
+def _parse_catalog_pdf(pdf_path: Path) -> tuple[CatalogQuestion, ...]:
     text = extract_marked_text(pypdf.PdfReader(str(pdf_path)))
 
     questions = []
@@ -278,7 +288,7 @@ def parse_catalog_pdf(pdf_path: Path = PDF_PATH) -> list[CatalogQuestion]:
                     answer_text=answer_text,
                 )
             )
-    return questions
+    return tuple(questions)
 
 
 def normalize_wording(text: str) -> str:

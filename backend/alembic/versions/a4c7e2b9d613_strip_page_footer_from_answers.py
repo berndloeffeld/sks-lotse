@@ -11,9 +11,6 @@ drops it now. Upserts in place, so question ids and learner progress are unaffec
 
 from collections.abc import Sequence
 
-from alembic import op
-from app.services.catalog_seed import build_catalog, sync_catalog
-
 # revision identifiers, used by Alembic.
 revision: str = "a4c7e2b9d613"
 down_revision: str | None = "9d4b2f6a8e13"
@@ -22,7 +19,11 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    sync_catalog(op.get_bind(), build_catalog())
+    # Superseded: e5b3a9c1d720 is the only migration that still syncs the catalog. Every sync
+    # runs today's build_catalog(), not the one of its revision, so on a fresh database this one
+    # would only write what e5b3a9c1d720 writes again. Databases past this revision (production)
+    # already ran it; a local one in between re-syncs with backend/scripts/import_catalog.py.
+    pass
 
 
 def downgrade() -> None:
