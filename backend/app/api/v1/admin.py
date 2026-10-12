@@ -1,4 +1,6 @@
 import logging
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
@@ -20,8 +22,9 @@ from app.schemas.admin import (
     AdminUserUpdate,
     TokenPackageSettings,
 )
+from app.schemas.kpis import AdminDashboard, DashboardDays
 from app.schemas.question import QuestionRead
-from app.services import admin_users, blocklist, token_wallet
+from app.services import admin_users, blocklist, kpis, token_wallet
 from app.services import catalog as catalog_service
 from app.services import pricing as pricing_service
 from app.services.user import delete_user_and_progress
@@ -133,6 +136,14 @@ def _settings_read(db: Session) -> AdminSettings:
 
 def _payload_packages(payload: AdminSettings) -> dict[str, TokenPackageSettings]:
     return {product: getattr(payload, product) for product in pricing_domain.PACKAGE_PRODUCTS}
+
+
+@router.get("/dashboard", response_model=AdminDashboard)
+def get_dashboard(
+    days: Annotated[DashboardDays, Query()] = 30, db: Session = Depends(get_db)
+) -> AdminDashboard:
+    """The overview page: the KPI mail's figures (ADR-0032) plus one row per UTC day. Aggregates only."""
+    return kpis.compute_dashboard(db, datetime.now(UTC), days)
 
 
 @router.get("/settings", response_model=AdminSettings)

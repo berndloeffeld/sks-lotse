@@ -60,6 +60,10 @@ export type AdminQuestionHistory = Narrow<
   { users: Narrow<Schemas['AdminQuestionHistoryUser'], { gradings: AdminGradingEntry[] }>[] }
 >
 export type AdminSettings = Schemas['AdminSettings']
+export type AdminDashboard = Schemas['AdminDashboard']
+export type DailyKpis = Schemas['DailyKpis']
+// Mirrors DASHBOARD_DAYS in backend/app/schemas/kpis.py (the `days` query of /admin/dashboard).
+export type DashboardDays = 7 | 30 | 90
 export type AdminMfaStatus = Schemas['AdminMfaStatus']
 export type AdminMfaEnrolment = Schemas['AdminMfaEnrolment']
 export type TokenPackageSettings = Schemas['TokenPackageSettings']

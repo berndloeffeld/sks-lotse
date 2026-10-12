@@ -1,6 +1,6 @@
 # 0032. Daily KPI report by email
 
-Status: Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report; addendum of 2026-09-24: `GET /admin/kpis` removed, the mail is the only door; addendum of 2026-10-05: chart runs, Lotsen-Checks, tokens spent and Stripe purchases added
+Status: Accepted — addendum in [ADR-0041](0041-agb-acceptance-and-inactivity-retention.md): `last_login_at` now exists, but only for retention, not for this report; addendum of 2026-09-24: `GET /admin/kpis` removed, the mail is the only door; addendum of 2026-10-05: chart runs, Lotsen-Checks, tokens spent and Stripe purchases added; addendum of 2026-10-12: `GET /admin/dashboard` with daily series on `/admin/overview`, activity read from `question_grading_log`
 
 ## Context
 
@@ -38,3 +38,13 @@ The review of 2026-10-05 found the report blind to three things. It now counts:
 The checks needed a counter, which nothing kept (the abuse counters are not it). Decision: a small table `lotse_check_log` (kind, tokens, time) **without a user**, written when a check has run (`services/lotse_check.py`; a failing write is logged and never costs the learner the result, a refunded check is never written). It is no personal data, so nothing in the privacy policy, the account deletion or the admin export changes. The daily report job deletes rows older than 30 days (the report looks back 7). Rejected: counting `ai_points IS NOT NULL` (only chart checks, and without a time); a log line to parse (the report reads the database).
 
 Indexes on `question_progress.updated_at` and `question_grading_log.graded_at` were added with it: the report filters both tables by time across all users, and the cron runs with a 15 s statement timeout.
+
+## Addendum 2026-10-12: the admin dashboard
+
+The mail answers "how was yesterday", not "how is it going": a trend needs a month of mails side by side. The admin area now opens on an overview (`/admin/overview`, `pages/AdminDashboardPage.tsx`) fed by `GET /api/v1/admin/dashboard?days=7|30|90` — so the report has a second door again, this time with a page that calls it.
+
+- **Same figures, same code.** The endpoint returns the report's growth, engagement and Lotsen-Check/revenue sections from the same functions the mail uses (`compute_dashboard` in `services/kpis.py`), so the page and the mail can't disagree. Learning success and quality stay in the mail only, for now.
+- **Plus one row per UTC day** (`daily_series`): sign-ups, active learners, gradings, Lotsen-Checks by kind, tokens, Stripe purchases and revenue, each a `GROUP BY date(...)` over a table that already exists; days without rows are filled with 0. Lotsen-Checks only reach back 30 days, the retention of `lotse_check_log`; the page says so on the 90-day view. Aggregates only, like the mail: no address, no per-learner row. Accounts deleted since drop out of past days too (their rows go with them).
+- **Activity now comes from `question_grading_log`**, for the mail as well. `question_progress.updated_at` keeps only a question's latest grading, so it can't say on which earlier days a learner was active; for windows that end now the result is the same, but `dau_previous` undercounted learners who graded again since. Exam starts and answered Kartenaufgabe tasks count as before.
+- Charts are plain SVG (`components/DailyBars.tsx`), no chart library: a few bar charts don't justify a dependency in the bundle.
+

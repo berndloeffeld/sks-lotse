@@ -7458,6 +7458,178 @@
                   ]
                 },
                 {
+                  "name": "dashboard",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Get Dashboard",
+                      "request": {
+                        "name": "Get Dashboard",
+                        "description": {
+                          "content": "The overview page: the KPI mail's figures (ADR-0032) plus one row per UTC day. Aggregates only.",
+                          "type": "text/plain"
+                        },
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "dashboard"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "days",
+                              "value": "30"
+                            }
+                          ],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "dashboard"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [
+                                {
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "",
+                                    "type": "text/plain"
+                                  },
+                                  "key": "days",
+                                  "value": "30"
+                                }
+                              ],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"generated_at\": \"<dateTime>\",\n  \"days\": \"<integer>\",\n  \"growth\": {\n    \"users_total\": \"<integer>\",\n    \"new_24h\": \"<integer>\",\n    \"new_previous_24h\": \"<integer>\",\n    \"new_7d\": \"<integer>\",\n    \"variant_motor\": \"<integer>\",\n    \"variant_segeln_und_motor\": \"<integer>\",\n    \"variant_unset\": \"<integer>\",\n    \"activation_rate_7d\": \"<number>\"\n  },\n  \"engagement\": {\n    \"dau\": \"<integer>\",\n    \"dau_previous\": \"<integer>\",\n    \"wau\": \"<integer>\",\n    \"mau\": \"<integer>\",\n    \"stickiness\": \"<number>\",\n    \"retention_cohort_size\": \"<integer>\",\n    \"retention_rate\": \"<number>\",\n    \"ratings_24h\": \"<integer>\",\n    \"ratings_per_active_user_24h\": \"<number>\"\n  },\n  \"monetization\": {\n    \"lotse_checks_catalog_24h\": \"<integer>\",\n    \"lotse_checks_chart_24h\": \"<integer>\",\n    \"tokens_spent_24h\": \"<integer>\",\n    \"tokens_spent_7d\": \"<integer>\",\n    \"purchases_24h\": \"<integer>\",\n    \"purchases_7d\": \"<integer>\",\n    \"revenue_cents_24h\": \"<integer>\",\n    \"revenue_cents_7d\": \"<integer>\"\n  },\n  \"daily\": [\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    },\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    }\n  ]\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        },
+                        {
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "dashboard"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [
+                                {
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "",
+                                    "type": "text/plain"
+                                  },
+                                  "key": "days",
+                                  "value": "30"
+                                }
+                              ],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                },
+                {
                   "name": "settings",
                   "description": "",
                   "item": [

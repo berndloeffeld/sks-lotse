@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Annotated
 
-from pydantic import BaseModel
+from pydantic import AfterValidator, BaseModel
 
 
 class GrowthKpis(BaseModel):
@@ -90,3 +91,46 @@ class KpiReport(BaseModel):
     learning: LearningKpis
     quality: QualityKpis
     monetization: MonetizationKpis
+
+
+# The ranges the admin dashboard offers; anything else is a 422.
+DASHBOARD_DAYS = (7, 30, 90)
+
+
+def _dashboard_days(value: int) -> int:
+    if value not in DASHBOARD_DAYS:
+        raise ValueError(f"days must be one of: {', '.join(map(str, DASHBOARD_DAYS))}")
+    return value
+
+
+# A plain int, not an IntEnum: an OpenAPI enum gets a random Postman example (see schemas/common.py).
+DashboardDays = Annotated[int, AfterValidator(_dashboard_days)]
+
+
+class DailyKpis(BaseModel):
+    """One UTC day of the admin dashboard; same definitions as the report's figures."""
+
+    day: date
+    new_users: int
+    # Distinct learners with a grading, a started exam or an answered Kartenaufgabe task that day.
+    active_users: int
+    ratings: int
+    # From lotse_check_log, which keeps 30 days: older days read 0.
+    lotse_checks_catalog: int
+    lotse_checks_chart: int
+    tokens_spent: int
+    # Stripe only, gross euro cents, as in MonetizationKpis.
+    purchases: int
+    revenue_cents: int
+
+
+class AdminDashboard(BaseModel):
+    """The admin overview page: aggregates only, like the KpiReport it shares its sections with."""
+
+    generated_at: datetime
+    days: int
+    growth: GrowthKpis
+    engagement: EngagementKpis
+    monetization: MonetizationKpis
+    # Oldest day first, exactly `days` rows, today (so far) last.
+    daily: list[DailyKpis]

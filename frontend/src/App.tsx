@@ -35,6 +35,7 @@ function lazyNamed<K extends string>(load: () => Promise<Record<K, ComponentType
 
 const ChartAttemptPage = lazyNamed(() => import('./pages/ChartAttemptPage'), 'ChartAttemptPage')
 const AdminLayout = lazyNamed(() => import('./components/AdminLayout'), 'AdminLayout')
+const AdminDashboardPage = lazyNamed(() => import('./pages/AdminDashboardPage'), 'AdminDashboardPage')
 const AdminBlocklistPage = lazyNamed(() => import('./pages/AdminBlocklistPage'), 'AdminBlocklistPage')
 const AdminQuestionsPage = lazyNamed(() => import('./pages/AdminQuestionsPage'), 'AdminQuestionsPage')
 const AdminSettingsPage = lazyNamed(() => import('./pages/AdminSettingsPage'), 'AdminSettingsPage')
@@ -138,7 +139,8 @@ export function AppRoutes() {
                 <Route path="account" element={<ProfileAccountPage />} />
               </Route>
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="users" replace />} />
+                <Route index element={<Navigate to="overview" replace />} />
+                <Route path="overview" element={<AdminDashboardPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="users/:id" element={<AdminUserPage />} />
                 <Route path="questions" element={<AdminQuestionsPage />} />

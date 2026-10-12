@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
-from sqlalchemy import distinct, exists, func, select, union
+from sqlalchemy import distinct, exists, func, select, union_all
 from sqlalchemy.orm import Session
 
 from app.domain.exam import result_for
@@ -16,6 +16,8 @@ from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
 from app.models.user import User
 from app.schemas.kpis import (
+    AdminDashboard,
+    DailyKpis,
     EngagementKpis,
     GrowthKpis,
     KpiReport,
@@ -38,20 +40,28 @@ def _count(db: Session, query) -> int:
     return db.execute(select(func.count()).select_from(query.subquery())).scalar_one()
 
 
-def _active_user_ids(since: datetime, until: datetime):
-    """Learners with a graded question, an answered Kartenaufgabe task or a started exam in [since, until)."""
-    graded = select(QuestionProgress.user_id).where(
-        QuestionProgress.updated_at >= since, QuestionProgress.updated_at < until
+def _activity(since: datetime, until: datetime):
+    """(user_id, at) of every learning action in [since, until): a grading, a started exam or an
+    answered Kartenaufgabe task. Gradings come from the log, not question_progress.updated_at,
+    which only keeps the latest one and so can't say which earlier days a learner was active."""
+    log = QuestionGradingLog
+    graded = select(log.user_id.label("user_id"), log.graded_at.label("at")).where(
+        log.graded_at >= since, log.graded_at < until
     )
-    started = select(ExamAttempt.user_id).where(
+    started = select(ExamAttempt.user_id, ExamAttempt.started_at).where(
         ExamAttempt.started_at >= since, ExamAttempt.started_at < until
     )
     charted = (
-        select(ChartAttempt.user_id)
+        select(ChartAttempt.user_id, ChartAttemptTask.answered_at)
         .join(ChartAttemptTask, ChartAttemptTask.attempt_id == ChartAttempt.id)
         .where(ChartAttemptTask.answered_at >= since, ChartAttemptTask.answered_at < until)
     )
-    return union(graded, started, charted)
+    return union_all(graded, started, charted).subquery()
+
+
+def _active_user_ids(since: datetime, until: datetime):
+    """Learners with a graded question, an answered Kartenaufgabe task or a started exam in [since, until)."""
+    return select(_activity(since, until).c.user_id).distinct()
 
 
 def _active_users(db: Session, since: datetime, until: datetime) -> int:
@@ -219,6 +229,65 @@ def _monetization(db: Session, now: datetime) -> MonetizationKpis:
         purchases_7d=purchases_7d,
         revenue_cents_24h=revenue_24h,
         revenue_cents_7d=revenue_7d,
+    )
+
+
+def _by_day(db: Session, query) -> dict[date, int]:
+    """A (day, value) grouped query as a dict; SQLite returns the day as text, Postgres as a date."""
+    return {date.fromisoformat(str(day)): value or 0 for day, value in db.execute(query).all()}
+
+
+def _daily(db: Session, column, since: datetime, until: datetime, *where, value=None) -> dict[date, int]:
+    """Rows of the column's table per day of the column in [since, until), or the sum of `value`."""
+    day = func.date(column)
+    measure = func.count() if value is None else func.coalesce(func.sum(value), 0)
+    return _by_day(
+        db,
+        select(day, measure)
+        .select_from(column.class_)
+        .where(column >= since, column < until, *where)
+        .group_by(day),
+    )
+
+
+def daily_series(db: Session, now: datetime, days: int) -> list[DailyKpis]:
+    """One row per UTC day for the last `days` days, today (up to `now`) last; a day without rows is 0.
+
+    Days are the database's `date()` of the timestamp, i.e. UTC days: Render's Postgres runs in UTC.
+    """
+    first = now.astimezone(UTC).date() - timedelta(days=days - 1)
+    since = datetime.combine(first, time.min, tzinfo=UTC)
+    activity = _activity(since, now)
+    active_day = func.date(activity.c.at)
+    stripe = Purchase.granted_by == "stripe"
+    checked = LotseCheckLog.checked_at
+    per_day = {
+        "new_users": _daily(db, User.created_at, since, now),
+        "active_users": _by_day(
+            db, select(active_day, func.count(distinct(activity.c.user_id))).group_by(active_day)
+        ),
+        "ratings": _daily(db, QuestionGradingLog.graded_at, since, now),
+        "lotse_checks_catalog": _daily(db, checked, since, now, LotseCheckLog.kind == "catalog"),
+        "lotse_checks_chart": _daily(db, checked, since, now, LotseCheckLog.kind == "chart"),
+        "tokens_spent": _daily(db, checked, since, now, value=LotseCheckLog.tokens),
+        "purchases": _daily(db, Purchase.created_at, since, now, stripe),
+        "revenue_cents": _daily(db, Purchase.created_at, since, now, stripe, value=Purchase.amount_eur_cents),
+    }
+    return [
+        DailyKpis(day=day, **{name: counts.get(day, 0) for name, counts in per_day.items()})
+        for day in (first + timedelta(days=offset) for offset in range(days))
+    ]
+
+
+def compute_dashboard(db: Session, now: datetime, days: int) -> AdminDashboard:
+    """The admin overview: the mail's growth, engagement and monetization figures plus a daily series."""
+    return AdminDashboard(
+        generated_at=now,
+        days=days,
+        growth=_growth(db, now),
+        engagement=_engagement(db, now),
+        monetization=_monetization(db, now),
+        daily=daily_series(db, now, days),
     )
 
 
