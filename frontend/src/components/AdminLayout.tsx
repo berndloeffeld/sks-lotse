@@ -8,6 +8,7 @@ import { ErrorMessage } from './Messages'
 
 // The admin area's sections. A new admin page is one entry here plus its route in App.tsx.
 const SECTIONS = [
+  { to: '/admin/overview', label: 'Übersicht' },
   { to: '/admin/users', label: 'Benutzer' },
   { to: '/admin/questions', label: 'Fragen' },
   { to: '/admin/blocklist', label: 'Sperrliste' },

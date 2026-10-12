@@ -91,6 +91,24 @@ export interface components {
             /** Ai Suspected Error */
             ai_suspected_error: string | null;
         };
+        /**
+         * AdminDashboard
+         * @description The admin overview page: aggregates only, like the KpiReport it shares its sections with.
+         */
+        AdminDashboard: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Days */
+            days: number;
+            growth: components["schemas"]["GrowthKpis"];
+            engagement: components["schemas"]["EngagementKpis"];
+            monetization: components["schemas"]["MonetizationKpis"];
+            /** Daily */
+            daily: components["schemas"]["DailyKpis"][];
+        };
         /** AdminExamAttemptExport */
         AdminExamAttemptExport: {
             /** Exam Id */
@@ -607,6 +625,33 @@ export interface components {
              */
             waive_withdrawal: true;
         };
+        /**
+         * DailyKpis
+         * @description One UTC day of the admin dashboard; same definitions as the report's figures.
+         */
+        DailyKpis: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** New Users */
+            new_users: number;
+            /** Active Users */
+            active_users: number;
+            /** Ratings */
+            ratings: number;
+            /** Lotse Checks Catalog */
+            lotse_checks_catalog: number;
+            /** Lotse Checks Chart */
+            lotse_checks_chart: number;
+            /** Tokens Spent */
+            tokens_spent: number;
+            /** Purchases */
+            purchases: number;
+            /** Revenue Cents */
+            revenue_cents: number;
+        };
         /** EmailChangeRequestCreate */
         EmailChangeRequestCreate: {
             /**
@@ -624,6 +669,27 @@ export interface components {
             new_email: string;
             /** Code */
             code: string;
+        };
+        /** EngagementKpis */
+        EngagementKpis: {
+            /** Dau */
+            dau: number;
+            /** Dau Previous */
+            dau_previous: number;
+            /** Wau */
+            wau: number;
+            /** Mau */
+            mau: number;
+            /** Stickiness */
+            stickiness: number | null;
+            /** Retention Cohort Size */
+            retention_cohort_size: number;
+            /** Retention Rate */
+            retention_rate: number | null;
+            /** Ratings 24H */
+            ratings_24h: number;
+            /** Ratings Per Active User 24H */
+            ratings_per_active_user_24h: number | null;
         };
         /** ExamAnswerUpdate */
         ExamAnswerUpdate: {
@@ -772,10 +838,48 @@ export interface components {
             /** Result */
             result: string | null;
         };
+        /** GrowthKpis */
+        GrowthKpis: {
+            /** Users Total */
+            users_total: number;
+            /** New 24H */
+            new_24h: number;
+            /** New Previous 24H */
+            new_previous_24h: number;
+            /** New 7D */
+            new_7d: number;
+            /** Variant Motor */
+            variant_motor: number;
+            /** Variant Segeln Und Motor */
+            variant_segeln_und_motor: number;
+            /** Variant Unset */
+            variant_unset: number;
+            /** Activation Rate 7D */
+            activation_rate_7d: number | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** MonetizationKpis */
+        MonetizationKpis: {
+            /** Lotse Checks Catalog 24H */
+            lotse_checks_catalog_24h: number;
+            /** Lotse Checks Chart 24H */
+            lotse_checks_chart_24h: number;
+            /** Tokens Spent 24H */
+            tokens_spent_24h: number;
+            /** Tokens Spent 7D */
+            tokens_spent_7d: number;
+            /** Purchases 24H */
+            purchases_24h: number;
+            /** Purchases 7D */
+            purchases_7d: number;
+            /** Revenue Cents 24H */
+            revenue_cents_24h: number;
+            /** Revenue Cents 7D */
+            revenue_cents_7d: number;
         };
         /** OtpRequestAccepted */
         OtpRequestAccepted: {

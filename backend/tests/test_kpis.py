@@ -16,7 +16,7 @@ from app.models.topic import Topic
 from app.models.user import User
 from app.services import email as email_service
 from app.services import lotse_check
-from app.services.kpis import compute_kpis, format_report
+from app.services.kpis import compute_dashboard, compute_kpis, daily_series, format_report
 from scripts import send_daily_report
 from tests.helpers import progress_state
 
@@ -496,3 +496,104 @@ def test_the_daily_report_job_purges_the_old_log_rows(db_session, monkeypatch):
     assert send_daily_report.main() == 0
 
     assert db_session.query(LotseCheckLog).count() == 0
+
+
+def _series(db, days=3):
+    return {row.day.isoformat(): row for row in daily_series(db, NOW, days)}
+
+
+def test_daily_series_has_one_row_per_utc_day_with_gaps_as_zero(db_session):
+    _user(db_session, "today-first", created=timedelta(hours=12))  # 2026-09-20 00:00
+    _user(db_session, "today-now", created=timedelta(minutes=1))
+    _user(db_session, "two-days-ago", created=timedelta(days=1, hours=13))  # 2026-09-18 23:00
+    _user(db_session, "before-the-window", created=timedelta(days=2, hours=13))  # 2026-09-17 23:00
+    db_session.commit()
+
+    rows = daily_series(db_session, NOW, 3)
+
+    assert [row.day.isoformat() for row in rows] == ["2026-09-18", "2026-09-19", "2026-09-20"]
+    assert [row.new_users for row in rows] == [1, 0, 2]
+    assert all(row.ratings == row.active_users == row.purchases == 0 for row in rows)
+
+
+def test_daily_active_users_count_each_learner_once_across_all_activities(db_session):
+    question = Question(subject="navigation", number=1, question_text="q", answer_text="a")
+    db_session.add(question)
+    db_session.flush()
+    busy = _user(db_session, "busy")
+    _rated(db_session, busy, question, timedelta(hours=1))
+    db_session.add(
+        QuestionGradingLog(
+            user_id=busy.id, question_id=question.id, outcome="falsch", graded_at=NOW, half_life_days=1
+        )
+    )
+    _started_exam(db_session, busy, timedelta(hours=2))
+    _chart_run(db_session, busy, started=timedelta(hours=3), answered=timedelta(hours=3))
+    _started_exam(db_session, _user(db_session, "exam-yesterday"), timedelta(hours=20))
+    _chart_run(db_session, _user(db_session, "chart-yesterday"), started=_DAY, answered=_DAY)
+    db_session.commit()
+
+    series = _series(db_session)
+
+    assert (series["2026-09-20"].active_users, series["2026-09-20"].ratings) == (1, 1)  # NOW is not < now
+    assert (series["2026-09-19"].active_users, series["2026-09-19"].ratings) == (2, 0)
+
+
+def test_daily_checks_tokens_and_revenue_split_by_kind_and_stripe_only(db_session):
+    user = _user(db_session, "buyer")
+    for kind, tokens, ago in [("catalog", 1, 1), ("catalog", 1, 2), ("chart", 2, 3), ("chart", 2, 30)]:
+        db_session.add(LotseCheckLog(kind=kind, tokens=tokens, checked_at=NOW - timedelta(hours=ago)))
+    for by, cents in [("stripe", 499), ("stripe", 999), ("admin_manual", 500), ("signup", None)]:
+        db_session.add(
+            Purchase(
+                user_id=user.id,
+                product="tokens_m",
+                tokens_granted=10,
+                amount_eur_cents=cents,
+                granted_by=by,
+                created_at=NOW - timedelta(hours=1),
+            )
+        )
+    db_session.commit()
+
+    today, yesterday = _series(db_session)["2026-09-20"], _series(db_session)["2026-09-19"]
+
+    assert (today.lotse_checks_catalog, today.lotse_checks_chart, today.tokens_spent) == (2, 1, 4)
+    assert (yesterday.lotse_checks_catalog, yesterday.lotse_checks_chart, yesterday.tokens_spent) == (0, 1, 2)
+    assert (today.purchases, today.revenue_cents) == (2, 1498)
+
+
+def test_dau_previous_counts_a_learner_who_graded_again_since(db_session):
+    # question_progress.updated_at only keeps the latest grading; the log keeps both days.
+    question = Question(subject="navigation", number=1, question_text="q", answer_text="a")
+    db_session.add(question)
+    db_session.flush()
+    user = _user(db_session, "daily")
+    db_session.add(
+        QuestionGradingLog(
+            user_id=user.id,
+            question_id=question.id,
+            outcome="richtig",
+            graded_at=NOW - timedelta(hours=30),
+            half_life_days=1,
+        )
+    )
+    _rated(db_session, user, question, timedelta(hours=1))
+    db_session.commit()
+
+    engagement = compute_kpis(db_session, NOW).engagement
+
+    assert (engagement.dau, engagement.dau_previous) == (1, 1)
+
+
+def test_dashboard_shares_the_reports_sections(db_session):
+    _populate(db_session)
+
+    dashboard = compute_dashboard(db_session, NOW, 7)
+    report = compute_kpis(db_session, NOW)
+
+    assert (dashboard.days, len(dashboard.daily), dashboard.generated_at) == (7, 7, NOW)
+    assert dashboard.growth == report.growth
+    assert dashboard.engagement == report.engagement
+    assert dashboard.monetization == report.monetization
+    assert dashboard.daily[-1].new_users == report.growth.new_24h  # both since 2026-09-19 12:00 / 09-20 00:00

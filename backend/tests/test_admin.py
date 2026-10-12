@@ -829,3 +829,36 @@ def test_blocklist_actions_are_audit_logged_without_the_address(
     ]
     assert "spam@example.com" not in " ".join(messages)
     assert "target@example.com" not in " ".join(messages)
+
+
+def test_admin_dashboard_returns_the_chosen_days(client, db_session, auth_headers, monkeypatch):
+    make_admin(monkeypatch)
+
+    response = client.get("/api/v1/admin/dashboard", params={"days": 7}, headers=auth_headers)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["days"] == 7
+    assert len(body["daily"]) == 7
+    assert body["daily"][-1]["day"] == datetime.now(UTC).date().isoformat()
+    assert body["growth"]["users_total"] == 1  # the fixture admin
+    assert set(body) == {"generated_at", "days", "growth", "engagement", "monetization", "daily"}
+
+
+def test_admin_dashboard_defaults_to_30_days(client, db_session, auth_headers, monkeypatch):
+    make_admin(monkeypatch)
+
+    assert len(client.get("/api/v1/admin/dashboard", headers=auth_headers).json()["daily"]) == 30
+
+
+@pytest.mark.parametrize("days", [0, 8, 365, "x"])
+def test_admin_dashboard_rejects_other_ranges(client, db_session, auth_headers, monkeypatch, days):
+    make_admin(monkeypatch)
+
+    response = client.get("/api/v1/admin/dashboard", params={"days": days}, headers=auth_headers)
+
+    assert response.status_code == 422
+
+
+def test_admin_dashboard_is_forbidden_for_learners(client, db_session, auth_headers):
+    assert client.get("/api/v1/admin/dashboard", headers=auth_headers).status_code == 403

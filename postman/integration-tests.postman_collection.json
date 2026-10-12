@@ -5986,6 +5986,46 @@
           }
         },
         {
+          "name": "Admin API - a non-admin is rejected (dashboard)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profileToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "dashboard"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Admin API - a non-admin is rejected (settings read)",
           "event": [
             {
@@ -7152,6 +7192,149 @@
             }
           },
           "description": "An active secret is only replaced by the reset script, never by a (possibly stolen) email session.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dashboard - overview for 7 days",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var board = pm.response.json();",
+                  "pm.test('the mail\\'s sections plus one row per day, aggregates only', function () {",
+                  "    pm.expect(board).to.have.all.keys('generated_at', 'days', 'growth', 'engagement', 'monetization', 'daily');",
+                  "    pm.expect(board.days).to.eql(7);",
+                  "    pm.expect(board.daily).to.have.lengthOf(7);",
+                  "    pm.expect(board.daily[6].day).to.eql(new Date().toISOString().slice(0, 10));",
+                  "    pm.expect(board.daily[0]).to.have.all.keys('day', 'new_users', 'active_users', 'ratings', 'lotse_checks_catalog', 'lotse_checks_chart', 'tokens_spent', 'purchases', 'revenue_cents');",
+                  "    pm.expect(board.growth.users_total).to.be.at.least(1);",
+                  "    pm.expect(JSON.stringify(board)).to.not.include('@');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard?days=7",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7"
+                }
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dashboard - 30 days without a range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('30 days by default', function () { pm.expect(pm.response.json().daily).to.have.lengthOf(30); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "dashboard"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Dashboard - another range is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard?days=8",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "8"
+                }
+              ]
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
