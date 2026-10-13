@@ -4,7 +4,7 @@ import type { ChartAttempt, ChartExercisesOverview } from '../api/types'
 import { pointsLabel } from '../chartPoints'
 import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
-import { OwnAnswer } from './AnswerBox'
+import { ChartOwnAnswer } from './AnswerBox'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { TideFormFields } from './TideFormFields'
 import { buttonClass } from './buttonStyles'
@@ -76,7 +76,7 @@ export function ChartTaskHistory({ attempt }: { attempt: ChartAttempt }) {
             </summary>
             <div className="flex flex-col gap-3 pb-3">
               <ChartTaskText task={task} />
-              <OwnAnswer text={task.answer_text} />
+              <ChartOwnAnswer text={task.answer_text} />
               <OfficialSolution task={task} />
               {task.ai_suggestion ? (
                 <ChartAiSuggestionView suggestion={task.ai_suggestion} maxPoints={task.max_points} hint={false} />

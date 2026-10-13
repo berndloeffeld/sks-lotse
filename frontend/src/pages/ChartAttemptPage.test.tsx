@@ -114,7 +114,7 @@ describe('ChartAttemptPage', () => {
     renderPage()
 
     const field = await screen.findByRole('textbox', { name: 'Deine Antwort' })
-    expect(field).toHaveAccessibleDescription(/Hier notierst du die Ergebnisse\./)
+    expect(field).toHaveAccessibleDescription(/Hier notierst du die Ergebnisse, eine Rechnung auch als Tabelle/)
     const marker = screen.getByRole('button', { name: 'Hinweis' })
     const tip = screen.getByRole('tooltip', { hidden: true })
     expect(tip).toHaveClass('hidden')
@@ -143,6 +143,67 @@ describe('ChartAttemptPage', () => {
       expect.stringContaining('/chart-exercises/attempts/5/tasks/1/answer'),
       expect.objectContaining({ body: JSON.stringify({ answer_text: 'HWZ 08:53\nHWH 3,2 m' }) }),
     )
+  })
+
+  it('takes one table into the answer, with text below it, and shows it as a table', async () => {
+    const user = userEvent.setup()
+    const withTable = makeChartAttempt({
+      tasks: [
+        chartTask(1, { answer_text: 'Gezeiten:\n\n| HW Cuxhaven | 08:53 |\n| HW Helgoland | 07:43 |\n\nHWZ 07:43' }),
+      ],
+    })
+    const fetchMock = stubBackend(makeChartAttempt(), [withTable])
+    renderPage()
+
+    await user.type(await screen.findByRole('textbox', { name: 'Deine Antwort' }), 'Gezeiten:')
+    await user.click(screen.getByRole('button', { name: 'Tabelle einfügen' }))
+    const table = screen.getByRole('table', { name: 'Tabelle' })
+    // One table per answer: the button is gone while it is there.
+    expect(screen.queryByRole('button', { name: 'Tabelle einfügen' })).not.toBeInTheDocument()
+    expect(within(table).getAllByRole('textbox')).toHaveLength(9)
+    expect(within(table).getByRole('textbox', { name: 'Zeile 1, Spalte 1' })).toHaveFocus()
+    await user.keyboard('HW Cuxhaven{Tab}08:53')
+    await user.click(screen.getByRole('button', { name: 'Zeile anhängen' }))
+    expect(within(table).getByRole('textbox', { name: 'Zeile 4, Spalte 1' })).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: 'Zeile 4 bearbeiten' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Zeile löschen' }))
+    await user.type(within(table).getByRole('textbox', { name: 'Zeile 2, Spalte 1' }), 'HW Helgoland')
+    await user.type(within(table).getByRole('textbox', { name: 'Zeile 2, Spalte 2' }), '07:43')
+    await user.type(screen.getByRole('textbox', { name: 'Text unter der Tabelle' }), 'HWZ 07:43')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+
+    // Empty rows and columns of the grid are left out.
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/tasks/1/answer'),
+      expect.objectContaining({
+        body: JSON.stringify({
+          answer_text: 'Gezeiten:\n\n| HW Cuxhaven | 08:53 |\n| HW Helgoland | 07:43 |\n\nHWZ 07:43',
+        }),
+      }),
+    )
+    const shown = (await screen.findByRole('heading', { name: 'Deine Antwort' })).closest('section')!
+    expect(within(shown).getByRole('table')).toHaveTextContent('HW Cuxhaven08:53HW Helgoland07:43')
+    // The first column holds the labels.
+    expect(within(shown).getByRole('rowheader', { name: 'HW Cuxhaven' })).toBeInTheDocument()
+    expect(within(shown).getByText('HWZ 07:43')).toBeInTheDocument()
+  })
+
+  it('removes the table again and joins the text around it', async () => {
+    const user = userEvent.setup()
+    stubBackend(makeChartAttempt())
+    renderPage()
+
+    await user.type(await screen.findByRole('textbox', { name: 'Deine Antwort' }), 'oben')
+    await user.click(screen.getByRole('button', { name: 'Tabelle einfügen' }))
+    await user.type(screen.getByRole('textbox', { name: 'Text unter der Tabelle' }), 'unten')
+    await user.click(screen.getByRole('button', { name: 'Tabelle entfernen' }))
+
+    expect(screen.queryByRole('table', { name: 'Tabelle' })).not.toBeInTheDocument()
+    const field = screen.getByRole('textbox', { name: 'Deine Antwort' })
+    expect(field).toHaveValue('oben\nunten')
+    expect(field).toHaveFocus()
+    expect(screen.queryByRole('textbox', { name: 'Text unter der Tabelle' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tabelle einfügen' })).toBeInTheDocument()
   })
 
   it('reports a failed save and keeps the answer', async () => {

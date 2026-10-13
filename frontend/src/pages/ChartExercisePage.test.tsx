@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -207,6 +207,21 @@ describe('ChartExercisePage for a guest', () => {
     await user.click(screen.getByRole('link', { name: 'Zur Übersicht' }))
     expect(await screen.findByText('Overview page')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it("takes a table into a guest's answer too", async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn())
+    renderPage('1')
+
+    await user.click(screen.getByRole('checkbox', { name: /bereitgelegt/ }))
+    await user.click(screen.getByRole('button', { name: 'Kartenaufgabe starten' }))
+    await user.click(screen.getByRole('button', { name: 'Tabelle einfügen' }))
+    await user.keyboard('HW{Tab}12:30')
+    await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+
+    const shown = screen.getByRole('heading', { name: 'Deine Antwort' }).closest('section')!
+    expect(within(shown).getByRole('table')).toHaveTextContent('HW12:30')
   })
 
   it('starts the run as its own history entry, so Back leads to the page before the start', async () => {

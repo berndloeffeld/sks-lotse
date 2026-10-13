@@ -28,7 +28,8 @@ Maßstab ist allein die amtliche Lösung mit ihren Toleranzen. Ein Wert innerhal
 der Prüfung: je Teilfrage die dort genannten Punkte, nur wenn ihr Ergebnis stimmt; fehlt ein verlangter Teil \
 (z. B. die Stärke zur Richtung, die Wiederkehr zur Kennung), gibt es für diese Teilfrage keinen Punkt. \
 Folgefehler werden nicht angerechnet: Ein Wert, der nur deshalb abweicht, weil eine frühere Antwort falsch \
-war, bringt keinen Punkt — benenne ihn aber als Folgefehler.
+war, bringt keinen Punkt — benenne ihn aber als Folgefehler. Eine Antwort kann Tabellenzeilen der Form \
+| Bezeichnung | Wert | enthalten: lies sie Zeile für Zeile wie die Herleitung.
 
 Rechne nach. Du hast die amtliche Herleitung mit allen Zwischenwerten. Weicht ein Wert des Lernenden ab, \
 suche die Ursache, indem du prüfst, welcher typische Fehler genau zu seinem Wert führt:

@@ -2,11 +2,13 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { ChartAttempt, ChartAttemptTask } from '../api/types'
+import { EMPTY_DRAFT, draftText } from '../answerTable'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
-import { OwnAnswer } from './AnswerBox'
+import { ChartOwnAnswer } from './AnswerBox'
+import { ChartAnswerEditor } from './ChartAnswerEditor'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
@@ -69,7 +71,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = f
 }
 
 const ANSWER_HINT =
-  'Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du die Ergebnisse.'
+  'Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du die Ergebnisse, eine Rechnung auch als Tabelle.'
 
 // An "i" beside a label, in a row that is `relative` (the bubble opens above the row's start): the
 // hint shows on hover, a click, tap or Enter toggles it, Escape and leaving the marker close it. The
@@ -108,13 +110,16 @@ function InfoMarker({ id, text }: { id: string; text: string }) {
   )
 }
 
+// The answer: text, and after "Tabelle einfügen" one table (ADR-0062) with more text below it.
 function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: ChartTaskRunProps['onAnswer'] }) {
-  const [answer, setAnswer] = useState('')
+  const [draft, setDraft] = useState(EMPTY_DRAFT)
   const { run, isPending, error } = useAsyncAction()
   const fieldRef = useRef<HTMLTextAreaElement>(null)
   const fieldId = useId()
   const hintId = useId()
-  const enterShortcut = useEnterShortcut((event) => event.currentTarget.form?.requestSubmit())
+  const enterShortcut = useEnterShortcut<HTMLTextAreaElement | HTMLInputElement>((event) =>
+    event.currentTarget.form?.requestSubmit(),
+  )
 
   useEffect(() => {
     fieldRef.current?.focus({ preventScroll: true })
@@ -127,7 +132,7 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
         event.preventDefault()
         if (isPending) return
         void run(
-          () => onAnswer(task.number, answer),
+          () => onAnswer(task.number, draftText(draft)),
           'Die Antwort konnte nicht gespeichert werden. Bitte versuche es erneut.',
         )
       }}
@@ -137,15 +142,13 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
           <label htmlFor={fieldId}>Deine Antwort</label>
           <InfoMarker id={hintId} text={ANSWER_HINT} />
         </div>
-        <textarea
-          id={fieldId}
-          aria-describedby={hintId}
-          ref={fieldRef}
-          value={answer}
-          onChange={(event) => setAnswer(event.target.value)}
+        <ChartAnswerEditor
+          draft={draft}
+          onChange={setDraft}
+          fieldId={fieldId}
+          fieldRef={fieldRef}
+          describedBy={hintId}
           onKeyDown={enterShortcut.onKeyDown}
-          rows={4}
-          className={styles.input}
         />
         {enterShortcut.enabled ? (
           <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
@@ -232,7 +235,7 @@ function PointsForm({
         save(points)
       }}
     >
-      <OwnAnswer text={task.answer_text} />
+      <ChartOwnAnswer text={task.answer_text} />
       <OfficialSolution task={task} />
       <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none">
         <legend className="mb-2 text-sm text-ink-soft">
