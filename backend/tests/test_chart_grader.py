@@ -261,3 +261,8 @@ def test_a_long_answer_that_isnt_echoed_is_normal_feedback(monkeypatch):
     reply = ChartGradeResult(feedback="Alles richtig gerechnet.", suspected_error="", points=2)
     graded, _ = _grade(monkeypatch, reply, answer=answer)
     assert graded == GradedChartAnswer(reply, sanitized=False)
+
+
+def test_system_prompt_explains_table_rows_in_an_answer():
+    # A Kartenaufgabe's answer can hold tables, stored as `| a | b |` rows (ADR-0062).
+    assert "Tabellenzeilen der Form | Bezeichnung | Wert |" in chart_grader.SYSTEM_PROMPT

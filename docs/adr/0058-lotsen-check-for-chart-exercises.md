@@ -1,6 +1,6 @@
 # 0058. Lotsen-Check for the Kartenaufgaben: Sonnet, the derivation and the run's earlier answers, stored, 2 tokens
 
-Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) and [ADR-0043](0043-token-based-ai-grading-monetization.md) (a second kind of check, on another model, at 2 tokens) and [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (the AI check it left for later).
+Status: Accepted — amends [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) and [ADR-0043](0043-token-based-ai-grading-monetization.md) (a second kind of check, on another model, at 2 tokens) and [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (the AI check it left for later). Amended by [ADR-0062](0062-tables-in-chart-exercise-answers.md): the check reads an answer's table rows.
 
 ## Context
 

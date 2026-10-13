@@ -2,11 +2,13 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { ChartAttempt, ChartAttemptTask } from '../api/types'
+import { serializeAnswer, type AnswerBlock } from '../answerTable'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
-import { OwnAnswer } from './AnswerBox'
+import { ChartOwnAnswer } from './AnswerBox'
+import { AnswerTableEditor } from './AnswerTableEditor'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
@@ -69,7 +71,7 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = f
 }
 
 const ANSWER_HINT =
-  'Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du die Ergebnisse.'
+  'Kurse, Peilungen und Orte trägst du in deine Seekarte ein, Zeichnungen machst du auf Papier. Hier notierst du die Ergebnisse, eine Rechnung auch als Tabelle („Tabelle einfügen“).'
 
 // An "i" beside a label, in a row that is `relative` (the bubble opens above the row's start): the
 // hint shows on hover, a click, tap or Enter toggles it, Escape and leaving the marker close it. The
@@ -108,18 +110,42 @@ function InfoMarker({ id, text }: { id: string; text: string }) {
   )
 }
 
+const EMPTY_TABLE = Array.from({ length: 3 }, () => ['', '', ''])
+
+// The answer: text, and after "Tabelle einfügen" one table (ADR-0062) with a second text field below it.
 function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: ChartTaskRunProps['onAnswer'] }) {
-  const [answer, setAnswer] = useState('')
+  const [above, setAbove] = useState('')
+  const [table, setTable] = useState<string[][] | null>(null)
+  const [below, setBelow] = useState('')
   const { run, isPending, error } = useAsyncAction()
   const fieldRef = useRef<HTMLTextAreaElement>(null)
   const fieldId = useId()
   const hintId = useId()
-  const enterShortcut = useEnterShortcut((event) => event.currentTarget.form?.requestSubmit())
+  const enterShortcut = useEnterShortcut<HTMLTextAreaElement | HTMLInputElement>((event) =>
+    event.currentTarget.form?.requestSubmit(),
+  )
 
   useEffect(() => {
     fieldRef.current?.focus({ preventScroll: true })
   }, [])
 
+  // The table goes, the text above and below it become one field again.
+  function removeTable() {
+    setAbove([above, below].filter((part) => part.trim() !== '').join('\n'))
+    setBelow('')
+    setTable(null)
+    fieldRef.current?.focus()
+  }
+
+  const blocks: AnswerBlock[] = [
+    { kind: 'text', text: above },
+    ...(table
+      ? [
+          { kind: 'table' as const, rows: table },
+          { kind: 'text' as const, text: below },
+        ]
+      : []),
+  ]
   return (
     <form
       className="flex flex-col gap-3"
@@ -127,7 +153,7 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
         event.preventDefault()
         if (isPending) return
         void run(
-          () => onAnswer(task.number, answer),
+          () => onAnswer(task.number, serializeAnswer(blocks)),
           'Die Antwort konnte nicht gespeichert werden. Bitte versuche es erneut.',
         )
       }}
@@ -141,20 +167,45 @@ function AnswerForm({ task, onAnswer }: { task: ChartAttemptTask; onAnswer: Char
           id={fieldId}
           aria-describedby={hintId}
           ref={fieldRef}
-          value={answer}
-          onChange={(event) => setAnswer(event.target.value)}
+          value={above}
+          onChange={(event) => setAbove(event.target.value)}
           onKeyDown={enterShortcut.onKeyDown}
           rows={4}
           className={styles.input}
         />
+        {table ? (
+          <>
+            <AnswerTableEditor
+              rows={table}
+              onChange={setTable}
+              onRemove={removeTable}
+              onCellKeyDown={enterShortcut.onKeyDown}
+            />
+            <textarea
+              aria-label="Text unter der Tabelle"
+              value={below}
+              onChange={(event) => setBelow(event.target.value)}
+              onKeyDown={enterShortcut.onKeyDown}
+              rows={2}
+              className={styles.input}
+            />
+          </>
+        ) : null}
         {enterShortcut.enabled ? (
           <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
         ) : null}
       </div>
       <ErrorMessage>{error}</ErrorMessage>
-      <button type="submit" className={`${buttonClass('primary')} self-start`} disabled={isPending}>
-        {isPending ? 'Wird gespeichert…' : 'Lösung anzeigen'}
-      </button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="submit" className={buttonClass('primary')} disabled={isPending}>
+          {isPending ? 'Wird gespeichert…' : 'Lösung anzeigen'}
+        </button>
+        {table ? null : (
+          <button type="button" className={buttonClass('secondary')} onClick={() => setTable(EMPTY_TABLE)}>
+            Tabelle einfügen
+          </button>
+        )}
+      </div>
     </form>
   )
 }
@@ -232,7 +283,7 @@ function PointsForm({
         save(points)
       }}
     >
-      <OwnAnswer text={task.answer_text} />
+      <ChartOwnAnswer text={task.answer_text} />
       <OfficialSolution task={task} />
       <fieldset ref={groupRef} tabIndex={-1} className="flex flex-col gap-2 outline-none">
         <legend className="mb-2 text-sm text-ink-soft">

@@ -24,10 +24,12 @@ function hasFinePointer() {
 // the Kartenaufgaben) — only where there is a keyboard to press Shift on. A touch keyboard has no
 // Shift+Enter, so there Enter stays a line break and the field's hint about the shortcut is left
 // out (`enabled`). An IME composition's Enter only confirms the composed word.
-export function useEnterShortcut(action: (event: KeyboardEvent<HTMLTextAreaElement>) => void) {
+export function useEnterShortcut<T extends HTMLElement = HTMLTextAreaElement>(
+  action: (event: KeyboardEvent<T>) => void,
+) {
   const enabled = useSyncExternalStore(subscribe, hasFinePointer, () => true)
 
-  function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+  function onKeyDown(event: KeyboardEvent<T>) {
     if (!enabled || event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) return
     event.preventDefault()
     action(event)

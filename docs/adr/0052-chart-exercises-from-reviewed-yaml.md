@@ -1,6 +1,6 @@
 # 0052. Kartenaufgaben: ten fixed exercises from a reviewed YAML, solutions as images, behind a flag
 
-Status: Accepted — amended by [ADR-0053](0053-chart-solutions-transcribed-as-text.md): solutions are text now, and only transcribed sheets are in the app. Amended by [ADR-0056](0056-chart-exercises-open-to-guests.md): at `on`, guests run the sheets without a login. Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): the Lotsen-Check for the Kartenaufgaben.
+Status: Accepted — amended by [ADR-0053](0053-chart-solutions-transcribed-as-text.md): solutions are text now, and only transcribed sheets are in the app. Amended by [ADR-0056](0056-chart-exercises-open-to-guests.md): at `on`, guests run the sheets without a login. Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): the Lotsen-Check for the Kartenaufgaben. Amended by [ADR-0062](0062-tables-in-chart-exercise-answers.md): an answer can hold a table, as rows in its text.
 
 ## Context
 

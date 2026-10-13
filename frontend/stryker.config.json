@@ -30,6 +30,7 @@
     "src/share.ts",
     "src/legal.ts",
     "src/chartPoints.ts",
+    "src/answerTable.ts",
     "src/navigation.ts",
     "src/catalog.ts",
     "src/publicPages.ts",

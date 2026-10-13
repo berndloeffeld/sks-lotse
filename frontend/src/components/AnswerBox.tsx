@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import type { QuestionImage } from '../api/types'
+import { parseAnswer } from '../answerTable'
 import { OfficialAnswer } from './OfficialAnswer'
 
 // The comparison "deine vs. amtliche Antwort", alike wherever it is shown: practice, the topic's
@@ -37,6 +38,40 @@ export function OwnAnswer({ text, headingLevel }: { text: string | null | undefi
         <p className="whitespace-pre-line text-ink-soft">{text}</p>
       ) : (
         <p className="text-ink-soft italic">Nicht beantwortet.</p>
+      )}
+    </AnswerBox>
+  )
+}
+
+// A Kartenaufgabe's answer, whose tables (ADR-0062) show as tables, in the look of the official
+// derivation's. Only there: an answer elsewhere is plain text, even if a line looks like a row.
+export function ChartOwnAnswer({ text }: { text: string | null | undefined }) {
+  const blocks = parseAnswer(text ?? '')
+  if (blocks.length === 0) return <OwnAnswer text={text} />
+  return (
+    <AnswerBox variant="own" title="Deine Antwort">
+      {blocks.map((block, i) =>
+        block.kind === 'text' ? (
+          <p key={i} className="whitespace-pre-line text-ink-soft">
+            {block.text}
+          </p>
+        ) : (
+          <div key={i} className="overflow-x-auto">
+            <table className="border-collapse text-ink-soft">
+              <tbody>
+                {block.rows.map((row, r) => (
+                  <tr key={r}>
+                    {row.map((cell, c) => (
+                      <td key={c} className={`py-0.5 pr-3 ${c === 0 ? '' : 'text-right whitespace-nowrap'}`}>
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ),
       )}
     </AnswerBox>
   )
