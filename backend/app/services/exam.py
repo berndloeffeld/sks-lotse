@@ -133,6 +133,7 @@ def summary_fields(attempt: ExamAttempt) -> dict:
         "started_at": attempt.started_at,
         "submitted_at": attempt.submitted_at,
         "timed_out": attempt.timed_out,
+        "counts_for_progress": attempt.counts_for_progress,
         "answered_count": sum(1 for q in attempt.questions if q.answer_text and q.answer_text.strip()),
         "question_count": len(attempt.questions),
         "points": earned,

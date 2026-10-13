@@ -2650,6 +2650,59 @@
           }
         },
         {
+          "name": "Update profile - exam_counts_for_progress can't be cleared",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_counts_for_progress\": null}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "A setting with a default, not optional data: unlike the profile fields, explicit null is rejected (ADR-0061).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Update profile - over-long name is rejected",
           "event": [
             {
@@ -3459,6 +3512,60 @@
           }
         },
         {
+          "name": "Count exams for the Lernstand",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('the setting is on', function () { pm.expect(pm.response.json().exam_counts_for_progress).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_counts_for_progress\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "On is the default (ADR-0061); set explicitly so a rerun after a failed one starts the same way.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Start exam",
           "event": [
             {
@@ -3469,6 +3576,10 @@
                   "pm.test('status 201', function () { pm.response.to.have.status(201); });",
                   "var e = pm.response.json();",
                   "pm.collectionVariables.set('examId', String(e.id));",
+                  "pm.collectionVariables.set('examQuestionIds', JSON.stringify(e.questions.map(function (q) { return q.question_id; })));",
+                  "pm.test('takes the account setting: this exam counts for the Lernstand', function () {",
+                  "    pm.expect(e.counts_for_progress).to.eql(true);",
+                  "});",
                   "pm.test('in progress with the official 30 questions in 90 minutes', function () {",
                   "    pm.expect(e.status).to.eql('in_progress');",
                   "    pm.expect(e.questions.length).to.eql(30);",
@@ -4428,7 +4539,7 @@
           }
         },
         {
-          "name": "Question progress - the richtig exam answers are credited",
+          "name": "Question progress - every exam grade is recorded",
           "event": [
             {
               "listen": "test",
@@ -4436,8 +4547,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('the 15 richtig exam answers feed the Lernstand (ADR-0037)', function () {",
-                  "    pm.expect(pm.response.json().length).to.be.at.least(15);",
+                  "pm.test('all 30 exam questions are in the Lernstand, teilweise and falsch included (ADR-0061)', function () {",
+                  "    var graded = pm.response.json().map(function (p) { return p.question_id; });",
+                  "    JSON.parse(pm.collectionVariables.get('examQuestionIds')).forEach(function (id) {",
+                  "        pm.expect(graded).to.include(id);",
+                  "    });",
                   "});"
                 ]
               }
@@ -4464,7 +4578,7 @@
               ]
             }
           },
-          "description": "Positions 1-15 were graded richtig; completing the self-assessment credits them to the account's question progress. Teilweise/falsch answers leave it alone.",
+          "description": "Positions 1-15 were graded richtig, 16-29 teilweise_richtig, 30 falsch; completing the self-assessment records every one of them in the account's question progress, as in practice.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -4631,6 +4745,239 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Stop counting exams for the Lernstand",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('the setting is off', function () { pm.expect(pm.response.json().exam_counts_for_progress).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_counts_for_progress\": false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Start exam - one that doesn't count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+                  "var e = pm.response.json();",
+                  "pm.collectionVariables.set('examId', String(e.id));",
+                  "pm.test('takes the account setting: this exam leaves the Lernstand alone', function () {",
+                  "    pm.expect(e.counts_for_progress).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams"
+              ]
+            }
+          },
+          "description": "Grading it is covered by the backend tests; here only the snapshot at the start.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Count exams again - doesn't change the running exam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('the setting is back on', function () { pm.expect(pm.response.json().exam_counts_for_progress).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"exam_counts_for_progress\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Get the exam that doesn't count - keeps its own setting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('still doesn\\'t count', function () { pm.expect(pm.response.json().counts_for_progress).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Delete the exam that doesn't count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}"
+              ]
+            }
+          },
+          "description": "Leaves no running exam behind, so a rerun can start one.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -7500,7 +7847,7 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'exam_counts_for_progress', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
                   "});"
                 ]
@@ -10723,6 +11070,10 @@
     },
     {
       "key": "chartAttemptId",
+      "value": ""
+    },
+    {
+      "key": "examQuestionIds",
       "value": ""
     }
   ]

@@ -75,16 +75,17 @@ def record_grading(
     return row
 
 
-def credit_correct_answers(db: Session, user_id: int, question_ids: list[int], now: datetime) -> None:
-    """Record a "Richtig" for each question in one transaction (a finished exam, ADR-0037).
+def record_exam_gradings(db: Session, user_id: int, gradings: dict[int, str], now: datetime) -> None:
+    """Record each question's final exam grade in one transaction (a finished exam, ADR-0061).
 
-    One query for the questions, one for the learner's existing progress rows and one commit —
-    instead of a lookup and a commit per question. Only if a concurrent grading created one of the
-    rows in between does it fall back to `record_grading` question by question.
+    ``gradings`` maps question id to outcome; every outcome counts as it does in practice. One query
+    for the questions, one for the learner's existing progress rows and one commit — instead of a
+    lookup and a commit per question. Only if a concurrent grading created one of the rows in
+    between does it fall back to `record_grading` question by question.
     """
-    ids = sorted(set(question_ids))
-    if not ids:
+    if not gradings:
         return
+    ids = sorted(gradings)
     questions = list(db.execute(select(Question).where(Question.id.in_(ids))).scalars())
     existing = {
         row.question_id: row
@@ -104,11 +105,14 @@ def credit_correct_answers(db: Session, user_id: int, question_ids: list[int], n
     except IntegrityError:
         db.rollback()
         for question in questions:
-            record_grading(db, user_id, question, "richtig", now)
+            record_grading(db, user_id, question, gradings[question.id], now)
         return
     for question in questions:
-        apply_grading(rows[question.id], "richtig", now, is_new=question.id not in existing)
-        _log_grading(db, user_id, question.id, "richtig", now, rows[question.id])
+        outcome = gradings[question.id]
+        apply_grading(
+            rows[question.id], cast(GradingOutcome, outcome), now, is_new=question.id not in existing
+        )
+        _log_grading(db, user_id, question.id, outcome, now, rows[question.id])
     db.commit()
     # Several learned questions can share a topic — check each topic once.
     learned_topics = {q.topic_id for q in questions if q.topic_id is not None and is_learned(rows[q.id], now)}

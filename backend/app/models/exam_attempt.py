@@ -11,6 +11,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
     text,
+    true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -47,6 +48,11 @@ class ExamAttempt(Base):
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     graded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     timed_out: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # Snapshot of users.exam_counts_for_progress at the start (ADR-0061): whether the final
+    # self-assessment goes into the Lernstand. Switching the setting later doesn't change this exam.
+    counts_for_progress: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=true()
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     questions: Mapped[list["ExamAttemptQuestion"]] = relationship(

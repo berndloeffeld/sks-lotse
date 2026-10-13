@@ -5,7 +5,9 @@ import type { User } from '../api/types'
 import { forgetAllTideForms } from '../hooks/useTideForm'
 
 // The PATCH /auth/me body — mirrors backend/app/schemas/auth.py::UserUpdate.
-export type UserUpdate = Partial<Pick<User, 'exam_variant' | 'first_name' | 'last_name' | 'gender'>>
+export type UserUpdate = Partial<
+  Pick<User, 'exam_variant' | 'first_name' | 'last_name' | 'gender' | 'exam_counts_for_progress'>
+>
 
 interface AuthState {
   user: User | null

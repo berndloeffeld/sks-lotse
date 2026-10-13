@@ -54,12 +54,19 @@ def test_admin_detail_and_export_include_every_profile_field(client, db_session,
     user.last_name = "Beispiel"
     user.gender = "weiblich"
     user.exam_variant = "motor"
+    user.exam_counts_for_progress = False
     db_session.commit()
 
     detail = client.get(f"/api/v1/admin/users/{user.id}", headers=auth_headers)
     export = client.get(f"/api/v1/admin/users/{user.id}/export", headers=auth_headers)
 
-    expected = {"first_name": "Anna", "last_name": "Beispiel", "gender": "weiblich", "exam_variant": "motor"}
+    expected = {
+        "first_name": "Anna",
+        "last_name": "Beispiel",
+        "gender": "weiblich",
+        "exam_variant": "motor",
+        "exam_counts_for_progress": False,
+    }
     assert detail.json().items() >= expected.items()
     assert export.json()["user"].items() >= expected.items()
 

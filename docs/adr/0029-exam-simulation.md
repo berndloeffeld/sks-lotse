@@ -1,6 +1,6 @@
 # 0029. Exam simulation
 
-Status: Accepted — the "separate from the Lernstand" bullet is superseded by [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md).
+Status: Accepted — the "separate from the Lernstand" bullet is superseded by [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md), and that in turn by [ADR-0061](0061-learner-chooses-whether-an-exam-counts.md) (the learner chooses).
 
 ## Context
 

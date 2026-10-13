@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -16,6 +16,7 @@ function summary(overrides: Partial<ExamSummary>): ExamSummary {
     started_at: '2026-09-01T10:00:00Z',
     submitted_at: '2026-09-01T11:00:00Z',
     timed_out: false,
+    counts_for_progress: true,
     answered_count: 30,
     question_count: 30,
     points: 44,
@@ -76,6 +77,45 @@ describe('ExamPage', () => {
     expect(await screen.findByText('Noch keine Probeprüfung abgelegt.')).toBeInTheDocument()
     await userEvent.setup().click(screen.getByRole('button', { name: 'Probeprüfung starten' }))
     expect(await screen.findByText('Prüfung Nr. geöffnet')).toBeInTheDocument()
+  })
+
+  it('counts the exam for the Lernstand by default and remembers when the learner switches it off', async () => {
+    setUser('motor')
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === 'PATCH'
+        ? jsonResponse(makeUser({ exam_variant: 'motor', exam_counts_for_progress: false }))
+        : jsonResponse([]),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    renderPage()
+
+    const checkbox = await screen.findByRole('checkbox', { name: /zählt für meinen Lernstand/ })
+    expect(checkbox).toBeChecked()
+    await userEvent.setup().click(checkbox)
+
+    await waitFor(() => expect(checkbox).not.toBeChecked())
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/me'),
+      expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ exam_counts_for_progress: false }) }),
+    )
+    expect(useAuthStore.getState().user?.exam_counts_for_progress).toBe(false)
+  })
+
+  it('keeps the setting and says so when saving it fails', async () => {
+    setUser('motor')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) =>
+        init?.method === 'PATCH' ? jsonResponse({ detail: 'x' }, 500) : jsonResponse([]),
+      ),
+    )
+    renderPage()
+
+    const checkbox = await screen.findByRole('checkbox', { name: /zählt für meinen Lernstand/ })
+    await userEvent.setup().click(checkbox)
+
+    expect(await screen.findByText('Die Einstellung konnte nicht gespeichert werden.')).toBeInTheDocument()
+    expect(checkbox).toBeChecked()
   })
 
   it('offers to resume a running exam instead of starting another', async () => {

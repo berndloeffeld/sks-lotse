@@ -31,6 +31,7 @@ const foundUser = {
   first_name: 'Anna',
   last_name: 'Beispiel',
   gender: 'weiblich',
+  exam_counts_for_progress: true,
   token_balance: 0,
   ai_flags_count: 0,
   ai_flags_last_at: null,

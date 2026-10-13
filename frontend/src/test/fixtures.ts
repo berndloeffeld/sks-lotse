@@ -34,6 +34,7 @@ export function makeExam(overrides: Partial<Exam> = {}): Exam {
     server_now: new Date(now).toISOString(),
     submitted_at: null,
     timed_out: false,
+    counts_for_progress: true,
     answered_count: 0,
     question_count: 2,
     points: null,
@@ -60,6 +61,7 @@ export function makeUser(overrides: Partial<User> = {}): User {
     token_balance: 0,
     agb_accepted_version: null,
     needs_agb_acceptance: false,
+    exam_counts_for_progress: true,
     ...overrides,
   }
 }
