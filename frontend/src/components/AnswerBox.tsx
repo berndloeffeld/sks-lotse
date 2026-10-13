@@ -43,8 +43,8 @@ export function OwnAnswer({ text, headingLevel }: { text: string | null | undefi
   )
 }
 
-// A Kartenaufgabe's answer, whose tables (ADR-0062) show as tables, in the look of the official
-// derivation's. Only there: an answer elsewhere is plain text, even if a line looks like a row.
+// A Kartenaufgabe's answer, whose table (ADR-0062) shows as a table, as it was written: grid lines,
+// the first column the labels. Only there: an answer elsewhere is plain text, even if a line looks like a row.
 export function ChartOwnAnswer({ text }: { text: string | null | undefined }) {
   const blocks = parseAnswer(text ?? '')
   if (blocks.length === 0) return <OwnAnswer text={text} />
@@ -57,15 +57,25 @@ export function ChartOwnAnswer({ text }: { text: string | null | undefined }) {
           </p>
         ) : (
           <div key={i} className="overflow-x-auto">
-            <table className="border-collapse text-ink-soft">
+            <table className="border-collapse text-ink">
               <tbody>
                 {block.rows.map((row, r) => (
                   <tr key={r}>
-                    {row.map((cell, c) => (
-                      <td key={c} className={`py-0.5 pr-3 ${c === 0 ? '' : 'text-right whitespace-nowrap'}`}>
-                        {cell}
-                      </td>
-                    ))}
+                    {row.map((cell, c) =>
+                      c === 0 ? (
+                        <th
+                          key={c}
+                          scope="row"
+                          className="border border-border bg-surface-alt px-2 py-1 text-left font-semibold"
+                        >
+                          {cell}
+                        </th>
+                      ) : (
+                        <td key={c} className="border border-border px-2 py-1">
+                          {cell}
+                        </td>
+                      ),
+                    )}
                   </tr>
                 ))}
               </tbody>

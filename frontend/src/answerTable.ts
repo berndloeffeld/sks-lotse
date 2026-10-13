@@ -91,3 +91,19 @@ export function parseAnswer(answer: string): AnswerBlock[] {
   flushTable()
   return blocks
 }
+
+// A Kartenaufgabe's answer while it is written: text, and optionally one table (ADR-0062) with
+// more text below it.
+export interface ChartAnswerDraft {
+  above: string
+  table: string[][] | null
+  below: string
+}
+
+export const EMPTY_DRAFT: ChartAnswerDraft = { above: '', table: null, below: '' }
+
+export function draftText({ above, table, below }: ChartAnswerDraft): string {
+  const blocks: AnswerBlock[] = [{ kind: 'text', text: above }]
+  if (table) blocks.push({ kind: 'table', rows: table }, { kind: 'text', text: below })
+  return serializeAnswer(blocks)
+}

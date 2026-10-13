@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseAnswer, serializeAnswer } from './answerTable'
+import { EMPTY_DRAFT, draftText, parseAnswer, serializeAnswer } from './answerTable'
 
 describe('serializeAnswer', () => {
   it('writes a table one row per line, between the text before and after it', () => {
@@ -99,5 +99,18 @@ describe('parseAnswer', () => {
   it('reads an empty answer as nothing', () => {
     expect(parseAnswer('')).toEqual([])
     expect(parseAnswer('\n  \n')).toEqual([])
+  })
+})
+
+describe('draftText', () => {
+  it('is the text alone without a table', () => {
+    expect(draftText(EMPTY_DRAFT)).toBe('')
+    expect(draftText({ above: ' HWZ 08:53 ', table: null, below: 'left over' })).toBe('HWZ 08:53')
+  })
+
+  it('puts the table between the text above and below it', () => {
+    expect(draftText({ above: 'oben', table: [['HW', '12:30']], below: 'unten' })).toBe(
+      'oben\n\n| HW | 12:30 |\n\nunten',
+    )
   })
 })

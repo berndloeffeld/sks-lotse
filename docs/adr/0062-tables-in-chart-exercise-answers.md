@@ -8,9 +8,11 @@ Many tasks of a Kartenaufgabe, the tide ones above all, are worked out as a tabl
 
 ## Decision
 
-- The answer form gets a **table editor**: "Tabelle einfügen" adds a grid of cells (rows and columns added and dropped with buttons, Tab moves from cell to cell) and a normal text field below it. **One table per answer**: a task asks for one calculation, and a second grid would make the form longer without a task that needs it. The table can be removed again, which joins the text around it.
+- The answer field becomes a small **editor**, after Confluence's but much plainer: one frame with a tool bar on top, the text, and the table inside the same frame, so the table is plainly part of the answer. "Tabelle einfügen" in the tool bar adds a grid of 3 × 3 cells and a text field below it; while the table is there, the tool bar holds its actions instead (add or drop the last row or column, remove the table, which joins the text around it). Tab moves from cell to cell.
+- **One table per answer**: a task asks for one calculation, and a second grid would make the form longer without a task that needs it.
+- The **first column is always a header column** (grey, bold; `th scope="row"`), in the editor and the display alike: it holds the labels (HW Cuxhaven, Unterschied, …), as in the derivation's tables. It needs no mark in the stored text, so the format stays as below. A header row was considered and left out: the derivation's tables have none.
 - The answer is still **one plain text**. A table is written one line per row, `| a | b | c |`, a `|` inside a cell escaped as `\|`; blocks are separated by a blank line, and empty rows and columns of the grid are dropped (`frontend/src/answerTable.ts`, `serializeAnswer`).
-- Only for a Kartenaufgabe's answer, the display reads lines that start and end with `|` back as a table (`parseAnswer`, `ChartOwnAnswer`), in the look of the derivation's tables. Answers elsewhere (catalog, exam, admin) stay plain text.
+- Only for a Kartenaufgabe's answer, the display reads lines that start and end with `|` back as a table (`parseAnswer`, `ChartOwnAnswer`), with grid lines and the header column. Answers elsewhere (catalog, exam, admin) stay plain text.
 - The Lotsen-Check gets the text as it is; its system prompt says that an answer can hold such rows.
 
 ## Consequences

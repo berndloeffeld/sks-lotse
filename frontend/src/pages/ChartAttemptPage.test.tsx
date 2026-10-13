@@ -182,6 +182,8 @@ describe('ChartAttemptPage', () => {
     )
     const shown = (await screen.findByRole('heading', { name: 'Deine Antwort' })).closest('section')!
     expect(within(shown).getByRole('table')).toHaveTextContent('HW Cuxhaven08:53HW Helgoland07:43')
+    // The first column holds the labels.
+    expect(within(shown).getByRole('rowheader', { name: 'HW Cuxhaven' })).toBeInTheDocument()
     expect(within(shown).getByText('HWZ 07:43')).toBeInTheDocument()
   })
 
@@ -193,11 +195,11 @@ describe('ChartAttemptPage', () => {
     await user.type(await screen.findByRole('textbox', { name: 'Deine Antwort' }), 'oben')
     await user.click(screen.getByRole('button', { name: 'Tabelle einfügen' }))
     expect(screen.getByRole('button', { name: '− Zeile' })).toBeEnabled()
-    await user.click(screen.getByRole('button', { name: '− Spalte' }))
+    // The label column and at least one more stay.
     await user.click(screen.getByRole('button', { name: '− Spalte' }))
     expect(screen.getByRole('button', { name: '− Spalte' })).toBeDisabled()
     await user.click(screen.getByRole('button', { name: '+ Spalte' }))
-    expect(screen.getByRole('textbox', { name: 'Zeile 1, Spalte 2' })).toHaveFocus()
+    expect(screen.getByRole('textbox', { name: 'Zeile 1, Spalte 3' })).toHaveFocus()
     await user.type(screen.getByRole('textbox', { name: 'Text unter der Tabelle' }), 'unten')
     await user.click(screen.getByRole('button', { name: 'Tabelle entfernen' }))
 
