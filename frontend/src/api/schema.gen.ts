@@ -131,6 +131,8 @@ export interface components {
             graded_at: string | null;
             /** Timed Out */
             timed_out: boolean;
+            /** Counts For Progress */
+            counts_for_progress: boolean;
             /**
              * Created At
              * Format: date-time
@@ -399,6 +401,8 @@ export interface components {
             exam_variant: string | null;
             /** Gender */
             gender: string | null;
+            /** Exam Counts For Progress */
+            exam_counts_for_progress: boolean;
             /** Ai Flags Count */
             ai_flags_count: number;
             /** Ai Flags Last At */
@@ -754,6 +758,8 @@ export interface components {
             submitted_at: string | null;
             /** Timed Out */
             timed_out: boolean;
+            /** Counts For Progress */
+            counts_for_progress: boolean;
             /** Answered Count */
             answered_count: number;
             /** Question Count */
@@ -827,6 +833,8 @@ export interface components {
             submitted_at: string | null;
             /** Timed Out */
             timed_out: boolean;
+            /** Counts For Progress */
+            counts_for_progress: boolean;
             /** Answered Count */
             answered_count: number;
             /** Question Count */
@@ -1081,6 +1089,8 @@ export interface components {
             token_balance: number;
             /** Agb Accepted Version */
             agb_accepted_version: string | null;
+            /** Exam Counts For Progress */
+            exam_counts_for_progress: boolean;
             /** Is Admin */
             readonly is_admin: boolean;
             /** Needs Agb Acceptance */
@@ -1100,6 +1110,8 @@ export interface components {
             last_name?: string | null;
             /** Gender */
             gender?: string | null;
+            /** Exam Counts For Progress */
+            exam_counts_for_progress?: boolean | null;
         };
         /** ValidationError */
         ValidationError: {

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Integer, String, func, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -23,6 +23,11 @@ class User(Base):
     # (see app/domain/exam_variant.py). NULL until the learner picks one; questions.py falls back to
     # showing every subject when unset.
     exam_variant: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # Whether a Probeprüfung started from now on counts for the Lernstand (ADR-0061): on by default,
+    # switched next to the start button. Each exam keeps its own copy (ExamAttempt.counts_for_progress).
+    exam_counts_for_progress: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=true()
+    )
     # All optional, self-reported, blank ("keine Angabe") by default. gender is
     # validated against a fixed set at the Pydantic layer (see GenderField in
     # app/schemas/auth.py) rather than a DB enum/CHECK constraint — same

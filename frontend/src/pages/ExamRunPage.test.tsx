@@ -475,6 +475,7 @@ describe('ExamRunPage', () => {
     expect(screen.getByText(/Kartenaufgabe/)).toBeInTheDocument()
     expect(screen.getByText('Meine A1')).toBeInTheDocument()
     expect(screen.getByText('Amtlich 1')).toBeInTheDocument()
+    expect(screen.getByText(/in deinen Lernstand eingeflossen/)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Diese Probeprüfung löschen' }))
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -483,6 +484,17 @@ describe('ExamRunPage', () => {
       expect.stringContaining('/exams/7'),
       expect.objectContaining({ method: 'DELETE' }),
     )
+  })
+
+  it('says when a finished exam did not count for the Lernstand', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ ...graded(45), counts_for_progress: false })),
+    )
+    renderRun()
+
+    expect(await screen.findByText(/Diese Probeprüfung zählt nicht für deinen Lernstand/)).toBeInTheDocument()
+    expect(screen.queryByText(/eingeflossen/)).not.toBeInTheDocument()
   })
 
   it('lets the learner back out of deleting and reports a failed delete', async () => {

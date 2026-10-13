@@ -45,7 +45,7 @@ A trial run of the theory exam's **Fragebogen**:
 - No tips. Model answers are only shown after submission.
 - Afterwards the learner grades themselves question by question (Richtig 2 points, Teilweise 1, Falsch 0) and gets a result.
 - History and statistics in the profile: number of attempts, pass rate, average, best result, latest attempts, share per subject.
-- Correctly answered questions count towards the learning status.
+- By default the self-assessment counts towards the learning status like a practice grading, "Teilweise" and "Falsch" included. A checkbox before the start switches that off (remembered for the next exam), for a pure rehearsal that changes nothing.
 - Not included: the **Kartenaufgabe** (navigation on the practice chart) — see the next section.
 
 For sailing instructors: the simulation suits self-study as a final test before the exam date.

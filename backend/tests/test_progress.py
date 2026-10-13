@@ -647,7 +647,7 @@ def _credit_setup(db_session):
 
 
 def test_crediting_an_exam_only_touches_the_learners_own_rows(db_session, auth_headers):
-    from app.services.progress import credit_correct_answers
+    from app.services.progress import record_exam_gradings
 
     _, questions = _credit_setup(db_session)
     me = fixture_user(db_session)
@@ -659,7 +659,7 @@ def test_crediting_an_exam_only_touches_the_learners_own_rows(db_session, auth_h
     db_session.commit()
     before = (theirs.half_life_days, theirs.last_graded_at)
 
-    credit_correct_answers(db_session, me.id, [q.id for q in questions], datetime.now(UTC))
+    record_exam_gradings(db_session, me.id, {q.id: "richtig" for q in questions}, datetime.now(UTC))
 
     db_session.refresh(theirs)
     assert (theirs.half_life_days, theirs.last_graded_at) == before
@@ -669,7 +669,7 @@ def test_crediting_an_exam_only_touches_the_learners_own_rows(db_session, auth_h
 
 def test_crediting_an_exam_treats_new_and_existing_rows_differently(db_session, auth_headers):
     from app.models.question_grading_log import QuestionGradingLog
-    from app.services.progress import credit_correct_answers
+    from app.services.progress import record_exam_gradings
 
     _, (fresh, regraded) = _credit_setup(db_session)
     user = fixture_user(db_session)
@@ -678,7 +678,7 @@ def test_crediting_an_exam_treats_new_and_existing_rows_differently(db_session, 
     db_session.commit()
     now = datetime.now(UTC)
 
-    credit_correct_answers(db_session, user.id, [fresh.id, regraded.id], now)
+    record_exam_gradings(db_session, user.id, {fresh.id: "richtig", regraded.id: "richtig"}, now)
 
     half_lives = {r.question_id: r.half_life_days for r in db_session.query(QuestionProgress)}
     assert half_lives[fresh.id] == 2.5  # a first "Richtig" gets the full gain
@@ -691,7 +691,7 @@ def test_crediting_an_exam_treats_new_and_existing_rows_differently(db_session, 
 
 def test_crediting_an_exam_that_makes_a_topic_learned_drops_its_focus_mark(db_session, auth_headers):
     from app.models.focus_topic import FocusTopic
-    from app.services.progress import credit_correct_answers
+    from app.services.progress import record_exam_gradings
 
     topic, questions = _credit_setup(db_session)
     user = fixture_user(db_session)
@@ -704,7 +704,7 @@ def test_crediting_an_exam_that_makes_a_topic_learned_drops_its_focus_mark(db_se
     db_session.add(FocusTopic(user_id=user.id, topic_id=topic.id))
     db_session.commit()
 
-    credit_correct_answers(db_session, user.id, [q.id for q in questions], datetime.now(UTC))
+    record_exam_gradings(db_session, user.id, {q.id: "richtig" for q in questions}, datetime.now(UTC))
 
     assert db_session.query(FocusTopic).count() == 0
 
@@ -718,8 +718,35 @@ def test_crediting_an_exam_checks_no_topic_when_nothing_became_learned(db_sessio
         progress_service, "remove_focus_if_topic_learned", lambda db, uid, tid: checked.append(tid)
     )
 
-    progress_service.credit_correct_answers(
-        db_session, fixture_user(db_session).id, [q.id for q in questions], datetime.now(UTC)
+    progress_service.record_exam_gradings(
+        db_session, fixture_user(db_session).id, {q.id: "richtig" for q in questions}, datetime.now(UTC)
     )
 
     assert checked == []
+
+
+def test_recording_an_exam_applies_teilweise_and_falsch_like_practice(db_session, auth_headers):
+    from app.models.question_grading_log import QuestionGradingLog
+    from app.services.progress import record_exam_gradings
+
+    _, (partly, wrong) = _credit_setup(db_session)
+    user = fixture_user(db_session)
+    db_session.add_all(
+        [
+            QuestionProgress(user_id=user.id, question_id=q.id, **progress_state(3, graded_days_ago=7))
+            for q in (partly, wrong)
+        ]
+    )
+    db_session.commit()
+    before = {r.question_id: r.half_life_days for r in db_session.query(QuestionProgress)}
+
+    record_exam_gradings(
+        db_session, user.id, {partly.id: "teilweise_richtig", wrong.id: "falsch"}, datetime.now(UTC)
+    )
+
+    rows = {r.question_id: r for r in db_session.query(QuestionProgress)}
+    assert rows[partly.id].half_life_days < before[partly.id]
+    assert rows[wrong.id].half_life_days < rows[partly.id].half_life_days  # a "Falsch" costs more
+    assert all(r.streak_start_at is None for r in rows.values())
+    logged = {log.question_id: log.outcome for log in db_session.query(QuestionGradingLog)}
+    assert logged == {partly.id: "teilweise_richtig", wrong.id: "falsch"}

@@ -30,6 +30,8 @@ export function ExamOverview() {
   const examsQuery = useApiQuery('exams', () => apiClient.get<ExamSummary[]>('/exams'))
   const exams = examsQuery.data ?? null
   const variantUpdate = useExamVariantUpdate()
+  const updateUser = useAuthStore((state) => state.updateUser)
+  const countsAction = useAsyncAction()
   const startAction = useAsyncAction()
   const isStarting = startAction.isPending
   // A start clicked before the list arrived: it decides between starting and resuming, so say that
@@ -60,6 +62,13 @@ export function ExamOverview() {
     )
   }
 
+  function changeCounts(counts: boolean) {
+    return countsAction.run(
+      () => updateUser({ exam_counts_for_progress: counts }),
+      'Die Einstellung konnte nicht gespeichert werden.',
+    )
+  }
+
   const running = exams?.find((e) => e.status === 'in_progress')
   const hasVariant = Boolean(user?.exam_variant)
 
@@ -72,9 +81,7 @@ export function ExamOverview() {
         </p>
         <p className="text-sm text-ink-soft">
           Erst beantwortest du alle Fragen, danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein.
-          Ab 39 von 60 Punkten ist der Fragebogen bestanden. Die Kartenaufgabe ist nicht enthalten. Als „Richtig“
-          bewertete Fragen zählen nach der Auswertung für deinen Lernstand, teilweise richtige und falsche ändern ihn
-          nicht.
+          Ab 39 von 60 Punkten ist der Fragebogen bestanden. Die Kartenaufgabe ist nicht enthalten.
         </p>
         {/* Without the list the exam can't start (a running one would have to be resumed instead), so
             the learner needs a way to ask again. */}
@@ -99,14 +106,35 @@ export function ExamOverview() {
             Laufende Probeprüfung fortsetzen
           </Link>
         ) : (
-          <button
-            type="button"
-            className={`${buttonClass('primary')} self-start`}
-            disabled={isStarting}
-            onClick={() => void start()}
-          >
-            {isStarting ? 'Wird gestartet…' : 'Probeprüfung starten'}
-          </button>
+          <>
+            {/* A setting of the account (ADR-0061), so it's remembered for the next exam; each exam
+                keeps the value it was started with. */}
+            <label className="flex items-start gap-2 text-ink">
+              <input
+                type="checkbox"
+                checked={user?.exam_counts_for_progress ?? true}
+                disabled={countsAction.isPending}
+                onChange={(event) => void changeCounts(event.target.checked)}
+                className="mt-1 accent-primary"
+              />
+              <span>
+                Diese Probeprüfung zählt für meinen Lernstand
+                <span className="block text-sm text-ink-soft">
+                  Deine Selbsteinschätzung wirkt nach der Auswertung wie beim Üben, auch „Teilweise richtig“ und
+                  „Falsch“.
+                </span>
+              </span>
+            </label>
+            <ErrorMessage>{countsAction.error}</ErrorMessage>
+            <button
+              type="button"
+              className={`${buttonClass('primary')} self-start`}
+              disabled={isStarting}
+              onClick={() => void start()}
+            >
+              {isStarting ? 'Wird gestartet…' : 'Probeprüfung starten'}
+            </button>
+          </>
         )}
       </section>
 

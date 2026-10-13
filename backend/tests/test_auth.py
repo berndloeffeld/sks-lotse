@@ -694,6 +694,26 @@ def test_update_me_sets_gender(client, auth_headers):
     assert response.json()["gender"] == "weiblich"
 
 
+def test_exams_count_for_progress_by_default_and_the_learner_can_switch_it_off(client, auth_headers):
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["exam_counts_for_progress"] is True
+
+    response = client.patch("/api/v1/auth/me", json={"exam_counts_for_progress": False}, headers=auth_headers)
+
+    assert response.status_code == 200
+    assert response.json()["exam_counts_for_progress"] is False
+    # Leaving it out of a later update keeps it.
+    client.patch("/api/v1/auth/me", json={"gender": "weiblich"}, headers=auth_headers)
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["exam_counts_for_progress"] is False
+
+
+@pytest.mark.parametrize("value", [None, "nein", 0])
+def test_update_me_rejects_a_non_boolean_exam_counts_for_progress(client, auth_headers, value):
+    response = client.patch("/api/v1/auth/me", json={"exam_counts_for_progress": value}, headers=auth_headers)
+
+    assert response.status_code == 422
+    assert client.get("/api/v1/auth/me", headers=auth_headers).json()["exam_counts_for_progress"] is True
+
+
 def test_update_me_rejects_unknown_gender(client, auth_headers):
     response = client.patch("/api/v1/auth/me", json={"gender": "unbekannt"}, headers=auth_headers)
     assert response.status_code == 422

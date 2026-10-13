@@ -74,6 +74,7 @@ class AdminUserRead(AdminUserListItem):
     # AdminUserListItem it has to cover every personal-data column on User — add new ones here.
     exam_variant: str | None
     gender: str | None
+    exam_counts_for_progress: bool
     # Read-only diagnostic signal (ADR-0040): how often the sanitizer backstop fired for this
     # account. No admin control to reset it — it's a symptom to investigate, not an entitlement.
     ai_flags_count: int
@@ -163,6 +164,7 @@ class AdminExamAttemptExport(BaseModel):
     submitted_at: datetime | None
     graded_at: datetime | None
     timed_out: bool
+    counts_for_progress: bool
     created_at: datetime
     questions: list[AdminExamQuestionExport]
 

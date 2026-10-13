@@ -494,20 +494,48 @@ def _progress_by_question(db_session):
     return {row.question_id: row for row in db_session.query(QuestionProgress).all()}
 
 
-def test_completing_the_exam_credits_only_richtig_answers_to_the_lernstand(client, db_session, auth_headers):
+def test_completing_a_counting_exam_records_every_grade_in_the_lernstand(client, db_session, auth_headers):
     _seed(db_session)
     exam = _start(client, auth_headers)
+    assert exam["counts_for_progress"] is True  # the default (ADR-0061)
     _answer_and_submit(client, auth_headers, exam)
     outcomes = ["richtig"] * 10 + ["teilweise_richtig"] * 10 + ["falsch"] * 10
     _grade_all(client, auth_headers, exam, outcomes)
 
     progress = _progress_by_question(db_session)
-    assert set(progress) == {q["question_id"] for q in exam["questions"][:10]}
-    assert all(row.half_life_days > 1.0 and row.last_correct_at is not None for row in progress.values())
-    # The admin's grading history (ADR-0051) records the credited answers too.
+    ids = [q["question_id"] for q in exam["questions"]]
+    assert set(progress) == set(ids)
+    assert all(progress[qid].half_life_days > 1.0 and progress[qid].last_correct_at for qid in ids[:10])
+    assert all(progress[qid].last_correct_at is None for qid in ids[10:])
+    # The admin's grading history (ADR-0051) records every exam grade too.
     log = db_session.query(QuestionGradingLog).all()
-    assert {(row.question_id, row.outcome) for row in log} == {(qid, "richtig") for qid in progress}
+    assert {(row.question_id, row.outcome) for row in log} == set(zip(ids, outcomes, strict=True))
     assert all(row.half_life_days == progress[row.question_id].half_life_days for row in log)
+
+
+def test_an_exam_that_doesnt_count_leaves_the_lernstand_alone(client, db_session, auth_headers):
+    _seed(db_session)
+    client.patch("/api/v1/auth/me", json={"exam_counts_for_progress": False}, headers=auth_headers)
+    exam = _start(client, auth_headers)
+    assert exam["counts_for_progress"] is False
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, exam, ["richtig"] * 15 + ["falsch"] * 15)
+
+    assert client.get(f"/api/v1/exams/{exam['id']}", headers=auth_headers).json()["status"] == "completed"
+    assert db_session.query(QuestionProgress).count() == 0
+    assert db_session.query(QuestionGradingLog).count() == 0
+
+
+def test_switching_the_setting_after_the_start_doesnt_change_that_exam(client, db_session, auth_headers):
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    client.patch("/api/v1/auth/me", json={"exam_counts_for_progress": False}, headers=auth_headers)
+    _answer_and_submit(client, auth_headers, exam)
+    _grade_all(client, auth_headers, exam, ["richtig"] * 30)
+
+    assert db_session.query(QuestionProgress).count() == 30
+    summaries = client.get("/api/v1/exams", headers=auth_headers).json()
+    assert [e["counts_for_progress"] for e in summaries] == [True]
 
 
 def test_exam_grades_change_nothing_before_the_exam_is_complete(client, db_session, auth_headers):
@@ -531,9 +559,12 @@ def test_a_grade_changed_during_the_self_assessment_counts_once_with_its_final_v
     client.put(url, json={"outcome": "falsch"}, headers=auth_headers)
     _grade_all(client, auth_headers, {**exam, "questions": exam["questions"][1:]}, ["richtig"] * 29)
 
+    first = exam["questions"][0]["question_id"]
     progress = _progress_by_question(db_session)
-    assert exam["questions"][0]["question_id"] not in progress
-    assert len(progress) == 29
+    assert len(progress) == 30
+    assert progress[first].last_correct_at is None
+    log = db_session.query(QuestionGradingLog).filter_by(question_id=first).all()
+    assert [row.outcome for row in log] == ["falsch"]
 
 
 def test_exam_richtig_grows_the_half_life_like_a_practice_grading(client, db_session, auth_headers):

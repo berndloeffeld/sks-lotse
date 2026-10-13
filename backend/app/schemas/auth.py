@@ -1,7 +1,17 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field, StringConstraints, computed_field
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    StrictBool,
+    StringConstraints,
+    computed_field,
+    field_validator,
+)
 
 from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
@@ -101,6 +111,7 @@ class UserRead(BaseModel):
     gender: str | None
     token_balance: int
     agb_accepted_version: str | None
+    exam_counts_for_progress: bool
 
     @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
     @property
@@ -136,3 +147,13 @@ class UserUpdate(BaseModel):
     first_name: NameField | None = None
     last_name: NameField | None = None
     gender: GenderField | None = None
+    # Not clearable: a setting with a default, not optional data. Only checked when sent, so leaving
+    # it out keeps it as it is.
+    exam_counts_for_progress: StrictBool | None = None
+
+    @field_validator("exam_counts_for_progress")
+    @classmethod
+    def _not_null(cls, value: bool | None) -> bool:
+        if value is None:
+            raise ValueError("exam_counts_for_progress can't be null")
+        return value

@@ -14,7 +14,7 @@ from app.models.question import Question
 from app.models.user import User
 from app.schemas.exam import ExamAnswerUpdate, ExamGradeUpdate, ExamRead, ExamStats, ExamSummary
 from app.services import exam as exam_service
-from app.services.progress import credit_correct_answers
+from app.services.progress import record_exam_gradings
 
 router = APIRouter(prefix="/exams", tags=["exams"], dependencies=[Depends(get_current_user)])
 
@@ -60,6 +60,7 @@ def start_exam(db: Session = Depends(get_db), current_user: User = Depends(get_c
         started_at=now,
         deadline_at=now + timedelta(minutes=EXAM_DURATION_MINUTES),
         timed_out=False,
+        counts_for_progress=current_user.exam_counts_for_progress,
         questions=[
             ExamAttemptQuestion(question_id=question_id, subject_group=group, position=index)
             for index, (question_id, group) in enumerate(picked, start=1)
@@ -117,14 +118,16 @@ def submit_exam(exam_id: int, db: Session = Depends(get_db), current_user: User 
     return exam_service.read_exam(db, attempt)
 
 
-def _credit_correct_answers(db: Session, user: User, attempt: ExamAttempt) -> None:
-    """Feed the "Richtig" answers into the Lernstand once the self-assessment is final (ADR-0037).
+def _record_gradings(db: Session, user: User, attempt: ExamAttempt) -> None:
+    """Feed the final self-assessment into the Lernstand, if this exam counts for it (ADR-0061).
 
-    Only at that point, so a grade changed while grading is still open counts once, with its final
-    value. "Teilweise"/"Falsch" never lower the Lernstand.
+    Only once the self-assessment is final, so a grade changed while grading is still open counts
+    once, with its final value.
     """
-    correct = [q.question_id for q in attempt.questions if q.outcome == "richtig" and q.question_id]
-    credit_correct_answers(db, user.id, correct, exam_service.now())
+    if not attempt.counts_for_progress:
+        return
+    gradings = {q.question_id: q.outcome for q in attempt.questions if q.question_id and q.outcome}
+    record_exam_gradings(db, user.id, gradings, exam_service.now())
 
 
 @router.put("/{exam_id}/questions/{position}/grade", response_model=ExamRead)
@@ -148,7 +151,7 @@ def grade_question(
         attempt.graded_at = exam_service.now()
     db.commit()
     if finalized:
-        _credit_correct_answers(db, current_user, attempt)
+        _record_gradings(db, current_user, attempt)
     return exam_service.read_exam(db, attempt)
 
 

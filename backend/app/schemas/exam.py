@@ -48,6 +48,8 @@ class ExamSummary(BaseModel):
     started_at: datetime
     submitted_at: datetime | None
     timed_out: bool
+    # Whether the final self-assessment goes into the Lernstand (ADR-0061).
+    counts_for_progress: bool
     answered_count: int
     question_count: int
     # Only once the self-assessment is complete.

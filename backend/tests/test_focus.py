@@ -334,9 +334,9 @@ def test_crediting_an_exam_grades_every_question_in_one_go_and_checks_each_topic
     # Pretend every graded question is now learned, so the topic check must run — once.
     monkeypatch.setattr(progress_service, "is_learned", lambda row, now: True)
 
-    progress_service.credit_correct_answers(
-        db_session, user.id, [q.id for q in questions] + [questions[0].id, 999_999], datetime.now(UTC)
-    )
+    # 999_999: a question that's gone from the catalog meanwhile.
+    gradings = {q.id: "richtig" for q in questions} | {999_999: "richtig"}
+    progress_service.record_exam_gradings(db_session, user.id, gradings, datetime.now(UTC))
 
     rows = db_session.query(QuestionProgress).filter_by(user_id=user.id).all()
     assert sorted(r.question_id for r in rows) == sorted(q.id for q in questions)
@@ -347,9 +347,9 @@ def test_crediting_an_exam_grades_every_question_in_one_go_and_checks_each_topic
 def test_crediting_nothing_touches_nothing(db_session, auth_headers):
     from datetime import UTC, datetime
 
-    from app.services.progress import credit_correct_answers
+    from app.services.progress import record_exam_gradings
 
-    credit_correct_answers(db_session, fixture_user(db_session).id, [], datetime.now(UTC))
+    record_exam_gradings(db_session, fixture_user(db_session).id, {}, datetime.now(UTC))
 
     assert db_session.query(QuestionProgress).count() == 0
 
@@ -382,7 +382,8 @@ def test_crediting_falls_back_to_one_by_one_when_a_row_appeared_concurrently(
         progress_service, "record_grading", lambda db, uid, q, outcome, now: graded.append((q.id, outcome))
     )
 
-    progress_service.credit_correct_answers(db_session, user.id, [q.id for q in questions], datetime.now(UTC))
+    gradings = {questions[0].id: "richtig", questions[1].id: "falsch"}
+    progress_service.record_exam_gradings(db_session, user.id, gradings, datetime.now(UTC))
 
     assert flushes == [True]
-    assert sorted(graded) == sorted((q.id, "richtig") for q in questions)
+    assert sorted(graded) == sorted(gradings.items())
