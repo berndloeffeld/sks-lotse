@@ -163,9 +163,10 @@ describe('ChartAttemptPage', () => {
     expect(within(table).getAllByRole('textbox')).toHaveLength(9)
     expect(within(table).getByRole('textbox', { name: 'Zeile 1, Spalte 1' })).toHaveFocus()
     await user.keyboard('HW Cuxhaven{Tab}08:53')
-    await user.click(screen.getByRole('button', { name: '+ Zeile' }))
+    await user.click(screen.getByRole('button', { name: 'Zeile anhängen' }))
     expect(within(table).getByRole('textbox', { name: 'Zeile 4, Spalte 1' })).toHaveFocus()
-    await user.click(screen.getByRole('button', { name: '− Zeile' }))
+    await user.click(screen.getByRole('button', { name: 'Zeile 4 bearbeiten' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Zeile löschen' }))
     await user.type(within(table).getByRole('textbox', { name: 'Zeile 2, Spalte 1' }), 'HW Helgoland')
     await user.type(within(table).getByRole('textbox', { name: 'Zeile 2, Spalte 2' }), '07:43')
     await user.type(screen.getByRole('textbox', { name: 'Text unter der Tabelle' }), 'HWZ 07:43')
@@ -194,12 +195,6 @@ describe('ChartAttemptPage', () => {
 
     await user.type(await screen.findByRole('textbox', { name: 'Deine Antwort' }), 'oben')
     await user.click(screen.getByRole('button', { name: 'Tabelle einfügen' }))
-    expect(screen.getByRole('button', { name: '− Zeile' })).toBeEnabled()
-    // The label column and at least one more stay.
-    await user.click(screen.getByRole('button', { name: '− Spalte' }))
-    expect(screen.getByRole('button', { name: '− Spalte' })).toBeDisabled()
-    await user.click(screen.getByRole('button', { name: '+ Spalte' }))
-    expect(screen.getByRole('textbox', { name: 'Zeile 1, Spalte 3' })).toHaveFocus()
     await user.type(screen.getByRole('textbox', { name: 'Text unter der Tabelle' }), 'unten')
     await user.click(screen.getByRole('button', { name: 'Tabelle entfernen' }))
 

@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { EMPTY_DRAFT, draftText, parseAnswer, serializeAnswer } from './answerTable'
+import {
+  EMPTY_DRAFT,
+  deleteColumn,
+  deleteRow,
+  draftText,
+  insertColumn,
+  insertRow,
+  parseAnswer,
+  serializeAnswer,
+} from './answerTable'
 
 describe('serializeAnswer', () => {
   it('writes a table one row per line, between the text before and after it', () => {
@@ -112,5 +121,47 @@ describe('draftText', () => {
     expect(draftText({ above: 'oben', table: [['HW', '12:30']], below: 'unten' })).toBe(
       'oben\n\n| HW | 12:30 |\n\nunten',
     )
+  })
+})
+
+describe('editing the table', () => {
+  const rows = [
+    ['a', 'b', 'c'],
+    ['d', 'e', 'f'],
+  ]
+
+  it('inserts an empty row before the given one', () => {
+    expect(insertRow(rows, 0)).toEqual([['', '', ''], ...rows])
+    expect(insertRow(rows, 1)).toEqual([rows[0], ['', '', ''], rows[1]])
+    expect(insertRow(rows, 2)).toEqual([...rows, ['', '', '']])
+  })
+
+  it('inserts an empty column before the given one', () => {
+    expect(insertColumn(rows, 0)).toEqual([
+      ['', 'a', 'b', 'c'],
+      ['', 'd', 'e', 'f'],
+    ])
+    expect(insertColumn(rows, 3)).toEqual([
+      ['a', 'b', 'c', ''],
+      ['d', 'e', 'f', ''],
+    ])
+  })
+
+  it('deletes the given row, but never the last one', () => {
+    expect(deleteRow(rows, 0)).toEqual([rows[1]])
+    expect(deleteRow(rows, 1)).toEqual([rows[0]])
+    expect(deleteRow([['a', 'b']], 0)).toEqual([['a', 'b']])
+  })
+
+  it('deletes the given column, but keeps the label column and one more', () => {
+    expect(deleteColumn(rows, 1)).toEqual([
+      ['a', 'c'],
+      ['d', 'f'],
+    ])
+    expect(deleteColumn(rows, 0)).toEqual([
+      ['b', 'c'],
+      ['e', 'f'],
+    ])
+    expect(deleteColumn([['a', 'b']], 1)).toEqual([['a', 'b']])
   })
 })

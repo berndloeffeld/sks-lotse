@@ -107,3 +107,24 @@ export function draftText({ above, table, below }: ChartAnswerDraft): string {
   if (table) blocks.push({ kind: 'table', rows: table }, { kind: 'text', text: below })
   return serializeAnswer(blocks)
 }
+
+// Editing the table of a draft. It keeps at least one row, and besides the label column at least one
+// column for the values.
+export const MIN_ROWS = 1
+export const MIN_COLUMNS = 2
+
+export function insertRow(rows: string[][], at: number): string[][] {
+  return [...rows.slice(0, at), Array<string>(rows[0]?.length ?? 0).fill(''), ...rows.slice(at)]
+}
+
+export function deleteRow(rows: string[][], at: number): string[][] {
+  return rows.length > MIN_ROWS ? rows.filter((_, i) => i !== at) : rows
+}
+
+export function insertColumn(rows: string[][], at: number): string[][] {
+  return rows.map((row) => [...row.slice(0, at), '', ...row.slice(at)])
+}
+
+export function deleteColumn(rows: string[][], at: number): string[][] {
+  return (rows[0]?.length ?? 0) > MIN_COLUMNS ? rows.map((row) => row.filter((_, j) => j !== at)) : rows
+}
