@@ -31,16 +31,18 @@ export function PrivacyPage() {
 
       <ProseSection title="Konto und Anmeldung">
         <p>
-          Die Nutzung von SKS Lotse setzt ein Konto voraus. Bei der Anmeldung per E-Mail und Login-Code (OTP)
-          verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code. Der Code ist nur wenige Minuten gültig; der
-          Datensatz (E-Mail-Adresse und Prüfsumme des Codes) wird in der Regel binnen 24 Stunden nach Ablauf automatisch
-          gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie (JWT) in Ihrem Browser gesetzt, das
-          ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch JavaScript) und Sie bis zur Abmeldung,
-          längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des
-          Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für den Versand der
-          Login-Codes, der Kaufbestätigung und – nach einer Änderung der E-Mail-Adresse – eines Hinweises an die
-          bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag tätig wird. Bei
-          jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version unserer{' '}
+          Funktionen, die Daten speichern oder Leistungen auslösen (Lernfortschritt, Probeprüfung, Lotsen-Check, Käufe),
+          setzen ein Konto voraus; was auch ohne Konto offen ist, steht unter „Lernfortschritt und Profil“. Bei der
+          Anmeldung per E-Mail und Login-Code (OTP) verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code. Der
+          Code ist nur wenige Minuten gültig; der Datensatz (E-Mail-Adresse und Prüfsumme des Codes) wird in der Regel
+          binnen 24 Stunden nach Ablauf automatisch gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie
+          (JWT) in Ihrem Browser gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch
+          JavaScript) und Sie bis zur Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6
+          Abs. 1 lit. b DSGVO (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer
+          sicheren Anmeldung). Für den Versand der Login-Codes, der Kaufbestätigung und – nach einer Änderung der
+          E-Mail-Adresse – eines Hinweises an die bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der
+          dabei in unserem Auftrag tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten
+          Anmeldung sowie, welcher Version unserer{' '}
           <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}
@@ -75,10 +77,16 @@ export function PrivacyPage() {
 
       <ProseSection title="Lernfortschritt und Profil">
         <p>
-          Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben. Dabei speichern
-          wir nichts zu Ihnen: Was Sie als Antwort eingeben, und Ihre Selbsteinschätzung bleiben in der geöffneten Seite
-          und werden weder übertragen noch gespeichert; einen Lernstand gibt es nur mit Konto. Es gelten nur die Angaben
-          zum Hosting.
+          Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben und die amtlichen
+          Kartenaufgaben bearbeiten. Dabei legen wir keinen Lernstand an und speichern keine Ihrer Eingaben: Was Sie als
+          Antwort eingeben, und Ihre Selbsteinschätzung bleiben in der geöffneten Seite und werden weder an uns
+          übertragen noch gespeichert; einen Lernstand gibt es nur mit Konto. Es gelten die Angaben zum Hosting und, da
+          die Webanalyse auch ohne Anmeldung auf allen Seiten außer dem Admin-Bereich läuft, zur Webanalyse. Eine
+          Ausnahme betrifft das Formblatt Gezeiten der Kartenaufgaben: Was Sie dort eintragen, und welche
+          Hilfsmittel-Bereiche Sie auf- oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem
+          Endgerät); es wird nicht an uns übertragen. Das Formblatt bleibt unter der Nummer des Aufgabenbogens erhalten,
+          bis Sie denselben Bogen neu starten oder sich später auf diesem Gerät an- und wieder abmelden; sonst lässt es
+          sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
         </p>
         <p>
           Mit Konto speichern wir Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete
@@ -235,7 +243,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 13. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 14. Oktober 2026</p>
     </PageLayout>
   )
 }

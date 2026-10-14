@@ -19,4 +19,20 @@ describe('PrivacyPage', () => {
     expect(screen.getByText(/Stripe Payments Europe/)).toBeInTheDocument()
     expect(screen.getByText(/Umami Cloud/)).toBeInTheDocument()
   })
+
+  it('describes what a guest leaves behind: web analytics and the Formblatt in the browser', () => {
+    render(
+      <MemoryRouter>
+        <PrivacyPage />
+      </MemoryRouter>,
+    )
+
+    const guests = screen.getByText(/^Ohne Anmeldung können Sie/)
+    expect(guests).toHaveTextContent('Kartenaufgaben bearbeiten')
+    expect(guests).toHaveTextContent('zur Webanalyse')
+    expect(guests).toHaveTextContent('Formblatt Gezeiten')
+    expect(guests).toHaveTextContent('Formblatt leeren')
+    expect(guests).not.toHaveTextContent('nur die Angaben zum Hosting')
+    expect(screen.getByText(/^Funktionen, die Daten speichern/)).toHaveTextContent('setzen ein Konto voraus')
+  })
 })
