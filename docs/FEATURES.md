@@ -25,7 +25,7 @@ What sets it apart from simply paging through the catalog:
 
 ## Learning
 
-The learning area has three modes, shown as tabs (four for learners with the Kartenaufgaben, where the Probeprüfung is a tab too), with the overall progress above them.
+The learning area has four tabs, with the overall progress above them: the three modes below and the Probeprüfung (its own section). Should the operator switch the Kartenaufgaben off, the Probeprüfung is a page of its own and the area has three.
 
 **Flow of a question:** read the question, formulate an answer in the scratchpad (it stays with the learner and is sent nowhere unless they trigger the AI check), reveal the model answer, grade oneself: *Richtig*, *Teilweise richtig* or *Falsch*. Questions with figures show the image. Chart notation (e.g. in navigation questions) is rendered legibly.
 
@@ -87,16 +87,16 @@ Status today: buying tokens is open to all learners (the live state of the flag 
 
 ## Navigation
 
-- Without a login, the header has **Lernen**, **Kartenaufgaben** and **Preise**, plus Anmelden; Prüfungsablauf and FAQ are in the footer.
-- Logged in, the header leads with the areas: **Lernen** and **Probeprüfung**. For learners with the Kartenaufgaben it follows the written exam's two parts instead: **Fragen** and **Kartenaufgaben**, with the Probeprüfung as a fourth tab of the learning area (next to Auffrischen).
-- Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. Prüfungsablauf, FAQ and Kontakt are in the footer of every page.
+- Without a login, the header has **Lernen**, **Kartenaufgaben** and **Preise**, plus Anmelden; **Prüfungsablauf** and **FAQ** are in the footer.
+- Logged in, the header follows the written exam's two parts: **Fragen** (the learning area, with the Probeprüfung as its fourth tab next to Nach Thema, Fokus and Auffrischen) and **Kartenaufgaben**. If the Kartenaufgaben are switched off, it shows **Lernen** and **Probeprüfung** instead.
+- Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. **Prüfungsablauf**, **FAQ** and **Kontakt** are in the footer of every page.
 - On phones the areas and the Konto menu are a tab bar at the bottom of the screen. While a practice round, an exam or a Kartenaufgabe is running, the tab bar is hidden.
 - A practice round has **Runde beenden** in its header. That link and the end of a round lead back to where the round was started: the topic list, Fokus or Auffrischen.
 - An address that doesn't exist, or an unknown topic or Kartenaufgabe, says **Seite nicht gefunden** and links to the matching overview.
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers) and links to them; their list and one page per sheet are public pages too. They are prepared for search engines and AI answer engines (ChatGPT, Claude, Perplexity may fetch and cite them) and listed in the sitemap. "Ablauf der Prüfung" answers the common exam questions in short form, also as structured data.
+Landing page with a feature overview, pricing, FAQ, "So läuft die SKS-Prüfung ab" (exam process, linked as Prüfungsablauf in the footer), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers) and links to them; their list and one page per sheet are public pages too. They are prepared for search engines and AI answer engines (ChatGPT, Claude, Perplexity may fetch and cite them) and listed in the sitemap. "So läuft die SKS-Prüfung ab" answers the common exam questions in short form, also as structured data.
 
 ## Privacy
 

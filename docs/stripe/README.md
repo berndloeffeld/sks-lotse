@@ -4,10 +4,10 @@ The product entries as set up in the Stripe dashboard. Prices are not listed her
 
 | Image | Name | Description |
 |---|---|---|
-| [tokens_s.png](tokens_s.png) | SKS Lotse – 20 Tokens (Paket S) | 20 Tokens für den Lotsen-Check. Ein Token bringt dir einen KI-Bewertungsvorschlag für eine Antwort. Die Note legst du selbst fest. |
-| [tokens_m.png](tokens_m.png) | SKS Lotse – 50 Tokens (Paket M) | 50 Tokens für den Lotsen-Check. Ein Token bringt dir einen KI-Bewertungsvorschlag für eine Antwort. Die Note legst du selbst fest. |
-| [tokens_l.png](tokens_l.png) | SKS Lotse – 100 Tokens (Paket L) | 100 Tokens für den Lotsen-Check. Ein Token bringt dir einen KI-Bewertungsvorschlag für eine Antwort. Die Note legst du selbst fest. |
-| [tokens_xl.png](tokens_xl.png) | SKS Lotse – 200 Tokens (Paket XL) | 200 Tokens für den Lotsen-Check. Ein Token bringt dir einen KI-Bewertungsvorschlag für eine Antwort. Die Note legst du selbst fest. |
+| [tokens_s.png](tokens_s.png) | SKS Lotse – 20 Tokens (Paket S) | 20 Tokens für den Lotsen-Check: 1 Token je Katalogfrage, 2 je Kartenaufgabe. Du bekommst einen KI-Bewertungsvorschlag, die Note legst du selbst fest. |
+| [tokens_m.png](tokens_m.png) | SKS Lotse – 50 Tokens (Paket M) | 50 Tokens für den Lotsen-Check: 1 Token je Katalogfrage, 2 je Kartenaufgabe. Du bekommst einen KI-Bewertungsvorschlag, die Note legst du selbst fest. |
+| [tokens_l.png](tokens_l.png) | SKS Lotse – 100 Tokens (Paket L) | 100 Tokens für den Lotsen-Check: 1 Token je Katalogfrage, 2 je Kartenaufgabe. Du bekommst einen KI-Bewertungsvorschlag, die Note legst du selbst fest. |
+| [tokens_xl.png](tokens_xl.png) | SKS Lotse – 200 Tokens (Paket XL) | 200 Tokens für den Lotsen-Check: 1 Token je Katalogfrage, 2 je Kartenaufgabe. Du bekommst einen KI-Bewertungsvorschlag, die Note legst du selbst fest. |
 
 All four are one-time payments (not recurring).
 
