@@ -25,7 +25,7 @@ What sets it apart from simply paging through the catalog:
 
 ## Learning
 
-The learning area has three modes, shown as tabs (four for learners with the Kartenaufgaben, where the Probeprüfung is a tab too), with the overall progress above them.
+The learning area has four tabs, with the overall progress above them: the three modes below and the Probeprüfung (its own section). Should the operator switch the Kartenaufgaben off, the Probeprüfung is a page of its own and the area has three.
 
 **Flow of a question:** read the question, formulate an answer in the scratchpad (it stays with the learner and is sent nowhere unless they trigger the AI check), reveal the model answer, grade oneself: *Richtig*, *Teilweise richtig* or *Falsch*. Questions with figures show the image. Chart notation (e.g. in navigation questions) is rendered legibly.
 
@@ -60,7 +60,7 @@ The second part of the written exam, practised with the **official solved Karten
 - The overview is a grid of tiles, one per sheet, each with the tour (e.g. "Cuxhaven → Büsum") and a one-line summary of what it practises, also for guests; the tour and summary are our own words and reappear on the sheet's page and in its search-engine title and description. It shows per exercise whether it's untouched, begun, or the points of the last completed run. A run begun can be discarded on its exercise page to start over (not beside each task), a finished one deleted from its result. The runs don't count towards the learning status.
 - **Lotsen-Check for a task** (with an account): after the solution, the Lotse can look at the answer for **2 tokens**. It suggests the points the task would have earned, says what is right and what is missing, and **guesses where the learner went wrong**, recomputing their number from the official derivation (a correction with the wrong sign, MESZ forgotten, decimal hours read as minutes, a follow-on error from an earlier task, …). The suggestion picks its points, the learner gives them. Once per task; it stays with the run and is shown again later. Not offered for the task where the current triangle is drawn, and for guests only as a preview.
 - No time limit.
-- **Without a login**: the list and every sheet's page are open to guests, and a guest works through a whole sheet the same way, task by task with the official solution and their own points. Nothing is saved: answers and points are gone when the page is left, and a run can't be interrupted. Leaving a run in progress (Back, a link, closing or reloading the tab) asks first, and Back from a run leads to the sheet's page. Below every sheet, all its tasks with their official solutions to unfold, for search engines and to look one up.
+- **Without a login**: the list and every sheet's page are open to guests, and a guest works through a whole sheet the same way, task by task with the official solution and their own points. Nothing is saved on the server: answers and points are gone when the page is left, and a run can't be interrupted. Only the Formblatt Gezeiten stays in the guest's browser (local storage, under the sheet's number) until the same sheet is started again, it is cleared with "Formblatt leeren", or someone signs out. Leaving a run in progress (Back, a link, closing or reloading the tab) asks first, and Back from a run leads to the sheet's page. Below every sheet, all its tasks with their official solutions to unfold, for search engines and to look one up.
 
 Status today: **open to everyone, guests included** (`CHART_EXERCISES=on` since 2026-10-02; the usage rights of the WSV material are cleared since 2026-10-01). The landing page previews them with a screenshot and links to them.
 
@@ -87,21 +87,21 @@ Status today: buying tokens is open to all learners (the live state of the flag 
 
 ## Navigation
 
-- Without a login, the header has **Lernen**, **Kartenaufgaben** and **Preise**, plus Anmelden; Prüfungsablauf and FAQ are in the footer.
-- Logged in, the header leads with the areas: **Lernen** and **Probeprüfung**. For learners with the Kartenaufgaben it follows the written exam's two parts instead: **Fragen** and **Kartenaufgaben**, with the Probeprüfung as a fourth tab of the learning area (next to Auffrischen).
-- Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. Prüfungsablauf, FAQ and Kontakt are in the footer of every page.
+- Without a login, the header has **Lernen**, **Kartenaufgaben** and **Preise**, plus Anmelden; **Prüfungsablauf** and **FAQ** are in the footer.
+- Logged in, the header follows the written exam's two parts: **Fragen** (the learning area, with the Probeprüfung as its fourth tab next to Nach Thema, Fokus and Auffrischen) and **Kartenaufgaben**. If the Kartenaufgaben are switched off, it shows **Lernen** and **Probeprüfung** instead.
+- Next to them the token balance and the **Konto** menu: Lernstand, account settings, buying tokens, Admin (admins only), sign-out. **Prüfungsablauf**, **FAQ** and **Kontakt** are in the footer of every page.
 - On phones the areas and the Konto menu are a tab bar at the bottom of the screen. While a practice round, an exam or a Kartenaufgabe is running, the tab bar is hidden.
 - A practice round has **Runde beenden** in its header. That link and the end of a round lead back to where the round was started: the topic list, Fokus or Auffrischen.
 - An address that doesn't exist, or an unknown topic or Kartenaufgabe, says **Seite nicht gefunden** and links to the matching overview.
 
 ## Public pages
 
-Landing page with a feature overview, pricing, FAQ, "Ablauf der Prüfung" (exam process), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers) and links to them; their list and one page per sheet are public pages too. They are prepared for search engines and AI answer engines (ChatGPT, Claude, Perplexity may fetch and cite them) and listed in the sitemap. "Ablauf der Prüfung" answers the common exam questions in short form, also as structured data.
+Landing page with a feature overview, pricing, FAQ, "So läuft die SKS-Prüfung ab" (exam process, linked as Prüfungsablauf in the footer), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers) and links to them; their list and one page per sheet are public pages too. They are prepared for search engines and AI answer engines (ChatGPT, Claude, Perplexity may fetch and cite them) and listed in the sitemap. "So läuft die SKS-Prüfung ab" answers the common exam questions in short form, also as structured data.
 
 ## Privacy
 
 - Access with an email address only, no password. No advertising and no cookies beyond the session cookie of a logged-in account, so there is no consent banner.
-- App and database hosted in Frankfurt (EU); the static pages are delivered through Render's global CDN. Usage analytics without cookies.
+- App and database hosted in Frankfurt (EU); the static pages are delivered through Render's global CDN. Usage analytics without cookies, for guests as well.
 - Learners can delete their account and all learning data at any time themselves. Access and data export are handled on request through the operator.
 
 ## Operator tools (not for learners)
