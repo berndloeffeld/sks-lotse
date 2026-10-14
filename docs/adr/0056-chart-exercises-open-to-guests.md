@@ -1,6 +1,6 @@
 # 0056. Kartenaufgaben open to guests, run in the page from a committed export
 
-Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (at `on`, guests run the sheets without a login, the server's order applies to accounts only) and [ADR-0054](0054-learning-by-topic-open-without-login.md) (the Kartenaufgaben join "Lernen nach Thema" as open without a login).
+Status: Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (at `on`, guests run the sheets without a login, the server's order applies to accounts only) and [ADR-0054](0054-learning-by-topic-open-without-login.md) (the Kartenaufgaben join "Lernen nach Thema" as open without a login). The addendum of 2026-10-14 notes that the ad script is gone since [ADR-0060](0060-no-advertising.md).
 
 ## Context
 
@@ -29,3 +29,7 @@ And for when guests get them: opening them together with the flag's `on` (one de
 - Guests cause no API traffic for the Kartenaufgaben; the pages come from the static site.
 - Each page needs its rewrite in `render.yaml` ([ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md)), in the PR that switches to `on`. Between the Blueprint sync and that deploy, `/charts` answers empty for a few minutes.
 - Rejected: the showcase (a guest can't try what the feature is about); one sheet as a trial (an arbitrary line, and with two transcribed sheets half the content); a public API route for the sheets (an open route and a second data path for the build, as in [ADR-0054](0054-learning-by-topic-open-without-login.md)); keeping a guest's run in the browser (the same reason ADR-0054 gave for the gradings); a separate flag for guests (two switches for one decision).
+
+## Addendum 2026-10-14: no ad script any more
+
+Since [ADR-0060](0060-no-advertising.md) (2026-10-11) there is no ad script any more, so "without the static ad script, like `/learn`" is historical: no page loads one. The rest of this decision stands.

@@ -1,6 +1,6 @@
 # 0054. "Lernen nach Thema" open without a login, prerendered from a committed catalog export
 
-Status: Accepted — amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (login no longer required to read and practise the catalog) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the /learn pages are prerendered too). Amended by [ADR-0055](0055-prerendered-pages-as-directory-index-files.md), superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): each page keeps its rewrite in `render.yaml`. Amended by [ADR-0056](0056-chart-exercises-open-to-guests.md): the Kartenaufgaben are open to guests too while their flag is `on`.
+Status: Accepted — amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) (login no longer required to read and practise the catalog) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the /learn pages are prerendered too). Amended by [ADR-0055](0055-prerendered-pages-as-directory-index-files.md), superseded by [ADR-0057](0057-prerendered-pages-as-flat-files-with-a-rewrite-each.md): each page keeps its rewrite in `render.yaml`. Amended by [ADR-0056](0056-chart-exercises-open-to-guests.md): the Kartenaufgaben are open to guests too while their flag is `on`. The addendum of 2026-10-14 notes that the ad script is gone since [ADR-0060](0060-no-advertising.md).
 
 ## Context
 
@@ -31,3 +31,7 @@ And for where the guests' data comes from:
 - A catalog change now has one more generated file to commit (re-run `export_catalog.py`), enforced by the test. A new or renamed topic also needs its rewrite in `render.yaml`, enforced by the same test.
 - Guests cause no API traffic beyond the session check every page already makes. The load stays on the static site and its CDN.
 - **Rejected**: the separate archive (a second UI for the same content, and the app's own pages would stay invisible). The public API (an open route and a second data path for the build). Per-question pages (540 thin pages, and `seemannschaft_allgemein`'s numbers are derived and can shift, so the URLs wouldn't be stable). Topic pages with their anchors (`#frage-29`) cover the same searches.
+
+## Addendum 2026-10-14: no ad script any more
+
+Since [ADR-0060](0060-no-advertising.md) (2026-10-11) there is no ad script, no `AdScriptGate` and no consent button. The sentence in the Decision that the prerendered pages are built "without the static ad script" is historical: no page loads one, so the pages are the same for everyone. The rest of this decision stands.
