@@ -30,3 +30,7 @@ Option 2.
 - The first grading of a question inserts the row. A concurrent double submit is caught via the unique constraint and applied on top of the winner's row, instead of failing.
 - Rejected, option 1: it keeps the core loop unusable for an unknown time, for a feature most (free) accounts won't have anyway.
 - Rejected, option 3: practice that leaves no trace makes the Lernstand pointless for exactly those free accounts.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, the update rule lives in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.

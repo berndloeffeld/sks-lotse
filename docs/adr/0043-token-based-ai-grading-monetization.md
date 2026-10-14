@@ -1,6 +1,6 @@
 # 0043. Token-based AI-grading monetization, with fixed prices
 
-Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (pay-per-use tokens instead of a boolean unlock); the weekly budget is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md); amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (Stripe Checkout). Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): a Kartenaufgaben check costs 2 tokens. Amended by [ADR-0060](0060-no-advertising.md): no "Werbefrei" add-on, tokens are the only product.
+Status: Accepted — partially supersedes [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md) and [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (pay-per-use tokens instead of a boolean unlock); the weekly budget is dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md); amended by [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (Stripe Checkout). Amended by [ADR-0058](0058-lotsen-check-for-chart-exercises.md): a Kartenaufgaben check costs 2 tokens. Amended by [ADR-0060](0060-no-advertising.md): no "Werbefrei" add-on, tokens are the only product. It also ends the `ai_grading_enabled` gate that [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) mentions.
 
 ## Context
 
@@ -40,3 +40,7 @@ Scope decided for this change specifically (see also ADR-0006/0031, which cover 
 - Rejected: keeping the weekly-budget mechanism as the sole brake and dropping it in favor of tokens — tokens cap *spend*, not *request rate*, so both stay (see Context).
 - Rejected: a dedicated `packages` DB table for prices — `app_settings`'s existing key/value shape is enough for four fixed package slots (CLAUDE.md → avoid pipeline overkill for a small, rarely-changed config surface).
 - Revisit when: a payment provider is chosen (Stripe is the assumed target given the data model, but not committed to) — that follow-up also finally builds the full-exam auto-grading feature the 25-token price above is reserved for.
+
+## Addendum 2026-10-14: the price defaults moved to `domain/`
+
+`app/core/pricing.py` (the price defaults and token packages) is `backend/app/domain/pricing.py` since 2026-10-01 (#231); `app/services/pricing.py` still reads and writes the `app_settings` values.

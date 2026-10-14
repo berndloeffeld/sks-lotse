@@ -37,3 +37,7 @@ Fix: the shared logic behind all three `apply` steps moved into `backend/app/ser
 - `anthropic` moved from `requirements.txt` to `requirements-dev.txt` — the running app (including the migration) never imports it, only `manage_topics.py propose` does.
 - `app/services/catalog_seed.py` now carries real test coverage (`backend/tests/test_catalog_seed.py`) rather than being unmeasured script code, since it's genuinely production-serving logic now, not a one-off tool.
 - A data migration that deletes and re-inserts `questions`/`topics` on every fresh `alembic upgrade head` is unusual for a migration, but appropriate here: the data is 100% reproducible from files already committed to the repo (the PDF, the reviewed YAML fixtures), and nothing else references `questions.id`/`topics.id` yet. If a future table gains a foreign key into either, this approach needs revisiting before that ships.
+
+## Addendum 2026-10-14: the exam variant moved to `domain/`
+
+`app/core/exam_variant.py` (the variants and their subjects) is `backend/app/domain/exam_variant.py` since 2026-10-01 (#231); the decision is unchanged.

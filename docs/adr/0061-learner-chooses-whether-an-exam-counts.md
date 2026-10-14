@@ -1,6 +1,6 @@
 # 0061. The learner chooses whether a Probeprüfung counts for the Lernstand
 
-Status: Accepted — supersedes [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md).
+Status: Accepted — supersedes [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md). It also settles the "separate from the Lernstand" bullet of [ADR-0029](0029-exam-simulation.md), which [ADR-0037](0037-exam-richtig-answers-feed-the-lernstand.md) had changed first.
 
 ## Context
 

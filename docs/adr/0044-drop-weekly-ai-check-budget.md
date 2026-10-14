@@ -1,6 +1,6 @@
 # 0044. Drop the weekly AI-check budget — tokens are the sole spending control
 
-Status: Accepted — supersedes [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md); reverses the "keep the weekly budget" decision of [ADR-0043](0043-token-based-ai-grading-monetization.md); drops the budget [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) amended alongside it.
+Status: Accepted — supersedes [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md); reverses the "keep the weekly budget" decision of [ADR-0043](0043-token-based-ai-grading-monetization.md); drops the budget [ADR-0040](0040-ai-grading-sanitizer-and-abuse-monitoring.md) amended alongside it. It drops the budget that [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) describes, through [ADR-0036](0036-weekly-ai-check-budget-with-admin-overrides.md).
 
 ## Context
 

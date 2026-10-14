@@ -27,3 +27,7 @@ The log is personal data: it's deleted with the account (`services/user.py`), pa
 - The table grows by one row per grading and is not cleaned up while the account exists — at the expected load (NFR Mengengerüst) that's tens of short rows per learner per session, small enough to keep for the account's lifetime. If it ever matters, a retention cut-off can be added to the existing cleanup paths.
 - Indexed on `(question_id, graded_at)` for the admin read and on `user_id` for deletion and export.
 - Rejected: replay on read (shows today's model, not the recorded value) and snapshot columns (lossy, widens the hot row).
+
+## Addendum 2026-10-14: the exam credit is `record_exam_gradings`
+
+"The batched exam credit (`credit_correct_answers`)" is `record_exam_gradings` in `backend/app/services/progress.py` since #297, and it books all three grades, not only "Richtig", under [ADR-0061](0061-learner-chooses-whether-an-exam-counts.md). The grading log is written for each of them.
