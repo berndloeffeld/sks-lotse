@@ -90,6 +90,8 @@ export function chartTask(number: number, overrides: Partial<ChartAttemptTask> =
       { points: 1, text: `Frage ${number}a?` },
       { points: 1, text: `Frage ${number}b?` },
     ],
+    task_images: [{ src: `bogen-01/aufgabe-0${number}-aufgabe-1.png`, width: 1040, height: 200 }],
+    solution_images: [],
     answer_text: null,
     solution: [],
     derivation: [],
@@ -155,6 +157,8 @@ export function makeChartExport(overrides: Partial<ChartExport> = {}): ChartExpo
     points,
     text: `Szenario ${number}`,
     questions: [{ points, text: `Frage ${number}` }],
+    task_images: [{ src: `bogen-01/aufgabe-0${number}-aufgabe-1.png`, width: 1040, height: 200 }],
+    solution_images: [{ src: `bogen-01/aufgabe-0${number}-loesung-1.png`, width: 1040, height: 100 }],
     solution: [{ results: [{ text: `Ergebnis ${number}`, tolerance: '[± 1°]' }], image: null }],
     derivation: [{ text: `Herleitung ${number}`, table: null }],
   })
