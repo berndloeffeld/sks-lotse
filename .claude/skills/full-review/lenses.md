@@ -7,18 +7,18 @@ Gelesen von den Subagenten des Skills [full-review](SKILL.md). Jeder Agent liest
 - **Quelle der Wahrheit** ist der Snapshot, nicht ein ausgecheckter Branch und nicht dein Gedächtnis. Lies Code, bevor du etwas behauptest.
 - **Entschiedenes ist kein Befund.** `CLAUDE.md` und die ADRs (`docs/adr/README.md`, Status beachten: „Superseded“ gilt nicht mehr) halten Entscheidungen fest. Ein entschiedener Punkt wird nur gemeldet, wenn seine Begründung heute nicht mehr trägt, dann mit ADR-Nummer und der veränderten Prämisse.
 - **Bekanntes markieren.** Was in `context.md` steht (offene PRs/Issues, `TODO.md`, offene Punkte des letzten Reviews), nur als „bekannt“ aufführen, ohne neue Analyse.
-- **Jeden Kandidaten bestätigen**, bevor er in die Datei kommt: Stelle lesen, Aufrufer/Gegenstück prüfen. Spekulatives als `Konfidenz: low` kennzeichnen und sagen, was zur Klärung fehlt.
+- **Jeden Kandidaten bestätigen**, bevor er in die Befunde kommt: Stelle lesen, Aufrufer/Gegenstück prüfen. Spekulatives als `Konfidenz: low` kennzeichnen und sagen, was zur Klärung fehlt.
 - **Qualität vor Menge.** Höchstens etwa 25 Befunde. Hör auf, wenn nur noch `low`-Schwere nachkommt. Kein Befund, den ruff, mypy, prettier oder eslint ohnehin erzwingen, und keine Geschmacksfragen.
 - **Wirkung vor Ordnung.** Sortiere nach Schwere, dann nach Aufwand (kleiner Aufwand zuerst).
 - **Gleiche Ursache = ein Befund** mit mehreren Belegstellen, nicht zehn Einzelbefunde.
-- **Lösungsrichtung, kein Patch.** Sag, was zu ändern ist und wo; schreibe keinen Code in die Datei.
+- **Lösungsrichtung, kein Patch.** Sag, was zu ändern ist und wo; schreibe keinen Code in die Befunde.
 - **Projektregeln, die jede Lösung betreffen**, vermerke als Feld „Doku/Regeln“: berührt es `docs/FEATURES.md`, `docs/NON-FUNCTIONAL-REQUIREMENTS.md`, `ARCHITECTURE.md`, eine ADR, die Postman-Generierung, einen Ratchet oder den Mutation-Scope?
-- **Grenzen.** Nur lesen. Keine Test-, Coverage- oder Mutationsläufe. Nichts installieren oder herunterladen. `gh` nur lesend (GET). Keine Anfragen an Produktivsysteme. Schreibe ausschließlich deine Befunddatei.
+- **Grenzen.** Nur lesen. Keine Test-, Coverage- oder Mutationsläufe. Nichts installieren oder herunterladen. `gh` nur lesend (GET). Keine Anfragen an Produktivsysteme. Schreibe keine Dateien: Die Befunde gehen als Text an den Hauptagenten, der sie als `findings-<lens>.md` ablegt.
 - **Werkzeuge im Snapshot**: `rg`/`grep`, `wc -l`, `git log` (Churn, Alter); `ROOT/backend/.venv/bin/ruff check --no-fix --select <Regeln>` mit zusätzlichen Regeln (z. B. `ERA,PERF,PIE,RET,ARG,PLR`) als Fundgrube; im Frontend `npx --no-install eslint`/`tsc` über das eingehängte `node_modules`.
 
 ## Befundformat
 
-Datei `findings-<lens>.md`, ein Block je Befund:
+Als Text in deiner Antwort (der Hauptagent legt ihn als `findings-<lens>.md` ab), ein Block je Befund:
 
 ```markdown
 ### S-01 · <Titel in einem Satz>
@@ -34,7 +34,7 @@ Datei `findings-<lens>.md`, ein Block je Befund:
 
 ID-Präfix je Lens: `S` security, `P` process, `C` code (Backend `C-B01`, Frontend `C-F01`), `U` ux, `D` docs. Schwere: *critical* = ausnutzbar bzw. Datenverlust/Geldschaden ohne Mitwirkung · *high* = reale Fehlfunktion, Lücke oder erhebliche Kosten im Alltag · *medium* = lohnend, aber ohne akuten Schaden · *low* = Politur.
 
-Am Ende der Datei, Stichworte genügen:
+Am Ende der Befunde, Stichworte genügen:
 - **Geprüft ohne Befund**: welche Bereiche der Checkliste du angesehen hast und sauber fandest (macht die Abdeckung sichtbar).
 - **Nicht geschafft / nicht prüfbar**: was fehlt und warum (z. B. `gh api` 403).
 
