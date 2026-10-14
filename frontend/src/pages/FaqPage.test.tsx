@@ -27,4 +27,17 @@ describe('FaqPage', () => {
     expect(screen.getByText(/Häkchen vor dem Start/)).toBeInTheDocument()
     expect(screen.queryByText(/in der Probeprüfung richtig beantwortet hast/)).not.toBeInTheDocument()
   })
+
+  it('tells guests that the Formblatt stays in their browser', () => {
+    render(
+      <MemoryRouter>
+        <FaqPage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByText(/bei uns wird aber nichts gespeichert \(das Formblatt der Kartenaufgaben/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/gespeichert wird aber nichts/)).not.toBeInTheDocument()
+  })
 })

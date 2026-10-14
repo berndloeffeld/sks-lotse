@@ -24,7 +24,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'ohne-anmeldung',
     question: 'Kann ich auch ohne Anmeldung lernen?',
     answer:
-      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der amtlichen Antwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; gespeichert wird aber nichts, und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
+      'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der amtlichen Antwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; bei uns wird aber nichts gespeichert (das Formblatt der Kartenaufgaben bleibt nur in deinem Browser), und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
   },
   {
     id: 'lernmodi',
