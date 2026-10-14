@@ -7,6 +7,9 @@ from app.models import User
 # The account the `auth_headers` fixture (conftest.py) logs in as.
 FIXTURE_EMAIL = "fixture-user@example.com"
 
+# The opt-in of a non-browser client to the session token in a login response's body.
+TOKEN_IN_BODY = {"X-Token-In-Body": "true"}
+
 
 def fixture_user(db_session) -> User:
     return db_session.query(User).filter_by(email=FIXTURE_EMAIL).one()

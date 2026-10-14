@@ -1,14 +1,16 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi import Depends, HTTPException, Request, Response, Security, status
+from fastapi import Depends, Header, HTTPException, Request, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.totp import mfa_is_fresh
+from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import User
+from app.schemas.auth import TokenRead
 
 # The session cookie (ADR-0012). Deployed, the `__Host-` prefix makes browsers accept it only as
 # Secure, Path=/ and without a Domain — so a page on sks-lotse.de can't plant a second
@@ -20,6 +22,8 @@ SECURE_SESSION_COOKIE_NAME = "__Host-access_token"
 MFA_REQUIRED = "mfa_required"
 # The 403 detail of an export/delete whose TOTP check is valid but not recent (require_recent_mfa).
 RECENT_MFA_REQUIRED = "recent_mfa_required"
+# The 409 detail of a purchase by an account that hasn't confirmed the AGB version in force.
+AGB_ACCEPTANCE_REQUIRED = "agb_acceptance_required"
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -41,10 +45,9 @@ def session_cookie_name() -> str:
 def issue_session(response: Response, user: User, mfa_at: int | None = None) -> str:
     """Mint a session token for `user` and set it as the session cookie; returns the token."""
     access_token = create_access_token(user.id, user.token_version, mfa_at)
-    # The browser frontend never reads this token directly (see ADR-0012) —
-    # it's set as an httpOnly cookie here, in addition to the response body,
-    # which stays populated for Postman/the integration-test suite/any
-    # future non-browser client (Bearer fallback, see get_session_claims).
+    # The browser frontend never reads this token directly (see ADR-0012) — it's set as an
+    # httpOnly cookie here. The response body carries it only for a non-browser client that asks
+    # (wants_token_in_body, token_body), for the Bearer fallback in get_session_claims.
     response.set_cookie(
         session_cookie_name(),
         access_token,
@@ -57,6 +60,25 @@ def issue_session(response: Response, user: User, mfa_at: int | None = None) -> 
         path="/",
     )
     return access_token
+
+
+def wants_token_in_body(
+    x_token_in_body: bool = Header(
+        default=False,
+        description="true: the session token is also returned in the body (Postman, scripts; not browsers).",
+    ),
+) -> bool:
+    """Opt-in of a non-browser client (Postman, the integration tests, scripts) to the token in the body.
+
+    The header is deliberately not in the CORS allow-list (app/main.py), so a script in a browser
+    can neither send it nor read the token from the body of the page's own login (ADR-0012 addendum).
+    """
+    return x_token_in_body
+
+
+def token_body(access_token: str, include: bool) -> TokenRead:
+    """The login response: the token itself only when the caller opted in."""
+    return TokenRead(access_token=access_token if include else None)
 
 
 def clear_session(response: Response) -> None:
@@ -107,6 +129,17 @@ def get_current_user(claims: dict = Depends(get_session_claims), db: Session = D
     if claims["tv"] != user.token_version:
         raise unauthorized
     return user
+
+
+def require_current_agb(current_user: User = Depends(get_current_user)) -> User:
+    """An account that has confirmed the AGB version in force, for what forms a contract (ADR-0041).
+
+    409, not 403: nothing is forbidden for good, the account just has to confirm first — the
+    frontend answers it with the AGB dialog (routes/AgbGate.tsx).
+    """
+    if current_user.agb_accepted_version != CURRENT_AGB_VERSION:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=AGB_ACCEPTANCE_REQUIRED)
+    return current_user
 
 
 def require_admin_identity(current_user: User = Depends(get_current_user)) -> User:

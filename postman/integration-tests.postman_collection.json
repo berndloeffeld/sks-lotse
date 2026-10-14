@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7053e3be-d47c-4971-af87-ea2ad1579f99",
     "name": "SKS Lotse Integration Tests",
-    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions, Profile and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those. Account and Admin then log in as further throwaway users (each with its own token variable); Admin also reads the main test account and the account the Account folder deleted.\n\nCookies: 'Verify OTP' also sets the httpOnly access_token session cookie (ADR-0012), which get_current_user reads before any Authorization header - and Newman keeps a cookie jar across requests. So every request that authenticates via Bearer, or deliberately sends no credentials (the '... is rejected' auth guards), sets protocolProfileBehavior.disableCookies; without that, the jar would silently authenticate them. Only the requests with 'session cookie' in their name leave cookies on, to test the cookie path itself. Keep it that way when adding requests. Rate Limiting must run last overall (the 'Change email - per-user request cap' probe loop likewise exhausts that user's cap, but it belongs to a user deleted right after) - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.\n\nSERVER REQUIREMENTS: besides ENVIRONMENT=development, (1) ADMIN_EMAILS must include the adminEmail variable (default integration-admin@example.com), or the Admin folder fails on its 'is an admin' assertion; (2) if ALLOWED_EMAILS is set it must include testEmail, profileEmail, profileNewEmail, adminEmail, victimEmail and blockedEmail; (3) the question catalog should be seeded (alembic upgrade head) - against an empty catalog the catalog-content assertions degrade to shape checks; (4) run it against a freshly started server: the per-IP OTP quota (20/hour) and default quota (300 per 5 minutes) are in-process, and re-running within a minute hits the per-address OTP resend cooldown (stale dev-peek code).\n\nCOVERAGE GUARD: backend/tests/test_integration_collection.py fails when an /api/v1 route or /health has no request in this collection, when a request points at a route that no longer exists, or when a request neither disables cookies nor is a 'session cookie' request. Adding an endpoint therefore forces adding its requests here; and CI's 'integration-tests' job (backend-ci.yml) runs this whole collection against a real server.",
+    "description": "Black-box HTTP integration tests for a real, locally running backend (ENVIRONMENT unset or 'development') - not the auto-generated API reference (see sks-lotse.postman_collection.json). Run with the Collection Runner, or externally via Newman:\n\n    newman run postman/integration-tests.postman_collection.json -e postman/local.postman_environment.json\n\nor scripts/run_integration_tests.sh, which also starts nothing for you - the backend must already be running (see backend/README or `uvicorn app.main:app --reload`).\n\nFolder order matters: Auth Flow mints a token that Questions, Profile and Logout reuse, and Logout deliberately invalidates it, so Logout must run last among those. Account and Admin then log in as further throwaway users (each with its own token variable); Admin also reads the main test account and the account the Account folder deleted.\n\nCookies: 'Verify OTP' also sets the httpOnly access_token session cookie (ADR-0012), which get_current_user reads before any Authorization header - and Newman keeps a cookie jar across requests. So every request that authenticates via Bearer, or deliberately sends no credentials (the '... is rejected' auth guards), sets protocolProfileBehavior.disableCookies; without that, the jar would silently authenticate them. Only the requests with 'session cookie' in their name leave cookies on, to test the cookie path itself. Keep it that way when adding requests.\n\nTokens: the login responses carry the session token in the body only for a non-browser client that sends X-Token-In-Body: true (ADR-0012 addendum); every 'Verify OTP' that later requests rely on sends it, except 'Verify OTP (account user)' and 'Admin 2FA - verify', which read the token from the Set-Cookie header to cover the default path. Rate Limiting must run last overall (the 'Change email - per-user request cap' probe loop likewise exhausts that user's cap, but it belongs to a user deleted right after) - it deliberately exhausts the otp/request quota for this IP.\n\nSee docs/adr/0011-dev-only-otp-peek-endpoint-for-external-integration-tests.md for why this needs the /_dev-peek endpoint, and its limits (doesn't exercise the real Resend send path).\n\nNot covered: RedirectSecondaryDomainsMiddleware (backend/tests/test_canonical_domain.py). It keys off the Host header, which both Postman and Newman silently drop/override rather than send as given (a restricted header, like a browser's fetch()) - there's no way to exercise it through this tool. Verify manually instead:\n    curl -i -H 'Host: sks-lotse.com' {{baseUrl}}/health\n\nMAINTENANCE: hand-written, not generated from the OpenAPI schema like sks-lotse.postman_collection.json is - nothing regenerates or checks this collection automatically. When auth/CORS/rate-limit/questions/security-header behavior changes, update the matching request and its pm.test assertions here by hand, in the same PR as the code change, the same way backend/tests/ gets updated alongside it.\n\nSERVER REQUIREMENTS: besides ENVIRONMENT=development, (1) ADMIN_EMAILS must include the adminEmail variable (default integration-admin@example.com), or the Admin folder fails on its 'is an admin' assertion; (2) if ALLOWED_EMAILS is set it must include testEmail, profileEmail, profileNewEmail, adminEmail, victimEmail and blockedEmail; (3) the question catalog should be seeded (alembic upgrade head) - against an empty catalog the catalog-content assertions degrade to shape checks; (4) run it against a freshly started server: the per-IP OTP quota (20/hour) and default quota (300 per 5 minutes) are in-process, and re-running within a minute hits the per-address OTP resend cooldown (stale dev-peek code).\n\nCOVERAGE GUARD: backend/tests/test_integration_collection.py fails when an /api/v1 route or /health has no request in this collection, when a request points at a route that no longer exists, or when a request neither disables cookies nor is a 'session cookie' request. Adding an endpoint therefore forces adding its requests here; and CI's 'integration-tests' job (backend-ci.yml) runs this whole collection against a real server.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -497,6 +497,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "X-Token-In-Body",
+                "value": "true"
               }
             ],
             "url": {
@@ -522,7 +526,7 @@
               }
             }
           },
-          "description": "",
+          "description": "Sends X-Token-In-Body: true, the opt-in of a non-browser client to the session token in the body (ADR-0012 addendum); without it the body carries none, which 'Verify OTP (account user)' and 'Admin 2FA - verify' check.",
           "response": []
         },
         {
@@ -2155,7 +2159,7 @@
     },
     {
       "name": "Payments (Stripe checkout)",
-      "description": "The token-package checkout (ADR-0048). This server runs with STRIPE_CHECKOUT off and no Stripe keys (the defaults), so only the guards are exercised here; opening a real Checkout Session and the signed webhook are covered in backend/tests/test_payments.py.",
+      "description": "The token-package checkout (ADR-0048). This server runs with STRIPE_CHECKOUT off and no Stripe keys (the defaults), so only the guards are exercised here; opening a real Checkout Session and the signed webhook are covered in backend/tests/test_payments.py. A purchase needs the AGB in force: 'Accept AGB' confirms it for the test account after the 409 check.",
       "item": [
         {
           "name": "Checkout - without a token is rejected",
@@ -2201,6 +2205,106 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Checkout - without the current AGB is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('says the AGB has to be confirmed first (ADR-0041)', function () { pm.expect(pm.response.json().detail).to.eql('agb_acceptance_required'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product\": \"tokens_s\", \"waive_withdrawal\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "A purchase forms the contract, so it needs the AGB version in force; the test account hasn't confirmed it yet. Checked before the body, hence also for an invalid one.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Accept AGB",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('records the current AGB version', function () {",
+                  "    var me = pm.response.json();",
+                  "    pm.expect(me.agb_accepted_version).to.eql('2026-10-11');",
+                  "    pm.expect(me.needs_agb_acceptance).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/agb-accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                "agb-accept"
+              ]
+            }
+          },
+          "description": "Placed here because the checkout requests that follow need a confirmed AGB (409 otherwise).",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -2800,52 +2904,6 @@
                 "v1",
                 "auth",
                 "me"
-              ]
-            }
-          },
-          "description": "",
-          "response": [],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          }
-        },
-        {
-          "name": "Accept AGB",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('records the current AGB version', function () {",
-                  "    var me = pm.response.json();",
-                  "    pm.expect(me.agb_accepted_version).to.eql('2026-10-11');",
-                  "    pm.expect(me.needs_agb_acceptance).to.eql(false);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/auth/me/agb-accept",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "me",
-                "agb-accept"
               ]
             }
           },
@@ -5377,8 +5435,10 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('returns a bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty; });",
-                  "pm.collectionVariables.set('profileToken', pm.response.json().access_token);"
+                  "pm.test('no token in the body without the X-Token-In-Body opt-in (ADR-0012)', function () { pm.expect(pm.response.json().access_token).to.be.null; });",
+                  "var cookieToken = ((pm.response.headers.get('Set-Cookie') || '').match(/^access_token=([^;]+)/) || [])[1];",
+                  "pm.test('the session is the cookie', function () { pm.expect(cookieToken).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('profileToken', cookieToken);"
                 ]
               }
             }
@@ -5414,7 +5474,7 @@
               }
             }
           },
-          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this. Deliberately without the X-Token-In-Body header: the body has no token, so the Bearer token of the requests that follow is read from the Set-Cookie header.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -7011,6 +7071,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "X-Token-In-Body",
+                "value": "true"
               }
             ],
             "url": {
@@ -7036,7 +7100,7 @@
               }
             }
           },
-          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this. Sends the X-Token-In-Body opt-in header, since the later requests authenticate with the token from the body.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -7414,8 +7478,10 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('returns a new bearer access token', function () { pm.expect(pm.response.json().access_token).to.be.a('string').and.not.eql(pm.collectionVariables.get('adminToken')); });",
-                  "pm.collectionVariables.set('adminToken', pm.response.json().access_token);"
+                  "pm.test('no token in the body without the X-Token-In-Body opt-in (ADR-0012)', function () { pm.expect(pm.response.json().access_token).to.be.null; });",
+                  "var cookieToken = ((pm.response.headers.get('Set-Cookie') || '').match(/^access_token=([^;]+)/) || [])[1];",
+                  "pm.test('re-issues the session as a new cookie', function () { pm.expect(cookieToken).to.be.a('string').and.not.empty.and.not.eql(pm.collectionVariables.get('adminToken')); });",
+                  "pm.collectionVariables.set('adminToken', cookieToken);"
                 ]
               }
             }
@@ -7455,7 +7521,7 @@
               }
             }
           },
-          "description": "The admin requests after this one use the upgraded token.",
+          "description": "The admin requests after this one use the upgraded token. Deliberately without the X-Token-In-Body header (see 'Verify OTP (account user)'): the upgraded token is read from the Set-Cookie header.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -8523,6 +8589,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "X-Token-In-Body",
+                "value": "true"
               }
             ],
             "url": {
@@ -8548,7 +8618,7 @@
               }
             }
           },
-          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this.",
+          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this. Sends the X-Token-In-Body opt-in header, since the later requests authenticate with the token from the body.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true

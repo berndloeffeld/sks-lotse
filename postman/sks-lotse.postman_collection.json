@@ -198,6 +198,15 @@
                             },
                             "header": [
                               {
+                                "disabled": false,
+                                "description": {
+                                  "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                  "type": "text/plain"
+                                },
+                                "key": "x-token-in-body",
+                                "value": "false"
+                              },
+                              {
                                 "key": "Content-Type",
                                 "value": "application/json"
                               },
@@ -238,6 +247,15 @@
                                   "variable": []
                                 },
                                 "header": [
+                                  {
+                                    "disabled": false,
+                                    "description": {
+                                      "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "x-token-in-body",
+                                    "value": "false"
+                                  },
                                   {
                                     "key": "Content-Type",
                                     "value": "application/json"
@@ -289,6 +307,15 @@
                                   "variable": []
                                 },
                                 "header": [
+                                  {
+                                    "disabled": false,
+                                    "description": {
+                                      "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "x-token-in-body",
+                                    "value": "false"
+                                  },
                                   {
                                     "key": "Content-Type",
                                     "value": "application/json"
@@ -5997,6 +6024,15 @@
                             },
                             "header": [
                               {
+                                "disabled": false,
+                                "description": {
+                                  "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                  "type": "text/plain"
+                                },
+                                "key": "x-token-in-body",
+                                "value": "false"
+                              },
+                              {
                                 "key": "Content-Type",
                                 "value": "application/json"
                               },
@@ -6045,6 +6081,15 @@
                                   "variable": []
                                 },
                                 "header": [
+                                  {
+                                    "disabled": false,
+                                    "description": {
+                                      "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "x-token-in-body",
+                                    "value": "false"
+                                  },
                                   {
                                     "key": "Content-Type",
                                     "value": "application/json"
@@ -6104,6 +6149,15 @@
                                   "variable": []
                                 },
                                 "header": [
+                                  {
+                                    "disabled": false,
+                                    "description": {
+                                      "content": "true: the session token is also returned in the body (Postman, scripts; not browsers).",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "x-token-in-body",
+                                    "value": "false"
+                                  },
                                   {
                                     "key": "Content-Type",
                                     "value": "application/json"
@@ -8839,7 +8893,7 @@
                       "request": {
                         "name": "Create Checkout",
                         "description": {
-                          "content": "Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag.",
+                          "content": "Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag.\n\nOnly for an account that confirmed the AGB in force (409 otherwise, ADR-0041): the purchase\nforms the contract, and `agb_accepted_at` is its evidence.",
                           "type": "text/plain"
                         },
                         "url": {

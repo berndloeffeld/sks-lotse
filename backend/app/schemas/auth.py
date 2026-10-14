@@ -91,7 +91,9 @@ class EmailChangeVerifyRequest(BaseModel):
 
 
 class TokenRead(BaseModel):
-    access_token: str
+    # Null unless the caller sent X-Token-In-Body (app/core/jwt.py): the browser gets the session
+    # only as a cookie.
+    access_token: str | None = None
     token_type: str = "bearer"  # noqa: S105 - the OAuth token type, not a password
 
 

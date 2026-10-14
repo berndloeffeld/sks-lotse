@@ -32,8 +32,7 @@ function useHydrated() {
   )
 }
 
-// The "bald verfügbar" kicker used throughout the app (LandingPage's PLANS cards, AiAnswerCheck's
-// teaser) for a feature that's designed but not purchasable yet.
+// The "bald verfügbar" kicker for the packages while they're designed but not purchasable yet.
 function SoonKicker() {
   return <span className="font-mono text-xs font-bold tracking-wide text-accent-strong uppercase">Bald verfügbar</span>
 }
@@ -68,6 +67,7 @@ function PackageCard({ pkg, soon }: { pkg: PublicTokenPackage; soon: boolean }) 
 
 function checkoutErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 403) return 'Der Kauf ist gerade nicht möglich.'
+  if (error instanceof ApiError && error.status === 409) return 'Bitte bestätige zuerst die aktuellen AGB.'
   return 'Die Zahlung konnte nicht gestartet werden. Versuche es später noch einmal.'
 }
 
@@ -76,6 +76,7 @@ function checkoutErrorMessage(error: unknown) {
 function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPackage[]; boughtProduct: string | null }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [waived, setWaived] = useState(false)
+  const setUser = useAuthStore((s) => s.setUser)
   const { run, isPending, error, setError } = useAsyncAction()
   const pkg = packages.find((p) => p.product === selected)
 
@@ -83,10 +84,19 @@ function PurchasePanel({ packages, boughtProduct }: { packages: PublicTokenPacka
     if (!pkg) return setError('Wähle zuerst ein Paket.')
     if (!waived) return setError('Bitte bestätige zuerst die Zustimmung zur sofortigen Bereitstellung.')
     return run(async () => {
-      const { url } = await apiClient.post<CheckoutRead>('/payments/checkout', {
-        product: pkg.product,
-        waive_withdrawal: true,
-      })
+      const { url } = await apiClient
+        .post<CheckoutRead>('/payments/checkout', { product: pkg.product, waive_withdrawal: true })
+        .catch(async (err: unknown) => {
+          // The AGB changed since this page loaded (409): fetch the account again, so
+          // needs_agb_acceptance is true and the AgbGate asks for the confirmation.
+          if (err instanceof ApiError && err.status === 409) {
+            await apiClient
+              .get<User>('/auth/me')
+              .then(setUser)
+              .catch(() => {})
+          }
+          throw err
+        })
       if (!isCheckoutUrl(url)) throw new Error('Unexpected checkout address')
       window.location.assign(url)
     }, checkoutErrorMessage)

@@ -1029,7 +1029,7 @@ export interface components {
         /** TokenRead */
         TokenRead: {
             /** Access Token */
-            access_token: string;
+            access_token?: string | null;
             /**
              * Token Type
              * @default bearer
