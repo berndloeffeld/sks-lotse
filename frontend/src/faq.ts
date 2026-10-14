@@ -78,7 +78,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'pruefungssimulation',
     question: 'Was ist die Probeprüfung?',
     answer:
-      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Fragen, die du in der Probeprüfung richtig beantwortet hast, zählen für deinen Lernstand wie beim Lernen – das macht die Probeprüfung zu einem echten Test deines aktuellen Wissensstands. Die Kartenaufgabe ist nicht Teil der Probeprüfung; sie hat einen eigenen Bereich, siehe „Was sind die Kartenaufgaben?“.',
+      'Ein zufälliger Fragebogen mit 30 Fragen und 90 Minuten Zeit, ohne Hilfen. Die Fragen sind wie von den Prüfungsausschüssen veröffentlicht auf die Fächer aufgeteilt (Navigation 9, Schifffahrtsrecht 7, Wetterkunde 5, Seemannschaft 9). Danach bewertest du dich Frage für Frage. Nach der Auswertung zählt deine Selbsteinschätzung für den Lernstand wie beim Üben, auch „Teilweise richtig“ und „Falsch“; eine schwache Probeprüfung kann ihn also senken. Mit einem Häkchen vor dem Start machst du daraus eine reine Probe, die deinen Lernstand nicht verändert; deine Wahl wird für die nächste Probeprüfung gemerkt. Die Kartenaufgabe ist nicht Teil der Probeprüfung; sie hat einen eigenen Bereich, siehe „Was sind die Kartenaufgaben?“.',
   },
   {
     id: 'daten',
