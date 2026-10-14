@@ -37,3 +37,7 @@ Added `ix_otp_codes_expires_at` (`backend/app/models/otp_code.py`) so the cleanu
 ## Addendum (2026-09-17)
 
 `OTP_CLEANUP_MIN_INTERVAL_SECONDS` and `OTP_CODE_RETENTION_HOURS`, written above as fixed constants, are now optional env vars on `Settings` (`backend/app/core/config.py`) with those values as defaults. The same throttled-sweep pattern is also used by the rate limiter to drop idle per-IP counters (see ADR-0007's addendum). The claim that FastAPI closes the request's `yield` dependencies only after background tasks finish was re-checked against the installed FastAPI (0.141) and still holds for the default dependency scope.
+
+## Addendum 2026-10-14: function names
+
+`request_otp` and `_cleanup_expired_otp_codes` are `issue_code` and `_cleanup_expired_codes` in `backend/app/services/otp_codes.py` today; the throttle works as described.

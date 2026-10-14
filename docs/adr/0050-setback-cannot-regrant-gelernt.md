@@ -52,3 +52,7 @@ cleared to `NULL` on "Teilweise Richtig"/"Falsch" (ADR-0039). No schema change.
 - Rejected: a new column dedicated to this check — `streak_start_at` already means exactly
   "the last grading was a Richtig" (whether starting or continuing a streak); reusing it keeps
   the fix a pure logic change.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, `apply_grading()` and `_at_learned_bar()` live in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.

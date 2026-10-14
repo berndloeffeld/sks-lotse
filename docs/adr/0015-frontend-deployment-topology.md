@@ -1,6 +1,6 @@
 # 0015. Frontend deployment topology: subdomain split on Render
 
-Status: Accepted
+Status: Accepted — supersedes the "no frontend service yet" part of [ADR-0005](0005-render-deployment-topology.md)
 
 ## Context
 

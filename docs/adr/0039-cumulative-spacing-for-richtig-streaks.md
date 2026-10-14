@@ -33,3 +33,7 @@ No backfill: existing rows get `streak_start_at = NULL`, which is exactly the sa
 - `next_half_life()` itself stays a pure function of one `elapsed` value; it doesn't know about streaks. All the new logic lives in `apply_grading()`, which now also has to read and write `streak_start_at`.
 - The course gauge ([ADR-0024](0024-course-gauge-without-visible-step-count.md)) needs no change: it already only renders a 0–1 position derived from `half_life_days`, with no notion of streaks.
 - Rejected alternatives (raising `FULL_GAIN`/lowering `RECALL_THRESHOLD`; a discrete OR-gate) are recorded above — revisit if a future change needs recovery to be faster than this gets it, since both remain available levers, just not chosen here.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, `apply_grading()` lives in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.

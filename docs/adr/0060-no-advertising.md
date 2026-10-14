@@ -1,6 +1,6 @@
 # 0060. No advertising
 
-Status: Accepted — supersedes [ADR-0027](0027-adsense-with-google-consent-management.md); amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md), [ADR-0043](0043-token-based-ai-grading-monetization.md) and [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (no "Werbefrei" add-on); restores the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md).
+Status: Accepted — supersedes [ADR-0027](0027-adsense-with-google-consent-management.md); amends [ADR-0006](0006-mandatory-login-and-feature-gated-monetization.md), [ADR-0043](0043-token-based-ai-grading-monetization.md) and [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (no "Werbefrei" add-on); restores the "no consent banner" consequence of [ADR-0016](0016-umami-cloud-analytics-without-consent-banner.md). Addenda of 2026-10-14 to [ADR-0047](0047-totp-step-up-for-admin-area.md), [ADR-0054](0054-learning-by-topic-open-without-login.md) and [ADR-0056](0056-chart-exercises-open-to-guests.md) note that the ad script they describe is gone.
 
 ## Context
 

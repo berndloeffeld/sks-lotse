@@ -1,6 +1,6 @@
 # 0047. TOTP step-up for the admin area
 
-Status: Accepted — amends [ADR-0019](0019-admin-allowlist-and-manual-gdpr-fulfillment.md): an allowlisted admin also needs a recent TOTP check for `/admin`; the addendum of 2026-10-01 shortens the check to 60 min and asks again before an export or deletion
+Status: Accepted — amends [ADR-0019](0019-admin-allowlist-and-manual-gdpr-fulfillment.md): an allowlisted admin also needs a recent TOTP check for `/admin`; the addendum of 2026-10-01 shortens the check to 60 min and asks again before an export or deletion The addendum of 2026-10-14 notes that the ad tag is gone since [ADR-0060](0060-no-advertising.md) and why the 60-minute limit still stands.
 
 ## Context
 
@@ -55,3 +55,7 @@ Changes:
 Residual risk: within the hour, a script on a public page that the admin opens in the same browser can still read admin data (account lists, single accounts, question history) and change settings, tokens and blocks. Opening public pages from the admin's browser profile while `/admin` is open is the remaining exposure.
 
 The structural fix, deferred: **a separate admin origin** (e.g. `admin.sks-lotse.de` for the admin frontend and its own API host or cookie). The ad-carrying origin would then never hold or send an admin session. It needs a second static site, its own CORS entry and its own cookie, which is more than this single-operator app needs today. Revisit when there is a second admin, or if the ad stack grows beyond the public pages.
+
+## Addendum 2026-10-14: the ad tag and the "Cookies" button are gone, the limit stands
+
+Since [ADR-0060](0060-no-advertising.md) (2026-10-11) the public pages carry no ad tag and the footer has no "Cookies" button; the reasoning of the addendum of 2026-10-01 that names them is historical. Umami is the one third-party script left on public pages. It is not loaded on `/admin` (`useAdminWithoutAnalytics`), but it is the remaining third-party source in the origin the admin's session cookie belongs to, so the 60-minute limit and the fresh code for export and deletion stay as decided. The deferred separate admin origin is revisited on the same terms (a second admin, or more third-party script on public pages).

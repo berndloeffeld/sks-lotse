@@ -26,3 +26,7 @@ ADR-0014 said both "need an ADR of their own once the grading/progress backend w
 - Rejected: a stored `learned: bool` column alongside `correct_streak`. Computing it from the streak removes an entire class of bug (the two fields disagreeing) at negligible query cost.
 - Rejected: building the grading endpoint and this data model in the same change. Splitting them let the "Lernen" tile ship (overview + exam-variant selector + topic list) without also committing to the LLM grading architecture in the same PR.
 - Account deletion isn't built yet, so the `CASCADE` behavior on `user_id` is untested in practice — noted here so it isn't a surprise once that feature exists.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, the rule lives in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.

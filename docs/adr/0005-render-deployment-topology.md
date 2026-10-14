@@ -53,3 +53,7 @@ The backend moved to the `starter` plan and the database to `basic-256mb` (`rend
 ## Addendum (2026-09-23, closing external database access)
 
 The previous addendum's "keeps accepting external connections" is superseded: `render.yaml` now sets `ipAllowList: []` on `sks-lotse-db`. This followed adding the admin tools that covered the lookups direct SQL access was for — browsing and searching accounts (`GET /admin/users`) and question/answer texts (`GET /admin/questions`), alongside the GDPR lookup/export/delete already there (ADR-0019). An empty `ipAllowList` blocks external clients only; services within the same Render account (the backend, the cron job) still reach the database over its internal network, so nothing about the running app changes. Emergency ad hoc access that the admin UI doesn't cover goes through the backend service's Render Shell instead of a local `psql` (see `docs/RUNBOOK.md` → Database).
+
+## Addendum 2026-10-14: no Aikido job in CI
+
+"CI (tests, lint, Aikido)" is historical: the Aikido CI job was removed on 2026-09-19. Aikido still rescans the repository on its own schedule, but it is no merge gate (see `docs/RUNBOOK.md` → Security alerts).
