@@ -104,10 +104,11 @@ export function AppRoutes() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<AgbPage />} />
           <Route path="/exam-process" element={<ExamProcessPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* AgbGate only ever asks a logged-in learner; guests pass straight through. */}
+          {/* AgbGate only ever asks a logged-in learner; guests pass straight through. /pricing is
+            in it so nobody buys before confirming the AGB in force (the API refuses it too, ADR-0041). */}
           <Route element={<AgbGate />}>
+            <Route path="/pricing" element={<PricingPage />} />
             {/* Open without a login (ADR-0054): the topic list and a topic's run, prerendered for
               search engines; logged in they are the learner's Lernstand and graded run. */}
             <Route path="/learn" element={<LearnPage />} />

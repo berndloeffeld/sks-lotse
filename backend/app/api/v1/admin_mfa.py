@@ -6,7 +6,13 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.jwt import get_session_claims, issue_session, require_admin_identity
+from app.core.jwt import (
+    get_session_claims,
+    issue_session,
+    require_admin_identity,
+    token_body,
+    wants_token_in_body,
+)
 from app.core.rate_limit import enforce_limit
 from app.core.totp import mfa_is_fresh
 from app.models import User
@@ -57,6 +63,7 @@ def verify(
     response: Response,
     admin: User = Depends(require_admin_identity),
     db: Session = Depends(get_db),
+    token_in_body: bool = Depends(wants_token_in_body),
 ) -> TokenRead:
     """Check a TOTP code — the first one completes the enrolment — and re-issue the session with it."""
     enforce_limit(
@@ -74,4 +81,4 @@ def verify(
         raise _invalid_code()
     if not was_enrolled:
         logger.info("admin 2fa enabled: admin=%s", admin.id)
-    return TokenRead(access_token=issue_session(response, admin, mfa_at=int(now.timestamp())))
+    return token_body(issue_session(response, admin, mfa_at=int(now.timestamp())), token_in_body)

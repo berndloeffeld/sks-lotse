@@ -11,7 +11,7 @@ from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import BlockedEmail, OtpCode, Question, QuestionProgress, User
 from app.models.purchase import Purchase
 from app.services import blocklist
-from tests.helpers import progress_state
+from tests.helpers import TOKEN_IN_BODY, progress_state
 
 
 def _capture_otp(monkeypatch):
@@ -332,7 +332,9 @@ def test_dev_peek_excluded_from_openapi_schema(client):
 def test_verify_otp_happy_path_issues_token_and_creates_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 
-    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+    response = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
+    )
 
     assert response.status_code == 200
     body = response.json()
@@ -448,10 +450,52 @@ def test_verify_otp_unknown_email_returns_401(client):
     assert response.status_code == 401
 
 
-def test_verify_otp_sets_httponly_session_cookie(client, db_session, monkeypatch):
+def test_verify_otp_without_the_opt_in_has_no_token_in_the_body(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
 
     response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+
+    assert response.status_code == 200
+    assert response.json()["access_token"] is None
+    assert "access_token" in response.cookies
+    assert client.get("/api/v1/auth/me").status_code == 200  # the cookie alone is the session
+
+
+def test_verify_otp_only_an_explicit_true_opts_in(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+
+    response = client.post(
+        "/api/v1/auth/otp/verify",
+        json={"email": "learner@example.com", "code": code},
+        headers={"X-Token-In-Body": "false"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["access_token"] is None
+
+
+def test_the_opt_in_header_is_not_allowed_cross_origin(client):
+    # A script in a browser must not be able to switch the token into the body (ADR-0012 addendum).
+    origin = settings.cors_allowed_origins[0]
+    response = client.options(
+        "/api/v1/auth/otp/verify",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "x-token-in-body,content-type",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "x-token-in-body" not in response.headers.get("access-control-allow-headers", "").lower()
+
+
+def test_verify_otp_sets_httponly_session_cookie(client, db_session, monkeypatch):
+    code = _request_and_get_code(client, db_session, monkeypatch)
+
+    response = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
+    )
 
     assert response.status_code == 200
     cookie = next(c for c in response.cookies.jar if c.name == "access_token")
@@ -499,7 +543,9 @@ def test_production_session_cookie_uses_the_host_prefix(client, db_session, monk
     code = _request_and_get_code(client, db_session, monkeypatch)
     monkeypatch.setattr(settings, "environment", "production")
 
-    response = client.post("/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code})
+    response = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
+    )
 
     assert response.status_code == 200
     [set_cookie] = _set_cookie_headers(response)
@@ -513,7 +559,7 @@ def test_production_session_cookie_uses_the_host_prefix(client, db_session, monk
 def test_production_reads_only_the_host_prefixed_cookie(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
     token = client.post(
-        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
     ).json()["access_token"]
     client.cookies.clear()
     monkeypatch.setattr(settings, "environment", "production")
@@ -529,7 +575,7 @@ def test_production_reads_only_the_host_prefixed_cookie(client, db_session, monk
 def test_production_clears_the_host_prefixed_cookie(client, db_session, monkeypatch, method, path):
     code = _request_and_get_code(client, db_session, monkeypatch)
     token = client.post(
-        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
     ).json()["access_token"]
     client.cookies.clear()
     monkeypatch.setattr(settings, "environment", "production")
@@ -598,7 +644,7 @@ def test_verify_otp_is_rate_limited_per_ip(client):
 def test_me_with_valid_token_returns_current_user(client, db_session, monkeypatch):
     code = _request_and_get_code(client, db_session, monkeypatch)
     verify_response = client.post(
-        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}
+        "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}, headers=TOKEN_IN_BODY
     )
     token = verify_response.json()["access_token"]
 

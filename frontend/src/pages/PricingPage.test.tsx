@@ -3,9 +3,10 @@ import userEvent from '@testing-library/user-event'
 import { hydrateRoot } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { MemoryRouter, StaticRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, StaticRouter } from 'react-router-dom'
 
 import { BALANCE_RECHECK_MS, PricingPage } from './PricingPage'
+import { AgbGate } from '../routes/AgbGate'
 import { useAuthStore } from '../store/authStore'
 import { jsonResponse, makeUser } from '../test/fixtures'
 
@@ -38,6 +39,19 @@ function stubFetch(pricing: object, ...responses: Response[]) {
   })
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
+}
+
+// /pricing as App.tsx mounts it: inside the AgbGate.
+function renderGated(path = '/pricing') {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route element={<AgbGate />}>
+          <Route path="/pricing" element={<PricingPage />} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  )
 }
 
 describe('PricingPage', () => {
@@ -106,6 +120,43 @@ describe('PricingPage', () => {
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body as string)).toEqual({ product: 'tokens_m', waive_withdrawal: true })
     expect(assign).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_1')
+  })
+
+  it('asks an account that owes the AGB confirmation for it before it can buy', async () => {
+    useAuthStore.setState({ user: makeUser({ can_buy_tokens: true, needs_agb_acceptance: true }) })
+    stubFetch(PRICING)
+    renderGated()
+
+    expect(await screen.findByRole('dialog', { name: 'Aktualisierte Nutzungsbedingungen' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ich akzeptiere die AGB' })).toBeInTheDocument()
+    // The Modal makes the page behind it inert (see Modal.tsx), so the purchase waits for the confirmation.
+  })
+
+  it('shows a guest the page without the AGB dialog', async () => {
+    stubFetch({ ...PRICING, checkout_enabled: true })
+    renderGated()
+
+    expect(await screen.findByRole('link', { name: 'Kostenlos anmelden' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('answers a 409 from the checkout by fetching the account again, so the AGB dialog appears', async () => {
+    useAuthStore.setState({ user: BUYER })
+    const assign = vi.fn()
+    vi.stubGlobal('location', { ...window.location, assign })
+    const stale = makeUser({ ...BUYER, needs_agb_acceptance: true })
+    const fetchMock = stubFetch(PRICING, jsonResponse({ detail: 'agb_acceptance_required' }, 409), jsonResponse(stale))
+    const user = userEvent.setup()
+    renderGated()
+
+    await user.click(await screen.findByRole('radio', { name: /Paket M/ }))
+    await user.click(screen.getByRole('checkbox', { name: /Widerrufsrecht/ }))
+    await user.click(screen.getByRole('button', { name: /Paket M für 5,99\s€ kaufen/ }))
+
+    expect(await screen.findByRole('dialog', { name: 'Aktualisierte Nutzungsbedingungen' })).toBeInTheDocument()
+    expect(screen.getByRole('alert', { hidden: true })).toHaveTextContent('Bitte bestätige zuerst die aktuellen AGB.')
+    expect((fetchMock.mock.calls[2] as unknown as [string])[0]).toMatch(/\/auth\/me$/)
+    expect(assign).not.toHaveBeenCalled()
   })
 
   it('does not follow a checkout address that is not Stripe’s', async () => {

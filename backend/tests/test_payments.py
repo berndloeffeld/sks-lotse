@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core import checkout
 from app.core.config import settings
 from app.domain import pricing as pricing_domain
+from app.domain.legal import CURRENT_AGB_VERSION
 from app.models.purchase import Purchase
 from app.models.user import User
 from app.services import email as email_service
@@ -50,6 +51,14 @@ def fake_stripe(monkeypatch):
     client = SimpleNamespace(v1=SimpleNamespace(checkout=SimpleNamespace(sessions=sessions)))
     monkeypatch.setattr(payments, "_client", lambda: client)
     return sessions
+
+
+@pytest.fixture()
+def buyer_headers(db_session, auth_headers):
+    """The fixture user's session, once they confirmed the AGB in force (what a purchase needs)."""
+    fixture_user(db_session).agb_accepted_version = CURRENT_AGB_VERSION
+    db_session.commit()
+    return auth_headers
 
 
 def _checkout(client, headers, product="tokens_s", waive=True):
@@ -160,14 +169,14 @@ def test_build_checkout_params_uses_the_checkout_studio_settings(db_session, aut
 
 
 def test_checkout_returns_the_stripe_url_with_the_configured_price(
-    client, db_session, auth_headers, stripe_configured, fake_stripe
+    client, db_session, buyer_headers, stripe_configured, fake_stripe
 ):
     pricing_service.set_prices(
         db_session,
         signup_bonus_tokens=6,
         packages={"tokens_s": pricing_domain.TokenPackage("tokens_s", 25, 349)},
     )
-    response = _checkout(client, auth_headers)
+    response = _checkout(client, buyer_headers)
     assert response.status_code == 200
     assert response.json() == {"url": fake_stripe.url}
     assert fake_stripe.params["line_items"][0]["price_data"] == {
@@ -180,47 +189,72 @@ def test_checkout_returns_the_stripe_url_with_the_configured_price(
 
 
 def test_checkout_is_refused_while_the_flag_is_off(
-    client, auth_headers, stripe_configured, fake_stripe, monkeypatch
+    client, buyer_headers, stripe_configured, fake_stripe, monkeypatch
 ):
     monkeypatch.setattr(settings, "stripe_checkout", "off")
-    response = _checkout(client, auth_headers)
+    response = _checkout(client, buyer_headers)
     assert response.status_code == 403
     assert response.json()["detail"] == "Checkout is not available"
     assert fake_stripe.params is None
 
 
+def test_checkout_needs_the_agb_in_force(client, auth_headers, stripe_configured, fake_stripe):
+    # Nothing confirmed yet (version NULL): a 409 that the frontend answers with the AGB dialog.
+    response = _checkout(client, auth_headers)
+    assert response.status_code == 409
+    assert response.json()["detail"] == "agb_acceptance_required"
+    assert fake_stripe.params is None
+
+
+def test_checkout_needs_the_current_agb_version_not_an_older_one(
+    client, db_session, buyer_headers, stripe_configured, fake_stripe
+):
+    fixture_user(db_session).agb_accepted_version = "2020-01-01"
+    db_session.commit()
+    assert _checkout(client, buyer_headers).status_code == 409
+    assert fake_stripe.params is None
+    assert client.post("/api/v1/auth/me/agb-accept", headers=buyer_headers).status_code == 200
+    assert _checkout(client, buyer_headers).status_code == 200
+
+
+def test_the_agb_check_comes_before_the_body_validation(client, auth_headers, stripe_configured):
+    assert _checkout(client, auth_headers, waive=False).status_code == 409
+
+
 def test_checkout_in_admins_stage_is_refused_for_a_learner(
-    client, auth_headers, stripe_configured, fake_stripe, monkeypatch
+    client, buyer_headers, stripe_configured, fake_stripe, monkeypatch
 ):
     monkeypatch.setattr(settings, "stripe_checkout", "admins")
-    assert _checkout(client, auth_headers).status_code == 403
+    assert _checkout(client, buyer_headers).status_code == 403
     make_admin(monkeypatch)
-    assert _checkout(client, auth_headers).status_code == 200
+    assert _checkout(client, buyer_headers).status_code == 200
 
 
-def test_checkout_needs_the_withdrawal_waiver(client, auth_headers, stripe_configured, fake_stripe):
-    assert _checkout(client, auth_headers, waive=False).status_code == 422
+def test_checkout_needs_the_withdrawal_waiver(client, buyer_headers, stripe_configured, fake_stripe):
+    assert _checkout(client, buyer_headers, waive=False).status_code == 422
     assert fake_stripe.params is None
 
 
 def test_checkout_rejects_a_product_that_is_not_a_token_package(
-    client, auth_headers, stripe_configured, fake_stripe
+    client, buyer_headers, stripe_configured, fake_stripe
 ):
-    assert _checkout(client, auth_headers, product="signup_bonus").status_code == 422
+    assert _checkout(client, buyer_headers, product="signup_bonus").status_code == 422
 
 
 def test_checkout_without_a_product_id_answers_502(
-    client, auth_headers, stripe_configured, fake_stripe, monkeypatch
+    client, buyer_headers, stripe_configured, fake_stripe, monkeypatch
 ):
     monkeypatch.setattr(settings, "stripe_product_tokens_s", "")
-    assert _checkout(client, auth_headers).status_code == 502
+    assert _checkout(client, buyer_headers).status_code == 502
     assert fake_stripe.params is None
 
 
-def test_checkout_answers_502_on_a_stripe_error(client, auth_headers, stripe_configured, fake_stripe, caplog):
+def test_checkout_answers_502_on_a_stripe_error(
+    client, buyer_headers, stripe_configured, fake_stripe, caplog
+):
     fake_stripe.error = stripe.APIConnectionError("network down")
     with caplog.at_level("WARNING"):
-        response = _checkout(client, auth_headers)
+        response = _checkout(client, buyer_headers)
     assert response.status_code == 502
     assert response.json()["detail"] == "Checkout is currently unavailable"
     assert "checkout unavailable for user 1:" in caplog.text
@@ -228,16 +262,16 @@ def test_checkout_answers_502_on_a_stripe_error(client, auth_headers, stripe_con
 
 
 def test_checkout_answers_502_when_stripe_returns_no_url(
-    client, auth_headers, stripe_configured, fake_stripe
+    client, buyer_headers, stripe_configured, fake_stripe
 ):
     fake_stripe.url = None
-    assert _checkout(client, auth_headers).status_code == 502
+    assert _checkout(client, buyer_headers).status_code == 502
 
 
-def test_checkout_has_its_own_rate_limit(client, auth_headers, stripe_configured, fake_stripe, monkeypatch):
+def test_checkout_has_its_own_rate_limit(client, buyer_headers, stripe_configured, fake_stripe, monkeypatch):
     for _ in range(settings.rate_limit_checkout_max_requests):
-        assert _checkout(client, auth_headers).status_code == 200
-    assert _checkout(client, auth_headers).status_code == 429
+        assert _checkout(client, buyer_headers).status_code == 200
+    assert _checkout(client, buyer_headers).status_code == 429
 
 
 def test_the_stripe_client_carries_the_secret_key(monkeypatch):

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.jwt import get_current_user
+from app.core.jwt import require_current_agb
 from app.models.user import User
 from app.schemas.payments import CheckoutRead, CheckoutRequest, WebhookRead
 from app.services import payments
@@ -20,9 +20,13 @@ router = APIRouter(prefix="/payments", tags=["payments"])
 def create_checkout(
     payload: CheckoutRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_current_agb),
 ) -> CheckoutRead:
-    """Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag."""
+    """Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag.
+
+    Only for an account that confirmed the AGB in force (409 otherwise, ADR-0041): the purchase
+    forms the contract, and `agb_accepted_at` is its evidence.
+    """
     if not checkout_enabled_for(current_user.email):
         raise HTTPException(status_code=403, detail="Checkout is not available")
     try:

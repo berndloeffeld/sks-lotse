@@ -1,6 +1,6 @@
 # 0012. httpOnly cookie for the frontend's session token, not localStorage
 
-Status: Accepted; the addendum of 2026-10-01 names the cookie `__Host-access_token` when deployed
+Status: Accepted; the addendum of 2026-10-01 names the cookie `__Host-access_token` when deployed; the addendum of 2026-10-14 puts the token in a login response's body only on request
 
 ## Context
 
@@ -42,3 +42,11 @@ The cookie was set host-only on `api.sks-lotse.de`, but nothing stopped a page o
 When deployed (`settings.is_production`) the cookie is now called `__Host-access_token`. Browsers only accept a cookie with that prefix when it is `Secure`, has `Path=/` and has no `Domain`, so no other host can set one for the API. `get_session_claims` reads only that name, never a bare `access_token` as a fallback, which would reopen the hole. Local dev runs on plain `http://`, where a `__Host-` cookie is never stored, so it keeps the bare name. One helper in `app/core/jwt.py` (`session_cookie_name()`, plus `clear_session()` for logout and account deletion) decides it. Clearing repeats `Secure`, because browsers ignore a `__Host-` `Set-Cookie` without it, deletions included.
 
 Consequence: on the deploy that ships it, every browser session ends once (the old cookie is no longer read), and learners log in again. The old cookie stays in the browser, unread, until it expires. The Bearer fallback is unaffected.
+
+## Addendum (2026-10-14): the token in the body only on request
+
+The login responses (`POST /auth/otp/verify`, `POST /admin/mfa/verify`) carried the session token in the JSON body as well, "for Postman and future non-browser clients". The frontend never read it, but a compromised third-party script (Umami runs on `/login` and the landing page, ADR-0016) or an XSS could wrap `fetch` and read the 7-day token from the response, and `get_session_claims` accepts it as a Bearer from anywhere until logout. That undid the point of the httpOnly cookie.
+
+Now `access_token` in the body is `null` unless the request carries `X-Token-In-Body: true` (`wants_token_in_body`, `token_body` in `app/core/jwt.py`; `TokenRead.access_token` is optional). The cookie is set either way. The header is deliberately not in the CORS `allow_headers` (`app/main.py`): frontend and API are on different origins (ADR-0015), so a script in a browser fails the preflight when it sends the header, and cannot switch the token into the body of the page's own login. `test_the_opt_in_header_is_not_allowed_cross_origin` pins that. Postman, `scripts/run_integration_tests.sh` and any script send the header; the generated collection lists it as a header of both endpoints (value `false`, set it to `true`).
+
+Consequences: a non-browser client that read the token from the body without the header gets `null` and must send it (or read the `Set-Cookie` header, which the integration collection does for two of its logins to cover the default path). A browser extension or a script on an allowed origin that sets the header is out of scope, as before: the CORS allow-list is the boundary.

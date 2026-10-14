@@ -12,7 +12,7 @@ from app.core.jwt import MFA_REQUIRED, RECENT_MFA_REQUIRED, create_access_token
 from app.models import User
 from app.services import admin_mfa
 from scripts import reset_admin_totp
-from tests.helpers import FIXTURE_EMAIL, fixture_user, make_admin
+from tests.helpers import FIXTURE_EMAIL, TOKEN_IN_BODY, fixture_user, make_admin
 
 _STATUS = "/api/v1/admin/mfa/status"
 _ENROL = "/api/v1/admin/mfa/enrol"
@@ -117,7 +117,9 @@ def test_enrolment_confirm_opens_the_admin_area(client, db_session, admin, no_mf
     db_session.refresh(admin)
     assert body["secret"] not in admin.totp_secret_encrypted
 
-    response = client.post(_VERIFY, headers=no_mfa, json={"code": pyotp.TOTP(body["secret"]).now()})
+    response = client.post(
+        _VERIFY, headers={**no_mfa, **TOKEN_IN_BODY}, json={"code": pyotp.TOTP(body["secret"]).now()}
+    )
     assert response.status_code == 200
     token = response.json()["access_token"]
     assert "access_token" in response.cookies
@@ -134,9 +136,21 @@ def test_enrolment_confirm_opens_the_admin_area(client, db_session, admin, no_mf
     assert client.get("/api/v1/auth/me", headers=no_mfa).status_code == 200
 
 
-def test_the_upgraded_session_keeps_user_and_token_version(client, admin, no_mfa):
+def test_the_upgraded_session_is_only_a_cookie_without_the_opt_in(client, admin, no_mfa):
     secret = _enrol(client, no_mfa)
     response = client.post(_VERIFY, headers=no_mfa, json={"code": pyotp.TOTP(secret).now()})
+    assert response.status_code == 200
+    assert response.json()["access_token"] is None
+    assert "access_token" in response.cookies
+    client.cookies.set("access_token", response.cookies["access_token"])
+    assert client.get(_ADMIN_ROUTE).status_code == 200
+
+
+def test_the_upgraded_session_keeps_user_and_token_version(client, admin, no_mfa):
+    secret = _enrol(client, no_mfa)
+    response = client.post(
+        _VERIFY, headers={**no_mfa, **TOKEN_IN_BODY}, json={"code": pyotp.TOTP(secret).now()}
+    )
     token = response.json()["access_token"]
     claims = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
     assert claims["sub"] == str(admin.id)
@@ -163,7 +177,9 @@ def test_step_up_with_an_active_secret(client, db_session, admin, no_mfa, caplog
     caplog.set_level("INFO")
     secret = _enrolled_secret(db_session, admin)
     assert client.get(_STATUS, headers=no_mfa).json() == {"enrolled": True, "verified": False}
-    response = client.post(_VERIFY, headers=no_mfa, json={"code": pyotp.TOTP(secret).now()})
+    response = client.post(
+        _VERIFY, headers={**no_mfa, **TOKEN_IN_BODY}, json={"code": pyotp.TOTP(secret).now()}
+    )
     assert response.status_code == 200
     upgraded = {"Authorization": f"Bearer {response.json()['access_token']}"}
     assert client.get(_ADMIN_ROUTE, headers=upgraded).status_code == 200
