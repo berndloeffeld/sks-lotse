@@ -37,3 +37,7 @@ The visual design system (color palette, typography, spacing, logo/branding) is 
 - Rejected: a component library (MUI/Chakra) — imposes its own visual identity that would need re-skinning once real branding exists, working against the deliberate deferral of that decision.
 - Rejected: a generated/OpenAPI-derived TypeScript client — not worth the tooling overhead for 7 endpoints; revisit if the API surface grows substantially (e.g. once grading lands).
 - Rejected: Biome for lint/format — the closest JS analogue to the backend's `ruff` (one fast tool, lint+format in one), but its React-specific and `jsx-a11y`-equivalent rules are still less mature than the ESLint plugin ecosystem. Revisit if that gap closes.
+
+## Addendum 2026-10-14: Aikido is no CI check
+
+The Aikido scan mentioned under "Security scanning" and in the CLAUDE.md note is not a CI job any more (removed 2026-09-19); it rescans on its own schedule and gates nothing.

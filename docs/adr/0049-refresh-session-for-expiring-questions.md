@@ -21,3 +21,7 @@ A third learning mode, **Auffrischen** (`/learn/refresh`), next to "Nach Thema" 
 - Only questions that were once at the bar are offered: a learner who never reached "gelernt" sees an empty Auffrischen and is pointed to the other modes.
 - The 2-day window and the sample size are constants, easy to tune; both are product choices, not derived from the model.
 - Random selection within the lapsed pool means the sample can miss the most overdue question; if that turns out to matter, order by `review_due_at` instead.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, `refresh_clause` and `LEARNED_HALF_LIFE_DAYS` live in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.

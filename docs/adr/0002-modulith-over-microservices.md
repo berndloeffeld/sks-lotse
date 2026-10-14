@@ -22,3 +22,7 @@ Build and ship as a **modulith**: one backend deployable, one frontend deployabl
 - Module boundaries (`api/` calling into `services/`, not the reverse; `services/` not importing from `api/`) still need to be respected by convention — a modulith without internal discipline degrades into a ball of mud just as easily as microservices without clear ownership degrade into a distributed one.
 - If a genuine independent-scaling need emerges later (the most likely candidate: the LLM grading call, which is slower and costlier per-request than everything else), that module can be extracted into its own service at that point — the internal separation already in place makes that extraction easier than if everything were entangled.
 - Revisit this decision if: a second team starts contributing with conflicting release cadences, or a specific module's load profile diverges sharply enough from the rest that co-deploying it becomes a genuine operational problem.
+
+## Addendum 2026-10-14: the `domain/` layer
+
+The backend has a fifth layer next to `api/`, `core/`, `models/`, `schemas/` and `services/`: `backend/app/domain/` holds the product rules (the half-life model of "gelernt", the exam rules, exam variants, prices, the AGB version). It imports neither `Settings`, a DB session nor FastAPI, checked by `backend/tests/test_domain_imports.py`; models and SQLAlchemy expressions are allowed. The modulith decision stands. See `docs/ARCHITECTURE.md` → Backend.

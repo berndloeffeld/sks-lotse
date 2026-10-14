@@ -29,3 +29,7 @@ The official rules are in the *Durchführungsrichtlinien Sportküstenschiffersch
 - A completed exam can't be re-graded, so a misclick in the self-assessment stands.
 - If the official split or scoring differs from what course providers publish, the constants in `app/core/exam.py` are the single place to change; old attempts would keep their stored questions but be re-scored with the new mapping.
 - Adding the Kartenaufgabe later means a second part with its own 90 minutes and 30 points; the "Fragebogen" wording in the UI is there to make that extension natural.
+
+## Addendum 2026-10-14: the exam rules moved to `domain/`
+
+`app/core/exam.py` (the composition and scoring constants) is `backend/app/domain/exam.py` since 2026-10-01 (#231). Since [ADR-0061](0061-learner-chooses-whether-an-exam-counts.md) the learner chooses whether an exam counts for the Lernstand, and the batched exam credit is `record_exam_gradings`.

@@ -1,6 +1,6 @@
 # 0036. Weekly AI-check budget with admin-tunable default and per-user override
 
-Status: Superseded by [ADR-0044](0044-drop-weekly-ai-check-budget.md).
+Status: Superseded by [ADR-0044](0044-drop-weekly-ai-check-budget.md). It amended [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (a weekly budget for the AI check).
 
 Amends the budget bullet of [ADR-0031](0031-ai-answer-check-with-claude-haiku.md) (that ADR's other decisions stand).
 
@@ -21,3 +21,7 @@ ADR-0031 capped the AI answer check at 20 per account and calendar day, one valu
 - Cost ceiling per account is ~13 cent per week at the default (100 x ~0.13 cent), and the operator can tighten or loosen it without a deploy.
 - `app_settings` is generic, so further operator-tunable values can reuse it; each new key needs its own admin endpoint/validation.
 - `ai_checks_weekly_limit` is personal data of the account (it is stored on it), so it is part of `AdminUserRead` and hence the DSGVO export.
+
+## Addendum 2026-10-14: the quota module is gone
+
+`ai_quota.py` and its `effective_limit` no longer exist: the budget was dropped by [ADR-0044](0044-drop-weekly-ai-check-budget.md), and the sanitizer-flag counter went to `backend/app/services/ai_abuse_monitoring.py`.

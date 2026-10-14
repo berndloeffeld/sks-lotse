@@ -34,3 +34,7 @@ The gate only existed in the frontend, and `/pricing` sat outside it, so an acco
 - **Not for the Lotsen-Check:** the contract is formed by the purchase. A check spends a balance that already exists, including the free starting balance, so a second gate there would prove nothing and only slow down learning (the open pages behind the `AgbGate` already ask).
 
 The integration collection confirms the AGB for its test account (`Accept AGB`) after checking the 409, before the other checkout requests.
+
+## Addendum 2026-10-14: the AGB version moved to `domain/`
+
+`CURRENT_AGB_VERSION` is in `backend/app/domain/legal.py` (was `app/core/legal.py`) since 2026-10-01 (#231).

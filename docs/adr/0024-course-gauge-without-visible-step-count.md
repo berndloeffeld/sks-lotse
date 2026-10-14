@@ -1,6 +1,6 @@
 # 0024. Course gauge: per-question progress without a visible step count
 
-Status: Accepted
+Status: Accepted — supersedes the "Lot gauge" bullet of [ADR-0014](0014-visual-design-system.md); the streak method its Context and Decision describe (three consecutive "Richtig") is superseded by [ADR-0034](0034-half-life-model-for-gelernt.md), see the addendum of 2026-10-14
 
 ## Context
 
@@ -24,3 +24,7 @@ Options considered (explored as mockups): stepped designs (three fields, a sound
 - Learners can still roughly infer the count by watching how far the boat moves per answer. The goal is only that it isn't readable at a glance, not that it's secret.
 - The dashed course (`border` color) is faint on the page background. That's acceptable because the boat carries the information, not the line.
 - ADR-0014's "Lot gauge" bullet is superseded by this ADR. The rest of ADR-0014 stands.
+
+## Addendum 2026-10-14: the streak method is superseded
+
+`streakProgress()` in `src/progress.ts` no longer exists. [ADR-0034](0034-half-life-model-for-gelernt.md) replaced the three-consecutive-"Richtig" method that this ADR's Context and Decision describe, and the gauge no longer follows a streak. The gauge still takes a 0–1 `progress` and shows no step count (`frontend/src/components/CourseGauge.tsx`); the decision against a visible count stands.

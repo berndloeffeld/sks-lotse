@@ -1,6 +1,6 @@
 # 0034. Half-life model for "gelernt" (replaces the 3-streak rule)
 
-Status: Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start); the "gelernt" gate is amended by [ADR-0050](0050-setback-cannot-regrant-gelernt.md) (a setback can't itself regrant it).
+Status: Accepted — the spacing measure for a run of "Richtig" is amended by [ADR-0039](0039-cumulative-spacing-for-richtig-streaks.md) (cumulative from the streak's start); the "gelernt" gate is amended by [ADR-0050](0050-setback-cannot-regrant-gelernt.md) (a setback can't itself regrant it). Supersedes the "gelernt" streak rule (and `correct_streak`) of [ADR-0018](0018-learning-progress-model-and-gelernt-streak-rule.md). The course gauge of [ADR-0024](0024-course-gauge-without-visible-step-count.md) no longer follows a streak; see its addendum of 2026-10-14.
 
 ## Context
 
@@ -30,3 +30,7 @@ The model the research pointed to is Duolingo's half-life regression: the probab
 - Rejected: a full SM-2/Anki scheduler with due dates as the primary concept — the UI is topic-practice, not a daily review queue; the half-life fits the existing "gelernt" counts.
 - Resurfacing today only affects what a practice run offers and the counts. A dedicated "Wiederholen" queue across topics is possible later on top of `review_due_at`.
 - A Fokus topic still drops out permanently once all its questions are gelernt ([ADR-0028](0028-focus-topics.md)); later decay doesn't bring it back.
+
+## Addendum 2026-10-14: the progress rules moved to `domain/`
+
+Where this ADR names `app/core/progress.py` or `backend/app/core/progress.py`, the update rule and its constants live in `backend/app/domain/progress.py` since 2026-10-01 (#231); the decision is unchanged.
