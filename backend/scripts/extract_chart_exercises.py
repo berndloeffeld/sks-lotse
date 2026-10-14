@@ -3,6 +3,7 @@
 Usage (reads the PDF directly, no DB needed; needs PyMuPDF from requirements-dev.txt):
 
     PYTHONPATH=. .venv/bin/python scripts/extract_chart_exercises.py [--force]
+    PYTHONPATH=. .venv/bin/python scripts/extract_chart_exercises.py --task-images
     # review app/data/chart_exercises.yaml by hand against the PDF
 
 A one-off (the source PDF doesn't change), so no pipeline: this proposes
@@ -21,6 +22,11 @@ What becomes what:
   triangle (Stromdreieck) of a task: cut it from the PDF by hand into
   frontend/public/charts/bogen-NN/aufgabe-NN-stromdreieck.png and reference it
   from its solution part (`image: {src, width, height}`).
+- The official task as the PDF prints it (ADR-0063) is cut into images, one or more per task
+  (split at a page break), into frontend/public/charts/bogen-NN/aufgabe-NN-aufgabe-K.png, and the official
+  solution the same way as aufgabe-NN-loesung-K.png. They show in the "Offizieller Originaltext" panel
+  beside the Formblatt. `--task-images` does only this and sets `task_images` and `solution_images` of
+  every task already in the reviewed YAML, leaving the rest of it untouched.
 - The "Formblatt Gezeiten" is the same scanned form in every sheet; the
   last sheet's copy is rendered once.
 
@@ -52,6 +58,9 @@ TEXT_FIXES = {
     "Rechteck mit der Zahl 344,": "Rechteck mit der Zahl 34₄,",
 }
 FORM_CLIP = pymupdf.Rect(36, 22, 550, 582)
+ZOOM = 2.0  # 144 dpi: sharp on high-density screens at ~520 CSS px
+CONTENT_X = (40.0, 560.0)
+MARGIN = 4.0
 FOOTER_Y = 800.0  # below: the page number
 
 
@@ -224,10 +233,101 @@ def _hints(doc: pymupdf.Document) -> list[str]:
     return [_join(p) for p in paragraphs]
 
 
+def _content_bottom(page: pymupdf.Page, top: float, limit: float) -> float:
+    """Lowest text or drawing between top and limit, ignoring the full-width grey bars."""
+    bottom = top
+    for line in _lines(page):
+        if top + 1 < line["y1"] <= limit:
+            bottom = max(bottom, line["y1"])
+    for drawing in page.get_drawings():
+        rect = drawing["rect"]
+        is_bar = rect.width > 400 and rect.height < 25
+        if rect.y1 > top + 1 and rect.y0 >= top - MARGIN and rect.y1 <= limit and not is_bar:
+            bottom = max(bottom, rect.y1)
+    return bottom
+
+
+def _before_bars(page: pymupdf.Page, content: float) -> float:
+    """The cut below the content, but never into a grey bar (12pt strokes, the top edge half a stroke up)."""
+    bars = [d["rect"].y0 - (d.get("width") or 0) / 2 for d in page.get_drawings() if d["rect"].width > 400]
+    return min([content + MARGIN, *(y for y in bars if y > content - MARGIN)])
+
+
+def _page_regions(page: pymupdf.Page, state: list) -> dict[tuple[int, str], tuple[float, float]]:
+    """One page's (task, kind) -> (top, bottom). `state` = [task, kind] carries over to the next page.
+
+    kind "aufgabe" runs from the task's header to "Lösung:", "loesung" from there to the next header (or
+    "Notizen", or the page's end).
+    """
+    spans: dict[tuple[int, str], list[float]] = {}
+    limits: dict[tuple[int, str], float] = {}
+    for line in (line for line in _lines(page) if line["y1"] < FOOTER_Y):
+        task, kind = state
+        header = HEADER_RE.match(line["text"])
+        if header or line["text"] == "Notizen":
+            if task is not None:
+                limits[(task, kind)] = line["text_y0"] - 1
+            state[:] = [int(header.group(1)), "aufgabe"] if header else [None, None]
+        elif line["text"].startswith("Lösung:") and task is not None:
+            state[1] = "loesung"
+        task, kind = state
+        if task is not None:
+            top, bottom = spans.setdefault((task, kind), [line["text_y0"], line["y1"]])
+            spans[(task, kind)] = [min(top, line["text_y0"]), max(bottom, line["y1"])]
+    regions = {}
+    for key, (top, bottom) in spans.items():
+        if key[1] == "loesung":
+            bottom = _before_bars(page, _content_bottom(page, top, limits.get(key, FOOTER_Y)))
+        else:
+            bottom += MARGIN
+        regions[key] = (top - MARGIN, bottom)
+    return regions
+
+
+def _render_task_images(
+    doc: pymupdf.Document, sheet: int, pages: list[int]
+) -> dict[tuple[int, str], list[dict]]:
+    """Cut every task and every official solution of a sheet from the PDF into grey PNGs."""
+    folder = IMAGES_DIR / f"bogen-{sheet:02d}"
+    folder.mkdir(parents=True, exist_ok=True)
+    images: dict[tuple[int, str], list[dict]] = {}
+    state: list = [None, None]
+    for page_no in pages:
+        for (number, kind), (top, bottom) in _page_regions(doc[page_no], state).items():
+            part = len(images.get((number, kind), [])) + 1
+            clip = pymupdf.Rect(CONTENT_X[0], top, CONTENT_X[1], bottom)
+            matrix = pymupdf.Matrix(ZOOM, ZOOM)
+            pix = doc[page_no].get_pixmap(matrix=matrix, clip=clip, colorspace=pymupdf.csGRAY)
+            path = folder / f"aufgabe-{number:02d}-{kind}-{part}.png"
+            pix.save(path)
+            images.setdefault((number, kind), []).append(
+                {"src": f"{folder.name}/{path.name}", "width": pix.width, "height": pix.height}
+            )
+    return images
+
+
+def _add_task_images(doc: pymupdf.Document) -> None:
+    """--task-images: render the images, set `task_images` and `solution_images` in the reviewed YAML."""
+    data = yaml.safe_load(DATA_PATH.read_text(encoding="utf-8"))
+    pages = _sheet_pages(doc)
+    for sheet in data["sheets"]:
+        images = _render_task_images(doc, sheet["number"], pages[sheet["number"]])
+        for task in sheet["tasks"]:
+            task["task_images"] = images[(task["number"], "aufgabe")]
+            task["solution_images"] = images.get((task["number"], "loesung"), [])
+    dumped = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=110)
+    DATA_PATH.write_text(dumped, encoding="utf-8")
+    print(f"wrote the task and solution images of {len(data['sheets'])} sheets into {DATA_PATH}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--force", action="store_true", help="overwrite a reviewed YAML")
+    parser.add_argument("--task-images", action="store_true", help="only cut the task images (ADR-0063)")
     args = parser.parse_args()
+    if args.task_images:
+        _add_task_images(pymupdf.open(PDF_PATH))
+        return
     if DATA_PATH.exists() and not args.force:
         raise SystemExit(f"{DATA_PATH} exists (reviewed?) — pass --force to overwrite")
 

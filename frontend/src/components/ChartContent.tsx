@@ -1,29 +1,46 @@
+import { useState } from 'react'
+
 import type { ChartAttemptTask, ChartDerivationBlock, ChartImage, ChartSolutionPart } from '../api/types'
 import { pointsLabel } from '../chartPoints'
 import { AnswerBox } from './AnswerBox'
+import { ImageLightbox } from './ImageLightbox'
 import { RichText } from './RichText'
 
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).
 
-/** The drawn Stromdreieck, cut from the PDF at twice its size: sharp when scaled up to the column. */
-function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
+/** Pieces of the PDF (a drawn Stromdreieck, a task), cut at twice their size: sharp when scaled up to the column. */
+export function ChartImages({ images, alt }: { images: ChartImage[]; alt: string }) {
+  const [shown, setShown] = useState<number | null>(null)
+  const label = (i: number) => (images.length > 1 ? `${alt}, Teil ${i + 1} von ${images.length}` : alt)
+  const big = shown === null ? null : images[shown]
   return (
     <div className="flex flex-col gap-2">
       {images.map((image, i) => (
-        // A click opens the full resolution, for reading the small print of a table or a drawing.
-        <a key={image.src} href={`/charts/${image.src}`} target="_blank" rel="noreferrer">
+        // A click shows it at full resolution, for reading the small print of a table or a drawing.
+        <button key={image.src} type="button" aria-label={`${label(i)} vergrößern`} onClick={() => setShown(i)}>
           <img
             src={`/charts/${image.src}`}
             width={Math.round(image.width / 2)}
             height={Math.round(image.height / 2)}
-            alt={images.length > 1 ? `${alt}, Teil ${i + 1} von ${images.length}` : alt}
+            alt={label(i)}
+            loading="lazy"
+            decoding="async"
             // As wide as the column allows (the print is small at 1:1), but never past full resolution.
             // Cut from the white PDF page: on `surface` (white), transparent parts stay white.
             style={{ maxWidth: image.width }}
-            className="h-auto w-full rounded-tile border border-border bg-surface"
+            className="h-auto w-full cursor-zoom-in rounded-tile border border-border bg-surface"
           />
-        </a>
+        </button>
       ))}
+      {big && shown !== null ? (
+        <ImageLightbox
+          src={`/charts/${big.src}`}
+          width={big.width}
+          height={big.height}
+          alt={label(shown)}
+          onClose={() => setShown(null)}
+        />
+      ) : null}
     </div>
   )
 }

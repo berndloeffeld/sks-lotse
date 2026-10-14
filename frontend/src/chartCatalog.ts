@@ -18,6 +18,8 @@ export interface ChartSheetTask {
   points: number
   text: string
   questions: ChartQuestion[]
+  task_images: ChartImage[]
+  solution_images: ChartImage[]
   solution: ChartSolutionPart[]
   derivation: ChartDerivationBlock[]
 }

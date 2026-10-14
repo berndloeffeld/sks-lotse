@@ -508,6 +508,10 @@ export interface components {
             text: string;
             /** Questions */
             questions: components["schemas"]["ChartQuestion"][];
+            /** Task Images */
+            task_images: components["schemas"]["ChartImage"][];
+            /** Solution Images */
+            solution_images: components["schemas"]["ChartImage"][];
             /** Answer Text */
             answer_text: string | null;
             /** Solution */

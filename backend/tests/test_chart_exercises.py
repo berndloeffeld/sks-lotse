@@ -112,8 +112,21 @@ def test_every_referenced_image_exists():
     images = [data.tide_form] + [
         part.image for sheet in data.sheets for task in sheet.tasks for part in task.solution if part.image
     ]
+    images += [
+        image
+        for sheet in data.sheets
+        for task in sheet.tasks
+        for image in task.task_images + task.solution_images
+    ]
     missing = [image.src for image in images if not (CHARTS_DIR / image.src).is_file()]
     assert missing == []
+
+
+def test_every_task_has_its_official_text_as_an_image():
+    for sheet in service.catalog().sheets:
+        for task in sheet.tasks:
+            assert task.task_images, (sheet.number, task.number)
+            assert task.solution_images, (sheet.number, task.number)
 
 
 def test_the_task_text_carries_no_extraction_debris():
@@ -194,6 +207,8 @@ def test_start_shows_only_the_first_task_without_its_solution(client, auth_heade
     assert first["answer_text"] is None
     assert first["solution"] == []
     assert first["derivation"] == []
+    assert first["task_images"]
+    assert first["solution_images"] == []
     assert first["questions"][0]["text"].startswith("Bestimmen Sie die Hochwasserzeit")
 
 
@@ -224,6 +239,7 @@ def test_answer_reveals_the_solution_of_that_task(client, auth_headers):
     assert task["answer_text"] == "HWZ 08:53"
     # The results with their tolerance, and the tide table that leads to them as the derivation.
     assert task["solution"][0]["results"][0] == {"text": "HWZ = 08:53 MESZ/BZ", "tolerance": "Keine Toleranz"}
+    assert task["solution_images"]
     assert task["derivation"][1]["table"][2] == {
         "cells": ["FD/TF Cuxhaven", "**06 h 38 min**", "**2,5 m**"],
         "sum": True,

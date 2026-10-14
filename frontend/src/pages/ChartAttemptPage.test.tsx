@@ -325,6 +325,87 @@ describe('ChartAttemptPage', () => {
     expect(within(panel).queryByRole('button', { name: 'Hinweise' })).not.toBeInTheDocument()
   })
 
+  it('shows the current task as the PDF prints it below the tide form, and loads it only once the card is opened', async () => {
+    const user = userEvent.setup()
+    stubBackend(makeChartAttempt({ current_task: 2, tasks: [chartTask(1, { answer_text: 'x' }), chartTask(2)] }))
+    renderPage()
+
+    const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
+    const headings = within(panel)
+      .getAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent)
+    expect(headings).toEqual(['Formblatt Gezeiten▾', 'Offizieller Originaltext▾', 'Verlauf▾'])
+    // Folded by default: no picture is requested until the learner opens the card.
+    expect(within(panel).getByRole('button', { name: 'Offizieller Originaltext' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(within(panel).queryByRole('img', { name: /im Original/ })).not.toBeInTheDocument()
+    await user.click(within(panel).getByRole('button', { name: 'Offizieller Originaltext' }))
+    const image = within(panel).getByRole('img', { name: 'Aufgabe 2 im Original' })
+    expect(image).toHaveAttribute('src', '/charts/bogen-01/aufgabe-02-aufgabe-1.png')
+    expect(image).toHaveAttribute('loading', 'lazy')
+    expect(within(panel).getByText(/Quelle:/)).toBeInTheDocument()
+
+    await user.click(within(panel).getByRole('button', { name: 'Offizieller Originaltext' }))
+    expect(within(panel).queryByRole('img', { name: /im Original/ })).not.toBeInTheDocument()
+  })
+
+  it('shows the official solution as the PDF prints it only once the task is answered', async () => {
+    stubBackend(
+      makeChartAttempt({
+        current_task: 1,
+        tasks: [
+          chartTask(1, {
+            answer_text: 'x',
+            solution_images: [{ src: 'bogen-01/aufgabe-01-loesung-1.png', width: 1040, height: 100 }],
+          }),
+        ],
+      }),
+    )
+    renderPage()
+    const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
+    await userEvent.setup().click(within(panel).getByRole('button', { name: 'Offizieller Originaltext' }))
+    expect(within(panel).getByRole('img', { name: 'Lösung zu Aufgabe 1 im Original' })).toHaveAttribute(
+      'src',
+      '/charts/bogen-01/aufgabe-01-loesung-1.png',
+    )
+  })
+
+  it('opens a cut at full size on the same page and closes it beside the picture, with the cross or Escape', async () => {
+    const user = userEvent.setup()
+    stubBackend(makeChartAttempt({ current_task: 1, tasks: [chartTask(1)] }))
+    renderPage()
+    const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
+    await userEvent.setup().click(within(panel).getByRole('button', { name: 'Offizieller Originaltext' }))
+    expect(within(panel).queryByRole('link', { name: /im Original/ })).not.toBeInTheDocument()
+
+    await user.click(within(panel).getByRole('button', { name: 'Aufgabe 1 im Original vergrößern' }))
+    let dialog = screen.getByRole('dialog', { name: 'Aufgabe 1 im Original' })
+    expect(within(dialog).getByRole('img')).toHaveAttribute('width', '1040')
+    await user.click(within(dialog).getByRole('button', { name: 'Schließen' }))
+    expect(screen.queryByRole('dialog', { name: 'Aufgabe 1 im Original' })).not.toBeInTheDocument()
+
+    await user.click(within(panel).getByRole('button', { name: 'Aufgabe 1 im Original vergrößern' }))
+    await user.click(screen.getByTestId('lightbox-backdrop'))
+    expect(screen.queryByRole('dialog', { name: 'Aufgabe 1 im Original' })).not.toBeInTheDocument()
+
+    await user.click(within(panel).getByRole('button', { name: 'Aufgabe 1 im Original vergrößern' }))
+    dialog = screen.getByRole('dialog', { name: 'Aufgabe 1 im Original' })
+    await user.click(within(dialog).getByRole('img'))
+    expect(screen.getByRole('dialog', { name: 'Aufgabe 1 im Original' })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: 'Aufgabe 1 im Original' })).not.toBeInTheDocument()
+  })
+
+  it('shows the last task as the PDF prints it once the run is complete', async () => {
+    stubBackend(makeChartAttempt({ current_task: null, tasks: [chartTask(1, { answer_text: 'x' })] }))
+    renderPage()
+    const panel = await screen.findByRole('complementary', { name: 'Hilfsmittel' })
+    await userEvent.setup().click(within(panel).getByRole('button', { name: 'Offizieller Originaltext' }))
+    expect(within(panel).getByRole('img', { name: 'Aufgabe 1 im Original' })).toBeInTheDocument()
+  })
+
   it('remembers which cards are open', async () => {
     const user = userEvent.setup()
     stubBackend(makeChartAttempt())

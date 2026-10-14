@@ -10101,6 +10101,9 @@
                   "    pm.expect(a.tasks.length).to.eql(1);",
                   "    pm.expect(a.tasks[0].solution).to.eql([]);",
                   "    pm.expect(a.tasks[0].derivation).to.eql([]);",
+                  "    pm.expect(a.tasks[0].task_images.length).to.be.above(0);",
+                  "    pm.expect(a.tasks[0].task_images[0]).to.have.all.keys('src', 'width', 'height');",
+                  "    pm.expect(a.tasks[0].solution_images).to.eql([]);",
                   "});"
                 ]
               }

@@ -60,6 +60,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: TF = 2,5 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-01/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-01/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 353
   - number: 2
     points: 1
     text: Die Yacht verlässt den Hafen am 04.05.2013 um 05:25 BZ noch vor Sonnenaufgang.
@@ -77,6 +85,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 2,3 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-01/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-01/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 209
   - number: 3
     points: 1
     text: Vor der Tonne „14“ muss man kurzzeitig aufstoppen und treibt mit dem Strom auf die Tonne „NL 2“ zu, die
@@ -91,6 +107,14 @@ sheets:
       - text: 'Form: Bakentonne'
       - text: 'Farbe: gelb mit einem breiten waagerechten schwarzen Band'
       - text: 'Toppzeichen: zwei schwarze Kegel übereinander, Spitzen zueinander'
+    task_images:
+    - src: bogen-01/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-01/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 161
   - number: 4
     points: 2
     text: ''
@@ -107,6 +131,14 @@ sheets:
       - text: 'Bedeutung: West-Kardinal-Zeichen, Tonne liegt westlich der Gefahrenstelle „Neuer Luechtergrund“ (Flachwasserstelle).'
     - results:
       - text: 'Passieren: Man kann die Tonne mit dieser Yacht gefahrlos an allen Seiten passieren.'
+    task_images:
+    - src: bogen-01/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-01/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 143
   - number: 5
     points: 2
     text: Die Reise fortsetzend wird von der Tonne „NL 2“ Kurs auf die Tonne „2/Außenelbe-Reede 3“ abgesetzt, was
@@ -123,6 +155,14 @@ sheets:
     - results:
       - text: d = 9,7 sm
         tolerance: ± 0,2 sm
+    task_images:
+    - src: bogen-01/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-01/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 95
   - number: 6
     points: 1
     text: Für den Abschnitt zwischen den beiden Tonnen koppelt man mit einer durchschnittlichen Geschwindigkeit
@@ -139,6 +179,14 @@ sheets:
     - results:
       - text: t = 1 h 56 min
         tolerance: ± 3 min
+    task_images:
+    - src: bogen-01/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-01/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 71
   - number: 7
     points: 1
     text: An Tonne „NL 2“ werden die Stromverhältnisse für 07:30 BZ bestimmt.
@@ -157,6 +205,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 1,4 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-01/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-01/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 209
   - number: 8
     points: 2
     text: Man fährt dem Fahrwasser folgend weiter elbabwärts. Nach ca. zwei Stunden soll die Tonne „2/Außenelbe-Reede
@@ -174,6 +230,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,5 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-01/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-01/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 185
   - number: 9
     points: 1
     text: Bis zur Tonne „2/Außenelbe-Reede 3“ überfährt man zweimal eine in der Seekarte eingezeichnete breite grüne
@@ -186,6 +250,14 @@ sheets:
       - text: Ein besonders sensibles Meeresgebiet (PSSA) mit Schifffahrtsbeschränkungen, hier „Nationalpark Schleswig-Holsteinisches
           Wattenmeer“, das in der Seekarte dargestellt und seewärts durch die breite grüne Linie mit der Beschriftung
           PSSA begrenzt wird.
+    task_images:
+    - src: bogen-01/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-01/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 113
   - number: 10
     points: 1
     text: Um 09:10 BZ wird die Tonne „2/Außenelbe-Reede 3“ erreicht. Etwa 2 sm südwestlich der Position ist ein
@@ -196,6 +268,14 @@ sheets:
     solution:
     - results:
       - text: Festgelegte Verkehrsrichtung für das Verkehrstrennungsgebiet (VTG) „Elbe Approach“, hier westgehend.
+    task_images:
+    - src: bogen-01/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-01/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 89
   - number: 11
     points: 2
     text: Von der Tonne „2/Außenelbe-Reede 3“ nimmt die Yacht um 09:10 BZ Kurs auf die Tonne „Süderpiep“. Man schätzt
@@ -260,6 +340,14 @@ sheets:
     - results:
       - text: MgK = 052°
         tolerance: ± 1°
+    task_images:
+    - src: bogen-01/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-01/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 383
   - number: 12
     points: 1
     text: Gegen 10:45 BZ peilt man am Radar in der relativen Darstellungsart „Head Up“ die Tonne „Süderpiep“ nahebei
@@ -324,6 +412,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: rwP „ODAS“-Tonne = 360°
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-01/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-01/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 239
   - number: 13
     points: 2
     text: ''
@@ -334,6 +430,14 @@ sheets:
     - results:
       - text: 'O_b 10:45 BZ: φ = 54°04,3′ N, λ = 008°20,1′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-01/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-01/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 71
   - number: 14
     points: 3
     text: 'Man steuert etwas nach Steuerbord auf. Gegen 11:20 BZ erreicht man die Tonne „Süderpiep“. Ab jetzt legt
@@ -411,6 +515,14 @@ sheets:
     - results:
       - text: FüG = 6,7 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-01/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-01/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 637
   - number: 15
     points: 2
     text: 'Man lässt sich längere Zeit treiben und trainiert verschiedene „Mensch-über-Bord“ Manöver. Um 18:23 BZ
@@ -428,6 +540,14 @@ sheets:
     - results:
       - text: 'O_k 19:00 BZ: φ = 54°06,1′ N, λ = 008°32,2′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-01/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-01/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 143
   - number: 16
     points: 3
     text: 'Um 19:00 BZ wird die Position zu einer Tonne, die auf dem Flachwassergebiet „Falsches Tief“ ein Wrack
@@ -449,6 +569,14 @@ sheets:
     - results:
       - text: BV = 083° / 0,8 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-01/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-01/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 119
   - number: 17
     points: 2
     text: In der Abenddämmerung identifiziert man die Befeuerung des Leuchtfeuers von Büsum.
@@ -468,6 +596,14 @@ sheets:
       - text: 'Feuerhöhe ü. Wasser: 22 m'
       - text: 'Aussehen am Tage: rotweißer Turm'
       - text: 'Höhe FT ü. Erdboden: 22 m'
+    task_images:
+    - src: bogen-01/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 193
+    solution_images:
+    - src: bogen-01/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 185
   - number: 18
     points: 1
     text: Vom O_b um 19:00 BZ soll der Hafen von Büsum möglichst auf dem kürzesten Weg angesteuert werden.
@@ -477,6 +613,14 @@ sheets:
     solution:
     - results:
       - text: Nein! Es gibt auf dem Kurs Gebiete, die trockenfallen.
+    task_images:
+    - src: bogen-01/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-01/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 71
 - number: 2
   title: Büsum → Helgoland
   summary: Bei Nordwind mit Kreuzpeilung und Stromdreieck, Anlaufen von Helgoland.
@@ -535,6 +679,14 @@ sheets:
     - results:
       - text: TF = 3,4 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-02/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 335
   - number: 2
     points: 1
     text: Vergleichen Sie die ermittelte HWH für Norderpiep „Blauort“ mit den Angaben von Büsum in den Gezeitentafeln
@@ -549,6 +701,14 @@ sheets:
     - results:
       - text: An Norderpiep „Blauort“ ist die Höhe um 0,2 m [0,17 m] niedriger als der Wert für Büsum in der Tabelle
           der Gezeitentafeln.
+    task_images:
+    - src: bogen-02/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-02/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 137
   - number: 3
     points: 1
     text: In der Seekarte sind weite Gebiete um Büsum herum grün eingefärbt.
@@ -558,6 +718,14 @@ sheets:
     solution:
     - results:
       - text: Trockenfallende Gebiete/Höhen/Linien über Kartennull
+    task_images:
+    - src: bogen-02/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-02/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 71
   - number: 4
     points: 1
     text: 'Um 12:25 BZ zeigt das GPS folgende Position an: φ = 54°09,4‘N, λ = 008°41,8‘E, die Position wird in der
@@ -569,6 +737,14 @@ sheets:
     - results:
       - text: Ja, wenn den Einstellungen des GPS-Geräts das gleiche Kartendatum wie der Seekarte zugrunde liegt.
           In diesem Fall „WGS 84“.
+    task_images:
+    - src: bogen-02/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-02/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 89
   - number: 5
     points: 1
     text: Von der beobachteten Position um 12:25 BZ steuert man MgK = 308° mit FüG = 7,1 kn. Wegen des vorherrschenden
@@ -627,6 +803,14 @@ sheets:
     - results:
       - text: KüG = 293°
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-02/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 335
   - number: 6
     points: 2
     text: ''
@@ -641,6 +825,14 @@ sheets:
     - results:
       - text: 'O_k 13:30 BZ: φ = 54°12,4′ N, λ = 008°29,7′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-02/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-02/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 143
   - number: 7
     points: 3
     text: Um 13:30 BZ wird über den Steuerkompass die Tonne „NP 1“ in MgP = 230° und anschließend die Tonne „1/3“
@@ -697,6 +889,14 @@ sheets:
     - results:
       - text: BV = 110° / 1,2 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-02/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-02/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 287
   - number: 8
     points: 1
     text: Um 14:30 BZ erreicht die Yacht den Wegpunkt 1 (WPT 1) auf φ = 54°13,4‘N, λ = 008°20,0‘E.
@@ -706,6 +906,14 @@ sheets:
     solution:
     - results:
       - text: Unterwasserkabel (Starkstrom)
+    task_images:
+    - src: bogen-02/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-02/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 71
   - number: 9
     points: 1
     text: Am WPT 1 sollen die Stromverhältnisse für 14:30 BZ anhand des nächst gelegenen Strommesspunktes eingeschätzt
@@ -724,6 +932,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,7 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-02/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 233
   - number: 10
     points: 2
     text: In der nächsten Stunde soll der Koppelort WPT 2 auf φ = 54°10,0‘N, λ = 008°05,0‘E erreicht werden.
@@ -740,6 +956,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,3 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-02/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 209
   - number: 11
     points: 1
     text: Vom WPT 2 wird um 15:30 BZ der Kurs auf die Tonne „Düne-S“ südlich von Helgoland abgesetzt.
@@ -750,6 +974,14 @@ sheets:
     - results:
       - text: KaK = 265°
         tolerance: ± 1°
+    task_images:
+    - src: bogen-02/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-02/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 95
   - number: 12
     points: 3
     text: 'Am WPT 2 ist die Tide bereits gekentert, es setzt ein Strom: StR = 312°, StG = 1,1 kn. Der mittlerweile
@@ -842,6 +1074,14 @@ sheets:
     - results:
       - text: FüG = 8,3 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-02/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-02/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 659
   - number: 13
     points: 3
     text: Auf dem Weg zur Tonne „Düne-S“ wird um 15:39 BZ mit dem Radar in der relativen Darstellungsart „Head Up“
@@ -914,6 +1154,14 @@ sheets:
     - results:
       - text: 'O_b 15:39 BZ: φ = 54°09,5′ N, λ = 008°03,6′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-02/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 223
+    solution_images:
+    - src: bogen-02/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 359
   - number: 14
     points: 3
     text: Um 16:20 BZ befindet man sich 2,3 sm genau südlich (rwP = 360°) von „Düne-S“. Tragen Sie den beobachteten
@@ -934,6 +1182,14 @@ sheets:
       - text: 'Bedeutung: Süd-Kardinal-Zeichen, liegt südlich einer Gefahrenstelle.'
     - results:
       - text: 'Passieren: Südlich der Tonne gefahrlos passierbar.'
+    task_images:
+    - src: bogen-02/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-02/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 311
   - number: 15
     points: 1
     text: Um 16:20 BZ sollen die Stromverhältnisse für die aktuelle Position anhand des nächst gelegenen Strommesspunktes
@@ -952,6 +1208,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 1,3 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-02/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 209
   - number: 16
     points: 1
     text: Die Yacht befindet sich in einem Gebiet, das mit einer unterbrochenen magentafarbenen Linie eingegrenzt
@@ -962,6 +1226,14 @@ sheets:
     solution:
     - results:
       - text: Militärisches Übungsgebiet.
+    task_images:
+    - src: bogen-02/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-02/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 71
   - number: 17
     points: 2
     text: Es wird nun Kurs auf Tonne „2“ abgesetzt. Bei achterlichem Strom rechnet man mit FüG = 8,3 kn.
@@ -983,6 +1255,14 @@ sheets:
     - results:
       - text: t = 17 min
         tolerance: 'bei d = 2,5 sm: 18 min'
+    task_images:
+    - src: bogen-02/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-02/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 119
   - number: 18
     points: 1
     text: Helgoland soll von Süden kommend, ab Tonne „2“, im betonnten Fahrwasser angelaufen werden.
@@ -994,6 +1274,14 @@ sheets:
       - text: 'Kennung: Gleichtaktfeuer bzw. Isophase weiß, Wiederkehr 4 s'
       - text: 'Richtfeuerlinie: rwP = 020°'
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-02/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-02/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 89
 - number: 3
   title: Helgoland → Baltrum
   summary: Mit dem Morgenhochwasser quer durch das Verkehrstrennungsgebiet Jade Approach.
@@ -1019,6 +1307,14 @@ sheets:
     - results:
       - text: ETA = 14:18 BZ
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-03/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 137
   - number: 2
     points: 3
     text: Die Yacht verlässt den Hafen von Helgoland bereits um 05:00 BZ und steuert zwischen der Hauptinsel und
@@ -1058,6 +1354,14 @@ sheets:
           aus ca. NW.'
       - text: Das Oberfeuer bildet in Verbindung mit dem vorgelagerten Unterfeuer eine Richtfeuerlinie (020°) für
           aus ca. SSW einlaufende Schiffe.
+    task_images:
+    - src: bogen-03/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 289
+    solution_images:
+    - src: bogen-03/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 353
   - number: 3
     points: 1
     text: Entlang des Leitsektors, in dem man Helgoland verlässt, befindet sich in der Seekarte eingezeichnet eine
@@ -1072,6 +1376,14 @@ sheets:
     solution:
     - results:
       - text: NSG = Naturschutzgebiet; Sperrgebiet, Einfahren verboten.
+    task_images:
+    - src: bogen-03/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-03/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 71
   - number: 4
     points: 1
     text: Die Wasserfläche im Bereich des Leitsektors „weiß“ ist in der Seekarte hellblau gefärbt.
@@ -1089,6 +1401,14 @@ sheets:
     - results:
       - text: Kartentiefen [nicht Wassertiefen] in dieser Seekarte, bezogen auf LAT, zwischen 10 m und 20 m (in
           Verbindung mit den angegebenen Tiefenlinien)
+    task_images:
+    - src: bogen-03/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 89
   - number: 5
     points: 1
     text: Um 06:01 BZ steht die Yacht bei der Tonne „Nathurn-N“.
@@ -1106,6 +1426,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,5 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 209
   - number: 6
     points: 2
     text: Von der Tonne „Nathurn-N“ wird der Kartenkurs KaK = 235° abgesetzt. Man koppelt mit FüG = 5,7 kn.
@@ -1120,6 +1448,14 @@ sheets:
     - results:
       - text: 'O_k 07:00 BZ: φ = 54°10,2′ N, λ = 007°41,2′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-03/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 167
   - number: 7
     points: 2
     text: Um 07:00 Uhr BZ peilt man mit dem Steuerkompass die Tonne „E 2“ in MgP = 150° (anl. MgK = 237°) und nahezu
@@ -1191,6 +1527,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: rwP Tonne „E 2“ = 153°
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 223
+    solution_images:
+    - src: bogen-03/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 377
   - number: 8
     points: 2
     text: ''
@@ -1204,6 +1548,14 @@ sheets:
     - results:
       - text: 'O_b 07:00 BZ: φ = 54°09,4′ N, λ = 007°41,8′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-03/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-03/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 71
   - number: 9
     points: 1
     text: ''
@@ -1217,6 +1569,14 @@ sheets:
     - results:
       - text: BV = 157° / 0,9 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-03/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-03/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 71
   - number: 10
     points: 1
     text: Am O_b werden um 07:00 BZ die Stromverhältnisse ermittelt.
@@ -1234,6 +1594,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,3 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 209
   - number: 11
     points: 1
     text: 'In den nächsten zwei Stunden bis 09:00 BZ soll das Verkehrstrennungsgebiet (VTG) „Jade Approach“ gequert
@@ -1254,6 +1622,14 @@ sheets:
     - results:
       - text: rwK = 241°
         tolerance: ± 2°
+    task_images:
+    - src: bogen-03/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-03/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 113
   - number: 12
     points: 2
     text: Gegen 08:00 beginnt der Strom zu kentern. Für das Queren des VTG von 08:00 BZ bis 09:00 BZ koppelt man
@@ -1276,6 +1652,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,4 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-03/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 185
   - number: 13
     points: 1
     text: 'Nach der Querung des VTG, bei der man offensichtlich deutlich in NW-liche Richtung versetzt wurde, steht
@@ -1291,6 +1675,14 @@ sheets:
     solution:
     - results:
       - text: Tiefwasserankergebiet (Ankergebiet für tiefgehende Schiffe).
+    task_images:
+    - src: bogen-03/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-03/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 71
   - number: 14
     points: 2
     text: Vom WPT 2 aus steuert die Yacht auf eine Tonne zu, die sich SSW-lich befindet und bei einer durchschnittlichen
@@ -1320,6 +1712,14 @@ sheets:
       - text: 'Bedeutung:'
       - text: – N-liche Begrenzung des VTG „Terschelling – German Bight“ [angezeigt durch „TG 16“],
       - text: – SW-liche Begrenzung der Tiefwasserreede [angezeigt durch „Reede“].
+    task_images:
+    - src: bogen-03/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-03/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 305
   - number: 15
     points: 2
     text: ''
@@ -1335,6 +1735,14 @@ sheets:
     - results:
       - text: d = 4,6 sm
         tolerance: ± 0,1 sm
+    task_images:
+    - src: bogen-03/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 95
   - number: 16
     points: 3
     text: 'Für die Strecke zur Tonne nach Aufgabe 14 rechnet man mit einem mittleren Strom von: StR = 055° und StG
@@ -1414,6 +1822,14 @@ sheets:
     - results:
       - text: FüG = 5,3 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-03/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-03/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 661
   - number: 17
     points: 1
     text: Auf ca. φ = 53°58,2‘N, λ = 007°38,8‘E befindet sich die Tonne „Jade-Weser“.
@@ -1428,6 +1844,14 @@ sheets:
     solution:
     - results:
       - text: Ansteuerungstonne zu den Fahrwassern Jade und Weser (Mitte-Fahrwasser-Zeichen).
+    task_images:
+    - src: bogen-03/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-03/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 71
   - number: 18
     points: 2
     text: Auf dem Weg nach Baltrum erhält man die Meldung, dass keine Liegeplätze mehr vorhanden sind. Man entschließt
@@ -1483,6 +1907,14 @@ sheets:
     - results:
       - text: TS = 2,2 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-03/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 223
+    solution_images:
+    - src: bogen-03/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 335
 - number: 4
   title: Horumersiel → Wurster Watt
   summary: Über Jade und Alte Weser, Umkehr zum Niedrigwasser, mit Sektorenfeuer.
@@ -1513,6 +1945,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,6 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-04/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 289
+    solution_images:
+    - src: bogen-04/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 209
   - number: 2
     points: 1
     text: Bei der Tonne „19“ quert man das Fahrwasser und erreicht um 10:05 BZ die Tonne „20“. Man läuft von dort
@@ -1525,6 +1965,14 @@ sheets:
     - results:
       - text: d = 4,3 sm
         tolerance: ± 0,1 sm
+    task_images:
+    - src: bogen-04/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-04/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 71
   - number: 3
     points: 2
     text: Man plant, weiter seewärts zu fahren, dann beim Mittagsniedrigwasser des in der Nähe befindlichen Anschlussortes
@@ -1580,6 +2028,14 @@ sheets:
     - results:
       - text: TS = 2,0 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-04/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-04/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 335
   - number: 4
     points: 3
     text: 'Für die Zeit bis zum Niedrigwasser steuert man ab 11:00 BZ KaK = 300° und koppelt mit FdW = 4,0 kn. Man
@@ -1657,6 +2113,14 @@ sheets:
     - results:
       - text: FüG = 5,0 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-04/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-04/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 660
   - number: 5
     points: 2
     text: Die Bordinstrumente zeigen eine andere Fahrt über Grund an. Daher koppelt man vom WPT 1, dem beobachteten
@@ -1672,6 +2136,14 @@ sheets:
     - results:
       - text: 'O_k 12:15 BZ: φ = 53°53,0′ N, λ = 007°48,7′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-04/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-04/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 143
   - number: 6
     points: 1
     text: Um 12:15 BZ peilt man mit dem Radar (Head-Up-Darstellung) die Tonne „3/Jade 2“ des Fahrwassers „Neue Weser“
@@ -1736,6 +2208,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: rwP Leuchtturm „Alte Weser“ = 098°
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-04/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-04/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 329
   - number: 7
     points: 3
     text: ''
@@ -1756,6 +2236,14 @@ sheets:
     - results:
       - text: BV = 081° / 1,3 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-04/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-04/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 119
   - number: 8
     points: 1
     text: Es werden für den O_b um 12:15 BZ die Stromverhältnisse ermittelt.
@@ -1773,6 +2261,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 1,0 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-04/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-04/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 209
   - number: 9
     points: 1
     text: Die Tonne „3/Jade 2“ ist deutlich auf dem Radarschirm zu erkennen.
@@ -1798,6 +2294,14 @@ sheets:
       - text: 'Feuerhöhe: 9 m'
       - text: 'Nenntragweite: 9 sm'
       - text: 'Weitere Angaben: Radarantwortbake mit Morse-Kennung „T“ (Tango)'
+    task_images:
+    - src: bogen-04/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-04/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 257
   - number: 10
     points: 2
     text: Die Beschriftung der Tonne „3/Jade 2“ und ihre Farbgebung lassen auf ihre besondere Bedeutung in Bezug
@@ -1825,6 +2329,14 @@ sheets:
           hat man dieses Schifffahrtszeichen an Steuerbord zu halten, beim Einbiegen in das Fahrwasser „Jade“ an
           Backbord.'
       - text: Sportfahrzeuge dürfen deutlich erkennbar außerhalb der Fahrwasser fahren.
+    task_images:
+    - src: bogen-04/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-04/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 305
   - number: 11
     points: 1
     text: Auf dem Weg zum Fahrwasser „Alte Weser“ hält man zunächst auf die Ansteuerungstonne „ST“ zu. Man will
@@ -1843,6 +2355,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,9 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-04/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-04/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 209
   - number: 12
     points: 1
     text: Man biegt vor Erreichen der Tonne „ST“ in das Fahrwasser „Alte Weser“ ein und erreicht um 12:55 BZ die
@@ -1859,6 +2379,14 @@ sheets:
     - results:
       - text: Meldestelle mit Richtungsangabe der Schiffsbewegung mit Bezeichnung und UKW-Kanal.
       - text: 'Hier: Einlaufend in die „Alte Weser“ melden bei „Bremerhaven Weser Traffic“ auf UKW Kanal 22.'
+    task_images:
+    - src: bogen-04/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-04/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 89
   - number: 13
     points: 1
     text: Nördlich und NW-lich dieser Position geht die Farbe „hellblau“ in der Seekarte in „weiß“ über.
@@ -1875,6 +2403,14 @@ sheets:
     - results:
       - text: Kartentiefen [nicht Wassertiefen] in dieser Seekarte, bezogen auf LAT, betragen bis 20 m im hellblau
           gefärbten Bereich und gehen in Bereiche über mit mehr als 20 m KT.
+    task_images:
+    - src: bogen-04/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-04/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 89
   - number: 14
     points: 2
     text: 'Dem Fahrwasser folgend befindet man sich um 13:47 BZ zwischen den Tonnen „A 7“ und „A 8“ auf der Sektorengrenze
@@ -1924,6 +2460,14 @@ sheets:
       - text: Abl für MgK 117° nach Deviationstabelle = + 8°
       - text: Der Tabellenwert differiert um + 8°
       - text: 'Konsequenz: die gesamte Deviationstabelle ist dringend zu überprüfen.'
+    task_images:
+    - src: bogen-04/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 241
+    solution_images:
+    - src: bogen-04/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 353
   - number: 15
     points: 1
     text: Dem Fahrwasser Richtung Leuchtfeuer „Alte Weser“ folgend wird kurze Zeit später eine in der Seekarte eingezeichnete
@@ -1940,6 +2484,14 @@ sheets:
     - results:
       - text: Gerade Basislinie mit Basispunkten.
       - text: Von ihr gerechnet in der Regel 3 sm seewärts befindet sich die seewärtige Grenze der Seeschifffahrtsstraßen.
+    task_images:
+    - src: bogen-04/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-04/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 113
   - number: 16
     points: 2
     text: Um 15:20 BZ peilt man über den Steuerkompass den Leuchtturm „Tegeler Plate“ MgP = 155°. Bei der Peilung
@@ -1992,6 +2544,14 @@ sheets:
     - results:
       - text: 'O_b 15:20 BZ: φ = 53°50,6′ N, λ = 008°10,3′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-04/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-04/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 335
   - number: 17
     points: 2
     text: 'Zur Ermittlung der restlichen Distanz ab 15:20 BZ gibt man in den Kartenplotter zwei weitere Wegpunkte
@@ -2012,6 +2572,14 @@ sheets:
     - results:
       - text: ETA = 17:38 BZ
         tolerance: ± 3 min
+    task_images:
+    - src: bogen-04/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-04/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 161
   - number: 18
     points: 2
     text: Nahe WPT 3 wird im „Wurster Watt“ ein Ankerplatz gesucht, auf dem man sich im weißen Sektor des Leuchtfeuers
@@ -2028,6 +2596,14 @@ sheets:
       - text: 'Kennung: Weißes Festfeuer bzw. Fixed white'
     - results:
       - text: 'Richtungsangaben für weißen Sektor: 288° − 352°'
+    task_images:
+    - src: bogen-04/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-04/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 95
 - number: 5
   title: Helgoland → Wangerooge
   summary: Nachtfahrt mit Versetzung durch Wind, Warnsektor und Kompasskontrolle.
@@ -2051,6 +2627,14 @@ sheets:
     - results:
       - text: d = 9,6 sm + 12,1 sm + 4,0 sm = 25,7 sm
         tolerance: ± 0,2 sm
+    task_images:
+    - src: bogen-05/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-05/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 113
   - number: 2
     points: 1
     text: Die „ODAS“-Tonne soll um 21:45 BZ passiert werden. Man rechnet ab dieser Tonne über WPT 1 und WPT 2 bis
@@ -2065,6 +2649,14 @@ sheets:
     - results:
       - text: t = 5 h 08 min
         tolerance: ± 3 min
+    task_images:
+    - src: bogen-05/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 153
+    solution_images:
+    - src: bogen-05/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 71
   - number: 3
     points: 2
     text: Um nicht genau bei Niedrigwasser anzukommen, wird ermittelt, wann an „Wangerooge West“ in der Nacht vom
@@ -2120,6 +2712,14 @@ sheets:
     - results:
       - text: TF = 2,6 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-05/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-05/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 335
   - number: 4
     points: 2
     text: '„ODAS“-Tonne SW-lich Helgoland:'
@@ -2144,6 +2744,14 @@ sheets:
       - text: 'Wiederkehr: 20 s'
       - text: 'Form: Kugeltonne'
       - text: 'Farbe: gelb'
+    task_images:
+    - src: bogen-05/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-05/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 209
   - number: 5
     points: 1
     text: Die „ODAS“-Tonne und auch die gesamte Insel Helgoland befinden sich in einem Gebiet, welches mit einer
@@ -2160,6 +2768,14 @@ sheets:
     - results:
       - text: Seewärtige Grenze der Seeschifffahrtsstraßen. Innerhalb dieses magentafarben eingekreisten Gebietes
           gilt die Seeschifffahrtsstraßen-Ordnung (SeeSchStrO).
+    task_images:
+    - src: bogen-05/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-05/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 113
   - number: 6
     points: 2
     text: Man verlässt Helgoland am 20.05.2013 um 21:30 BZ und passiert um 21:48 BZ die „ODAS“-Tonne SW-lich von
@@ -2183,6 +2799,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,6 kn
         tolerance: ± 0,2 kn
+    task_images:
+    - src: bogen-05/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-05/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 239
   - number: 7
     points: 1
     text: Sie wollen die Angaben nach Aufgabe 6 mit den Stromangaben in der Seekarte vergleichen.
@@ -2206,6 +2830,14 @@ sheets:
         tolerance: ± 5°
       - text: StG = 0,6 kn
         tolerance: ± 0,2 kn
+    task_images:
+    - src: bogen-05/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-05/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 263
   - number: 8
     points: 2
     text: Von der „ODAS“-Tonne wird Kurs auf den WPT 1 (1,0 sm östlich Tonne „SZ-N“) abgesetzt. Man berücksichtigt
@@ -2260,6 +2892,14 @@ sheets:
     - results:
       - text: MgK = 199°
         tolerance: ± 1°
+    task_images:
+    - src: bogen-05/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-05/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 239
   - number: 9
     points: 1
     text: Beim Befahren dieses Kurses zum WPT 1 sehen Sie in der Seekarte auf Ihrem Weg magentafarben gestrichelte
@@ -2275,6 +2915,14 @@ sheets:
     - results:
       - text: Empfohlene Verkehrsrichtung für Schiffe von der Großtonne GB zum VTG „Elbe Approach“ (Elbmündung)
           und umgekehrt.
+    task_images:
+    - src: bogen-05/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-05/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 113
   - number: 10
     points: 3
     text: 'Der starke Wind führt zu einer Versetzung nach Osten, so dass man sich um 22:15 BZ auf der GPS-Position:
@@ -2351,6 +2999,14 @@ sheets:
     - results:
       - text: FüG = 3,9 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-05/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-05/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 657
   - number: 11
     points: 2
     text: Durch Koppeln soll die Position für 23:30 BZ ermittelt werden, man rechnet ab jetzt mit FüG = 3,5 kn.
@@ -2366,6 +3022,14 @@ sheets:
     - results:
       - text: 'O_k 23:30 BZ: φ = 54°00,0′ N, λ = 007°49,1′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-05/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 127
+    solution_images:
+    - src: bogen-05/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 167
   - number: 12
     points: 3
     text: 'Um 23:30 BZ erkennt man auf dem Radar (Head-Up-Darstellung) das Echo der Tonne „TG 19/Weser 2“ und peilt
@@ -2424,6 +3088,14 @@ sheets:
     - results:
       - text: 'O_b 23:30 BZ: φ = 53°59,2′ N, λ = 007°47,8′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-05/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-05/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 335
   - number: 13
     points: 1
     text: ''
@@ -2437,6 +3109,14 @@ sheets:
     - results:
       - text: BV = 224° / 1,1 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-05/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-05/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 95
   - number: 14
     points: 2
     text: ''
@@ -2453,6 +3133,14 @@ sheets:
           – German Bight“ und
     - results:
       - text: gleichzeitig um die erste Backbordfahrwassertonne „Weser 2“ des beginnenden Fahrwassers „Weser“.
+    task_images:
+    - src: bogen-05/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-05/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 137
   - number: 15
     points: 1
     text: Zur weiteren Abschätzung schaut man sich für 23:30 BZ die Stromverhältnisse am nächst gelegenen Strommesspunkt
@@ -2471,6 +3159,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,8 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-05/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-05/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 233
   - number: 16
     points: 2
     text: Vom beobachteten Ort um 23:30 BZ setzt man den Kurs direkt auf die Tonne „Jade 6“ ab. Um 00:28 BZ peilt
@@ -2522,6 +3218,14 @@ sheets:
     - results:
       - text: 'O_b 00:28 BZ: φ = 53°54,8′ N, λ = 007°48,5′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-05/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-05/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 239
   - number: 17
     points: 2
     text: Bis zum Eintritt in den roten Warnsektor des Leuchtfeuers Wangerooge wird der Kartenkurs aus Aufgabe 16
@@ -2571,6 +3275,14 @@ sheets:
     - results:
       - text: Der Tabellenwert ist um + 2° höher, also sehr geringe Abweichung. Der Unterschied kann durchaus nur
           auf einem Peilfehler beruhen, daher weitere Gelegenheiten zur Kompasskontrolle nutzen.
+    task_images:
+    - src: bogen-05/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 247
+    solution_images:
+    - src: bogen-05/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 401
   - number: 18
     points: 1
     text: Nach der Kompasskontrolle bei der Tonne „Jade 6“ soll auf direktem Kurs die Tonne „Harle“ angesteuert
@@ -2588,6 +3300,14 @@ sheets:
     - results:
       - text: Ankunftszeit (ETA) im Hafen von Wangerooge 21.05.13 um 02:31 BZ
         tolerance: ± 1 min
+    task_images:
+    - src: bogen-05/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-05/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 167
 - number: 6
   title: Spiekeroog → Helgoland
   summary: Von der Otzumer Balje durch das Verkehrstrennungsgebiet, mit Stromatlas, Stromdreieck und Leuchtfeuer
@@ -2642,6 +3362,14 @@ sheets:
     - results:
       - text: Reisedauer = 5 h 51 min
         tolerance: ± 5 min
+    task_images:
+    - src: bogen-06/aufgabe-01-aufgabe-1.png
+      width: 1040
+      height: 367
+    solution_images:
+    - src: bogen-06/aufgabe-01-loesung-1.png
+      width: 1040
+      height: 239
   - number: 2
     points: 2
     text: ''
@@ -2708,6 +3436,14 @@ sheets:
     - results:
       - text: KaK = 340°
         tolerance: ± 1°
+    task_images:
+    - src: bogen-06/aufgabe-02-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-06/aufgabe-02-loesung-1.png
+      width: 1040
+      height: 263
   - number: 3
     points: 1
     text: Man plant die Abfahrt in Spiekeroog so, dass man noch vor dem Mittagshochwasser an der Tonne „Otzumer
@@ -2746,6 +3482,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: HWH = 3,2 m
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-06/aufgabe-03-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-06/aufgabe-03-loesung-1.png
+      width: 1040
+      height: 209
   - number: 4
     points: 2
     text: Um 11:00 BZ verlässt man den Yachthafen von Spiekeroog. Auf dem Weg von Spiekeroog zur Tonne „Otzumer
@@ -2767,6 +3511,14 @@ sheets:
       - text: Gebiet mit Schifffahrtsbeschränkungen, Begrenzung eines sensiblen Meeresgebiets
     - results:
       - text: 'PSSA: Nationalpark „Niedersächsisches Wattenmeer“'
+    task_images:
+    - src: bogen-06/aufgabe-04-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-06/aufgabe-04-loesung-1.png
+      width: 1040
+      height: 119
   - number: 5
     points: 1
     text: Beim Passieren der Tonne „Otzumer Balje“ gegen 12:00 BZ möchte man die Stromverhältnisse feststellen.
@@ -2787,6 +3539,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 0,8 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-06/aufgabe-05-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-06/aufgabe-05-loesung-1.png
+      width: 1040
+      height: 191
   - number: 6
     points: 2
     text: Die Stromverhältnisse zwei Stunden später für 14:00 BZ werden anhand des Gezeitenstromatlasses ermittelt.
@@ -2808,6 +3568,14 @@ sheets:
         tolerance: ± 10°
       - text: StG = 0,2 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-06/aufgabe-06-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-06/aufgabe-06-loesung-1.png
+      width: 1040
+      height: 191
   - number: 7
     points: 1
     text: Man startet um 12:00 BZ von der Tonne „Otzumer Balje“ mit dem unter Aufgabe 2 berechneten MgK.
@@ -2829,6 +3597,14 @@ sheets:
       - text: Nein. Die vorgeschriebene Verkehrsrichtung im VTG beträgt ca. 077° bzw. 255° bis 257°. Das bedeutet
           beim rechtwinkligen Queren mit der Kielrichtung einen rwK = 345° bis 347°. Nach Aufgabe 2 beträgt der
           rwK = 335° [Toleranz]. Es muss also der Kurs beim Queren gut 10° nach Stb. geändert werden.
+    task_images:
+    - src: bogen-06/aufgabe-07-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-06/aufgabe-07-loesung-1.png
+      width: 1040
+      height: 161
   - number: 8
     points: 1
     text: Auf dem Weg zum WPT 2 passiert man die Tonne „TG 18/Jade“.
@@ -2850,6 +3626,14 @@ sheets:
       - text: 'Wiederkehr: 13 s'
       - text: 'Form: Bakentonne'
       - text: 'Farbe: rot'
+    task_images:
+    - src: bogen-06/aufgabe-08-aufgabe-1.png
+      width: 1040
+      height: 145
+    solution_images:
+    - src: bogen-06/aufgabe-08-loesung-1.png
+      width: 1040
+      height: 161
   - number: 9
     points: 2
     text: ''
@@ -2871,6 +3655,14 @@ sheets:
         tolerance: es müssen beide VTGe genannt sein
     - results:
       - text: SE-liche Begrenzung der Tiefwasserreede
+    task_images:
+    - src: bogen-06/aufgabe-09-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-06/aufgabe-09-loesung-1.png
+      width: 1040
+      height: 191
   - number: 10
     points: 2
     text: 'Man bestimmt den Koppelort für 12:50 BZ ausgehend von dem Startkurs nach Aufgabe 2 zum WPT 2. Die angenommene
@@ -2888,6 +3680,14 @@ sheets:
     - results:
       - text: 'O_k 12:50 BZ: φ = 53°53,3′ N, λ = 007°36,0′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-06/aufgabe-10-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-06/aufgabe-10-loesung-1.png
+      width: 1040
+      height: 167
   - number: 11
     points: 3
     text: Man peilt um 12:50 BZ über den Steuerkompass die Tonne „TG 17/Weser 1“ in der Magnetkompasspeilung (MgP)
@@ -2961,6 +3761,14 @@ sheets:
     - results:
       - text: 'O_b 12:50 BZ: φ = 53°53,7′ N, λ = 007°36,8′ E'
         tolerance: ± 0,2′
+    task_images:
+    - src: bogen-06/aufgabe-11-aufgabe-1.png
+      width: 1040
+      height: 199
+    solution_images:
+    - src: bogen-06/aufgabe-11-loesung-1.png
+      width: 1040
+      height: 383
   - number: 12
     points: 1
     text: ''
@@ -2974,6 +3782,14 @@ sheets:
     - results:
       - text: BV = 050° / 0,6 sm
         tolerance: ± 20° / ± 0,2 sm
+    task_images:
+    - src: bogen-06/aufgabe-12-aufgabe-1.png
+      width: 1040
+      height: 103
+    solution_images:
+    - src: bogen-06/aufgabe-12-loesung-1.png
+      width: 1040
+      height: 71
   - number: 13
     points: 3
     text: 'Man quert das VTG „Terschelling – German Bight“ wie vorgeschrieben. Man steht um 15:10 BZ nach GPS auf:
@@ -3052,6 +3868,14 @@ sheets:
     - results:
       - text: FüG = 7,1 kn
         tolerance: ± 0,1 kn
+    task_images:
+    - src: bogen-06/aufgabe-13-aufgabe-1.png
+      width: 1040
+      height: 295
+    solution_images:
+    - src: bogen-06/aufgabe-13-loesung-1.png
+      width: 1040
+      height: 660
   - number: 14
     points: 1
     text: 'Der Kurs vom WPT 3 zum WPT 4 in der Nordeinfahrt nach Helgoland führt knapp 2 sm ENE-lich der „Tonne
@@ -3071,6 +3895,14 @@ sheets:
     - results:
       - text: 2 Wracks, geringste Tiefe mit KT [nicht WT] = 34,4 m bekannt; abgesucht mit Schleppgerät oder durch
           Taucher.
+    task_images:
+    - src: bogen-06/aufgabe-14-aufgabe-1.png
+      width: 1040
+      height: 175
+    solution_images:
+    - src: bogen-06/aufgabe-14-loesung-1.png
+      width: 1040
+      height: 89
   - number: 15
     points: 2
     text: Ca. 2,5 sm weiter auf dem Kurs zur Tonne „Nathurn-N“ überfährt man eine magentafarbene Linie in Nord-Süd
@@ -3084,6 +3916,14 @@ sheets:
     - results:
       - text: Die Navigation ist in der Karte 3 weiter zu führen, weil dort mehr navigatorisch wichtige Angaben
           (z. B. Tonnen, Tiefenangaben usw.) vorhanden sind.
+    task_images:
+    - src: bogen-06/aufgabe-15-aufgabe-1.png
+      width: 1040
+      height: 151
+    solution_images:
+    - src: bogen-06/aufgabe-15-loesung-1.png
+      width: 1040
+      height: 113
   - number: 16
     points: 1
     text: Um weiterhin möglichst geschickt zu manövrieren, werden die vor der Nordeinfahrt von Helgoland für 18:00
@@ -3105,6 +3945,14 @@ sheets:
         tolerance: Keine Toleranz
       - text: StG = 1,3 kn
         tolerance: Keine Toleranz
+    task_images:
+    - src: bogen-06/aufgabe-16-aufgabe-1.png
+      width: 1040
+      height: 169
+    solution_images:
+    - src: bogen-06/aufgabe-16-loesung-1.png
+      width: 1040
+      height: 191
   - number: 17
     points: 2
     text: Der Leuchtturm von Helgoland kommt in Sicht.
@@ -3129,6 +3977,14 @@ sheets:
       - text: 'Höhe Feuer ü. Wasser: 82 m'
       - text: 'Aussehen am Tage: rotbrauner, viereckiger Turm, weißer Turmkopf, Antennen'
       - text: 'Höhe FT ü. Erdboden: 34 m'
+    task_images:
+    - src: bogen-06/aufgabe-17-aufgabe-1.png
+      width: 1040
+      height: 193
+    solution_images:
+    - src: bogen-06/aufgabe-17-loesung-1.png
+      width: 1040
+      height: 185
   - number: 18
     points: 1
     text: ''
@@ -3147,3 +4003,11 @@ sheets:
       - text: 'Helgoland Düne-Oberfeuer: Leitfeuer als Gleichtaktfeuer (Isophase) 4 s weiß mit Warnsektoren grün
           an Stb. und rot an Bb.'
         tolerance: Helgoland Düne-Oberfeuer muss genannt sein
+    task_images:
+    - src: bogen-06/aufgabe-18-aufgabe-1.png
+      width: 1040
+      height: 121
+    solution_images:
+    - src: bogen-06/aufgabe-18-loesung-1.png
+      width: 1040
+      height: 113

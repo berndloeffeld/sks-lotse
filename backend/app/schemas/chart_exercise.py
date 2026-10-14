@@ -54,6 +54,11 @@ class ChartTask(BaseModel):
     points: int
     text: str
     questions: list[ChartQuestion]
+    # The task as the PDF prints it, cut into images (one per page it spans), shown beside the Formblatt
+    # (ADR-0063).
+    task_images: list[ChartImage] = []
+    # The official solution as the PDF prints it; withheld like `solution` until the task is answered.
+    solution_images: list[ChartImage] = []
     # The official solution's results (what scores), and the working that leads to them — tide tables,
     # the stream diamond read off, the course conversion, ... — which the app shows only on request.
     solution: list[ChartSolutionPart]
@@ -111,6 +116,8 @@ class ChartAttemptTaskRead(BaseModel):
     max_points: int
     text: str
     questions: list[ChartQuestion]
+    task_images: list[ChartImage]
+    solution_images: list[ChartImage]
     # The learner's answer; None while the task is still open.
     answer_text: str | None
     # Both withheld until the task is answered, so the solution can't be read ahead.

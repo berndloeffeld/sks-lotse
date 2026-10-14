@@ -5,17 +5,17 @@ import { pointsLabel } from '../chartPoints'
 import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
 import { ChartOwnAnswer } from './AnswerBox'
-import { ChartTaskText, OfficialSolution } from './ChartContent'
+import { ChartImages, ChartTaskText, OfficialSolution } from './ChartContent'
 import { TideFormFields } from './TideFormFields'
 import { buttonClass } from './buttonStyles'
 import { Modal } from './Modal'
 
-// What stays at hand during a Kartenaufgabe: the Formblatt Gezeiten to fill in, the tasks done so far
-// with the learner's answers and the solutions. (The sheet's rules are read before the start, on
+// What stays at hand during a Kartenaufgabe: the Formblatt Gezeiten to fill in, the current task as
+// the PDF prints it, the tasks done so far with the learner's answers and the solutions. (The sheet's rules are read before the start, on
 // ChartExercisePage.) Beside the task on a wide screen
 // as cards that fold open and shut (ChartSidePanel), behind a bar at the bottom on a phone (ChartToolBar).
 
-const PANELS = { form: 'Formblatt Gezeiten', history: 'Verlauf' } as const
+const PANELS = { form: 'Formblatt Gezeiten', original: 'Offizieller Originaltext', history: 'Verlauf' } as const
 type Panel = keyof typeof PANELS
 const PANEL_KEYS = Object.keys(PANELS) as Panel[]
 
@@ -107,8 +107,24 @@ function FillableTideForm({ overview, tideForm }: Pick<ToolsProps, 'overview' | 
   )
 }
 
+/** The current task as the sheet prints it (the last one once the run is complete), for the Formblatt's data. */
+function OriginalText({ attempt, source }: { attempt: ChartAttempt; source: string | undefined }) {
+  const task = attempt.tasks.find((t) => t.number === attempt.current_task) ?? attempt.tasks.at(-1)
+  if (!task || task.task_images.length === 0) return <p className="text-sm text-ink-soft">Kein Ausschnitt vorhanden.</p>
+  return (
+    <div className="flex flex-col gap-2">
+      <ChartImages images={task.task_images} alt={`Aufgabe ${task.number} im Original`} />
+      {task.solution_images.length > 0 ? (
+        <ChartImages images={task.solution_images} alt={`Lösung zu Aufgabe ${task.number} im Original`} />
+      ) : null}
+      <p className="text-xs text-ink-soft">Antippen zum Vergrößern.{source ? ` Quelle: ${source}` : ''}</p>
+    </div>
+  )
+}
+
 function PanelContent({ panel, attempt, overview, tideForm }: ToolsProps & { panel: Panel }) {
   if (panel === 'form') return <FillableTideForm overview={overview} tideForm={tideForm} />
+  if (panel === 'original') return <OriginalText attempt={attempt} source={overview?.source} />
   return <ChartTaskHistory attempt={attempt} />
 }
 
@@ -116,7 +132,7 @@ function PanelContent({ panel, attempt, overview, tideForm }: ToolsProps & { pan
 const OPEN_KEY = 'sks-lotse:chart-tools-open'
 
 function loadOpen(): Record<Panel, boolean> {
-  const initial = { form: true, history: false }
+  const initial = { form: true, original: false, history: false }
   try {
     return {
       ...initial,
