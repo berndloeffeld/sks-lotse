@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { ChartSheetVideo } from './ChartSheetVideo'
+import { ChartSheetVideo, ChartTaskVideo } from './ChartSheetVideo'
 
 describe('ChartSheetVideo', () => {
   it("links the sheet's video and the channel, opening a new tab", () => {
@@ -18,6 +18,27 @@ describe('ChartSheetVideo', () => {
 
   it('shows nothing for a sheet without a video', () => {
     const { container } = render(<ChartSheetVideo number={99} />)
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it("during a run, starts the video at the current task's chapter mark", () => {
+    render(<ChartTaskVideo sheet={1} task={2} />)
+    expect(screen.getByRole('link', { name: 'Video-Erklärung zu Aufgabe 2 auf YouTube' })).toHaveAttribute(
+      'href',
+      'https://www.youtube.com/watch?v=HaHfmZLW198&t=190s',
+    )
+  })
+
+  it('starts at the beginning where a task has no chapter mark', () => {
+    render(<ChartTaskVideo sheet={4} task={10} />)
+    expect(screen.getByRole('link', { name: /Aufgabe 10/ })).toHaveAttribute(
+      'href',
+      'https://www.youtube.com/watch?v=S3C5MfLeOao',
+    )
+  })
+
+  it('shows nothing during a run of a sheet without a video', () => {
+    const { container } = render(<ChartTaskVideo sheet={99} task={1} />)
     expect(container).toBeEmptyDOMElement()
   })
 })
