@@ -22,23 +22,35 @@ describe('ChartSheetVideo', () => {
   })
 
   it("during a run, starts the video at the current task's chapter mark", () => {
-    render(<ChartTaskVideo sheet={1} task={2} />)
-    expect(screen.getByRole('link', { name: 'Video-Erklärung zu Aufgabe 2 auf YouTube' })).toHaveAttribute(
+    render(
+      <ChartTaskVideo sheet={1} task={2} className="">
+        Video
+      </ChartTaskVideo>,
+    )
+    expect(screen.getByRole('link', { name: 'Video' })).toHaveAttribute(
       'href',
       'https://www.youtube.com/watch?v=HaHfmZLW198&t=190s',
     )
   })
 
   it('starts at the beginning where a task has no chapter mark', () => {
-    render(<ChartTaskVideo sheet={4} task={10} />)
-    expect(screen.getByRole('link', { name: /Aufgabe 10/ })).toHaveAttribute(
+    render(
+      <ChartTaskVideo sheet={4} task={10} className="">
+        Video
+      </ChartTaskVideo>,
+    )
+    expect(screen.getByRole('link', { name: 'Video' })).toHaveAttribute(
       'href',
       'https://www.youtube.com/watch?v=S3C5MfLeOao',
     )
   })
 
   it('shows nothing during a run of a sheet without a video', () => {
-    const { container } = render(<ChartTaskVideo sheet={99} task={1} />)
+    const { container } = render(
+      <ChartTaskVideo sheet={99} task={1} className="">
+        Video
+      </ChartTaskVideo>,
+    )
     expect(container).toBeEmptyDOMElement()
   })
 })

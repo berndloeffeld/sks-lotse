@@ -9,7 +9,6 @@ import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
 import { ChartOwnAnswer } from './AnswerBox'
 import { ChartAnswerEditor } from './ChartAnswerEditor'
-import { ChartTaskVideo } from './ChartSheetVideo'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
 import { ChartTaskHistory } from './ChartTools'
 import { formStyles } from './formStyles'
@@ -61,7 +60,6 @@ export function ChartTaskRun({ attempt, onAnswer, onPoints, onAiCheck, guest = f
         <p className="text-right text-sm text-ink-soft">Max. erreichbare Punkte: {task.max_points}</p>
       </div>
       <ChartTaskText task={task} />
-      <ChartTaskVideo sheet={attempt.exercise_number} task={task.number} />
       {/* Keyed per task, so each one starts with an empty answer and no points chosen. */}
       {task.answer_text === null ? (
         <AnswerForm key={task.number} task={task} onAnswer={onAnswer} />

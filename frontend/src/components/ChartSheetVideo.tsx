@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 // A video walk-through of each official sheet, by the YouTube channel McFly439 ("[SKS Kartenaufgaben
 // erklärt!] Bogen N", same numbering as the WSV sheets). Only linked, never embedded: an embed would
 // load YouTube's scripts into the page (CLAUDE.md: no third-party script but Umami).
@@ -58,16 +60,30 @@ export function ChartSheetVideo({ number }: { number: number }) {
   )
 }
 
-/** During a run: the video, started at the current task where its description marks it. */
-export function ChartTaskVideo({ sheet, task }: { sheet: number; task: number }) {
+/** During a run, among the tools (ChartTools): the video, started at the current task where its
+ * description marks it. Styled by the caller, as a card header or a button in the phone's bar. */
+export function ChartTaskVideo({
+  sheet,
+  task,
+  className,
+  children,
+}: {
+  sheet: number
+  task: number
+  className: string
+  children: ReactNode
+}) {
   const video = VIDEOS[sheet]
   if (!video) return null
   return (
-    <p className="text-sm text-ink-soft">
-      <a href={videoUrl(video.id, video.starts[task - 1])} target="_blank" rel="noopener noreferrer" className={LINK}>
-        Video-Erklärung zu Aufgabe {task} auf YouTube
-      </a>{' '}
-      (Kanal McFly439)
-    </p>
+    <a
+      href={videoUrl(video.id, video.starts[task - 1])}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`Video-Erklärung zu Aufgabe ${task} auf YouTube (Kanal McFly439)`}
+      className={className}
+    >
+      {children}
+    </a>
   )
 }
