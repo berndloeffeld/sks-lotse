@@ -241,7 +241,7 @@ Everything is declared in `render.yaml`:
 GitHub Actions runs on every PR and every push to `main`:
 
 - **Backend** (`backend-ci.yml`): `backend-lint` (ruff, mypy, `pip-audit` of the locked dependencies), `backend-test` (unit tests with a line/branch coverage gate, threshold in `backend/pyproject.toml`), `migrations` against a real Postgres, `integration-tests` (black-box, against a running server) and `postman-collection` (freshness of the generated collection and API types).
-- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`, and the production build including the prerender), `frontend-test` (type check, tests with a lines/branches coverage gate, thresholds in `frontend/vite.config.ts`; on all four vCPUs of the runner).
+- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`, and the production build including the prerender), `frontend-test` (type check, tests with a lines/branches coverage gate, thresholds in `frontend/vite.config.ts`).
 - **Mutation testing**: daily, not per PR, with a minimum score per side ([docs/mutation-testing.md](mutation-testing.md)).
 - **Security**: known-vulnerable dependencies fail the lint jobs above; CodeQL (GitHub's Default Setup, configured in the repo settings: Python, JavaScript/TypeScript, Actions) scans every PR and `main` for code-level issues, not a required check; Aikido additionally rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
 
