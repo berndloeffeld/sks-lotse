@@ -57,7 +57,7 @@ Trunk-based development:
 - **Conversation resolution required**: every review conversation on the PR must be resolved before it can merge.
 - **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
 - GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
-- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs. A newer push to a PR branch cancels its still-running CI (`concurrency`); every job has a 15-minute timeout. The `frontend-test` job also runs `npm run build` (incl. prerender), the same build Render deploys.
+- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs. A newer push to a PR branch cancels its still-running CI (`concurrency`); every job has a 15-minute timeout. The `frontend-lint` job also runs `npm run build` (incl. prerender), the same build Render deploys — there rather than in `frontend-test`, so it runs beside the tests instead of after them.
 
 ---
 

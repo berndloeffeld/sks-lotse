@@ -37,6 +37,10 @@ jobs:
       - run: npm run format:check
       # Known high/critical vulnerabilities in what ships to the browser (dev tooling excluded).
       - run: npm audit --omit=dev --audit-level=high
+      # The same build Render runs (tsc, client + SSR build, prerender.mjs): a broken prerender
+      # must fail here, not in the deploy. It sits in this job rather than frontend-test, which the
+      # tests already make the longer one, so the two run side by side.
+      - run: npm run build
 
   frontend-test:
     runs-on: ubuntu-latest
@@ -56,6 +60,3 @@ jobs:
       - run: npm ci
       - run: npx tsc -b
       - run: npx vitest run --coverage
-      # The same build Render runs (tsc, client + SSR build, prerender.mjs): a broken prerender
-      # must fail here, not in the deploy.
-      - run: npm run build
