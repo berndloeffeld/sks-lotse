@@ -53,6 +53,22 @@ export function ExamProcessPage() {
         </p>
       </Section>
 
+      <Section title="Wo du die Prüfung ablegst">
+        <p>
+          Abgenommen werden Theorie- und Praxisprüfung von regionalen Prüfungsausschüssen. Bei dem für dich passenden
+          Ausschuss meldest du dich zur Prüfung an. Eine Übersicht nach Region gibt es auf der Seite{' '}
+          <a
+            href="https://www.sportbootfuehrerscheine.org/pruefungen/pruefungsausschuesse/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:no-underline"
+          >
+            Prüfungsausschüsse auf sportbootfuehrerscheine.org
+          </a>
+          .
+        </p>
+      </Section>
+
       <Section icon={<CatalogIcon className="h-8 w-8" />} title="So läuft die SKS-Theorieprüfung ab">
         <p>
           Die Theorieprüfung besteht aus einem Fragebogen mit 30 Fragen in 90 Minuten, aufgeteilt auf Navigation (9),

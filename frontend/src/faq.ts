@@ -27,6 +27,12 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
       'Ja. Unter [Lernen](/learn) sind alle Fragen des amtlichen Katalogs nach Themen frei zum Üben: Frage lesen, Antwort aufschreiben, mit der amtlichen Antwort vergleichen. Ebenso die amtlichen Kartenaufgaben, Aufgabe für Aufgabe mit der amtlichen Lösung. Auch ohne Anmeldung bewertest du dich selbst und siehst am Ende der Runde, wie sie lief; bei uns wird aber nichts gespeichert (das Formblatt der Kartenaufgaben bleibt nur in deinem Browser), und es gibt keinen Lernstand. Mit Anmeldung behältst du deinen Lernstand auf jedem Gerät und bekommst Fokus, Auffrischen, die Probeprüfung und den Lotsen-Check.',
   },
   {
+    id: 'app',
+    question: 'Gibt es SKS Lotse als App?',
+    answer:
+      'Ja, als Web-App: SKS Lotse läuft im Browser auf Handy, Tablet und Computer, ohne App Store und ohne Download. Auf den Startbildschirm legst du sie so: auf dem iPhone oder iPad in Safari über „Teilen“ und „Zum Home-Bildschirm“, auf Android in Chrome über das Menü und „Zum Startbildschirm hinzufügen“ oder „App installieren“. Danach öffnet sie sich wie eine App im eigenen Fenster. Mit Anmeldung ist dein Lernstand auf allen Geräten derselbe.',
+  },
+  {
     id: 'lernmodi',
     question: 'Welche Lernmodi gibt es?',
     answer:
@@ -72,7 +78,7 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'kartenaufgaben',
     question: 'Was sind die Kartenaufgaben?',
     answer:
-      'Die Kartenaufgabe ist der zweite Teil der schriftlichen SKS-Theorieprüfung im Fach Navigation: Du trägst Orte, Kurse und Peilungen in die Seekarte ein und rechnest mit Gezeiten und Strom. Unter [Kartenaufgaben](/charts) übst du mit den amtlichen Aufgabenbögen der WSV: Aufgabe für Aufgabe schreibst du deine Antwort auf, siehst die amtliche Lösung samt Herleitung und vergibst dir selbst Punkte. Der Lotsen-Check rechnet auf Wunsch deine Werte nach und sucht deinen Fehler.',
+      'Die Kartenaufgabe ist der zweite Teil der schriftlichen SKS-Theorieprüfung im Fach Navigation: Du trägst Orte, Kurse und Peilungen in die Seekarte ein und rechnest mit Gezeiten und Strom. Unter [Kartenaufgaben](/charts) übst du mit den amtlichen Aufgabenbögen der WSV: Aufgabe für Aufgabe schreibst du deine Antwort auf, siehst die amtliche Lösung samt Herleitung und vergibst dir selbst Punkte. Der Lotsen-Check rechnet auf Wunsch deine Werte nach und sucht deinen Fehler. Zu jedem Bogen verlinken wir außerdem eine Video-Anleitung auf YouTube.',
   },
   {
     id: 'pruefungssimulation',

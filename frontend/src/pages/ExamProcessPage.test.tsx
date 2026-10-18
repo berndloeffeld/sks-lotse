@@ -35,6 +35,15 @@ describe('ExamProcessPage', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Warum sich der SKS lohnt' })).toBeInTheDocument()
   })
 
+  it('links the regional examination boards, opening a new tab', () => {
+    renderExamProcessPage()
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Wo du die Prüfung ablegst' })).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'Prüfungsausschüsse auf sportbootfuehrerscheine.org' })
+    expect(link).toHaveAttribute('href', 'https://www.sportbootfuehrerscheine.org/pruefungen/pruefungsausschuesse/')
+    expect(link).toHaveAttribute('target', '_blank')
+  })
+
   it('is honest that SKS Lotse does not cover the chart task while the Kartenaufgaben are closed, nor the practical exam', () => {
     vi.stubEnv('VITE_CHART_EXERCISES', 'off')
     renderExamProcessPage()

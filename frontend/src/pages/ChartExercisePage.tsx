@@ -5,6 +5,7 @@ import { ApiError, apiClient } from '../api/client'
 import type { ChartAttempt, ChartExerciseSummary, ChartExercisesOverview } from '../api/types'
 import { guestOverview, type ChartSheet } from '../chartCatalog'
 import { ChartSheetTaskList } from '../components/ChartSheetTaskList'
+import { ChartSheetVideo } from '../components/ChartSheetVideo'
 import { ChartHints, TideForm } from '../components/ChartTools'
 import { DiscardChartRun } from '../components/DiscardChartRun'
 import { GuestChartRun } from '../components/GuestChartRun'
@@ -218,6 +219,7 @@ function SheetPage({ number, overview, exercise, sheet, loadError, onRetry, nav,
               {exercise.task_count} Aufgaben, {exercise.max_points} Punkte, in der Prüfung 90 Minuten. Du bearbeitest
               die Aufgaben nacheinander. Nach jeder Aufgabe siehst du die amtliche Lösung und gibst dir selbst Punkte.
             </p>
+            <ChartSheetVideo number={exercise.number} />
           </section>
           {children}
           <details className="rounded-tile border border-border p-3">

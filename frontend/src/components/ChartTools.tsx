@@ -6,6 +6,7 @@ import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
 import { ChartOwnAnswer } from './AnswerBox'
 import { ChartImages, ChartTaskText, OfficialSolution } from './ChartContent'
+import { ChartTaskVideo } from './ChartSheetVideo'
 import { TideFormFields } from './TideFormFields'
 import { buttonClass } from './buttonStyles'
 import { Modal } from './Modal'
@@ -14,6 +15,7 @@ import { Modal } from './Modal'
 // the PDF prints it, the tasks done so far with the learner's answers and the solutions. (The sheet's rules are read before the start, on
 // ChartExercisePage.) Beside the task on a wide screen
 // as cards that fold open and shut (ChartSidePanel), behind a bar at the bottom on a phone (ChartToolBar).
+// First of them, where the sheet has one, a link to a video explaining the current task (ChartSheetVideo).
 
 const PANELS = { form: 'Formblatt Gezeiten', original: 'Offizieller Originaltext', history: 'Verlauf' } as const
 type Panel = keyof typeof PANELS
@@ -122,6 +124,16 @@ function OriginalText({ attempt, source }: { attempt: ChartAttempt; source: stri
   )
 }
 
+/** The video link at the head of the tools; nothing for a sheet without a video. */
+function VideoLink({ attempt, className, label }: { attempt: ChartAttempt; className: string; label: string }) {
+  const task = attempt.current_task ?? attempt.tasks.at(-1)?.number ?? 1
+  return (
+    <ChartTaskVideo sheet={attempt.exercise_number} task={task} className={className}>
+      {label} <span aria-hidden="true">↗</span>
+    </ChartTaskVideo>
+  )
+}
+
 function PanelContent({ panel, attempt, overview, tideForm }: ToolsProps & { panel: Panel }) {
   if (panel === 'form') return <FillableTideForm overview={overview} tideForm={tideForm} />
   if (panel === 'original') return <OriginalText attempt={attempt} source={overview?.source} />
@@ -160,6 +172,11 @@ export function ChartSidePanel(props: ToolsProps) {
 
   return (
     <aside aria-label="Hilfsmittel" className="flex flex-col gap-3">
+      <VideoLink
+        attempt={props.attempt}
+        label="Video zur Aufgabe"
+        className="flex w-full items-center justify-between rounded-tile border border-border bg-surface px-3 py-2 font-mono text-xs tracking-wide text-primary uppercase hover:underline"
+      />
       {PANEL_KEYS.map((key) => (
         <section key={key} className="rounded-tile border border-border bg-surface">
           <h2>
@@ -198,6 +215,11 @@ export function ChartToolBar(props: ToolsProps) {
         aria-label="Hilfsmittel"
         className="fixed inset-x-0 bottom-0 z-(--z-bar) flex justify-around border-t border-border bg-surface py-2"
       >
+        <VideoLink
+          attempt={props.attempt}
+          label="Video"
+          className="px-3 py-1 font-mono text-xs tracking-wide whitespace-nowrap text-primary uppercase"
+        />
         {PANEL_KEYS.map((key) => (
           <button
             key={key}
