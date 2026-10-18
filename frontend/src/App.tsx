@@ -21,6 +21,7 @@ import { ChartExercisesGate } from './routes/ChartExercisesGate'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAdminWithoutAnalytics } from './hooks/useAdminWithoutAnalytics'
+import { useUserRefreshOnReturn } from './hooks/useUserRefreshOnReturn'
 import { useNavigationScroll } from './hooks/useNavigationScroll'
 import { useAuthStore } from './store/authStore'
 import { useMaintenanceStore } from './store/maintenanceStore'
@@ -89,6 +90,7 @@ export function AppRoutes() {
 
   useNavigationScroll()
   useAdminWithoutAnalytics()
+  useUserRefreshOnReturn()
 
   if (maintenanceMode && !MAINTENANCE_EXEMPT_PATHS.has(pathname)) {
     return <MaintenancePage />

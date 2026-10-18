@@ -32,6 +32,11 @@ interface AuthState {
   // is the wrong tool there — flipping isLoading makes ProtectedRoute unmount
   // the current page mid-save, dropping its local state.
   setUser: (user: User) => void
+  // Re-reads GET /auth/me for a learner who is signed in, in place (no isLoading, like setUser):
+  // another tab or device may have changed the account since, e.g. the exam variant, which the
+  // server already filters by. A failed refresh keeps the user as is; a 401 ends the session
+  // through the client's unauthorized handler like any other request.
+  refreshUser: () => Promise<void>
   updateUser: (patch: UserUpdate) => Promise<void>
   // Local-only: for when the backend session is already gone (e.g. the
   // account was just deleted), so there's nothing for /auth/logout to do.
@@ -39,7 +44,7 @@ interface AuthState {
   logout: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => {
+export const useAuthStore = create<AuthState>((set, get) => {
   const clearSession = () => set({ user: null, isAuthenticated: false, isLoading: false, sessionError: false })
   // A 401 during logout() means the same thing as the logout itself: nothing to point out.
   let loggingOut = false
@@ -68,6 +73,17 @@ export const useAuthStore = create<AuthState>((set) => {
       }
     },
     setUser: (user) => set({ user }),
+    refreshUser: async () => {
+      if (!get().isAuthenticated) return
+      let user: User
+      try {
+        user = await apiClient.get<User>('/auth/me')
+      } catch {
+        return
+      }
+      // Logged out meanwhile (or the 401 handler ran): don't sign the learner back in.
+      if (get().isAuthenticated) set({ user })
+    },
     updateUser: async (patch) => {
       const user = await apiClient.patch<User>('/auth/me', patch)
       set({ user })

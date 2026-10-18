@@ -78,6 +78,64 @@ describe('authStore', () => {
     })
   })
 
+  it('refreshUser re-reads /auth/me in place for a signed-in learner', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    const changed = { ...mockUser, exam_variant: 'motor' }
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(changed))
+    vi.stubGlobal('fetch', fetchMock)
+    const loadingStates: boolean[] = []
+    const unsubscribe = useAuthStore.subscribe((state) => loadingStates.push(state.isLoading))
+
+    await useAuthStore.getState().refreshUser()
+    unsubscribe()
+
+    expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/api\/v1\/auth\/me$/)
+    expect(useAuthStore.getState()).toMatchObject({ user: changed, isAuthenticated: true, isLoading: false })
+    expect(loadingStates).not.toContain(true)
+  })
+
+  it('refreshUser does nothing for a guest', async () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(useAuthStore.getState().user).toBeNull()
+  })
+
+  it('refreshUser keeps the user when the request fails', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: mockUser, isAuthenticated: true, sessionError: false })
+  })
+
+  it('refreshUser ends the session on a 401 instead of keeping the stale user', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false, sessionExpired: true })
+  })
+
+  it('refreshUser does not sign the learner back in after a logout during the request', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    let respond: (response: Response) => void = () => {}
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise<Response>((resolve) => (respond = resolve))))
+
+    const refreshing = useAuthStore.getState().refreshUser()
+    useAuthStore.getState().clearSession()
+    respond(jsonResponse(mockUser))
+    await refreshing
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
   it('updateUser PATCHes /auth/me and stores the returned user without a loading phase', async () => {
     useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
     const updated = { ...mockUser, exam_variant: 'motor' }
