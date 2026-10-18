@@ -26,8 +26,6 @@ The official SKS exam catalog is free text, not multiple choice: the learner wri
 
 ![System context: the learner uses the frontend SPA in the browser, served by the static site; the SPA talks to the backend API on Render, which uses PostgreSQL, Resend, the Anthropic API, Stripe and Better Stack; a daily cron job reads the database and mails the KPI report](diagrams/system-context.svg)
 
-[Interactive version](diagrams/system-context.html) (search, focus, route tracing; open the file locally, GitHub shows it as source).
-
 The dashed line to the Web Speech API is planned and not built yet (see [Not yet built](#not-yet-built)). Hosting and database run in Frankfurt (EU), the static site is delivered through Render's global CDN; Stripe (Irish entity, US parent) and the Anthropic API (US, see ADR-0031) involve a third country, as stated in the Datenschutzerklärung. The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
 Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
@@ -40,13 +38,9 @@ Internal module structure of each app — what talks to what inside the codebase
 
 ![Backend components: middleware, then the api/v1 routers, which validate with schemas and call core, services and domain; services and domain reach the database through the SQLAlchemy models; services call Resend, the Anthropic API and Stripe](diagrams/backend-components.svg)
 
-[Interactive version](diagrams/backend-components.html)
-
 ![Frontend components: route guards, then pages, which use components, the Zustand store and the data hooks; store and hooks reach the backend API through the typed api client](diagrams/frontend-components.svg)
 
-[Interactive version](diagrams/frontend-components.html)
-
-The three diagrams are generated with the Archify skill (`.claude/skills/archify/`) from their sources `docs/diagrams/*.json`. When the system or the module structure changes, edit the JSON, render it with `node .claude/skills/archify/bin/archify.mjs finalize architecture docs/diagrams/<name>.json docs/diagrams/<name>.html --quality showcase`, and replace `<name>.svg` with the HTML's Export → SVG (one file that follows the reader's light or dark setting).
+The three diagrams are drawn with the [Archify](https://github.com/tt-a1i/archify) skill from their sources `docs/diagrams/*.json`. The skill isn't committed; install it once per clone, from the repo root: `npx -y skills add tt-a1i/archify --skill archify --agent claude-code --copy --yes`. When the system or the module structure changes, edit the JSON, render it with `node .claude/skills/archify/bin/archify.mjs finalize architecture docs/diagrams/<name>.json docs/diagrams/<name>.html --quality showcase` (the HTML stays local, it's an interactive version with search and focus), and replace `<name>.svg` with that page's Export → SVG (one file that follows the reader's light or dark setting).
 
 ### Frontend (`frontend/`)
 A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013](adr/0013-frontend-architecture-and-tooling.md)), served by a Render static site ([ADR-0015](adr/0015-frontend-deployment-topology.md)).
