@@ -116,6 +116,15 @@ describe('AdminDashboardPage', () => {
     expect(
       screen.getByRole('img', { name: /^Umsatz je Tag \(brutto, Stripe\): zusammen 15,97\s€/ }),
     ).toBeInTheDocument()
+    // The axis beside each chart: up to a highest day of 9, in steps of 5; revenue in euros.
+    const signups = screen.getByRole('img', { name: /^Neuanmeldungen je Tag/ }).closest('figure') as HTMLElement
+    expect(
+      within(signups)
+        .getAllByText(/^(0|5|10)$/)
+        .map((label) => label.textContent),
+    ).toEqual(['10', '0', '5', '10'])
+    const revenue = screen.getByRole('img', { name: /^Umsatz je Tag/ }).closest('figure') as HTMLElement
+    expect(within(revenue).getAllByText(/^5,00\s€$/)).toHaveLength(1)
   })
 
   it('says that the check log only reaches back 30 days on the 90-day view', async () => {
