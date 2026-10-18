@@ -111,7 +111,7 @@ API docs (Swagger UI): `http://localhost:8000/docs`. A [Postman collection](post
 Backend — run from `backend/`, with the venv active:
 
 ```bash
-pytest                # tests (one worker per core, pytest-xdist) + line/branch coverage gate (threshold in backend/pyproject.toml)
+pytest                # tests + line/branch coverage gate (threshold in backend/pyproject.toml)
 ruff check .          # lint
 ruff format --check . # formatting
 mypy app              # type check
