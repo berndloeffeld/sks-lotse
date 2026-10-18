@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
+import { analyticsLoaded } from '../analytics'
 import { getDisplayName } from '../format'
 import { useAuthStore } from '../store/authStore'
 import { HEADER_MENU_BUTTON, tabBarItemClass } from './headerLink'
@@ -128,7 +129,10 @@ export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuP
             </li>
             {user?.is_admin ? (
               <li>
-                <Link to="/admin" className={ITEM} onClick={close}>
+                {/* A document running Umami goes to the admin tools by a full page load right away,
+                    instead of rendering them in-app first and then being reloaded by
+                    useAdminWithoutAnalytics (the page flickered twice). */}
+                <Link to="/admin" reloadDocument={analyticsLoaded()} className={ITEM} onClick={close}>
                   Admin
                 </Link>
               </li>
