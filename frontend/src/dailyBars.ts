@@ -10,7 +10,21 @@ export function seriesSum(values: readonly number[]): number {
   return values.reduce((total, value) => total + value, 0)
 }
 
-// Height of a bar of `value` in a chart `height` tall whose tallest bar is `max`; 0 when nothing to show.
+// The value axis for a chart whose tallest day is `max`: a round step (1, 2 or 5 × 10ⁿ, never below 1,
+// since every series counts whole things or cents) chosen so that at most MAX_TICKS steps reach `max`,
+// and the ticks from 0 up to the first multiple of it at or above `max`. 9 → [0, 5, 10]; 0 → [0, 1].
+const MAX_TICKS = 4
+
+export function axisTicks(max: number): number[] {
+  let magnitude = 1
+  while (max > 5 * magnitude * MAX_TICKS) magnitude *= 10
+  const step =
+    [1, 2].map((factor) => factor * magnitude).find((candidate) => max <= candidate * MAX_TICKS) ?? 5 * magnitude
+  const steps = Math.max(1, Math.ceil(max / step))
+  return Array.from({ length: steps + 1 }, (_, index) => index * step)
+}
+
+// Height of a bar of `value` in a chart `height` tall whose axis reaches `max`; 0 when nothing to show.
 export function barHeight(value: number, max: number, height: number): number {
   return max > 0 ? (value / max) * height : 0
 }
