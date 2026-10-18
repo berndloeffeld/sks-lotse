@@ -1,7 +1,7 @@
 {
   "name": "SKS Lotse",
   "short_name": "SKS Lotse",
-  "description": "Online für die theoretische SKS-Prüfung (Sportküstenschifferschein) lernen.",
+  "description": "SKS Lern-App für die Theorieprüfung zum Sportküstenschifferschein (SKS).",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

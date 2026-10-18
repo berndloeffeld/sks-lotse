@@ -18,7 +18,7 @@ import { buttonClass } from '../components/buttonStyles'
 
 // A short, first-time-visitor-relevant excerpt of the full FAQ (order
 // preserved from the shared FAQ array), each linking to its /faq#<id> anchor.
-const LANDING_FAQ_IDS = new Set(['quelle', 'ohne-anmeldung', 'varianten', 'gelernt', 'pruefungssimulation'])
+const LANDING_FAQ_IDS = new Set(['quelle', 'ohne-anmeldung', 'app', 'varianten', 'gelernt', 'pruefungssimulation'])
 const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 
 // Banded layout after a website template: full-width color bands (light
@@ -259,8 +259,8 @@ export function LandingPage() {
               {[
                 ['Freitext', 'So wie in der echten Prüfung – kein Rätselraten zwischen vorgegebenen Antworten.'],
                 [
-                  'Kein Download',
-                  'Die SKS App läuft direkt im Browser, auf Handy, Tablet oder Desktop – kein Store-Download nötig.',
+                  'App ohne Store',
+                  'Die SKS App läuft direkt im Browser auf Handy, Tablet oder Computer. Leg sie auf deinen Startbildschirm, dann öffnet sie sich wie eine App.',
                 ],
                 [
                   'Offener Katalog',

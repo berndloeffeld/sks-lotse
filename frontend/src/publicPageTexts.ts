@@ -17,7 +17,7 @@ export const EXAM_PROCESS_CRUMB = 'So läuft die SKS-Prüfung ab'
 export const FAQ_TEXT: PageText = {
   title: 'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
   description:
-    'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS App – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
+    'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS Lern-App, auch auf dem Handy – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
 }
 
 export const IMPRINT_TEXT: PageText = {
