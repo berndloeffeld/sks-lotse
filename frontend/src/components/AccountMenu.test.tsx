@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
@@ -22,6 +22,7 @@ function renderMenu(user = makeUser()) {
         <Route path="/exam" element={<p>Exam page</p>} />
         <Route path="/profile" element={<p>Profile page</p>} />
         <Route path="/pricing" element={<p>Pricing page</p>} />
+        <Route path="/admin" element={<p>Admin page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -76,6 +77,45 @@ describe('AccountMenu', () => {
     renderMenu(makeUser({ is_admin: true }))
     await userEvent.click(menuButton())
     expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
+  })
+
+  describe('Admin link', () => {
+    let documentNavigations: number
+    // Runs after React's handler: a click the router didn't take over would load a new document.
+    function recordDocumentNavigation(event: MouseEvent) {
+      if (!(event.target instanceof Element) || !event.target.closest('a')) return
+      if (!event.defaultPrevented) documentNavigations += 1
+      event.preventDefault()
+    }
+
+    beforeEach(() => {
+      documentNavigations = 0
+      document.addEventListener('click', recordDocumentNavigation)
+    })
+    afterEach(() => {
+      document.removeEventListener('click', recordDocumentNavigation)
+      document.head.querySelector('script[data-website-id]')?.remove()
+    })
+
+    it('navigates in-app where Umami is not loaded', async () => {
+      renderMenu(makeUser({ is_admin: true }))
+      await userEvent.click(menuButton())
+      await userEvent.click(screen.getByRole('link', { name: 'Admin' }))
+      expect(screen.getByText('Admin page')).toBeInTheDocument()
+      expect(documentNavigations).toBe(0)
+    })
+
+    it('loads a fresh document where Umami runs, so the admin tools render only once', async () => {
+      const script = document.createElement('script')
+      script.dataset.websiteId = 'test'
+      document.head.appendChild(script)
+
+      renderMenu(makeUser({ is_admin: true }))
+      await userEvent.click(menuButton())
+      await userEvent.click(screen.getByRole('link', { name: 'Admin' }))
+      expect(screen.queryByText('Admin page')).not.toBeInTheDocument()
+      expect(documentNavigations).toBe(1)
+    })
   })
 
   it('closes on a second click of the button', async () => {
