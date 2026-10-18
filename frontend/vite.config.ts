@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
+      // Vitest's default for `run` is one worker less than the cores, which leaves a quarter of
+      // GitHub's 4-vCPU runner idle in a CPU-bound run; locally the default keeps the machine usable.
+      maxWorkers: process.env.CI ? 4 : undefined,
       // Reset before every test, so a test's teardown (the DOM cleanup in
       // setup.ts) still runs with its own stubs in place.
       unstubGlobals: true,
