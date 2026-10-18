@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SKS Lotse · System context",
+    "locale": "en",
+    "output": "docs/diagrams/system-context.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {"id": "learner", "type": "external", "label": "Learner", "icon": "person", "pos": [40, 211], "size": [120, 68]},
+    {"id": "spa", "type": "frontend", "label": "Frontend SPA", "sublabel": "React + Vite", "pos": [230, 211], "size": [180, 68]},
+    {"id": "stt", "type": "frontend", "label": "Web Speech API", "sublabel": "planned", "pos": [230, 350], "size": [120, 56]},
+    {"id": "static", "type": "cloud", "label": "Static site", "sublabel": "sks-lotse.de", "pos": [520, 60], "size": [130, 56]},
+    {"id": "api", "type": "backend", "label": "Backend API", "sublabel": "FastAPI · api.sks-lotse.de", "pos": [520, 170], "size": [180, 150]},
+    {"id": "db", "type": "database", "label": "PostgreSQL 18", "pos": [520, 400], "size": [180, 60]},
+    {"id": "cron", "type": "backend", "label": "Cron Job", "sublabel": "daily KPI report", "pos": [760, 400], "size": [150, 60]},
+    {"id": "stripe", "type": "external", "label": "Stripe", "sublabel": "Hosted Checkout", "pos": [1000, 60], "size": [170, 60]},
+    {"id": "anthropic", "type": "external", "label": "Anthropic API", "sublabel": "Lotsen-Check", "pos": [1000, 180], "size": [170, 60]},
+    {"id": "resend", "type": "external", "label": "Resend", "sublabel": "login + purchase email", "pos": [1000, 290], "size": [170, 60]},
+    {"id": "betterstack", "type": "external", "label": "Better Stack", "sublabel": "logs, uptime, heartbeat", "pos": [1000, 400], "size": [170, 60]},
+    {"id": "umami", "type": "external", "label": "Umami Cloud", "sublabel": "analytics", "pos": [330, 480], "size": [130, 56]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "Browser", "wraps": ["spa", "stt"]},
+    {"kind": "region", "label": "Render · Frankfurt EU", "wraps": ["static", "api", "db", "cron"]}
+  ],
+  "connections": [
+    {"id": "learner-spa", "from": "learner", "to": "spa", "variant": "emphasis"},
+    {"id": "static-serves-spa", "from": "static", "to": "spa", "label": "serves", "fromSide": "left", "toSide": "top"},
+    {"id": "spa-api", "from": "spa", "to": "api", "label": "JSON/HTTPS + cookie", "variant": "emphasis"},
+    {"id": "spa-stripe", "from": "spa", "to": "stripe", "label": "redirect to pay", "fromSide": "top", "toSide": "top"},
+    {"id": "spa-umami", "from": "spa", "to": "umami", "label": "page views", "fromSide": "bottom", "toSide": "top"},
+    {"id": "spa-stt", "from": "spa", "to": "stt", "variant": "dashed", "fromSide": "bottom", "toSide": "top"},
+    {"id": "api-db", "from": "api", "to": "db", "label": "SQL", "variant": "emphasis"},
+    {"id": "api-stripe", "from": "api", "to": "stripe", "label": "checkout session"},
+    {"id": "stripe-webhook", "from": "stripe", "to": "api", "label": "webhook", "variant": "security"},
+    {"id": "api-anthropic", "from": "api", "to": "anthropic", "label": "grading request"},
+    {"id": "api-resend", "from": "api", "to": "resend", "label": "send email"},
+    {"id": "api-logs", "from": "api", "to": "betterstack", "label": "logs via Render"},
+    {"id": "cron-db", "from": "cron", "to": "db", "label": "SQL"},
+    {"id": "cron-resend", "from": "cron", "to": "resend", "label": "KPI mail"},
+    {"id": "cron-heartbeat", "from": "cron", "to": "betterstack", "label": "heartbeat"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Hosting", "items": ["Render, Frankfurt (EU); the static site is served through Render's global CDN", "Cloudflare sits in front of Render", "The cron job runs the backend's code against the same database"]},
+    {"dot": "amber", "title": "Third countries", "items": ["Stripe (Irish entity, US parent) and the Anthropic API (US) — stated in the Datenschutzerklärung"]},
+    {"dot": "slate", "title": "Not shown", "items": ["Better Stack also polls /health (uptime checks)", "Web Speech API (dashed) is planned, not built"]}
+  ]
+}

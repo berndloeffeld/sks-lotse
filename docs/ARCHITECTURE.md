@@ -24,47 +24,11 @@ The official SKS exam catalog is free text, not multiple choice: the learner wri
 
 ## System context
 
-```mermaid
-graph LR
-    Learner((Learner))
+![System context: the learner uses the frontend SPA in the browser, served by the static site; the SPA talks to the backend API on Render, which uses PostgreSQL, Resend, the Anthropic API, Stripe and Better Stack; a daily cron job reads the database and mails the KPI report](diagrams/system-context.svg)
 
-    subgraph Browser
-        SPA[Frontend SPA<br/>React + Vite]
-        STT[Web Speech API]
-    end
+[Interactive version](diagrams/system-context.html) (search, focus, route tracing; open the file locally, GitHub shows it as source).
 
-    subgraph "Render · Frankfurt EU (static site: global CDN)"
-        Static[Static site<br/>sks-lotse.de]
-        API[Backend API<br/>FastAPI · api.sks-lotse.de]
-        DB[(PostgreSQL 18)]
-        Cron[Cron Job<br/>daily KPI report]
-    end
-
-    Resend[Resend<br/>login + purchase email]
-    Umami[Umami Cloud<br/>analytics]
-    Anthropic[Anthropic API<br/>Lotsen-Check, Haiku/Sonnet]
-    Stripe[Stripe<br/>Hosted Checkout]
-    BetterStack[Better Stack<br/>logs, uptime, heartbeat]
-
-    Learner --> SPA
-    Static -- serves --> SPA
-    SPA -- "JSON / HTTPS<br/>session cookie" --> API
-    API --> DB
-    API --> Resend
-    SPA --> Umami
-    API --> Anthropic
-    SPA -- "redirect to pay" --> Stripe
-    API -- "checkout session" --> Stripe
-    Stripe -- webhook --> API
-    Cron --> DB
-    Cron --> Resend
-    Cron -- heartbeat --> BetterStack
-    API -- "logs (via Render)" --> BetterStack
-    BetterStack -- "uptime checks" --> API
-    SPA -.-> STT
-```
-
-The dotted line is planned and not built yet (see [Not yet built](#not-yet-built)). Hosting and database run in Frankfurt (EU), the static site is delivered through Render's global CDN; Stripe (Irish entity, US parent) and the Anthropic API (US, see ADR-0031) involve a third country, as stated in the Datenschutzerklärung. The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
+The dashed line to the Web Speech API is planned and not built yet (see [Not yet built](#not-yet-built)). Hosting and database run in Frankfurt (EU), the static site is delivered through Render's global CDN; Stripe (Irish entity, US parent) and the Anthropic API (US, see ADR-0031) involve a third country, as stated in the Datenschutzerklärung. The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
 Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
@@ -74,53 +38,15 @@ Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security sc
 
 Internal module structure of each app — what talks to what inside the codebase, not the deployed system (see [System context](#system-context) above for that). A request flows top to bottom.
 
-```mermaid
-graph TD
-    MW["middleware (in order)<br/>Request ID → CORS → Security headers →<br/>Body-size limit → Maintenance mode → Rate limit → Redirect domains"]
-    Routers["api/v1/ routers<br/>auth · questions · progress · grading ·<br/>pricing · exams · chart_exercises ·<br/>admin · admin_mfa · payments"]
-    Schemas["schemas/<br/>Pydantic request/response contracts"]
-    Core["core/<br/>config · JWT/OTP · cache · middleware"]
-    Services["services/<br/>shared business logic"]
-    Domain["domain/<br/>product rules: gelernt · exam · variants · prices · AGB version"]
-    Models["models/<br/>SQLAlchemy ORM"]
-    DB[(PostgreSQL 18)]
-    Resend[Resend]
-    Anthropic[Anthropic API]
-    Stripe[Stripe]
+![Backend components: middleware, then the api/v1 routers, which validate with schemas and call core, services and domain; services and domain reach the database through the SQLAlchemy models; services call Resend, the Anthropic API and Stripe](diagrams/backend-components.svg)
 
-    MW --> Routers
-    Routers -- validates --> Schemas
-    Routers -- "config · cache" --> Core
-    Routers -- calls --> Services
-    Services -- "config · cache" --> Core
-    Routers -- rules --> Domain
-    Services -- rules --> Domain
-    Domain -- "SQL expressions" --> Models
-    Services -- "reads/writes" --> Models
-    Models --> DB
-    Services --> Resend
-    Services --> Anthropic
-    Services --> Stripe
-```
+[Interactive version](diagrams/backend-components.html)
 
-```mermaid
-graph TD
-    Guards["routes/ guards<br/>ProtectedRoute · AgbGate · ChartExercisesGate"]
-    Pages["pages/<br/>route-level screens"]
-    Components["components/<br/>shared UI, e.g. SelfAssessment, PracticeRun, AdminLayout"]
-    Store["store/<br/>Zustand: authStore, maintenanceStore"]
-    Hooks["hooks/<br/>useApiQuery + data hooks"]
-    Api["api/<br/>client.ts · schema.gen.ts · types.ts"]
-    Backend["Backend API<br/>/api/v1/*"]
+![Frontend components: route guards, then pages, which use components, the Zustand store and the data hooks; store and hooks reach the backend API through the typed api client](diagrams/frontend-components.svg)
 
-    Guards --> Pages
-    Pages --> Components
-    Pages --> Store
-    Pages --> Hooks
-    Store -- "session check" --> Api
-    Hooks -- "typed requests" --> Api
-    Api -- "HTTPS, httpOnly cookie" --> Backend
-```
+[Interactive version](diagrams/frontend-components.html)
+
+The three diagrams are generated with the Archify skill (`.claude/skills/archify/`) from their sources `docs/diagrams/*.json`. When the system or the module structure changes, edit the JSON, render it with `node .claude/skills/archify/bin/archify.mjs finalize architecture docs/diagrams/<name>.json docs/diagrams/<name>.html --quality showcase`, and replace `<name>.svg` with the HTML's Export → SVG (one file that follows the reader's light or dark setting).
 
 ### Frontend (`frontend/`)
 A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013](adr/0013-frontend-architecture-and-tooling.md)), served by a Render static site ([ADR-0015](adr/0015-frontend-deployment-topology.md)).

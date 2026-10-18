@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SKS Lotse · Frontend components",
+    "locale": "en",
+    "output": "docs/diagrams/frontend-components.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {"id": "guards", "type": "security", "label": "routes/ guards", "sublabel": "ProtectedRoute · AgbGate · ChartExercisesGate", "pos": [340, 40], "size": [290, 60]},
+    {"id": "pages", "type": "frontend", "label": "pages/", "sublabel": "route-level screens", "pos": [400, 160], "size": [170, 68]},
+    {"id": "components", "type": "frontend", "label": "components/", "sublabel": "shared UI", "pos": [80, 300], "size": [170, 68]},
+    {"id": "store", "type": "frontend", "label": "store/", "sublabel": "Zustand: authStore, maintenanceStore", "pos": [370, 300], "size": [230, 68]},
+    {"id": "hooks", "type": "frontend", "label": "hooks/", "sublabel": "useApiQuery + data hooks", "pos": [720, 300], "size": [170, 68]},
+    {"id": "api", "type": "frontend", "label": "api/", "sublabel": "client.ts · schema.gen.ts · types.ts", "pos": [520, 450], "size": [250, 68]},
+    {"id": "backend", "type": "backend", "label": "Backend API", "sublabel": "/api/v1/*", "pos": [560, 600], "size": [170, 60]}
+  ],
+  "connections": [
+    {"id": "guards-pages", "from": "guards", "to": "pages", "variant": "emphasis"},
+    {"id": "pages-components", "from": "pages", "to": "components"},
+    {"id": "pages-store", "from": "pages", "to": "store"},
+    {"id": "pages-hooks", "from": "pages", "to": "hooks", "variant": "emphasis"},
+    {"id": "store-api", "from": "store", "to": "api", "label": "session check"},
+    {"id": "hooks-api", "from": "hooks", "to": "api", "label": "typed requests", "variant": "emphasis"},
+    {"id": "api-backend", "from": "api", "to": "backend", "label": "HTTPS, httpOnly cookie", "variant": "emphasis"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "components/", "items": ["e.g. SelfAssessment, PracticeRun, AdminLayout"]}
+  ]
+}

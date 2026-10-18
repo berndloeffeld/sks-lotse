@@ -39,3 +39,12 @@ backend/mutants/
 
 # Local working file, not part of the repo
 sks-segelschulen.xlsx
+
+# Archify (.claude/skills/archify): per-request work folders, and the delivery
+# receipts written next to each rendered diagram (they hold absolute local
+# paths). The skill's rendered example pages (~12 MB) aren't needed to run it.
+.archify/
+docs/diagrams/*.delivery.json
+docs/diagrams/*.finalize*.json
+docs/diagrams/*.browser-check.json
+.claude/skills/archify/examples/*.html

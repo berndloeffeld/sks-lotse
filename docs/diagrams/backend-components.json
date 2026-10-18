@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SKS Lotse · Backend components",
+    "locale": "en",
+    "output": "docs/diagrams/backend-components.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {"id": "middleware", "type": "security", "label": "Middleware", "sublabel": "7 layers, in order (see card)", "pos": [410, 40], "size": [300, 60]},
+    {"id": "routers", "type": "backend", "label": "api/v1/ routers", "sublabel": "one module per area (see card)", "pos": [410, 160], "size": [300, 68]},
+    {"id": "schemas", "type": "backend", "label": "schemas/", "sublabel": "Pydantic contracts", "pos": [40, 300], "size": [170, 68]},
+    {"id": "core", "type": "backend", "label": "core/", "sublabel": "config · JWT/OTP · cache", "pos": [330, 300], "size": [170, 68]},
+    {"id": "services", "type": "backend", "label": "services/", "sublabel": "shared business logic", "pos": [620, 300], "size": [170, 68]},
+    {"id": "domain", "type": "backend", "label": "domain/", "sublabel": "product rules", "pos": [910, 300], "size": [170, 68]},
+    {"id": "models", "type": "backend", "label": "models/", "sublabel": "SQLAlchemy ORM", "pos": [620, 450], "size": [170, 60]},
+    {"id": "db", "type": "database", "label": "PostgreSQL 18", "pos": [620, 580], "size": [170, 60]},
+    {"id": "external", "type": "external", "label": "External APIs", "sublabel": "Resend · Anthropic · Stripe", "pos": [330, 450], "size": [170, 60]}
+  ],
+  "connections": [
+    {"id": "mw-routers", "from": "middleware", "to": "routers", "variant": "emphasis"},
+    {"id": "routers-schemas", "from": "routers", "to": "schemas", "label": "validates"},
+    {"id": "routers-core", "from": "routers", "to": "core", "label": "config · cache"},
+    {"id": "routers-services", "from": "routers", "to": "services", "label": "calls", "variant": "emphasis"},
+    {"id": "routers-domain", "from": "routers", "to": "domain", "label": "rules"},
+    {"id": "services-core", "from": "services", "to": "core", "label": "config · cache", "fromSide": "left", "toSide": "right"},
+    {"id": "services-domain", "from": "services", "to": "domain", "label": "rules"},
+    {"id": "services-models", "from": "services", "to": "models", "label": "reads/writes", "variant": "emphasis"},
+    {"id": "domain-models", "from": "domain", "to": "models", "label": "SQL expressions"},
+    {"id": "models-db", "from": "models", "to": "db", "variant": "emphasis"},
+    {"id": "services-external", "from": "services", "to": "external", "label": "HTTPS"}
+  ],
+  "cards": [
+    {"dot": "rose", "title": "Middleware, in order", "items": ["Request ID → CORS → Security headers → Body-size limit → Maintenance mode → Rate limit → Redirect domains"]},
+    {"dot": "emerald", "title": "api/v1/ routers", "items": ["auth · questions · progress · grading · pricing · exams · chart_exercises · admin · admin_mfa · payments"]},
+    {"dot": "violet", "title": "domain/", "items": ["gelernt · exam · variants · prices · AGB version", "imports neither Settings, a DB session nor FastAPI"]}
+  ]
+}
