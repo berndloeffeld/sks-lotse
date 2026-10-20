@@ -1,6 +1,6 @@
 # 0047. TOTP step-up for the admin area
 
-Status: Accepted — amends [ADR-0019](0019-admin-allowlist-and-manual-gdpr-fulfillment.md): an allowlisted admin also needs a recent TOTP check for `/admin`; the addendum of 2026-10-01 shortens the check to 60 min and asks again before an export or deletion The addendum of 2026-10-14 notes that the ad tag is gone since [ADR-0060](0060-no-advertising.md) and why the 60-minute limit still stands.
+Status: Accepted — amends [ADR-0019](0019-admin-allowlist-and-manual-gdpr-fulfillment.md): an allowlisted admin also needs a recent TOTP check for `/admin`; the addendum of 2026-10-01 shortens the check to 60 min and asks again before an export or deletion The addendum of 2026-10-14 notes that the ad tag is gone since [ADR-0060](0060-no-advertising.md) and why the 60-minute limit still stands. The addendum of 2026-10-20 lengthens the check to 24 h, one code a day.
 
 ## Context
 
@@ -59,3 +59,11 @@ The structural fix, deferred: **a separate admin origin** (e.g. `admin.sks-lotse
 ## Addendum 2026-10-14: the ad tag and the "Cookies" button are gone, the limit stands
 
 Since [ADR-0060](0060-no-advertising.md) (2026-10-11) the public pages carry no ad tag and the footer has no "Cookies" button; the reasoning of the addendum of 2026-10-01 that names them is historical. Umami is the one third-party script left on public pages. It is not loaded on `/admin` (`useAdminWithoutAnalytics`), but it is the remaining third-party source in the origin the admin's session cookie belongs to, so the 60-minute limit and the fresh code for export and deletion stay as decided. The deferred separate admin origin is revisited on the same terms (a second admin, or more third-party script on public pages).
+
+## Addendum 2026-10-20: one code a day
+
+**`ADMIN_MFA_MAX_AGE_MINUTES` goes from 60 to 1440 (24 h).** A code every hour is more often than the operator wants to enter one; once a day is enough for them, and they accept the longer window against the residual risk named in the addendum of 2026-10-01. Nothing else changes:
+
+- **Why it is acceptable.** The exposure that addendum named (a script on a public page riding along on the origin-wide session cookie) is smaller now: no ad tag since [ADR-0060](0060-no-advertising.md), Umami the only third-party script, and not on `/admin`. For 24 h after a code such a script could still read lists, single accounts and question history, and change settings, tokens and blocks.
+- **What still needs a code.** `require_recent_mfa` is untouched: exporting and deleting an account still need a check at most 5 minutes old, so even a stolen session can neither pull a learner's data in bulk nor delete anything. That guard is what makes the longer window tolerable; don't relax both.
+- **Unchanged.** The session still lasts seven days, a new email login starts without the claim (a code is asked again), and logout ends it. The setting stays overridable per environment, so it can be tightened again without a code change.

@@ -32,7 +32,7 @@ Derived load (planning figure):
 | | Every route needs a session unless listed as public |
 | | After login, only a path of the app itself is accepted as the return target (no open redirect) |
 | | Layered abuse protection (IP and email limits, blocklists) |
-| | Admin: allowlist plus TOTP (one code per hour; export and deletion need one from the last 5 min) |
+| | Admin: allowlist plus TOTP (one code per day; export and deletion need one from the last 5 min) |
 | | Enforced CSP, HSTS, frame denial (API responses: `default-src 'none'`) |
 | | Request bodies capped before they are read (413 over 64 KB, 1 MB for the Stripe webhook) |
 | | security.txt (RFC 9116) with the reporting contact |
