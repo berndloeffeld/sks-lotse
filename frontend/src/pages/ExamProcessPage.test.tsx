@@ -47,7 +47,14 @@ describe('ExamProcessPage', () => {
   it('recommends the Segelschule Altwarp as a personal tip, opening a new tab', () => {
     renderExamProcessPage()
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Praxis und Charter: eine Empfehlung' })).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 2, name: 'Praxis und Charter: eine Empfehlung' })
+    const section = within(heading.closest('section') as HTMLElement)
+    expect(section.getByText(/Auf dem Haff gilt die Seeschifffahrtsstraßen-Ordnung/)).toBeInTheDocument()
+    expect(section.getAllByRole('listitem').map((item) => item.querySelector('strong')?.textContent)).toEqual([
+      'Betonnung live:',
+      'Flachwasser-Navigation:',
+      'Seeschifffahrtsstraße:',
+    ])
     const link = screen.getByRole('link', { name: 'Segelschule Altwarp' })
     expect(link).toHaveAttribute('href', 'https://www.segelschule-altwarp.de/')
     expect(link).toHaveAttribute('target', '_blank')
