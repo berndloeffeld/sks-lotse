@@ -129,6 +129,24 @@ export function ExamProcessPage() {
           am Stettiner Haff bietet Segelkurse an und vermietet Boote zum Chartern. Ich habe dort selbst für einen Tag
           die „Froukje“ gechartert und kann das als tolles Erlebnis weiterempfehlen.
         </p>
+        <p>
+          Auf dem Haff gilt die Seeschifffahrtsstraßen-Ordnung – hier wird ernsthaft navigiert. Was im Lehrbuch nur
+          Theorie ist, ist auf dem Haff Alltag:
+        </p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          <li>
+            <strong className="text-ink">Betonnung live:</strong> laterale Tonnen, Kardinalzeichen und Fahrwasser
+            zwischen Ueckermünde, Usedom und Polen.
+          </li>
+          <li>
+            <strong className="text-ink">Flachwasser-Navigation:</strong> Tiefen von 3 bis 5 Metern, versandende
+            Bereiche und enge betonnte Rinnen – genau das, was den SKS ausmacht.
+          </li>
+          <li>
+            <strong className="text-ink">Seeschifffahrtsstraße:</strong> Fahrt bis ins polnische Haff, Navigation mit
+            Seekarten, Kursen, Peilungen und Tonnenstrich.
+          </li>
+        </ul>
         <figure className="flex flex-col gap-2">
           <img
             src="/photos/froukje.jpg"
