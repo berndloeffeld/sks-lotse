@@ -115,6 +115,33 @@ export function ExamProcessPage() {
         </p>
       </Section>
 
+      <Section title="Praxis und Charter: eine Empfehlung">
+        <p>
+          Für die praktische Seite: Die{' '}
+          <a
+            href="https://www.segelschule-altwarp.de/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:no-underline"
+          >
+            Segelschule Altwarp
+          </a>{' '}
+          am Stettiner Haff bietet Segelkurse an und vermietet Boote zum Chartern. Ich habe dort selbst für einen Tag
+          die „Froukje“ gechartert und kann das als tolles Erlebnis weiterempfehlen.
+        </p>
+        <figure className="flex flex-col gap-2">
+          <img
+            src="/photos/froukje.jpg"
+            width={1200}
+            height={675}
+            alt="Die „Froukje“, ein hölzernes Segelboot mit dunklen Segeln, unter Segeln auf dem Stettiner Haff vor einem Schilfgürtel."
+            loading="lazy"
+            className="h-auto w-full border border-border"
+          />
+          <figcaption className="text-sm text-ink-soft">Die „Froukje“ auf dem Stettiner Haff.</figcaption>
+        </figure>
+      </Section>
+
       <Section title="Warum sich der SKS lohnt">
         <p>
           Für private Skipper ist der SKS gesetzlich nicht vorgeschrieben – außerhalb der SBF-See-pflichtigen Zone

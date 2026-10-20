@@ -44,6 +44,20 @@ describe('ExamProcessPage', () => {
     expect(link).toHaveAttribute('target', '_blank')
   })
 
+  it('recommends the Segelschule Altwarp as a personal tip, opening a new tab', () => {
+    renderExamProcessPage()
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Praxis und Charter: eine Empfehlung' })).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'Segelschule Altwarp' })
+    expect(link).toHaveAttribute('href', 'https://www.segelschule-altwarp.de/')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getByRole('img', { name: /„Froukje“, ein hölzernes Segelboot/ })).toHaveAttribute(
+      'src',
+      '/photos/froukje.jpg',
+    )
+  })
+
   it('is honest that SKS Lotse does not cover the chart task while the Kartenaufgaben are closed, nor the practical exam', () => {
     vi.stubEnv('VITE_CHART_EXERCISES', 'off')
     renderExamProcessPage()
