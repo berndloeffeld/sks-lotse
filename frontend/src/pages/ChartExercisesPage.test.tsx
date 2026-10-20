@@ -27,6 +27,7 @@ describe('ChartExercisesPage', () => {
     )
     renderPage()
 
+    expect(screen.getByRole('heading', { level: 1, name: 'SKS-Kartenaufgaben' })).toBeInTheDocument()
     const first = await screen.findByRole('link', { name: /Kartenaufgabe 1/ })
     expect(first).toHaveAttribute('href', '/charts/1')
     expect(within(first).getByRole('heading', { name: 'Cuxhaven → Büsum' })).toBeInTheDocument()

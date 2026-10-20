@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import indexHtml from '../index.html?raw'
 import type { CatalogExport } from './catalog'
 import { EXAM_PROCESS_FAQ, FAQ } from './faq'
 import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
@@ -65,11 +66,29 @@ describe('learnPages', () => {
     ])
     expect(pages[0].meta?.description).toContain('Alle 3 Fragen')
     expect(pages[1].meta).toMatchObject({
-      title: 'Seekarten – SKS-Fragen Navigation – SKS Lotse',
-      description:
-        'Alle 2 amtlichen SKS-Fragen zum Thema Seekarten (Navigation) mit amtlicher Antwort – kostenlos üben, auch ohne Anmeldung.',
+      title: 'Seekarten – SKS-Fragen mit Antworten',
+      description: 'Navigation: alle 2 amtlichen SKS-Fragen zu Seekarten mit Antwort – kostenlos üben, ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/learn/navigation/seekarten',
     })
+  })
+})
+
+describe('learnPages title of a long topic', () => {
+  // The full title adds " – SKS-Fragen mit Antworten" (27 characters) to the name.
+  const titleFor = (name: string) =>
+    learnPages({ topics: [{ subject: 'navigation', slug: 't', name, display_order: 1 }], questions: [] })[1].meta?.title
+
+  it('keeps the full title up to 60 characters', () => {
+    const name = 'x'.repeat(33)
+    expect(titleFor(name)).toBe(`${name} – SKS-Fragen mit Antworten`)
+  })
+
+  it('shortens a longer one, keeping "SKS-Fragen" right after the name', () => {
+    const name = 'x'.repeat(34)
+    expect(titleFor(name)).toBe(`${name} – SKS-Fragen`)
+    expect(titleFor('SeeSchStrO – Kennzeichnung, Signale & Reviervorschriften')).toBe(
+      'SeeSchStrO – Kennzeichnung, Signale & Reviervorschriften – SKS-Fragen',
+    )
   })
 })
 
@@ -85,8 +104,8 @@ describe('learnPages question count', () => {
       ],
     }
     const [, seekarten, wind] = learnPages(catalog)
-    expect(seekarten.meta?.description).toContain('Alle 2 amtlichen')
-    expect(wind.meta?.description).toContain('Alle 1 amtlichen')
+    expect(seekarten.meta?.description).toContain('alle 2 amtlichen')
+    expect(wind.meta?.description).toContain('alle 1 amtlichen')
   })
 })
 
@@ -118,16 +137,16 @@ describe('chartPages', () => {
       ['/charts/2', 'charts/2.html'],
     ])
     expect(pages[1].meta).toMatchObject({
-      title: 'Kartenaufgabe 1: Cuxhaven → Büsum – SKS-Navigation – SKS Lotse',
+      title: 'Kartenaufgabe 1: Cuxhaven → Büsum – SKS-Navigation',
       description:
-        'Amtliche SKS-Kartenaufgabe 1, Cuxhaven → Büsum: Elbabwärts durch die Norderrinne. 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.',
+        'SKS-Kartenaufgabe 1 (Cuxhaven → Büsum): 2 Aufgaben, 3 Punkte, mit amtlicher Lösung und Herleitung – kostenlos, ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/charts/1',
     })
   })
 
   it('gives the list its own head', () => {
     expect(chartPages(makeChartExport())[0].meta).toMatchObject({
-      title: 'SKS-Kartenaufgaben online üben – SKS Lotse',
+      title: 'SKS-Kartenaufgaben online üben – mit Lösung & Herleitung',
       description:
         'Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.',
       canonical: 'https://sks-lotse.de/charts',
@@ -268,6 +287,19 @@ describe('applyMeta', () => {
       '<script type="application/ld+json">{"@type":"Question","name":"\\u003c/script>\\u003cb>"}</script>',
     )
     expect(html.indexOf('ld+json')).toBeLessThan(html.indexOf('</head>'))
+  })
+})
+
+describe('applyMeta on index.html', () => {
+  it("drops all of the home page's structured data: one block, a graph of WebSite, Organization and WebApplication", () => {
+    expect(indexHtml.match(/application\/ld\+json/g)).toHaveLength(1)
+    expect(indexHtml).toContain('"@type": "WebSite"')
+
+    const html = applyMeta(indexHtml, { title: 'T', description: 'D', canonical: 'https://sks-lotse.de/x' })
+
+    expect(html).not.toContain('ld+json')
+    expect(html).not.toContain('WebSite')
+    expect(html).not.toContain('WebApplication')
   })
 })
 

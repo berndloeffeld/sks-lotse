@@ -3,6 +3,10 @@ import type { ChartSheet } from './chartCatalog'
 // The wording of the prerendered pages' titles, descriptions and breadcrumb names (SEO copy, see
 // publicPages.ts). A pure text module: left out of the mutation scope on purpose, since a mutant
 // that changes a sentence is not a bug the tests could sensibly pin down.
+//
+// Search results show about 580 px of a title and 1000 px of a description (Arial 20 px and 14 px,
+// as SEO tools measure them): keep within. A title that already says "SKS" leaves out
+// "– SKS Lotse", since the home page's WebSite JSON-LD gives search engines the site's name.
 
 export interface PageText {
   title: string
@@ -15,9 +19,9 @@ export const CHARTS_CRUMB = 'Kartenaufgaben'
 export const EXAM_PROCESS_CRUMB = 'So läuft die SKS-Prüfung ab'
 
 export const FAQ_TEXT: PageText = {
-  title: 'Häufige Fragen zur SKS-Theorieprüfung – SKS Lotse',
+  title: 'Häufige Fragen zur SKS-Theorieprüfung',
   description:
-    'Antworten rund um den amtlichen SKS-Fragenkatalog, den Lernstand und die Probeprüfung der SKS Lern-App, auch auf dem Handy – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
+    'Antworten zum amtlichen SKS-Fragenkatalog, zu Lernstand, Probeprüfung und Lotsen-Check – für alle, die sich auf die SKS-Theorieprüfung vorbereiten.',
 }
 
 export const IMPRINT_TEXT: PageText = {
@@ -44,35 +48,40 @@ export const EXAM_PROCESS_TEXT: PageText = {
 }
 
 export const PRICING_TEXT: PageText = {
-  title: 'Preise – SKS Lotse',
+  title: 'Preise: kostenlos lernen, Lotsen-Check ohne Abo – SKS Lotse',
   description:
     'Was SKS Lotse kostet: Fragen üben, Antwort und Lernfortschritt bleiben kostenlos, Tokens für den Lotsen-Check gibt es in Paketen ohne Abo.',
 }
 
 export function learnIndexText(total: number): PageText {
   return {
-    title: 'SKS-Fragenkatalog online lernen – alle Themen – SKS Lotse',
-    description: `Alle ${total} Fragen des amtlichen SKS-Fragenkatalogs nach Themen: Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft – kostenlos üben, auch ohne Anmeldung.`,
+    title: 'SKS-Fragenkatalog online lernen: alle Fragen nach Themen',
+    description: `Alle ${total} Fragen des amtlichen SKS-Fragenkatalogs nach Themen: Navigation, Schifffahrtsrecht, Wetterkunde, Seemannschaft – kostenlos, ohne Anmeldung.`,
   }
 }
 
 export function topicText(topicName: string, subject: string, count: number): PageText {
   return {
-    title: `${topicName} – SKS-Fragen ${subject} – SKS Lotse`,
-    description: `Alle ${count} amtlichen SKS-Fragen zum Thema ${topicName} (${subject}) mit amtlicher Antwort – kostenlos üben, auch ohne Anmeldung.`,
+    title: `${topicName} – SKS-Fragen mit Antworten`,
+    description: `${subject}: alle ${count} amtlichen SKS-Fragen zu ${topicName} mit Antwort – kostenlos üben, ohne Anmeldung.`,
   }
 }
 
+// The title for a topic whose name is too long for topicText's (publicPages.ts decides).
+export function shortTopicTitle(topicName: string): string {
+  return `${topicName} – SKS-Fragen`
+}
+
 export const CHARTS_INDEX_TEXT: PageText = {
-  title: 'SKS-Kartenaufgaben online üben – SKS Lotse',
+  title: 'SKS-Kartenaufgaben online üben – mit Lösung & Herleitung',
   description:
     'Die amtlichen Kartenaufgaben der SKS-Prüfung mit Lösung und Herleitung, Aufgabe für Aufgabe – kostenlos üben, auch ohne Anmeldung.',
 }
 
 export function sheetText(sheet: ChartSheet, maxPoints: number): PageText {
   return {
-    title: `Kartenaufgabe ${sheet.number}: ${sheet.title} – SKS-Navigation – SKS Lotse`,
-    description: `Amtliche SKS-Kartenaufgabe ${sheet.number}, ${sheet.title}: ${sheet.summary} ${sheet.tasks.length} Aufgaben, ${maxPoints} Punkte, mit amtlicher Lösung und Herleitung – kostenlos üben, auch ohne Anmeldung.`,
+    title: `Kartenaufgabe ${sheet.number}: ${sheet.title} – SKS-Navigation`,
+    description: `SKS-Kartenaufgabe ${sheet.number} (${sheet.title}): ${sheet.tasks.length} Aufgaben, ${maxPoints} Punkte, mit amtlicher Lösung und Herleitung – kostenlos, ohne Anmeldung.`,
   }
 }
 

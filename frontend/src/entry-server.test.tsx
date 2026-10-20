@@ -20,7 +20,7 @@ describe('entry-server render', () => {
   })
 
   it.each([
-    ['/faq', 'Häufige Fragen'],
+    ['/faq', 'Häufige Fragen zur SKS-Theorieprüfung'],
     ['/imprint', 'Angaben gemäß § 5 DDG'],
     ['/privacy', 'Datenschutz'],
   ])('prerenders %s as a public page with its heading', (path, heading) => {
@@ -34,6 +34,8 @@ describe('entry-server render', () => {
     const html = render('/pricing')
 
     expect(html).toContain('Preise')
+    expect(html).toContain('Kostenlos lernen')
+    expect(html).toContain('Kein Abo')
     expect(html).toContain('Lädt …')
     expect(html).not.toContain('Shop')
     expect(html).not.toContain('role="status"')

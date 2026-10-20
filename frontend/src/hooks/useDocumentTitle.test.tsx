@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import indexHtml from '../../index.html?raw'
+import { escapeHtml } from '../publicPages'
 
 function wrapperAt(path: string) {
   return ({ children }: { children: React.ReactNode }) => (
@@ -35,6 +36,6 @@ describe('useDocumentTitle', () => {
 
   it('uses the home title index.html has', async () => {
     const { HOME_TITLE } = await import('./useDocumentTitle')
-    expect(indexHtml).toContain(`<title>${HOME_TITLE}</title>`)
+    expect(indexHtml).toContain(`<title>${escapeHtml(HOME_TITLE)}</title>`)
   })
 })

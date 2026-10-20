@@ -242,40 +242,50 @@ export function PricingPage() {
 
       {tokensSoon ? (
         <p className="text-ink-soft">
-          Die Grundfunktion von SKS Lotse (Fragen üben, amtliche Antwort, Lernfortschritt) bleibt dauerhaft kostenlos.
           Diese Seite zeigt, was für den Lotsen-Check geplant ist – ein Kauf ist hier noch nicht möglich, das
           Zahlungssystem kommt noch.
         </p>
       ) : null}
 
-      {isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
-      <ErrorMessage onRetry={reload}>{failed ? 'Die Preise konnten nicht geladen werden.' : null}</ErrorMessage>
+      {/* What is free and what costs stands in the prerendered page too (ADR-0025): the prices
+          themselves come from the API, only once the page runs. */}
+      <section className="flex flex-col gap-2">
+        <h2 className={sectionHeading}>Kostenlos lernen</h2>
+        <p className="text-ink-soft">
+          Fragen üben, die amtlichen Antworten, die Kartenaufgaben, die Probeprüfung und dein Lernfortschritt sind
+          kostenlos und bleiben es. Kosten entstehen nur, wenn du dir vom Lotsen-Check einen KI-Bewertungsvorschlag für
+          deine Antwort geben lässt.
+        </p>
+      </section>
 
-      {data ? (
-        <>
-          <section className="flex flex-col gap-2">
-            <h2 className={sectionHeading}>Tokens für den Lotsen-Check</h2>
-            <p className="text-ink-soft">
-              Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Katalogfrage, eine Aufgabe
-              einer Kartenaufgabe kostet zwei Tokens. Bei der Anmeldung gibt es {data.signup_bonus_tokens} Tokens
-              geschenkt; weitere Tokens lassen sich in Paketen nachkaufen. Kein Abo, keine wiederkehrende Zahlung.
-            </p>
-            {canBuy ? <p className="text-ink-soft">Dein aktueller Stand: {user?.token_balance ?? 0} Tokens.</p> : null}
-            {canBuy ? (
-              <PurchasePanel packages={data.packages} boughtProduct={boughtProduct} />
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  {data.packages.map((pkg) => (
-                    <PackageCard key={pkg.product} pkg={pkg} soon={tokensSoon} />
-                  ))}
-                </div>
-                {loginToBuy ? <GuestCta>Melde dich an, um ein Paket zu kaufen.</GuestCta> : null}
-              </>
-            )}
-          </section>
-        </>
-      ) : null}
+      <section className="flex flex-col gap-2">
+        <h2 className={sectionHeading}>Tokens für den Lotsen-Check</h2>
+        <p className="text-ink-soft">
+          Ein Token berechtigt zu einem automatisierten KI-Bewertungsvorschlag für eine Katalogfrage, eine Aufgabe einer
+          Kartenaufgabe kostet zwei Tokens.{' '}
+          {data
+            ? `Bei der Anmeldung gibt es ${data.signup_bonus_tokens} Tokens geschenkt; weitere Tokens lassen sich in Paketen nachkaufen.`
+            : 'Tokens gibt es in Paketen.'}{' '}
+          Kein Abo, keine wiederkehrende Zahlung.
+        </p>
+        {isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
+        <ErrorMessage onRetry={reload}>{failed ? 'Die Preise konnten nicht geladen werden.' : null}</ErrorMessage>
+        {data && canBuy ? (
+          <>
+            <p className="text-ink-soft">Dein aktueller Stand: {user?.token_balance ?? 0} Tokens.</p>
+            <PurchasePanel packages={data.packages} boughtProduct={boughtProduct} />
+          </>
+        ) : data ? (
+          <>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {data.packages.map((pkg) => (
+                <PackageCard key={pkg.product} pkg={pkg} soon={tokensSoon} />
+              ))}
+            </div>
+            {loginToBuy ? <GuestCta>Melde dich an, um ein Paket zu kaufen.</GuestCta> : null}
+          </>
+        ) : null}
+      </section>
     </PageLayout>
   )
 }

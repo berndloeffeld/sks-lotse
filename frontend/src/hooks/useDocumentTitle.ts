@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-// The title of the home page, as index.html has it (useDocumentTitle.test.ts checks they match).
-export const HOME_TITLE = 'SKS Lotse – SKS App zum Lernen für die SKS-Theorieprüfung'
+// The title of the home page, as index.html has it, HTML-escaped there (useDocumentTitle.test.tsx checks
+// they match).
+export const HOME_TITLE = 'SKS App: Theorie lernen mit Fragenkatalog & Probeprüfung'
 
 let firstRun = true
 

@@ -16,6 +16,7 @@ import {
   TERMS_TEXT,
   learnIndexText,
   sheetCrumb,
+  shortTopicTitle,
   sheetText,
   topicText,
   type PageText,
@@ -108,6 +109,15 @@ const STATIC_PAGES: PublicPage[] = [
   page('/pricing', PRICING_TEXT),
 ]
 
+// About as many characters as a search result shows of a title. A topic name is transcribed from the
+// catalog and can't be shortened, so a long one gets the shorter title instead.
+const TITLE_MAX_CHARS = 60
+
+function topicPageText(name: string, subject: string, count: number): PageText {
+  const text = topicText(name, subject, count)
+  return text.title.length <= TITLE_MAX_CHARS ? text : { ...text, title: shortTopicTitle(name) }
+}
+
 // /learn and one page per topic.
 export function learnPages(catalog: CatalogExport): PublicPage[] {
   return [
@@ -116,7 +126,7 @@ export function learnPages(catalog: CatalogExport): PublicPage[] {
       const subject = SUBJECT_LABELS[topic.subject] ?? topic.subject
       const count = catalog.questions.filter((q) => q.subject === topic.subject && q.topic === topic.slug).length
       const path = `/learn/${topic.subject}/${topic.slug}`
-      return page(path, topicText(topic.name, subject, count), [
+      return page(path, topicPageText(topic.name, subject, count), [
         breadcrumbs([ROOT_CRUMB, '/'], [LEARN_CRUMB, '/learn'], [topic.name, path]),
       ])
     }),
@@ -154,8 +164,9 @@ export function escapeHtml(text: string): string {
 }
 
 // Gives a prerendered page its own title/description/OG/Twitter/canonical instead of index.html's,
-// via targeted replacement on the shared shell. The "/"-scoped WebApplication JSON-LD block
-// (index.html) doesn't fit any of these pages, so it's dropped and replaced by the page's own, if any.
+// via targeted replacement on the shared shell. The "/"-scoped JSON-LD block (index.html: one block,
+// a graph of WebSite, Organization and WebApplication) doesn't fit any of these pages, so it's
+// dropped and replaced by the page's own, if any.
 export function applyMeta(html: string, meta: PageMeta): string {
   const title = escapeHtml(meta.title)
   const description = escapeHtml(meta.description)

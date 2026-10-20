@@ -303,4 +303,19 @@ describe('PricingPage', () => {
 
     expect(await screen.findByText('Die Preise konnten nicht geladen werden.')).toBeInTheDocument()
   })
+
+  it('says what is free and what the tokens are for before the prices have loaded', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise(() => {})),
+    )
+    renderPage()
+
+    expect(screen.getByRole('heading', { name: 'Kostenlos lernen', level: 2 })).toBeInTheDocument()
+    expect(screen.getByText(/Probeprüfung und dein Lernfortschritt sind kostenlos/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Tokens für den Lotsen-Check', level: 2 })).toBeInTheDocument()
+    expect(screen.getByText(/Tokens gibt es in Paketen\. Kein Abo/)).toBeInTheDocument()
+    expect(screen.queryByText(/geschenkt/)).not.toBeInTheDocument()
+    expect(screen.getByText('Lädt …')).toBeInTheDocument()
+  })
 })

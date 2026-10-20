@@ -5,7 +5,7 @@ import { ProseSection } from '../components/ProseSection'
 
 export function FaqPage() {
   return (
-    <PageLayout title="Häufige Fragen" nav="public">
+    <PageLayout title="Häufige Fragen zur SKS-Theorieprüfung" nav="public">
       {FAQ.map(({ id, question, answer }) => (
         <ProseSection key={id} id={id} title={question}>
           <p>

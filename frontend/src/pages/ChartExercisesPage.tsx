@@ -50,7 +50,7 @@ function GuestChartExercises() {
 
 function ChartExercisesLayout({ nav, children }: { nav: 'account' | 'public'; children: ReactNode }) {
   return (
-    <PageLayout title="Kartenaufgaben" nav={nav} compact>
+    <PageLayout title="SKS-Kartenaufgaben" nav={nav} compact>
       <section className="flex flex-col gap-3">
         <p className="text-ink">
           Die amtlichen Kartenaufgaben für den zweiten Teil der schriftlichen Prüfung: je 30 Punkte in 90 Minuten,
