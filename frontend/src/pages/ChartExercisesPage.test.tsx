@@ -37,6 +37,26 @@ describe('ChartExercisesPage', () => {
     expect(screen.getByRole('link', { name: /Kartenaufgabe 3/ })).toHaveTextContent('Zuletzt 24 / 30 Punkte')
   })
 
+  it('shows the sheets still to come as tiles that are not links', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(makeChartOverview())),
+    )
+    renderPage()
+
+    await screen.findByRole('link', { name: /Kartenaufgabe 3/ })
+    for (const [number, tour] of [
+      [8, 'Großtonne GB → Cuxhaven'],
+      [9, 'Wurster Watt → Neuwerk'],
+      [10, 'Cuxhaven → Spiekeroog'],
+    ] as const) {
+      expect(screen.getByText(`Kartenaufgabe ${number}`)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: tour })).toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: new RegExp(`Kartenaufgabe ${number}`) })).not.toBeInTheDocument()
+    }
+    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(3)
+  })
+
   it('says so when the exercises cannot be loaded', async () => {
     vi.stubGlobal(
       'fetch',
@@ -68,6 +88,16 @@ describe('ChartExercisesPage for a guest', () => {
     expect(first).not.toHaveTextContent('Noch nicht bearbeitet')
     expect(screen.getByRole('link', { name: 'Kostenlos anmelden' })).toHaveAttribute('href', '/login')
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('shows the sheets still to come, also for a guest', () => {
+    primeChartCatalog(makeChartExport())
+    vi.stubGlobal('fetch', vi.fn())
+    renderPage()
+
+    expect(screen.getByRole('heading', { name: 'Wurster Watt → Neuwerk' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Kartenaufgabe 9/ })).not.toBeInTheDocument()
+    expect(screen.getAllByText('Bald verfügbar')).toHaveLength(3)
   })
 
   it('loads the export when it is not there yet', async () => {

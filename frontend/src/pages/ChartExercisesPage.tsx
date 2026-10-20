@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { ChartExerciseSummary } from '../api/types'
-import { guestOverview } from '../chartCatalog'
+import { guestOverview, upcomingChartSheets } from '../chartCatalog'
 import { ChartTile } from '../components/ChartTile'
 import { GuestCta } from '../components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
@@ -103,6 +103,19 @@ function ExerciseList({ exercises, error, onRetry, status }: ExerciseListProps) 
             </Link>
           </li>
         ))}
+        {exercises
+          ? upcomingChartSheets(exercises.map((exercise) => exercise.number)).map((sheet) => (
+              <li key={`soon-${sheet.number}`} className="flex">
+                <ChartTile
+                  className="flex flex-1 flex-col opacity-60"
+                  label={`Kartenaufgabe ${sheet.number}`}
+                  title={sheet.title}
+                  description={sheet.summary}
+                  badge="Bald verfügbar"
+                />
+              </li>
+            ))
+          : null}
       </ul>
     </>
   )
