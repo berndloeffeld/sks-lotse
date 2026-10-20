@@ -18,7 +18,7 @@ Derivation: a learner is active for 6–10 weeks; the season peak (February to M
 
 Derived load (planning figure):
 - **Requests:** peak ~4–8 req/s, from ~100–150 calls per 30-minute session. The single worker should carry ~50–100 req/s; **not measured**.
-- **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)). Kartenaufgaben add ~18 short rows per completed sheet (`chart_attempt_tasks`, [ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)); their exercises (solutions as text, [ADR-0053](adr/0053-chart-solutions-transcribed-as-text.md)) and the few drawings and the PDF cut of every task and solution (about 3 MB for six sheets, loaded only for the current task, [ADR-0063](adr/0063-chart-task-original-beside-the-form.md)) are static files, not database rows.
+- **Data:** under 300 MB. `question_progress` ≈ accounts × ~540 questions ≈ 680k rows; the catalog has ~638 raw questions ([ADR-0017](adr/0017-official-topic-taxonomy-and-seemannschaft-merge.md)). Kartenaufgaben add ~18 short rows per completed sheet (`chart_attempt_tasks`, [ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)); their exercises (solutions as text, [ADR-0053](adr/0053-chart-solutions-transcribed-as-text.md)) and the few drawings and the PDF cut of every task and solution (about 5 MB for seven sheets, loaded only for the current task, [ADR-0063](adr/0063-chart-task-original-beside-the-form.md)) are static files, not database rows.
 - **Lotsen-Checks:** up to ~10,000 a year, at most 5 in flight at once, catalog and Kartenaufgaben together. A Kartenaufgaben check ([ADR-0058](adr/0058-lotsen-check-for-chart-exercises.md)) runs on a stronger model with a longer prompt: a few seconds instead of about one, up to its 45 s timeout, holding its slot (and a worker thread) as long.
 - **Login mails:** ~4,000–6,000 a year (7-day session, no refresh token).
 
@@ -32,7 +32,7 @@ Derived load (planning figure):
 | | Every route needs a session unless listed as public |
 | | After login, only a path of the app itself is accepted as the return target (no open redirect) |
 | | Layered abuse protection (IP and email limits, blocklists) |
-| | Admin: allowlist plus TOTP (one code per hour; export and deletion need one from the last 5 min) |
+| | Admin: allowlist plus TOTP (one code per day; export and deletion need one from the last 5 min) |
 | | Enforced CSP, HSTS, frame denial (API responses: `default-src 'none'`) |
 | | Request bodies capped before they are read (413 over 64 KB, 1 MB for the Stripe webhook) |
 | | security.txt (RFC 9116) with the reporting contact |

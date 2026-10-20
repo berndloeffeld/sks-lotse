@@ -67,9 +67,16 @@ def test_a_fresh_second_factor_opens_the_admin_area(client, admin):
     assert client.get(_ADMIN_ROUTE, headers=_headers(admin, mfa_at=int(time.time()))).status_code == 200
 
 
-def test_the_default_second_factor_lasts_an_hour():
-    assert settings.admin_mfa_max_age_minutes == 60
+def test_the_default_second_factor_lasts_a_day():
+    assert settings.admin_mfa_max_age_minutes == 24 * 60
     assert settings.admin_recent_mfa_max_age_minutes == 5
+
+
+def test_a_code_from_earlier_today_still_opens_the_admin_area(client, admin):
+    earlier = _headers(admin, mfa_at=int(time.time()) - 23 * 3600)
+    assert client.get(_ADMIN_ROUTE, headers=earlier).status_code == 200
+    yesterday = _headers(admin, mfa_at=int(time.time()) - 24 * 3600 - 60)
+    assert client.get(_ADMIN_ROUTE, headers=yesterday).json()["detail"] == MFA_REQUIRED
 
 
 @pytest.mark.parametrize(
