@@ -150,6 +150,11 @@ export const EXAM_PROCESS_FAQ: { question: string; answer: string }[] = [
     answer:
       'Gesetzlich vorgeschrieben ist er nur für die gewerbliche Nutzung von Sportbooten in Küstengewässern. Privat wird er trotzdem oft verlangt, denn viele Vercharterer fordern den SKS als Befähigungsnachweis.',
   },
+  {
+    question: 'Was heißt gewerbliche Nutzung beim SKS?',
+    answer:
+      'Gewerblich fährst du, wenn du deine Dienste als Skipper öffentlich und regelmäßig gegen Bezahlung anbietest und dabei in Küstengewässern unterwegs bist, also bis 12 Seemeilen vor der Festlandküste. Typisch ist das, wenn du als Charterskipper gebucht wirst und eine fremde Crew fährst, wenn du als Skipper für einen Veranstalter fährst oder wenn du gegen Geld ausbildest. Auch Überführungen gegen Bezahlung gehören dazu, wenn du sie regelmäßig anbietest. Segelst du mit Freunden oder Familie und bekommst dafür nichts, ist das privat.',
+  },
 ]
 
 // The short answers at the foot of /learning-method: shown on the page and, word for word, the
