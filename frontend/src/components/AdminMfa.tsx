@@ -83,7 +83,7 @@ export function AdminMfaEnrol({ onVerified }: Props) {
       <h2 className={sectionHeading}>Zwei-Faktor-Anmeldung einrichten</h2>
       <p className="max-w-prose text-sm text-ink-soft">
         Der Admin-Bereich ist zusätzlich durch einen Code aus einer Authenticator-App geschützt (z. B. Authy, Google
-        Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich jede Stunde nach einem Code, und
+        Authenticator). Die Einrichtung ist einmalig; danach fragt der Admin-Bereich einmal am Tag nach einem Code, und
         vor jedem Export oder Löschen eines Kontos erneut.
       </p>
       {enrolment === null ? (
@@ -117,7 +117,7 @@ export function AdminMfaEnrol({ onVerified }: Props) {
   )
 }
 
-// Every later visit (and after an hour): one code opens the admin area for this session. `recent`:
+// Every later visit (and after a day): one code opens the admin area for this session. `recent`:
 // an export or deletion asked for a code from the last few minutes, the admin area stays open.
 export function AdminMfaVerify({ onVerified, recent = false }: Props & { recent?: boolean }) {
   return (

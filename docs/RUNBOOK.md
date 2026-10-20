@@ -152,7 +152,7 @@ A data breach is any security incident that leads to personal data being destroy
 
 ## Admin 2FA
 
-`/admin` needs a code from an authenticator app (Authy, Google Authenticator, …) on top of the email login, at most 60 min old (`ADMIN_MFA_MAX_AGE_MINUTES`); exporting or deleting an account asks again unless the last code is at most 5 min old (`ADMIN_RECENT_MFA_MAX_AGE_MINUTES`) ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md), addendum 2026-10-01). A code is accepted once only, so for the second prompt wait for the app's next code.
+`/admin` needs a code from an authenticator app (Authy, Google Authenticator, …) on top of the email login, at most 24 h old (`ADMIN_MFA_MAX_AGE_MINUTES`), so one code a day; exporting or deleting an account asks again unless the last code is at most 5 min old (`ADMIN_RECENT_MFA_MAX_AGE_MINUTES`) ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md), addenda 2026-10-01 and 2026-10-20). A code is accepted once only, so for the second prompt wait for the app's next code.
 
 - **Setup**: log in as the admin, open `/admin` (any section) → "Einrichtung starten" → scan the QR code → enter the code. Do this right after adding an address to `ADMIN_EMAILS`: until it's done, whoever logs in first as that address could enrol their own app. `totp_enabled_at` in the account's export shows it's done.
 - **Wrong codes**: 5 attempts per 15 minutes per admin, then 429 until the window passes. Check the phone's clock (automatic time) if valid-looking codes keep failing.
