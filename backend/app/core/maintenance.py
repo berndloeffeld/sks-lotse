@@ -14,15 +14,14 @@ MAINTENANCE_HEADER = "X-Maintenance-Mode"
 
 
 class MaintenanceModeMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, enabled: bool, scope_prefix: str = "/api/v1"):
+    def __init__(self, app, enabled: bool):
         super().__init__(app)
         self.enabled = enabled
-        self.scope_prefix = scope_prefix
 
     async def dispatch(self, request: Request, call_next):
-        # /health is outside scope_prefix and must always answer directly —
+        # /health is outside /api/v1 and must always answer directly —
         # Render's own reachability check hits it regardless of maintenance mode.
-        if not self.enabled or not request.url.path.startswith(self.scope_prefix):
+        if not self.enabled or not request.url.path.startswith("/api/v1"):
             return await call_next(request)
         return JSONResponse(
             {"detail": "SKS Lotse befindet sich aktuell im Wartungsmodus."},

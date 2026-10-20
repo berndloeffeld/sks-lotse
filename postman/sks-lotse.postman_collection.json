@@ -1794,7 +1794,7 @@
                                   "value": "application/json"
                                 }
                               ],
-                              "body": "{\n  \"outcome\": \"<string>\",\n  \"feedback\": \"<string>\",\n  \"tokens_remaining\": \"<integer>\"\n}",
+                              "body": "{\n  \"outcome\": \"<string>\",\n  \"feedback\": \"<string>\",\n  \"richtig_genannt\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"fehlt\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tokens_remaining\": \"<integer>\"\n}",
                               "cookie": [],
                               "_postman_previewlanguage": "json"
                             },

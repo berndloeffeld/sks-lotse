@@ -48,12 +48,6 @@ def test_enabled_still_answers_health_normally():
     assert MAINTENANCE_HEADER not in response.headers
 
 
-def test_enabled_only_blocks_paths_under_a_custom_scope_prefix():
-    client = TestClient(_make_app(enabled=True, scope_prefix="/other"))
-
-    assert client.get("/api/v1/questions").status_code == 200
-
-
 def test_main_app_answers_maintenance_before_the_rate_limiter_counts_the_request():
     # The real app's middleware stack (app/main.py), only with maintenance mode switched on — the
     # flag is read once at import, so the stack is rebuilt rather than the setting patched.

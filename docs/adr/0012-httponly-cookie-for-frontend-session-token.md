@@ -50,3 +50,7 @@ The login responses (`POST /auth/otp/verify`, `POST /admin/mfa/verify`) carried 
 Now `access_token` in the body is `null` unless the request carries `X-Token-In-Body: true` (`wants_token_in_body`, `token_body` in `app/core/jwt.py`; `TokenRead.access_token` is optional). The cookie is set either way. The header is deliberately not in the CORS `allow_headers` (`app/main.py`): frontend and API are on different origins (ADR-0015), so a script in a browser fails the preflight when it sends the header, and cannot switch the token into the body of the page's own login. `test_the_opt_in_header_is_not_allowed_cross_origin` pins that. Postman, `scripts/run_integration_tests.sh` and any script send the header; the generated collection lists it as a header of both endpoints (value `false`, set it to `true`).
 
 Consequences: a non-browser client that read the token from the body without the header gets `null` and must send it (or read the `Set-Cookie` header, which the integration collection does for two of its logins to cover the default path). A browser extension or a script on an allowed origin that sets the header is out of scope, as before: the CORS allow-list is the boundary.
+
+## Addendum 2026-10-20: `token_body` gone
+
+`app/core/jwt.py` no longer builds the login response: `token_body` is gone, so `core` imports nothing from `app/schemas`. The two routes that issue a session (`POST /auth/otp/verify`, `POST /admin/mfa/verify`) build `TokenRead(access_token=... if token_in_body else None)` themselves; the behaviour is as described above.

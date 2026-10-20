@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 from app.core.database import get_db, get_session_factory
 from app.core.email_address import canonicalize_email
-from app.core.jwt import clear_session, get_current_user, issue_session, token_body, wants_token_in_body
+from app.core.jwt import clear_session, get_current_user, issue_session, wants_token_in_body
 from app.core.otp import (
     OTP_PURPOSE_EMAIL_CHANGE,
     OTP_PURPOSE_LOGIN,
@@ -148,7 +148,8 @@ def verify_otp(
     user.last_login_at = datetime.now(UTC)
     db.commit()
 
-    return token_body(issue_session(response, user), token_in_body)
+    access_token = issue_session(response, user)
+    return TokenRead(access_token=access_token if token_in_body else None)
 
 
 @router.get("/otp/_dev-peek", response_model=OtpDevPeekRead, include_in_schema=False)

@@ -21,3 +21,7 @@ A learner fills in the Formblatt Gezeiten in the side panel while the task is in
 - A new sheet comes with its images: `--task-images` after its task text is merged into the YAML; `test_every_task_has_its_official_text_as_an_image` fails until every task has both kinds.
 - Alt text is only "Aufgabe N im Original" and "Lösung zu Aufgabe N im Original": a screen reader gets the content from the text beside it.
 - Rejected: replacing the text in the main column with the image (small print on a phone, nothing for screen readers or the check); the text in the side panel instead of the image (the learner asked for the original print, and the text is already there).
+
+## Addendum 2026-10-20: the schema requires the images
+
+`task_images` and `solution_images` of `ChartTask` (`backend/app/schemas/chart_exercise.py`) have no default any more and need at least one image each, so a task without both makes `catalog()` fail to load the YAML; `test_every_task_has_its_official_text_as_an_image` is gone with it. The default `[]` named above served the one deploy that introduced the fields.
