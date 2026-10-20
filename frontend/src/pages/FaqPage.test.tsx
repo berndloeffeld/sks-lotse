@@ -12,7 +12,7 @@ describe('FaqPage', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { name: 'Häufige Fragen', level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Häufige Fragen zur SKS-Theorieprüfung', level: 1 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Was ist die Probeprüfung/, level: 2 })).toBeInTheDocument()
   })
 

@@ -293,7 +293,7 @@ describe('LearnPage', () => {
 
     renderLearnPage()
 
-    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Lernen' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /Zurück/ })).not.toBeInTheDocument()
   })
 })
@@ -335,6 +335,7 @@ describe('LearnPage without a login', () => {
       </MemoryRouter>,
     )
 
+    expect(screen.getByRole('heading', { level: 1, name: 'SKS-Fragenkatalog' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Navigation' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Seemannschaft (Motor)' })).toBeInTheDocument()
     expect(screen.getByText('Seekarten')).toBeInTheDocument()

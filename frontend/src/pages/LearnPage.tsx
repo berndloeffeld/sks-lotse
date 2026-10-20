@@ -171,14 +171,14 @@ function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
 }
 
 // Open without a login (ADR-0054): the prerendered page is the guest's, and becomes the learner's
-// Lernstand once the session check knows them.
+// Lernstand once the session check knows them. The guest's heading names the catalog, as searched for.
 export function LearnPage() {
   const user = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
     <PageLayout
-      title="Lernen"
+      title={isAuthenticated ? 'Lernen' : 'SKS-Fragenkatalog'}
       subtitle="Wähle ein Thema und arbeite dich durch den amtlichen Fragenkatalog."
       nav="public"
       bands
