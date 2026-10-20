@@ -140,7 +140,7 @@ const CHART_FEATURES = [
   ],
   [
     'Formblatt am Bildschirm',
-    'Das Formblatt Gezeiten zum Ausfüllen, deine bisherigen Antworten und die Regeln des Bogens immer griffbereit.',
+    'Das Formblatt Gezeiten zum Ausfüllen, der Originaltext der Aufgabe und deine bisherigen Antworten immer griffbereit.',
   ],
 ]
 
