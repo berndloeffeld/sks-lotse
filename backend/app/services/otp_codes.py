@@ -88,7 +88,7 @@ def _cleanup_expired_codes(session_factory: sessionmaker[Session], now: datetime
     # otp_codes is pure transient data (see docs/adr/0010) — nothing outside
     # the OTP flow itself reads a code once it's past its retention window.
     # Runs as a FastAPI background task, gated by cache.throttle (see
-    # request_otp) so it fires on a bounded cadence rather than once per
+    # issue_code) so it fires on a bounded cadence rather than once per
     # request — a separate job/schedule would work too, but this needs no
     # new infrastructure, and the DELETE doesn't add latency to the response
     # the caller is waiting on either way; see ADR-0010. Opens its own

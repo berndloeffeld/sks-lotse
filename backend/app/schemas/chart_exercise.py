@@ -56,9 +56,9 @@ class ChartTask(BaseModel):
     questions: list[ChartQuestion]
     # The task as the PDF prints it, cut into images (one per page it spans), shown beside the Formblatt
     # (ADR-0063).
-    task_images: list[ChartImage] = []
+    task_images: list[ChartImage] = Field(min_length=1)
     # The official solution as the PDF prints it; withheld like `solution` until the task is answered.
-    solution_images: list[ChartImage] = []
+    solution_images: list[ChartImage] = Field(min_length=1)
     # The official solution's results (what scores), and the working that leads to them — tide tables,
     # the stream diamond read off, the course conversion, ... — which the app shows only on request.
     solution: list[ChartSolutionPart]

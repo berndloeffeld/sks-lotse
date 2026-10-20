@@ -1,6 +1,6 @@
 # 0010. Opportunistic OTP-code cleanup, throttled and run as a background task
 
-Status: Accepted
+Status: Accepted; the addendum of 2026-10-20 has the sweep open its own session instead of reusing the request's
 
 ## Context
 
@@ -41,3 +41,7 @@ Added `ix_otp_codes_expires_at` (`backend/app/models/otp_code.py`) so the cleanu
 ## Addendum 2026-10-14: function names
 
 `request_otp` and `_cleanup_expired_otp_codes` are `issue_code` and `_cleanup_expired_codes` in `backend/app/services/otp_codes.py` today; the throttle works as described.
+
+## Addendum 2026-10-20: the sweep opens its own session
+
+Since #84 (2026-09-19) `_cleanup_expired_codes` no longer reuses the request's `db`: `issue_code` hands it a `session_factory` (`get_session_factory`, `backend/app/core/database.py`), and the task opens and closes its own session with it. The request's session belongs to the request; whether it is still open while a background task runs depends on when FastAPI tears down `yield` dependencies, which has changed between FastAPI versions. With its own session the sweep doesn't depend on that, and a test can point the factory at its own engine. The Decision's sentence that reusing the request's session is safe, and the addendum of 2026-09-17 confirming it, no longer describe the code; the rule is in CLAUDE.md → Data Layer Conventions: a background task opens its own session via `get_session_factory`, never the request's `get_db` one.

@@ -10,7 +10,6 @@ from app.core.database import get_db
 from app.core.totp import mfa_is_fresh
 from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import User
-from app.schemas.auth import TokenRead
 
 # The session cookie (ADR-0012). Deployed, the `__Host-` prefix makes browsers accept it only as
 # Secure, Path=/ and without a Domain — so a page on sks-lotse.de can't plant a second
@@ -47,7 +46,7 @@ def issue_session(response: Response, user: User, mfa_at: int | None = None) -> 
     access_token = create_access_token(user.id, user.token_version, mfa_at)
     # The browser frontend never reads this token directly (see ADR-0012) — it's set as an
     # httpOnly cookie here. The response body carries it only for a non-browser client that asks
-    # (wants_token_in_body, token_body), for the Bearer fallback in get_session_claims.
+    # (wants_token_in_body), for the Bearer fallback in get_session_claims.
     response.set_cookie(
         session_cookie_name(),
         access_token,
@@ -74,11 +73,6 @@ def wants_token_in_body(
     can neither send it nor read the token from the body of the page's own login (ADR-0012 addendum).
     """
     return x_token_in_body
-
-
-def token_body(access_token: str, include: bool) -> TokenRead:
-    """The login response: the token itself only when the caller opted in."""
-    return TokenRead(access_token=access_token if include else None)
 
 
 def clear_session(response: Response) -> None:

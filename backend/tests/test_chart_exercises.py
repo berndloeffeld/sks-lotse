@@ -122,13 +122,6 @@ def test_every_referenced_image_exists():
     assert missing == []
 
 
-def test_every_task_has_its_official_text_as_an_image():
-    for sheet in service.catalog().sheets:
-        for task in sheet.tasks:
-            assert task.task_images, (sheet.number, task.number)
-            assert task.solution_images, (sheet.number, task.number)
-
-
 def test_the_task_text_carries_no_extraction_debris():
     # Bullets belong to the points, private-use glyphs to the PDF's symbol font.
     for sheet in service.catalog().sheets:

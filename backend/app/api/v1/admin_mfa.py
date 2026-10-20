@@ -10,7 +10,6 @@ from app.core.jwt import (
     get_session_claims,
     issue_session,
     require_admin_identity,
-    token_body,
     wants_token_in_body,
 )
 from app.core.rate_limit import enforce_limit
@@ -81,4 +80,5 @@ def verify(
         raise _invalid_code()
     if not was_enrolled:
         logger.info("admin 2fa enabled: admin=%s", admin.id)
-    return token_body(issue_session(response, admin, mfa_at=int(now.timestamp())), token_in_body)
+    access_token = issue_session(response, admin, mfa_at=int(now.timestamp()))
+    return TokenRead(access_token=access_token if token_in_body else None)
