@@ -44,9 +44,11 @@ export function ChartTile({
       {description ? <p className="mt-1 text-sm text-ink-soft">{description}</p> : null}
       {footer ? <div className="mt-3 text-sm text-ink-soft">{footer}</div> : null}
       {badge ? (
-        <span className="mt-auto self-start bg-surface-alt px-2 py-1 pt-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
-          {badge}
-        </span>
+        <div className="mt-auto self-start pt-3">
+          <span className="inline-block bg-surface-alt px-2 py-1 font-mono text-xs tracking-wide text-ink-soft uppercase">
+            {badge}
+          </span>
+        </div>
       ) : null}
     </div>
   )

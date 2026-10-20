@@ -8,6 +8,7 @@ import {
   primeChartCatalog,
   resetChartCatalog,
   sheetMaxPoints,
+  upcomingChartSheets,
 } from './chartCatalog'
 import { makeChartExport } from './test/fixtures'
 
@@ -21,6 +22,18 @@ describe('chartCatalog', () => {
     expect(chartExercisesForGuests()).toBe(false)
     vi.stubEnv('VITE_CHART_EXERCISES', '')
     expect(chartExercisesForGuests()).toBe(false)
+  })
+
+  it('lists the sheets still to come, without those whose sheet is in', () => {
+    const numbers = (available: number[]) => upcomingChartSheets(available).map((sheet) => sheet.number)
+    expect(numbers([1, 2, 3, 4, 5, 6, 7])).toEqual([8, 9, 10])
+    expect(numbers([1, 2, 3, 4, 5, 6, 7, 8])).toEqual([9, 10])
+    expect(numbers([8, 9, 10])).toEqual([])
+    expect(upcomingChartSheets([1])[0]).toEqual({
+      number: 8,
+      title: 'Großtonne GB → Cuxhaven',
+      summary: expect.stringContaining('Nachtfahrt'),
+    })
   })
 
   it('sums a sheet’s points and gives guests the overview without runs', () => {
