@@ -17,6 +17,7 @@ export const ROOT_CRUMB = 'SKS Lotse'
 export const LEARN_CRUMB = 'Fragenkatalog'
 export const CHARTS_CRUMB = 'Kartenaufgaben'
 export const EXAM_PROCESS_CRUMB = 'So läuft die SKS-Prüfung ab'
+export const LEARNING_METHOD_CRUMB = 'Lernmethode'
 
 export const FAQ_TEXT: PageText = {
   title: 'Häufige Fragen zur SKS-Theorieprüfung',
@@ -45,6 +46,12 @@ export const EXAM_PROCESS_TEXT: PageText = {
   title: 'So läuft die SKS-Prüfung ab – SBF See, Theorie und Praxis',
   description:
     'Der komplette Weg zum Sportküstenschifferschein: vom Bootsführerschein SBF See über die SKS-Theorieprüfung bis zur Praxisprüfung – kompakt erklärt.',
+}
+
+export const LEARNING_METHOD_TEXT: PageText = {
+  title: 'SKS-Fragenkatalog lernen mit dem Karteikarten-Prinzip',
+  description:
+    'SKS-Theorie lernen wie mit Karteikarten: Fragen kommen in wachsenden Abständen zurück, bevor du sie vergisst – so funktioniert das Lernsystem von SKS Lotse.',
 }
 
 export const PRICING_TEXT: PageText = {

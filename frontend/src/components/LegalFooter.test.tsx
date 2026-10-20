@@ -30,7 +30,7 @@ describe('LegalFooter', () => {
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveClass('border-transparent')
   })
 
-  it('carries Prüfungsablauf and FAQ, but leaves Preise to the header', () => {
+  it('carries Prüfungsablauf, Lernmethode and FAQ, but leaves Preise to the header', () => {
     render(
       <MemoryRouter>
         <LegalFooter />
@@ -38,6 +38,7 @@ describe('LegalFooter', () => {
     )
 
     expect(screen.getByRole('link', { name: 'Prüfungsablauf' })).toHaveAttribute('href', '/exam-process')
+    expect(screen.getByRole('link', { name: 'Lernmethode' })).toHaveAttribute('href', '/learning-method')
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     expect(screen.queryByRole('link', { name: 'Preise' })).not.toBeInTheDocument()
   })

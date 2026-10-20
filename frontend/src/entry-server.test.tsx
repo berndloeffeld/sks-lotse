@@ -43,7 +43,7 @@ describe('entry-server render', () => {
 
   // The client hydrates the prerendered markup under its own data router (main.tsx, ADR-0059). Both
   // must render the same tree, or React's ids (useId) and markup no longer match.
-  it.each(['/', '/learn', '/learn/navigation/seekarten', '/charts/1', '/exam-process'])(
+  it.each(['/', '/learn', '/learn/navigation/seekarten', '/charts/1', '/exam-process', '/learning-method'])(
     'hydrates %s under the client’s router without a mismatch',
     async (path) => {
       // The session check stays open, as it is during the client's first render.

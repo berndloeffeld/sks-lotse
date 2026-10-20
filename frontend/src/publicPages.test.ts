@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import indexHtml from '../index.html?raw'
 import type { CatalogExport } from './catalog'
-import { EXAM_PROCESS_FAQ, FAQ } from './faq'
+import { EXAM_PROCESS_FAQ, FAQ, LEARNING_METHOD_FAQ } from './faq'
 import { applyMeta, chartPages, escapeHtml, learnPages, publicPages, sitemapXml } from './publicPages'
-import { CHARTS_CRUMB, LEARN_CRUMB, ROOT_CRUMB, sheetCrumb } from './publicPageTexts'
+import { CHARTS_CRUMB, LEARN_CRUMB, LEARNING_METHOD_CRUMB, ROOT_CRUMB, sheetCrumb } from './publicPageTexts'
 import { makeChartExport } from './test/fixtures'
 
 const CATALOG: CatalogExport = {
@@ -112,7 +112,7 @@ describe('learnPages question count', () => {
 describe('publicPages', () => {
   it('keeps the static pages first', () => {
     const pages = publicPages(CATALOG)
-    const statics = pages.slice(0, 7)
+    const statics = pages.slice(0, 8)
     expect(statics.map((p) => p.path)).toEqual([
       '/',
       '/faq',
@@ -120,6 +120,7 @@ describe('publicPages', () => {
       '/privacy',
       '/terms',
       '/exam-process',
+      '/learning-method',
       '/pricing',
     ])
     expect(statics[0]).toEqual({ path: '/', file: 'index.html' })
@@ -201,6 +202,25 @@ describe('structured data', () => {
     expect(faq['@type']).toBe('FAQPage')
     expect(faq.mainEntity.map((q) => [q.name, q.acceptedAnswer.text])).toEqual(
       EXAM_PROCESS_FAQ.map(({ question, answer }) => [question, answer]),
+    )
+  })
+
+  it('gives /learning-method a breadcrumb and a FAQPage with the answers the page shows', () => {
+    const page = publicPages(CATALOG).find((p) => p.path === '/learning-method')
+    const [crumbs, faq] = page?.meta?.jsonLd as {
+      '@type': string
+      itemListElement: { name: string; item: string }[]
+      mainEntity: { name: string; acceptedAnswer: { text: string } }[]
+    }[]
+    expect(page?.file).toBe('learning-method.html')
+    expect(crumbs['@type']).toBe('BreadcrumbList')
+    expect(crumbs.itemListElement.map((i) => [i.name, i.item])).toEqual([
+      [ROOT_CRUMB, 'https://sks-lotse.de/'],
+      [LEARNING_METHOD_CRUMB, 'https://sks-lotse.de/learning-method'],
+    ])
+    expect(faq['@type']).toBe('FAQPage')
+    expect(faq.mainEntity.map((q) => [q.name, q.acceptedAnswer.text])).toEqual(
+      LEARNING_METHOD_FAQ.map(({ question, answer }) => [question, answer]),
     )
   })
 

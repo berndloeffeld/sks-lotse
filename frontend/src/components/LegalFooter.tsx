@@ -11,7 +11,7 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
   return isActive ? `${TAP_AREA} border-b-2 border-surface pb-1 text-surface` : FOOTER_LINK
 }
 
-// The content pages (Prüfungsablauf, FAQ), the contact (also the way to send feedback) and the
+// The content pages (Prüfungsablauf, Lernmethode, FAQ), the contact (also the way to send feedback) and the
 // legal links. Impressum must be
 // reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
@@ -24,6 +24,9 @@ export function LegalFooter() {
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
           <NavLink to="/exam-process" className={footerLinkClass}>
             Prüfungsablauf
+          </NavLink>
+          <NavLink to="/learning-method" className={footerLinkClass}>
+            Lernmethode
           </NavLink>
           <NavLink to="/faq" className={footerLinkClass}>
             FAQ

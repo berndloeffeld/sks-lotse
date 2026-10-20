@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, type ComponentType } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ExamProcessPage } from './pages/ExamProcessPage'
+import { LearningMethodPage } from './pages/LearningMethodPage'
 import { chartExercisesForGuests } from './chartCatalog'
 import { ChartExercisePage } from './pages/ChartExercisePage'
 import { ChartExercisesPage } from './pages/ChartExercisesPage'
@@ -106,6 +107,7 @@ export function AppRoutes() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<AgbPage />} />
           <Route path="/exam-process" element={<ExamProcessPage />} />
+          <Route path="/learning-method" element={<LearningMethodPage />} />
           <Route path="/login" element={<LoginPage />} />
           {/* AgbGate only ever asks a logged-in learner; guests pass straight through. /pricing is
             in it so nobody buys before confirming the AGB in force (the API refuses it too, ADR-0041). */}
