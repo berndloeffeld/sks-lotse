@@ -10,14 +10,15 @@ import { buttonClass } from '../components/buttonStyles'
 import { sectionHeading, subsectionHeading } from '../components/headingStyles'
 
 interface SectionProps {
+  id?: string
   icon?: ReactNode
   title: string
   children: ReactNode
 }
 
-function Section({ icon, title, children }: SectionProps) {
+function Section({ id, icon, title, children }: SectionProps) {
   return (
-    <section className="flex flex-col gap-3">
+    <section id={id} className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
         {icon ? (
           <span className="text-primary" aria-hidden="true">
@@ -115,7 +116,7 @@ export function ExamProcessPage() {
         </p>
       </Section>
 
-      <Section title="Praxis und Charter: eine Empfehlung">
+      <Section id="praxis-und-charter" title="Praxis und Charter: eine Empfehlung">
         <p>
           Für die praktische Seite: Die{' '}
           <a

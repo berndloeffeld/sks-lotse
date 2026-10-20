@@ -47,7 +47,9 @@ describe('ExamProcessPage', () => {
   it('recommends the Segelschule Altwarp as a personal tip, opening a new tab', () => {
     renderExamProcessPage()
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Praxis und Charter: eine Empfehlung' })).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 2, name: 'Praxis und Charter: eine Empfehlung' })
+    // The anchor others link to: /exam-process#praxis-und-charter.
+    expect(heading.closest('section')).toHaveAttribute('id', 'praxis-und-charter')
     const link = screen.getByRole('link', { name: 'Segelschule Altwarp' })
     expect(link).toHaveAttribute('href', 'https://www.segelschule-altwarp.de/')
     expect(link).toHaveAttribute('target', '_blank')
