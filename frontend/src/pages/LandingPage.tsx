@@ -307,6 +307,9 @@ export function LandingPage() {
             <Link to="/learn" className="text-primary underline hover:no-underline">
               Alle Fragen nach Themen, frei zum Üben
             </Link>
+            <Link to="/learning-method" className="text-primary underline hover:no-underline">
+              Lernen wie mit Karteikarten: die Lernmethode
+            </Link>
             <Link to="/faq" className="text-primary underline hover:no-underline">
               Mehr zum Fragenkatalog in den häufigen Fragen
             </Link>

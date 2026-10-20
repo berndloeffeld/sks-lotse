@@ -222,6 +222,9 @@ services:
         source: /exam-process
         destination: /exam-process.html
       - type: rewrite
+        source: /learning-method
+        destination: /learning-method.html
+      - type: rewrite
         source: /pricing
         destination: /pricing.html
       # The open /learn pages (ADR-0054): the topic list and one page per catalog

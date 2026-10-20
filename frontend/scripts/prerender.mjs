@@ -7,8 +7,8 @@
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
 //   dist/<path>.html  — likewise for every page in src/publicPages.ts: /faq,
-//                       /imprint, /privacy, /terms, /exam-process, /pricing,
-//                       and the open /learn pages (ADR-0054), e.g.
+//                       /imprint, /privacy, /terms, /exam-process, /learning-method,
+//                       /pricing, and the open /learn pages (ADR-0054), e.g.
 //                       dist/learn/navigation/seekarten.html; render.yaml
 //                       rewrites each of those paths to its file explicitly.
 //                       Each of these (everything but "/") also gets its own

@@ -1,6 +1,6 @@
 import type { CatalogExport } from './catalog'
 import { sheetMaxPoints, type ChartExport } from './chartCatalog'
-import { EXAM_PROCESS_FAQ, FAQ, faqAnswerParts } from './faq'
+import { EXAM_PROCESS_FAQ, FAQ, LEARNING_METHOD_FAQ, faqAnswerParts } from './faq'
 import { SUBJECT_LABELS } from './labels'
 import {
   CHARTS_CRUMB,
@@ -10,6 +10,8 @@ import {
   FAQ_TEXT,
   IMPRINT_TEXT,
   LEARN_CRUMB,
+  LEARNING_METHOD_CRUMB,
+  LEARNING_METHOD_TEXT,
   PRICING_TEXT,
   PRIVACY_TEXT,
   ROOT_CRUMB,
@@ -83,12 +85,12 @@ function faqJsonLd(): Record<string, unknown> {
   }
 }
 
-// /exam-process: its short answers as schema.org questions (the same text the page shows).
-function examProcessJsonLd(): Record<string, unknown> {
+// A page's short answers as schema.org questions (the same text the page shows).
+function shortAnswersJsonLd(items: { question: string; answer: string }[]): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: EXAM_PROCESS_FAQ.map(({ question, answer }) => ({
+    mainEntity: items.map(({ question, answer }) => ({
       '@type': 'Question',
       name: question,
       acceptedAnswer: { '@type': 'Answer', text: answer },
@@ -104,7 +106,11 @@ const STATIC_PAGES: PublicPage[] = [
   page('/terms', TERMS_TEXT),
   page('/exam-process', EXAM_PROCESS_TEXT, [
     breadcrumbs([ROOT_CRUMB, '/'], [EXAM_PROCESS_CRUMB, '/exam-process']),
-    examProcessJsonLd(),
+    shortAnswersJsonLd(EXAM_PROCESS_FAQ),
+  ]),
+  page('/learning-method', LEARNING_METHOD_TEXT, [
+    breadcrumbs([ROOT_CRUMB, '/'], [LEARNING_METHOD_CRUMB, '/learning-method']),
+    shortAnswersJsonLd(LEARNING_METHOD_FAQ),
   ]),
   page('/pricing', PRICING_TEXT),
 ]

@@ -42,13 +42,13 @@ export const FAQ: { id: string; question: string; answer: string }[] = [
     id: 'gelernt',
     question: 'Wann gilt eine Frage als „gelernt“?',
     answer:
-      'Wenn du sie über mehrere Tage verteilt richtig beantwortet hast und wir davon ausgehen, dass du sie noch weißt. Mehrmals direkt hintereinander „richtig“ zu klicken bringt kaum etwas – entscheidend ist, dass du an verschiedenen Tagen wiederkommst.',
+      'Wenn du sie über mehrere Tage verteilt richtig beantwortet hast und wir davon ausgehen, dass du sie noch weißt. Mehrmals direkt hintereinander „richtig“ zu klicken bringt kaum etwas – entscheidend ist, dass du an verschiedenen Tagen wiederkommst. Das Prinzip dahinter erklärt [So lernst du mit dem Karteikarten-Prinzip](/learning-method).',
   },
   {
     id: 'lernstand-sinkt',
     question: 'Warum sinkt mein Lernstand, wenn ich länger pausiere?',
     answer:
-      'Was man nicht wiederholt, vergisst man. Wir schätzen für jede Frage, wie lange du sie voraussichtlich behältst. Läuft diese Zeit ab, gilt die Frage wieder als offen und kommt in der Übung zurück – so bleibt dein Lernstand ein ehrlicher Hinweis auf die Prüfungsreife. Mit dem Modus „Auffrischen“ holst du gezielt Fragen zurück, die möglicherweise verblasst sind oder bald verblassen könnten.',
+      'Was man nicht wiederholt, vergisst man. Wir schätzen für jede Frage, wie lange du sie voraussichtlich behältst. Läuft diese Zeit ab, gilt die Frage wieder als offen und kommt in der Übung zurück – so bleibt dein Lernstand ein ehrlicher Hinweis auf die Prüfungsreife. Mit dem Modus „Auffrischen“ holst du gezielt Fragen zurück, die möglicherweise verblasst sind oder bald verblassen könnten. Mehr zur Idee dahinter unter [Lernmethode](/learning-method).',
   },
   {
     id: 'tokens',
@@ -149,5 +149,31 @@ export const EXAM_PROCESS_FAQ: { question: string; answer: string }[] = [
     question: 'Brauche ich den SKS als privater Skipper?',
     answer:
       'Gesetzlich vorgeschrieben ist er nur für die gewerbliche Nutzung von Sportbooten in Küstengewässern. Privat wird er trotzdem oft verlangt, denn viele Vercharterer fordern den SKS als Befähigungsnachweis.',
+  },
+]
+
+// The short answers at the foot of /learning-method: shown on the page and, word for word, the
+// page's FAQPage JSON-LD (publicPages.ts). No numbers of the half-life model, on purpose
+// (ADR-0024: the rule isn't readable at a glance, ADR-0034 has the values).
+export const LEARNING_METHOD_FAQ: { question: string; answer: string }[] = [
+  {
+    question: 'Wie lerne ich den SKS-Fragenkatalog am besten?',
+    answer:
+      'Frage lesen, die Antwort selbst formulieren, mit der amtlichen Antwort vergleichen, ehrlich bewerten – und das über mehrere Tage verteilt wiederholen. SKS Lotse merkt sich für jede Frage, wie sicher du sie kannst, und holt sie zurück, bevor du sie vergisst.',
+  },
+  {
+    question: 'Ist SKS Lotse eine digitale Lernkartei?',
+    answer:
+      'Im Prinzip ja, nur ohne Fächer und Zettel: Für jede Frage schätzt SKS Lotse, wie lange du sie voraussichtlich noch weißt, und passt das nach jeder Bewertung an. Was du sicher kannst, gilt als gelernt; was verblasst, kommt in der Übung zurück.',
+  },
+  {
+    question: 'Was bedeutet Halbwertszeit beim Lernen?',
+    answer:
+      'Die Zeit, nach der man von einer Antwort nur noch etwa die Hälfte weiß. Sie wird mit jeder richtigen Antwort länger, vor allem wenn zwischen den Wiederholungen Zeit vergangen ist, und mit einer falschen oder teilweise richtigen Antwort kürzer.',
+  },
+  {
+    question: 'Wie oft sollte ich Fragen wiederholen?',
+    answer:
+      'Regelmäßig und verteilt: besser an mehreren Tagen der Woche kurz als an einem Tag lange. Einen festen Rhythmus brauchst du nicht – im Modus „Auffrischen“ holt SKS Lotse Fragen zurück, die verblasst sind oder bald verblassen.',
   },
 ]

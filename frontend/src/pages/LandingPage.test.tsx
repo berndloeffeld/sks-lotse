@@ -106,6 +106,15 @@ describe('LandingPage', () => {
     expect(screen.getByRole('link', { name: 'So läuft die SKS-Prüfung ab' })).toHaveAttribute('href', '/exam-process')
   })
 
+  it('links to the learning method page', () => {
+    renderLandingPage()
+
+    expect(screen.getByRole('link', { name: 'Lernen wie mit Karteikarten: die Lernmethode' })).toHaveAttribute(
+      'href',
+      '/learning-method',
+    )
+  })
+
   it('offers share buttons after the "Kostenlos starten" pitch', () => {
     renderLandingPage()
 

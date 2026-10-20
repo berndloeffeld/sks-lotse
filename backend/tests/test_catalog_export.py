@@ -76,7 +76,7 @@ def test_renders_stable_readable_json():
 
 
 # The static prerendered pages besides "/" (STATIC_PAGES in frontend/src/publicPages.ts).
-STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms", "/exam-process", "/pricing"}
+STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms", "/exam-process", "/learning-method", "/pricing"}
 
 
 def _rewrites(render_yaml: str) -> list[tuple[str, str]]:
