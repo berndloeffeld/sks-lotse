@@ -1,9 +1,26 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
+import charts from '../data/chart_exercises.gen.json'
 import { ChartSheetVideo, ChartTaskVideo } from './ChartSheetVideo'
 
 describe('ChartSheetVideo', () => {
+  // The FAQ promises a video for every sheet ("Zu jedem Bogen …"): a sheet in the app without one,
+  // or without chapter marks up to its last task, fails here.
+  it.each(charts.sheets.map((sheet) => [sheet.number, sheet.tasks.length]))(
+    'has a video for sheet %i, marked up to its last task %i',
+    (sheet, lastTask) => {
+      render(<ChartSheetVideo number={sheet} />)
+      expect(screen.getByRole('link', { name: 'Video-Anleitung auf YouTube' })).toBeInTheDocument()
+      render(
+        <ChartTaskVideo sheet={sheet} task={lastTask} className="">
+          Video
+        </ChartTaskVideo>,
+      )
+      expect(screen.getByRole('link', { name: 'Video' }).getAttribute('href')).toMatch(/&t=\d+s$/)
+    },
+  )
+
   it("links the sheet's video and the channel, opening a new tab", () => {
     render(<ChartSheetVideo number={1} />)
     const video = screen.getByRole('link', { name: 'Video-Anleitung auf YouTube' })

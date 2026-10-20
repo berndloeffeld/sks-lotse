@@ -312,7 +312,12 @@ describe('PricingPage', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { name: 'Kostenlos lernen', level: 2 })).toBeInTheDocument()
-    expect(screen.getByText(/Probeprüfung und dein Lernfortschritt sind kostenlos/)).toBeInTheDocument()
+    // Promised for good only what AGB section 4 promises; the rest is free "derzeit".
+    expect(
+      screen.getByText(
+        /Grundfunktion – Fragen üben, die amtlichen Antworten und dein Lernfortschritt – ist dauerhaft kostenlos\. Auch die Kartenaufgaben und die Probeprüfung kosten derzeit nichts\./,
+      ),
+    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Tokens für den Lotsen-Check', level: 2 })).toBeInTheDocument()
     expect(screen.getByText(/Tokens gibt es in Paketen\. Kein Abo/)).toBeInTheDocument()
     expect(screen.queryByText(/geschenkt/)).not.toBeInTheDocument()

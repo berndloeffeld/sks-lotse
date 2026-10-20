@@ -80,6 +80,9 @@ describe('LandingPage', () => {
     const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })
     expect(within(preview).getByText('Vorschau · bald verfügbar')).toBeInTheDocument()
     expect(within(preview).getByRole('heading', { name: 'Lösung mit Herleitung' })).toBeInTheDocument()
+    // What a run keeps at hand (ChartTools); the sheet's rules are read before the start, not in it.
+    expect(within(preview).getByText(/Originaltext der Aufgabe und deine bisherigen Antworten/)).toBeInTheDocument()
+    expect(within(preview).queryByText(/Regeln des Bogens/)).not.toBeInTheDocument()
     expect(within(preview).queryAllByRole('link')).toEqual([])
     expect(within(preview).getByRole('img', { name: /Kartenaufgabe 1, Aufgabe 1 von 18/ })).toHaveAttribute(
       'src',

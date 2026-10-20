@@ -252,9 +252,9 @@ export function PricingPage() {
       <section className="flex flex-col gap-2">
         <h2 className={sectionHeading}>Kostenlos lernen</h2>
         <p className="text-ink-soft">
-          Fragen üben, die amtlichen Antworten, die Kartenaufgaben, die Probeprüfung und dein Lernfortschritt sind
-          kostenlos und bleiben es. Kosten entstehen nur, wenn du dir vom Lotsen-Check einen KI-Bewertungsvorschlag für
-          deine Antwort geben lässt.
+          Die Grundfunktion – Fragen üben, die amtlichen Antworten und dein Lernfortschritt – ist dauerhaft kostenlos.
+          Auch die Kartenaufgaben und die Probeprüfung kosten derzeit nichts. Kosten entstehen nur, wenn du dir vom
+          Lotsen-Check einen KI-Bewertungsvorschlag für deine Antwort geben lässt.
         </p>
       </section>
 

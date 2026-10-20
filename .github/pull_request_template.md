@@ -7,7 +7,7 @@
 The "in the same PR" duties from `CLAUDE.md`. Tick what applies, strike through (`~~…~~`) what doesn't.
 
 - [ ] `docs/FEATURES.md` updated (what learners/operators can do, prices, what is live)
-- [ ] Public texts still right: FAQ (`frontend/src/faq.ts`, also shown on the landing page and as FAQPage JSON-LD) and the exam-process page (`/exam-process`) describe the changed behaviour
+- [ ] Public texts still right: FAQ (`frontend/src/faq.ts`, also shown on the landing page and as FAQPage JSON-LD), the landing page (`LandingPage.tsx`), the pricing page (`PricingPage.tsx`, nothing promised beyond the AGB), the exam-process page (`/exam-process`) and the learning-method page (`/learning-method`) describe the changed behaviour
 - [ ] `docs/NON-FUNCTIONAL-REQUIREMENTS.md` updated (expected load, limits, security, availability, performance)
 - [ ] `docs/ARCHITECTURE.md` / `docs/RUNBOOK.md` still describe what exists
 - [ ] ADR added for a costly-to-reverse or non-obvious decision (index row and `Status:` line match; a superseded ADR is marked)
