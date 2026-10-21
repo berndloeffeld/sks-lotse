@@ -47,6 +47,12 @@ app.add_middleware(
             settings.rate_limit_otp_verify_max_requests,
             settings.rate_limit_otp_verify_window_seconds,
         ),
+        # The login link's token can't be guessed (256 bits); the same cap as the code just keeps
+        # one IP from hammering the lookup.
+        "/api/v1/auth/otp/verify-link": (
+            settings.rate_limit_otp_verify_max_requests,
+            settings.rate_limit_otp_verify_window_seconds,
+        ),
         # Same tightness as OTP login requests. A second, per-authenticated-user
         # cap is applied inside request_email_change itself (see auth.py) —
         # this per-IP rule alone doesn't stop one account probing many target

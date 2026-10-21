@@ -20,15 +20,25 @@ def generate_code() -> str:
     return "".join(str(secrets.randbelow(10)) for _ in range(settings.otp_length))
 
 
-def _otp_hash_key() -> bytes:
+def generate_link_token() -> str:
+    # The login link's secret (ADR-0064): 256 bits, so unlike the 6-digit code it needs no attempts
+    # counter — guessing one is hopeless however many tries the rate limiter lets through.
+    return secrets.token_urlsafe(32)
+
+
+def _derived_key(label: bytes) -> bytes:
     # Derived from JWT_SECRET rather than using it directly, so the same key
-    # material isn't used for two different purposes (signing JWTs and
-    # hashing OTP codes) — one secret to manage, two independent keys.
-    return hmac.new(settings.jwt_secret.encode(), b"sks-lotse/otp-code-hash", hashlib.sha256).digest()
+    # material isn't used for different purposes (signing JWTs, hashing OTP
+    # codes, hashing link tokens) — one secret to manage, independent keys.
+    return hmac.new(settings.jwt_secret.encode(), label, hashlib.sha256).digest()
 
 
 def hash_code(code: str) -> str:
-    return hmac.new(_otp_hash_key(), code.encode(), hashlib.sha256).hexdigest()
+    return hmac.new(_derived_key(b"sks-lotse/otp-code-hash"), code.encode(), hashlib.sha256).hexdigest()
+
+
+def hash_link_token(token: str) -> str:
+    return hmac.new(_derived_key(b"sks-lotse/otp-link-hash"), token.encode(), hashlib.sha256).hexdigest()
 
 
 def verify_code(code: str, code_hash: str) -> bool:

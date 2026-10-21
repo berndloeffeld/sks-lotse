@@ -17,7 +17,7 @@ from tests.helpers import TOKEN_IN_BODY, progress_state
 def _capture_otp(monkeypatch):
     sent = []
 
-    def fake_send(to_email, code):
+    def fake_send(to_email, code, link_token=None):
         sent.append((to_email, code))
 
     monkeypatch.setattr("app.services.email.send_otp_email", fake_send)
@@ -110,7 +110,7 @@ def test_request_otp_email_case_variants_share_one_cooldown(client, monkeypatch)
 
 
 def test_request_otp_email_send_failure_still_returns_202(client, monkeypatch, caplog):
-    def failing_send(to_email, code):
+    def failing_send(to_email, code, link_token=None):
         raise RuntimeError("resend down")
 
     monkeypatch.setattr("app.services.email.send_otp_email", failing_send)
@@ -282,6 +282,7 @@ def test_dev_peek_returns_the_code_from_the_matching_request(client, monkeypatch
     assert response.status_code == 200
     code = response.json()["code"]
     assert len(code) == 6
+    assert len(response.json()["link_token"]) == 43
 
     verify_response = client.post(
         "/api/v1/auth/otp/verify", json={"email": "learner@example.com", "code": code}

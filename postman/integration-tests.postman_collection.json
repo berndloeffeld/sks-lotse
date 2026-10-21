@@ -8534,7 +8534,9 @@
                 "exec": [
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('returns a 6-digit code', function () { pm.expect(pm.response.json().code).to.match(/^[0-9]{6}$/); });",
-                  "pm.collectionVariables.set('victimTokenOtpCode', pm.response.json().code);"
+                  "pm.collectionVariables.set('victimTokenOtpCode', pm.response.json().code);",
+                  "pm.test('returns the login link token', function () { pm.expect(pm.response.json().link_token).to.be.a('string').with.lengthOf(43); });",
+                  "pm.collectionVariables.set('victimLinkToken', pm.response.json().link_token);"
                 ]
               }
             }
@@ -8569,7 +8571,7 @@
           }
         },
         {
-          "name": "Verify OTP (user to be deleted by the admin)",
+          "name": "Verify login link (user to be deleted by the admin)",
           "event": [
             {
               "listen": "test",
@@ -8596,6 +8598,107 @@
               }
             ],
             "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify-link"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"{{victimLinkToken}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "Logs this user in with the login link from the code email (ADR-0064) rather than the code. Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this. Sends the X-Token-In-Body opt-in header, since the later requests authenticate with the token from the body.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify login link - used up after the login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('same answer as a wrong code', function () { pm.expect(pm.response.json().detail).to.eql('Invalid or expired code'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify-link"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"{{victimLinkToken}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "A login link works once.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify OTP - the code went with the link",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
               "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
               "host": [
                 "{{baseUrl}}"
@@ -8618,7 +8721,57 @@
               }
             }
           },
-          "description": "Also sets the session cookie in Newman's cookie jar - harmless: every request that follows and cares either disables cookies or is one of the deliberate 'session cookie' requests, which run before any of this. Sends the X-Token-In-Body opt-in header, since the later requests authenticate with the token from the body.",
+          "description": "Code and link are one login (the same otp_codes row): redeeming the link used up the code too.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Verify login link - a malformed token is a 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "otp",
+                "verify-link"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"too-short\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -11078,6 +11231,11 @@
     },
     {
       "key": "victimTokenOtpCode",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "victimLinkToken",
       "value": "",
       "type": "default"
     },

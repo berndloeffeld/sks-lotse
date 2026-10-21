@@ -23,11 +23,19 @@ class OtpCode(Base):
         # index above can't help it, since email is neither filtered nor its
         # leftmost column here.
         Index("ix_otp_codes_expires_at", "expires_at"),
+        # The login link (ADR-0064) is redeemed by its token alone, without an
+        # address. Unique: two rows with the same 256-bit token would be a bug.
+        # NULL (email-change codes, codes from before the link) is never matched.
+        Index("ix_otp_codes_link_hash", "link_hash", unique=True),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     code_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    # Login codes only: the hash of the link token mailed alongside the code
+    # (hash_link_token in app/core/otp.py). The link redeems this same row, so
+    # code and link share expiry, single use and "only the latest counts".
+    link_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     # OTP_PURPOSE_LOGIN or OTP_PURPOSE_EMAIL_CHANGE (app/core/otp.py). No
     # default: every insert has to say which flow the code belongs to.
     purpose: Mapped[str] = mapped_column(String(16), nullable=False)

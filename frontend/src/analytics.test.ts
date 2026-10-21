@@ -48,6 +48,11 @@ describe('wantsAnalytics', () => {
     expect(wantsAnalytics('/learn/admin')).toBe(true)
     expect(wantsAnalytics('/')).toBe(true)
   })
+
+  it('excludes the login link, whose token is in the URL until the page clears it', () => {
+    expect(wantsAnalytics('/login/link')).toBe(false)
+    expect(wantsAnalytics('/login')).toBe(true)
+  })
 })
 
 describe('trackEvent', () => {
