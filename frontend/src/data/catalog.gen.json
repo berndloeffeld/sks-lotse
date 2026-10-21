@@ -1665,6 +1665,36 @@
   },
   {
    "subject": "schifffahrtsrecht",
+   "number": 77,
+   "topic": "kvr-lichter-signale",
+   "question_text": "Sie sehen auf der Elbe bei Nacht ein Fahrzeug mit der nachfolgenden Lichterführung. Um was für ein Fahrzeug handelt es sich? Was bedeuten die beiden roten und die beiden grünen Lichter senkrecht übereinander?",
+   "answer_text": "Manövrierbehindertes Fahrzeug, Länge wahrscheinlich 50 m oder mehr, von vorn mit Fahrt durchs Wasser, das Unterwasserarbeiten ausführt (z. B. baggert). Passierseite an Steuerbord (zwei grüne Rundumlichter übereinander), Passierbehinderung an Backbord-Seite (zwei rote Rundumlichter übereinander).",
+   "question_images": [
+    {
+     "src": "schifffahrtsrecht-77-1.png",
+     "width": 269,
+     "height": 93
+    }
+   ],
+   "answer_images": []
+  },
+  {
+   "subject": "schifffahrtsrecht",
+   "number": 78,
+   "topic": "kvr-lichter-signale",
+   "question_text": "Sie sehen auf der Elbe bei Tage ein Fahrzeug mit den nachfolgenden schwarzen Signalkörpern, dessen Bugwelle man klar erkennen kann. Um was für ein Fahrzeug handelt es sich? Was bedeuten die beiden schwarzen Bälle und die beiden schwarzen Rhomben senkrecht übereinander?",
+   "answer_text": "Entgegenkommendes manövrierbehindertes Fahrzeug von vorn, mit Fahrt durchs Wasser, das Unterwasserarbeiten ausführt (z. B. baggert). Passierseite an Backbord des Baggers (zwei schwarze Rhomben übereinander), Passierbehinderung an Steuerbord-Seite des Baggers (zwei schwarze Bälle übereinander).",
+   "question_images": [
+    {
+     "src": "schifffahrtsrecht-78-1.png",
+     "width": 292,
+     "height": 86
+    }
+   ],
+   "answer_images": []
+  },
+  {
+   "subject": "schifffahrtsrecht",
    "number": 13,
    "topic": "seeschstro-verkehrsregeln",
    "question_text": "Sie sehen in der Dämmerung in der Nordsee in der Zufahrt zur Jade einen großen Tanker mit der üblichen Lichterführung, auf dem kurze Zeit später die Lichter rot-weiß-rot senkrecht übereinander zusätzlich zu den Fahrtlichtern gesetzt werden. Welche rechtliche Bedeutung hat die geänderte Signalgebung für Sie?",
@@ -1949,36 +1979,6 @@
    "question_text": "Sie sehen vor dem Einlaufen in den NOK in Brunsbüttel folgende Lichtsignale:\n1. ein unterbrochenes rotes Licht,\n2. ein unterbrochenes weißes Licht über einem unterbrochenen roten Licht,\n3. ein unterbrochenes weißes Licht. Geben Sie die Bedeutung dieser Signale an.",
    "answer_text": "1. Einfahren verboten.\n2. Freigabe wird vorbereitet.\n3. Sportfahrzeuge können einfahren.",
    "question_images": [],
-   "answer_images": []
-  },
-  {
-   "subject": "schifffahrtsrecht",
-   "number": 77,
-   "topic": "seeschstro-kennzeichnung",
-   "question_text": "Sie sehen auf der Elbe bei Nacht ein Fahrzeug mit der nachfolgenden Lichterführung. Um was für ein Fahrzeug handelt es sich? Was bedeuten die beiden roten und die beiden grünen Lichter senkrecht übereinander?",
-   "answer_text": "Manövrierbehindertes Fahrzeug, Länge wahrscheinlich 50 m oder mehr, von vorn mit Fahrt durchs Wasser, das Unterwasserarbeiten ausführt (z. B. baggert). Passierseite an Steuerbord (zwei grüne Rundumlichter übereinander), Passierbehinderung an Backbord-Seite (zwei rote Rundumlichter übereinander).",
-   "question_images": [
-    {
-     "src": "schifffahrtsrecht-77-1.png",
-     "width": 269,
-     "height": 93
-    }
-   ],
-   "answer_images": []
-  },
-  {
-   "subject": "schifffahrtsrecht",
-   "number": 78,
-   "topic": "seeschstro-kennzeichnung",
-   "question_text": "Sie sehen auf der Elbe bei Tage ein Fahrzeug mit den nachfolgenden schwarzen Signalkörpern, dessen Bugwelle man klar erkennen kann. Um was für ein Fahrzeug handelt es sich? Was bedeuten die beiden schwarzen Bälle und die beiden schwarzen Rhomben senkrecht übereinander?",
-   "answer_text": "Entgegenkommendes manövrierbehindertes Fahrzeug von vorn, mit Fahrt durchs Wasser, das Unterwasserarbeiten ausführt (z. B. baggert). Passierseite an Backbord des Baggers (zwei schwarze Rhomben übereinander), Passierbehinderung an Steuerbord-Seite des Baggers (zwei schwarze Bälle übereinander).",
-   "question_images": [
-    {
-     "src": "schifffahrtsrecht-78-1.png",
-     "width": 292,
-     "height": 86
-    }
-   ],
    "answer_images": []
   },
   {
