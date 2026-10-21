@@ -14,7 +14,7 @@ The Kartenaufgaben already show a **derivation** under "Herleitung anzeigen" ([A
 
 ## Decision
 
-- **Name and labeling.** The UI calls it "Herleitung" (the box heading) and marks it as **not official** every time it appears: a line under the heading says "Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort." It gets its own box variant (`AnswerBox` variant `note`, a dashed rule in `ink-soft`), never the `official` one. It sits below the official answer and is closed until the learner opens it (`<details>`, "Herleitung anzeigen").
+- **Looks like the Kartenaufgaben, marked as not official.** The derivation folds out at the foot of the official answer, closed until the learner opens it ("Herleitung anzeigen"), the same as a Kartenaufgabe's derivation in its official solution (one shared `DerivationDetails`). Unfolded, its first line says "Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort." The official answer above it stays as it is.
 - **Content lives in a reviewed YAML, not in the database.** `backend/app/data/catalog_derivations.yaml` holds one entry per question, keyed by the natural key `subject` + `number`. Each entry has:
   - `blocks`: the derivation, in the Kartenaufgaben format (`text` paragraphs and `table` rows, `**bold**` for intermediate results). `ChartDerivationBlock` and its frontend rendering move to a shared `DerivationBlock` (`app/schemas/derivation.py`) / `DerivationText` (`components/Derivation.tsx`).
   - It leads only to the official answer, in plain words and as few steps as possible: no background the question doesn't ask for, nothing about any learner's answer.
@@ -29,7 +29,7 @@ The Kartenaufgaben already show a **derivation** under "Herleitung anzeigen" ([A
 
 ## Consequences
 
-- The tables stay purely official. Own content is in a separate file that is visibly separate in the UI, and is always labeled as ours.
+- The tables stay purely official. Own content is in a separate file, and the UI says it is ours as soon as it is unfolded.
 - No migration, no sync and no admin editor: at a few dozen to a few hundred entries a YAML file and a review are enough ("avoid pipeline overkill").
 - Errors in a derivation are ours. Learners report them through the existing question report ([ADR-0030](0030-question-reports-and-feedback-channels.md)). The report form could gain a "Herleitung" reason later if reports need to be told apart.
 - The fingerprint makes a new catalog edition visible: every derivation whose answer changed fails CI until someone has looked at it.
@@ -37,5 +37,5 @@ The Kartenaufgaben already show a **derivation** under "Herleitung anzeigen" ([A
 - Rejected:
   - A `derivation` column on `questions`. It would put own text into the official tables, and every correction would need a data migration.
   - Derivations generated on the fly by an LLM. They would be unreviewed, cost money per view, and could contradict the official answer.
-  - Writing the derivation into the official answer box, which would blur what is official.
+  - A box of its own beside the official answer (tried first, with a dashed rule): clearer in its separation, but it looked different from the Kartenaufgaben for the same thing. The line in the unfolded part carries the "not official" instead.
   - Showing it before the answer as a tip. That is what [ADR-0038](0038-tip-reveal-caps-grading-outcome.md) is for, and it is a different thing.

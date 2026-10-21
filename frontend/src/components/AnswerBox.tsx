@@ -1,18 +1,17 @@
 import type { ReactNode } from 'react'
 
-import type { QuestionImage } from '../api/types'
+import type { DerivationBlock, QuestionImage } from '../api/types'
 import { parseAnswer } from '../answerTable'
+import { DerivationDetails } from './Derivation'
 import { OfficialAnswer } from './OfficialAnswer'
 
 // The comparison "deine vs. amtliche Antwort", alike wherever it is shown: practice, the topic's
 // question list, the exam's grading and result, the Kartenaufgaben and the admin question search.
 // The learner's answer is set back (ink-soft rule on surface), the official one stands out (primary
-// rule on surface-alt). SKS Lotse's own derivation of a catalog answer (ADR-0065) is a note beside
-// them, never official-looking: a dashed ink-soft rule.
+// rule on surface-alt).
 const VARIANT = {
   own: 'border-ink-soft bg-surface',
   official: 'border-primary bg-surface-alt',
-  note: 'border-dashed border-ink-soft bg-surface',
 }
 
 interface AnswerBoxProps {
@@ -89,18 +88,25 @@ export function ChartOwnAnswer({ text }: { text: string | null | undefined }) {
   )
 }
 
+// SKS Lotse's own derivations of catalog answers aren't official (ADR-0065); this says so once unfolded.
+const CATALOG_DERIVATION_NOTE =
+  'Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort.'
+
 export function OfficialAnswerBox({
   text,
   images,
+  derivation = [],
   headingLevel,
 }: {
   text: string | null | undefined
   images: QuestionImage[]
+  derivation?: DerivationBlock[]
   headingLevel?: 2 | 3
 }) {
   return (
     <AnswerBox variant="official" title="Amtliche Antwort" headingLevel={headingLevel}>
       <OfficialAnswer text={text} images={images} />
+      <DerivationDetails blocks={derivation} note={CATALOG_DERIVATION_NOTE} />
     </AnswerBox>
   )
 }

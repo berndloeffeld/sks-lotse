@@ -4,7 +4,6 @@ import { apiClient } from '../api/client'
 import type { Question, Topic } from '../api/types'
 import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
 import { OfficialAnswerBox } from '../components/AnswerBox'
-import { CatalogDerivation } from '../components/Derivation'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
@@ -115,8 +114,12 @@ export function AdminQuestionsPage() {
                   <RichText text={question.question_text} />
                 </p>
                 <QuestionImages images={question.question_images} part="question" />
-                <OfficialAnswerBox text={question.answer_text} images={question.answer_images} headingLevel={2} />
-                <CatalogDerivation blocks={question.derivation} headingLevel={2} />
+                <OfficialAnswerBox
+                  text={question.answer_text}
+                  images={question.answer_images}
+                  derivation={question.derivation}
+                  headingLevel={2}
+                />
                 <AdminQuestionHistory questionId={question.id} />
               </li>
             ))}

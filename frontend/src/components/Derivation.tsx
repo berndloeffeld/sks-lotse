@@ -1,10 +1,9 @@
 import type { DerivationBlock } from '../api/types'
-import { AnswerBox } from './AnswerBox'
 import { RichText } from './RichText'
 
 // A derivation: the working that leads to an answer. The Kartenaufgaben's is the WSV's own (ADR-0053),
-// shown inside the official solution; a catalog question's is SKS Lotse's (ADR-0065), shown apart from
-// the official answer and marked as not official.
+// a catalog question's is SKS Lotse's (ADR-0065), marked as not official. Both fold out at the foot of
+// the official answer or solution.
 
 /** Text where **…** marks an intermediate result (for the Kartenaufgaben: what the PDF prints bold). */
 function BoldText({ text }: { text: string }) {
@@ -67,20 +66,19 @@ export function DerivationText({ blocks }: { blocks: DerivationBlock[] }) {
   )
 }
 
-/** A catalog question's derivation, below its official answer; nothing when the question has none. */
-export function CatalogDerivation({ blocks, headingLevel }: { blocks: DerivationBlock[]; headingLevel?: 2 | 3 }) {
+/**
+ * "Herleitung anzeigen" at the foot of an official answer or solution, folded shut; nothing when there
+ * is none. `note` opens the unfolded part: for a catalog question, that the derivation isn't official.
+ */
+export function DerivationDetails({ blocks, note }: { blocks: DerivationBlock[]; note?: string }) {
   if (blocks.length === 0) return null
   return (
-    <AnswerBox variant="note" title="Herleitung" headingLevel={headingLevel}>
-      <p className="text-xs text-ink-soft">
-        Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort.
-      </p>
-      <details>
-        <summary className="cursor-pointer text-primary">Herleitung anzeigen</summary>
-        <div className="pt-2">
-          <DerivationText blocks={blocks} />
-        </div>
-      </details>
-    </AnswerBox>
+    <details>
+      <summary className="cursor-pointer text-primary">Herleitung anzeigen</summary>
+      <div className="flex flex-col gap-2 pt-2">
+        {note ? <p className="text-xs text-ink-soft">{note}</p> : null}
+        <DerivationText blocks={blocks} />
+      </div>
+    </details>
   )
 }

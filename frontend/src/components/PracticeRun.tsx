@@ -6,7 +6,6 @@ import { apiClient } from '../api/client'
 import type { GradingOutcome, Question, QuestionProgress } from '../api/types'
 import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
 import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
-import { CatalogDerivation } from './Derivation'
 import { CourseGauge } from './CourseGauge'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { formStyles } from './formStyles'
@@ -296,8 +295,11 @@ export function PracticeRun({
       ) : (
         <>
           {note.trim() ? <OwnAnswer text={note} /> : null}
-          <OfficialAnswerBox text={question.answer_text} images={question.answer_images} />
-          <CatalogDerivation blocks={question.derivation} />
+          <OfficialAnswerBox
+            text={question.answer_text}
+            images={question.answer_images}
+            derivation={question.derivation}
+          />
 
           {guest ? (
             <>

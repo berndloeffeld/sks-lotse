@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { ChartAttemptTask, ChartImage, ChartSolutionPart } from '../api/types'
 import { pointsLabel } from '../chartPoints'
 import { AnswerBox } from './AnswerBox'
-import { DerivationText } from './Derivation'
+import { DerivationDetails } from './Derivation'
 import { ImageLightbox } from './ImageLightbox'
 import { RichText } from './RichText'
 
@@ -105,14 +105,7 @@ export function OfficialSolution({ task }: { task: ChartAttemptTask }) {
   return (
     <AnswerBox variant="official" title="Amtliche Lösung">
       <SolutionText parts={task.solution} />
-      {task.derivation.length > 0 ? (
-        <details>
-          <summary className="cursor-pointer text-primary">Herleitung anzeigen</summary>
-          <div className="pt-2">
-            <DerivationText blocks={task.derivation} />
-          </div>
-        </details>
-      ) : null}
+      <DerivationDetails blocks={task.derivation} />
     </AnswerBox>
   )
 }
