@@ -21,6 +21,7 @@ from app.schemas.auth import (
     EmailChangeRequestCreate,
     EmailChangeVerifyRequest,
     OtpDevPeekRead,
+    OtpLinkVerifyRequest,
     OtpRequestAccepted,
     OtpRequestCreate,
     OtpVerifyRequest,
@@ -106,24 +107,16 @@ def request_otp(
     return OtpRequestAccepted()
 
 
-@router.post("/otp/verify", response_model=TokenRead)
-def verify_otp(
-    payload: OtpVerifyRequest,
-    request: Request,
-    response: Response,
-    db: Session = Depends(get_db),
-    token_in_body: bool = Depends(wants_token_in_body),
-):
-    if not otp_codes.consume_code(db, payload.email, OTP_PURPOSE_LOGIN, payload.code):
-        raise _invalid_code()
-    if blocklist.is_email_blocked(request.app, db, payload.email):
+def _sign_in(request: Request, response: Response, db: Session, email: str, token_in_body: bool) -> TokenRead:
+    """Open a session for `email`, whose code or link was just redeemed; create the account on first login."""
+    if blocklist.is_email_blocked(request.app, db, email):
         # A code requested before the block (ADR-0045) must not still open a session. Same
         # answer as a wrong code, so the caller learns nothing about the block.
         raise _invalid_code()
 
-    user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
+    user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if user is None:
-        user = User(email=payload.email)
+        user = User(email=email)
         db.add(user)
         try:
             db.commit()
@@ -132,7 +125,7 @@ def verify_otp(
             # between our lookup and this insert — use that one; it already
             # got its own signup bonus from that request.
             db.rollback()
-            user = db.execute(select(User).where(User.email == payload.email)).scalar_one()
+            user = db.execute(select(User).where(User.email == email)).scalar_one()
         else:
             # ADR-0043: a few free tokens so a new account can try the AI check, deliberately
             # too few to make re-registering worth it instead of buying more.
@@ -152,6 +145,36 @@ def verify_otp(
     return TokenRead(access_token=access_token if token_in_body else None)
 
 
+@router.post("/otp/verify", response_model=TokenRead)
+def verify_otp(
+    payload: OtpVerifyRequest,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    token_in_body: bool = Depends(wants_token_in_body),
+):
+    if not otp_codes.consume_code(db, payload.email, OTP_PURPOSE_LOGIN, payload.code):
+        raise _invalid_code()
+    return _sign_in(request, response, db, payload.email, token_in_body)
+
+
+@router.post("/otp/verify-link", response_model=TokenRead)
+def verify_login_link(
+    payload: OtpLinkVerifyRequest,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    token_in_body: bool = Depends(wants_token_in_body),
+):
+    # The login link in the code email (ADR-0064). A POST the learner triggers with a click on
+    # /login/link, never the link's own GET: mail scanners open links to check them, and would
+    # otherwise use them up before the learner gets there.
+    email = otp_codes.consume_link_token(db, payload.token)
+    if email is None:
+        raise _invalid_code()
+    return _sign_in(request, response, db, email, token_in_body)
+
+
 @router.get("/otp/_dev-peek", response_model=OtpDevPeekRead, include_in_schema=False)
 def dev_peek_otp_code(email: str, request: Request):
     # Lets an external integration-test run (Postman/Newman against a real
@@ -163,10 +186,11 @@ def dev_peek_otp_code(email: str, request: Request):
     # endpoints (see _docs_kwargs in app/main.py). See ADR-0011.
     if not settings.exposes_dev_tooling:
         raise _not_found()
-    code = otp_codes.dev_otp_codes(request.app).get(canonicalize_email(email))
-    if code is None:
+    issued = otp_codes.dev_otp_codes(request.app).get(canonicalize_email(email))
+    if issued is None:
         raise _not_found()
-    return OtpDevPeekRead(code=code)
+    code, link_token = issued
+    return OtpDevPeekRead(code=code, link_token=link_token)
 
 
 @router.get("/me", response_model=UserRead)

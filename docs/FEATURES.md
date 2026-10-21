@@ -16,7 +16,7 @@ What sets it apart from simply paging through the catalog:
 
 ## Access and account
 
-- **Sign-in with an email address and a one-time code only.** There is no password. Without signing in there is no progress; with it, progress is the same on every device.
+- **Sign-in with an email address and a one-time code only.** There is no password. The email also carries a sign-in button: one click on the page it opens, and the learner is in, in that browser. Without signing in there is no progress; with it, progress is the same on every device.
 - **After signing in, the learner is back where they started**: on the page that asked for the login (the pricing page, a Kartenaufgabe, a link to an exam), otherwise in the learning area. If a session runs out while a page is open, the page says so ("Deine Sitzung ist abgelaufen") instead of quietly turning into the guest view.
 - **Without signing in**, "Lernen nach Thema" is open: every topic of the catalog (both Seemannschaft variants), each question with the official answer. Guests write their answer, reveal the official one, grade themselves and get the round's summary, but nothing is saved: no Lernstand, nothing sent. Fokus, Auffrischen, the Probeprüfung and the Lotsen-Check need an account.
 - **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.

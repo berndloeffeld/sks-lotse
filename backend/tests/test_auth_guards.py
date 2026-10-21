@@ -16,6 +16,7 @@ from app.main import app
 PUBLIC = {
     ("POST", "/api/v1/auth/otp/request"),
     ("POST", "/api/v1/auth/otp/verify"),
+    ("POST", "/api/v1/auth/otp/verify-link"),
     ("GET", "/api/v1/pricing"),
     # Stripe's event callback — authenticated by its Stripe-Signature header instead (ADR-0048).
     ("POST", "/api/v1/payments/webhook"),
