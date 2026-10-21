@@ -37,7 +37,7 @@ describe('TopicQuestionList', () => {
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(2)
     expect(container.querySelector('#frage-29')).toHaveTextContent('Nr. 29')
-    const details = container.querySelectorAll('li > details')
+    const details = container.querySelectorAll<HTMLDetailsElement>('li > details')
     expect([...details].every((d) => !d.open)).toBe(true)
     // In the HTML (for search engines), though hidden until opened.
     expect(container).toHaveTextContent('In der Karte 1.')

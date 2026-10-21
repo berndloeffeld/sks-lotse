@@ -8007,7 +8007,7 @@
                   "var questions = pm.response.json();",
                   "pm.test('without a term, returns the whole catalog', function () {",
                   "    pm.expect(questions.length).to.be.above(0);",
-                  "    pm.expect(questions[0]).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'question_images', 'answer_images', 'topic');",
+                  "    pm.expect(questions[0]).to.have.all.keys('id', 'subject', 'number', 'question_text', 'answer_text', 'question_images', 'answer_images', 'topic', 'derivation');",
                   "});",
                   "pm.collectionVariables.set('adminSearchQuestionNumber', questions[0].number);",
                   "pm.collectionVariables.set('adminSearchQuestionSubject', questions[0].subject);",
