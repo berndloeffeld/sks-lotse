@@ -21,6 +21,7 @@ const CATALOG: CatalogExport = {
       answer_text: 'A',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
     {
       subject: 'navigation',
@@ -30,6 +31,7 @@ const CATALOG: CatalogExport = {
       answer_text: 'A',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
     {
       subject: 'wetterkunde',
@@ -39,6 +41,7 @@ const CATALOG: CatalogExport = {
       answer_text: 'A',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
   ],
 }

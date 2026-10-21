@@ -7,6 +7,8 @@ from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.user import User
+from app.schemas.derivation import DerivationBlock
+from app.services import exam as exam_service
 from tests.helpers import fixture_user, make_admin
 
 _POOL = {
@@ -175,6 +177,18 @@ def test_official_answers_hidden_until_submit(client, db_session, auth_headers):
     assert all(q["official_answer"].startswith("Amtliche Antwort") for q in submitted["questions"])
     # No tips anywhere in the exam payload (ADR-0029).
     assert not any("tip" in key for q in submitted["questions"] for key in q)
+
+
+def test_derivations_hidden_until_submit(client, db_session, auth_headers, monkeypatch):
+    # SKS Lotse's own derivation (ADR-0065) is withheld exactly like the official answer.
+    block = DerivationBlock(text="Herleitung")
+    monkeypatch.setattr(exam_service, "derivation_for", lambda subject, number: [block])
+    _seed(db_session)
+    exam = _start(client, auth_headers)
+    assert all(q["derivation"] == [] for q in exam["questions"])
+
+    submitted = _answer_and_submit(client, auth_headers, exam)
+    assert all(q["derivation"] == [{"text": "Herleitung", "table": None}] for q in submitted["questions"])
 
 
 def test_answers_are_saved_and_rejected_after_submit(client, db_session, auth_headers):

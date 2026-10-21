@@ -64,6 +64,7 @@ def test_orders_like_the_api_and_keeps_only_placed_content():
         "answer_text": "",
         "question_images": [{"src": "bild.png", "width": 10, "height": 20}],
         "answer_images": [],
+        "derivation": [],
     }
     assert export["questions"][2]["answer_images"] == [{"src": "bild.png", "width": 10, "height": 20}]
 

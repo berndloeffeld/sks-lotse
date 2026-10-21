@@ -17,6 +17,7 @@ export function examQuestion(position: number, overrides: Partial<ExamQuestion> 
     answer_text: null,
     official_answer: null,
     official_answer_images: [],
+    derivation: [],
     outcome: null,
     points: null,
     ...overrides,

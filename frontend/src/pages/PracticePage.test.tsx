@@ -26,6 +26,7 @@ function question(id: number, number: number): Question {
     answer_text: `Antwort ${number}.`,
     question_images: [],
     answer_images: [],
+    derivation: [],
     topic: 'ankern',
   }
 }
@@ -513,6 +514,7 @@ describe('PracticePage without a login', () => {
         answer_text: `Antwort ${number}.`,
         question_images: [],
         answer_images: [],
+        derivation: [],
         topic: 'ankern',
       })),
     })

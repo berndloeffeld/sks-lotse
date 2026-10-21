@@ -94,7 +94,11 @@ export function ExamResultView({ exam }: { exam: Exam }) {
               <div className="mt-3 flex flex-col gap-3 pl-4">
                 <QuestionImages images={q.question_images} part="question" />
                 <OwnAnswer text={q.answer_text} />
-                <OfficialAnswerBox text={q.official_answer} images={q.official_answer_images} />
+                <OfficialAnswerBox
+                  text={q.official_answer}
+                  images={q.official_answer_images}
+                  derivation={q.derivation}
+                />
               </div>
             </details>
           ))}

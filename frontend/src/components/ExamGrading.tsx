@@ -43,7 +43,12 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
       </p>
       <QuestionImages images={question.question_images} part="question" />
       <OwnAnswer text={question.answer_text} headingLevel={2} />
-      <OfficialAnswerBox text={question.official_answer} images={question.official_answer_images} headingLevel={2} />
+      <OfficialAnswerBox
+        text={question.official_answer}
+        images={question.official_answer_images}
+        derivation={question.derivation}
+        headingLevel={2}
+      />
       <SelfAssessment
         key={question.position}
         name="exam-outcome"

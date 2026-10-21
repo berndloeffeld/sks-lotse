@@ -1,0 +1,23 @@
+# SKS Lotse's own derivations for catalog questions (ADR-0065) — not official, shown as "nicht amtlich".
+# One entry per question, keyed by subject and number. Each leads only to the official answer, in plain
+# words and as few steps as possible; **bold** marks an intermediate result. Written or reviewed by hand.
+# answer_fingerprint: catalog_derivations.fingerprint() of the official answer it was written against;
+# when tests/test_catalog_derivations.py reports a mismatch, check the derivation against the new answer,
+# then update the fingerprint.
+- subject: schifffahrtsrecht
+  number: 79
+  answer_fingerprint: d0c3b3be6507
+  blocks:
+  - text: Die Tonnen der Elbe sind von See her stromaufwärts gezählt. Elbabwärts fährt man **gegen die Betonnungsrichtung**.
+  - text: Gegen die Betonnungsrichtung liegt die Backbordseite des Fahrwassers an Steuerbord. Die Tonne ist also eine
+      **Backbordfahrwassertonne** – passend zur geraden Nummer.
+  - text: 32a ist zwischen 32 und 34 eingeschoben. Elbabwärts werden die Nummern kleiner, die nächste Tonne ist **32**.
+- subject: wetterkunde
+  number: 25
+  answer_fingerprint: 8d50276313e2
+  blocks:
+  - text: Die **Reibung am Boden** bremst den Wind.
+  - text: Die Ablenkung nach rechts durch die Erddrehung ist umso stärker, je schneller der Wind ist. Gebremster Wind
+      wird daher **weniger nach rechts abgelenkt**.
+  - text: Der Zug zum Tief hin überwiegt, und der Wind **dreht zum Tief hin**.
+  - text: Deshalb weht er schräg über die Isobaren, gegen den Uhrzeigersinn gedreht – er ist **rückgedreht**.

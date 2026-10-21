@@ -46,6 +46,8 @@ import yaml
 from sqlalchemy.engine import Connection, Row
 from sqlalchemy.orm import Session
 
+from app.services.catalog_derivations import derivation_for
+
 _BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 PDF_PATH = _BACKEND_DIR.parent / "docs" / "Fragenkatalog-SKS.pdf"
 DATA_DIR = _BACKEND_DIR / "scripts" / "data"
@@ -458,6 +460,9 @@ def catalog_export(questions: Sequence[CatalogQuestion], topics: Mapping[str, li
                 "answer_text": q.answer_text,
                 "question_images": [dataclasses.asdict(image) for image in q.question_images],
                 "answer_images": [dataclasses.asdict(image) for image in q.answer_images],
+                "derivation": [
+                    block.model_dump(mode="json") for block in derivation_for(q.subject, q.number)
+                ],
             }
             for q in placed
         ],

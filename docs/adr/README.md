@@ -68,3 +68,4 @@ One file per decision, numbered in order ([ADR-0001](0001-use-architecture-decis
 | [0062](0062-tables-in-chart-exercise-answers.md) | A table in a Kartenaufgabe's answer, stored as pipe rows in the plain text | Accepted — amends [ADR-0052](0052-chart-exercises-from-reviewed-yaml.md) (what a task's `answer_text` holds) and [ADR-0058](0058-lotsen-check-for-chart-exercises.md) (the check reads those rows). |
 | [0063](0063-chart-task-original-beside-the-form.md) | Kartenaufgaben: the official task and solution shown as cuts of the PDF beside the Formblatt | Accepted — amends [ADR-0053](0053-chart-solutions-transcribed-as-text.md). |
 | [0064](0064-login-link-in-the-code-email.md) | A login link in the code email, redeemed by a click | Accepted |
+| [0065](0065-own-derivations-for-catalog-questions.md) | Own derivations for catalog questions, from a reviewed YAML, marked as not official | Accepted |

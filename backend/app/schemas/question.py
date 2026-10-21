@@ -2,6 +2,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
+from app.schemas.derivation import DerivationBlock
+
 
 class QuestionImage(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -22,6 +24,8 @@ class QuestionRead(BaseModel):
     question_images: list[QuestionImage]
     answer_images: list[QuestionImage]
     topic: str | None = None
+    # SKS Lotse's own derivation, not official (ADR-0065); empty for most questions.
+    derivation: list[DerivationBlock] = []
 
     @field_validator("topic", mode="before")
     @classmethod

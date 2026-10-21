@@ -295,7 +295,11 @@ export function PracticeRun({
       ) : (
         <>
           {note.trim() ? <OwnAnswer text={note} /> : null}
-          <OfficialAnswerBox text={question.answer_text} images={question.answer_images} />
+          <OfficialAnswerBox
+            text={question.answer_text}
+            images={question.answer_images}
+            derivation={question.derivation}
+          />
 
           {guest ? (
             <>

@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.derivation import DerivationBlock
+
 # Generous for a chart-task answer (a few values and a sentence), but bounds what one request stores.
 ANSWER_MAX_LENGTH = 5_000
 
@@ -32,21 +34,6 @@ class ChartSolutionPart(BaseModel):
     image: ChartImage | None = None
 
 
-class ChartTableRow(BaseModel):
-    cells: list[str]
-    # Ruled off above, like a sum in the PDF's calculation tables — across the whole row, or only its
-    # first `sum_until` cells when the line covers just one column (a value given, the other summed).
-    sum: bool = False
-    sum_until: int | None = None
-
-
-class ChartDerivationBlock(BaseModel):
-    """A paragraph or a table of the working; **bold** marks what the PDF prints bold."""
-
-    text: str | None = None
-    table: list[ChartTableRow] | None = None
-
-
 class ChartTask(BaseModel):
     """One task of an exercise as committed in app/data/chart_exercises.yaml."""
 
@@ -62,7 +49,7 @@ class ChartTask(BaseModel):
     # The official solution's results (what scores), and the working that leads to them — tide tables,
     # the stream diamond read off, the course conversion, ... — which the app shows only on request.
     solution: list[ChartSolutionPart]
-    derivation: list[ChartDerivationBlock] = []
+    derivation: list[DerivationBlock] = []
 
 
 class ChartExercise(BaseModel):
@@ -122,7 +109,7 @@ class ChartAttemptTaskRead(BaseModel):
     answer_text: str | None
     # Both withheld until the task is answered, so the solution can't be read ahead.
     solution: list[ChartSolutionPart]
-    derivation: list[ChartDerivationBlock]
+    derivation: list[DerivationBlock]
     points_awarded: int | None
     # Whether the Lotsen-Check can look at this task at all: not when a drawing scores (ADR-0058).
     ai_checkable: bool

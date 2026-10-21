@@ -1,10 +1,4 @@
-import type {
-  ChartDerivationBlock,
-  ChartExercisesOverview,
-  ChartImage,
-  ChartQuestion,
-  ChartSolutionPart,
-} from './api/types'
+import type { DerivationBlock, ChartExercisesOverview, ChartImage, ChartQuestion, ChartSolutionPart } from './api/types'
 import { parseChartFlag } from './chartFlag'
 import { UPCOMING_CHART_SHEETS, type UpcomingChartSheet } from './data/upcomingChartSheets'
 import { createLazyExport } from './lazyExport'
@@ -22,7 +16,7 @@ export interface ChartSheetTask {
   task_images: ChartImage[]
   solution_images: ChartImage[]
   solution: ChartSolutionPart[]
-  derivation: ChartDerivationBlock[]
+  derivation: DerivationBlock[]
 }
 
 export interface ChartSheet {

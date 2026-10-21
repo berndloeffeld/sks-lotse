@@ -114,7 +114,12 @@ export function AdminQuestionsPage() {
                   <RichText text={question.question_text} />
                 </p>
                 <QuestionImages images={question.question_images} part="question" />
-                <OfficialAnswerBox text={question.answer_text} images={question.answer_images} headingLevel={2} />
+                <OfficialAnswerBox
+                  text={question.answer_text}
+                  images={question.answer_images}
+                  derivation={question.derivation}
+                  headingLevel={2}
+                />
                 <AdminQuestionHistory questionId={question.id} />
               </li>
             ))}

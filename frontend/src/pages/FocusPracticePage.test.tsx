@@ -17,6 +17,7 @@ function question(id: number, number: number, subject: string, topic: string): Q
     answer_text: `Antwort ${number}.`,
     question_images: [],
     answer_images: [],
+    derivation: [],
     topic,
   }
 }

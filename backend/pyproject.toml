@@ -67,6 +67,7 @@ only_mutate = [
     "app/services/admin_mfa.py",
     "app/services/payments.py",
     "app/services/chart_exercises.py",
+    "app/services/catalog_derivations.py",
     "app/api/v1/exams.py",
     "app/api/v1/chart_exercises.py",
     "app/api/v1/progress.py",
