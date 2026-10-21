@@ -2,10 +2,12 @@ const UMAMI_SCRIPT_SRC = 'https://cloud.umami.is/script.js'
 
 // Not on the admin tools: third-party JavaScript runs with the page's rights, and an operator
 // session there can export and delete accounts.
+// Nor where the login link lands (/login/link, ADR-0064): its token sits in the URL's fragment
+// until the page clears it, and a pageview recorded before that must not carry it off.
 // /pricing keeps it on purpose: that is where the purchase funnel is measured, the payment itself
 // happens on Stripe's page, and Umami sets no cookie and sees no form content.
 export function wantsAnalytics(pathname: string) {
-  return !/^\/admin(\/|$)/.test(pathname)
+  return !/^\/admin(\/|$)/.test(pathname) && pathname !== '/login/link'
 }
 
 const UMAMI_SCRIPT_SELECTOR = 'script[data-website-id]'

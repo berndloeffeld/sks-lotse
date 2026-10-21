@@ -33,16 +33,17 @@ export function PrivacyPage() {
         <p>
           Funktionen, die Daten speichern oder Leistungen auslösen (Lernfortschritt, Probeprüfung, Lotsen-Check, Käufe),
           setzen ein Konto voraus; was auch ohne Konto offen ist, steht unter „Lernfortschritt und Profil“. Bei der
-          Anmeldung per E-Mail und Login-Code (OTP) verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code. Der
-          Code ist nur wenige Minuten gültig; der Datensatz (E-Mail-Adresse und Prüfsumme des Codes) wird in der Regel
-          binnen 24 Stunden nach Ablauf automatisch gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie
-          (JWT) in Ihrem Browser gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch
-          JavaScript) und Sie bis zur Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6
-          Abs. 1 lit. b DSGVO (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer
-          sicheren Anmeldung). Für den Versand der Login-Codes, der Kaufbestätigung und – nach einer Änderung der
-          E-Mail-Adresse – eines Hinweises an die bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der
-          dabei in unserem Auftrag tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten
-          Anmeldung sowie, welcher Version unserer{' '}
+          Anmeldung per E-Mail und Login-Code (OTP) verarbeiten wir Ihre E-Mail-Adresse sowie den generierten Code und
+          den gleichwertigen Anmeldelink aus derselben E-Mail. Code und Link sind nur wenige Minuten und nur einmal
+          gültig; der Datensatz (E-Mail-Adresse und Prüfsummen von Code und Link) wird in der Regel binnen 24 Stunden
+          nach Ablauf automatisch gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie (JWT) in Ihrem Browser
+          gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch JavaScript) und Sie bis zur
+          Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
+          (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für
+          den Versand der Login-Codes, der Kaufbestätigung und – nach einer Änderung der E-Mail-Adresse – eines
+          Hinweises an die bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag
+          tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
+          unserer{' '}
           <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}
@@ -243,7 +244,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 14. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 21. Oktober 2026</p>
     </PageLayout>
   )
 }

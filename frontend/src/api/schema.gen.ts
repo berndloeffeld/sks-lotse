@@ -887,6 +887,11 @@ export interface components {
             /** Revenue Cents 7D */
             revenue_cents_7d: number;
         };
+        /** OtpLinkVerifyRequest */
+        OtpLinkVerifyRequest: {
+            /** Token */
+            token: string;
+        };
         /** OtpRequestAccepted */
         OtpRequestAccepted: {
             /**
