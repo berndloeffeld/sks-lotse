@@ -27,6 +27,7 @@ const EXPORT: CatalogExport = {
       answer_text: 'A7',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
     {
       subject: 'navigation',
@@ -36,6 +37,7 @@ const EXPORT: CatalogExport = {
       answer_text: 'A9',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
     {
       subject: 'wetterkunde',
@@ -45,6 +47,7 @@ const EXPORT: CatalogExport = {
       answer_text: 'B7',
       question_images: [],
       answer_images: [],
+      derivation: [],
     },
   ],
 }

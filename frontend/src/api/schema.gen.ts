@@ -511,22 +511,12 @@ export interface components {
             /** Solution */
             solution: components["schemas"]["ChartSolutionPart"][];
             /** Derivation */
-            derivation: components["schemas"]["ChartDerivationBlock"][];
+            derivation: components["schemas"]["DerivationBlock"][];
             /** Points Awarded */
             points_awarded: number | null;
             /** Ai Checkable */
             ai_checkable: boolean;
             ai_suggestion: components["schemas"]["ChartAiSuggestion"] | null;
-        };
-        /**
-         * ChartDerivationBlock
-         * @description A paragraph or a table of the working; **bold** marks what the PDF prints bold.
-         */
-        ChartDerivationBlock: {
-            /** Text */
-            text?: string | null;
-            /** Table */
-            table?: components["schemas"]["ChartTableRow"][] | null;
         };
         /** ChartExerciseSummary */
         ChartExerciseSummary: {
@@ -597,18 +587,6 @@ export interface components {
             results: components["schemas"]["ChartResult"][];
             image?: components["schemas"]["ChartImage"] | null;
         };
-        /** ChartTableRow */
-        ChartTableRow: {
-            /** Cells */
-            cells: string[];
-            /**
-             * Sum
-             * @default false
-             */
-            sum: boolean;
-            /** Sum Until */
-            sum_until?: number | null;
-        };
         /**
          * CheckoutRead
          * @description The Stripe-hosted payment page to send the browser to.
@@ -653,6 +631,28 @@ export interface components {
             purchases: number;
             /** Revenue Cents */
             revenue_cents: number;
+        };
+        /**
+         * DerivationBlock
+         * @description A paragraph or a table of the working; **bold** marks an intermediate result.
+         */
+        DerivationBlock: {
+            /** Text */
+            text?: string | null;
+            /** Table */
+            table?: components["schemas"]["DerivationTableRow"][] | null;
+        };
+        /** DerivationTableRow */
+        DerivationTableRow: {
+            /** Cells */
+            cells: string[];
+            /**
+             * Sum
+             * @default false
+             */
+            sum: boolean;
+            /** Sum Until */
+            sum_until?: number | null;
         };
         /** EmailChangeRequestCreate */
         EmailChangeRequestCreate: {
@@ -734,6 +734,8 @@ export interface components {
             official_answer: string | null;
             /** Official Answer Images */
             official_answer_images: components["schemas"]["QuestionImage"][];
+            /** Derivation */
+            derivation: components["schemas"]["DerivationBlock"][];
             /** Outcome */
             outcome: string | null;
             /** Points */
@@ -986,6 +988,11 @@ export interface components {
             answer_images: components["schemas"]["QuestionImage"][];
             /** Topic */
             topic?: string | null;
+            /**
+             * Derivation
+             * @default []
+             */
+            derivation: components["schemas"]["DerivationBlock"][];
         };
         /** QuestionReportCreate */
         QuestionReportCreate: {

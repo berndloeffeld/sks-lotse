@@ -14,6 +14,7 @@ const anchorQuestion = {
   question_images: [],
   answer_images: [{ src: 'anker.png', width: 300, height: 200 }],
   topic: 'ankern',
+  derivation: [],
 }
 
 function stubFetch(respond: (params: URLSearchParams) => Response, topics: unknown[] = []) {

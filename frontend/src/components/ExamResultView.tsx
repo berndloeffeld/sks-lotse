@@ -7,6 +7,7 @@ import { formatDateTime, percentOf } from '../format'
 import { EXAM_RESULT_LABELS, OUTCOME_LABELS, SUBJECT_GROUP_LABELS, VARIANT_LABELS } from '../labels'
 import type { ExamVariant } from '../api/types'
 import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
+import { CatalogDerivation } from './Derivation'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
@@ -95,6 +96,7 @@ export function ExamResultView({ exam }: { exam: Exam }) {
                 <QuestionImages images={q.question_images} part="question" />
                 <OwnAnswer text={q.answer_text} />
                 <OfficialAnswerBox text={q.official_answer} images={q.official_answer_images} />
+                <CatalogDerivation blocks={q.derivation} />
               </div>
             </details>
           ))}

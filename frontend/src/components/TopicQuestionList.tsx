@@ -1,5 +1,6 @@
 import type { Question } from '../api/types'
 import { OfficialAnswerBox } from './AnswerBox'
+import { CatalogDerivation } from './Derivation'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 import { sectionHeading } from './headingStyles'
@@ -29,6 +30,7 @@ export function TopicQuestionList({ questions }: { questions: Question[] }) {
               <div className="mt-3 flex flex-col gap-2 pl-12">
                 <QuestionImages images={question.question_images} part="question" />
                 <OfficialAnswerBox text={question.answer_text} images={question.answer_images} />
+                <CatalogDerivation blocks={question.derivation} />
               </div>
             </details>
           </li>

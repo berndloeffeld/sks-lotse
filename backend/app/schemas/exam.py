@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.derivation import DerivationBlock
 from app.schemas.progress import GradingOutcomeField
 from app.schemas.question import QuestionImage
 
@@ -31,6 +32,8 @@ class ExamQuestionRead(BaseModel):
     # Withheld until the exam is submitted, so it can't leak during the exam.
     official_answer: str | None
     official_answer_images: list[QuestionImage]
+    # SKS Lotse's own, not official (ADR-0065); withheld like the official answer.
+    derivation: list[DerivationBlock]
     outcome: str | None
     points: int | None
 

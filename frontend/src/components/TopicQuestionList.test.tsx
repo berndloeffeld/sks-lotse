@@ -15,6 +15,7 @@ const QUESTIONS: Question[] = [
     answer_text: 'In der Karte 1.',
     question_images: [{ src: 'frage.png', width: 300, height: 100 }],
     answer_images: [],
+    derivation: [{ text: 'Die Symbole stehen in **Karte 1**.' }],
   },
   {
     id: 2,
@@ -25,6 +26,7 @@ const QUESTIONS: Question[] = [
     answer_text: '',
     question_images: [],
     answer_images: [{ src: 'skizze.png', width: 300, height: 100 }],
+    derivation: [],
   },
 ]
 
@@ -35,10 +37,12 @@ describe('TopicQuestionList', () => {
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(2)
     expect(container.querySelector('#frage-29')).toHaveTextContent('Nr. 29')
-    const details = container.querySelectorAll('details')
+    const details = container.querySelectorAll('li > details')
     expect([...details].every((d) => !d.open)).toBe(true)
     // In the HTML (for search engines), though hidden until opened.
     expect(container).toHaveTextContent('In der Karte 1.')
+    // Only the question with a derivation gets the not-official box (ADR-0065).
+    expect(screen.getAllByRole('heading', { name: 'Herleitung · nicht amtlich' })).toHaveLength(1)
 
     await userEvent.click(screen.getByText('Wo sind die Symbole erklärt?'))
     expect(details[0].open).toBe(true)

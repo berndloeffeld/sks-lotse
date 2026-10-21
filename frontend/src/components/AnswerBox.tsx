@@ -7,10 +7,12 @@ import { OfficialAnswer } from './OfficialAnswer'
 // The comparison "deine vs. amtliche Antwort", alike wherever it is shown: practice, the topic's
 // question list, the exam's grading and result, the Kartenaufgaben and the admin question search.
 // The learner's answer is set back (ink-soft rule on surface), the official one stands out (primary
-// rule on surface-alt).
+// rule on surface-alt). SKS Lotse's own derivation of a catalog answer (ADR-0065) is a note beside
+// them, never official-looking: a dashed ink-soft rule.
 const VARIANT = {
   own: 'border-ink-soft bg-surface',
   official: 'border-primary bg-surface-alt',
+  note: 'border-dashed border-ink-soft bg-surface',
 }
 
 interface AnswerBoxProps {

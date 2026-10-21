@@ -316,6 +316,7 @@ describe('LearnPage without a login', () => {
       answer_text: 'A',
       question_images: [],
       answer_images: [],
+      derivation: [],
     })
     primeCatalog({
       topics: [

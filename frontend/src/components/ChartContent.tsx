@@ -1,8 +1,9 @@
 import { useState } from 'react'
 
-import type { ChartAttemptTask, ChartDerivationBlock, ChartImage, ChartSolutionPart } from '../api/types'
+import type { ChartAttemptTask, ChartImage, ChartSolutionPart } from '../api/types'
 import { pointsLabel } from '../chartPoints'
 import { AnswerBox } from './AnswerBox'
+import { DerivationText } from './Derivation'
 import { ImageLightbox } from './ImageLightbox'
 import { RichText } from './RichText'
 
@@ -64,23 +65,6 @@ export function ChartTaskText({ task }: { task: ChartAttemptTask }) {
   )
 }
 
-/** Transcribed text where **…** marks what the PDF prints bold. */
-function ChartText({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/\*\*(.+?)\*\*/).map((part, i) =>
-        i % 2 === 1 ? (
-          <strong key={i} className="font-semibold">
-            <RichText text={part} />
-          </strong>
-        ) : (
-          <RichText key={i} text={part} />
-        ),
-      )}
-    </>
-  )
-}
-
 function SolutionResults({ part }: { part: ChartSolutionPart }) {
   return (
     <div className="flex flex-col gap-1">
@@ -113,50 +97,6 @@ function SolutionText({ parts }: { parts: ChartSolutionPart[] }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-function DerivationBlock({ block }: { block: ChartDerivationBlock }) {
-  if (!block.table) {
-    return (
-      <p>
-        <ChartText text={block.text ?? ''} />
-      </p>
-    )
-  }
-  return (
-    <div className="overflow-x-auto">
-      <table className="border-collapse">
-        <tbody>
-          {block.table.map((row, r) => (
-            <tr key={r}>
-              {row.cells.map((cell, c) => (
-                <td
-                  key={c}
-                  className={[
-                    'py-0.5 pr-3',
-                    c === 0 ? '' : 'text-right whitespace-nowrap',
-                    row.sum && c < (row.sum_until ?? row.cells.length) ? 'border-t border-ink' : '',
-                  ].join(' ')}
-                >
-                  <ChartText text={cell} />
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function DerivationText({ blocks }: { blocks: ChartDerivationBlock[] }) {
-  return (
-    <div className="flex flex-col gap-2 text-sm text-ink">
-      {blocks.map((block, i) => (
-        <DerivationBlock key={i} block={block} />
-      ))}
-    </div>
   )
 }
 

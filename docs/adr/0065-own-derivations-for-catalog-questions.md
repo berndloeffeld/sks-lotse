@@ -1,6 +1,6 @@
 # 0065. Own derivations for catalog questions, from a reviewed YAML, marked as not official
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 
@@ -16,9 +16,9 @@ The Kartenaufgaben already show a **derivation** under "Herleitung anzeigen" ([A
 
 - **Name and labeling.** The UI calls it "Herleitung" and labels it **"nicht amtlich"** every time it appears: the box heading reads "Herleitung · nicht amtlich", and a line under it says "Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort." It gets its own box variant (`AnswerBox` variant `note`, a dashed rule in `ink-soft`), never the `official` one. It sits below the official answer and is closed until the learner opens it (`<details>`, "Herleitung anzeigen").
 - **Content lives in a reviewed YAML, not in the database.** `backend/app/data/catalog_derivations.yaml` holds one entry per question, keyed by the natural key `subject` + `number`. Each entry has:
-  - `blocks`: the derivation, in the Kartenaufgaben format (`text` paragraphs and `table` rows, `**bold**` for intermediate results). `ChartDerivationBlock` and its frontend rendering move to a shared `DerivationBlock` / `DerivationText`.
-  - `references` (optional): the rules it rests on, e.g. "SeeSchStrO Anlage 1, IALA-Betonnungssystem A".
-  - `answer_fingerprint`: a short hash of the official `answer_text` the derivation was written against.
+  - `blocks`: the derivation, in the Kartenaufgaben format (`text` paragraphs and `table` rows, `**bold**` for intermediate results). `ChartDerivationBlock` and its frontend rendering move to a shared `DerivationBlock` (`app/schemas/derivation.py`) / `DerivationText` (`components/Derivation.tsx`).
+  - It leads only to the official answer, in plain words and as few steps as possible: no background the question doesn't ask for, nothing about any learner's answer.
+  - `answer_fingerprint`: a short hash of the official `answer_text` the derivation was written against (`catalog_derivations.fingerprint`, the first 12 hex digits of its SHA-256).
 
   The backend loads the file once per process, the way it loads the Kartenaufgaben (`app/services/catalog_derivations.py`). A correction is a commit. A human writes or reviews every entry. An LLM may propose a draft, but nothing goes in unreviewed.
 - **Tests guard the link to the catalog.** One test fails when a key matches no catalog question. Another fails when a fingerprint no longer matches the current `answer_text`, e.g. after a new catalog edition. The derivation is then checked again before the fingerprint is updated.

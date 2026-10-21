@@ -12,6 +12,7 @@ from app.core import cache
 from app.core.config import settings
 from app.models.question import Question
 from app.schemas.question import QuestionRead
+from app.services.catalog_derivations import derivation_for
 
 CATALOG_CACHE_KEY = "questions:catalog"
 _CATALOG_BY_ID_CACHE_KEY = "questions:catalog_by_id"
@@ -29,12 +30,18 @@ def catalog(request: Request, db: Session) -> list[QuestionRead]:
             questions,
             key=lambda q: (q.subject, q.topic.display_order if q.topic else _NO_TOPIC_ORDER, q.number),
         )
-        return [QuestionRead.model_validate(q) for q in questions]
+        return [question_read(q) for q in questions]
 
     # The catalog only ever changes via the catalog-seed data migrations (app/services/catalog_seed.py,
     # or backend/scripts/import_catalog.py locally), never through the API — this TTL just bounds how
     # long those changes take to show up without restarting the app, not a correctness requirement.
     return cache.get_or_set(request.app, CATALOG_CACHE_KEY, settings.catalog_cache_ttl_seconds, load)
+
+
+def question_read(question: Question) -> QuestionRead:
+    read = QuestionRead.model_validate(question)
+    read.derivation = derivation_for(question.subject, question.number)
+    return read
 
 
 def catalog_by_id(request: Request, db: Session) -> dict[int, QuestionRead]:

@@ -23,6 +23,7 @@ from app.models.question import Question
 from app.models.user import User
 from app.schemas.exam import ExamGroupScore, ExamQuestionRead, ExamRead, ExamStats, ExamStatsPoint
 from app.schemas.question import QuestionImage
+from app.services.catalog_derivations import derivation_for
 
 
 def now() -> datetime:
@@ -171,6 +172,7 @@ def read_exam(db: Session, attempt: ExamAttempt) -> ExamRead:
                     if source and revealed
                     else []
                 ),
+                derivation=derivation_for(source.subject, source.number) if source and revealed else [],
                 outcome=eq.outcome,
                 points=points(eq),
             )
