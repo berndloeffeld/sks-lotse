@@ -1,7 +1,7 @@
 """move Schifffahrtsrecht 77 and 78 to the KVR lights topic
 
 Revision ID: a4c9e2f7b1d3
-Revises: d3b7f1a96e20
+Revises: e4c2a7b91f35
 Create Date: 2026-10-21 12:00:00.000000
 
 Questions 77 (lights) and 78 (shapes) ask about a vessel dredging or doing
@@ -20,7 +20,7 @@ from app.services.catalog_seed import build_catalog, sync_catalog
 
 # revision identifiers, used by Alembic.
 revision: str = "a4c9e2f7b1d3"
-down_revision: str | None = "d3b7f1a96e20"
+down_revision: str | None = "e4c2a7b91f35"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
