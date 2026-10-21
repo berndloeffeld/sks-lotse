@@ -15,7 +15,14 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core import cache
 from app.core.config import settings
-from app.core.otp import generate_code, hash_code, verify_code
+from app.core.otp import (
+    OTP_PURPOSE_LOGIN,
+    generate_code,
+    generate_link_token,
+    hash_code,
+    hash_link_token,
+    verify_code,
+)
 from app.core.timeutil import as_utc
 from app.models import OtpCode
 from app.services import blocklist
@@ -24,9 +31,9 @@ from app.services import email as email_service
 logger = logging.getLogger(__name__)
 
 
-def dev_otp_codes(app) -> dict[str, str]:
-    # Plaintext codes only ever exist here — otp_codes.code_hash (see
-    # hash_code) is one-way, by design. Gated to settings.exposes_dev_tooling
+def dev_otp_codes(app) -> dict[str, tuple[str, str | None]]:
+    # Plaintext codes (and link tokens, None for an email change) only ever
+    # exist here — otp_codes.code_hash/link_hash are one-way, by design. Gated to settings.exposes_dev_tooling
     # and never populated at all outside it (see issue_code), so this doesn't add
     # a standing plaintext-code store to the deployed app.
     if not hasattr(app.state, "dev_otp_codes"):
@@ -59,17 +66,19 @@ def _mask_email(email: str) -> str:
     return f"{local[:1]}***@{domain}"
 
 
-def send_login_code(email: str, code: str) -> None:
+def send_login_code(email: str, code: str, link_token: str | None) -> None:
     # Runs as a background task: keeps Resend's latency out of the response,
     # which also narrows the timing difference between a real send and the
     # silent no-op paths in request_otp (allowlist, cooldown, ...).
     try:
-        email_service.send_otp_email(email, code)
+        email_service.send_otp_email(email, code, link_token)
     except Exception:
         logger.exception("Failed to send OTP email to %s", _mask_email(email))
 
 
-def send_email_change_code(email: str, code: str) -> None:
+def send_email_change_code(email: str, code: str, _link_token: str | None) -> None:
+    # Never gets a link (issue_code mints one for login codes only): confirming a new address
+    # needs the logged-in session, which a link opened elsewhere wouldn't have.
     try:
         email_service.send_email_change_otp_email(email, code)
     except Exception:
@@ -117,7 +126,7 @@ def issue_code(
     session_factory: sessionmaker[Session],
     email: str,
     purpose: str,
-    send: Callable[[str, str], None],
+    send: Callable[[str, str, str | None], None],
     user_id: int | None = None,
 ) -> None:
     """Store a fresh code for (email, purpose) and email it — unless throttled.
@@ -149,20 +158,22 @@ def issue_code(
         background_tasks.add_task(_cleanup_expired_codes, session_factory, now)
 
     code = generate_code()
+    link_token = generate_link_token() if purpose == OTP_PURPOSE_LOGIN else None
     otp = OtpCode(
         email=email,
         purpose=purpose,
         user_id=user_id,
         code_hash=hash_code(code),
+        link_hash=hash_link_token(link_token) if link_token is not None else None,
         expires_at=now + timedelta(minutes=settings.otp_ttl_minutes),
     )
     db.add(otp)
     db.commit()
 
     if settings.exposes_dev_tooling:
-        dev_otp_codes(request.app)[email] = code
+        dev_otp_codes(request.app)[email] = (code, link_token)
 
-    background_tasks.add_task(send, email, code)
+    background_tasks.add_task(send, email, code, link_token)
 
 
 def consume_code(db: Session, email: str, purpose: str, code: str, user_id: int | None = None) -> bool:
@@ -190,3 +201,24 @@ def consume_code(db: Session, email: str, purpose: str, code: str, user_id: int 
         otp.attempts += 1
     db.commit()
     return valid
+
+
+def consume_link_token(db: Session, token: str) -> str | None:
+    """The address to sign in (and the row marked used) if `token` is a live login link, else None.
+
+    The same rules as the code it was mailed with (it redeems the same row): only the latest login
+    code for that address counts, once, until it expires. Not otp.attempts, though: those protect
+    the 6-digit code from guessing, which a 256-bit token doesn't need — and an attacker who burns
+    them with wrong codes for the victim's address must not take the victim's link down with them.
+    """
+    stmt = select(OtpCode).where(OtpCode.link_hash == hash_link_token(token)).with_for_update()
+    otp = db.execute(stmt).scalars().first()
+    if otp is None or otp.purpose != OTP_PURPOSE_LOGIN:
+        return None
+    latest = _latest_code(db, otp.email, OTP_PURPOSE_LOGIN)
+    now = datetime.now(UTC)
+    if latest is None or latest.id != otp.id or otp.consumed_at is not None or as_utc(otp.expires_at) <= now:
+        return None
+    otp.consumed_at = now
+    db.commit()
+    return otp.email

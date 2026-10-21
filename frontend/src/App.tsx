@@ -15,6 +15,7 @@ import { MaintenancePage } from './pages/MaintenancePage'
 import { UnknownPathPage } from './pages/NotFoundPage'
 import { PracticePage } from './pages/PracticePage'
 import { LoginPage } from './pages/LoginPage'
+import { LoginLinkPage } from './pages/LoginLinkPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { AgbGate } from './routes/AgbGate'
@@ -109,6 +110,7 @@ export function AppRoutes() {
           <Route path="/exam-process" element={<ExamProcessPage />} />
           <Route path="/learning-method" element={<LearningMethodPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/login/link" element={<LoginLinkPage />} />
           {/* AgbGate only ever asks a logged-in learner; guests pass straight through. /pricing is
             in it so nobody buys before confirming the AGB in force (the API refuses it too, ADR-0041). */}
           <Route element={<AgbGate />}>

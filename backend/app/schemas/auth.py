@@ -81,6 +81,12 @@ class OtpVerifyRequest(BaseModel):
     code: DigitsCode
 
 
+class OtpLinkVerifyRequest(BaseModel):
+    # The token from the login link's fragment (generate_link_token, app/core/otp.py): 43
+    # URL-safe characters. Bounded like the code, so arbitrary input never reaches hashing.
+    token: Annotated[str, Field(min_length=43, max_length=43)]
+
+
 class EmailChangeRequestCreate(BaseModel):
     new_email: NormalizedEmail
 
@@ -99,6 +105,8 @@ class TokenRead(BaseModel):
 
 class OtpDevPeekRead(BaseModel):
     code: str
+    # The login link's token; None for an email-change code.
+    link_token: str | None
 
 
 class UserRead(BaseModel):

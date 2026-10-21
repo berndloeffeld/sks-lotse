@@ -16,23 +16,40 @@ def _send(to_email: str, subject: str, html: str, text: str) -> None:
     )
 
 
-def _send_code_email(to_email: str, subject: str, heading: str, intro: str, code: str) -> None:
+def _send_code_email(
+    to_email: str, subject: str, heading: str, intro: str, code: str, link_url: str | None = None
+) -> None:
     # German copy, like the rest of the app. A plain-text part alongside the
     # HTML one: some clients prefer it, and HTML-only mail scores worse with
     # spam filters.
     validity = f"Der Code ist {settings.otp_ttl_minutes} Minuten gültig."
     outro = "Falls du das nicht angefordert hast, kannst du diese E-Mail ignorieren."
+    base_url = settings.cors_allowed_origins[0]
+    text = f"{intro} {code}\n\n"
+    if link_url is not None:
+        text += f"{link_url}\n{_LINK_NOTE}\n\n"
     _send(
         to_email,
         subject,
-        html=_code_email_html(heading, intro, code, validity, outro, settings.cors_allowed_origins[0]),
-        text=f"{intro} {code}\n\n{validity}\n\n{outro}\n",
+        html=_code_email_html(heading, intro, code, validity, outro, base_url, link_url),
+        text=f"{text}{validity}\n\n{outro}\n",
     )
 
 
-def send_otp_email(to_email: str, code: str) -> None:
+_LINK_NOTE = "Der Link meldet dich in dem Browser an, in dem du ihn öffnest, und gilt nur einmal."
+
+
+def send_otp_email(to_email: str, code: str, link_token: str | None = None) -> None:
+    # The token goes into the fragment (ADR-0064): a browser never sends that part to a server, so
+    # it stays out of access logs, Referer headers and analytics.
+    link_url = None if link_token is None else f"{settings.cors_allowed_origins[0]}/login/link#t={link_token}"
     _send_code_email(
-        to_email, "Dein Anmeldecode für SKS Lotse", "Dein Anmeldecode", "Dein Anmeldecode lautet:", code
+        to_email,
+        "Dein Anmeldecode für SKS Lotse",
+        "Dein Anmeldecode",
+        "Dein Anmeldecode lautet:",
+        code,
+        link_url,
     )
 
 
@@ -145,7 +162,19 @@ def _notice_email_html(heading: str, intro: str, outro: str, base_url: str) -> s
     return _branded_layout(inner, base_url)
 
 
-def _code_email_html(heading: str, intro: str, code: str, validity: str, outro: str, base_url: str) -> str:
+def _login_link_html(link_url: str) -> str:
+    return (
+        f'<tr><td align="center" style="padding:0 24px 16px">'
+        f'<a href="{escape(link_url)}" style="display:inline-block;background:{_PRIMARY};color:#ffffff;'
+        f'padding:12px 24px;font-size:16px;text-decoration:none;border-radius:4px">Jetzt anmelden</a>'
+        f'<p style="margin:12px 0 0;font-size:13px;color:{_INK_SOFT}">{escape(_LINK_NOTE)}</p>'
+        f"</td></tr>"
+    )
+
+
+def _code_email_html(
+    heading: str, intro: str, code: str, validity: str, outro: str, base_url: str, link_url: str | None = None
+) -> str:
     inner = (
         f'<tr><td style="padding:28px 24px 8px">{_heading(heading)}'
         f'<p style="margin:0;font-size:15px;line-height:1.5;color:{_INK}">{escape(intro)}</p></td></tr>'
@@ -153,6 +182,7 @@ def _code_email_html(heading: str, intro: str, code: str, validity: str, outro: 
         f"border-left:4px solid {_PRIMARY};padding:16px 12px;font-family:'SFMono-Regular',Menlo,Consolas,"
         f'monospace;font-size:32px;letter-spacing:.3em;color:{_PRIMARY_DARK}">'
         f"<strong>{escape(code)}</strong></div></td></tr>"
+        f"{'' if link_url is None else _login_link_html(link_url)}"
         f'<tr><td style="padding:0 24px 24px"><p style="margin:0 0 8px;font-size:14px;color:{_INK}">'
         f'{escape(validity)}</p><p style="margin:0;font-size:13px;color:{_INK_SOFT}">{escape(outro)}</p>'
         f"</td></tr>"

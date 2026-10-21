@@ -29,6 +29,26 @@ def test_login_code_email_is_german_with_html_and_text_parts(sent):
         assert f"{origin}{path}" in params["html"]
 
 
+def test_login_code_email_carries_the_login_link_with_the_token_in_the_fragment(sent):
+    email_service.send_otp_email("learner@example.com", "123456", "tok_en-abc")
+
+    [params] = sent
+    url = f"{settings.cors_allowed_origins[0]}/login/link#t=tok_en-abc"
+    assert f'href="{url}"' in params["html"]
+    assert "Jetzt anmelden" in params["html"]
+    assert url in params["text"]
+    # The code stays in the mail: the link only helps in the browser it's opened in.
+    assert "<strong>123456</strong>" in params["html"]
+
+
+def test_login_code_email_without_a_token_has_no_link(sent):
+    email_service.send_otp_email("learner@example.com", "123456")
+
+    [params] = sent
+    assert "/login/link" not in params["html"]
+    assert "/login/link" not in params["text"]
+
+
 def test_every_mail_footer_links_the_legal_pages_in_readable_white(sent):
     email_service.send_otp_email("learner@example.com", "123456")
 
