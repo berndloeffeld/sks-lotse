@@ -42,7 +42,7 @@ describe('TopicQuestionList', () => {
     // In the HTML (for search engines), though hidden until opened.
     expect(container).toHaveTextContent('In der Karte 1.')
     // Only the question with a derivation gets the not-official box (ADR-0065).
-    expect(screen.getAllByRole('heading', { name: 'Herleitung · nicht amtlich' })).toHaveLength(1)
+    expect(screen.getAllByRole('heading', { name: 'Herleitung' })).toHaveLength(1)
 
     await userEvent.click(screen.getByText('Wo sind die Symbole erklärt?'))
     expect(details[0].open).toBe(true)

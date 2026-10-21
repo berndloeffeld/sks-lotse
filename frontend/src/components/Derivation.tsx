@@ -71,7 +71,7 @@ export function DerivationText({ blocks }: { blocks: DerivationBlock[] }) {
 export function CatalogDerivation({ blocks, headingLevel }: { blocks: DerivationBlock[]; headingLevel?: 2 | 3 }) {
   if (blocks.length === 0) return null
   return (
-    <AnswerBox variant="note" title="Herleitung · nicht amtlich" headingLevel={headingLevel}>
+    <AnswerBox variant="note" title="Herleitung" headingLevel={headingLevel}>
       <p className="text-xs text-ink-soft">
         Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort.
       </p>

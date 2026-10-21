@@ -29,7 +29,7 @@ The learning area has four tabs, with the overall progress above them: the three
 
 **Flow of a question:** read the question, formulate an answer in the scratchpad (it stays with the learner and is sent nowhere unless they trigger the AI check), reveal the model answer, grade oneself: *Richtig*, *Teilweise richtig* or *Falsch*. Questions with figures show the image. Chart notation (e.g. in navigation questions) is rendered legibly.
 
-**Herleitung (nicht amtlich):** for some questions whose official answer is only a result (so far Schifffahrtsrecht Nr. 79 and Wetterkunde Nr. 25), a short derivation written by SKS Lotse can be unfolded below the official answer: in practice, on the topic pages (also for guests), in the Probeprüfung once it is handed in, and in the admin question search. It is labelled "Herleitung · nicht amtlich" and says that the official answer is what counts; it is not given to the Lotsen-Check.
+**Herleitung (nicht amtlich):** for some questions whose official answer is only a result (so far Schifffahrtsrecht Nr. 79 and Wetterkunde Nr. 25), a short derivation written by SKS Lotse can be unfolded below the official answer: in practice, on the topic pages (also for guests), in the Probeprüfung once it is handed in, and in the admin question search. It is headed "Herleitung" with a line saying it was written by SKS Lotse, is not part of the official catalog, and that the official answer is what counts; it is not given to the Lotsen-Check.
 
 | Mode | Purpose | How |
 |---|---|---|

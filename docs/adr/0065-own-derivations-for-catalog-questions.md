@@ -14,7 +14,7 @@ The Kartenaufgaben already show a **derivation** under "Herleitung anzeigen" ([A
 
 ## Decision
 
-- **Name and labeling.** The UI calls it "Herleitung" and labels it **"nicht amtlich"** every time it appears: the box heading reads "Herleitung · nicht amtlich", and a line under it says "Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort." It gets its own box variant (`AnswerBox` variant `note`, a dashed rule in `ink-soft`), never the `official` one. It sits below the official answer and is closed until the learner opens it (`<details>`, "Herleitung anzeigen").
+- **Name and labeling.** The UI calls it "Herleitung" (the box heading) and marks it as **not official** every time it appears: a line under the heading says "Von SKS Lotse erstellt, nicht Teil des amtlichen Fragenkatalogs. Maßgeblich ist die amtliche Antwort." It gets its own box variant (`AnswerBox` variant `note`, a dashed rule in `ink-soft`), never the `official` one. It sits below the official answer and is closed until the learner opens it (`<details>`, "Herleitung anzeigen").
 - **Content lives in a reviewed YAML, not in the database.** `backend/app/data/catalog_derivations.yaml` holds one entry per question, keyed by the natural key `subject` + `number`. Each entry has:
   - `blocks`: the derivation, in the Kartenaufgaben format (`text` paragraphs and `table` rows, `**bold**` for intermediate results). `ChartDerivationBlock` and its frontend rendering move to a shared `DerivationBlock` (`app/schemas/derivation.py`) / `DerivationText` (`components/Derivation.tsx`).
   - It leads only to the official answer, in plain words and as few steps as possible: no background the question doesn't ask for, nothing about any learner's answer.

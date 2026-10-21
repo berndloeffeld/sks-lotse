@@ -13,7 +13,7 @@ describe('CatalogDerivation', () => {
   it('is marked as not official and stays shut until opened (ADR-0065)', async () => {
     render(<CatalogDerivation blocks={[{ text: 'Die **Reibung am Boden** bremst den Wind.' }]} headingLevel={2} />)
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Herleitung · nicht amtlich' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Herleitung' })).toBeInTheDocument()
     expect(screen.getByText(/Maßgeblich ist die amtliche Antwort\./)).toBeInTheDocument()
     expect(screen.getByRole('group')).not.toHaveAttribute('open')
 
