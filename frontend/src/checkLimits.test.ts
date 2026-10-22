@@ -4,17 +4,32 @@ import type { PublicPricing } from './api/types'
 import { DEFAULT_CHECK_LIMITS, checkLimitsSource, toCheckLimits } from './checkLimits'
 import { jsonResponse } from './test/fixtures'
 
-const PRICING = { catalog_check_tokens: 3, chart_check_tokens: 5, check_max_answer_chars: 400 } as PublicPricing
+const PRICING = {
+  catalog_check_tokens: 3,
+  chart_check_tokens: 5,
+  check_max_answer_chars: 400,
+  signup_bonus_tokens: 7,
+} as PublicPricing
 
 describe('checkLimits', () => {
   afterEach(() => checkLimitsSource.reset())
 
   it("shows today's numbers until the backend has answered", () => {
-    expect(DEFAULT_CHECK_LIMITS).toEqual({ catalogCheckTokens: 1, chartCheckTokens: 2, maxAnswerChars: 1000 })
+    expect(DEFAULT_CHECK_LIMITS).toEqual({
+      catalogCheckTokens: 1,
+      chartCheckTokens: 2,
+      maxAnswerChars: 1000,
+      signupBonusTokens: null,
+    })
   })
 
   it('maps the pricing answer to the limits the screens use', () => {
-    expect(toCheckLimits(PRICING)).toEqual({ catalogCheckTokens: 3, chartCheckTokens: 5, maxAnswerChars: 400 })
+    expect(toCheckLimits(PRICING)).toEqual({
+      catalogCheckTokens: 3,
+      chartCheckTokens: 5,
+      maxAnswerChars: 400,
+      signupBonusTokens: 7,
+    })
   })
 
   it('fetches /pricing once and keeps the answer', async () => {

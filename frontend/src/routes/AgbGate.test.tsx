@@ -42,11 +42,36 @@ describe('AgbGate', () => {
   })
 
   it('overlays a confirmation dialog when an older version was accepted', () => {
-    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true, agb_accepted_version: '2020-01-01' }) })
+    useAuthStore.setState({
+      user: makeUser({ needs_agb_acceptance: true, agb_accepted_version: '2020-01-01', token_balance: 10 }),
+    })
 
     renderGate()
 
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Aktualisierte Nutzungsbedingungen' })).toBeInTheDocument()
+    expect(screen.queryByText(/schenken wir dir/)).not.toBeInTheDocument()
+    expect(screen.getByText(/um SKS Lotse weiter zu nutzen/)).toBeInTheDocument()
+  })
+
+  it('welcomes a new account and names the tokens it was given', () => {
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true, token_balance: 10 }) })
+
+    renderGate()
+
+    expect(screen.getByRole('dialog', { name: 'Willkommen an Bord' })).toBeInTheDocument()
+    expect(screen.getByText(/Zum Start schenken wir dir 10 Tokens\./)).toBeInTheDocument()
+    expect(screen.getByText('10', { selector: 'span' })).toBeInTheDocument()
+    expect(screen.getByText(/um SKS Lotse zu nutzen/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ich akzeptiere die AGB' })).toBeInTheDocument()
+  })
+
+  it('welcomes a new account without a gift when the signup bonus is 0', () => {
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true, token_balance: 0 }) })
+
+    renderGate()
+
+    expect(screen.getByRole('dialog', { name: 'Willkommen an Bord' })).toBeInTheDocument()
+    expect(screen.queryByText(/schenken wir dir/)).not.toBeInTheDocument()
   })
 
   it('dismisses the dialog after confirming', async () => {
@@ -80,7 +105,7 @@ describe('AgbGate', () => {
 
   it('starts on its heading, makes the page inert and stays open on Escape — confirming is mandatory', async () => {
     const user = userEvent.setup()
-    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true }) })
+    useAuthStore.setState({ user: makeUser({ needs_agb_acceptance: true, agb_accepted_version: '2020-01-01' }) })
     const root = document.createElement('div')
     root.id = 'root'
     document.body.appendChild(root)

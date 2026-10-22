@@ -28,6 +28,7 @@ describe('LandingPage', () => {
     expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '/learn')
     expect(screen.getByRole('link', { name: 'Zum Lernen' })).toHaveAttribute('href', '/learn')
     expect(screen.queryByLabelText('E-Mail-Adresse')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Tokens für KI-gestützte Auswertungen/)).not.toBeInTheDocument()
   })
 
   it('renders the headline, the header brand link, and the sign-up entry points', () => {
@@ -42,6 +43,9 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Jetzt loslegen' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Code anfordern' })).toBeInTheDocument()
+    // The signup bonus, under the hero button and above the sign-up form.
+    expect(screen.getByText(/Auswertungen geschenkt$/)).toHaveTextContent('Mit Anmeldung 10 Tokens')
+    expect(screen.getByText(/Jetzt anmelden und/)).toHaveTextContent('10 Tokens')
   })
 
   it('explains how the app works and the free/premium split', () => {

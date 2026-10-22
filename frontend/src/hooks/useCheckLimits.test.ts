@@ -12,7 +12,8 @@ describe('useCheckLimits', () => {
   it('returns the primed limits at once', () => {
     const { result } = renderHook(() => useCheckLimits())
 
-    expect(result.current).toEqual(DEFAULT_CHECK_LIMITS)
+    // test/setup.ts primes today's numbers and a signup bonus of 10.
+    expect(result.current).toEqual({ ...DEFAULT_CHECK_LIMITS, signupBonusTokens: 10 })
   })
 
   it('switches to what the backend says once it has answered', async () => {
@@ -20,7 +21,12 @@ describe('useCheckLimits', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
-        jsonResponse({ catalog_check_tokens: 4, chart_check_tokens: 6, check_max_answer_chars: 500 } as PublicPricing),
+        jsonResponse({
+          catalog_check_tokens: 4,
+          chart_check_tokens: 6,
+          check_max_answer_chars: 500,
+          signup_bonus_tokens: 8,
+        } as PublicPricing),
       ),
     )
 
@@ -28,7 +34,12 @@ describe('useCheckLimits', () => {
     expect(result.current).toEqual(DEFAULT_CHECK_LIMITS)
 
     await waitFor(() =>
-      expect(result.current).toEqual({ catalogCheckTokens: 4, chartCheckTokens: 6, maxAnswerChars: 500 }),
+      expect(result.current).toEqual({
+        catalogCheckTokens: 4,
+        chartCheckTokens: 6,
+        maxAnswerChars: 500,
+        signupBonusTokens: 8,
+      }),
     )
   })
 

@@ -8,6 +8,7 @@ import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
+import { SignupBonusNote } from '../components/SignupBonusNote'
 import { MainNav } from '../components/MainNav'
 import { MobileTabBar } from '../components/MobileTabBar'
 import { ShareLinks } from '../components/ShareLinks'
@@ -219,6 +220,7 @@ export function LandingPage() {
                 <a href="#anmelden" className={HERO_CTA}>
                   Jetzt loslegen
                 </a>
+                <SignupBonusNote variant="line" />
                 <Link to="/learn" className="mt-5 text-sm text-surface-alt underline hover:text-surface">
                   Oder gleich ohne Anmeldung die Fragen üben
                 </Link>
