@@ -10,7 +10,6 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 import { buttonClass } from './buttonStyles'
 import { ErrorMessage } from './Messages'
-import { SignupBonusNote } from './SignupBonusNote'
 
 type Step = 'email' | 'code'
 
@@ -76,7 +75,6 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
   if (step === 'email') {
     return (
       <form className="flex flex-col gap-4" onSubmit={handleRequestCode}>
-        <SignupBonusNote variant="box" tone={tone} />
         <label className={labelClass} htmlFor="email">
           E-Mail-Adresse
           <input
