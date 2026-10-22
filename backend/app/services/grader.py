@@ -157,10 +157,10 @@ def structured_call[T](output_format: type[T], call: Callable[[anthropic.Anthrop
     return parsed
 
 
-# Haiku 5.5 reasons before it replies (ADR-0066), and that counts as output: a median of ~180 and up
-# to ~870 tokens per check measured. A reply cut off here is a GradingUnavailable, so the cap leaves
+# Haiku 5.5 reasons before it replies (ADR-0066), and that counts as output: a median of ~230 and up
+# to ~1,300 tokens per check measured. A reply cut off here is a GradingUnavailable, so the cap leaves
 # more than twice that room; only what is generated is billed.
-MAX_OUTPUT_TOKENS = 2000
+MAX_OUTPUT_TOKENS = 3000
 
 
 @dataclass(frozen=True)

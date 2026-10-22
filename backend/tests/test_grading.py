@@ -484,9 +484,9 @@ def test_service_puts_the_topic_in_front_of_the_question(monkeypatch):
 
 
 def test_the_output_cap_leaves_room_for_the_reasoning():
-    # Haiku 5.5's reasoning counts as output (up to ~870 tokens measured); a cap near the reply's own
+    # Haiku 5.5's reasoning counts as output (up to ~1,300 tokens measured); a cap near the reply's own
     # length would cut checks off and make them fail.
-    assert grader.MAX_OUTPUT_TOKENS >= 1500
+    assert grader.MAX_OUTPUT_TOKENS >= 2500
 
 
 def test_prompt_lets_the_topic_judge_statements_beyond_the_model_answer():
