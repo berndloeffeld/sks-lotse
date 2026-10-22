@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     # deliberately separate from the dev-tooling key above (own workspace, own spend limit).
     # Empty = the check answers 503 instead of calling out.
     anthropic_grading_api_key: str = ""
-    anthropic_grading_model: str = "claude-haiku-4-5"
+    anthropic_grading_model: str = "claude-haiku-5-5"
     anthropic_grading_timeout_seconds: float = 15.0
     # The Lotsen-Check of a Kartenaufgabe (app/services/chart_grader.py, ADR-0058): same key, a
     # stronger model — it recomputes the learner's numbers from the official derivation to guess
