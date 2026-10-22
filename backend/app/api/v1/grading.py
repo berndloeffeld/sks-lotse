@@ -7,8 +7,8 @@ from app.core.jwt import get_current_user
 from app.models.user import User
 from app.schemas.grading import AiGradeRead, AiGradeRequest
 from app.services import lotse_check, token_wallet
-from app.services.catalog import catalog_by_id
-from app.services.grader import grade_answer
+from app.services.catalog import catalog, catalog_by_id
+from app.services.grader import grade_answer, topic_entries
 
 router = APIRouter(prefix="/questions", tags=["grading"], dependencies=[Depends(get_current_user)])
 
@@ -45,6 +45,7 @@ def ai_grade_answer(
     if not question.answer_text.strip():
         # The official answer is only a sketch (image not extracted) — nothing to compare against.
         raise HTTPException(status_code=409, detail="This question has no text answer to check against")
+    topic = topic_entries(question, catalog(request, db))
     result_and_sanitized, tokens_remaining = lotse_check.run_paid_check(
         request.app,
         db,
@@ -52,7 +53,7 @@ def ai_grade_answer(
         kind="catalog",
         amount=token_wallet.TOKENS_PER_ANSWER_CHECK,
         caps=_caps(current_user.id, question_id),
-        grade=lambda: grade_answer(question.question_text, question.answer_text, payload.answer),
+        grade=lambda: grade_answer(question.question_text, question.answer_text, payload.answer, topic),
         log_label="AI answer check",
     )
     result = result_and_sanitized.result

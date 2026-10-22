@@ -176,11 +176,13 @@ export function PrivacyPage() {
           Sofern Ihr Konto über ein Token-Guthaben verfügt, können Sie eine Antwort per Klick von einer KI prüfen
           lassen. Nur dann, und nur für diese eine Prüfung, übermitteln wir an Anthropic (Anthropic, PBC, USA) die dafür
           nötigen Inhalte: die Frage oder Aufgabe, die amtliche Lösung bzw. Musterantwort samt Lösungsweg und Ihre
-          Antwort darauf. Baut eine Aufgabe auf vorangegangenen auf (etwa bei den Kartenaufgaben), übermitteln wir
-          zusätzlich diese vorangegangenen Aufgaben desselben Durchgangs mit Ihren Antworten darauf, damit Folgefehler
-          erkannt werden können. Anthropic erzeugt daraus einen Bewertungsvorschlag und eine kurze Rückmeldung,
-          gegebenenfalls mit einer Vermutung, wo ein Fehler liegt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt
-          sowie Antworten aus anderen Lernrunden, Prüfungen oder Durchgängen werden nicht übermittelt.
+          Antwort darauf. Bei Fragen aus dem Fragenkatalog übermitteln wir zusätzlich die amtlichen Fragen und Antworten
+          desselben Themas, damit Aussagen über die Musterantwort hinaus am Katalog geprüft werden können. Baut eine
+          Aufgabe auf vorangegangenen auf (etwa bei den Kartenaufgaben), übermitteln wir zusätzlich diese
+          vorangegangenen Aufgaben desselben Durchgangs mit Ihren Antworten darauf, damit Folgefehler erkannt werden
+          können. Anthropic erzeugt daraus einen Bewertungsvorschlag und eine kurze Rückmeldung, gegebenenfalls mit
+          einer Vermutung, wo ein Fehler liegt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt sowie Antworten aus
+          anderen Lernrunden, Prüfungen oder Durchgängen werden nicht übermittelt.
         </p>
         <p>
           Ob wir den Vorschlag speichern, richtet sich danach, ob wir die Antwort selbst speichern: Zu Fragen aus dem
@@ -244,7 +246,7 @@ export function PrivacyPage() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 21. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 22. Oktober 2026</p>
     </PageLayout>
   )
 }

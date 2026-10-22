@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from app.api.v1 import grading as grading_api
 from app.core.config import settings
 from app.core.jwt import create_access_token
-from app.models import LotseCheckLog, Question, User
+from app.models import LotseCheckLog, Question, Topic, User
 from app.services import grader, token_wallet
 from app.services.grader import GradedAnswer, GradeResult, GradingUnavailable
 
@@ -44,8 +44,8 @@ def _user(db_session, email="grader@example.com") -> User:
 def fake_grader(monkeypatch):
     calls = []
 
-    def fake(question_text, model_answer, learner_answer):
-        calls.append((question_text, model_answer, learner_answer))
+    def fake(question_text, model_answer, learner_answer, topic):
+        calls.append((question_text, model_answer, learner_answer, topic))
         return GradedAnswer(
             GradeResult(
                 outcome="teilweise_richtig",
@@ -87,7 +87,40 @@ def test_happy_path_sends_only_question_and_answers(client, db_session, fake_gra
         "fehlt": ["Die Seite des Schiffes"],
         "tokens_remaining": _PLENTY_OF_TOKENS - 1,
     }
-    assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links")]
+    # A question without a topic gets no topic context.
+    assert fake_grader == [("Was ist Backbord?", "Backbord ist links.", "links", [])]
+
+
+def test_the_check_gets_the_official_answers_of_the_same_topic_only(client, db_session, fake_grader):
+    lights = Topic(subject="navigation", slug="lichter", name="Lichter", display_order=1)
+    other_topic = Topic(subject="navigation", slug="ankern", name="Ankern", display_order=2)
+    db_session.add_all([lights, other_topic])
+    db_session.commit()
+
+    def question(number, answer_text, topic=None, subject="navigation"):
+        return Question(
+            subject=subject,
+            number=number,
+            question_text=f"F{number}",
+            answer_text=answer_text,
+            topic_id=topic.id if topic else None,
+        )
+
+    q = question(1, "A1", lights)
+    db_session.add_all(
+        [
+            q,
+            question(2, "A2", lights),
+            question(3, " ", lights),  # only a sketch, no text to check against
+            question(4, "A4", other_topic),
+            question(5, "A5"),
+            question(6, "A6", subject="wetterkunde"),
+        ]
+    )
+    db_session.commit()
+    response = _post(client, q.id, _headers(db_session, enabled=True), "x")
+    assert response.status_code == 200
+    assert fake_grader == [("F1", "A1", "x", [grader.TopicEntry("F2", "A2")])]
 
 
 def test_a_successful_check_spends_exactly_one_token(client, db_session, fake_grader):
@@ -189,7 +222,7 @@ def test_a_failing_kpi_log_does_not_cost_the_learner_the_result(client, db_sessi
 
 
 def test_sanitized_reply_still_returns_but_bumps_the_flag_counter(client, db_session, monkeypatch):
-    def fake(question_text, model_answer, learner_answer):
+    def fake(question_text, model_answer, learner_answer, topic):
         return GradedAnswer(
             GradeResult(outcome="falsch", feedback=grader._FALLBACK_FEEDBACK, richtig_genannt=[], fehlt=[]),
             sanitized=True,
@@ -211,7 +244,7 @@ def test_flagged_account_past_threshold_logs_extra_detail_without_the_answer(
 ):
     monkeypatch.setattr(settings, "grading_sanitizer_log_threshold", 1)
 
-    def fake(question_text, model_answer, learner_answer):
+    def fake(question_text, model_answer, learner_answer, topic):
         return GradedAnswer(
             GradeResult(outcome="falsch", feedback=grader._FALLBACK_FEEDBACK, richtig_genannt=[], fehlt=[]),
             sanitized=True,
@@ -231,7 +264,7 @@ def test_flagged_account_past_threshold_logs_extra_detail_without_the_answer(
 def test_below_threshold_no_extra_logging(client, db_session, monkeypatch, caplog):
     monkeypatch.setattr(settings, "grading_sanitizer_log_threshold", 5)
 
-    def fake(question_text, model_answer, learner_answer):
+    def fake(question_text, model_answer, learner_answer, topic):
         return GradedAnswer(
             GradeResult(outcome="falsch", feedback=grader._FALLBACK_FEEDBACK, richtig_genannt=[], fehlt=[]),
             sanitized=True,
@@ -423,7 +456,7 @@ def test_service_builds_minimal_prompt(monkeypatch):
     assert graded == GradedAnswer(expected, sanitized=False)
     kwargs = messages.kwargs
     assert kwargs["model"] == settings.anthropic_grading_model
-    assert kwargs["max_tokens"] == 500
+    assert kwargs["max_tokens"] == grader.MAX_OUTPUT_TOKENS
     # A mock accepts anything, the real SDK doesn't (it once rejected `temperature`).
     assert set(kwargs) <= set(inspect.signature(anthropic.resources.messages.Messages.parse).parameters)
     assert kwargs["messages"] == [
@@ -432,6 +465,36 @@ def test_service_builds_minimal_prompt(monkeypatch):
             "content": "<frage>F</frage>\n<musterantwort>M</musterantwort>\n<antwort>A</antwort>",
         }
     ]
+
+
+def test_service_puts_the_topic_in_front_of_the_question(monkeypatch):
+    messages = _FakeMessages(
+        _FakeResponse(GradeResult(outcome="richtig", feedback="Passt.", richtig_genannt=[], fehlt=[]))
+    )
+    _patch_client(monkeypatch, messages)
+    topic = [grader.TopicEntry("F2", "M2"), grader.TopicEntry("F3", "M3")]
+    grader.grade_answer("F", "M", "A", topic)
+    assert messages.kwargs["messages"][0]["content"] == (
+        "<thema>\n"
+        "<eintrag><frage>F2</frage><musterantwort>M2</musterantwort></eintrag>\n"
+        "<eintrag><frage>F3</frage><musterantwort>M3</musterantwort></eintrag>\n"
+        "</thema>\n"
+        "<frage>F</frage>\n<musterantwort>M</musterantwort>\n<antwort>A</antwort>"
+    )
+
+
+def test_the_output_cap_leaves_room_for_the_reasoning():
+    # Haiku 5.5's reasoning counts as output (up to ~1,300 tokens measured); a cap near the reply's own
+    # length would cut checks off and make them fail.
+    assert grader.MAX_OUTPUT_TOKENS >= 2500
+
+
+def test_prompt_lets_the_topic_judge_statements_beyond_the_model_answer():
+    assert "In <thema> stehen" in grader.SYSTEM_PROMPT
+    assert "kein Abzug, und sie gehört nicht in fehlt" in grader.SYSTEM_PROMPT
+    assert "Widerspricht die Aussage der Musterantwort oder einer amtlichen Antwort in <thema>" in (
+        grader.SYSTEM_PROMPT
+    )
 
 
 def test_service_sends_the_system_prompt_and_asks_for_a_structured_reply(monkeypatch):

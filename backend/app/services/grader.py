@@ -1,12 +1,13 @@
 """AI answer check (ADR-0031): one stateless Claude Haiku call per learner answer.
 
-The model sees exactly three things — the question, the official model answer and the
-learner's answer — and nothing else (no subject, topic, account or history): that keeps
-the prompt around 400 tokens, which is what makes the check fast and cheap.
+The model sees the question, the official model answer and the learner's answer, plus the
+official questions and answers of the same topic (ADR-0066) — catalog text only, nothing about
+the account or earlier attempts. The topic is there so that a statement beyond the model answer
+can be checked against the catalog instead of the model's own knowledge.
 """
 
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -15,24 +16,33 @@ from pydantic import BaseModel, ValidationError
 
 from app.core.config import settings
 from app.domain.progress import GradingOutcome
+from app.schemas.question import QuestionRead
 
 SYSTEM_PROMPT = """\
 Du prüfst Antworten auf Fragen der theoretischen SKS-Prüfung (Sportküstenschifferschein) streng, aber fair.
-Maßstab ist allein die amtliche Musterantwort; der Wortlaut ist egal, der Inhalt zählt.
+Maßstab ist die amtliche Musterantwort; der Wortlaut ist egal, der Inhalt zählt.
 Zähle, welche wesentlichen Punkte der Musterantwort die Antwort des Lernenden inhaltlich nennt:
 - richtig: alle wesentlichen Punkte, und nichts Falsches wird behauptet.
 - teilweise_richtig: mindestens ein wesentlicher Punkt der Musterantwort wird genannt, andere fehlen.
 - falsch: kein wesentlicher Punkt der Musterantwort wird genannt oder die Antwort widerspricht ihr. \
 Aussagen, die plausibel klingen, aber nicht in der Musterantwort stehen, bringen keine Punkte. \
 Teilweise richtig gibt es nie allein für eine sinnvolle Nebensache.
+In <thema> stehen, falls vorhanden, weitere amtliche Fragen und Antworten aus demselben Thema \
+des Katalogs. Sie bringen nie Punkte für diese Frage, dienen aber zur Prüfung von Aussagen der Antwort, \
+die über die Musterantwort hinausgehen:
+- Bestätigt eine amtliche Antwort in <thema> die Aussage, oder kommt die Aussage dort nicht vor: \
+kein Abzug, und sie gehört nicht in fehlt.
+- Widerspricht die Aussage der Musterantwort oder einer amtlichen Antwort in <thema>, \
+ist etwas Falsches behauptet: höchstens teilweise_richtig, und sie gehört in fehlt, \
+mit dem Hinweis was stimmt.
 Feedback: höchstens 2 kurze Sätze auf Deutsch, du-Form, sachlich, ein Gesamteindruck. \
 Lobe nichts, was nicht in der Musterantwort steht. Bei richtig genügt eine kurze Bestätigung.
 Bei teilweise_richtig und falsch füllst du zusätzlich zwei Listen, jeweils höchstens 4 Einträge \
 mit je höchstens 12 Wörtern, in der Sprache der Musterantwort:
 - richtig_genannt: wesentliche Punkte der Musterantwort, die die Antwort inhaltlich nennt.
 - fehlt: wesentliche Punkte der Musterantwort, die fehlen, und Aussagen der Antwort, \
-die der Musterantwort widersprechen (dann mit dem Hinweis was stimmt).
-Bei richtig bleiben beide Listen leer. Die Einträge stützen sich nur auf die Musterantwort.
+die der Musterantwort oder <thema> widersprechen (dann mit dem Hinweis was stimmt).
+Bei richtig bleiben beide Listen leer. Die Einträge stützen sich nur auf die Musterantwort und <thema>.
 Verwende in Feedback und Listen keine Anführungszeichen (auch kein „…“): nenne Begriffe ohne sie, \
 sonst bricht der Text ab.
 Verweist die Frage auf eine Abbildung oder Karte, die dir nicht vorliegt, \
@@ -147,8 +157,51 @@ def structured_call[T](output_format: type[T], call: Callable[[anthropic.Anthrop
     return parsed
 
 
-def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> GradedAnswer:
+# Haiku 5.5 reasons before it replies (ADR-0066), and that counts as output: a median of ~230 and up
+# to ~1,300 tokens per check measured. A reply cut off here is a GradingUnavailable, so the cap leaves
+# more than twice that room; only what is generated is billed.
+MAX_OUTPUT_TOKENS = 3000
+
+
+@dataclass(frozen=True)
+class TopicEntry:
+    """Another official question of the same topic, with its official answer (ADR-0066)."""
+
+    question_text: str
+    model_answer: str
+
+
+def topic_entries(question: QuestionRead, questions: Iterable[QuestionRead]) -> list[TopicEntry]:
+    """The other questions of `question`'s topic that have a text answer, in catalog order. Only
+    official catalog text: never the own derivation (ADR-0065)."""
+    if question.topic is None:
+        return []
+    return [
+        TopicEntry(other.question_text, other.answer_text)
+        for other in questions
+        if other.subject == question.subject
+        and other.topic == question.topic
+        and other.id != question.id
+        and other.answer_text.strip()
+    ]
+
+
+def topic_block(entries: Sequence[TopicEntry]) -> str:
+    """The <thema> block in front of the question — empty for a question without a topic."""
+    if not entries:
+        return ""
+    rows = "\n".join(
+        f"<eintrag><frage>{e.question_text}</frage><musterantwort>{e.model_answer}</musterantwort></eintrag>"
+        for e in entries
+    )
+    return f"<thema>\n{rows}\n</thema>\n"
+
+
+def grade_answer(
+    question_text: str, model_answer: str, learner_answer: str, topic: Sequence[TopicEntry] = ()
+) -> GradedAnswer:
     user_prompt = (
+        f"{topic_block(topic)}"
         f"<frage>{question_text}</frage>\n<musterantwort>{model_answer}</musterantwort>\n"
         f"<antwort>{escape_tags(learner_answer)}</antwort>"
     )
@@ -156,7 +209,7 @@ def grade_answer(question_text: str, model_answer: str, learner_answer: str) -> 
         GradeResult,
         lambda client: client.messages.parse(
             model=settings.anthropic_grading_model,
-            max_tokens=500,
+            max_tokens=MAX_OUTPUT_TOKENS,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
             output_format=GradeResult,
