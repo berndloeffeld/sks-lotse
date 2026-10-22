@@ -43,9 +43,9 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { name: 'Jetzt loslegen' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Code anfordern' })).toBeInTheDocument()
-    // The signup bonus, under the hero button and above the sign-up form.
+    // The signup bonus, under the hero button only (the form is for returning learners too).
     expect(screen.getByText(/Auswertungen geschenkt$/)).toHaveTextContent('Mit Anmeldung 10 Tokens')
-    expect(screen.getByText(/Jetzt anmelden und/)).toHaveTextContent('10 Tokens')
+    expect(screen.queryByText(/Jetzt anmelden und/)).not.toBeInTheDocument()
   })
 
   it('explains how the app works and the free/premium split', () => {

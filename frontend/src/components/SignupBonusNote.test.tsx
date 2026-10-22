@@ -16,26 +16,9 @@ function primeBonus(tokens: number) {
 }
 
 describe('SignupBonusNote', () => {
-  it('names the bonus from /pricing in the box above the login form', () => {
-    primeBonus(10)
-    render(<SignupBonusNote variant="box" />)
-
-    expect(screen.getByText(/Jetzt anmelden und/)).toHaveTextContent(
-      'Jetzt anmelden und 10 Tokens für KI-gestützte Auswertungen deiner Antworten geschenkt bekommen.',
-    )
-    expect(screen.getByText(/Jetzt anmelden/).closest('p')).toHaveClass('border-primary')
-  })
-
-  it('takes the dark band tone', () => {
-    primeBonus(10)
-    render(<SignupBonusNote variant="box" tone="dark" />)
-
-    expect(screen.getByText(/Jetzt anmelden/).closest('p')).toHaveClass('border-surface')
-  })
-
-  it('says it in one line under the hero button', () => {
+  it('names the bonus from /pricing', () => {
     primeBonus(8)
-    render(<SignupBonusNote variant="line" />)
+    render(<SignupBonusNote />)
 
     expect(screen.getByText(/Auswertungen geschenkt$/)).toHaveTextContent(
       'Mit Anmeldung 8 Tokens für KI-gestützte Auswertungen geschenkt',
@@ -46,16 +29,16 @@ describe('SignupBonusNote', () => {
     checkLimitsSource.reset()
     // Never answers: the note keeps showing the stand-in.
     checkLimitsSource.load(() => new Promise(() => {})).catch(() => {})
-    render(<SignupBonusNote variant="box" />)
+    render(<SignupBonusNote />)
 
-    expect(screen.getByText(/Jetzt anmelden und/)).toHaveTextContent(
-      'Jetzt anmelden und Tokens für KI-gestützte Auswertungen deiner Antworten geschenkt bekommen.',
+    expect(screen.getByText(/Auswertungen geschenkt$/)).toHaveTextContent(
+      'Mit Anmeldung Tokens für KI-gestützte Auswertungen geschenkt',
     )
   })
 
   it('shows nothing when new accounts get no tokens', () => {
     primeBonus(0)
-    const { container } = render(<SignupBonusNote variant="box" />)
+    const { container } = render(<SignupBonusNote />)
 
     expect(container).toBeEmptyDOMElement()
   })

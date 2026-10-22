@@ -220,7 +220,7 @@ export function LandingPage() {
                 <a href="#anmelden" className={HERO_CTA}>
                   Jetzt loslegen
                 </a>
-                <SignupBonusNote variant="line" />
+                <SignupBonusNote />
                 <Link to="/learn" className="mt-5 text-sm text-surface-alt underline hover:text-surface">
                   Oder gleich ohne Anmeldung die Fragen üben
                 </Link>
