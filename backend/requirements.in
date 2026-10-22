@@ -7,7 +7,7 @@ sqlalchemy==2.1.4
 alembic==1.20.0
 psycopg[binary]==3.3.6
 pydantic-settings==2.16.0
-pypdf==6.20.1
+pypdf==6.21.1
 pyyaml==6.0.3
 pyjwt==2.15.1
 # Admin 2FA (ADR-0047): TOTP codes, the enrolment QR code as SVG, and Fernet to keep the TOTP
