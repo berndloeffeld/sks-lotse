@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { trackSignupClick } from '../analytics'
 import { LEARNING_METHOD_FAQ } from '../faq'
 import { FlashcardBoxFigure, ForgettingCurveFigure, GradeEffectFigure } from '../components/LearningMethodFigures'
 import { PageLayout } from '../components/PageLayout'
@@ -179,7 +180,11 @@ export function LearningMethodPage() {
         <div className="pt-2">
           {/* A guest signs up and goes on to /learn (the login's default target), not back to this page;
               a learner goes there directly. */}
-          <Link to={isAuthenticated ? '/learn' : '/login'} className={buttonClass('primary')}>
+          <Link
+            to={isAuthenticated ? '/learn' : '/login'}
+            className={buttonClass('primary')}
+            onClick={isAuthenticated ? undefined : () => trackSignupClick('learning_method')}
+          >
             {isAuthenticated ? 'Zum Lernen' : 'Kostenlos anmelden'}
           </Link>
         </div>

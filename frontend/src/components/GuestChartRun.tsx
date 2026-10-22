@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { trackEvent } from '../analytics'
 import { guestOverview, type ChartExport, type ChartSheet } from '../chartCatalog'
 import { answerTask, awardPoints, guestAttempt, isRunInProgress, startGuestRun } from '../chartGuestRun'
 import { useLeaveConfirmation } from '../hooks/useLeaveConfirmation'
@@ -19,6 +20,11 @@ export function GuestChartRun({ charts, sheet }: { charts: ChartExport; sheet: C
   const overview = useMemo(() => guestOverview(charts), [charts])
   const tideForm = useTideForm(guestTideFormId(sheet.number))
   const leave = useLeaveConfirmation(isRunInProgress(run))
+
+  // The guests' counterpart to a learner's chart_run_completed; completedAt is set once per run.
+  useEffect(() => {
+    if (run.completedAt) trackEvent('guest_chart_run_completed', { sheet: sheet.number })
+  }, [run.completedAt, sheet.number])
 
   const onAnswer = useCallback(
     async (task: number, answerText: string) => setRun((current) => answerTask(sheet, current, task, answerText)),

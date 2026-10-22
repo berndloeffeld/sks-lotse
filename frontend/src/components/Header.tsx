@@ -31,7 +31,9 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
         {nav === undefined ? (
           <nav className="ml-auto flex flex-wrap items-baseline justify-end gap-x-5 gap-y-2">
             <MarketingLinks />
-            <LoginLink className={HEADER_CTA}>Anmelden</LoginLink>
+            <LoginLink place="header" className={HEADER_CTA}>
+              Anmelden
+            </LoginLink>
           </nav>
         ) : (
           nav

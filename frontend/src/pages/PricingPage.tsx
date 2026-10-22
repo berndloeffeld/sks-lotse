@@ -282,7 +282,7 @@ export function PricingPage() {
                 <PackageCard key={pkg.product} pkg={pkg} soon={tokensSoon} />
               ))}
             </div>
-            {loginToBuy ? <GuestCta>Melde dich an, um ein Paket zu kaufen.</GuestCta> : null}
+            {loginToBuy ? <GuestCta place="pricing">Melde dich an, um ein Paket zu kaufen.</GuestCta> : null}
           </>
         ) : null}
       </section>
