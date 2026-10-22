@@ -9,6 +9,7 @@ const PRICING = {
   catalog_check_tokens: 1,
   chart_check_tokens: 2,
   check_max_answer_chars: 1000,
+  signup_bonus_tokens: 10,
 } as PublicPricing
 
 // Not using Vitest's `globals: true` (explicit imports only, per this

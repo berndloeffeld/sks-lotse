@@ -28,10 +28,13 @@ describe('LoginForm', () => {
       </MemoryRouter>,
     )
 
+    // The signup bonus is named only while the address is asked for.
+    expect(screen.getByText(/Jetzt anmelden und/)).toHaveTextContent('10 Tokens')
     await user.type(screen.getByLabelText('E-Mail-Adresse'), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
 
     expect(await screen.findByLabelText('Login-Code')).toHaveFocus()
+    expect(screen.queryByText(/Jetzt anmelden und/)).not.toBeInTheDocument()
   })
 
   it('goes back to the email step from the code step', async () => {

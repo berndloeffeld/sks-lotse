@@ -123,7 +123,9 @@ describe('PricingPage', () => {
   })
 
   it('asks an account that owes the AGB confirmation for it before it can buy', async () => {
-    useAuthStore.setState({ user: makeUser({ can_buy_tokens: true, needs_agb_acceptance: true }) })
+    useAuthStore.setState({
+      user: makeUser({ can_buy_tokens: true, needs_agb_acceptance: true, agb_accepted_version: '2020-01-01' }),
+    })
     stubFetch(PRICING)
     renderGated()
 
@@ -144,7 +146,7 @@ describe('PricingPage', () => {
     useAuthStore.setState({ user: BUYER })
     const assign = vi.fn()
     vi.stubGlobal('location', { ...window.location, assign })
-    const stale = makeUser({ ...BUYER, needs_agb_acceptance: true })
+    const stale = makeUser({ ...BUYER, needs_agb_acceptance: true, agb_accepted_version: '2020-01-01' })
     const fetchMock = stubFetch(PRICING, jsonResponse({ detail: 'agb_acceptance_required' }, 409), jsonResponse(stale))
     const user = userEvent.setup()
     renderGated()

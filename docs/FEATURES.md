@@ -21,7 +21,7 @@ What sets it apart from simply paging through the catalog:
 - **Without signing in**, "Lernen nach Thema" is open: every topic of the catalog (both Seemannschaft variants), each question with the official answer. Guests write their answer, reveal the official one, grade themselves and get the round's summary, but nothing is saved: no Lernstand, nothing sent. Fokus, Auffrischen, the Probeprüfung and the Lotsen-Check need an account.
 - **Exam variant** per account: "Segeln und Motor" or "Motor". Questions are filtered accordingly.
 - **Profile:** name and salutation (optional), exam variant, learning status, exam statistics, change email address (confirmed by a code sent to the new address; the old address gets a notice), delete the account oneself.
-- The terms (AGB) are confirmed once per version. That also applies on the pricing page, and a purchase is only possible with the AGB in force confirmed.
+- The terms (AGB) are confirmed once per version. That also applies on the pricing page, and a purchase is only possible with the AGB in force confirmed. For a new account that first confirmation is a welcome dialog ("Willkommen an Bord") that also names the tokens it was given for the Lotsen-Check.
 
 ## Learning
 
@@ -71,7 +71,7 @@ Status today: **open to everyone, guests included** (`CHART_EXERCISES=on` since 
 
 Learners can have their own answer checked by the "Lotse". An AI (Claude by Anthropic) compares it with the model answer and **suggests a grade with a short explanation**. For a partly right or wrong answer it adds a checklist: what the learner already named (✓) and what is still missing or contradicts the model answer (✗), at most four points each. A right answer gets only a short confirmation. The decision always stays with the learner.
 
-- Costs **1 token** per catalog question, **2 tokens** per Kartenaufgabe task (a stronger model that recomputes the learner's numbers; see above). The price is shown on the button. New accounts get a starting balance; more tokens are available in packages.
+- Costs **1 token** per catalog question, **2 tokens** per Kartenaufgabe task (a stronger model that recomputes the learner's numbers; see above). The price is shown on the button. New accounts get a starting balance: the login form and the landing page's hero name it before signing up, the welcome dialog at the first login again; more tokens are available in packages.
 - Only the question, the model answer and the learner's answer (at most 1,000 characters) are sent, nothing personal. For a Kartenaufgabe also the official derivation and the learner's answers to the earlier tasks of the same run, so follow-on errors are recognised. Processing happens at Anthropic in the USA, under a data processing agreement.
 - Abuse protection: at most 2 checks per question and day, an hourly limit, protection against injected instructions. If a check fails technically, the token is refunded; a check turned away by the hourly limit or for lack of tokens doesn't count towards the per-question limit.
 - If the AI is unavailable, learning continues as normal; only the check is missing.
@@ -80,7 +80,7 @@ Learners can have their own answer checked by the "Lotse". An AI (Claude by Anth
 
 One add-on, and no advertising:
 - **Free for good** is the basic function the AGB name (section 4): practising questions, the official answers and the learning status. The Kartenaufgaben and the Probeprüfung are free today as well; the pricing page says it the same way ("derzeit").
-- **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance of 6 tokens. Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices, and they are shown publicly on the pricing page.
+- **Tokens for the Lotsen-Check** in four packages (starting prices: S 20 tokens 2.99 €, M 50 tokens 5.99 €, L 100 tokens 9.99 €, XL 200 tokens 16.99 €), with a free starting balance for new accounts (10 tokens at the moment). Payment via Stripe (credit card and other methods), and a confirmation email follows the purchase. The operator can change the prices and the starting balance, and the prices are shown publicly on the pricing page.
 
 Status today: buying tokens is open to all learners (the live state of the flag is kept in the [RUNBOOK](RUNBOOK.md#settings-that-live-only-in-dashboards)).
 
