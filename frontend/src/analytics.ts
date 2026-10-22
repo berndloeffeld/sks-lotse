@@ -42,7 +42,9 @@ declare global {
 // focus). Names and properties are fixed, coarse keys — never free text, ids
 // of the learner or answers — so cookieless analytics stays free of personal
 // data (ADR-0016). A no-op wherever the script isn't loaded (local dev, CI,
-// blocked by an ad blocker); analytics must never break the app.
+// blocked by an ad blocker); analytics must never break the app. A guest's action, which the
+// backend never sees (ADR-0054/0056), has its own event prefixed `guest_`, so the learners' events
+// keep counting learners only and Umami shows both side by side.
 export function trackEvent(name: string, data?: Record<string, string | number>) {
   try {
     window.umami?.track(name, data)

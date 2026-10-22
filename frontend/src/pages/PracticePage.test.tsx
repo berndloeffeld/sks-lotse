@@ -523,6 +523,8 @@ describe('PracticePage without a login', () => {
 
   it('runs the topic from the catalog export in catalog order, grading only for the summary', async () => {
     const fetchMock = mockBackend({})
+    const track = vi.fn()
+    window.umami = { track }
     const user = userEvent.setup()
     renderPracticePage()
 
@@ -557,6 +559,12 @@ describe('PracticePage without a login', () => {
     expect(main.getByRole('link', { name: 'Zur Themenübersicht' })).toHaveAttribute('href', '/learn')
     expect(window.localStorage.length).toBe(0)
     expect(fetchMock).not.toHaveBeenCalled()
+    // Counted apart from the learners' question_graded.
+    expect(track.mock.calls).toEqual([
+      ['guest_question_graded', { outcome: 'richtig' }],
+      ['guest_question_graded', { outcome: 'falsch' }],
+    ])
+    delete window.umami
   })
 
   it('says a topic the catalog does not have was not found, with the way to the topic list', () => {

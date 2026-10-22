@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { trackEvent } from '../analytics'
 import { apiClient } from '../api/client'
 import type { ChartAiCheck, ChartAttempt, ChartExercisesOverview } from '../api/types'
 import { useAuthStore } from '../store/authStore'
@@ -38,7 +39,12 @@ export function useChartAttempt(id: string | undefined) {
 
   const awardPoints = useCallback(
     async (task: number, points: number) => {
-      setData(await apiClient.put<ChartAttempt>(`/chart-exercises/attempts/${id}/tasks/${task}/points`, { points }))
+      const updated = await apiClient.put<ChartAttempt>(`/chart-exercises/attempts/${id}/tasks/${task}/points`, {
+        points,
+      })
+      // Only the last task's points complete a run, so this fires once per run.
+      if (updated.completed_at) trackEvent('chart_run_completed', { sheet: updated.exercise_number })
+      setData(updated)
     },
     [id, setData],
   )

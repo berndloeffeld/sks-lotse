@@ -135,8 +135,10 @@ export function PracticeRun({
   const question = run[index] as Question | undefined
 
   // A guest's grading only counts for the summary, and the next question follows at once (no boat).
+  // Its own event, so Umami tells guests' answers apart from learners' question_graded.
   const saveGuestGrade = async (chosen: GradingOutcome) => {
     if (!question) return
+    trackEvent('guest_question_graded', { outcome: chosen })
     setTally((t) => [...t, chosen])
     nextQuestion()
   }
