@@ -43,7 +43,9 @@ function GuestChartExercises() {
         error={failed ? 'Die Kartenaufgaben konnten nicht geladen werden.' : null}
         onRetry={reload}
       />
-      <GuestCta>Ohne Konto wird nichts gespeichert. Mit einem Konto behältst du deine Durchgänge und Punkte.</GuestCta>
+      <GuestCta place="chart_list">
+        Ohne Konto wird nichts gespeichert. Mit einem Konto behältst du deine Durchgänge und Punkte.
+      </GuestCta>
     </ChartExercisesLayout>
   )
 }

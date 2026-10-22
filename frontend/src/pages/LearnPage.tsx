@@ -120,7 +120,7 @@ function GuestLearnContent() {
   return (
     <>
       <Band className="pt-10 pb-0">
-        <GuestCta>
+        <GuestCta place="learn">
           Alle Fragen des amtlichen Katalogs, frei zum Üben. Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung
           speichert SKS Lotse deinen Lernstand, und du bekommst Fokus-Themen, Auffrischen, die Probeprüfung und den
           Lotsen-Check.

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { trackSignupClick } from '../analytics'
 import { chartExercisesForGuests } from '../chartCatalog'
 import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
@@ -190,7 +191,11 @@ export function ExamProcessPage() {
         <div className="pt-2">
           {/* A guest signs up and goes on to /learn (the login's default target), not back to this page;
               a learner goes there directly. */}
-          <Link to={isAuthenticated ? '/learn' : '/login'} className={buttonClass('primary')}>
+          <Link
+            to={isAuthenticated ? '/learn' : '/login'}
+            className={buttonClass('primary')}
+            onClick={isAuthenticated ? undefined : () => trackSignupClick('exam_process')}
+          >
             {isAuthenticated ? 'Zum Lernen' : 'Kostenlos anmelden'}
           </Link>
         </div>

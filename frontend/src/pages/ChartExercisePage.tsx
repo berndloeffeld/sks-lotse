@@ -187,7 +187,7 @@ function GuestChartExercise({ number }: { number: string }) {
       >
         Kartenaufgabe starten
       </button>
-      <GuestCta>
+      <GuestCta place="chart_start">
         Ohne Konto wird nichts gespeichert: Antworten und Punkte sind weg, sobald du die Seite verlässt. Mit einem Konto
         kannst du unterbrechen und später weitermachen.
       </GuestCta>

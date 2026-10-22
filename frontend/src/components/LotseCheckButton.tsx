@@ -93,7 +93,9 @@ export function LotseCheckButton({
         <Ribbon />
       </button>
       {isGuest ? (
-        <LoginLink className="self-start text-sm text-primary underline">Anmelden und den Lotsen fragen</LoginLink>
+        <LoginLink place="lotse_teaser" className="self-start text-sm text-primary underline">
+          Anmelden und den Lotsen fragen
+        </LoginLink>
       ) : null}
       {!canPay && canBuy ? (
         <Link to="/pricing" className="self-start text-sm text-primary underline">

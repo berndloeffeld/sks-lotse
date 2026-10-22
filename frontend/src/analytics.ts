@@ -52,3 +52,22 @@ export function trackEvent(name: string, data?: Record<string, string | number>)
     // ignore
   }
 }
+
+// Where a guest was invited to sign up, sent with signup_cta_clicked: which invitation brings
+// guests to the login. Fixed keys only (ADR-0030).
+export type SignupPlace =
+  | 'header'
+  | 'learn'
+  | 'practice_grading'
+  | 'practice_summary'
+  | 'lotse_teaser'
+  | 'chart_list'
+  | 'chart_start'
+  | 'chart_result'
+  | 'pricing'
+  | 'learning_method'
+  | 'exam_process'
+
+export function trackSignupClick(place: SignupPlace) {
+  trackEvent('signup_cta_clicked', { place })
+}

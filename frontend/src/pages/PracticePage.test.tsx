@@ -563,6 +563,7 @@ describe('PracticePage without a login', () => {
     expect(track.mock.calls).toEqual([
       ['guest_question_graded', { outcome: 'richtig' }],
       ['guest_question_graded', { outcome: 'falsch' }],
+      ['guest_round_completed', { questions: 2 }],
     ])
     delete window.umami
   })

@@ -139,6 +139,8 @@ export function PracticeRun({
   const saveGuestGrade = async (chosen: GradingOutcome) => {
     if (!question) return
     trackEvent('guest_question_graded', { outcome: chosen })
+    // The last question graded: the round's summary comes up. Rounds left early don't count.
+    if (index === run.length - 1) trackEvent('guest_round_completed', { questions: run.length })
     setTally((t) => [...t, chosen])
     nextQuestion()
   }
@@ -215,7 +217,7 @@ export function PracticeRun({
           )}
         </dl>
         {guest ? (
-          <GuestCta>
+          <GuestCta place="practice_summary">
             Ohne Anmeldung wird nichts gespeichert. Mit Anmeldung merkt sich SKS Lotse, was du sicher kannst, holt
             Verblasstes zurück und zeigt deinen Lernstand auf jedem Gerät.
           </GuestCta>
@@ -316,8 +318,10 @@ export function PracticeRun({
               />
               <p className="text-xs text-ink-soft">
                 Ohne Anmeldung zählt deine Bewertung nur für diese Runde.{' '}
-                <LoginLink className="text-primary underline">Mit Anmeldung</LoginLink> behältst du deinen Lernstand auf
-                jedem Gerät.
+                <LoginLink place="practice_grading" className="text-primary underline">
+                  Mit Anmeldung
+                </LoginLink>{' '}
+                behältst du deinen Lernstand auf jedem Gerät.
               </p>
             </>
           ) : (
