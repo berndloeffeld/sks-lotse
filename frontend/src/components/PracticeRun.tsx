@@ -105,6 +105,7 @@ export function PracticeRun({
   // Whether a question just became gelernt, while its celebration runs.
   const [celebrating, setCelebrating] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement>(null)
+  const revealRef = useRef<HTMLButtonElement>(null)
   const enterShortcut = useEnterShortcut(() => setPhase('assess'))
   const styles = formStyles('light')
 
@@ -284,7 +285,16 @@ export function PracticeRun({
               ref={noteRef}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              onKeyDown={enterShortcut.onKeyDown}
+              onKeyDown={(event) => {
+                // Tab goes on to "Lösung anzeigen" in every browser: Safari's default Tab skips buttons
+                // and links, so it would land in the topic's question list below instead.
+                if (event.key === 'Tab' && !event.shiftKey) {
+                  event.preventDefault()
+                  revealRef.current?.focus()
+                  return
+                }
+                enterShortcut.onKeyDown(event)
+              }}
               rows={4}
               className={styles.input}
             />
@@ -292,7 +302,7 @@ export function PracticeRun({
               <span className="text-xs text-ink-soft">Enter: Lösung anzeigen · Shift+Enter: neue Zeile</span>
             ) : null}
           </label>
-          <button type="button" className={buttonClass('primary')} onClick={() => setPhase('assess')}>
+          <button ref={revealRef} type="button" className={buttonClass('primary')} onClick={() => setPhase('assess')}>
             Lösung anzeigen
           </button>
         </>
