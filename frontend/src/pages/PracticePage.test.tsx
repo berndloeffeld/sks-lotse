@@ -150,6 +150,27 @@ describe('PracticePage', () => {
     expect(screen.getByRole('radio', { name: 'Falsch' })).toBeChecked()
   })
 
+  it('Tab from the answer field goes to "Lösung anzeigen", Safari too', async () => {
+    const user = userEvent.setup()
+    mockBackend({})
+    renderPracticePage()
+
+    const field = await screen.findByLabelText(/Deine Antwort/)
+    await user.type(field, 'irgendwas')
+    // Safari's default Tab skips buttons; the field hands focus over itself, so the key's default is cancelled.
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    field.dispatchEvent(tab)
+    expect(tab.defaultPrevented).toBe(true)
+    expect(screen.getByRole('button', { name: 'Lösung anzeigen' })).toHaveFocus()
+
+    // Shift+Tab keeps its default.
+    field.focus()
+    const back = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true })
+    field.dispatchEvent(back)
+    expect(back.defaultPrevented).toBe(false)
+    expect(field).toHaveFocus()
+  })
+
   it('Tab loops through the grade radios and then the Lotse row', async () => {
     const user = userEvent.setup()
     useAuthStore.setState({
