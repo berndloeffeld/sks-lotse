@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from app.models.question import Question
@@ -5,6 +7,8 @@ from app.schemas.derivation import CatalogDerivation, DerivationBlock
 from app.services import catalog_derivations
 from app.services.catalog_derivations import derivation_for, derivations, fingerprint, load
 from app.services.catalog_seed import build_catalog
+
+DERIVATIONS_DIR = Path(__file__).resolve().parents[2] / "frontend" / "public" / "derivations"
 
 
 def test_every_derivation_belongs_to_a_catalog_question_and_its_current_answer():
@@ -17,6 +21,20 @@ def test_every_derivation_belongs_to_a_catalog_question_and_its_current_answer()
             f"the official answer of {key} changed: check its derivation in catalog_derivations.yaml, "
             f"then set its answer_fingerprint to {fingerprint(answers[key])}"
         )
+
+
+def test_every_sketch_of_a_derivation_exists():
+    for key, entry in derivations().items():
+        for block in entry.blocks:
+            if block.image:
+                assert (DERIVATIONS_DIR / block.image.src).is_file(), f"{key}: {block.image.src} is missing"
+
+
+def test_load_rejects_a_sketch_without_alt_text():
+    image = "{src: a.svg, width: 1, height: 1, alt: ''}"
+    entry = f"- {{subject: wetterkunde, number: 21, answer_fingerprint: abc, blocks: [{{image: {image}}}]}}\n"
+    with pytest.raises(ValueError):
+        load(entry)
 
 
 def test_fingerprint_ignores_surrounding_whitespace_but_not_the_wording():
@@ -62,7 +80,7 @@ def test_questions_api_carries_the_derivation(client, db_session, auth_headers, 
     body = client.get("/api/v1/questions", headers=auth_headers).json()
 
     by_number = {q["number"]: q for q in body}
-    assert by_number[25]["derivation"] == [{"text": text, "table": None}]
+    assert by_number[25]["derivation"] == [{"text": text, "table": None, "image": None}]
     assert by_number[26]["derivation"] == []
 
 

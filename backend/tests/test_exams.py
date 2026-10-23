@@ -188,7 +188,8 @@ def test_derivations_hidden_until_submit(client, db_session, auth_headers, monke
     assert all(q["derivation"] == [] for q in exam["questions"])
 
     submitted = _answer_and_submit(client, auth_headers, exam)
-    assert all(q["derivation"] == [{"text": "Herleitung", "table": None}] for q in submitted["questions"])
+    expected = [{"text": "Herleitung", "table": None, "image": None}]
+    assert all(q["derivation"] == expected for q in submitted["questions"])
 
 
 def test_answers_are_saved_and_rejected_after_submit(client, db_session, auth_headers):

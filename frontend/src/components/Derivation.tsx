@@ -3,7 +3,7 @@ import { RichText } from './RichText'
 
 // A derivation: the working that leads to an answer. The Kartenaufgaben's is the WSV's own (ADR-0053),
 // a catalog question's is SKS Lotse's (ADR-0065), marked as not official. Both fold out at the foot of
-// the official answer or solution.
+// the official answer or solution. A sketch is a static file of this site, served from /derivations/.
 
 /** Text where **…** marks an intermediate result (for the Kartenaufgaben: what the PDF prints bold). */
 function BoldText({ text }: { text: string }) {
@@ -23,6 +23,18 @@ function BoldText({ text }: { text: string }) {
 }
 
 function Block({ block }: { block: DerivationBlock }) {
+  if (block.image) {
+    return (
+      <img
+        src={`/derivations/${block.image.src}`}
+        width={block.image.width}
+        height={block.image.height}
+        alt={block.image.alt}
+        // Drawn on white, like the catalog's images: it keeps its white background in dark mode too.
+        className="h-auto max-w-full rounded-tile border border-border bg-white"
+      />
+    )
+  }
   if (!block.table) {
     return (
       <p>

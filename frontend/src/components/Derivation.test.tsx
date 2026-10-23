@@ -22,6 +22,17 @@ describe('DerivationDetails', () => {
 })
 
 describe('DerivationText', () => {
+  it('shows a sketch from /derivations/ with its description', () => {
+    render(
+      <DerivationText
+        blocks={[{ image: { src: 'wind.svg', width: 780, height: 400, alt: 'Wind um Hoch und Tief' } }]}
+      />,
+    )
+    const image = screen.getByRole('img', { name: 'Wind um Hoch und Tief' })
+    expect(image).toHaveAttribute('src', '/derivations/wind.svg')
+    expect(image).toHaveAttribute('width', '780')
+  })
+
   it('renders a table with its sum rule', () => {
     render(
       <DerivationText
