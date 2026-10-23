@@ -3490,7 +3490,20 @@
    "answer_text": "Sichtbeschränkung nach voraus maximal 2 Schiffslängen oder 500 m.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Auf großen Schiffen liegt die Brücke oft weit achtern. Davor versperren hohe Aufbauten oder gestapelte Container den Blick nach unten auf das Wasser. Vor dem Bug liegt deshalb ein **toter Winkel**, in dem ein kleines Boot von der Brücke aus nicht zu sehen ist.",
+     "table": null
+    },
+    {
+     "text": "Wie groß dieser tote Winkel sein darf, ist für den Bau der Schiffe international begrenzt (SOLAS Kap. V, Regel 22) – auf **höchstens 2 Schiffslängen oder 500 m**, je nachdem, was kleiner ist.",
+     "table": null
+    },
+    {
+     "text": "Dieser Höchstwert ist das, womit Sie **mindestens rechnen** müssen. Bis zu dieser Entfernung vor dem Steven können Sie unsichtbar sein.",
+     "table": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",

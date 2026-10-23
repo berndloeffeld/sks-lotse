@@ -21,3 +21,14 @@
       wird daher **weniger nach rechts abgelenkt**.
   - text: Der Zug zum Tief hin überwiegt, und der Wind **dreht zum Tief hin**.
   - text: Deshalb weht er schräg über die Isobaren, gegen den Uhrzeigersinn gedreht – er ist **rückgedreht**.
+- subject: seemannschaft_allgemein
+  number: 97
+  answer_fingerprint: dfbda2ecad0e
+  blocks:
+  - text: Auf großen Schiffen liegt die Brücke oft weit achtern. Davor versperren hohe Aufbauten oder gestapelte
+      Container den Blick nach unten auf das Wasser. Vor dem Bug liegt deshalb ein **toter Winkel**, in dem ein
+      kleines Boot von der Brücke aus nicht zu sehen ist.
+  - text: Wie groß dieser tote Winkel sein darf, ist für den Bau der Schiffe international begrenzt (SOLAS Kap. V,
+      Regel 22) – auf **höchstens 2 Schiffslängen oder 500 m**, je nachdem, was kleiner ist.
+  - text: Dieser Höchstwert ist das, womit Sie **mindestens rechnen** müssen. Bis zu dieser Entfernung vor dem Steven
+      können Sie unsichtbar sein.
