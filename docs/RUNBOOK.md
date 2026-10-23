@@ -232,7 +232,7 @@ For sbf-lotse.de, the second static site ([ADR-0067](adr/0067-second-site-from-o
   - for `www`, a `CNAME www → sbf-lotse-frontend.onrender.com`;
   - for the apex, the `A` record Render lists, since IONOS has no `ALIAS`.
   - Then wait until Render shows both domains as verified, with a certificate.
-- [ ] **Umami:** add a website `sbf-lotse.de` in Umami Cloud, separate from SKS Lotse's. Copy its website id from the tracking snippet into `VITE_UMAMI_WEBSITE_ID` on `sbf-lotse-frontend` (Render → Environment), then redeploy, since the id is baked in at build time.
+- [ ] **Umami:** set `VITE_UMAMI_WEBSITE_ID` on `sbf-lotse-frontend` (Render → Environment) to the same value as on `sks-lotse-frontend`, then redeploy, since the id is baked in at build time. Both sites report to one Umami website (Umami Cloud's free plan has one); filter the reports by hostname `sbf-lotse.de`. A website of its own needs the Pro plan and a change of the Datenschutzerklärung, which says the two are evaluated together.
 - [ ] **Google Search Console:** add a domain property `sbf-lotse.de`, verified by the TXT record it shows (IONOS). Then submit the sitemap `https://sbf-lotse.de/sitemap.xml`.
 - [ ] **Check:**
   - `https://sbf-lotse.de` and `https://www.sbf-lotse.de` show SBF Lotse.
