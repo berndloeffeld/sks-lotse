@@ -54,3 +54,12 @@ Options considered:
 - Rejected:
   - A runtime switch on the hostname (option 1): one prerender for two sites, and the SKS app on sbf-lotse.de.
   - A fork (option 2): every shared fix twice.
+
+## Update 2026-10-23: one Umami website for both sites
+
+Umami Cloud's free plan has room for one website only, and that one is SKS Lotse's. Instead of a paid plan, `sbf-lotse-frontend` gets the same `VITE_UMAMI_WEBSITE_ID` as `sks-lotse-frontend`. This replaces "their separate Umami websites" and "its own `VITE_UMAMI_WEBSITE_ID`" in the Decision above.
+
+- Umami records the hostname of every page view, so its reports tell sks-lotse.de and sbf-lotse.de apart by a filter.
+- The Datenschutzerklärung says the two are evaluated together, by domain.
+- Both sites share the free plan's 100,000 events a month. A site of its own would need the Pro plan and a change of that sentence again.
+

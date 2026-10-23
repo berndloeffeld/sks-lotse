@@ -226,8 +226,8 @@ export function PrivacyContent() {
           geräte- oder personenbezogene Kennung gespeichert, mit der Sie über mehrere Besuche hinweg wiedererkannt
           werden könnten. Rechtsgrundlage ist unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) an der
           bedarfsgerechten Weiterentwicklung des Angebots. Da keine Wiedererkennung stattfindet, ist hierfür keine
-          Einwilligung nach § 25 TDDDG erforderlich. SKS Lotse und SBF Lotse werten wir in Umami getrennt aus, als zwei
-          eigene Websites.
+          Einwilligung nach § 25 TDDDG erforderlich. SKS Lotse und SBF Lotse werten wir in Umami gemeinsam aus,
+          unterschieden nach der aufgerufenen Domain (sks-lotse.de bzw. sbf-lotse.de).
         </p>
       </ProseSection>
 
