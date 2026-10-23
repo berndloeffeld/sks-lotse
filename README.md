@@ -125,7 +125,10 @@ npx vitest run --coverage   # tests + line/branch coverage gate (thresholds in v
 npm run lint                # ESLint
 npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
+VITE_SITE=sbf VITE_SBF=off npm run build && node scripts/check-sbf-build.mjs   # SBF Lotse's build (ADR-0067), checked for API calls
 ```
+
+`npm run dev` and `npm run build` build SKS Lotse; with `VITE_SITE=sbf` they build SBF Lotse (sbf-lotse.de) from the same code instead ([ADR-0067](docs/adr/0067-second-site-from-one-codebase.md)). Its own page, routes and public files are `frontend/index.sbf.html`, `frontend/src/sbf/` and `frontend/public-sbf/`.
 
 These run in CI on every push to `main` and every PR (`.github/workflows/backend-ci.yml`, `.github/workflows/frontend-ci.yml`). Backend CI additionally checks the Alembic migrations against a real Postgres, checks that the committed Postman collection and frontend API types are still in sync with the API (`scripts/generate_postman_collection.sh`), and runs the integration tests below.
 

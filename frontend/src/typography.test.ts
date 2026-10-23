@@ -13,10 +13,11 @@ const read = (path: string) => SOURCES[path]
 
 // Where a rejected spelling is fine: the catalog source line (code identifiers like AccountMenu never match).
 const ALLOWED: Record<string, string[]> = {
-  // The legal texts keep "Musterantworten" (AGB are only typographically touched, no new version); the
-  // Datenschutz "Kategorie" is the category of a question report, not a Fach.
-  Musterantwort: ['LegalFooter.tsx', 'AgbPage.tsx', 'PrivacyPage.tsx'],
-  Kategorie: ['PrivacyPage.tsx'],
+  // The legal texts keep "Musterantworten" (AGB are only typographically touched, no new version), and so
+  // does the footer's source line (site.ts); the Datenschutz "Kategorie" is the category of a question
+  // report, not a Fach.
+  Musterantwort: ['site.ts', 'AgbPage.tsx', 'PrivacyContent.tsx'],
+  Kategorie: ['PrivacyContent.tsx'],
 }
 
 function offenders(pattern: RegExp): string[] {

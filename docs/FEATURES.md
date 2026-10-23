@@ -102,6 +102,18 @@ Status today: buying tokens is open to all learners (the live state of the flag 
 
 Landing page with a feature overview, pricing, FAQ, "So läuft die SKS-Prüfung ab" (exam process, linked as Prüfungsablauf in the footer), "SKS-Fragenkatalog lernen mit dem Karteikarten-Prinzip" (the learning method, linked as Lernmethode in the footer and from the landing page and the FAQ), imprint, privacy policy and terms, plus the topic list and one page per topic of "Lernen nach Thema" (25 topics, every question with its official answer to unfold). The landing page also previews the Kartenaufgaben (a screenshot and what a run offers) and links to them; their list and one page per sheet are public pages too. They are prepared for search engines and AI answer engines (ChatGPT, Claude, Perplexity may fetch and cite them) and listed in the sitemap. "So läuft die SKS-Prüfung ab" answers the common exam questions in short form, also as structured data, and recommends the Segelschule Altwarp for the practical side and charter, as the operator's personal tip, unpaid (no commission, discount or other consideration), with what makes the Stettiner Haff a training area for SKS navigation (SeeSchStrO, buoyage, shallow water, the fairway into Polish waters). The learning-method page explains in plain words why repeating at growing intervals beats reading through once (forgetting curve, flash-card principle, half-life of an answer, when a question counts as learned, the three modes) with three schematic figures (forgetting curve with and without repetition, the flash-card box, the effect of a grading on the curve), practical tips and a short Q&A, also as structured data. It names no numbers of the model, on purpose, and the figures have no scale either.
 
+## SBF Lotse (in the making)
+
+A second site, **SBF Lotse** on sbf-lotse.de, for the theory exam of the **Sportbootführerschein (SBF) See** and later Binnen. It is built from the same code as SKS Lotse, with its own brand, theme ("Fahrwasserblau") and pages ([ADR-0067](adr/0067-second-site-from-one-codebase.md)).
+
+- **What it shows today**:
+  - A start page that says what is coming: first the 15 official Navigationsaufgaben See, then the SBF catalogs, accounts and the Lotsen-Check.
+  - A link to SKS Lotse as the next step after the SBF See.
+  - Its own FAQ.
+  - The Impressum and Datenschutzerklärung, which are shared with SKS Lotse.
+- **What it doesn't have yet**: no login, no saving, no Lotsen-Check, no AGB and no buying. The site says "bald", and it makes no request to the SKS Lotse server.
+- **Status today**: built behind a flag (`VITE_SBF=off`). The Navigationsaufgaben are not live; they open in a PR of their own once the usage rights for the SBF catalog See and the Übungskarte D49 are confirmed. sbf-lotse.de goes live once the operator has set up its domain, which is a one-time step in the RUNBOOK. SKS Lotse doesn't link to it yet.
+
 ## Privacy
 
 - Access with an email address only, no password. No advertising and no cookies beyond the session cookie of a logged-in account, so there is no consent banner.

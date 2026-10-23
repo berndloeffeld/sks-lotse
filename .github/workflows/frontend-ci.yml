@@ -41,6 +41,13 @@ jobs:
       # must fail here, not in the deploy. It sits in this job rather than frontend-test, which the
       # tests already make the longer one, so the two run side by side.
       - run: npm run build
+      # SBF Lotse, the second site from this frontend (ADR-0067): its build, and that it carries no
+      # API client and none of SKS Lotse's data. A step here rather than a job of its own, so the
+      # required checks stay as they are.
+      - run: npm run build && node scripts/check-sbf-build.mjs
+        env:
+          VITE_SITE: sbf
+          VITE_SBF: 'off'
 
   frontend-test:
     runs-on: ubuntu-latest

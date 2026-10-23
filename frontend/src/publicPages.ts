@@ -23,12 +23,13 @@ import {
   topicText,
   type PageText,
 } from './publicPageTexts'
+import { SITES } from './site'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
 // sitemap lists them, and render.yaml rewrites each path to its file (for the /learn pages,
 // backend/tests/test_catalog_export.py checks that every one is there). The open /learn pages come from the catalog export (ADR-0054).
 
-export const SITE = 'https://sks-lotse.de'
+export const SITE = SITES.sks.origin
 
 export interface PageMeta {
   title: string
@@ -36,6 +37,9 @@ export interface PageMeta {
   canonical: string
   // Structured data for the page's head (schema.org), one <script type="application/ld+json"> each.
   jsonLd?: Record<string, unknown>[]
+  // Reachable, but not for the index nor the sitemap: the SBF site's copies of the legal pages,
+  // which say word for word what sks-lotse.de says (ADR-0067).
+  noindex?: boolean
 }
 
 export interface PublicPage {
@@ -68,11 +72,12 @@ function breadcrumbs(...trail: [string, string][]): Record<string, unknown> {
 }
 
 // The /faq entries as schema.org questions; an answer's `[text](/path)` links become plain text.
-function faqJsonLd(): Record<string, unknown> {
+// Also the SBF site's (src/sbf/publicPages.ts), with its own entries.
+export function faqJsonLd(entries: { question: string; answer: string }[] = FAQ): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: FAQ.map(({ question, answer }) => ({
+    mainEntity: entries.map(({ question, answer }) => ({
       '@type': 'Question',
       name: question,
       acceptedAnswer: {
@@ -182,6 +187,7 @@ export function applyMeta(html: string, meta: PageMeta): string {
       (data) => `    <script type="application/ld+json">${JSON.stringify(data).replaceAll('<', '\\u003c')}</script>\n`,
     )
     .join('')
+  const robots = meta.noindex ? '    <meta name="robots" content="noindex" />\n' : ''
   // Replacement functions, so a "$" in the text is never read as a replacement pattern.
   return html
     .replace(/<title>.*?<\/title>/s, () => `<title>${title}</title>`)
@@ -202,11 +208,13 @@ export function applyMeta(html: string, meta: PageMeta): string {
       () => `<meta name="twitter:description" content="${description}" />`,
     )
     .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
-    .replace(/\s*<\/head>/, () => `\n${ld}  </head>`)
+    .replace(/\s*<\/head>/, () => `\n${robots}${ld}  </head>`)
 }
 
-// dist/sitemap.xml: every prerendered page.
-export function sitemapXml(pages: PublicPage[]): string {
-  const urls = pages.map((p) => `  <url>\n    <loc>${escapeHtml(`${SITE}${p.path}`)}</loc>\n  </url>`)
+// dist/sitemap.xml: every prerendered page that is for the index, on the build's site.
+export function sitemapXml(pages: PublicPage[], origin: string = SITE): string {
+  const urls = pages
+    .filter((p) => !p.meta?.noindex)
+    .map((p) => `  <url>\n    <loc>${escapeHtml(`${origin}${p.path}`)}</loc>\n  </url>`)
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`
 }

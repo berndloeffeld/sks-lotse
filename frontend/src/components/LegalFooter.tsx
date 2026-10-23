@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
-import { FEEDBACK_MAILTO } from '../contact'
+import { feedbackMailto } from '../contact'
+import { catalogSourceLine, siteIdentity } from '../siteConfig'
 
 // `pt-1 -mt-1` and `min-w-6` make a short link ("FAQ", "AGB") a 24 px tap target without moving it.
 const TAP_AREA = 'min-w-6 -mt-1 pt-1 text-center'
@@ -12,52 +13,44 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 // The content pages (Prüfungsablauf, Lernmethode, FAQ), the contact (also the way to send feedback) and the
-// legal links. Impressum must be
+// legal links — each site its own (site.ts). Impressum must be
 // reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
 export function LegalFooter() {
+  const { name, footerLinks } = siteIdentity()
+  const source = catalogSourceLine()
   return (
     <footer className="bg-primary-dark">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-5 px-4 py-8 text-center text-surface-alt">
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide uppercase">
-          <NavLink to="/exam-process" className={footerLinkClass}>
-            Prüfungsablauf
-          </NavLink>
-          <NavLink to="/learning-method" className={footerLinkClass}>
-            Lernmethode
-          </NavLink>
-          <NavLink to="/faq" className={footerLinkClass}>
-            FAQ
-          </NavLink>
-          <NavLink to="/imprint" className={footerLinkClass}>
-            Impressum
-          </NavLink>
-          <NavLink to="/privacy" className={footerLinkClass}>
-            Datenschutz
-          </NavLink>
-          <NavLink to="/terms" className={footerLinkClass}>
-            AGB
-          </NavLink>
-          <a href={FEEDBACK_MAILTO} className={FOOTER_LINK}>
+          {footerLinks.map(({ to, label }) => (
+            <NavLink key={to} to={to} className={footerLinkClass}>
+              {label}
+            </NavLink>
+          ))}
+          <a href={feedbackMailto(name)} className={FOOTER_LINK}>
             Kontakt
           </a>
         </nav>
-        <p className="font-mono text-2xs">© {new Date().getFullYear()} SKS Lotse</p>
-        <p className="max-w-md text-xs">
-          Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS, Wasserstraßen- und
-          Schifffahrtsverwaltung des Bundes (WSV), bereitgestellt über{' '}
-          <a
-            href="https://www.elwis.de"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-surface"
-          >
-            ELWIS
-          </a>
-          .
+        <p className="font-mono text-2xs">
+          © {new Date().getFullYear()} {name}
         </p>
+        {source ? (
+          <p className="max-w-md text-xs">
+            {source}, Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV), bereitgestellt über{' '}
+            <a
+              href="https://www.elwis.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-surface"
+            >
+              ELWIS
+            </a>
+            .
+          </p>
+        ) : null}
       </div>
     </footer>
   )

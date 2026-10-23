@@ -14,6 +14,7 @@ npm run dev
 
 - `npm run dev` — Vite dev server
 - `npm run build` — type-check (`tsc -b`), client + SSR build, then `scripts/prerender.mjs` (every public page of `src/publicPages.ts`: the static pages, one per catalog topic and one per Kartenaufgaben sheet, and the `app.html` shell); CI runs it too
+- `VITE_SITE=sbf VITE_SBF=off npm run build` — the same for SBF Lotse ([ADR-0067](../docs/adr/0067-second-site-from-one-codebase.md)): `index.sbf.html`, `src/sbf/`, `public-sbf/`; `node scripts/check-sbf-build.mjs` then checks `dist/` holds no API client and no SKS data (CI runs both)
 - `npm run lint` / `npm run format` / `npm run format:check` — ESLint / Prettier
 - `npm run test` — Vitest once; `npm run test:watch` for watch mode; add `-- --coverage` for the coverage report and its gate (thresholds: `test.coverage.thresholds` in [`vite.config.ts`](vite.config.ts))
 - `../scripts/run_frontend_mutation_tests.sh gate` — Stryker over the logic modules (minimum score in the script, [docs/mutation-testing.md](../docs/mutation-testing.md))

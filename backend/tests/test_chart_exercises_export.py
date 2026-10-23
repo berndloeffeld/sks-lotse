@@ -1,7 +1,6 @@
-import yaml
-
 from app.schemas.chart_exercise import ChartExerciseCatalog
 from app.services.chart_exercises import EXPORT_PATH, catalog, render_export
+from tests import render_blueprint
 
 
 def test_the_committed_export_matches_the_yaml():
@@ -39,12 +38,10 @@ def test_render_yaml_sets_the_same_flag_for_api_and_build():
     # The API decides for learners, the build for guests (ADR-0056); apart, guests could get pages
     # whose feature the API still hides from logged-in learners, or the other way round. Read as
     # YAML, the way Render reads it: an unquoted `on` would be the boolean true, which the API's
-    # setting rejects at startup.
-    render_yaml = yaml.safe_load((EXPORT_PATH.parents[3] / "render.yaml").read_text(encoding="utf-8"))
-    env = [var for service in render_yaml["services"] for var in service.get("envVars", [])]
-    api = [var.get("value") for var in env if var["key"] == "CHART_EXERCISES"]
-    build = [var.get("value") for var in env if var["key"] == "VITE_CHART_EXERCISES"]
+    # setting rejects at startup. Only SKS Lotse's site has the Kartenaufgaben (ADR-0067).
+    api = render_blueprint.env("sks-lotse-backend")["CHART_EXERCISES"].get("value")
+    build = render_blueprint.env("sks-lotse-frontend")["VITE_CHART_EXERCISES"].get("value")
 
-    assert len(api) == 1
-    assert api[0] in ("off", "admins", "on")
+    assert api in ("off", "admins", "on")
     assert build == api
+    assert "VITE_CHART_EXERCISES" not in render_blueprint.env("sbf-lotse-frontend")

@@ -1,6 +1,6 @@
 # SKS Lotse — Claude Code Context
 
-SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The official catalog is free text: the learner writes an answer and grades it against the official model answer, optionally helped by an LLM that *suggests* a grade (the Lotsen-Check). Web-only, freemium without ads: the Lotsen-Check is paid per use with tokens, bought through Stripe.
+SKS Lotse is a web app to prepare for the theoretical exam of the German SKS (Sportküstenschifferschein) sailing license. The same code builds a second site, SBF Lotse (sbf-lotse.de, Sportbootführerschein See/Binnen), chosen per build by `VITE_SITE` (ADR-0067). The official catalog is free text: the learner writes an answer and grades it against the official model answer, optionally helped by an LLM that *suggests* a grade (the Lotsen-Check). Web-only, freemium without ads: the Lotsen-Check is paid per use with tokens, bought through Stripe.
 
 This file holds the **rules for working on the code**. Everything descriptive lives in one place each:
 
@@ -24,7 +24,7 @@ This holds in particular for `docs/FEATURES.md` (a change to what learners or op
 ```
 .github/    workflows (backend-ci, frontend-ci, mutation-testing, maintenance-mode, reset-admin-2fa)
 backend/    FastAPI app (app/api/v1 routes, app/services shared logic, app/domain product rules, app/core infrastructure/cross-cutting), alembic/, scripts/, tests/
-frontend/   React + Vite + TypeScript SPA (src/pages, src/components, src/hooks, src/api, src/store, src/routes)
+frontend/   React + Vite + TypeScript SPA (src/pages, src/components, src/hooks, src/api, src/store, src/routes; SBF Lotse: src/sbf, index.sbf.html, public-sbf)
 docs/       ARCHITECTURE.md, RUNBOOK.md, catalog-pipeline.md, adr/, the catalog PDF
 postman/    generated API-reference collection + hand-written integration tests
 scripts/    repo tooling (Postman generation, integration/mutation tests, dependency locks, Aikido check)
@@ -37,6 +37,7 @@ render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Po
 - **The official catalog wording is never changed** (amtliches Werk; cite ELWIS as the source). Catalog rows come only from the data migrations ([docs/catalog-pipeline.md](docs/catalog-pipeline.md)), never from the API or by hand; the guests' copy `frontend/src/data/catalog.gen.json` only from `backend/scripts/export_catalog.py`, and `chart_exercises.gen.json` only from `backend/scripts/export_chart_exercises.py`. Topic names are transcribed from the catalog, never invented by a script or an LLM. SKS Lotse's own derivations live apart from the catalog, in `backend/app/data/catalog_derivations.yaml`, always marked as not official and never sent to the Lotsen-Check (ADR-0065).
 - **The Lotsen-Check only suggests**; the learner always confirms the grade. It sends nothing but question, official answer and the learner's answer, plus the official questions and answers of the question's topic (ADR-0066) — for a Kartenaufgabe instead the official derivation and the learner's answers to the earlier tasks of the same run (ADR-0058). Never anything about the account.
 - **"Gelernt" is the half-life model** (ADR-0034/0039); the UI never shows its numbers (ADR-0024).
+- **SBF Lotse makes no API call** (ADR-0067) until it gets accounts: its build (`VITE_SITE=sbf`) uses only the parts both sites share, never the SKS session parts (`Header`, `PageLayout`, the auth store, `api/client`); `frontend/scripts/check-sbf-build.mjs` fails CI otherwise. Its content stays behind `VITE_SBF` (`off` in `render.yaml` until the usage rights are confirmed).
 - **No advertising** (ADR-0060): the only paid product is the `token_balance` pay-per-use balance (ADR-0043). No third-party script but Umami, and that never on `/admin`.
 - **Personal data** added anywhere is deleted with the account (`services/user.py:delete_user_and_progress`), included in the admin export (`services/admin_users.py`) and described in the Datenschutzerklärung. `backend/tests/test_personal_data_coverage.py` fails on a table or column that deletion and export don't cover, until it is added there or listed with the reason it needs neither.
 
