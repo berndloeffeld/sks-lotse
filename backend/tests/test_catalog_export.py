@@ -1,6 +1,4 @@
 import json
-import re
-from pathlib import Path
 
 from app.services.catalog_seed import (
     EXPORT_PATH,
@@ -11,6 +9,7 @@ from app.services.catalog_seed import (
     load_topics,
     render_catalog_export,
 )
+from tests import render_blueprint
 
 TOPICS = {
     "wetterkunde": [
@@ -80,16 +79,11 @@ def test_renders_stable_readable_json():
 STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms", "/exam-process", "/learning-method", "/pricing"}
 
 
-def _rewrites(render_yaml: str) -> list[tuple[str, str]]:
-    return re.findall(r"- type: rewrite\s+source: (\S+)\s+destination: (\S+)", render_yaml)
-
-
 def test_render_yaml_rewrites_every_prerendered_page_to_its_file():
     # Render doesn't map /faq to faq.html, and a directory index (faq/index.html) answers /faq
     # with an empty 200 (ADR-0057). So every prerendered page needs its own rewrite, ahead of the
     # SPA fallback. The open /learn pages come from the export (learnPages, ADR-0054).
-    render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
-    rewrites = _rewrites(render_yaml)
+    rewrites = render_blueprint.rewrites("sks-lotse-frontend")
     topics = json.loads(EXPORT_PATH.read_text())["topics"]
     learn = {"/learn"} | {f"/learn/{t['subject']}/{t['slug']}" for t in topics}
 
@@ -102,10 +96,10 @@ def test_render_yaml_rewrites_every_prerendered_page_to_its_file():
 def test_render_yaml_rewrites_the_chart_pages_only_while_they_are_built():
     # /charts and /charts/<n> are prerendered only at VITE_CHART_EXERCISES=on (ADR-0056); a rewrite
     # to a file the build doesn't write answers 200 with an empty body.
-    render_yaml = (Path(EXPORT_PATH).parents[3] / "render.yaml").read_text()
-    flag = re.findall(r"- key: VITE_CHART_EXERCISES\s+value: \"?([^\"\s]+)\"?", render_yaml)
-    charts = {source for source, _ in _rewrites(render_yaml) if source.startswith("/charts")}
+    flag = render_blueprint.env("sks-lotse-frontend")["VITE_CHART_EXERCISES"]["value"]
+    rewrites = render_blueprint.rewrites("sks-lotse-frontend")
+    charts = {source for source, _ in rewrites if source.startswith("/charts")}
     sheets = json.loads((EXPORT_PATH.parent / "chart_exercises.gen.json").read_text())["sheets"]
 
     expected = {"/charts"} | {f"/charts/{sheet['number']}" for sheet in sheets}
-    assert charts == (expected if flag == ["on"] else set())
+    assert charts == (expected if flag == "on" else set())

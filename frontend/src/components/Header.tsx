@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 
+import { HeaderBar } from './HeaderBar'
 import { HEADER_CTA } from './headerLink'
 import { LoginLink } from './LoginLink'
-import { Logo } from './Logo'
 import { MarketingLinks } from './MarketingLinks'
 
 interface HeaderProps {
@@ -14,21 +13,13 @@ interface HeaderProps {
   nav?: ReactNode
 }
 
-// Full-width primary-dark bar — the top band of every page's banded layout. Everything in it
-// sits on one text baseline: the wordmark, the links and the bordered buttons' labels.
-// It sticks from `sm` on, where it is one line high: `--header-height` in index.css, which the
-// sticky bars below it and the anchor jumps go by. On phones it wraps to up to three lines, so
-// there it scrolls away and leaves the screen to the page.
+// SKS Lotse's header: the bar (HeaderBar) with the marketing links plus "Anmelden" by default.
 export function Header({ homeTo = '/', nav }: HeaderProps) {
   return (
-    <header className="z-(--z-header) bg-primary-dark sm:sticky sm:top-0">
-      <div className="mx-auto flex w-full max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-3 px-4 py-4">
-        <div className="flex items-baseline gap-3">
-          <Link to={homeTo} aria-label="SKS Lotse – Startseite">
-            <Logo inverted />
-          </Link>
-        </div>
-        {nav === undefined ? (
+    <HeaderBar
+      homeTo={homeTo}
+      nav={
+        nav === undefined ? (
           <nav className="ml-auto flex flex-wrap items-baseline justify-end gap-x-5 gap-y-2">
             <MarketingLinks />
             <LoginLink place="header" className={HEADER_CTA}>
@@ -37,8 +28,8 @@ export function Header({ homeTo = '/', nav }: HeaderProps) {
           </nav>
         ) : (
           nav
-        )}
-      </div>
-    </header>
+        )
+      }
+    />
   )
 }

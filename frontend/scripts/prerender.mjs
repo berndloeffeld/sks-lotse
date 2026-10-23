@@ -29,8 +29,9 @@ const dist = fileURLToPath(new URL('../dist/', import.meta.url))
 const ssrDir = fileURLToPath(new URL('../dist-ssr/', import.meta.url))
 const ROOT = '<div id="root"></div>'
 
-// The pages, their heads and the sitemap come from src/publicPages.ts, via the SSR build.
-const { render, pages, applyMeta, sitemapXml } = await import(
+// The pages, their heads and the sitemap come from the build's site (ADR-0067), via the SSR build:
+// src/publicPages.ts for SKS Lotse, src/sbf/publicPages.ts for SBF Lotse.
+const { render, pages, applyMeta, sitemapXml, appTitle, dataChunks } = await import(
   new URL('../dist-ssr/entry-server.js', import.meta.url).href
 )
 
@@ -48,10 +49,9 @@ function dataChunkPreload(prefix) {
   if (!file) throw new Error(`prerender: no ${prefix} chunk found in dist/assets`)
   return `<link rel="modulepreload" crossorigin href="/assets/${file}" />\n  </head>`
 }
-const catalogPreload = dataChunkPreload('catalog.gen')
-const chartCatalogPreload = dataChunkPreload('chart_exercises.gen')
-const preloadFor = (path) =>
-  path.startsWith('/learn') ? catalogPreload : path.startsWith('/charts') ? chartCatalogPreload : null
+// dataChunks: [{ path, chunk }] — the pages under `path` hydrate from the data chunk `chunk`.
+const preloads = dataChunks.map(({ path, chunk }) => ({ path, preload: dataChunkPreload(chunk) }))
+const preloadFor = (path) => preloads.find((entry) => path.startsWith(entry.path))?.preload ?? null
 
 // app.html answers every path without a page of its own (/login, /profile, /admin, unknown paths):
 // not the home page's canonical or title, and not for the index.
@@ -59,7 +59,7 @@ const appShell = shell
   .replace(/\s*<link rel="canonical"[^>]*\/>/, '')
   .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')
   .replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />\n    <meta name="robots" content="noindex" />')
-  .replace(/<title>.*?<\/title>/s, '<title>SKS Lotse</title>')
+  .replace(/<title>.*?<\/title>/s, () => `<title>${appTitle}</title>`)
 if (!appShell.includes('noindex') || appShell.includes('canonical')) {
   throw new Error('prerender: app.html must be noindex and carry no canonical')
 }

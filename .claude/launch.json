@@ -27,6 +27,24 @@
         "cd frontend && npm run preview -- --port 4173"
       ],
       "port": 4173
+    },
+    {
+      "name": "sbf-dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd frontend && VITE_SITE=sbf VITE_SBF=off npm run dev -- --port 5174"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "sbf-preview",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd frontend && VITE_SITE=sbf VITE_SBF=off npm run build && npm run preview -- --port 4174"
+      ],
+      "port": 4174
     }
   ]
 }

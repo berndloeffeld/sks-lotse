@@ -6,7 +6,7 @@ How to operate SKS Lotse in production: where to look, what to do when something
 
 | What | Where |
 |---|---|
-| Services, env vars, deploys, database | Render dashboard: `sks-lotse-backend`, `sks-lotse-frontend`, `sks-lotse-daily-report` (cron), `sks-lotse-db` — all declared in `render.yaml` |
+| Services, env vars, deploys, database | Render dashboard: `sks-lotse-backend`, `sks-lotse-frontend`, `sbf-lotse-frontend` (SBF Lotse, [ADR-0067](adr/0067-second-site-from-one-codebase.md)), `sks-lotse-daily-report` (cron), `sks-lotse-db` — all declared in `render.yaml` |
 | Uptime monitors, status page, logs, heartbeat | Better Stack. Public status page: [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) |
 | CI, branch protection, Dependabot | GitHub (`.github/`) |
 | Security findings | Aikido dashboard and alert mails (rescans about every three days; see [Security alerts](#security-alerts-aikido)) |
@@ -165,9 +165,13 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 2. Without GitHub: Render dashboard → `sks-lotse-backend` → Shell → `python -m scripts.reset_admin_totp --email …`.
 3. The script also ends every session of that account. Log in again, open `/admin`, set 2FA up afresh.
 
+## SBF Navigationsaufgaben flag
+
+`VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests. It's declared in `render.yaml` (currently `off`), so switching it is a PR together with `docs/FEATURES.md`. It opens only once the usage rights for the SBF catalog See and the Übungskarte D49 are confirmed (asked at ELWIS, with the DSV in copy). It is a build-time value, so a switch takes the SBF site's deploy.
+
 ## security.txt
 
-`frontend/public/.well-known/security.txt` (RFC 9116) names `kontakt@sks-lotse.de` and links `SECURITY.md`. Its `Expires` field (currently 2027-09-30) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
+`frontend/public/.well-known/security.txt` (RFC 9116), and SBF Lotse's copy in `frontend/public-sbf/.well-known/`, name `kontakt@sks-lotse.de` and links `SECURITY.md`. Their `Expires` field (currently 2027-09-30 in both) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
 
 ## Security alerts (Aikido)
 
@@ -217,3 +221,23 @@ Account-level steps, done by the project owner:
 4. Better Stack: monitors on `https://sks-lotse.de` and `https://api.sks-lotse.de/health`, a log source for Render's log stream, the error alert, and the daily-report heartbeat.
 5. Resend: verify the sending domain via the DNS records Resend lists (IONOS).
 6. The GitHub Actions that call Render's API — [Maintenance mode](#maintenance-mode) (optional, the Render dashboard path needs none of this) and [Reset admin 2FA](#reset-an-admins-2fa): create a Render API key (Account Settings → API Keys) and add it as the GitHub Actions secret `RENDER_API_KEY`, and add the backend service's id (`srv-...`, from its Render dashboard URL) as the secret `RENDER_BACKEND_SERVICE_ID` (repo → Settings → Secrets and variables → Actions → "Repository secrets" — not sensitive, but simplest to set alongside the API key on the same page).
+
+## One-time setup SBF, part 1
+
+For sbf-lotse.de, the second static site ([ADR-0067](adr/0067-second-site-from-one-codebase.md)). The merge of the PR that adds `sbf-lotse-frontend` to `render.yaml` creates the service through the Blueprint sync. It then deploys the placeholder (`VITE_SBF=off`) at `sbf-lotse-frontend.onrender.com`. Steps for the project owner:
+
+- [ ] **Render:** check under Blueprints that the sync ran and `sbf-lotse-frontend` exists (on a Blueprint set to manual sync, trigger it). Its first build must pass.
+- [ ] **Render:** on `sbf-lotse-frontend` → Settings → Custom Domains, add `sbf-lotse.de` and `www.sbf-lotse.de`. A domain can only be attached to one service.
+- [ ] **DNS (IONOS):** for each domain, the records Render shows there:
+  - for `www`, a `CNAME www → sbf-lotse-frontend.onrender.com`;
+  - for the apex, the `A` record Render lists, since IONOS has no `ALIAS`.
+  - Then wait until Render shows both domains as verified, with a certificate.
+- [ ] **Umami:** add a website `sbf-lotse.de` in Umami Cloud, separate from SKS Lotse's. Copy its website id from the tracking snippet into `VITE_UMAMI_WEBSITE_ID` on `sbf-lotse-frontend` (Render → Environment), then redeploy, since the id is baked in at build time.
+- [ ] **Google Search Console:** add a domain property `sbf-lotse.de`, verified by the TXT record it shows (IONOS). Then submit the sitemap `https://sbf-lotse.de/sitemap.xml`.
+- [ ] **Check:**
+  - `https://sbf-lotse.de` and `https://www.sbf-lotse.de` show SBF Lotse.
+  - The response headers carry the CSP without `api.sks-lotse.de`.
+  - The browser's network tab shows no request to `api.sks-lotse.de`.
+- [ ] Optional: a Better Stack monitor on `https://sbf-lotse.de`.
+
+Part 2 (accounts on SBF Lotse) follows with increment 2. That needs its own decision about how sbf-lotse.de reaches the API ([ADR-0067](adr/0067-second-site-from-one-codebase.md), Consequences).

@@ -15,6 +15,14 @@ interface ImportMetaEnv {
   // The Kartenaufgaben flag for the build: off | admins | on (src/chartFlag.ts, ADR-0056). At "on"
   // guests get /charts without a login, prerendered. render.yaml sets it like the API's CHART_EXERCISES.
   readonly VITE_CHART_EXERCISES?: string
+
+  // Which site the build is: sks | sbf (src/site.ts, ADR-0067), unset = sks. vite.config.ts picks
+  // the page (index.html or index.sbf.html), the public files and the prerender by it.
+  readonly VITE_SITE?: string
+
+  // The SBF Navigationsaufgaben for guests: off | on (src/sbfFlag.ts), unset = off; only with
+  // VITE_SITE=sbf, where "off" builds just the placeholder start page.
+  readonly VITE_SBF?: string
 }
 
 interface ImportMeta {

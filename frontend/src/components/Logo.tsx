@@ -1,3 +1,5 @@
+import { siteIdentity } from '../siteConfig'
+
 interface LogoMarkProps {
   className?: string
 }
@@ -34,7 +36,7 @@ export function Logo({ className, inverted = false }: LogoProps) {
     // the header can line it up with its nav text.
     <span className={`inline-flex items-baseline gap-2 ${className ?? ''}`}>
       <LogoMark className="h-8 w-8 shrink-0 self-center" />
-      <span className={`font-serif text-xl ${inverted ? 'text-surface' : 'text-ink'}`}>SKS Lotse</span>
+      <span className={`font-serif text-xl ${inverted ? 'text-surface' : 'text-ink'}`}>{siteIdentity().name}</span>
     </span>
   )
 }

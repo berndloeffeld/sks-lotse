@@ -19,6 +19,13 @@ const charts = chartExercisesForGuests() ? primeChartCatalog(chartExport as unkn
 // For scripts/prerender.mjs: what to render, and how to finish each page's head.
 export const pages = publicPages(catalog, charts)
 export { applyMeta, sitemapXml }
+// The title of app.html, the shell every path without a page of its own gets.
+export const appTitle = 'SKS Lotse'
+// The pages under `path` hydrate from the data chunk `chunk` (main.tsx), so they preload it.
+export const dataChunks = [
+  { path: '/learn', chunk: 'catalog.gen' },
+  { path: '/charts', chunk: 'chart_exercises.gen' },
+]
 
 // Build-time prerender (ADR-0025): scripts/prerender.mjs calls this once per
 // public route and writes the HTML into dist/, so crawlers and link previews

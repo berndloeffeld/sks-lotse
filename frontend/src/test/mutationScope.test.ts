@@ -6,13 +6,15 @@ import { describe, expect, it } from 'vitest'
 import config from '../../stryker.config.json'
 
 // Non-test, non-declaration .ts files at the levels where logic lives (no components/pages).
-const SOURCES = import.meta.glob(['/src/*.ts', '/src/api/*.ts', '/src/store/*.ts', '/src/hooks/*.ts'])
+const SOURCES = import.meta.glob(['/src/*.ts', '/src/api/*.ts', '/src/store/*.ts', '/src/hooks/*.ts', '/src/sbf/*.ts'])
 
 // Deliberately not mutated (CLAUDE.md → Mutation testing).
 const EXCLUDED = new Set([
   'src/api/types.ts', // types only, no runtime code
   'src/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
   'src/publicPageTexts.ts', // SEO wording of the prerendered pages: a mutant changing a sentence is no bug
+  'src/sbf/texts.ts', // the same for the SBF site's pages
+  'src/sbf/faq.ts', // the SBF site's FAQ wording, data only
 ])
 
 function mutateScope(): Set<string> {

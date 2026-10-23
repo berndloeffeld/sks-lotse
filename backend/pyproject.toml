@@ -84,12 +84,14 @@ also_copy = ["scripts/", "alembic/", "alembic.ini", ".env.example"]
 pytest_add_cli_args_test_selection = ["tests/"]
 # addopts= drops the coverage gate in [tool.pytest.ini_options], which would fail every partial run;
 # the Postman-collection, catalog-PDF (incl. the derivations-vs-catalog check) and docs tests, the chart-image check and the export/render.yaml checks of
-# the guests' copies (catalog, Kartenaufgaben) read files outside backend/,
+# the guests' copies (catalog, Kartenaufgaben) and the render.yaml checks of both static sites
+# read files outside backend/,
 # which mutants/ doesn't have, and the scope test reads only_mutate (which the handlers mode rewrites); none of them covers a mutated module.
 pytest_add_cli_args = ["-o", "addopts=", "-p", "no:cacheprovider", "--ignore=tests/test_integration_collection.py",
     "--ignore=tests/test_catalog_seed.py",
     "--ignore=tests/test_mutation_scope.py",
     "--ignore=tests/test_docs.py",
+    "--ignore=tests/test_render_blueprint.py",
     "--deselect=tests/test_catalog_derivations.py::test_every_derivation_belongs_to_a_catalog_question_and_its_current_answer",
     "--deselect=tests/test_chart_exercises.py::test_every_referenced_image_exists",
     "--deselect=tests/test_catalog_export.py::test_the_committed_export_matches_the_catalog",

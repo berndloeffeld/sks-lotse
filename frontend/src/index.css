@@ -32,6 +32,17 @@
   --text-2xs--line-height: calc(1 / 0.6875);
 }
 
+/* SBF Lotse's theme "Fahrwasserblau" (ADR-0067): the same roles as above, with blue for SKS Lotse's
+   petrol. index.sbf.html marks its root with data-site="sbf"; accent, ink, success and danger stay
+   as they are. theme-color (index.sbf.html) and public-sbf/site.webmanifest carry --color-bg too. */
+:root[data-site='sbf'] {
+  --color-bg: #eaeff5;
+  --color-surface-alt: #d9e3ee;
+  --color-border: #b7c6d6;
+  --color-primary: #1f5582;
+  --color-primary-dark: #173f61;
+}
+
 /* Height of the sticky header (Header): what sticky bars sit below and what anchor jumps keep
    clear of. Below `sm` the header scrolls away with the page (0), from `sm` on it is one line
    high and sticks. Not in @theme: it changes with the breakpoint. */
