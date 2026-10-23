@@ -52,6 +52,8 @@ describe('ChartExercisePage', () => {
   it('starts only once the learner confirms having everything ready', async () => {
     const user = userEvent.setup()
     const fetchMock = stubBackend()
+    const track = vi.fn()
+    window.umami = { track }
     renderPage('1')
 
     await user.click(await screen.findByRole('button', { name: 'Kartenaufgabe starten' }))
@@ -67,6 +69,8 @@ describe('ChartExercisePage', () => {
       expect.stringContaining('/chart-exercises/1/attempts'),
       expect.objectContaining({ method: 'POST' }),
     )
+    expect(track).toHaveBeenCalledExactlyOnceWith('chart_run_started', { sheet: 1 })
+    delete window.umami
   })
 
   it('explains a run that is already open', async () => {
@@ -173,6 +177,8 @@ describe('ChartExercisePage for a guest', () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn(async () => jsonResponse({ detail: 'no' }, 500))
     vi.stubGlobal('fetch', fetchMock)
+    const track = vi.fn()
+    window.umami = { track }
     window.localStorage.setItem(storageKey('guest-1'), '{"stale":true}')
     renderPage('1')
 
@@ -202,6 +208,11 @@ describe('ChartExercisePage for a guest', () => {
     expect(screen.getByText(/Du hast dir/)).toHaveTextContent('Du hast dir 3 von 3 Punkten gegeben.')
     expect(screen.getByText(/Ohne Konto wird dieser Durchgang nicht gespeichert/)).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+    expect(track.mock.calls).toEqual([
+      ['guest_chart_run_started', { sheet: 1 }],
+      ['guest_chart_run_completed', { sheet: 1 }],
+    ])
+    delete window.umami
 
     // Complete, the run is left without a question: its result already says nothing is kept.
     await user.click(screen.getByRole('link', { name: 'Zur Übersicht' }))

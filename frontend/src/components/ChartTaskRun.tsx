@@ -305,7 +305,7 @@ function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: bool
         Du hast dir <strong>{attempt.points}</strong> von {attempt.max_points} Punkten gegeben.
       </p>
       {guest ? (
-        <GuestCta>
+        <GuestCta place="chart_result">
           Ohne Konto wird dieser Durchgang nicht gespeichert. Mit einem Konto siehst du bei jeder Kartenaufgabe, wie
           viele Punkte du zuletzt hattest.
         </GuestCta>

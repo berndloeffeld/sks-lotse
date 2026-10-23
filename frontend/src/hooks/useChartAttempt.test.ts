@@ -97,6 +97,24 @@ describe('useChartAttempt', () => {
     expect(result.current.attempt).toBe(next)
   })
 
+  it('reports a completed run to Umami, and only that', async () => {
+    const track = vi.fn()
+    window.umami = { track }
+    get.mockResolvedValue(makeChartAttempt())
+    put.mockResolvedValueOnce(makeChartAttempt({ current_task: 2, points: 2 }))
+    const done = makeChartAttempt({ exercise_number: 3, current_task: null, completed_at: '2026-10-22T10:00:00Z' })
+    put.mockResolvedValueOnce(done)
+    const { result } = renderHook(() => useChartAttempt('5'))
+    await waitFor(() => expect(result.current.attempt).not.toBeNull())
+
+    await act(() => result.current.awardPoints(1, 2))
+    expect(track).not.toHaveBeenCalled()
+    await act(() => result.current.awardPoints(2, 1))
+
+    expect(track).toHaveBeenCalledExactlyOnceWith('chart_run_completed', { sheet: 3 })
+    delete window.umami
+  })
+
   it('runs the Lotsen-Check, takes the returned run and the new token balance', async () => {
     useAuthStore.setState({ user: makeUser({ token_balance: 6 }), isAuthenticated: true })
     get.mockResolvedValue(makeChartAttempt())

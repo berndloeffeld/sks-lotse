@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
+import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import type { ChartAttempt, ChartExerciseSummary, ChartExercisesOverview } from '../api/types'
 import { guestOverview, type ChartSheet } from '../chartCatalog'
@@ -63,6 +64,7 @@ function MemberChartExercise({ number }: { number: string }) {
     void startAction.run(
       async () => {
         const attempt = await apiClient.post<ChartAttempt>(`/chart-exercises/${number}/attempts`)
+        trackEvent('chart_run_started', { sheet: Number(number) })
         navigate(`/charts/attempts/${attempt.id}`)
       },
       (e) =>
@@ -178,13 +180,14 @@ function GuestChartExercise({ number }: { number: string }) {
             return
           }
           forgetTideForm(guestTideFormId(Number(number)))
+          trackEvent('guest_chart_run_started', { sheet: Number(number) })
           setStartedHere(true)
           setSearchParams({ [RUN_PARAM]: '1' })
         }}
       >
         Kartenaufgabe starten
       </button>
-      <GuestCta>
+      <GuestCta place="chart_start">
         Ohne Konto wird nichts gespeichert: Antworten und Punkte sind weg, sobald du die Seite verlässt. Mit einem Konto
         kannst du unterbrechen und später weitermachen.
       </GuestCta>
