@@ -33,3 +33,12 @@ def header(name: str, header_name: str) -> str:
     values = [h["value"] for h in service(name).get("headers", []) if h["name"] == header_name]
     assert len(values) == 1, f"{name} sets {header_name} {len(values)} times"
     return values[0]
+
+
+def csp_sources(name: str, directive: str) -> list[str]:
+    """The sources one directive of the service's Content-Security-Policy allows, e.g. connect-src."""
+    for part in header(name, "Content-Security-Policy").split(";"):
+        tokens = part.split()
+        if tokens and tokens[0] == directive:
+            return tokens[1:]
+    raise AssertionError(f"{name}'s CSP has no {directive}")

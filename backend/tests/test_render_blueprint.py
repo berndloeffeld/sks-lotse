@@ -26,8 +26,10 @@ def test_the_sbf_flag_is_set_for_the_sbf_build_only():
 def test_the_sbf_build_knows_no_api():
     # No account on SBF Lotse yet: no API origin for the build, and none the browser may connect to.
     assert "VITE_API_BASE_URL" not in render_blueprint.env(SBF)
-    assert "api.sks-lotse.de" not in render_blueprint.header(SBF, "Content-Security-Policy")
-    assert "https://api.sks-lotse.de" in render_blueprint.header(SKS, "Content-Security-Policy")
+    sbf = render_blueprint.csp_sources(SBF, "connect-src")
+    assert sbf == ["'self'", "https://cloud.umami.is", "https://gateway.umami.is"]
+    sks = render_blueprint.csp_sources(SKS, "connect-src")
+    assert sks == ["'self'", "https://api.sks-lotse.de", "https://cloud.umami.is", "https://gateway.umami.is"]
 
 
 def test_the_sbf_umami_id_is_set_in_the_dashboard():
