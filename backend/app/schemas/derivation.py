@@ -1,4 +1,4 @@
-"""A derivation: the working that leads to an answer, as paragraphs and tables.
+"""A derivation: the working that leads to an answer, as paragraphs, tables and sketches.
 
 Shared by the Kartenaufgaben, whose derivation is the WSV's own (ADR-0053), and the catalog questions,
 whose derivation is SKS Lotse's and not official (ADR-0065).
@@ -15,11 +15,21 @@ class DerivationTableRow(BaseModel):
     sum_until: int | None = None
 
 
+class DerivationImage(BaseModel):
+    """A sketch of the working, a static file of the frontend served from /derivations/."""
+
+    src: str  # file name in frontend/public/derivations/
+    width: int
+    height: int
+    alt: str = Field(min_length=1)  # what the sketch shows, for a screen reader
+
+
 class DerivationBlock(BaseModel):
-    """A paragraph or a table of the working; **bold** marks an intermediate result."""
+    """A paragraph, a table or a sketch of the working; **bold** marks an intermediate result."""
 
     text: str | None = None
     table: list[DerivationTableRow] | None = None
+    image: DerivationImage | None = None
 
 
 class CatalogDerivation(BaseModel):

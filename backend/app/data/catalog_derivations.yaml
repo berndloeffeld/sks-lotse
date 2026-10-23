@@ -1,6 +1,7 @@
 # SKS Lotse's own derivations for catalog questions (ADR-0065) — not official, shown as "nicht amtlich".
 # One entry per question, keyed by subject and number. Each leads only to the official answer, in plain
-# words and as few steps as possible; **bold** marks an intermediate result. Written or reviewed by hand.
+# words and as few steps as possible; **bold** marks an intermediate result. A block can instead be a sketch of
+# our own (image: src in frontend/public/derivations/, width, height, alt). Written or reviewed by hand.
 # answer_fingerprint: catalog_derivations.fingerprint() of the official answer it was written against;
 # when tests/test_catalog_derivations.py reports a mismatch, check the derivation against the new answer,
 # then update the fingerprint.
@@ -21,6 +22,17 @@
       wird daher **weniger nach rechts abgelenkt**.
   - text: Der Zug zum Tief hin überwiegt, und der Wind **dreht zum Tief hin**.
   - text: Deshalb weht er schräg über die Isobaren, gegen den Uhrzeigersinn gedreht – er ist **rückgedreht**.
+- subject: seemannschaft_allgemein
+  number: 97
+  answer_fingerprint: dfbda2ecad0e
+  blocks:
+  - text: Auf großen Schiffen liegt die Brücke oft weit achtern. Davor versperren hohe Aufbauten oder gestapelte
+      Container den Blick nach unten auf das Wasser. Vor dem Bug liegt deshalb ein **toter Winkel**, in dem ein
+      kleines Boot von der Brücke aus nicht zu sehen ist.
+  - text: Wie groß dieser tote Winkel sein darf, ist für den Bau der Schiffe international begrenzt (SOLAS Kap. V,
+      Regel 22) – auf **höchstens 2 Schiffslängen oder 500 m**, je nachdem, was kleiner ist.
+  - text: Dieser Höchstwert ist das, womit Sie **mindestens rechnen** müssen. Bis zu dieser Entfernung vor dem Steven
+      können Sie unsichtbar sein.
 - subject: wetterkunde
   number: 93
   answer_fingerprint: 53a03b6028d1
@@ -34,3 +46,22 @@
       beim Durchzug einer Kaltfront oder eines Troges**.
   - text: Um den Tiefkern weht der Wind im Kreis, und die Richtung ändert sich auf engem Raum. Dort trifft See aus vielen
       Richtungen zusammen, also gibt es Kreuzsee auch **in der Nähe des Tiefkerns**.
+- subject: wetterkunde
+  number: 21
+  answer_fingerprint: 9698628454dc
+  blocks:
+  - text: Luft strömt vom hohen zum tiefen Druck – also **aus dem Hoch heraus** und **in das Tief hinein**.
+  - text: Durch die Erddrehung wird jede Bewegung auf der Nordhalbkugel **nach rechts abgelenkt**.
+  - text: Strömt die Luft aus dem Hoch nach allen Seiten heraus und biegt dabei jeweils nach rechts ab, dreht sie
+      sich insgesamt **im Uhrzeigersinn – rechtsherum** – um das Hoch.
+  - text: Strömt sie von allen Seiten in das Tief hinein und biegt dabei nach rechts ab, läuft sie am Kern vorbei
+      und kreist **gegen den Uhrzeigersinn – linksherum** – hinein.
+  - image:
+      src: wetterkunde-21-wind-um-hoch-und-tief.svg
+      width: 780
+      height: 400
+      alt: Skizze zweier Druckgebilde auf der Nordhalbkugel. Links ein Hoch, aus dessen Mitte die Pfeile im
+        Uhrzeigersinn nach außen laufen. Rechts ein Tief, in dessen Mitte die Pfeile gegen den Uhrzeigersinn
+        hineinlaufen. Alle Pfeile kreuzen die kreisförmigen Isobaren schräg.
+  - text: In Bodennähe bremst die Reibung den Wind. Er weht deshalb nicht genau um die Druckgebilde herum, sondern
+      spiralförmig **heraus bzw. hinein**.

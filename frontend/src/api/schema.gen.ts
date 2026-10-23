@@ -634,13 +634,28 @@ export interface components {
         };
         /**
          * DerivationBlock
-         * @description A paragraph or a table of the working; **bold** marks an intermediate result.
+         * @description A paragraph, a table or a sketch of the working; **bold** marks an intermediate result.
          */
         DerivationBlock: {
             /** Text */
             text?: string | null;
             /** Table */
             table?: components["schemas"]["DerivationTableRow"][] | null;
+            image?: components["schemas"]["DerivationImage"] | null;
+        };
+        /**
+         * DerivationImage
+         * @description A sketch of the working, a static file of the frontend served from /derivations/.
+         */
+        DerivationImage: {
+            /** Src */
+            src: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Alt */
+            alt: string;
         };
         /** DerivationTableRow */
         DerivationTableRow: {

@@ -2190,15 +2190,18 @@
    "derivation": [
     {
      "text": "Die Tonnen der Elbe sind von See her stromaufwärts gezählt. Elbabwärts fährt man **gegen die Betonnungsrichtung**.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Gegen die Betonnungsrichtung liegt die Backbordseite des Fahrwassers an Steuerbord. Die Tonne ist also eine **Backbordfahrwassertonne** – passend zur geraden Nummer.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "32a ist zwischen 32 und 34 eingeschoben. Elbabwärts werden die Nummern kleiner, die nächste Tonne ist **32**.",
-     "table": null
+     "table": null,
+     "image": null
     }
    ]
   },
@@ -3490,7 +3493,23 @@
    "answer_text": "Sichtbeschränkung nach voraus maximal 2 Schiffslängen oder 500 m.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Auf großen Schiffen liegt die Brücke oft weit achtern. Davor versperren hohe Aufbauten oder gestapelte Container den Blick nach unten auf das Wasser. Vor dem Bug liegt deshalb ein **toter Winkel**, in dem ein kleines Boot von der Brücke aus nicht zu sehen ist.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wie groß dieser tote Winkel sein darf, ist für den Bau der Schiffe international begrenzt (SOLAS Kap. V, Regel 22) – auf **höchstens 2 Schiffslängen oder 500 m**, je nachdem, was kleiner ist.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dieser Höchstwert ist das, womit Sie **mindestens rechnen** müssen. Bis zu dieser Entfernung vor dem Steven können Sie unsichtbar sein.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -4933,7 +4952,43 @@
    "answer_text": "Er weht rechtsherum aus dem Hochdruckzentrum heraus und linksherum in den Tiefdruckkern hinein.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Luft strömt vom hohen zum tiefen Druck – also **aus dem Hoch heraus** und **in das Tief hinein**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Durch die Erddrehung wird jede Bewegung auf der Nordhalbkugel **nach rechts abgelenkt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Strömt die Luft aus dem Hoch nach allen Seiten heraus und biegt dabei jeweils nach rechts ab, dreht sie sich insgesamt **im Uhrzeigersinn – rechtsherum** – um das Hoch.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Strömt sie von allen Seiten in das Tief hinein und biegt dabei nach rechts ab, läuft sie am Kern vorbei und kreist **gegen den Uhrzeigersinn – linksherum** – hinein.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-21-wind-um-hoch-und-tief.svg",
+      "width": 780,
+      "height": 400,
+      "alt": "Skizze zweier Druckgebilde auf der Nordhalbkugel. Links ein Hoch, aus dessen Mitte die Pfeile im Uhrzeigersinn nach außen laufen. Rechts ein Tief, in dessen Mitte die Pfeile gegen den Uhrzeigersinn hineinlaufen. Alle Pfeile kreuzen die kreisförmigen Isobaren schräg."
+     }
+    },
+    {
+     "text": "In Bodennähe bremst die Reibung den Wind. Er weht deshalb nicht genau um die Druckgebilde herum, sondern spiralförmig **heraus bzw. hinein**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
@@ -4976,19 +5031,23 @@
    "derivation": [
     {
      "text": "Die **Reibung am Boden** bremst den Wind.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Die Ablenkung nach rechts durch die Erddrehung ist umso stärker, je schneller der Wind ist. Gebremster Wind wird daher **weniger nach rechts abgelenkt**.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Der Zug zum Tief hin überwiegt, und der Wind **dreht zum Tief hin**.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Deshalb weht er schräg über die Isobaren, gegen den Uhrzeigersinn gedreht – er ist **rückgedreht**.",
-     "table": null
+     "table": null,
+     "image": null
     }
    ]
   },
@@ -5665,23 +5724,28 @@
    "derivation": [
     {
      "text": "Windsee macht der Wind, der gerade weht, und sie läuft mit ihm. Dünung ist Seegang, der von früherem oder fernem Wind stammt und weiterläuft, auch wenn sich der Wind ändert.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Dreht der Wind, baut sich eine neue Windsee aus der neuen Richtung auf. Die alte See läuft als Dünung weiter. **Windsee und Dünung laufen dann aus unterschiedlichen Richtungen heran**, und das ist die Kreuzsee.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Mit Kreuzsee ist also dort zu rechnen, wo der Wind schnell und stark dreht.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "An einer Kaltfront und an einem Trog springt der Wind, meist nach rechts. Gefährlich ist es also **kurz vor und beim Durchzug einer Kaltfront oder eines Troges**.",
-     "table": null
+     "table": null,
+     "image": null
     },
     {
      "text": "Um den Tiefkern weht der Wind im Kreis, und die Richtung ändert sich auf engem Raum. Dort trifft See aus vielen Richtungen zusammen, also gibt es Kreuzsee auch **in der Nähe des Tiefkerns**.",
-     "table": null
+     "table": null,
+     "image": null
     }
    ]
   },
