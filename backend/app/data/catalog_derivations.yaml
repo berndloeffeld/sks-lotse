@@ -21,3 +21,16 @@
       wird daher **weniger nach rechts abgelenkt**.
   - text: Der Zug zum Tief hin überwiegt, und der Wind **dreht zum Tief hin**.
   - text: Deshalb weht er schräg über die Isobaren, gegen den Uhrzeigersinn gedreht – er ist **rückgedreht**.
+- subject: wetterkunde
+  number: 93
+  answer_fingerprint: 53a03b6028d1
+  blocks:
+  - text: Windsee macht der Wind, der gerade weht, und sie läuft mit ihm. Dünung ist Seegang, der von früherem oder
+      fernem Wind stammt und weiterläuft, auch wenn sich der Wind ändert.
+  - text: Dreht der Wind, baut sich eine neue Windsee aus der neuen Richtung auf. Die alte See läuft als Dünung weiter.
+      **Windsee und Dünung laufen dann aus unterschiedlichen Richtungen heran**, und das ist die Kreuzsee.
+  - text: Mit Kreuzsee ist also dort zu rechnen, wo der Wind schnell und stark dreht.
+  - text: An einer Kaltfront und an einem Trog springt der Wind, meist nach rechts. Gefährlich ist es also **kurz vor und
+      beim Durchzug einer Kaltfront oder eines Troges**.
+  - text: Um den Tiefkern weht der Wind im Kreis, und die Richtung ändert sich auf engem Raum. Dort trifft See aus vielen
+      Richtungen zusammen, also gibt es Kreuzsee auch **in der Nähe des Tiefkerns**.
