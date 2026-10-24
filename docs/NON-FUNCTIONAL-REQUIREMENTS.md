@@ -74,7 +74,7 @@ Derivation: as for SKS Lotse, with one change. **Assumption:** an SBF learner is
 | | Layered abuse protection (IP and email limits, blocklists) |
 | | Admin: allowlist plus TOTP (one code per day; export and deletion need one from the last 5 min) |
 | | Enforced CSP, HSTS, frame denial (API responses: `default-src 'none'`) |
-| | SBF Lotse's site: no API call, enforced by its CSP (no API host) and a CI check of the build |
+| | SBF Lotse's site: calls only its own API host api.sbf-lotse.de (CSP), carries no SKS page or data and no admin area (CI check of the build) |
 | | Request bodies capped before they are read (413 over 64 KB, 1 MB for the Stripe webhook) |
 | | security.txt (RFC 9116) with the reporting contact |
 | | Prompt-injection hardening of the AI check |

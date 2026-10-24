@@ -307,7 +307,7 @@ export function ProfileAccountPage() {
 
         <Section title="Konto löschen" danger>
           <p className="text-sm leading-relaxed text-ink-soft">
-            Dein Konto und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
+            Dein Konto und dein gesamter Lernfortschritt auf SKS Lotse und SBF Lotse werden unwiderruflich gelöscht.
           </p>
           {!showDeleteConfirm ? (
             <button

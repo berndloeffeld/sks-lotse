@@ -49,7 +49,7 @@ graph LR
 
     Learner --> SPA
     Static -- serves --> SPA
-    StaticSbf -- "serves (SBF build, no API call)" --> SPA
+    StaticSbf -- "serves (SBF build)" --> SPA
     SPA -- "JSON / HTTPS<br/>session cookie" --> API
     API --> DB
     API --> Resend
@@ -130,9 +130,9 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
 - **Two sites, one per build** ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `VITE_SITE=sks` (or unset) builds SKS Lotse, `VITE_SITE=sbf` SBF Lotse for sbf-lotse.de.
   - What the SBF build swaps in: `index.sbf.html` with its own head and entry (`src/sbf/main.tsx`), its own routes (`src/sbf/SbfApp.tsx`: start page, FAQ, Impressum, Datenschutz), public files (`public-sbf/`), prerendered pages and sitemap (`src/sbf/publicPages.ts`), and theme ("Fahrwasserblau", `:root[data-site='sbf']` in `index.css`).
   - Where the code lives ([ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md)): `src/shared/` is what both sites use, `src/sks/` SKS Lotse's own, `src/sbf/` SBF Lotse's own, each with the same subfolders (`components/`, `hooks/`, `pages/`, …); `src/test/` holds the test setup. Shared code imports neither site and neither site the other: `no-restricted-imports` in `eslint.config.js` fails `npm run lint` otherwise. The short paths below (`components/…`, `hooks/…`) are under `src/sks/` or `src/shared/`.
-  - What both sites share: the parts that need no session (`HeaderBar`, `PageShell`, `LegalFooter`, `src/shared/legal/`, which read `siteIdentity()` from `src/shared/siteConfig.ts`), and the prerender's helpers (`src/shared/publicPages.ts`). The SKS app's session parts (`Header`, `PageLayout`, the auth store, the API client) are in `src/sks/` and not in the SBF bundle, so it makes no API call; `scripts/check-sbf-build.mjs` checks that in CI after the SBF build.
+  - What both sites share: the shell (`HeaderBar`, `PageShell`, `LegalFooter`), the legal texts (`src/shared/legal/`, the AGB among them), which read `siteIdentity()` from `src/shared/siteConfig.ts`, the prerender's helpers (`src/shared/publicPages.ts`), and the session ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)): the API client, the auth store, the login, `ProtectedRoute`, `AgbGate`, the Konto menu with each site's links, the token counter, the account settings and the token purchase. SKS Lotse's own pages, its nav (`Header`, `PageLayout`, `MainNav`) and the admin area stay in `src/sks/`; `scripts/check-sbf-build.mjs` checks in CI that none of them, none of its data chunks and no call to api.sks-lotse.de reach the SBF bundle.
   - How SBF Lotse reaches the API once it has accounts (increment 2): on `api.sbf-lotse.de`, a second custom domain of the same backend service, same-site with sbf-lotse.de ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)). A rewrite of `sbf-lotse.de/api/*` had hidden the learner's IP from the rate limit and was removed ([ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md), update 2026-10-24).
-  - What the SBF build has so far: `VITE_SBF=off` builds only the placeholder start page.
+  - What the SBF build has so far: `VITE_SBF=off` builds only the placeholder start page. `VITE_SBF_ACCOUNTS=on` (only with `VITE_SBF=on`) adds the accounts: `/login`, `/login/link`, `/pricing`, `/profile`, the session check on start and the Konto menu; with `off` (production today) the SBF build makes no API call.
   - With `on` (production since 2026-10-24), it adds the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)): `/navigation` and `/navigation/<n>`, prerendered from `src/sbf/data/sbf_navigation.gen.json`.
     - The export is its own chunk, loaded behind the build's literal flag (`src/sbf/navigationCatalog.ts`), so an `off` build doesn't contain it.
     - A guest's run follows `src/sbf/navigationRun.ts` (with `src/sbf/runVerdict.ts` for the pass mark). Beside it, the original of the current subtask and the run so far (`src/sbf/NavigationTools.tsx`, like the Kartenaufgaben's side panel).

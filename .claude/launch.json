@@ -11,6 +11,15 @@
       "port": 8000
     },
     {
+      "name": "backend-checkout-on",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd backend && source .venv/bin/activate && STRIPE_CHECKOUT=on PYTHONPATH=. uvicorn app.main:app --port 8000"
+      ],
+      "port": 8000
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "bash",
       "runtimeArgs": [
@@ -34,6 +43,15 @@
       "runtimeArgs": [
         "-c",
         "cd frontend && VITE_SITE=sbf VITE_SBF=off npm run dev -- --port 5174"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "sbf-dev-accounts",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd frontend && VITE_SITE=sbf VITE_SBF=on VITE_SBF_ACCOUNTS=on npm run dev -- --port 5174 --strictPort"
       ],
       "port": 5174
     },

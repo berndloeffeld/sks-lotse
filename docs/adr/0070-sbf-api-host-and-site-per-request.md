@@ -1,6 +1,6 @@
 # 0070. SBF Lotse reaches the API on api.sbf-lotse.de; the backend tells the site per request
 
-Status: Accepted — amends [ADR-0012](0012-httponly-cookie-for-frontend-session-token.md) (one session cookie per API host, so a learner signs in on each site once), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (the site goes into the Checkout Session's metadata) and [ADR-0069](0069-frontend-split-and-sbf-api-through-a-proxy.md) (its fallback, api.sbf-lotse.de, replaces the withdrawn proxy)
+Status: Accepted — amends [ADR-0012](0012-httponly-cookie-for-frontend-session-token.md) (one session cookie per API host, so a learner signs in on each site once), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (the site goes into the Checkout Session's metadata) and [ADR-0069](0069-frontend-split-and-sbf-api-through-a-proxy.md) (its fallback, api.sbf-lotse.de, replaces the withdrawn proxy), and [ADR-0067](0067-second-site-from-one-codebase.md) ("SBF Lotse makes no API call" ends with accounts in its build, update 2026-10-24 below)
 
 ## Context
 
@@ -75,3 +75,24 @@ Unchanged:
   - **A shared session across both sites (SSO, a cookie on a common parent domain):** the two domains have no common parent, and an SSO flow is a lot of machinery for signing in once more.
   - **A site parameter sent by the frontend:** a header the browser sets itself can't be wrong by mistake.
   - **A backend flag for SBF accounts:** the switch is the SBF build's `VITE_SBF_ACCOUNTS`. Without the login on sbf-lotse.de, nobody gets there.
+
+## Update 2026-10-24: the client IP measured, accounts in the SBF build
+
+**The client IP on api.sbf-lotse.de**, measured from one network after the backend deploy, with ADR-0069's method:
+- 30 requests to `POST /api/v1/auth/otp/verify-link` with a dummy token on api.sks-lotse.de filled the bucket (limit 30 an hour per IP).
+- The next request there got 429, as expected.
+- The same request on api.sbf-lotse.de got **429** too, over IPv4 and over IPv6. Both hosts put this network into the same bucket, so the backend sees the learner's IP on api.sbf-lotse.de.
+- A client-sent `True-Client-IP` changed nothing (429).
+
+**The SBF build gets the session**, as ADR-0069's Consequences foresaw:
+- The session parts moved from `src/sks/` to `src/shared/`: the API client and the account's types, the auth store, the login form and link page, `ProtectedRoute`, `AgbGate`, the Konto menu, the token counter, the account settings and the token purchase.
+  - The auth store no longer knows SKS Lotse's Formblatt. A site registers what it keeps in the browser (`registerBrowserDataCleanup`), and logout and account deletion forget it.
+  - Each site names where a learner lands after the login and what a check costs (`SiteIdentity.afterLogin`, `checkPrices`).
+- **Behind a build flag, `VITE_SBF_ACCOUNTS`** (off | on, only with `VITE_SBF=on`). "on" adds `/login`, `/login/link`, `/pricing` and `/profile`, the session check on start, and the balance and Konto menu in the header. "off" keeps sbf-lotse.de a guest site that makes no API call. It is no backend flag: without the login on sbf-lotse.de, nobody signs in there.
+- **The build's API host** is `VITE_API_BASE_URL=https://api.sbf-lotse.de`, and its CSP allows only that one.
+- **`check-sbf-build.mjs`** no longer checks "no API call". It now checks "no SKS page and no SKS data":
+  - none of the API routes only SKS Lotse's pages call (`/admin/`, `/exams`, `/chart-exercises`, …)
+  - none of its data chunks
+  - no `https://api.sks-lotse.de`
+- **One AGB text for "SKS Lotse und SBF Lotse"**, a new version every account confirms again. SBF Lotse shows it at `/terms` and links it in its footer. The Datenschutzerklärung names api.sbf-lotse.de, the cookie per site and the site recorded with an account and a purchase.
+

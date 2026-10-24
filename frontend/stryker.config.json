@@ -16,6 +16,7 @@
     "src/shared/store/maintenanceStore.ts",
     "src/sks/hooks/useExamCountdown.ts",
     "src/shared/hooks/useApiQuery.ts",
+    "src/shared/hooks/usePricing.ts",
     "src/shared/hooks/useAsyncAction.ts",
     "src/sks/hooks/useExam.ts",
     "src/sks/hooks/useChartAttempt.ts",

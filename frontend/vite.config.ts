@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
 import { parseChartFlag } from './src/sks/chartFlag.ts'
-import { parseSbfFlag } from './src/shared/sbfFlag.ts'
+import { parseSbfAccountsFlag, parseSbfFlag } from './src/shared/sbfFlag.ts'
 import { parseSite, type Site } from './src/shared/site.ts'
 
 // The SBF build's page is index.sbf.html instead of index.html (ADR-0067): its own head (title,
@@ -63,6 +63,14 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   const sbf = parseSbfFlag(env.VITE_SBF)
   if (site !== 'sbf' && env.VITE_SBF) {
     throw new Error(`VITE_SBF is for the SBF build only (VITE_SITE=sbf) — got it with VITE_SITE=${site}`)
+  }
+  const sbfAccounts = parseSbfAccountsFlag(env.VITE_SBF_ACCOUNTS)
+  if (site !== 'sbf' && env.VITE_SBF_ACCOUNTS) {
+    throw new Error(`VITE_SBF_ACCOUNTS is for the SBF build only (VITE_SITE=sbf) — got it with VITE_SITE=${site}`)
+  }
+  // An account on SBF Lotse saves runs of the Navigationsaufgaben; without them it has nothing to do.
+  if (sbfAccounts === 'on' && sbf !== 'on') {
+    throw new Error('VITE_SBF_ACCOUNTS=on needs VITE_SBF=on')
   }
   return {
     plugins: [react(), tailwindcss(), sitePage(site), navigationOriginals(site === 'sbf' && sbf === 'on')],

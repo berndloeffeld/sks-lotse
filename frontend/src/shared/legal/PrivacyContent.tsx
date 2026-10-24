@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
 import { CONTACT_EMAIL } from '../contact'
-import { currentSite } from '../siteConfig'
 import { OperatorAddress, ProseSection } from '../components/ProseSection'
 
 // The Datenschutzerklärung's text, shared word for word by both sites (ADR-0067): SKS Lotse's page is
 // pages/PrivacyPage.tsx, SBF Lotse's sbf/SbfApp.tsx.
 export function PrivacyContent() {
-  // The AGB are SKS Lotse's, and only there (ADR-0067).
-  const termsTo = currentSite() === 'sbf' ? 'https://sks-lotse.de/terms' : '/terms'
   return (
     <>
       <ProseSection title="Verantwortlicher">
@@ -21,18 +18,21 @@ export function PrivacyContent() {
       <ProseSection title="Geltungsbereich">
         <p>
           Diese Datenschutzerklärung gilt für unsere beiden Websites SKS Lotse (sks-lotse.de) und SBF Lotse
-          (sbf-lotse.de); „diese Website“ meint jeweils beide. SBF Lotse ist im Aufbau: Dort gibt es noch kein Konto,
-          keine Anmeldung, keinen Lotsen-Check und keine Käufe, die Abschnitte dazu betreffen nur SKS Lotse. Was Sie auf
-          SBF Lotse eingeben, bleibt in Ihrem Browser und wird nicht an uns übermittelt.
+          (sbf-lotse.de); „diese Website“ meint jeweils beide. Beide nutzen dasselbe Konto: Wer sich auf einer Website
+          mit seiner E-Mail-Adresse anmeldet, hat auf der anderen dasselbe Konto mit demselben Token-Guthaben;
+          angemeldet wird auf jeder Website gesondert. Die Abschnitte zu Konto, Lotsen-Check und Käufen gelten für beide
+          Websites, soweit die jeweilige Funktion dort angeboten wird. Was Sie ohne Konto auf SBF Lotse eingeben, bleibt
+          in Ihrem Browser und wird nicht an uns übermittelt.
         </p>
       </ProseSection>
 
       <ProseSection title="Hosting">
         <p>
-          Die Anwendung (Server) sowie die zugehörige Datenbank werden bei Render in Frankfurt (EU) gehostet. Die
-          statischen Seiten dieser Website liefert Render über sein weltweites Content Delivery Network (CDN) aus; dabei
-          kann Ihre IP-Adresse auch auf Servern außerhalb der EU verarbeitet werden. Render verarbeitet dabei in unserem
-          Auftrag personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse verarbeitet, u. a. um
+          Die Anwendung (Server) sowie die zugehörige Datenbank werden bei Render in Frankfurt (EU) gehostet; dieselbe
+          Anwendung ist unter api.sks-lotse.de und unter api.sbf-lotse.de erreichbar. Die statischen Seiten dieser
+          Website liefert Render über sein weltweites Content Delivery Network (CDN) aus; dabei kann Ihre IP-Adresse
+          auch auf Servern außerhalb der EU verarbeitet werden. Render verarbeitet dabei in unserem Auftrag
+          personenbezogene Daten, u. a. Server-Logdaten. Dabei wird auch Ihre IP-Adresse verarbeitet, u. a. um
           Missbrauch durch übermäßig viele Anfragen zu begrenzen (Rate-Limiting). Schriftarten werden von unserem
           eigenen Server ausgeliefert, nicht von Google oder anderen Dritten. Server- und Zugriffslogs (u. a. mit Ihrer
           IP-Adresse) leiten wir zur Fehlersuche und Verfügbarkeitsüberwachung an den Logging- und Monitoring-Dienst
@@ -51,13 +51,15 @@ export function PrivacyContent() {
           gültig; der Datensatz (E-Mail-Adresse und Prüfsummen von Code und Link) wird in der Regel binnen 24 Stunden
           nach Ablauf automatisch gelöscht. Nach erfolgreicher Anmeldung wird ein Sitzungs-Cookie (JWT) in Ihrem Browser
           gesetzt, das ausschließlich technisch notwendig ist (httpOnly, ohne Zugriff durch JavaScript) und Sie bis zur
-          Abmeldung, längstens für sieben Tage, angemeldet hält. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
-          (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO (berechtigtes Interesse an einer sicheren Anmeldung). Für
-          den Versand der Login-Codes, der Kaufbestätigung und – nach einer Änderung der E-Mail-Adresse – eines
-          Hinweises an die bisherige Adresse per E-Mail setzen wir den Dienst Resend ein, der dabei in unserem Auftrag
-          tätig wird. Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
+          Abmeldung, längstens für sieben Tage, angemeldet hält; jede der beiden Websites setzt ihr eigenes.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Nutzungsvertrags) bzw. lit. f DSGVO
+          (berechtigtes Interesse an einer sicheren Anmeldung). Für den Versand der Login-Codes, der Kaufbestätigung und
+          – nach einer Änderung der E-Mail-Adresse – eines Hinweises an die bisherige Adresse per E-Mail setzen wir den
+          Dienst Resend ein, der dabei in unserem Auftrag tätig wird. Beim Anlegen eines Kontos speichern wir, auf
+          welcher der beiden Websites das geschah, und bei einem Kauf, auf welcher er erfolgte (für unsere eigene
+          Statistik). Bei jedem Login speichern wir außerdem den Zeitpunkt der letzten Anmeldung sowie, welcher Version
           unserer{' '}
-          <Link to={termsTo} className="underline hover:text-primary">
+          <Link to="/terms" className="underline hover:text-primary">
             AGB
           </Link>{' '}
           Sie zuletzt zugestimmt haben und wann. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO
@@ -260,7 +262,7 @@ export function PrivacyContent() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 23. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 24. Oktober 2026</p>
     </>
   )
 }

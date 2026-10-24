@@ -14,6 +14,7 @@ describe('SBF public pages', () => {
       ['/faq', 'faq.html'],
       ['/imprint', 'imprint.html'],
       ['/privacy', 'privacy.html'],
+      ['/terms', 'terms.html'],
     ])
   })
 
@@ -25,7 +26,7 @@ describe('SBF public pages', () => {
 
   it('keeps the legal pages, which say what sks-lotse.de says, out of the index and the sitemap', () => {
     const noindex = pages.filter((page) => page.meta?.noindex).map((page) => page.path)
-    expect(noindex).toEqual(['/imprint', '/privacy'])
+    expect(noindex).toEqual(['/imprint', '/privacy', '/terms'])
 
     const sitemap = sitemapXml(pages, SBF_ORIGIN)
     expect(sitemap).toContain('<loc>https://sbf-lotse.de/</loc>')

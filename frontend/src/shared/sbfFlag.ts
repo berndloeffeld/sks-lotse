@@ -14,3 +14,14 @@ export function parseSbfFlag(value: string | undefined): SbfFlag {
   }
   return value as SbfFlag
 }
+
+// Accounts on SBF Lotse, VITE_SBF_ACCOUNTS (ADR-0070): "off" keeps sbf-lotse.de a guest site, "on"
+// adds the login, the profile and the token purchase. Same rules as VITE_SBF: unset is "off", a typo
+// fails the build, and so does setting it in the SKS build or without the Navigationsaufgaben.
+export function parseSbfAccountsFlag(value: string | undefined): SbfFlag {
+  if (!value) return 'off'
+  if (!VALUES.includes(value)) {
+    throw new Error(`VITE_SBF_ACCOUNTS must be one of off, on — got "${value}"`)
+  }
+  return value as SbfFlag
+}

@@ -62,7 +62,7 @@ export function LoginForm({ tone = 'light' }: LoginFormProps) {
         await apiClient.post('/auth/otp/verify', { email, code })
         await checkSession()
         trackEvent('login')
-        // Back to the page the login was asked for (ProtectedRoute, a guest's login link), else /learn.
+        // Back to the page the login was asked for (ProtectedRoute, a guest's login link), else the site's start.
         navigate(safeReturnPath(location.state))
       },
       (err) =>

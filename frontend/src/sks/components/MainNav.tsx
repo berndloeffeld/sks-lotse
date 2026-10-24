@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems } from '../navigation'
 import { useAuthStore } from '../../shared/store/authStore'
-import { AccountMenu } from '../../shared/components/AccountMenu'
+import { SksAccountMenu } from './SksAccountMenu'
 import { TokenCounter } from '../../shared/components/TokenCounter'
 import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../../shared/components/headerLink'
 
@@ -30,7 +30,7 @@ export function MainNav() {
       })}
       <TokenCounter />
       <div className="hidden md:block">
-        <AccountMenu />
+        <SksAccountMenu />
       </div>
     </nav>
   )

@@ -167,6 +167,8 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 
 ## SBF Navigationsaufgaben flag
 
+(Accounts on SBF Lotse have their own build flag, `VITE_SBF_ACCOUNTS`, switched as described in [One-time setup SBF, part 2](#one-time-setup-sbf-part-2).)
+
 `VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)). It's declared in `render.yaml` (currently `on`), so switching it is a PR together with `docs/FEATURES.md` and the rewrites of `/navigation` and `/navigation/1` … `/navigation/15` on `sbf-lotse-frontend` (`backend/tests/test_sbf_navigation_export.py` checks they match the flag). ELWIS confirmed the usage rights for the SBF catalog See and its Navigationsaufgaben on 2026-10-24, including the cuts of the PDF shown beside the run and the marked typo corrections; the flag has been `on` since. It is a build-time value, so a switch takes the SBF site's deploy.
 
 ## security.txt
@@ -256,3 +258,6 @@ For accounts on sbf-lotse.de (increment 2). sbf-lotse.de reaches the backend on 
   4. Record the result as an update in ADR-0070.
 - [ ] **Check:** `curl -s -o /dev/null -w '%{http_code}' https://api.sbf-lotse.de/api/v1/pricing` answers 200, and `curl -sI -H 'Origin: https://sbf-lotse.de' https://api.sbf-lotse.de/health` carries `access-control-allow-origin: https://sbf-lotse.de` and `access-control-allow-credentials: true`.
 - [ ] **Better Stack, optional:** a monitor on `https://api.sbf-lotse.de/health`.
+- [ ] **Stripe:** the products of the four token packages carry name, description and image (docs/stripe/README.md), in live and test mode. They say "SKS Lotse" and "1 Token je Katalogfrage, 2 je Kartenaufgabe", which a buyer on sbf-lotse.de sees on Stripe's page too: rename them for both sites (e.g. "Lotse – 20 Tokens", "für den Lotsen-Check auf SKS Lotse und SBF Lotse"). In the sandbox, check that package S's product is S's (it showed package M's).
+- [x] **Client IP measured** on 2026-10-24: 429 on api.sbf-lotse.de after the bucket was full on api.sks-lotse.de, over IPv4 and IPv6 ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md), update).
+- [ ] **Accounts on sbf-lotse.de:** once Resend is verified and the saved runs with the Lotsen-Check are merged, a PR sets `VITE_SBF_ACCOUNTS: "on"` on `sbf-lotse-frontend` in `render.yaml`, together with `docs/FEATURES.md`. A build-time value: it takes the SBF site's deploy. Then sign in on sbf-lotse.de once: the code mail comes from `noreply@sbf-lotse.de`, the link leads to sbf-lotse.de, and the cookie is set for `api.sbf-lotse.de`.
