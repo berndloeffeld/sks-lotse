@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" width="780" height="320" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker><marker id="a1f6f8b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f6f8b"/></marker><marker id="a555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+<rect width="780" height="320" fill="#ffffff"/><rect width="780" height="300" fill="#cfe6ef"/>
+<polygon points="0,0 780,0 780,60 560,60 480,110 300,110 220,60 0,60" fill="#ecdcb8"/>
+<polygon points="0,300 780,300 780,240 560,240 480,190 300,190 220,240 0,240" fill="#ecdcb8"/>
+<path d="M30,85 C220,85 250,125 390,125 C530,125 560,85 745,85" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,118 C220,118 250,138 390,138 C530,138 560,118 745,118" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,150 C220,150 250,150 390,150 C530,150 560,150 745,150" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,182 C220,182 250,162 390,162 C530,162 560,182 745,182" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,215 C220,215 250,175 390,175 C530,175 560,215 745,215" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<text x="390" y="40" text-anchor="middle" font-size="14" fill="#222">Land</text><text x="390" y="272" text-anchor="middle" font-size="14" fill="#222">Land</text>
+<text x="390" y="100" text-anchor="middle" font-size="13" fill="#c0392b">enge Stelle: Wind stärker</text>
+<text x="20" y="316" font-size="12" fill="#888">Draufsicht · Düseneffekt: Die Luft wird zwischen den Landmassen zusammengedrängt und strömt dort schneller</text>
+</svg>

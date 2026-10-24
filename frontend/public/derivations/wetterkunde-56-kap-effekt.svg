@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" width="780" height="320" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker><marker id="a1f6f8b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f6f8b"/></marker><marker id="a555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+<rect width="780" height="320" fill="#ffffff"/><rect width="780" height="300" fill="#cfe6ef"/>
+<path d="M0,300 L0,250 L200,250 C300,250 340,150 390,150 C440,150 480,250 580,250 L780,250 L780,300 Z" fill="#ecdcb8"/>
+<path d="M30,235 C200,235 260,135 390,135 C520,135 580,235 745,235" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,190 C200,190 260,112 390,112 C520,112 580,190 745,190" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,140 C200,140 260,90 390,90 C520,90 580,140 745,140" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,95 C200,95 260,68 390,68 C520,68 580,95 745,95" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<path d="M30,50 C200,50 260,46 390,46 C520,46 580,50 745,50" stroke="#1f6f8b" stroke-width="2.5" fill="none" marker-end="url(#a1f6f8b)"/>
+<text x="390" y="215" text-anchor="middle" font-size="14" fill="#222">Kap</text><text x="100" y="282" text-anchor="middle" font-size="14" fill="#222">Land</text>
+<text x="390" y="30" text-anchor="middle" font-size="13" fill="#c0392b">am Kap: Wind stärker</text>
+<text x="20" y="316" font-size="12" fill="#888">Draufsicht · Kapeffekt: Die Luft wird um die vorspringende Landzunge gelenkt und zusammengedrängt</text>
+</svg>

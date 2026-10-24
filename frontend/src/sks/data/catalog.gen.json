@@ -5341,7 +5341,28 @@
    "answer_text": "Besonders im Sommer können bei Schwachwindlagen Gewitter mit Böen auftreten, die Sturm- oder Orkanstärke erreichen können.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Normalerweise liegen Böen nur etwa 1 bis 2 Bft über dem vorhergesagten Mittelwind, auch Schauerböen meist nicht mehr als 2 Bft. Wer die Vorhersage liest, rechnet also mit **wenig mehr als dem Mittelwind**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Im Sommer heizt die Sonne Land und bodennahe Luft stark auf. Warme, feuchte Luft steigt rasch hoch, und es bilden sich Gewitterwolken – auch dann, wenn das Druckgefälle der Wetterlage nur **schwachen Wind** bringt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Aus der Gewitterwolke stürzt mit dem Niederschlag kalte Luft herab und breitet sich am Boden nach allen Seiten aus. Diese Böe hängt nicht von der Wetterlage ab, sondern vom Gewitter selbst, und kann **Sturm- oder Orkanstärke** erreichen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Aus dem schwachen Mittelwind der Vorhersage ist sie also nicht abzulesen. Deshalb werden Gewitterböen **zusätzlich angegeben**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
@@ -5361,7 +5382,63 @@
    "answer_text": "U. a. Land-/Seewind-Zirkulation, Düsen- und Kapeffekte.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Der Seewetterbericht gilt für ein großes Seegebiet. Er beruht auf dem **großräumigen Windfeld** der Wetterlage, also auf Druckverteilung und Fronten. Was sich nur auf wenigen Seemeilen an der Küste abspielt, steckt darin nicht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Tagsüber erwärmt sich das Land schneller als das Wasser. Die warme Luft steigt über Land auf, und von See strömt kühlere Luft nach – der **Seewind**. Nachts kühlt das Land schneller aus, und die Strömung kehrt sich um – der **Landwind**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-56-land-und-seewind.svg",
+      "width": 780,
+      "height": 330,
+      "alt": "Zwei Seitenansichten einer Küste. Links tagsüber, das Land ist warm. Die Luft steigt über Land auf, in der Höhe strömt sie zum Meer zurück und sinkt dort ab, am Boden weht der Seewind vom Meer zum Land. Rechts nachts, das Meer ist wärmer. Die Luft steigt über dem Meer auf, in der Höhe strömt sie zum Land und sinkt dort ab, am Boden weht der Landwind vom Land zum Meer."
+     }
+    },
+    {
+     "text": "Zwischen zwei Landmassen oder in einer Meerenge muss dieselbe Luftmenge durch einen engeren Querschnitt. Sie wird zusammengedrängt und strömt **schneller** – der **Düseneffekt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-56-duesen-effekt.svg",
+      "width": 780,
+      "height": 320,
+      "alt": "Draufsicht auf zwei Landmassen, die sich in der Mitte einander nähern. Links liegen die Stromlinien des Windes weit auseinander, in der engen Stelle dicht beieinander, danach wieder weit auseinander."
+     }
+    },
+    {
+     "text": "Eine vorspringende Landzunge, ein **Kap**, zwingt den Wind, um sie herumzuströmen. Auch dort rücken die Stromlinien zusammen, und der Wind weht stärker als in der Umgebung – der **Kapeffekt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-56-kap-effekt.svg",
+      "width": 780,
+      "height": 320,
+      "alt": "Draufsicht auf eine Küste mit einem Kap, das ins Wasser ragt. Der Wind strömt parallel zur Küste von links. Am Kap rücken die Stromlinien dicht zusammen, dahinter laufen sie wieder auseinander."
+     }
+    },
+    {
+     "text": "Diese Effekte sind **kleinräumig** und hängen von Küstenform und Tageszeit ab. Ein Bericht für das ganze Seegebiet kann sie nur eingeschränkt berücksichtigen. Vor Ort muss man damit zusätzlich rechnen.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
