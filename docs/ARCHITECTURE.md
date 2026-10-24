@@ -131,7 +131,7 @@ A static single-page app: React + TypeScript, Vite, Zustand, Tailwind ([ADR-0013
   - What the SBF build swaps in: `index.sbf.html` with its own head and entry (`src/sbf/main.tsx`), its own routes (`src/sbf/SbfApp.tsx`: start page, FAQ, Impressum, Datenschutz), public files (`public-sbf/`), prerendered pages and sitemap (`src/sbf/publicPages.ts`), and theme ("Fahrwasserblau", `:root[data-site='sbf']` in `index.css`).
   - Where the code lives ([ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md)): `src/shared/` is what both sites use, `src/sks/` SKS Lotse's own, `src/sbf/` SBF Lotse's own, each with the same subfolders (`components/`, `hooks/`, `pages/`, …); `src/test/` holds the test setup. Shared code imports neither site and neither site the other: `no-restricted-imports` in `eslint.config.js` fails `npm run lint` otherwise. The short paths below (`components/…`, `hooks/…`) are under `src/sks/` or `src/shared/`.
   - What both sites share: the parts that need no session (`HeaderBar`, `PageShell`, `LegalFooter`, `src/shared/legal/`, which read `siteIdentity()` from `src/shared/siteConfig.ts`), and the prerender's helpers (`src/shared/publicPages.ts`). The SKS app's session parts (`Header`, `PageLayout`, the auth store, the API client) are in `src/sks/` and not in the SBF bundle, so it makes no API call; `scripts/check-sbf-build.mjs` checks that in CI after the SBF build.
-  - How SBF Lotse will reach the API once it has accounts (increment 2) is open: a rewrite of `sbf-lotse.de/api/*` to the backend hid the learner's IP from the rate limit and was removed ([ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md), update 2026-10-24); the fallback is api.sbf-lotse.de.
+  - Once SBF Lotse has accounts (increment 2), it calls the API on `api.sbf-lotse.de`, a second custom domain of the backend service, same-site with sbf-lotse.de so the session cookie works as on SKS Lotse ([ADR-0070](adr/0070-sbf-lotse-api-on-api-sbf-lotse-de.md)). The domain is live; nothing calls it yet. A rewrite of `sbf-lotse.de/api/*` was tried and removed, since it hid the caller's IP from the rate limit ([ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md)).
   - What the SBF build has so far: `VITE_SBF=off` builds only the placeholder start page.
   - With `on` (production since 2026-10-24), it adds the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)): `/navigation` and `/navigation/<n>`, prerendered from `src/sbf/data/sbf_navigation.gen.json`.
     - The export is its own chunk, loaded behind the build's literal flag (`src/sbf/navigationCatalog.ts`), so an `off` build doesn't contain it.
@@ -246,6 +246,7 @@ Everything is declared in `render.yaml`:
 |---|---|
 | `sks-lotse.de`, `www.` | Frontend (canonical) |
 | `api.sks-lotse.de` | Backend API |
+| `api.sbf-lotse.de` | Backend API, for SBF Lotse from increment 2 ([ADR-0070](adr/0070-sbf-lotse-api-on-api-sbf-lotse-de.md)); nothing calls it yet |
 | `sks-lotse.com`, `www.` | Backend, which 301-redirects to `sks-lotse.de` |
 | `sbf-lotse.de`, `www.` | SBF frontend (canonical), once its Custom Domains are set |
 

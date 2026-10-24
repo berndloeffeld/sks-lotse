@@ -1,6 +1,6 @@
 # 0069. The frontend split into shared, SKS and SBF; SBF Lotse reaches the API through a proxy on sbf-lotse.de
 
-Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2); the proxy is withdrawn after its check failed (update 2026-10-24 below), so how SBF Lotse reaches the API is open again
+Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2); the proxy is withdrawn after its check failed (update 2026-10-24 below) and superseded by [ADR-0070](0070-sbf-lotse-api-on-api-sbf-lotse-de.md) (api.sbf-lotse.de)
 
 ## Context
 
@@ -60,4 +60,4 @@ The rewrite was deployed ahead of increment 2 and checked from one network again
 
 So the rewrite came out of `render.yaml` again the same day, and `tests/test_render_blueprint.py` now fails on any `/api` rewrite. The per-email limits (code requests, attempts per code) held throughout; only the per-IP limits were open.
 
-The cross-site question is open again. The fallback named above is api.sbf-lotse.de, a custom domain on the backend service, which needs a free custom-domain slot on the Render plan. A new ADR records that decision when increment 2 starts. The directory split above stands.
+The cross-site question is open again. The fallback named above, api.sbf-lotse.de, is decided in [ADR-0070](0070-sbf-lotse-api-on-api-sbf-lotse-de.md). The directory split above stands.
