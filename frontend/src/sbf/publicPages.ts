@@ -1,7 +1,8 @@
 import { faqJsonLd, type PublicPage } from '../publicPages'
 import { SITES } from '../site'
-import { SBF_FAQ } from './faq'
-import { SBF_FAQ_TEXT, SBF_IMPRINT_TEXT, SBF_PRIVACY_TEXT } from './texts'
+import { sbfFaq } from './faq'
+import type { NavigationExport } from './navigationCatalog'
+import { SBF_FAQ_TEXT, SBF_IMPRINT_TEXT, SBF_NAVIGATION_TEXT, SBF_PRIVACY_TEXT, navigationTaskText } from './texts'
 import type { PageText } from '../publicPageTexts'
 
 // The SBF site's prerendered pages (ADR-0025, ADR-0067), on sbf-lotse.de: scripts/prerender.mjs
@@ -23,11 +24,20 @@ function page(
   }
 }
 
-export function sbfPublicPages(): PublicPage[] {
+// `navigation` only in a build with VITE_SBF=on; otherwise its pages aren't built (ADR-0068).
+export function sbfPublicPages(navigation: NavigationExport | null = null): PublicPage[] {
   return [
     { path: '/', file: 'index.html' },
-    page('/faq', SBF_FAQ_TEXT, { jsonLd: [faqJsonLd(SBF_FAQ)] }),
+    page('/faq', SBF_FAQ_TEXT, { jsonLd: [faqJsonLd(sbfFaq(navigation !== null))] }),
     page('/imprint', SBF_IMPRINT_TEXT, { noindex: true }),
     page('/privacy', SBF_PRIVACY_TEXT, { noindex: true }),
+    ...(navigation
+      ? [
+          page('/navigation', SBF_NAVIGATION_TEXT),
+          ...navigation.tasks.map((task) =>
+            page(`/navigation/${task.number}`, navigationTaskText(task.number, task.situation[0])),
+          ),
+        ]
+      : []),
   ]
 }

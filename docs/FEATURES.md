@@ -111,8 +111,14 @@ A second site, **SBF Lotse** on sbf-lotse.de, for the theory exam of the **Sport
   - A link to SKS Lotse as the next step after the SBF See.
   - Its own FAQ.
   - The Impressum and Datenschutzerklärung, which are shared with SKS Lotse.
+- **The Navigationsaufgaben See (built, not live yet)** ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)):
+  - All 15 official tasks with their 9 subtasks each, open without a login. The situation stays in view, the subtasks come in order: the learner writes an answer, then sees the official result and grades themselves with 0 or 1 point. A follow-on error counts as correct (SpFV). At the end comes the evaluation "X von 9 Punkten", passed from 7 (ELWIS Bewertungsschlüssel).
+  - Beside each result, SKS Lotse's own tolerance (e.g. ±1° for courses), set apart and labelled "nicht amtlich, übliche Prüfungspraxis".
+  - Beside the run, as with the SKS Kartenaufgaben: the official original of the current subtask (its result once answered) and the run so far. On a phone they sit behind a bar at the bottom. Keyboard as on SKS Lotse: Enter shows the result, Shift+Enter is a new line.
+  - The hints name the paper chart needed (Übungskarte D49) and the aids allowed in the exam. The official wording is kept; 8 obvious typos are corrected, each marked on the page with the official text.
+  - Nothing is saved.
 - **What it doesn't have yet**: no login, no saving, no Lotsen-Check, no AGB and no buying. The site says "bald", and it makes no request to the SKS Lotse server.
-- **Status today**: built behind a flag (`VITE_SBF=off`). The Navigationsaufgaben are not live; they open in a PR of their own once the usage rights for the SBF catalog See and the Übungskarte D49 are confirmed. sbf-lotse.de goes live once the operator has set up its domain, which is a one-time step in the RUNBOOK. SKS Lotse doesn't link to it yet.
+- **Status today**: built behind a flag (`VITE_SBF=off` in production). The Navigationsaufgaben are not live; they open in a PR of their own once the usage rights for the SBF catalog See and the Übungskarte D49 are confirmed. sbf-lotse.de goes live once the operator has set up its domain, which is a one-time step in the RUNBOOK. SKS Lotse doesn't link to it yet.
 
 ## Privacy
 

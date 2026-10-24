@@ -39,6 +39,7 @@ Basis, from official figures:
 - They are served prerendered pages and hashed assets from Render's CDN.
 - The SBF build makes no API call. Its CSP has no API host, and the CI step `check-sbf-build.mjs` fails a build that contains the API client.
 - There is no database row and no worker time.
+- With the Navigationsaufgaben built (`VITE_SBF=on`, [ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)), the build grows by their data chunk (about 50 KB) and 270 cuts of the PDF (about 1.6 MB in all). A run loads only the cuts of the subtask it shows, a few KB each.
 
 **Later (accounts, SBF See and Binnen), at the planning figure:**
 
