@@ -33,7 +33,7 @@ def main() -> int:
     with SessionLocal() as db:
         report = compute_kpis(db, now)
         lotse_check.purge_check_log(db, now)
-    subject = f"SKS Lotse Tagesreport {now:%d.%m.%Y}"
+    subject = f"SKS Lotse & SBF Lotse Tagesreport {now:%d.%m.%Y}"
     body = format_report(report)
     failed = 0
     for position, recipient in enumerate(recipients, start=1):

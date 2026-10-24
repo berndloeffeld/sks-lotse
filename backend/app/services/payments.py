@@ -21,8 +21,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core import site as sites
 from app.core.checkout import stripe_product_id
 from app.core.config import settings
+from app.core.site import Site
 from app.domain import pricing as pricing_domain
 from app.models.purchase import Purchase
 from app.models.user import User
@@ -46,7 +48,7 @@ class InvalidWebhook(Exception):
 
 
 def build_checkout_params(
-    user: User, package: pricing_domain.TokenPackage, product_id: str, origin: str
+    user: User, package: pricing_domain.TokenPackage, product_id: str, site: Site
 ) -> dict[str, Any]:
     """The Checkout Session parameters for one token package.
 
@@ -54,8 +56,10 @@ def build_checkout_params(
     Studio — keep them as they are. `mode="payment"`: a package is a one-time purchase, so no
     `payment_method_collection` (subscriptions only). The package's token amount goes into the
     metadata at this point, so a price/amount change in /admin/settings while the learner is on
-    the Stripe page doesn't change what they get.
+    the Stripe page doesn't change what they get. `site` is where the learner bought (ADR-0070):
+    Stripe sends them back there, and the webhook brands the confirmation mail by it.
     """
+    origin = sites.base_url(site)
     return {
         "ui_mode": "hosted_page",
         "billing_address_collection": "auto",
@@ -81,6 +85,7 @@ def build_checkout_params(
             # The learner ticked the § 356 Abs. 5 BGB box (the request is refused otherwise) —
             # recorded on the session, which Stripe keeps alongside the payment.
             "withdrawal_waiver": "accepted",
+            "site": site,
         },
         "success_url": f"{origin}/pricing?checkout=success&product={package.product}",
         "cancel_url": f"{origin}/pricing?checkout=cancelled",
@@ -96,13 +101,13 @@ def _client() -> stripe.StripeClient:
     )
 
 
-def create_checkout_url(db: Session, user: User, product: str) -> str:
+def create_checkout_url(db: Session, user: User, product: str, site: Site) -> str:
     """Open a Checkout Session for `product` and return the Stripe-hosted page's URL."""
     product_id = stripe_product_id(product)
     if not product_id:
         raise CheckoutUnavailable(f"no Stripe product id configured for {product}")
     package = pricing_service.token_package(db, product)
-    params = build_checkout_params(user, package, product_id, settings.cors_allowed_origins[0])
+    params = build_checkout_params(user, package, product_id, site)
     try:
         session = _client().v1.checkout.sessions.create(params=params)  # type: ignore[arg-type]  # a plain dict, the SDK's TypedDict is structural
     except stripe.StripeError as exc:
@@ -121,8 +126,8 @@ def parse_webhook(payload: bytes, signature: str | None) -> stripe.Event:
 
 
 # Called after a session's tokens were credited, with (email, product, tokens, amount_cents,
-# payment_intent) — the webhook hands it a background task that sends the confirmation mail.
-CreditedCallback = Callable[[str, str, int, int | None, str], None]
+# payment_intent, site) — the webhook hands it a background task that sends the confirmation mail.
+CreditedCallback = Callable[[str, str, int, int | None, str, Site], None]
 
 
 def _euro(cents: int | None) -> str:
@@ -130,7 +135,7 @@ def _euro(cents: int | None) -> str:
 
 
 def send_purchase_confirmation(
-    email: str, product: str, tokens: int, amount_cents: int | None, payment_intent: str
+    email: str, product: str, tokens: int, amount_cents: int | None, payment_intent: str, site: Site
 ) -> None:
     """Mail the learner the confirmation of a paid package; a failed send is logged, never raised.
 
@@ -146,7 +151,7 @@ def send_purchase_confirmation(
             amount=_euro(amount_cents),
             paid_at=datetime.now(UTC).astimezone(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y, %H:%M Uhr"),
             reference=payment_intent,
-            base_url=settings.cors_allowed_origins[0],
+            site=site,
         )
     except Exception:
         logger.exception(
@@ -173,6 +178,8 @@ def fulfil_checkout_session(
     if db.scalar(select(Purchase.id).where(Purchase.stripe_payment_intent_id == payment_intent)) is not None:
         return False
     user_id = int(metadata["user_id"])
+    # Sessions opened before there were two sites carry no site; they were all SKS Lotse's.
+    site = sites.as_site(metadata.get("site"))
     user = db.get(User, user_id)
     if user is None:
         # Deleted the account between paying and the webhook — refund by hand (docs/RUNBOOK.md).
@@ -187,6 +194,7 @@ def fulfil_checkout_session(
             amount_eur_cents=session.get("amount_total"),
             granted_by="stripe",
             stripe_payment_intent_id=payment_intent,
+            site=site,
         )
     except IntegrityError:
         # A parallel delivery of the same event got there first.
@@ -200,5 +208,6 @@ def fulfil_checkout_session(
             int(metadata["tokens"]),
             session.get("amount_total"),
             payment_intent,
+            site,
         )
     return True

@@ -32,3 +32,10 @@ def test_secondary_domain_redirects_to_canonical_keeping_path_and_query(client, 
 def test_health_is_served_without_redirect(client, host):
     response = client.get("/health", headers={"host": host}, follow_redirects=False)
     assert response.status_code == 200
+
+
+@pytest.mark.parametrize("host", ["api.sbf-lotse.de", "sbf-lotse.de", "www.sbf-lotse.de"])
+def test_sbf_lotse_hosts_are_not_redirected(client, host):
+    # api.sbf-lotse.de is the backend's second custom domain (ADR-0070), not a secondary SKS domain.
+    response = client.get("/api/v1/pricing", headers={"host": host}, follow_redirects=False)
+    assert response.status_code == 200

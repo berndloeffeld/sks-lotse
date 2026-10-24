@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     # Display name + address, so inboxes show "SKS Lotse" rather than a bare
     # noreply address.
     email_from_address: str = "SKS Lotse <noreply@sks-lotse.de>"
+    # The same for mails to a learner on sbf-lotse.de (ADR-0070); its domain is verified in Resend
+    # separately (docs/RUNBOOK.md → One-time setup SBF Lotse).
+    email_from_address_sbf: str = "SBF Lotse <noreply@sbf-lotse.de>"
     # Comma-separated email allowlist for a pre-launch/private beta. Empty
     # (the default) means no whitelist — anyone can request/verify a login.
     allowed_emails: str = ""
@@ -192,13 +195,32 @@ class Settings(BaseSettings):
         return self.environment in ("development", "test") and not self.render
 
     @property
-    def cors_allowed_origins(self) -> list[str]:
-        # The origins the frontend is served from: the sks-lotse-frontend static
-        # site in production (see render.yaml, ADR-0015), the Vite dev server's
-        # default origin locally.
+    def site_origins(self) -> dict[str, list[str]]:
+        # The origins each site's frontend is served from (app/core/site.py, ADR-0070): the static
+        # sites in production (render.yaml), the Vite dev and preview servers locally
+        # (.claude/launch.json). The first one per site is its canonical origin, which mail links and
+        # Stripe's return URLs are built on.
         if self.is_production:
-            return ["https://sks-lotse.de", "https://www.sks-lotse.de"]
-        return ["http://localhost:5173", "http://127.0.0.1:5173"]
+            return {
+                "sks": ["https://sks-lotse.de", "https://www.sks-lotse.de"],
+                "sbf": ["https://sbf-lotse.de", "https://www.sbf-lotse.de"],
+            }
+        return {
+            "sks": ["http://localhost:5173", "http://127.0.0.1:5173"],
+            "sbf": [
+                "http://localhost:5174",
+                "http://127.0.0.1:5174",
+                "http://localhost:5175",
+                "http://127.0.0.1:5175",
+                "http://localhost:4174",
+                "http://127.0.0.1:4174",
+            ],
+        }
+
+    @property
+    def cors_allowed_origins(self) -> list[str]:
+        # Both sites' frontends (ADR-0015, ADR-0070), SKS Lotse's first.
+        return [origin for origins in self.site_origins.values() for origin in origins]
 
 
 settings = Settings()  # type: ignore[call-arg]  # required fields come from the environment

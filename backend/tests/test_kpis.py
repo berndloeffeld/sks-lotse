@@ -200,7 +200,7 @@ def test_daily_report_script_mails_every_admin(db_session, monkeypatch):
     assert send_daily_report.main() == 0
 
     assert [args[0] for args in sent] == ["one@example.com", "two@example.com"]
-    assert sent[0][1].startswith("SKS Lotse Tagesreport")
+    assert sent[0][1].startswith("SKS Lotse & SBF Lotse Tagesreport")
     assert "WACHSTUM" in sent[0][2]
 
 
@@ -597,3 +597,40 @@ def test_dashboard_shares_the_reports_sections(db_session):
     assert dashboard.engagement == report.engagement
     assert dashboard.monetization == report.monetization
     assert dashboard.daily[-1].new_users == report.growth.new_24h  # both since 2026-09-19 12:00 / 09-20 00:00
+
+
+def test_new_accounts_and_purchases_are_counted_per_site(db_session):
+    # ADR-0070: the report says how much of it came from sbf-lotse.de.
+    sks = User(email="sks@example.com", created_at=_ago(hours=2), signup_site="sks")
+    sbf_today = User(email="sbf1@example.com", created_at=_ago(hours=3), signup_site="sbf")
+    sbf_week = User(email="sbf2@example.com", created_at=_ago(days=3), signup_site="sbf")
+    db_session.add_all([sks, sbf_today, sbf_week])
+    db_session.flush()
+    for user, site, cents, intent in (
+        (sks, "sks", 299, "pi_a"),
+        (sbf_today, "sbf", 599, "pi_b"),
+        (sbf_week, None, 99, "pi_c"),
+    ):
+        db_session.add(
+            Purchase(
+                user_id=user.id,
+                product="tokens_s",
+                tokens_granted=20,
+                amount_eur_cents=cents,
+                granted_by="stripe",
+                stripe_payment_intent_id=intent,
+                site=site,
+                created_at=_ago(hours=5),
+            )
+        )
+    db_session.commit()
+
+    report = compute_kpis(db_session, NOW)
+
+    assert (report.growth.new_24h, report.growth.new_sbf_24h, report.growth.new_sbf_7d) == (2, 1, 2)
+    assert (report.monetization.purchases_7d, report.monetization.purchases_sbf_7d) == (3, 1)
+    assert report.monetization.revenue_cents_sbf_7d == 599
+    text = format_report(report)
+    assert "Davon auf SBF Lotse angelegt (24 h / 7 Tage): 1 / 2" in text
+    assert "Davon auf SBF Lotse (7 Tage): 1 Käufe, 5,99 EUR" in text
+    assert text.startswith("SKS Lotse & SBF Lotse - Tagesreport")

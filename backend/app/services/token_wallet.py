@@ -44,6 +44,7 @@ def grant(
     granted_by: str,
     admin_user_id: int | None = None,
     stripe_payment_intent_id: str | None = None,
+    site: str | None = None,
 ) -> Purchase:
     """Credit tokens to the balance and record the grant in the purchases ledger.
 
@@ -60,6 +61,7 @@ def grant(
         granted_by=granted_by,
         admin_user_id=admin_user_id,
         stripe_payment_intent_id=stripe_payment_intent_id,
+        site=site,
     )
     db.add(purchase)
     db.commit()

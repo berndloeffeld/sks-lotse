@@ -1,6 +1,6 @@
 # 0048. Stripe Hosted Checkout with webhook fulfilment
 
-Status: Accepted — amends [ADR-0043](0043-token-based-ai-grading-monetization.md): token packages can now be bought by the learner via Stripe, no longer only credited by hand. Werbefrei stayed a manual grant ("bald verfügbar") until [ADR-0060](0060-no-advertising.md) dropped it with the ads.
+Status: Accepted — amends [ADR-0043](0043-token-based-ai-grading-monetization.md): token packages can now be bought by the learner via Stripe, no longer only credited by hand. Werbefrei stayed a manual grant ("bald verfügbar") until [ADR-0060](0060-no-advertising.md) dropped it with the ads. Amended by [ADR-0070](0070-sbf-api-host-and-site-per-request.md): the Checkout Session carries the site it was opened on, for the return URLs and the confirmation mail.
 
 ## Context
 

@@ -82,6 +82,8 @@ class AdminUserRead(AdminUserListItem):
     agb_accepted_version: str | None
     agb_accepted_at: datetime | None
     last_login_at: datetime | None
+    # "sks" or "sbf": the site the account was created on (ADR-0070); NULL for older accounts.
+    signup_site: str | None
     # Admin 2FA (ADR-0047): when it was switched on. Never the secret itself.
     totp_enabled_at: datetime | None
     question_progress_count: int
@@ -199,6 +201,8 @@ class AdminPurchaseExport(BaseModel):
     # The Stripe payment behind a granted_by="stripe" row (ADR-0048) — lets a data-subject request
     # be matched to the payment Stripe itself holds.
     stripe_payment_intent_id: str | None
+    # The site a Stripe purchase was made on (ADR-0070); NULL for other grants and older purchases.
+    site: str | None
     created_at: datetime
 
 

@@ -68,9 +68,11 @@ def _active_users(db: Session, since: datetime, until: datetime) -> int:
     return _count(db, _active_user_ids(since, until))
 
 
-def _users_created(db: Session, since: datetime, until: datetime) -> int:
+def _users_created(db: Session, since: datetime, until: datetime, *where) -> int:
     return db.execute(
-        select(func.count()).select_from(User).where(User.created_at >= since, User.created_at < until)
+        select(func.count())
+        .select_from(User)
+        .where(User.created_at >= since, User.created_at < until, *where)
     ).scalar_one()
 
 
@@ -88,6 +90,8 @@ def _growth(db: Session, now: datetime) -> GrowthKpis:
         new_24h=_users_created(db, now - day, now),
         new_previous_24h=_users_created(db, now - 2 * day, now - day),
         new_7d=_users_created(db, now - week, now),
+        new_sbf_24h=_users_created(db, now - day, now, User.signup_site == "sbf"),
+        new_sbf_7d=_users_created(db, now - week, now, User.signup_site == "sbf"),
         variant_motor=variants.get("motor", 0),
         variant_segeln_und_motor=variants.get("segeln_und_motor", 0),
         variant_unset=variants.get(None, 0),
@@ -210,16 +214,17 @@ def _monetization(db: Session, now: datetime) -> MonetizationKpis:
             select(func.coalesce(func.sum(LotseCheckLog.tokens), 0)).where(LotseCheckLog.checked_at >= since)
         ).scalar_one()
 
-    def purchases(since: datetime) -> tuple[int, int]:
+    def purchases(since: datetime, *where) -> tuple[int, int]:
         count, cents = db.execute(
             select(func.count(), func.coalesce(func.sum(Purchase.amount_eur_cents), 0)).where(
-                Purchase.granted_by == "stripe", Purchase.created_at >= since
+                Purchase.granted_by == "stripe", Purchase.created_at >= since, *where
             )
         ).one()
         return count, cents or 0
 
     purchases_24h, revenue_24h = purchases(now - day)
     purchases_7d, revenue_7d = purchases(now - week)
+    purchases_sbf_7d, revenue_sbf_7d = purchases(now - week, Purchase.site == "sbf")
     return MonetizationKpis(
         lotse_checks_catalog_24h=checks("catalog"),
         lotse_checks_chart_24h=checks("chart"),
@@ -229,6 +234,8 @@ def _monetization(db: Session, now: datetime) -> MonetizationKpis:
         purchases_7d=purchases_7d,
         revenue_cents_24h=revenue_24h,
         revenue_cents_7d=revenue_7d,
+        purchases_sbf_7d=purchases_sbf_7d,
+        revenue_cents_sbf_7d=revenue_sbf_7d,
     )
 
 
@@ -327,11 +334,12 @@ def format_report(report: KpiReport) -> str:
     subjects = ", ".join(f"{item.subject} {item.learned_questions}" for item in learn.learned_by_subject)
     top = [f"  - {r.subject} Nr. {r.number}: {r.reports}x" for r in q.top_reported_7d]
     lines = [
-        f"SKS Lotse - Tagesreport {report.generated_at:%d.%m.%Y}",
+        f"SKS Lotse & SBF Lotse - Tagesreport {report.generated_at:%d.%m.%Y}",
         "",
         "WACHSTUM",
         f"Konten gesamt: {g.users_total}",
         f"Neu (24 h / Vortag / 7 Tage): {g.new_24h} / {g.new_previous_24h} / {g.new_7d}",
+        f"Davon auf SBF Lotse angelegt (24 h / 7 Tage): {g.new_sbf_24h} / {g.new_sbf_7d}",
         "Prüfungsvariante Motor / Segeln+Motor / offen: "
         f"{g.variant_motor} / {g.variant_segeln_und_motor} / {g.variant_unset}",
         f"Aktivierung (Neukonten 7 Tage mit mind. 1 Bewertung): {_pct(g.activation_rate_7d)}",
@@ -360,6 +368,7 @@ def format_report(report: KpiReport) -> str:
         f"Verbrauchte Tokens 24 h / 7 Tage: {m.tokens_spent_24h} / {m.tokens_spent_7d}",
         f"Käufe 24 h / 7 Tage: {m.purchases_24h} / {m.purchases_7d}",
         f"Umsatz 24 h / 7 Tage: {_eur(m.revenue_cents_24h)} / {_eur(m.revenue_cents_7d)}",
+        f"Davon auf SBF Lotse (7 Tage): {m.purchases_sbf_7d} Käufe, {_eur(m.revenue_cents_sbf_7d)}",
         "",
         "QUALITÄT",
         f"Fragenmeldungen 24 h / gesamt: {q.reports_24h} / {q.reports_total}",

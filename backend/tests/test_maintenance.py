@@ -62,3 +62,12 @@ def test_main_app_answers_maintenance_before_the_rate_limiter_counts_the_request
 
     assert client.get("/api/v1/questions").status_code == 503
     assert not getattr(app.state, "rate_limit_hits", {})
+
+
+def test_the_message_names_the_site_the_request_came_from():
+    # One switch covers both sites (ADR-0070); a learner on sbf-lotse.de reads its own brand.
+    client = TestClient(_make_app(enabled=True))
+
+    response = client.get("/api/v1/questions", headers={"Origin": "http://localhost:5174"})
+
+    assert response.json() == {"detail": "SBF Lotse befindet sich aktuell im Wartungsmodus."}

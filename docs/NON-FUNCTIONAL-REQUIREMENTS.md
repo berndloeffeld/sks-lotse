@@ -59,6 +59,8 @@ Derivation: as for SKS Lotse, with one change. **Assumption:** an SBF learner is
   - Measure the worker with a load test.
   - Plan the move of the in-process state (rate limiter, catalog cache, Lotsen-Check caps) to a shared store, so more workers or instances become possible ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md), [ADR-0009](adr/0009-in-process-cache-for-question-catalog.md)).
 - Until then, nothing changes: guests on sbf-lotse.de never reach the API.
+- **The second API host** ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)): sbf-lotse.de reaches the same backend service on api.sbf-lotse.de. The load above lands on the same single worker, and the per-IP rate limit has to see the learner's IP there as well. That is measured before accounts open on sbf-lotse.de.
+- **Login mails:** SBF Lotse's go out through Resend from `noreply@sbf-lotse.de`, alongside SKS Lotse's. At the planning figure, with ~3–5 per account as for SKS Lotse, that's ~70,000–120,000 a year more (**assumption**), at the season peak several hundred a day: more than Resend's free plan sends, so the plan has to fit before accounts open there.
 
 ## 2. Non-functional requirements
 

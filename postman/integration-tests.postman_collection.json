@@ -7919,8 +7919,10 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'exam_counts_for_progress', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'exam_counts_for_progress', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'signup_site', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
+                  "    // Signed up through Postman: no Origin, not the SBF API host, so SKS Lotse (ADR-0070).",
+                  "    pm.expect(u.signup_site).to.eql('sks');",
                   "});"
                 ]
               }

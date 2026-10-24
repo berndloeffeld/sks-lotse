@@ -12,7 +12,7 @@ def sent(monkeypatch):
 
 
 def test_login_code_email_is_german_with_html_and_text_parts(sent):
-    email_service.send_otp_email("learner@example.com", "123456")
+    email_service.send_otp_email("learner@example.com", "123456", site="sks")
 
     [params] = sent
     assert params["to"] == "learner@example.com"
@@ -30,7 +30,7 @@ def test_login_code_email_is_german_with_html_and_text_parts(sent):
 
 
 def test_login_code_email_carries_the_login_link_with_the_token_in_the_fragment(sent):
-    email_service.send_otp_email("learner@example.com", "123456", "tok_en-abc")
+    email_service.send_otp_email("learner@example.com", "123456", "tok_en-abc", site="sks")
 
     [params] = sent
     url = f"{settings.cors_allowed_origins[0]}/login/link#t=tok_en-abc"
@@ -42,7 +42,7 @@ def test_login_code_email_carries_the_login_link_with_the_token_in_the_fragment(
 
 
 def test_login_code_email_without_a_token_has_no_link(sent):
-    email_service.send_otp_email("learner@example.com", "123456")
+    email_service.send_otp_email("learner@example.com", "123456", site="sks")
 
     [params] = sent
     assert "/login/link" not in params["html"]
@@ -50,7 +50,7 @@ def test_login_code_email_without_a_token_has_no_link(sent):
 
 
 def test_every_mail_footer_links_the_legal_pages_in_readable_white(sent):
-    email_service.send_otp_email("learner@example.com", "123456")
+    email_service.send_otp_email("learner@example.com", "123456", site="sks")
 
     [params] = sent
     origin = settings.cors_allowed_origins[0]
@@ -66,13 +66,13 @@ def test_the_api_key_is_handed_to_resend(monkeypatch):
     monkeypatch.setattr(settings, "resend_api_key", "re_test_key")
     monkeypatch.setattr(email_service.resend.Emails, "send", lambda params: None)
 
-    email_service._send("a@b.de", "Betreff", html="<p>x</p>", text="x")
+    email_service._send("a@b.de", "Betreff", html="<p>x</p>", text="x", sender="x")
 
     assert email_service.resend.api_key == "re_test_key"
 
 
 def test_email_change_email_uses_confirmation_copy(sent):
-    email_service.send_email_change_otp_email("new@example.com", "654321")
+    email_service.send_email_change_otp_email("new@example.com", "654321", site="sks")
 
     [params] = sent
     assert params["to"] == "new@example.com"
@@ -85,7 +85,7 @@ def test_email_change_email_uses_confirmation_copy(sent):
 
 
 def test_email_change_notice_goes_to_the_old_address_with_the_masked_new_one(sent):
-    email_service.send_email_change_notice_email("old@example.com", "n***@example.com")
+    email_service.send_email_change_notice_email("old@example.com", "n***@example.com", site="sks")
 
     [params] = sent
     assert params["to"] == "old@example.com"
@@ -97,3 +97,32 @@ def test_email_change_notice_goes_to_the_old_address_with_the_masked_new_one(sen
 
 def test_default_sender_shows_the_product_name():
     assert Settings.model_fields["email_from_address"].default == "SKS Lotse <noreply@sks-lotse.de>"
+
+
+def test_sbf_default_sender_shows_its_own_name_and_domain():
+    assert Settings.model_fields["email_from_address_sbf"].default == "SBF Lotse <noreply@sbf-lotse.de>"
+
+
+def test_a_login_code_requested_on_sbf_lotse_is_branded_and_links_back_there(sent):
+    # ADR-0070: the link must lead to the site whose API host sets the session cookie.
+    email_service.send_otp_email("learner@example.com", "123456", "tok", site="sbf")
+
+    [params] = sent
+    origin = settings.site_origins["sbf"][0]
+    assert params["from"] == settings.email_from_address_sbf
+    assert params["subject"] == "Dein Anmeldecode für SBF Lotse"
+    assert f'href="{origin}/login/link#t=tok"' in params["html"]
+    assert f"{origin}/icon-192.png" in params["html"]
+    assert "SBF Lotse · Lernen für den Sportbootführerschein See" in params["html"]
+    assert "SKS" not in params["html"] + params["text"] + params["subject"]
+
+
+def test_the_sbf_email_change_mails_carry_its_brand(sent):
+    email_service.send_email_change_otp_email("new@example.com", "654321", site="sbf")
+    email_service.send_email_change_notice_email("old@example.com", "n***@example.com", site="sbf")
+
+    confirm, notice = sent
+    assert confirm["subject"] == "Bestätige deine neue E-Mail-Adresse für SBF Lotse"
+    assert notice["subject"] == "Deine E-Mail-Adresse bei SBF Lotse wurde geändert"
+    assert "deines SBF-Lotse-Kontos" in notice["text"]
+    assert {confirm["from"], notice["from"]} == {settings.email_from_address_sbf}
