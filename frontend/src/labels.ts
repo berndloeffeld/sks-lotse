@@ -55,7 +55,7 @@ export const PACKAGE_LABELS: Record<PackageProduct, string> = {
   tokens_xl: 'Paket XL',
 }
 
-// Per the Durchführungsrichtlinien Nr. 6.2.1, for the Fragebogen part only.
+// Per the Durchführungsrichtlinien Nr. 6.2.1, for the Fragebogen and the Kartenaufgabe alike.
 export const EXAM_RESULT_LABELS: Record<ExamResult, string> = {
   bestanden: 'Bestanden',
   muendliche_nachpruefung: 'Mündliche Nachprüfung erforderlich',

@@ -508,6 +508,8 @@ describe('ChartAttemptPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Kartenaufgabe abgeschlossen' })).toBeInTheDocument()
     expect(screen.getByText(/von 4 Punkten gegeben/)).toHaveTextContent('Du hast dir 3 von 4 Punkten gegeben.')
+    expect(screen.getByText(/In der Prüfung hieße das/)).toHaveTextContent('In der Prüfung hieße das: Nicht bestanden')
+    expect(screen.getByText(/Ab 20 Punkten/)).toHaveTextContent('bei 17–19 Punkten folgt eine mündliche Nachprüfung')
     expect(screen.getByRole('link', { name: 'Zur Übersicht' })).toHaveAttribute('href', '/charts')
     await waitFor(() => expect(screen.getAllByText('Nicht beantwortet.').length).toBeGreaterThan(0))
     // A solution of a single part needs no bullet.
