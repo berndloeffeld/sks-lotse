@@ -2,8 +2,8 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 
-import { checkLimitsSource } from '../checkLimits'
-import type { PublicPricing } from '../api/types'
+import { checkLimitsSource } from '../sks/checkLimits'
+import type { PublicPricing } from '../sks/api/types'
 
 const PRICING = {
   catalog_check_tokens: 1,

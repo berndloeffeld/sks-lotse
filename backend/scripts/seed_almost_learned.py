@@ -1,5 +1,5 @@
 """Seed a question's progress right at the "gelernt" boundary, for local manual QA of the
-LearnedCelebration overlay (frontend/src/components/LearnedCelebration.tsx) without waiting on
+LearnedCelebration overlay (frontend/src/sks/components/LearnedCelebration.tsx) without waiting on
 real elapsed time.
 
 One-off/local-only — not run in CI or production. Log in through the app first (OTP flow) so the

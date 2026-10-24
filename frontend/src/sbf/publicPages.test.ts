@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import html from '../../index.sbf.html?raw'
-import { applyMeta, escapeHtml, sitemapXml } from '../publicPages'
+import { applyMeta, escapeHtml, sitemapXml } from '../shared/publicPages'
 import { SBF_ORIGIN, sbfPublicPages } from './publicPages'
 import { SBF_HOME_TITLE } from './texts'
 

@@ -30,7 +30,7 @@ def test_the_committed_export_matches_the_catalog():
     # change without a re-export would show learners without a login an outdated catalog.
     expected = render_catalog_export(catalog_export(build_catalog(), load_topics()))
     assert EXPORT_PATH.read_text() == expected, (
-        "frontend/src/data/catalog.gen.json is stale: run "
+        "frontend/src/sks/data/catalog.gen.json is stale: run "
         "`PYTHONPATH=. .venv/bin/python scripts/export_catalog.py` in backend/ and commit the result."
     )
 
@@ -39,7 +39,7 @@ def test_the_committed_landing_samples_match_the_catalog():
     # The landing page's hero shows these word for word; they come from the same export.
     expected = render_catalog_export(landing_samples_export(catalog_export(build_catalog(), load_topics())))
     assert LANDING_SAMPLES_PATH.read_text() == expected, (
-        "frontend/src/data/landing_samples.gen.json is stale: run "
+        "frontend/src/sks/data/landing_samples.gen.json is stale: run "
         "`PYTHONPATH=. .venv/bin/python scripts/export_catalog.py` in backend/ and commit the result."
     )
 
@@ -134,7 +134,7 @@ def test_renders_stable_readable_json():
     assert text == render_catalog_export({"topics": [], "questions": [{"question_text": "Übung"}]})
 
 
-# The static prerendered pages besides "/" (STATIC_PAGES in frontend/src/publicPages.ts).
+# The static prerendered pages besides "/" (STATIC_PAGES in frontend/src/sks/publicPages.ts).
 STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms", "/exam-process", "/learning-method", "/pricing"}
 
 

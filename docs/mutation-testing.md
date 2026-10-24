@@ -87,7 +87,7 @@ cd frontend && npm ci                                   # once
 ```
 
 - **Scope**: exactly `mutate` in [`frontend/stryker.config.json`](../frontend/stryker.config.json), the logic modules
-  (`src/*.ts`, `api/`, `store/`, `hooks/`); the ones left out are the `EXCLUDED` set in
+  (the `.ts` files directly in `src/shared/`, `src/sks/` and `src/sbf/`, and in their `api/`, `store/`, `hooks/`); the ones left out are the `EXCLUDED` set in
   `src/test/mutationScope.test.ts`. Components and pages are deliberately out for now: their mutants are
   mostly markup and class names, and only page-level tests cover them, which makes runs slow and survivors noisy.
   That test keeps the list current (same idea as the backend's `test_mutation_scope.py`).
@@ -98,7 +98,7 @@ cd frontend && npm ci                                   # once
   changes what runs at import time, so Stryker re-runs the *whole* suite for it. 353 of them were estimated to take 81% of
   the time and pushed the job into its timeout. They are ignored now (not counted), which also takes mostly-*killed* mutants
   out of the score, so the score dropped without the tests getting worse. The SEO wording of the prerendered pages lives
-  in `src/publicPageTexts.ts`, which is not mutated (a changed sentence is no bug); the logic of `publicPages.ts` is.
+  in `src/sks/publicPageTexts.ts`, which is not mutated (a changed sentence is no bug); the logic of `publicPages.ts` is.
 - **Score (2026-10-06): 703 of 744 counted mutants killed (94.5%, local run)**. Minimum in CI: **91%**
   (`MUTATION_MIN_SCORE`), a ratchet like the others. Up from 85.6% (637): the breadcrumbs and the head rewrite of the
   prerendered pages (`publicPages.ts`, with a shell written differently than `index.html`), the empty Formblatt and a

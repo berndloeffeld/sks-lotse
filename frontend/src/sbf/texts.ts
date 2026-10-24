@@ -1,4 +1,4 @@
-import type { PageText } from '../publicPageTexts'
+import type { PageText } from '../shared/publicPages'
 
 // The SBF site's page titles and descriptions (SEO copy, like ../publicPageTexts.ts for SKS Lotse;
 // a pure text module, left out of the mutation scope for the same reason). The home page's are

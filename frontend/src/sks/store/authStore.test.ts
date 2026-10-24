@@ -1,0 +1,362 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { apiClient } from '../api/client'
+import { useAuthStore } from './authStore'
+import { jsonResponse, makeUser } from '../../test/fixtures'
+
+const mockUser = makeUser()
+
+describe('authStore', () => {
+  beforeEach(() => {
+    useAuthStore.setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+      sessionExpired: false,
+    })
+  })
+
+  it('checkSession sets the user on a successful /auth/me call', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: mockUser, isAuthenticated: true, isLoading: false })
+  })
+
+  it('checkSession clears the user when /auth/me is unauthorized', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false, isLoading: false })
+  })
+
+  it('checkSession flags a session error (not a logout) on a server error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 503)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, isLoading: false, sessionError: true })
+  })
+
+  it('checkSession flags a session error when the network is down', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(true)
+  })
+
+  it('checkSession clears an earlier session error once the check succeeds', async () => {
+    useAuthStore.setState({ sessionError: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: true, sessionError: false })
+  })
+
+  it('a 401 is a plain logout, not a session error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(false)
+  })
+
+  it('setUser swaps the user without touching isLoading or isAuthenticated', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+
+    useAuthStore.getState().setUser({ ...mockUser, first_name: 'Anna' })
+
+    expect(useAuthStore.getState()).toMatchObject({
+      user: { ...mockUser, first_name: 'Anna' },
+      isAuthenticated: true,
+      isLoading: false,
+    })
+  })
+
+  it('refreshUser re-reads /auth/me in place for a signed-in learner', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    const changed = { ...mockUser, exam_variant: 'motor' }
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(changed))
+    vi.stubGlobal('fetch', fetchMock)
+    const loadingStates: boolean[] = []
+    const unsubscribe = useAuthStore.subscribe((state) => loadingStates.push(state.isLoading))
+
+    await useAuthStore.getState().refreshUser()
+    unsubscribe()
+
+    expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/api\/v1\/auth\/me$/)
+    expect(useAuthStore.getState()).toMatchObject({ user: changed, isAuthenticated: true, isLoading: false })
+    expect(loadingStates).not.toContain(true)
+  })
+
+  it('refreshUser does nothing for a guest', async () => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(useAuthStore.getState().user).toBeNull()
+  })
+
+  it('refreshUser keeps the user when the request fails', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: mockUser, isAuthenticated: true, sessionError: false })
+  })
+
+  it('refreshUser ends the session on a 401 instead of keeping the stale user', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().refreshUser()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false, sessionExpired: true })
+  })
+
+  it('refreshUser does not sign the learner back in after a logout during the request', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    let respond: (response: Response) => void = () => {}
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise<Response>((resolve) => (respond = resolve))))
+
+    const refreshing = useAuthStore.getState().refreshUser()
+    useAuthStore.getState().clearSession()
+    respond(jsonResponse(mockUser))
+    await refreshing
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('updateUser PATCHes /auth/me and stores the returned user without a loading phase', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    const updated = { ...mockUser, exam_variant: 'motor' }
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(updated))
+    vi.stubGlobal('fetch', fetchMock)
+    const loadingStates: boolean[] = []
+    const unsubscribe = useAuthStore.subscribe((state) => loadingStates.push(state.isLoading))
+
+    await useAuthStore.getState().updateUser({ exam_variant: 'motor' })
+    unsubscribe()
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/v1\/auth\/me$/)
+    expect(init).toMatchObject({ method: 'PATCH', body: JSON.stringify({ exam_variant: 'motor' }) })
+    expect(useAuthStore.getState()).toMatchObject({ user: updated, isAuthenticated: true, isLoading: false })
+    expect(loadingStates).not.toContain(true)
+  })
+
+  it('updateUser rejects and leaves the user untouched when the PATCH fails', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'nope' }, 422)))
+
+    await expect(useAuthStore.getState().updateUser({ first_name: 'x' })).rejects.toThrow()
+
+    expect(useAuthStore.getState().user).toEqual(mockUser)
+  })
+
+  it('clearSession drops the user locally without calling the backend', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    useAuthStore.getState().clearSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false, isLoading: false })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('logout clears the user after a successful /auth/logout call', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
+
+    await useAuthStore.getState().logout()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('logout also forgets the Formblatt Gezeiten kept in this browser', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
+
+    await useAuthStore.getState().logout()
+
+    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
+  })
+
+  it('logout clears local state even if the backend call fails', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().logout()
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('starts loading and without a session error, before the first checkSession', () => {
+    expect(useAuthStore.getInitialState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+      sessionExpired: false,
+    })
+  })
+
+  it('checkSession shows the loading state while /auth/me is in flight', async () => {
+    useAuthStore.setState({ isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+    const loadingStates: boolean[] = []
+    const unsubscribe = useAuthStore.subscribe((state) => loadingStates.push(state.isLoading))
+
+    await useAuthStore.getState().checkSession()
+    unsubscribe()
+
+    expect(loadingStates[0]).toBe(true)
+  })
+
+  it('clearSession also resets an earlier session error', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, sessionError: true })
+
+    useAuthStore.getState().clearSession()
+
+    expect(useAuthStore.getState().sessionError).toBe(false)
+  })
+
+  it('a 401 on any API call clears the session (unauthorized handler is wired to the store)', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/questions').catch(() => {})
+
+    expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
+  })
+
+  it('a 401 for a learner who was signed in says the session expired', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/progress/questions').catch(() => {})
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, sessionExpired: true })
+  })
+
+  it('a 401 for a guest (the first session check) says nothing expired', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('keeps an expiry already pointed out when the next request answers 401 too', async () => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await apiClient.get('/progress/questions').catch(() => {})
+
+    expect(useAuthStore.getState().sessionExpired).toBe(true)
+  })
+
+  it('a 401 from the logout itself says nothing expired, and a later one does again', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await useAuthStore.getState().logout()
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: false, sessionExpired: false })
+
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true })
+    await apiClient.get('/progress/questions').catch(() => {})
+    expect(useAuthStore.getState().sessionExpired).toBe(true)
+  })
+
+  it('logout drops a pending expiry notice', async () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
+
+    await useAuthStore.getState().logout()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('clearSession (the account is gone) says nothing expired', () => {
+    useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
+
+    useAuthStore.getState().clearSession()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('the next login clears the expiry notice', async () => {
+    useAuthStore.setState({ isAuthenticated: false, isLoading: false, sessionExpired: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(mockUser)))
+
+    await useAuthStore.getState().checkSession()
+
+    expect(useAuthStore.getState()).toMatchObject({ isAuthenticated: true, sessionExpired: false })
+  })
+
+  it('dismissSessionExpired clears the expiry notice', () => {
+    useAuthStore.setState({ sessionExpired: true })
+
+    useAuthStore.getState().dismissSessionExpired()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('logout calls POST /auth/logout', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await useAuthStore.getState().logout()
+
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/v1\/auth\/logout$/)
+    expect(init.method).toBe('POST')
+  })
+})
+
+// The store is created when the module loads. Imported afresh, so the mutation run, which switches a
+// change on per test, sees the test that covers that setup.
+describe('authStore as loaded', () => {
+  it('starts out loading, logged out and without an error', async () => {
+    vi.resetModules()
+    const { useAuthStore: fresh } = await import('./authStore')
+    expect(fresh.getState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      sessionError: false,
+      sessionExpired: false,
+    })
+  })
+
+  it('clears the session when any request answers 401, and can swap in a user', async () => {
+    vi.resetModules()
+    const { useAuthStore: fresh } = await import('./authStore')
+    const { apiClient: freshClient } = await import('../api/client')
+    fresh.getState().setUser(mockUser)
+    expect(fresh.getState().user).toEqual(mockUser)
+    fresh.setState({ isAuthenticated: true, isLoading: true, sessionError: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Not authenticated' }, 401)))
+
+    await freshClient.get('/progress/summary').catch(() => {})
+
+    expect(fresh.getState()).toMatchObject({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      sessionError: false,
+      sessionExpired: true,
+    })
+  })
+})

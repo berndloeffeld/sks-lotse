@@ -1,9 +1,8 @@
-import { faqJsonLd, type PublicPage } from '../publicPages'
-import { SITES } from '../site'
+import { faqJsonLd, type PageText, type PublicPage } from '../shared/publicPages'
+import { SITES } from '../shared/site'
 import { sbfFaq } from './faq'
 import type { NavigationExport } from './navigationCatalog'
 import { SBF_FAQ_TEXT, SBF_IMPRINT_TEXT, SBF_NAVIGATION_TEXT, SBF_PRIVACY_TEXT, navigationTaskText } from './texts'
-import type { PageText } from '../publicPageTexts'
 
 // The SBF site's prerendered pages (ADR-0025, ADR-0067), on sbf-lotse.de: scripts/prerender.mjs
 // renders each, the sitemap lists those for the index, and render.yaml's sbf-lotse-frontend

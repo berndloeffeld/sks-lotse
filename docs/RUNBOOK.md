@@ -43,8 +43,8 @@ How to operate SKS Lotse in production: where to look, what to do when something
 A manual kill switch for an ongoing malfunction, deliberately not wired through the app's own `/admin` UI — that might be affected by the same malfunction. While `MAINTENANCE_MODE` is `true` on `sks-lotse-backend`:
 
 - Every `/api/v1/*` request gets a `503` with an `X-Maintenance-Mode: 1` header (`app/core/maintenance.py`). `/health` is unaffected — Render's own reachability check and the uptime monitor keep working.
-- The frontend (`frontend/src/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/terms`, which stay reachable (§5 DDG Impressumspflicht).
-- Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/pages/MaintenancePage.tsx`).
+- The frontend (`frontend/src/sks/App.tsx`) shows a full-page "Wartungsarbeiten" notice for every route except `/imprint`, `/privacy` and `/terms`, which stay reachable (§5 DDG Impressumspflicht).
+- Already-open tabs pick it up on their next API call, not instantly — the maintenance page has an "Erneut prüfen" button for that (`frontend/src/sks/pages/MaintenancePage.tsx`).
 - No live reload (`backend/app/core/config.py`): flipping it always costs a redeploy of the backend, on the order of a minute.
 - **Limit: not a switch for a database outage.** The redeploy runs `preDeployCommand: alembic upgrade head` (`render.yaml`), which needs the database; if that is unreachable the deploy fails (Render: a failing pre-deploy command fails the whole deploy) and the old instance keeps serving, so the switch never takes effect. Whether an environment-variable-only deploy runs the pre-deploy step is not stated in Render's docs; the trial run showed that it does. In a database outage, tell visitors by other means (the uptime monitor's status page, a pinned note on the contact channels).
 

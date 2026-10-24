@@ -65,7 +65,7 @@ Harte Grenzen für alle Agenten (im Prompt wiederholen): keine Test-, Coverage- 
 
 Ein Agent, der ausfällt oder keine Befunde zurückgibt: einmal mit engerem Scope wiederholen, sonst im Bericht als „nicht abgeschlossen“ führen. **Befunde nie erfinden oder aus dem Gedächtnis ergänzen.**
 
-Während die Agenten laufen (nur wenn in Phase 0 gewünscht): Live-Pass der öffentlichen Seiten in der Browser-Pane. Routen aus `frontend/src/publicPages.ts` des Snapshots, Domain `sks-lotse.de`; mobil (`resize_window` preset `mobile`) und Desktop, höchstens ~8 Screenshots mit `scale: 0.5`, Text bevorzugt per `get_page_text`/`read_page`. Wird eine Seite verweigert: überspringen. Ergebnisse als `WORK/findings-ux-live.md` im Befundformat (IDs `U-L01 …`); danach Viewport auf `desktop` zurücksetzen.
+Während die Agenten laufen (nur wenn in Phase 0 gewünscht): Live-Pass der öffentlichen Seiten in der Browser-Pane. Routen aus `frontend/src/sks/publicPages.ts` des Snapshots, Domain `sks-lotse.de`; mobil (`resize_window` preset `mobile`) und Desktop, höchstens ~8 Screenshots mit `scale: 0.5`, Text bevorzugt per `get_page_text`/`read_page`. Wird eine Seite verweigert: überspringen. Ergebnisse als `WORK/findings-ux-live.md` im Befundformat (IDs `U-L01 …`); danach Viewport auf `desktop` zurücksetzen.
 
 ## Phase 3 – Synthese
 

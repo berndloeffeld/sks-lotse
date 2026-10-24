@@ -5,9 +5,9 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
-import { parseChartFlag } from './src/chartFlag.ts'
-import { parseSbfFlag } from './src/sbfFlag.ts'
-import { parseSite, type Site } from './src/site.ts'
+import { parseChartFlag } from './src/sks/chartFlag.ts'
+import { parseSbfFlag } from './src/shared/sbfFlag.ts'
+import { parseSite, type Site } from './src/shared/site.ts'
 
 // The SBF build's page is index.sbf.html instead of index.html (ADR-0067): its own head (title,
 // canonical, structured data, theme color) and its own entry, src/sbf/main.tsx, so the SKS app —
@@ -73,7 +73,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     build: isSsrBuild
       ? {
           rolldownOptions: {
-            input: { 'entry-server': site === 'sbf' ? 'src/sbf/entry-server.tsx' : 'src/entry-server.tsx' },
+            input: { 'entry-server': site === 'sbf' ? 'src/sbf/entry-server.tsx' : 'src/sks/entry-server.tsx' },
           },
         }
       : {},

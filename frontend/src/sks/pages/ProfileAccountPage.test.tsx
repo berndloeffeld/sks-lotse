@@ -1,0 +1,285 @@
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+
+import { ProtectedRoute } from '../routes/ProtectedRoute'
+import { useAuthStore } from '../store/authStore'
+import { ProfileAccountPage } from './ProfileAccountPage'
+import { jsonResponse, makeUser } from '../../test/fixtures'
+
+// Same nesting as App.tsx — ProfileAccountPage sits behind ProtectedRoute
+// there, so a session refresh that flips the store's isLoading would unmount
+// it (and drop its local success/error state). Rendering it bare would hide
+// exactly that — and the delete-account test below relies on this nesting to
+// exercise the real navigate-then-clear-session ordering.
+function renderAccountPage() {
+  return render(
+    <MemoryRouter initialEntries={['/profile/account']}>
+      <Routes>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/profile/account" element={<ProfileAccountPage />} />
+        </Route>
+        <Route path="/login" element={<p>Login page</p>} />
+        <Route path="/" element={<p>Landing page</p>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+function calledSessionRefresh(fetchMock: ReturnType<typeof vi.fn>) {
+  return fetchMock.mock.calls.some(
+    ([u, i]) => String(u).endsWith('/auth/me') && (i as RequestInit | undefined)?.method === undefined,
+  )
+}
+
+describe('ProfileAccountPage', () => {
+  afterEach(() => {
+    useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+  })
+
+  it('saves personal info, keeps the success message and updates the store from the PATCH response', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ first_name: 'Anna', last_name: 'Beispiel', gender: 'weiblich' })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse(updatedUser)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.type(screen.getByLabelText('Vorname'), 'Anna')
+    await user.type(screen.getByLabelText('Nachname'), 'Beispiel')
+    await user.selectOptions(screen.getByLabelText('Geschlecht'), 'weiblich')
+    await user.click(screen.getByRole('button', { name: 'Speichern' }))
+
+    expect(await screen.findByText('Gespeichert.')).toBeInTheDocument()
+    expect(useAuthStore.getState().user).toMatchObject({ first_name: 'Anna', last_name: 'Beispiel' })
+    // The PATCH response is the fresh User — no extra GET /auth/me round trip.
+    expect(calledSessionRefresh(fetchMock)).toBe(false)
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(([u, i]) => {
+          if (!String(u).endsWith('/auth/me') || i?.method !== 'PATCH') return false
+          const body = JSON.parse(String(i.body))
+          return body.first_name === 'Anna' && body.last_name === 'Beispiel' && body.gender === 'weiblich'
+        }),
+      ).toBe(true)
+    })
+  })
+
+  it('shows an error message when saving personal info fails', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me') && init?.method === 'PATCH') return jsonResponse({ detail: 'nope' }, 400)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'Speichern' }))
+
+    expect(await screen.findByText('Die Angaben konnten nicht gespeichert werden.')).toBeInTheDocument()
+  })
+
+  it('requests an email change and shows the code step', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'accepted' }, 202)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Code gesendet an new@example.com.')).toBeInTheDocument()
+  })
+
+  it('shows an error when the new email address is already taken', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'already in use' }, 409)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'taken@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Diese E-Mail-Adresse wird bereits verwendet.')).toBeInTheDocument()
+  })
+
+  it('explains when the new email address is not allowed to sign in', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'not allowed' }, 403)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'outsider@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(
+      await screen.findByText('Mit dieser E-Mail-Adresse ist derzeit keine Anmeldung möglich.'),
+    ).toBeInTheDocument()
+  })
+
+  it('explains when the new email address is a disposable one', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'disposable' }, 400)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'someone@mailinator.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Wegwerf-E-Mail-Adressen werden nicht unterstützt.')).toBeInTheDocument()
+  })
+
+  it('rejects the current address without asking the backend', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404))
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'Learner@Example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+
+    expect(await screen.findByText('Das ist bereits deine E-Mail-Adresse.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('cancels the email change and returns to the resting view', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404)))
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Abbrechen' }))
+
+    expect(screen.queryByLabelText('Neue E-Mail-Adresse')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' })).toBeInTheDocument()
+  })
+
+  it('verifies an email change, updates the store and keeps the success message', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const updatedUser = makeUser({ email: 'new@example.com' })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'accepted' }, 202)
+      if (url.endsWith('/auth/me/email/verify')) return jsonResponse(updatedUser)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+    await screen.findByText('Code gesendet an new@example.com.')
+    await user.type(screen.getByLabelText('Bestätigungscode'), '123456')
+    await user.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(await screen.findByText('E-Mail-Adresse geändert.')).toBeInTheDocument()
+    expect(useAuthStore.getState().user?.email).toBe('new@example.com')
+    expect(calledSessionRefresh(fetchMock)).toBe(false)
+    // Back to the resting view — the toggle button is showing again.
+    expect(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' })).toBeInTheDocument()
+  })
+
+  it('shows an error when the verification code is invalid', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me/email/request')) return jsonResponse({ detail: 'accepted' }, 202)
+      if (url.endsWith('/auth/me/email/verify')) return jsonResponse({ detail: 'Invalid or expired code' }, 400)
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'E-Mail-Adresse ändern' }))
+    await user.type(screen.getByLabelText('Neue E-Mail-Adresse'), 'new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Code anfordern' }))
+    await screen.findByText('Code gesendet an new@example.com.')
+    await user.type(screen.getByLabelText('Bestätigungscode'), '000000')
+    await user.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(await screen.findByText('Der Code ist ungültig oder abgelaufen.')).toBeInTheDocument()
+  })
+
+  it('deletes nothing until the email matches, and says so on a click', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ detail: 'not found' }, 404))
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
+    await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    expect(screen.getByLabelText(/Zur Bestätigung/)).toHaveClass('border-danger')
+    expect(screen.getByLabelText(/Zur Bestätigung/)).not.toHaveClass('border-primary')
+    expect(screen.getByRole('alert')).toHaveTextContent('Die E-Mail-Adresse stimmt nicht überein.')
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('/auth/me'),
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+
+    await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('deletes the account and navigates to the landing page', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/me') && init?.method === 'DELETE') return new Response(null, { status: 204 })
+      return jsonResponse({ detail: 'not found' }, 404)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
+    renderAccountPage()
+    await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
+    await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
+    await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    expect(await screen.findByText('Landing page')).toBeInTheDocument()
+    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
+    expect(useAuthStore.getState().isAuthenticated).toBe(false)
+    // The account is already gone server-side — no pointless POST /auth/logout.
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/logout'))).toBe(false)
+  })
+})

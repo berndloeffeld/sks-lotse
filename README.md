@@ -46,7 +46,7 @@ Live: email+OTP login, learning by topic with self-assessment against the offici
 
 ## Privacy & security
 
-Everything that remembers needs an account (only the topic learning and the Kartenaufgaben run in the browser without one), so handling personal data properly is part of the design, not an afterthought. The user-facing statement is the in-app [Datenschutzerklärung](frontend/src/pages/PrivacyPage.tsx) (`/privacy`); this is the technical side.
+Everything that remembers needs an account (only the topic learning and the Kartenaufgaben run in the browser without one), so handling personal data properly is part of the design, not an afterthought. The user-facing statement is the in-app [Datenschutzerklärung](frontend/src/sks/pages/PrivacyPage.tsx) (`/privacy`); this is the technical side.
 
 - **Passwordless login without magic links:** email + one-time code. Codes are stored only as keyed hashes, short-lived, single-purpose (a login code can't confirm an email change) and cleaned up automatically ([ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)). Disposable-email domains are blocked, and email addresses are canonicalized so one inbox can't become many accounts.
 - **Session:** JWT in an httpOnly cookie, never readable by JavaScript or kept in `localStorage` ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)). Every `/api/v1` route requires it except the login (`POST /auth/otp/request` and `/auth/otp/verify`), `GET /pricing` and the Stripe webhook; per-IP rate limiting applies throughout, with tighter limits on login and email change.

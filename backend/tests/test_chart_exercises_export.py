@@ -7,7 +7,7 @@ def test_the_committed_export_matches_the_yaml():
     # The frontend's guest runs through the Kartenaufgaben and their prerender read this file
     # (ADR-0056); a YAML change without a re-export would show guests outdated tasks or solutions.
     assert EXPORT_PATH.read_text(encoding="utf-8") == render_export(catalog()), (
-        "frontend/src/data/chart_exercises.gen.json is stale: run "
+        "frontend/src/sks/data/chart_exercises.gen.json is stale: run "
         "`PYTHONPATH=. .venv/bin/python scripts/export_chart_exercises.py` in backend/ and commit the result."
     )
 

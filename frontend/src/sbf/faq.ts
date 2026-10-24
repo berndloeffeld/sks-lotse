@@ -1,4 +1,4 @@
-// The SBF site's FAQ (/faq and the start page's excerpt), like src/faq.ts for SKS Lotse: ids give
+// The SBF site's FAQ (/faq and the start page's excerpt), like src/sks/faq.ts for SKS Lotse: ids give
 // each entry a stable /faq#<id> anchor, and an answer links with `[text](/path)` (FaqAnswer).
 // Two entries depend on the build: while VITE_SBF is "off" (ADR-0067) they describe the site as being
 // built, with "on" what guests can do now (ADR-0068).

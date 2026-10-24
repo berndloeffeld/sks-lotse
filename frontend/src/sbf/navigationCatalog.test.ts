@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import exported from '../data/sbf_navigation.gen.json'
+import exported from './data/sbf_navigation.gen.json'
 import { navigationSource, navigationTask, taskMaxPoints, typoFix } from './navigationCatalog'
 import { navigationExportFixture } from './navigationFixture'
 

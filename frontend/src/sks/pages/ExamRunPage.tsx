@@ -1,0 +1,35 @@
+import { useParams } from 'react-router-dom'
+
+import { ExamGrading } from '../components/ExamGrading'
+import { ExamResultView } from '../components/ExamResultView'
+import { ExamWriting } from '../components/ExamWriting'
+import { PageLayout } from '../components/PageLayout'
+import { useExam } from '../hooks/useExam'
+import { ErrorMessage } from '../../shared/components/Messages'
+
+// One exam, shown according to its status: answering, self-assessment, or the
+// finished result (which is also how an old exam is opened from the history).
+export function ExamRunPage() {
+  const { id } = useParams()
+  const { exam, setExam, reload, isLoading, error } = useExam(id)
+
+  const title =
+    exam?.status === 'in_progress'
+      ? 'Probeprüfung'
+      : exam?.status === 'grading'
+        ? 'Selbsteinschätzung'
+        : 'Ergebnis der Probeprüfung'
+
+  return (
+    <PageLayout title={title} compact immersive={exam?.status !== 'completed'}>
+      {isLoading ? <p className="text-ink-soft">Probeprüfung wird geladen …</p> : null}
+      <ErrorMessage onRetry={reload}>{error}</ErrorMessage>
+      {exam?.status === 'in_progress' ? (
+        // Keyed on the id, so a new exam never inherits another's answer state.
+        <ExamWriting key={exam.id} exam={exam} onChange={(next) => (next ? setExam(next) : void reload())} />
+      ) : null}
+      {exam?.status === 'grading' ? <ExamGrading key={exam.id} exam={exam} onChange={setExam} /> : null}
+      {exam?.status === 'completed' ? <ExamResultView exam={exam} /> : null}
+    </PageLayout>
+  )
+}
