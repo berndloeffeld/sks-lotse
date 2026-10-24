@@ -479,12 +479,6 @@ services:
       - type: rewrite
         source: /navigation/15
         destination: /navigation/15.html
-      # The API under sbf-lotse.de (ADR-0069): a proxy, so the session cookie of increment 2 is
-      # first-party here. The SBF build doesn't call it yet; it is in place to verify the client IP
-      # and the cookie behind Render's rewrite first (scripts/check_sbf_proxy.sh, docs/RUNBOOK.md).
-      - type: rewrite
-        source: /api/*
-        destination: https://api.sks-lotse.de/api/*
       - type: rewrite
         source: /*
         destination: /app.html

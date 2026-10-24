@@ -6,8 +6,6 @@ SKS, SBF = "sks-lotse-frontend", "sbf-lotse-frontend"
 
 # The SBF site's prerendered pages besides "/" (sbfPublicPages in frontend/src/sbf/publicPages.ts).
 SBF_STATIC_PAGES = {"/faq", "/imprint", "/privacy"}
-# The API through a proxy on sbf-lotse.de (ADR-0069), so the session cookie is first-party there.
-SBF_API_REWRITE = ("/api/*", "https://api.sks-lotse.de/api/*")
 
 
 def test_both_sites_build_from_the_same_frontend_as_their_own_site():
@@ -45,14 +43,14 @@ def test_render_yaml_rewrites_every_sbf_page_to_its_file():
     rewrites = render_blueprint.rewrites(SBF)
 
     assert rewrites[-1] == ("/*", "/app.html")
-    pages = dict(rewrite for rewrite in rewrites[:-1] if rewrite != SBF_API_REWRITE)
+    pages = dict(rewrites[:-1])
     assert all(destination == f"{source}.html" for source, destination in pages.items())
     # The /navigation pages are tied to VITE_SBF in test_sbf_navigation_export.py.
     assert {source for source in pages if not source.startswith("/navigation")} == SBF_STATIC_PAGES
 
 
-def test_sbf_lotse_proxies_the_api_on_its_own_origin():
-    # Ahead of the SPA fallback, or /api/* would get app.html; SKS Lotse calls the API directly.
-    rewrites = render_blueprint.rewrites(SBF)
-    assert rewrites[-2] == SBF_API_REWRITE
-    assert not any(source.startswith("/api") for source, _ in render_blueprint.rewrites(SKS))
+def test_no_site_proxies_the_api():
+    # A rewrite of /api/* to the backend hides the caller's IP from the per-IP rate limit: behind
+    # Render's rewrite the requests arrive from changing CDN addresses (measured 2026-10-24, ADR-0069).
+    for name in (SKS, SBF):
+        assert not any(source.startswith("/api") for source, _ in render_blueprint.rewrites(name))
