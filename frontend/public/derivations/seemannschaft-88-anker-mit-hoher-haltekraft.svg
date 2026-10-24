@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 290" width="780" height="290" font-family="Helvetica,Arial,sans-serif">
+<rect width="780" height="290" fill="#ffffff"/>
+<g fill="#4a6572" stroke="#2b3a42" stroke-width="2" stroke-linejoin="round">
+<!-- Bruce, Seitenansicht nach Vorlage -->
+<g><polygon points="8.7,27.8 14.8,22.4 188.2,73.4 195.7,75.4 194.3,85.6 178.0,123.7 167.8,153.3 89.6,146.8 86.2,142.4 113.4,132.2 104.9,89.7 125.3,116.9 145.7,110.1 154.2,130.5 171.2,93.1 174.6,82.2 13.1,36.0"/><ellipse cx="18.2" cy="29.2" rx="6" ry="2.6" transform="rotate(16 18.2 29.2)" fill="#fff" stroke-width="1.2"/></g>
+<!-- CQR, nach Vorlage (gespiegelt) -->
+<g><polygon points="407.2,126.7 359.9,130.0 359.9,135.5 383.0,134.4"/><line x1="400.6" y1="131.8" x2="377.5" y2="159.0" stroke-width="3"/><polygon points="361.0,125.6 288.4,129.6 317.0,143.2 361.0,169.6 374.2,175.1 379.7,163.0 361.0,134.4"/><polygon points="361.0,101.4 335.7,105.8 339.0,114.6 346.7,121.2 347.4,134.8 355.5,137.0 363.2,125.6 364.5,110.2"/><polygon points="354.4,81.6 328.0,86.0 332.4,108.0 358.8,105.8"/><polyline points="189.4,24.4 321.4,70.6 340.1,88.2" fill="none" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="342.3" cy="87.1" r="3.5" fill="#fff" stroke-width="1.2"/><circle cx="188.0" cy="31.4" r="6" fill="none"/></g>
+<!-- Danforth, nach Vorlage -->
+<g transform="translate(45,0)"><polygon points="476.6,153.8 559.9,124.9 576.9,127.3 588.8,145.6 575.2,143.6"/><line x1="540.5" y1="98.7" x2="589.5" y2="147.0" stroke-width="3.5" stroke-linecap="round"/><polygon points="400.1,62.7 408.6,60.6 553.1,111.3 553.1,120.5 403.5,72.2"/><polygon points="551.4,100.1 575.2,93.3 585.4,101.4 583.4,113.0 561.6,124.9 551.4,121.5"/><polygon points="469.8,138.5 522.5,112.3 552.1,112.3 552.1,123.2"/><circle cx="402.5" cy="67.4" r="6" fill="none"/></g>
+<!-- D'Hone, Vorderansicht -->
+<g transform="translate(610,0)">
+<circle cx="95" cy="36" r="11" fill="none"/>
+<rect x="90" y="47" width="10" height="100"/>
+<path d="M88,84 L40,150 L48,154 L90,98 Z"/><path d="M102,84 L150,150 L142,154 L100,98 Z"/>
+<path d="M30,176 L40,148 L150,148 L160,176 Z"/>
+</g>
+</g>
+<g font-size="17" font-weight="bold" fill="#222" text-anchor="middle"><text x="105" y="222">Bruce</text><text x="300" y="222">CQR</text><text x="530" y="222">Danforth</text><text x="705" y="222">D'Hone</text></g>
+<g font-size="13" fill="#666" text-anchor="middle"><text x="105" y="241">Klaue</text><text x="300" y="241">Pflugschar, Gelenk</text><text x="530" y="241">zwei Flunken, Stock</text><text x="705" y="241">Platte mit Streben</text></g>
+<text x="20" y="278" font-size="12" fill="#888">Schematische Skizze nach Herstellerzeichnungen, Formen vereinfacht</text>
+</svg>
