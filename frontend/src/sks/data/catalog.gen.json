@@ -3483,7 +3483,43 @@
    "answer_text": "Der Steven bewegt sich in Richtung der Hartruderlage, das Heck schlägt relativ weit zur entgegengesetzten Richtung aus. Das Schiff verlässt mit seinem Heck erst nach mehreren Schiffslängen seine bisherige Kurslinie, bewegt sich also zunächst in der alten Kursrichtung fort. Diese Strecke kann bei 300 m langen Containerschiffen 1,5 bis 2,5 Schiffslängen, d. h. ca. 500 bis 600 m betragen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein großes Schiff hat eine riesige Masse, und bei 20 kn steckt darin viel Schwung in Fahrtrichtung. Das Ruder kann diesen Schwung nicht abbremsen, es kann das Schiff nur **langsam in eine andere Richtung zwingen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Ruder sitzt am Heck und drückt dieses zur Seite. Das Schiff dreht sich dadurch um einen Punkt im vorderen Drittel. Der **Steven bewegt sich in Richtung der Hartruderlage**, das **Heck schlägt zur Gegenseite aus**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Schiff dreht sich also zuerst nur um sich selbst, und der Rumpf schiebt dabei weiter in der alten Richtung voraus. Der Drehpunkt bleibt noch auf der alten Kurslinie.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-96-hartruder-ausweichen.svg",
+      "width": 780,
+      "height": 330,
+      "alt": "Draufsicht auf ein Schiff, das nach rechts fährt, zu vier Zeitpunkten. Das Ruder liegt hart Steuerbord. Das Schiff dreht sich zunehmend nach rechts, der Bug wandert nach unten, das Heck schlägt nach oben aus. Der Drehpunkt bleibt zuerst auf der gestrichelten alten Kurslinie. Eine Klammer markiert 1,5 bis 2,5 Schiffslängen, in denen das Schiff noch in der alten Richtung weiterläuft."
+     }
+    },
+    {
+     "text": "Erst nach **mehreren Schiffslängen** hat sich das Schiff so weit gedreht, dass es seitlich von der alten Kurslinie wegläuft. Bei einem 300 m langen Containerschiff sind das **1,5 bis 2,5 Schiffslängen**, also etwa 500 bis 600 m.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein Ausweichmanöver muss deshalb **früh** eingeleitet werden. Hartruder allein schafft auf kurze Distanz keinen Abstand.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",

@@ -94,3 +94,26 @@
       Stromlinien zusammen, und der Wind weht stärker als in der Umgebung – der **Kapeffekt**.
   - text: Diese Effekte sind **kleinräumig** und hängen von Küstenform und Tageszeit ab. Ein Bericht für das ganze
       Seegebiet kann sie nur eingeschränkt berücksichtigen. Vor Ort muss man damit zusätzlich rechnen.
+- subject: seemannschaft_allgemein
+  number: 96
+  answer_fingerprint: 2bb75954c614
+  blocks:
+  - text: Ein großes Schiff hat eine riesige Masse, und bei 20 kn steckt darin viel Schwung in Fahrtrichtung. Das Ruder
+      kann diesen Schwung nicht abbremsen, es kann das Schiff nur **langsam in eine andere Richtung zwingen**.
+  - text: Das Ruder sitzt am Heck und drückt dieses zur Seite. Das Schiff dreht sich dadurch um einen Punkt im vorderen
+      Drittel. Der **Steven bewegt sich in Richtung der Hartruderlage**, das **Heck schlägt zur Gegenseite aus**.
+  - text: Das Schiff dreht sich also zuerst nur um sich selbst, und der Rumpf schiebt dabei weiter in der alten Richtung
+      voraus. Der Drehpunkt bleibt noch auf der alten Kurslinie.
+  - image:
+      src: seemannschaft-96-hartruder-ausweichen.svg
+      width: 780
+      height: 330
+      alt: Draufsicht auf ein Schiff, das nach rechts fährt, zu vier Zeitpunkten. Das Ruder liegt hart Steuerbord. Das
+        Schiff dreht sich zunehmend nach rechts, der Bug wandert nach unten, das Heck schlägt nach oben aus. Der
+        Drehpunkt bleibt zuerst auf der gestrichelten alten Kurslinie. Eine Klammer markiert 1,5 bis 2,5
+        Schiffslängen, in denen das Schiff noch in der alten Richtung weiterläuft.
+  - text: Erst nach **mehreren Schiffslängen** hat sich das Schiff so weit gedreht, dass es seitlich von der alten
+      Kurslinie wegläuft. Bei einem 300 m langen Containerschiff sind das **1,5 bis 2,5 Schiffslängen**, also etwa
+      500 bis 600 m.
+  - text: Ein Ausweichmanöver muss deshalb **früh** eingeleitet werden. Hartruder allein schafft auf kurze Distanz keinen
+      Abstand.
