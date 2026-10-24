@@ -14,6 +14,8 @@ from app.services.user import locked_user
 TOKENS_PER_ANSWER_CHECK = 1
 # A Kartenaufgabe's check runs on a stronger model with a much longer prompt (ADR-0058).
 TOKENS_PER_CHART_CHECK = 2
+# A subtask of an SBF Navigationsaufgabe: the same model and a prompt as long (ADR-0071).
+TOKENS_PER_SBF_NAVIGATION_CHECK = 2
 
 
 def reserve(db: Session, user_id: int, amount: int = TOKENS_PER_ANSWER_CHECK) -> int | None:

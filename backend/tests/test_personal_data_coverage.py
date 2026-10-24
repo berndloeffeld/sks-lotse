@@ -29,6 +29,8 @@ from app.models import (
     QuestionGradingLog,
     QuestionProgress,
     QuestionReport,
+    SbfNavigationAttempt,
+    SbfNavigationAttemptSubtask,
     Topic,
     User,
 )
@@ -43,6 +45,8 @@ from app.schemas.admin import (
     AdminQuestionGradingExport,
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
+    AdminSbfNavigationAttemptExport,
+    AdminSbfNavigationSubtaskExport,
     AdminUserListItem,
     AdminUserRead,
 )
@@ -64,6 +68,8 @@ EXPORT_SCHEMAS: dict[str, tuple[type[BaseModel], ...]] = {
     "exam_attempt_questions": (AdminExamQuestionExport,),
     "chart_attempts": (AdminChartAttemptExport,),
     "chart_attempt_tasks": (AdminChartTaskExport,),
+    "sbf_navigation_attempts": (AdminSbfNavigationAttemptExport,),
+    "sbf_navigation_attempt_subtasks": (AdminSbfNavigationSubtaskExport,),
     "purchases": (AdminPurchaseExport,),
     # Not an account row: entries naming the account's address or its domain (ADR-0045).
     "blocked_emails": (AdminBlocklistEntryExport,),
@@ -73,6 +79,7 @@ EXPORT_SCHEMAS: dict[str, tuple[type[BaseModel], ...]] = {
 RENAMED = {
     ("exam_attempts", "id"): "exam_id",
     ("chart_attempts", "id"): "attempt_id",
+    ("sbf_navigation_attempts", "id"): "attempt_id",
 }
 
 _ROW_ID = "internal row id, means nothing outside the database"
@@ -103,6 +110,8 @@ EXCLUDED: dict[str, dict[str, str]] = {
     },
     "chart_attempts": {"user_id": _OWNER},
     "chart_attempt_tasks": {"id": _ROW_ID, "attempt_id": _PARENT},
+    "sbf_navigation_attempts": {"user_id": _OWNER},
+    "sbf_navigation_attempt_subtasks": {"id": _ROW_ID, "attempt_id": _PARENT},
     "purchases": {
         "id": _ROW_ID,
         "user_id": _OWNER,
@@ -197,7 +206,8 @@ def _attempts(db: Session, user: User, question: Question) -> None:
         user_id=user.id, exam_variant="motor", started_at=now, deadline_at=now + timedelta(minutes=90)
     )
     chart = ChartAttempt(user_id=user.id, exercise_number=1, started_at=now)
-    db.add_all([exam, chart])
+    sbf = SbfNavigationAttempt(user_id=user.id, task_number=1, started_at=now)
+    db.add_all([exam, chart, sbf])
     db.flush()
     db.add_all(
         [
@@ -209,6 +219,9 @@ def _attempts(db: Session, user: User, question: Question) -> None:
                 answer_text="Meine Antwort",
             ),
             ChartAttemptTask(attempt_id=chart.id, task_number=1, answer_text="HWZ", answered_at=now),
+            SbfNavigationAttemptSubtask(
+                attempt_id=sbf.id, subtask_number=1, answer_text="rwK 079°", answered_at=now
+            ),
         ]
     )
 

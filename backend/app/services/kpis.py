@@ -14,6 +14,7 @@ from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
+from app.models.sbf_navigation_attempt import SbfNavigationAttempt, SbfNavigationAttemptSubtask
 from app.models.user import User
 from app.schemas.kpis import (
     AdminDashboard,
@@ -41,9 +42,10 @@ def _count(db: Session, query) -> int:
 
 
 def _activity(since: datetime, until: datetime):
-    """(user_id, at) of every learning action in [since, until): a grading, a started exam or an
-    answered Kartenaufgabe task. Gradings come from the log, not question_progress.updated_at,
-    which only keeps the latest one and so can't say which earlier days a learner was active."""
+    """(user_id, at) of every learning action in [since, until): a grading, a started exam, an
+    answered Kartenaufgabe task or an answered subtask of a saved SBF run (ADR-0071). Gradings come
+    from the log, not question_progress.updated_at, which only keeps the latest one and so can't say
+    which earlier days a learner was active."""
     log = QuestionGradingLog
     graded = select(log.user_id.label("user_id"), log.graded_at.label("at")).where(
         log.graded_at >= since, log.graded_at < until
@@ -56,7 +58,14 @@ def _activity(since: datetime, until: datetime):
         .join(ChartAttemptTask, ChartAttemptTask.attempt_id == ChartAttempt.id)
         .where(ChartAttemptTask.answered_at >= since, ChartAttemptTask.answered_at < until)
     )
-    return union_all(graded, started, charted).subquery()
+    navigated = (
+        select(SbfNavigationAttempt.user_id, SbfNavigationAttemptSubtask.answered_at)
+        .join(SbfNavigationAttemptSubtask, SbfNavigationAttemptSubtask.attempt_id == SbfNavigationAttempt.id)
+        .where(
+            SbfNavigationAttemptSubtask.answered_at >= since, SbfNavigationAttemptSubtask.answered_at < until
+        )
+    )
+    return union_all(graded, started, charted, navigated).subquery()
 
 
 def _active_user_ids(since: datetime, until: datetime):
@@ -169,6 +178,12 @@ def _learning(db: Session, now: datetime) -> LearningKpis:
         exams_passed_7d=passed,
         chart_attempts_started_24h=_count_between(db, ChartAttempt.started_at, now - day, now),
         chart_attempts_completed_24h=_count_between(db, ChartAttempt.completed_at, now - day, now),
+        sbf_navigation_attempts_started_24h=_count_between(
+            db, SbfNavigationAttempt.started_at, now - day, now
+        ),
+        sbf_navigation_attempts_completed_24h=_count_between(
+            db, SbfNavigationAttempt.completed_at, now - day, now
+        ),
     )
 
 
@@ -228,6 +243,7 @@ def _monetization(db: Session, now: datetime) -> MonetizationKpis:
     return MonetizationKpis(
         lotse_checks_catalog_24h=checks("catalog"),
         lotse_checks_chart_24h=checks("chart"),
+        lotse_checks_sbf_navigation_24h=checks("sbf_navigation"),
         tokens_spent_24h=tokens_spent(now - day),
         tokens_spent_7d=tokens_spent(now - week),
         purchases_24h=purchases_24h,
@@ -276,6 +292,9 @@ def daily_series(db: Session, now: datetime, days: int) -> list[DailyKpis]:
         "ratings": _daily(db, QuestionGradingLog.graded_at, since, now),
         "lotse_checks_catalog": _daily(db, checked, since, now, LotseCheckLog.kind == "catalog"),
         "lotse_checks_chart": _daily(db, checked, since, now, LotseCheckLog.kind == "chart"),
+        "lotse_checks_sbf_navigation": _daily(
+            db, checked, since, now, LotseCheckLog.kind == "sbf_navigation"
+        ),
         "tokens_spent": _daily(db, checked, since, now, value=LotseCheckLog.tokens),
         "purchases": _daily(db, Purchase.created_at, since, now, stripe),
         "revenue_cents": _daily(db, Purchase.created_at, since, now, stripe, value=Purchase.amount_eur_cents),
@@ -361,10 +380,12 @@ def format_report(report: KpiReport) -> str:
         f"Prüfungen 7 Tage bewertet / bestanden: {learn.exams_graded_7d} / {learn.exams_passed_7d}",
         "Kartenaufgaben-Läufe 24 h gestartet / abgeschlossen: "
         f"{learn.chart_attempts_started_24h} / {learn.chart_attempts_completed_24h}",
+        "SBF-Navigationsaufgaben-Läufe 24 h gestartet / abgeschlossen: "
+        f"{learn.sbf_navigation_attempts_started_24h} / {learn.sbf_navigation_attempts_completed_24h}",
         "",
         "LOTSEN-CHECK UND UMSATZ",
-        "Lotsen-Checks 24 h Katalog / Kartenaufgabe: "
-        f"{m.lotse_checks_catalog_24h} / {m.lotse_checks_chart_24h}",
+        "Lotsen-Checks 24 h Katalog / Kartenaufgabe / SBF-Navigationsaufgabe: "
+        f"{m.lotse_checks_catalog_24h} / {m.lotse_checks_chart_24h} / {m.lotse_checks_sbf_navigation_24h}",
         f"Verbrauchte Tokens 24 h / 7 Tage: {m.tokens_spent_24h} / {m.tokens_spent_7d}",
         f"Käufe 24 h / 7 Tage: {m.purchases_24h} / {m.purchases_7d}",
         f"Umsatz 24 h / 7 Tage: {_eur(m.revenue_cents_24h)} / {_eur(m.revenue_cents_7d)}",
