@@ -5126,7 +5126,33 @@
    "answer_text": "1. Der Wind weht nicht parallel zu den Isobaren, er ist rückgedreht und weht aus dem Hoch hinaus.\n2. Ein bis zwei Strich bzw. 10° bis 20°.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ohne Reibung weht der Wind parallel zu den Isobaren, um das Hoch herum im Uhrzeigersinn. In Bodennähe bremst die **Reibung** den Wind, auch über See. Gebremster Wind wird weniger nach rechts abgelenkt, und der Druckunterschied zieht ihn zum tiefen Druck hin.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Beim Hoch liegt der tiefe Druck außen. Der Wind kreuzt die Isobaren deshalb nach außen, er weht **aus dem Hoch heraus**. Gegenüber der Richtung der Isobaren ist er **rückgedreht**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-27-wind-um-das-hoch.svg",
+      "width": 780,
+      "height": 350,
+      "alt": "Draufsicht auf ein Hoch mit drei kreisförmigen Isobaren. An sechs Punkten der mittleren Isobare zeigt ein grauer gestrichelter Pfeil parallel zur Isobare im Uhrzeigersinn. Daneben zeigt ein roter Pfeil, der Wind in Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus."
+     }
+    },
+    {
+     "text": "Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose sind 11,25°.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",

@@ -134,3 +134,21 @@
         Der D'Hone-Anker hat eine breite flache Platte, zwei Streben und einen senkrechten Schaft mit Auge.
   - text: Zum Merken hilft die Form. **Bruce** hat eine Klaue, **CQR** eine Pflugschar mit Gelenk, **Danforth** zwei
       Flunken mit Stock und **D'Hone** eine Platte mit Streben.
+- subject: wetterkunde
+  number: 27
+  answer_fingerprint: 0ae1f147e899
+  blocks:
+  - text: Ohne Reibung weht der Wind parallel zu den Isobaren, um das Hoch herum im Uhrzeigersinn. In Bodennähe bremst die
+      **Reibung** den Wind, auch über See. Gebremster Wind wird weniger nach rechts abgelenkt, und der Druckunterschied
+      zieht ihn zum tiefen Druck hin.
+  - text: Beim Hoch liegt der tiefe Druck außen. Der Wind kreuzt die Isobaren deshalb nach außen, er weht **aus dem Hoch
+      heraus**. Gegenüber der Richtung der Isobaren ist er **rückgedreht**.
+  - image:
+      src: wetterkunde-27-wind-um-das-hoch.svg
+      width: 780
+      height: 350
+      alt: Draufsicht auf ein Hoch mit drei kreisförmigen Isobaren. An sechs Punkten der mittleren Isobare zeigt ein
+        grauer gestrichelter Pfeil parallel zur Isobare im Uhrzeigersinn. Daneben zeigt ein roter Pfeil, der Wind in
+        Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus.
+  - text: Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose
+      sind 11,25°.
