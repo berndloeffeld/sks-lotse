@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import type { PublicPricing } from '../api/types'
-import { checkLimitsSource } from '../checkLimits'
+import { checkLimitsSource } from '../../shared/checkLimits'
 import { SignupBonusNote } from './SignupBonusNote'
 
 function primeBonus(tokens: number) {
@@ -10,6 +10,7 @@ function primeBonus(tokens: number) {
   checkLimitsSource.prime({
     catalog_check_tokens: 1,
     chart_check_tokens: 2,
+    sbf_navigation_check_tokens: 2,
     check_max_answer_chars: 1000,
     signup_bonus_tokens: tokens,
   } as PublicPricing)

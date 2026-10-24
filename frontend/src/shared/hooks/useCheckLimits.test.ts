@@ -24,6 +24,7 @@ describe('useCheckLimits', () => {
         jsonResponse({
           catalog_check_tokens: 4,
           chart_check_tokens: 6,
+          sbf_navigation_check_tokens: 2,
           check_max_answer_chars: 500,
           signup_bonus_tokens: 8,
         } as PublicPricing),
@@ -37,6 +38,7 @@ describe('useCheckLimits', () => {
       expect(result.current).toEqual({
         catalogCheckTokens: 4,
         chartCheckTokens: 6,
+        sbfNavigationCheckTokens: 2,
         maxAnswerChars: 500,
         signupBonusTokens: 8,
       }),

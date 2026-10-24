@@ -30,6 +30,7 @@ def get_pricing(request: Request, db: Session = Depends(get_db)) -> PublicPricin
             checkout_enabled=checkout_open_to_everyone(),
             catalog_check_tokens=token_wallet.TOKENS_PER_ANSWER_CHECK,
             chart_check_tokens=token_wallet.TOKENS_PER_CHART_CHECK,
+            sbf_navigation_check_tokens=token_wallet.TOKENS_PER_SBF_NAVIGATION_CHECK,
             check_max_answer_chars=settings.grading_max_answer_chars,
         )
 

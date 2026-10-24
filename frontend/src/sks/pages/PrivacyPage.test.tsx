@@ -28,7 +28,7 @@ describe('PrivacyPage', () => {
     )
 
     const guests = screen.getByText(/^Ohne Anmeldung können Sie/)
-    expect(guests).toHaveTextContent('Kartenaufgaben bearbeiten')
+    expect(guests).toHaveTextContent('Kartenaufgaben und auf SBF Lotse die amtlichen Navigationsaufgaben bearbeiten')
     expect(guests).toHaveTextContent('zur Webanalyse')
     expect(guests).toHaveTextContent('Formblatt Gezeiten')
     expect(guests).toHaveTextContent('Formblatt leeren')

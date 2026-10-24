@@ -5,9 +5,12 @@ import { formatDate, getDisplayName } from '../shared/format'
 import { useAuthStore } from '../shared/store/authStore'
 import { SbfPageLayout } from './SbfPageLayout'
 
-// /profile's sections on SBF Lotse, tabs like SKS Lotse's Lernstand | Konto. The runs of the
-// Navigationsaufgaben come as their own tab with the saved runs.
-const TABS = [{ to: '/profile/account', label: 'Konto' }]
+// /profile's sections on SBF Lotse, tabs like SKS Lotse's Lernstand | Konto: the saved runs of the
+// Navigationsaufgaben (ADR-0071) and the account.
+const TABS = [
+  { to: '/profile', label: 'Läufe', end: true },
+  { to: '/profile/account', label: 'Konto', end: false },
+]
 
 const TAB = 'border-b-2 px-1 pb-2 font-mono text-sm tracking-wide uppercase'
 
@@ -35,6 +38,7 @@ export function SbfProfileLayout() {
             <NavLink
               key={tab.to}
               to={tab.to}
+              end={tab.end}
               className={({ isActive }) =>
                 `${TAB} ${isActive ? 'border-ink text-ink' : 'border-transparent text-ink-soft hover:text-ink'}`
               }

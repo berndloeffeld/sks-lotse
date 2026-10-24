@@ -1,8 +1,9 @@
-"""The SBF See Navigationsaufgaben (ADR-0068): the committed tasks, for the SBF site's guests only.
+"""The SBF See Navigationsaufgaben (ADR-0068): the committed tasks, run in the SBF site's pages.
 
 Read from app/data/sbf_navigation.yaml (proposed by scripts/extract_sbf_navigation.py, reviewed task
 by task) and exported by scripts/export_sbf_navigation.py into the frontend, which runs them in the
-page. No route and no table: the API never serves them.
+page. The API never serves them; a run with an account stores only the learner's own answers and
+points (app/services/sbf_navigation_runs.py, ADR-0071).
 """
 
 import json
@@ -33,3 +34,7 @@ def render_export(data: SbfNavigationCatalog) -> str:
 def max_points(task: SbfNavigationTask) -> int:
     """One point per subtask (SpFV Anlage 3 Nr. 1.1)."""
     return len(task.subtasks)
+
+
+def task(number: int) -> SbfNavigationTask | None:
+    return next((item for item in catalog().tasks if item.number == number), None)

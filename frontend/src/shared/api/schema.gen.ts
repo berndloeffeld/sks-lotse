@@ -313,6 +313,47 @@ export interface components {
              */
             created_at: string;
         };
+        /** AdminSbfNavigationAttemptExport */
+        AdminSbfNavigationAttemptExport: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Task Number */
+            task_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Subtasks */
+            subtasks: components["schemas"]["AdminSbfNavigationSubtaskExport"][];
+        };
+        /** AdminSbfNavigationSubtaskExport */
+        AdminSbfNavigationSubtaskExport: {
+            /** Subtask Number */
+            subtask_number: number;
+            /** Answer Text */
+            answer_text: string;
+            /**
+             * Answered At
+             * Format: date-time
+             */
+            answered_at: string;
+            /** Point */
+            point: number | null;
+            /** Ai Correct */
+            ai_correct: boolean | null;
+            /** Ai Feedback */
+            ai_feedback: string | null;
+            /** Ai Suspected Error */
+            ai_suspected_error: string | null;
+        };
         /** AdminSettings */
         AdminSettings: {
             /** Signup Bonus Tokens */
@@ -337,6 +378,8 @@ export interface components {
             exam_attempts: components["schemas"]["AdminExamAttemptExport"][];
             /** Chart Attempts */
             chart_attempts: components["schemas"]["AdminChartAttemptExport"][];
+            /** Sbf Navigation Attempts */
+            sbf_navigation_attempts: components["schemas"]["AdminSbfNavigationAttemptExport"][];
             /** Purchases */
             purchases: components["schemas"]["AdminPurchaseExport"][];
             /** Blocklist Entries */
@@ -629,6 +672,8 @@ export interface components {
             lotse_checks_catalog: number;
             /** Lotse Checks Chart */
             lotse_checks_chart: number;
+            /** Lotse Checks Sbf Navigation */
+            lotse_checks_sbf_navigation: number;
             /** Tokens Spent */
             tokens_spent: number;
             /** Purchases */
@@ -899,6 +944,8 @@ export interface components {
             lotse_checks_catalog_24h: number;
             /** Lotse Checks Chart 24H */
             lotse_checks_chart_24h: number;
+            /** Lotse Checks Sbf Navigation 24H */
+            lotse_checks_sbf_navigation_24h: number;
             /** Tokens Spent 24H */
             tokens_spent_24h: number;
             /** Tokens Spent 7D */
@@ -962,6 +1009,8 @@ export interface components {
             catalog_check_tokens: number;
             /** Chart Check Tokens */
             chart_check_tokens: number;
+            /** Sbf Navigation Check Tokens */
+            sbf_navigation_check_tokens: number;
             /** Check Max Answer Chars */
             check_max_answer_chars: number;
         };
@@ -1055,6 +1104,90 @@ export interface components {
             expiring: number;
             /** Fresh */
             fresh: number;
+        };
+        /** SbfNavigationAiCheckRead */
+        SbfNavigationAiCheckRead: {
+            attempt: components["schemas"]["SbfNavigationAttemptRead"];
+            /** Tokens Remaining */
+            tokens_remaining: number;
+        };
+        /**
+         * SbfNavigationAiSuggestion
+         * @description The Lotsen-Check's suggestion for one answered subtask — the learner still gives the point.
+         */
+        SbfNavigationAiSuggestion: {
+            /** Correct */
+            correct: boolean;
+            /** Feedback */
+            feedback: string;
+            /** Suspected Error */
+            suspected_error: string;
+        };
+        /** SbfNavigationAnswerUpdate */
+        SbfNavigationAnswerUpdate: {
+            /** Answer Text */
+            answer_text: string;
+        };
+        /** SbfNavigationAttemptRead */
+        SbfNavigationAttemptRead: {
+            /** Id */
+            id: number;
+            /** Task Number */
+            task_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /** Subtask Count */
+            subtask_count: number;
+            /** Points */
+            points: number;
+            /** Current Subtask */
+            current_subtask: number | null;
+            /** Subtasks */
+            subtasks: components["schemas"]["SbfNavigationSubtaskRead"][];
+        };
+        /** SbfNavigationOverview */
+        SbfNavigationOverview: {
+            /** Pass Points */
+            pass_points: number;
+            /** Tasks */
+            tasks: components["schemas"]["SbfNavigationTaskSummary"][];
+        };
+        /** SbfNavigationPointUpdate */
+        SbfNavigationPointUpdate: {
+            /** Point */
+            point: number;
+        };
+        /** SbfNavigationSubtaskRead */
+        SbfNavigationSubtaskRead: {
+            /** Number */
+            number: number;
+            /** Answer Text */
+            answer_text: string;
+            /** Point */
+            point: number | null;
+            /** Ai Checkable */
+            ai_checkable: boolean;
+            ai_suggestion: components["schemas"]["SbfNavigationAiSuggestion"] | null;
+        };
+        /** SbfNavigationTaskSummary */
+        SbfNavigationTaskSummary: {
+            /** Number */
+            number: number;
+            /** Open Attempt Id */
+            open_attempt_id: number | null;
+            /** Open Answered */
+            open_answered: number | null;
+            /** Completed Count */
+            completed_count: number;
+            /** Last Points */
+            last_points: number | null;
+            /** Last Completed At */
+            last_completed_at: string | null;
         };
         /** TokenPackageSettings */
         TokenPackageSettings: {

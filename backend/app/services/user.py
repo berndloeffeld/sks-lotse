@@ -9,6 +9,7 @@ from app.models.purchase import Purchase
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
+from app.models.sbf_navigation_attempt import SbfNavigationAttempt, SbfNavigationAttemptSubtask
 from app.models.user import User
 
 
@@ -39,6 +40,12 @@ def delete_user_and_progress(db: Session, user: User) -> None:
     chart_attempt_ids = select(ChartAttempt.id).where(ChartAttempt.user_id == user.id)
     db.execute(delete(ChartAttemptTask).where(ChartAttemptTask.attempt_id.in_(chart_attempt_ids)))
     db.execute(delete(ChartAttempt).where(ChartAttempt.user_id == user.id))
+    # So do the saved runs of SBF Lotse's Navigationsaufgaben (ADR-0071).
+    sbf_attempt_ids = select(SbfNavigationAttempt.id).where(SbfNavigationAttempt.user_id == user.id)
+    db.execute(
+        delete(SbfNavigationAttemptSubtask).where(SbfNavigationAttemptSubtask.attempt_id.in_(sbf_attempt_ids))
+    )
+    db.execute(delete(SbfNavigationAttempt).where(SbfNavigationAttempt.user_id == user.id))
     # Pending/recent codes are personal data too — both those for the
     # account's own address and email-change codes it requested for another
     # one. The regular cleanup (ADR-0010) only runs opportunistically on later

@@ -20,6 +20,7 @@ class LotseCheckLog(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     # "catalog" (a question of the catalog) | "chart" (a Kartenaufgabe task)
+    # | "sbf_navigation" (a subtask of an SBF Navigationsaufgabe, ADR-0071)
     kind: Mapped[str] = mapped_column(String(16), nullable=False)
     tokens: Mapped[int] = mapped_column(Integer, nullable=False)
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

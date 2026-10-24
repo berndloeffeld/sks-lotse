@@ -20,6 +20,15 @@
       "port": 8000
     },
     {
+      "name": "backend-integration",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd backend && source .venv/bin/activate && export DATABASE_URL=postgresql://sks_lotse:$(grep -E '^DATABASE_URL=' .env | sed -E 's|.*://sks_lotse:([^@]*)@.*|\\1|')@localhost:5432/sks_lotse_integration RESEND_API_KEY= ANTHROPIC_GRADING_API_KEY= STRIPE_CHECKOUT=off STRIPE_SECRET_KEY= STRIPE_WEBHOOK_SECRET= ALLOWED_EMAILS= ADMIN_EMAILS=integration-admin@example.com CHART_EXERCISES=admins && alembic upgrade head && PYTHONPATH=. uvicorn app.main:app --port 8000"
+      ],
+      "port": 8000
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "bash",
       "runtimeArgs": [

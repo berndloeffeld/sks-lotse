@@ -1,6 +1,6 @@
 # 0068. SBF Navigationsaufgaben from a reviewed YAML, open to guests, own tolerances marked as not official
 
-Status: Accepted
+Status: Accepted; amended by [ADR-0071](0071-sbf-navigation-runs-and-lotsen-check.md) (runs saved with an account, and a Lotsen-Check per subtask)
 
 ## Context
 

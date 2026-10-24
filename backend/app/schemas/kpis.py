@@ -54,12 +54,16 @@ class LearningKpis(BaseModel):
     exams_passed_7d: int
     chart_attempts_started_24h: int
     chart_attempts_completed_24h: int
+    # Saved runs of SBF Lotse's Navigationsaufgaben (ADR-0071).
+    sbf_navigation_attempts_started_24h: int
+    sbf_navigation_attempts_completed_24h: int
 
 
 class MonetizationKpis(BaseModel):
     # Lotsen-Checks that ran (a failed one is refunded and not counted), by kind, and their tokens.
     lotse_checks_catalog_24h: int
     lotse_checks_chart_24h: int
+    lotse_checks_sbf_navigation_24h: int
     tokens_spent_24h: int
     tokens_spent_7d: int
     # Stripe purchases only (purchases.granted_by = "stripe"); revenue in euro cents, gross.
@@ -124,6 +128,7 @@ class DailyKpis(BaseModel):
     # From lotse_check_log, which keeps 30 days: older days read 0.
     lotse_checks_catalog: int
     lotse_checks_chart: int
+    lotse_checks_sbf_navigation: int
     tokens_spent: int
     # Stripe only, gross euro cents, as in MonetizationKpis.
     purchases: int
