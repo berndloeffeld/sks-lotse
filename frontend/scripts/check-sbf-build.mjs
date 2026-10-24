@@ -16,6 +16,7 @@ if (!readFileSync(`${dist}index.html`, 'utf8').includes('data-site="sbf"')) {
   problems.push('dist/index.html is not the SBF page (index.sbf.html)')
 }
 // API routes only SKS Lotse's pages call: one of them in the bundle means an SKS page came along.
+const SKS_API_ORIGIN = /https:\/\/api\.sks-lotse\.de(?![\w.-])/
 const SKS_ONLY_ROUTES = ['/admin/', '/chart-exercises', '/exams', '/progress/', '/questions']
 for (const name of scripts) {
   const code = readFileSync(`${dist}assets/${name}`, 'utf8')
@@ -24,8 +25,9 @@ for (const name of scripts) {
       problems.push(`assets/${name} calls SKS Lotse's API route ${route}`)
     }
   }
-  // The full origin: the shared Datenschutzerklärung names both API hosts in its text.
-  if (code.includes('https://api.sks-lotse.de')) problems.push(`assets/${name} calls SKS Lotse's API host`)
+  // A search of the built text, not a URL check. The full origin: the shared Datenschutzerklärung names
+  // both API hosts in its text, without the scheme.
+  if (SKS_API_ORIGIN.test(code)) problems.push(`assets/${name} calls SKS Lotse's API host`)
 }
 for (const chunk of ['catalog.gen', 'chart_exercises.gen', 'landing_samples.gen']) {
   if (assets.some((name) => name.startsWith(`${chunk}-`))) problems.push(`SKS Lotse's ${chunk} chunk is in the build`)
