@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems, type NavIcon } from '../navigation'
-import { useAuthStore } from '../store/authStore'
-import { AccountMenu } from './AccountMenu'
+import { useAuthStore } from '../../shared/store/authStore'
+import { AccountMenu } from '../../shared/components/AccountMenu'
 import { tabBarItemClass } from '../../shared/components/headerLink'
 import { CatalogIcon, ChartDividersIcon, ExamIcon } from './icons/FeatureIcons'
 

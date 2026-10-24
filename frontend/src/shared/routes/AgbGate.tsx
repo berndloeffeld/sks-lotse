@@ -5,10 +5,10 @@ import { apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { Modal } from '../../shared/components/Modal'
-import { HelmIcon } from '../components/icons/FeatureIcons'
+import { buttonClass } from '../components/buttonStyles'
+import { ErrorMessage } from '../components/Messages'
+import { Modal } from '../components/Modal'
+import { HelmIcon } from '../components/icons'
 
 // Wraps the logged-in routes and the pages open to guests too (/learn, ADR-0054); it only ever
 // asks a logged-in learner. The page always renders (via Outlet) so the app doesn't visually disappear;

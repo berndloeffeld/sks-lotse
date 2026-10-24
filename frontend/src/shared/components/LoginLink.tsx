@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { trackSignupClick, type SignupPlace } from '../../shared/analytics'
+import { trackSignupClick, type SignupPlace } from '../analytics'
 import { loginState } from '../returnPath'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { buttonClass } from './buttonStyles'
 
 // The way to /login for a guest, from wherever they are: the login brings them back here
 // afterwards (returnPath.ts). With a `place`, a click counts as an invitation taken up.

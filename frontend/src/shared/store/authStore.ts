@@ -2,7 +2,6 @@ import { create } from 'zustand'
 
 import { ApiError, apiClient, setUnauthorizedHandler } from '../api/client'
 import type { User } from '../api/types'
-import { forgetAllTideForms } from '../hooks/useTideForm'
 
 // The PATCH /auth/me body — mirrors backend/app/schemas/auth.py::UserUpdate.
 export type UserUpdate = Partial<
@@ -42,6 +41,19 @@ interface AuthState {
   // account was just deleted), so there's nothing for /auth/logout to do.
   clearSession: () => void
   logout: () => Promise<void>
+}
+
+// What a site keeps of a learner in this browser, outside the session (SKS Lotse: the Formblatt of
+// the Kartenaufgaben). Forgotten on logout and after deleting the account, so a shared device keeps
+// nothing of the person who used it. Each site registers its own when it starts.
+const browserDataCleanups = new Set<() => void>()
+
+export function registerBrowserDataCleanup(cleanup: () => void) {
+  browserDataCleanups.add(cleanup)
+}
+
+export function forgetBrowserData() {
+  for (const cleanup of browserDataCleanups) cleanup()
 }
 
 export const useAuthStore = create<AuthState>((set, get) => {
@@ -99,8 +111,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
       } finally {
         loggingOut = false
       }
-      // Whoever uses this browser next must not find this learner's Formblatt in it.
-      forgetAllTideForms()
+      // Whoever uses this browser next must not find this learner's data in it.
+      forgetBrowserData()
       set({ user: null, isAuthenticated: false, sessionExpired: false })
     },
   }

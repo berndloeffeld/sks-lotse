@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
-import { useAuthStore } from '../store/authStore'
+import { apiClient } from '../../shared/api/client'
+import { useAuthStore } from '../../shared/store/authStore'
 import { AdminLayout } from './AdminLayout'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 

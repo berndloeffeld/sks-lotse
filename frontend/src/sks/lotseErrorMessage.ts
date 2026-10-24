@@ -1,4 +1,4 @@
-import { ApiError } from './api/client'
+import { ApiError } from '../shared/api/client'
 
 // What a failed Lotsen-Check tells the learner (ADR-0031, ADR-0058): whatever went wrong, the
 // self-assessment still works.

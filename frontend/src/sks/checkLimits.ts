@@ -1,4 +1,4 @@
-import { apiClient } from './api/client'
+import { apiClient } from '../shared/api/client'
 import type { PublicPricing } from './api/types'
 import { createLazyExport } from '../shared/lazyExport'
 

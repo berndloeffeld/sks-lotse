@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { trackEvent } from '../../shared/analytics'
+import { trackEvent } from '../analytics'
 import { ApiError, apiClient } from '../api/client'
 import { safeReturnPath } from '../returnPath'
 import { useAuthStore } from '../store/authStore'
-import { formStyles, type FormTone } from '../../shared/components/formStyles'
+import { formStyles, type FormTone } from './formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { buttonClass } from './buttonStyles'
+import { ErrorMessage } from './Messages'
 
 type Step = 'email' | 'code'
 

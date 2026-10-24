@@ -2,10 +2,10 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import { useExam } from './useExam'
 
-vi.mock('../api/client', () => ({ apiClient: { get: vi.fn() } }))
+vi.mock('../../shared/api/client', () => ({ apiClient: { get: vi.fn() } }))
 
 const get = vi.mocked(apiClient.get)
 const exam = { id: 7 } as never

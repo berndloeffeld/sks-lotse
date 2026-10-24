@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { jsonResponse, makeChartExport, makeChartOverview } from '../../test/fixtures'
 import { ChartExercisesPage } from './ChartExercisesPage'
 

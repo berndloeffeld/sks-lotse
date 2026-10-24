@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { EXAM_PROCESS_FAQ } from '../faq'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { ExamProcessPage } from './ExamProcessPage'
 
 function renderExamProcessPage() {

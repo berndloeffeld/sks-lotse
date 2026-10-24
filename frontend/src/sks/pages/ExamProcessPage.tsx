@@ -6,7 +6,7 @@ import { chartExercisesForGuests } from '../chartCatalog'
 import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { buttonClass } from '../../shared/components/buttonStyles'
 import { sectionHeading, subsectionHeading } from '../../shared/components/headingStyles'
 

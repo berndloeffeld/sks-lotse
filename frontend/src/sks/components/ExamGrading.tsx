@@ -1,5 +1,5 @@
 import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { Exam, GradingOutcome } from '../api/types'
 import { SUBJECT_GROUP_LABELS } from '../labels'
 import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'

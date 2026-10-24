@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { MFA_REQUIRED, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
+import { MFA_REQUIRED, RECENT_MFA_REQUIRED, apiClient } from '../../shared/api/client'
 import { jsonResponse } from '../../test/fixtures'
 import { useAdminMfaStatus } from './useAdminMfaStatus'
 

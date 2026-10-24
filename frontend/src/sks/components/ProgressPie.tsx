@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 
-import { formatPercentOf } from '../format'
+import { formatPercentOf } from '../../shared/format'
 
 export interface ProgressSlice {
   key: string

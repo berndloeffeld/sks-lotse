@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { AdminDashboard, DashboardDays } from '../api/types'
 import { DailyBars } from '../components/DailyBars'
 import { ErrorMessage } from '../../shared/components/Messages'
 import { buttonClass } from '../../shared/components/buttonStyles'
-import { formatDateTime, formatDecimal, formatEurCents, formatPercent } from '../format'
-import { useApiQuery } from '../hooks/useApiQuery'
+import { formatDateTime, formatDecimal, formatEurCents, formatPercent } from '../../shared/format'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 
 const RANGES: DashboardDays[] = [7, 30, 90]
 // lotse_check_log keeps 30 days (ADR-0032 addendum 2026-10-05); older days read 0.

@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { primeCatalog, resetCatalog } from '../catalog'
-import { ProtectedRoute } from '../routes/ProtectedRoute'
-import { useAuthStore } from '../store/authStore'
+import { ProtectedRoute } from '../../shared/routes/ProtectedRoute'
+import { useAuthStore } from '../../shared/store/authStore'
 import { LearnPage } from './LearnPage'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 

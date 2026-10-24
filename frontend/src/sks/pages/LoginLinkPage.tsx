@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { trackEvent } from '../../shared/analytics'
-import { ApiError, apiClient } from '../api/client'
+import { ApiError, apiClient } from '../../shared/api/client'
 import { buttonClass } from '../../shared/components/buttonStyles'
 import { ErrorMessage } from '../../shared/components/Messages'
 import { PageLayout } from '../components/PageLayout'
-import { useAsyncAction } from '../hooks/useAsyncAction'
-import { useAuthStore } from '../store/authStore'
+import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useAuthStore } from '../../shared/store/authStore'
 
 // The token from the login link in the code email: /login/link#t=<token> (ADR-0064). In the
 // fragment, so it never reaches a server log, a Referer header or the analytics.

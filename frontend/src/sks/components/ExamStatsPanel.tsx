@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { ExamStats } from '../api/types'
-import { formatDateTime, formatDecimal, formatPercentOf, percentOf } from '../format'
-import { useApiQuery } from '../hooks/useApiQuery'
+import { formatDateTime, formatDecimal, formatPercentOf, percentOf } from '../../shared/format'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { EXAM_RESULT_LABELS, SUBJECT_GROUP_LABELS } from '../labels'
 import { ErrorMessage } from '../../shared/components/Messages'
 import { sectionHeading } from '../../shared/components/headingStyles'

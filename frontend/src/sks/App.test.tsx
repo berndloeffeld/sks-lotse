@@ -4,12 +4,21 @@ import { MemoryRouter, RouterProvider, createMemoryRouter } from 'react-router-d
 
 import { AppRoutes } from './App'
 import { appRoutes } from './appRoutes'
-import { useMaintenanceStore } from './store/maintenanceStore'
+import { useMaintenanceStore } from '../shared/store/maintenanceStore'
+import { forgetBrowserData } from '../shared/store/authStore'
 import { jsonResponse, makeUser } from '../test/fixtures'
 
 describe('App', () => {
   afterEach(() => {
     useMaintenanceStore.setState({ maintenanceMode: false })
+  })
+
+  it('has logout and account deletion forget the Formblatt Gezeiten kept in this browser', () => {
+    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
+
+    forgetBrowserData()
+
+    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
   })
 
   it('renders the landing page at the root route and checks the session on mount', async () => {

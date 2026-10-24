@@ -1,8 +1,8 @@
 import { useLocation } from 'react-router-dom'
 
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { Header } from './Header'
-import { LoginLink } from './LoginLink'
+import { LoginLink } from '../../shared/components/LoginLink'
 import { MainNav } from './MainNav'
 import { MobileTabBar } from './MobileTabBar'
 import { PageShell, type PageShellProps } from '../../shared/components/PageShell'

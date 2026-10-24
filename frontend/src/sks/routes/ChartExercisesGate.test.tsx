@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { makeUser } from '../../test/fixtures'
 import { ChartExercisesGate } from './ChartExercisesGate'
 

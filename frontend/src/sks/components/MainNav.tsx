@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems } from '../navigation'
-import { useAuthStore } from '../store/authStore'
-import { AccountMenu } from './AccountMenu'
-import { TokenCounter } from './TokenCounter'
+import { useAuthStore } from '../../shared/store/authStore'
+import { AccountMenu } from '../../shared/components/AccountMenu'
+import { TokenCounter } from '../../shared/components/TokenCounter'
 import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../../shared/components/headerLink'
 
 // Header nav for logged-in pages: the areas (navigation.ts), the token balance and the Konto menu.

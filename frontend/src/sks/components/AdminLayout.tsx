@@ -1,7 +1,7 @@
 import { Navigate, NavLink, Outlet } from 'react-router-dom'
 
 import { useAdminMfaStatus } from '../hooks/useAdminMfaStatus'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { AdminMfaEnrol, AdminMfaVerify } from './AdminMfa'
 import { PageLayout } from './PageLayout'
 import { ErrorMessage } from '../../shared/components/Messages'

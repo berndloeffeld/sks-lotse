@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 
 import { chartExercisesForGuests } from '../chartCatalog'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 
 // The CHART_EXERCISES feature flag (ADR-0052): learners it doesn't cover never see the Kartenaufgaben.
 // Guests pass while the build's flag is "on" (ADR-0056): App.tsx then mounts /charts and

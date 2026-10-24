@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { PageLayout } from '../components/PageLayout'
 import { ProseSection } from '../../shared/components/ProseSection'
-import { AGB_VERSION_LABEL } from '../legal'
+import { AGB_VERSION_LABEL } from '../../shared/agbVersion'
 
 export function AgbPage() {
   return (

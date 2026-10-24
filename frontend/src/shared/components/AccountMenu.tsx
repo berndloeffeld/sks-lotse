@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { analyticsLoaded } from '../../shared/analytics'
+import { analyticsLoaded } from '../analytics'
 import { getDisplayName } from '../format'
 import { useAuthStore } from '../store/authStore'
-import { HEADER_MENU_BUTTON, tabBarItemClass } from '../../shared/components/headerLink'
-import { AccountIcon } from './icons/FeatureIcons'
+import { HEADER_MENU_BUTTON, tabBarItemClass } from './headerLink'
+import { AccountIcon } from './icons'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const ITEM = 'block w-full px-4 py-2 text-left text-sm text-ink hover:bg-surface-alt'

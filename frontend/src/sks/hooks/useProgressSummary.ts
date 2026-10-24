@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { TopicProgress } from '../api/types'
 import type { ProgressSlice } from '../components/ProgressPie'
 import { SUBJECT_GROUP_LABELS } from '../labels'
-import { useApiQuery } from './useApiQuery'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 
 const CATEGORY_BY_SUBJECT: Record<string, string> = {
   seemannschaft_allgemein: 'seemannschaft',

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { RECENT_MFA_REQUIRED, apiClient, setMfaRequiredHandler } from '../api/client'
+import { RECENT_MFA_REQUIRED, apiClient, setMfaRequiredHandler } from '../../shared/api/client'
 import type { AdminMfaStatus } from '../api/types'
-import { useApiQuery } from './useApiQuery'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 
 function fetchStatus() {
   return apiClient.get<AdminMfaStatus>('/admin/mfa/status')

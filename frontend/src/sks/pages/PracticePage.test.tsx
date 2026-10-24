@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { Question, QuestionProgress } from '../api/types'
 import { primeCatalog, resetCatalog } from '../catalog'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { PracticePage } from './PracticePage'
 
 // The list of every question below the run repeats their texts; its own tests are in

@@ -131,7 +131,7 @@ class UserRead(BaseModel):
     @computed_field  # type: ignore[prop-decorator]  # pydantic's documented pattern
     @property
     def needs_agb_acceptance(self) -> bool:
-        # The backend alone decides whether the AGB-Gate is owed (frontend/src/sks/routes/AgbGate.tsx),
+        # The backend alone decides whether the AGB-Gate is owed (frontend/src/shared/routes/AgbGate.tsx),
         # so the version lives in one place (domain/legal.py).
         return self.agb_accepted_version != CURRENT_AGB_VERSION
 

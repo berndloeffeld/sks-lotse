@@ -8,7 +8,7 @@ import { PageLayout } from '../components/PageLayout'
 import { ProseSection } from '../../shared/components/ProseSection'
 import { buttonClass } from '../../shared/components/buttonStyles'
 import { subsectionHeading } from '../../shared/components/headingStyles'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 
 const LINK = 'text-primary underline hover:no-underline'
 const LIST = 'flex list-disc flex-col gap-2 pl-5'

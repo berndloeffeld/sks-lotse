@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { buttonClass } from '../../shared/components/buttonStyles'
 
 interface NotFoundPageProps {

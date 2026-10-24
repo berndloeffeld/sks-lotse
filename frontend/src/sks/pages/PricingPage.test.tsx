@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes, StaticRouter } from 'react-router-dom'
 
 import { BALANCE_RECHECK_MS, PricingPage } from './PricingPage'
-import { AgbGate } from '../routes/AgbGate'
-import { useAuthStore } from '../store/authStore'
+import { AgbGate } from '../../shared/routes/AgbGate'
+import { useAuthStore } from '../../shared/store/authStore'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 
 const PRICING = {

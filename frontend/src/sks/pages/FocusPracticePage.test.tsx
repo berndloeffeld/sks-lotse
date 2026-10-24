@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import type { Question, TopicProgress } from '../api/types'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { FocusPracticePage } from './FocusPracticePage'
 import { jsonResponse } from '../../test/fixtures'
 

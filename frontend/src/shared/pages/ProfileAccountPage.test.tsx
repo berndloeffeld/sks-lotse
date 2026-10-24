@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { ProtectedRoute } from '../routes/ProtectedRoute'
-import { useAuthStore } from '../store/authStore'
+import { registerBrowserDataCleanup, useAuthStore } from '../store/authStore'
 import { ProfileAccountPage } from './ProfileAccountPage'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 
@@ -270,14 +270,15 @@ describe('ProfileAccountPage', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
+    const forgetSiteData = vi.fn()
+    registerBrowserDataCleanup(forgetSiteData)
     renderAccountPage()
     await user.click(screen.getByRole('button', { name: 'Konto löschen' }))
     await user.type(screen.getByLabelText(/Zur Bestätigung/), 'learner@example.com')
     await user.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
     expect(await screen.findByText('Landing page')).toBeInTheDocument()
-    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
+    expect(forgetSiteData).toHaveBeenCalledOnce()
     expect(useAuthStore.getState().isAuthenticated).toBe(false)
     // The account is already gone server-side — no pointless POST /auth/logout.
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/logout'))).toBe(false)

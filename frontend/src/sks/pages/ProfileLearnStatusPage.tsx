@@ -4,7 +4,7 @@ import { Band } from '../../shared/components/Bands'
 import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useProgressSummary } from '../hooks/useProgressSummary'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { ErrorMessage } from '../../shared/components/Messages'
 
 // /profile's "Lernstand" tab (the default): the same Lernstand overview as
