@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { useAuthStore } from '../store/authStore'
-import { AccountMenu } from './AccountMenu'
+import { useAuthStore } from '../../shared/store/authStore'
+import { SksAccountMenu } from './SksAccountMenu'
 import { makeUser } from '../../test/fixtures'
 
 const originalLogout = useAuthStore.getState().logout
@@ -15,7 +15,7 @@ function renderMenu(user = makeUser()) {
     <MemoryRouter initialEntries={['/learn']}>
       <p>Außerhalb</p>
       <Link to="/exam">Anderswo</Link>
-      <AccountMenu />
+      <SksAccountMenu />
       <Routes>
         <Route path="/" element={<p>Landing page</p>} />
         <Route path="/learn" element={<p>Learn page</p>} />
@@ -32,7 +32,7 @@ function menuButton() {
   return screen.getByRole('button', { name: 'Konto' })
 }
 
-describe('AccountMenu', () => {
+describe('SksAccountMenu', () => {
   afterEach(() => {
     useAuthStore.setState({ logout: originalLogout })
   })

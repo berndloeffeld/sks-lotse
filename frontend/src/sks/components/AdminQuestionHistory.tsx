@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { AdminQuestionHistory as History } from '../api/types'
-import { formatDateTime } from '../format'
-import { useApiQuery } from '../hooks/useApiQuery'
+import { formatDateTime } from '../../shared/format'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { OUTCOME_LABELS } from '../labels'
 import { buttonClass } from '../../shared/components/buttonStyles'
 import { ErrorMessage } from '../../shared/components/Messages'

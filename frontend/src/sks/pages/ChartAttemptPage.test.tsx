@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChartAttempt } from '../api/types'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { chartTask, jsonResponse, makeChartAttempt, makeChartOverview, makeUser } from '../../test/fixtures'
 import { ChartAttemptPage } from './ChartAttemptPage'
 

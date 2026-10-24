@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { LEARNING_METHOD_FAQ } from '../faq'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { LearningMethodPage } from './LearningMethodPage'
 
 function renderLearningMethodPage() {

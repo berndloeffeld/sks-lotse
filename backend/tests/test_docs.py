@@ -273,7 +273,7 @@ def test_cited_sections_of_the_project_file_exist():
 
 # --- AGB version -----------------------------------------------------------------------------
 
-LEGAL_TS = REPO / "frontend" / "src" / "sks" / "legal.ts"
+LEGAL_TS = REPO / "frontend" / "src" / "shared" / "agbVersion.ts"
 _GERMAN_MONTHS = [
     "Januar",
     "Februar",
@@ -294,13 +294,14 @@ def test_agb_version_label_in_the_frontend_matches_the_backend_version():
     # The label is what AgbPage shows as "Stand:", the backend version is what accounts accept; they
     # are bumped together (both files say so). The "Stand:" of the Datenschutzerklärung is not tied.
     match = re.search(r"AGB_VERSION_LABEL\s*=\s*['\"]([^'\"]+)['\"]", LEGAL_TS.read_text(encoding="utf-8"))
-    assert match, "frontend/src/sks/legal.ts has no AGB_VERSION_LABEL"
+    assert match, "frontend/src/shared/agbVersion.ts has no AGB_VERSION_LABEL"
     version = date.fromisoformat(CURRENT_AGB_VERSION)
     expected = f"{version.day}. {_GERMAN_MONTHS[version.month - 1]} {version.year}"
 
     assert match.group(1) == expected, (
         f"AGB_VERSION_LABEL is '{match.group(1)}' but CURRENT_AGB_VERSION {CURRENT_AGB_VERSION} "
-        f"reads '{expected}': bump both together (backend/app/domain/legal.py, frontend/src/sks/legal.ts)"
+        f"reads '{expected}': bump both together "
+        "(backend/app/domain/legal.py, frontend/src/shared/agbVersion.ts)"
     )
 
 

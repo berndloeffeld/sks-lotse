@@ -5,7 +5,7 @@ from tests import render_blueprint
 SKS, SBF = "sks-lotse-frontend", "sbf-lotse-frontend"
 
 # The SBF site's prerendered pages besides "/" (sbfPublicPages in frontend/src/sbf/publicPages.ts).
-SBF_STATIC_PAGES = {"/faq", "/imprint", "/privacy"}
+SBF_STATIC_PAGES = {"/faq", "/imprint", "/privacy", "/terms"}
 
 
 def test_both_sites_build_from_the_same_frontend_as_their_own_site():
@@ -23,13 +23,23 @@ def test_the_sbf_flag_is_set_for_the_sbf_build_only():
     assert "VITE_SBF" not in render_blueprint.env(SKS)
 
 
-def test_the_sbf_build_knows_no_api():
-    # No account on SBF Lotse yet: no API origin for the build, and none the browser may connect to.
-    assert "VITE_API_BASE_URL" not in render_blueprint.env(SBF)
+def test_each_site_calls_only_its_own_api_host():
+    # Same-site with its page, so the session cookie is first-party (ADR-0070): sbf-lotse.de calls
+    # api.sbf-lotse.de, never api.sks-lotse.de, and the CSP lets the browser connect to nothing else.
+    assert render_blueprint.env(SBF)["VITE_API_BASE_URL"]["value"] == "https://api.sbf-lotse.de"
+    assert render_blueprint.env(SKS)["VITE_API_BASE_URL"]["value"] == "https://api.sks-lotse.de"
     sbf = render_blueprint.csp_sources(SBF, "connect-src")
-    assert sbf == ["'self'", "https://cloud.umami.is", "https://gateway.umami.is"]
+    assert sbf == ["'self'", "https://api.sbf-lotse.de", "https://cloud.umami.is", "https://gateway.umami.is"]
     sks = render_blueprint.csp_sources(SKS, "connect-src")
     assert sks == ["'self'", "https://api.sks-lotse.de", "https://cloud.umami.is", "https://gateway.umami.is"]
+
+
+def test_the_sbf_accounts_flag_is_set_for_the_sbf_build_only():
+    # vite.config.ts fails a build that sets it with VITE_SITE=sks, or "on" without VITE_SBF=on.
+    sbf = render_blueprint.env(SBF)
+    assert sbf["VITE_SBF_ACCOUNTS"]["value"] in ("off", "on")
+    assert sbf["VITE_SBF_ACCOUNTS"]["value"] == "off" or sbf["VITE_SBF"]["value"] == "on"
+    assert "VITE_SBF_ACCOUNTS" not in render_blueprint.env(SKS)
 
 
 def test_the_sbf_umami_id_is_set_in_the_dashboard():

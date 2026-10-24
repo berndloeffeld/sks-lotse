@@ -1,6 +1,6 @@
-import { formatPercentOf, percentOf } from '../format'
+import { formatPercentOf, percentOf } from '../../shared/format'
 import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { Columns } from '../../shared/components/Bands'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'

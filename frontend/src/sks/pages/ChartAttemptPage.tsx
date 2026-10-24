@@ -6,7 +6,7 @@ import { DiscardChartRun } from '../components/DiscardChartRun'
 import { PageLayout } from '../components/PageLayout'
 import { useChartAttempt, useChartOverview } from '../hooks/useChartAttempt'
 import { useTideForm } from '../hooks/useTideForm'
-import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { useNavigateWhileMounted } from '../../shared/hooks/useNavigateWhileMounted'
 import { ErrorMessage } from '../../shared/components/Messages'
 
 // One run through a Kartenaufgabe: the current task on the left, the Formblatt and the tasks so far

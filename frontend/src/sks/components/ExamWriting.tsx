@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { trackEvent } from '../../shared/analytics'
-import { ApiError, apiClient } from '../api/client'
+import { ApiError, apiClient } from '../../shared/api/client'
 import type { Exam } from '../api/types'
 import { useEnterShortcut } from '../../shared/hooks/useEnterShortcut'
 import { useExamCountdown } from '../hooks/useExamCountdown'
-import { formatCountdown } from '../format'
+import { formatCountdown } from '../../shared/format'
 import { SUBJECT_GROUP_LABELS } from '../labels'
 import { formStyles } from '../../shared/components/formStyles'
 import { QuestionImages } from './QuestionImages'

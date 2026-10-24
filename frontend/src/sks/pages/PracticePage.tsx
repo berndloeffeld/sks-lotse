@@ -1,17 +1,17 @@
 import { useParams } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { Question, QuestionProgress, Topic } from '../api/types'
 import { findTopic, topicQuestions } from '../catalog'
 import { PageLayout } from '../components/PageLayout'
 import { NotFoundPage } from './NotFoundPage'
 import { PracticeRun } from '../components/PracticeRun'
 import { TopicQuestionList } from '../components/TopicQuestionList'
-import { useApiQuery } from '../hooks/useApiQuery'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { useCatalog } from '../hooks/useCatalog'
 import { useStandingsUpdate } from '../hooks/usePracticeSession'
 import { SUBJECT_LABELS } from '../labels'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { ErrorMessage } from '../../shared/components/Messages'
 
 interface PracticeData {

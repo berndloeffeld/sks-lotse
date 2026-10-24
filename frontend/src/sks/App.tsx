@@ -18,15 +18,19 @@ import { LoginPage } from './pages/LoginPage'
 import { LoginLinkPage } from './pages/LoginLinkPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
-import { AgbGate } from './routes/AgbGate'
+import { AgbGate } from '../shared/routes/AgbGate'
 import { ChartExercisesGate } from './routes/ChartExercisesGate'
-import { ProtectedRoute } from './routes/ProtectedRoute'
+import { ProtectedRoute } from '../shared/routes/ProtectedRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAdminWithoutAnalytics } from './hooks/useAdminWithoutAnalytics'
-import { useUserRefreshOnReturn } from './hooks/useUserRefreshOnReturn'
+import { useUserRefreshOnReturn } from '../shared/hooks/useUserRefreshOnReturn'
 import { useNavigationScroll } from '../shared/hooks/useNavigationScroll'
-import { useAuthStore } from './store/authStore'
-import { useMaintenanceStore } from './store/maintenanceStore'
+import { registerBrowserDataCleanup, useAuthStore } from '../shared/store/authStore'
+import { forgetAllTideForms } from './hooks/useTideForm'
+import { useMaintenanceStore } from '../shared/store/maintenanceStore'
+
+// SKS Lotse keeps the Kartenaufgaben's Formblatt in the browser; forgotten on logout and deletion.
+registerBrowserDataCleanup(forgetAllTideForms)
 
 // Pages that are never prerendered (everything behind ProtectedRoute, whose prerender is just
 // "Lädt …") load on demand, so a visitor of the landing page doesn't download the admin, exam and
@@ -48,7 +52,7 @@ const ExamPage = lazyNamed(() => import('./pages/ExamPage'), 'ExamPage')
 const ExamRunPage = lazyNamed(() => import('./pages/ExamRunPage'), 'ExamRunPage')
 const FocusPracticePage = lazyNamed(() => import('./pages/FocusPracticePage'), 'FocusPracticePage')
 const RefreshPracticePage = lazyNamed(() => import('./pages/RefreshPracticePage'), 'RefreshPracticePage')
-const ProfileAccountPage = lazyNamed(() => import('./pages/ProfileAccountPage'), 'ProfileAccountPage')
+const ProfileAccountPage = lazyNamed(() => import('../shared/pages/ProfileAccountPage'), 'ProfileAccountPage')
 const ProfileLearnStatusPage = lazyNamed(() => import('./pages/ProfileLearnStatusPage'), 'ProfileLearnStatusPage')
 const ProfileLayout = lazyNamed(() => import('./components/ProfileLayout'), 'ProfileLayout')
 

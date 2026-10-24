@@ -1,6 +1,6 @@
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { Exam } from '../api/types'
-import { useApiQuery } from './useApiQuery'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 
 // Loads one exam and lets the page swap in fresher server state (each write
 // endpoint returns the full exam, and an expired exam is re-read).

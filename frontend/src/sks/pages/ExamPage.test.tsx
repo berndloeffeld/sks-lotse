@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { ExamSummary } from '../api/types'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 import { ExamPage } from './ExamPage'
 

@@ -60,4 +60,4 @@ The rewrite was deployed ahead of increment 2 and checked from one network again
 
 So the rewrite came out of `render.yaml` again the same day, and `tests/test_render_blueprint.py` now fails on any `/api` rewrite. The per-email limits (code requests, attempts per code) held throughout; only the per-IP limits were open.
 
-The cross-site question is open again. The fallback named above is api.sbf-lotse.de, a custom domain on the backend service, which needs a free custom-domain slot on the Render plan. A new ADR records that decision when increment 2 starts. The directory split above stands.
+The cross-site question is open again. The fallback named above, api.sbf-lotse.de, is decided in [ADR-0070](0070-sbf-api-host-and-site-per-request.md). The directory split above stands.

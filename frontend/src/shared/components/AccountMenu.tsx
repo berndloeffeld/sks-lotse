@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { analyticsLoaded } from '../../shared/analytics'
 import { getDisplayName } from '../format'
 import { useAuthStore } from '../store/authStore'
-import { HEADER_MENU_BUTTON, tabBarItemClass } from '../../shared/components/headerLink'
-import { AccountIcon } from './icons/FeatureIcons'
+import { HEADER_MENU_BUTTON, tabBarItemClass } from './headerLink'
+import { AccountIcon } from './icons'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
 
 const ITEM = 'block w-full px-4 py-2 text-left text-sm text-ink hover:bg-surface-alt'
@@ -35,12 +34,26 @@ const PANEL = {
   tabbar: 'right-2 bottom-full mb-2',
 }
 
-// The "Konto" menu of the logged-in navigation: the learner's own things only (Lernstand, account
-// settings, buying tokens, Admin, Abmelden); the content pages and Feedback sit in the footer. A disclosure
+// The "Konto" menu of the logged-in navigation: the learner's own things only (the site's `links`,
+// then Abmelden); the content pages and Feedback sit in the footer. A disclosure
 // (button + list of links), not an ARIA menu — it's site navigation. Closes on Escape, a click
 // outside, choosing an entry, and any route change: the open state remembers the path it was
 // opened on, so navigating away closes it without an effect.
-export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuPlacement }) {
+// One entry of the menu's list: each site has its own (SKS Lotse's Lernstand and Admin, SBF Lotse's
+// Läufe). `reloadDocument` loads the target as a new page instead of in the app.
+export interface AccountMenuLink {
+  to: string
+  label: string
+  reloadDocument?: boolean
+}
+
+export function AccountMenu({
+  links,
+  placement = 'header',
+}: {
+  links: readonly AccountMenuLink[]
+  placement?: AccountMenuPlacement
+}) {
   const menuId = placement === 'header' ? 'account-menu' : 'account-menu-tabbar'
   const { pathname } = useLocation()
   const navigate = useNavigateWhileMounted()
@@ -112,31 +125,13 @@ export function AccountMenu({ placement = 'header' }: { placement?: AccountMenuP
             </p>
           ) : null}
           <ul className="border-b border-border py-1">
-            <li>
-              <Link to="/profile" className={ITEM} onClick={close}>
-                Lernstand
-              </Link>
-            </li>
-            <li>
-              <Link to="/profile/account" className={ITEM} onClick={close}>
-                Kontoeinstellungen
-              </Link>
-            </li>
-            <li>
-              <Link to="/pricing" className={ITEM} onClick={close}>
-                Tokens kaufen
-              </Link>
-            </li>
-            {user?.is_admin ? (
-              <li>
-                {/* A document running Umami goes to the admin tools by a full page load right away,
-                    instead of rendering them in-app first and then being reloaded by
-                    useAdminWithoutAnalytics (the page flickered twice). */}
-                <Link to="/admin" reloadDocument={analyticsLoaded()} className={ITEM} onClick={close}>
-                  Admin
+            {links.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} reloadDocument={link.reloadDocument} className={ITEM} onClick={close}>
+                  {link.label}
                 </Link>
               </li>
-            ) : null}
+            ))}
           </ul>
           <div className="py-1">
             <button type="button" onClick={handleLogout} className={ITEM}>

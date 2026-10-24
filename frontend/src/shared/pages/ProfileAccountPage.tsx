@@ -3,15 +3,14 @@ import { Link } from 'react-router-dom'
 
 import { ApiError, apiClient } from '../api/client'
 import type { User } from '../api/types'
-import { Band } from '../../shared/components/Bands'
-import { formStyles } from '../../shared/components/formStyles'
+import { Band } from '../components/Bands'
+import { formStyles } from '../components/formStyles'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { GENDER_LABELS } from '../labels'
-import { useAuthStore } from '../store/authStore'
+import { forgetBrowserData, useAuthStore } from '../store/authStore'
 import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
-import { forgetAllTideForms } from '../hooks/useTideForm'
-import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 type EmailChangeStep = 'view' | 'email' | 'code'
 
@@ -162,7 +161,7 @@ export function ProfileAccountPage() {
       // Not logout(): the backend already dropped the account and cleared the
       // cookie, so POST /auth/logout could only 401. The local session is
       // cleared by the effect above once this navigation lands.
-      forgetAllTideForms()
+      forgetBrowserData()
       setIsAccountDeleted(true)
       navigate('/', { replace: true })
     }, 'Das Konto konnte nicht gelöscht werden.')
@@ -308,7 +307,7 @@ export function ProfileAccountPage() {
 
         <Section title="Konto löschen" danger>
           <p className="text-sm leading-relaxed text-ink-soft">
-            Dein Konto und dein gesamter Lernfortschritt werden unwiderruflich gelöscht.
+            Dein Konto und dein gesamter Lernfortschritt auf SKS Lotse und SBF Lotse werden unwiderruflich gelöscht.
           </p>
           {!showDeleteConfirm ? (
             <button

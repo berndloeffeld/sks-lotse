@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import type { TopicProgress } from '../api/types'
-import { percentOf } from '../format'
+import { percentOf } from '../../shared/format'
 import { SUBJECT_LABELS } from '../labels'
 import { Band } from '../../shared/components/Bands'
 import { LedgerRow } from './LedgerRow'

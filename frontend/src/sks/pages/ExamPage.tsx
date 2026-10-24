@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom'
 
 import { ExamOverview } from '../components/ExamOverview'
 import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 
 // The Probeprüfung. With the Kartenaufgaben it is a tab of /learn (Fragen = Lernen + Probeprüfung,
 // navigation.ts), so /exam leads there; without them it stays a page of its own.

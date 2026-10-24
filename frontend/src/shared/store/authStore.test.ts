@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apiClient } from '../api/client'
-import { useAuthStore } from './authStore'
+import { forgetBrowserData, registerBrowserDataCleanup, useAuthStore } from './authStore'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 
 const mockUser = makeUser()
@@ -183,14 +183,28 @@ describe('authStore', () => {
     expect(useAuthStore.getState()).toMatchObject({ user: null, isAuthenticated: false })
   })
 
-  it('logout also forgets the Formblatt Gezeiten kept in this browser', async () => {
+  it('logout forgets what the site registered to keep in this browser', async () => {
+    const cleanup = vi.fn()
+    registerBrowserDataCleanup(cleanup)
     useAuthStore.setState({ user: mockUser, isAuthenticated: true, isLoading: false })
-    window.localStorage.setItem('sks-lotse:tide-form:7', '{}')
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })))
 
     await useAuthStore.getState().logout()
 
-    expect(window.localStorage.getItem('sks-lotse:tide-form:7')).toBeNull()
+    expect(cleanup).toHaveBeenCalledOnce()
+  })
+
+  it('forgetBrowserData runs every registered cleanup once, the same one only once', () => {
+    const first = vi.fn()
+    const second = vi.fn()
+    registerBrowserDataCleanup(first)
+    registerBrowserDataCleanup(first)
+    registerBrowserDataCleanup(second)
+
+    forgetBrowserData()
+
+    expect(first).toHaveBeenCalledOnce()
+    expect(second).toHaveBeenCalledOnce()
   })
 
   it('logout clears local state even if the backend call fails', async () => {

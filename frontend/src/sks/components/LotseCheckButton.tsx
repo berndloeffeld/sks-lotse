@@ -1,9 +1,9 @@
 import type { KeyboardEvent, Ref } from 'react'
 import { Link } from 'react-router-dom'
 
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { HelmIcon } from './icons/FeatureIcons'
-import { LoginLink } from './LoginLink'
+import { LoginLink } from '../../shared/components/LoginLink'
 
 // What happens to the answer lives in the tooltip and the accessible description, not in a caption.
 const SEND_NOTICE = 'KI-Prüfung: Deine Antwort wird dafür an Anthropic gesendet.'

@@ -2,12 +2,12 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apiClient } from '../api/client'
-import { useAuthStore } from '../store/authStore'
+import { apiClient } from '../../shared/api/client'
+import { useAuthStore } from '../../shared/store/authStore'
 import { chartTask, makeChartAttempt, makeChartOverview, makeUser } from '../../test/fixtures'
 import { useChartAttempt, useChartOverview } from './useChartAttempt'
 
-vi.mock('../api/client', () => ({
+vi.mock('../../shared/api/client', () => ({
   apiClient: { get: vi.fn(), put: vi.fn(), post: vi.fn() },
   setUnauthorizedHandler: vi.fn(),
 }))

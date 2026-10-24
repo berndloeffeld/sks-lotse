@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
-import { formatDate, getDisplayName } from '../format'
-import { useAuthStore } from '../store/authStore'
+import { formatDate, getDisplayName } from '../../shared/format'
+import { useAuthStore } from '../../shared/store/authStore'
 import { Band } from '../../shared/components/Bands'
 import { PageLayout } from './PageLayout'
 

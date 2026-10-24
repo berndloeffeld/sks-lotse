@@ -22,6 +22,11 @@ export const SBF_PRIVACY_TEXT: PageText = {
   description: 'Welche Daten SBF Lotse verarbeitet, wofür und auf welcher Rechtsgrundlage.',
 }
 
+export const SBF_TERMS_TEXT: PageText = {
+  title: 'AGB – SBF Lotse',
+  description: 'Die Allgemeinen Geschäftsbedingungen von SBF Lotse und SKS Lotse.',
+}
+
 export const SBF_NAVIGATION_TEXT: PageText = {
   title: 'SBF See Navigationsaufgaben: alle 15 amtlichen Aufgaben üben',
   description:

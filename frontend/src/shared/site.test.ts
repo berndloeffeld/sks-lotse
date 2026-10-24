@@ -22,9 +22,9 @@ describe('SITES', () => {
     expect(SITES.sbf).toMatchObject({ name: 'SBF Lotse', origin: 'https://sbf-lotse.de' })
   })
 
-  it('links the AGB and the SKS content pages only from SKS Lotse', () => {
+  it('links the SKS content pages only from SKS Lotse, the shared AGB from both (ADR-0070)', () => {
     const paths = (site: keyof typeof SITES) => SITES[site].footerLinks.map((link) => link.to)
     expect(paths('sks')).toEqual(['/exam-process', '/learning-method', '/faq', '/imprint', '/privacy', '/terms'])
-    expect(paths('sbf')).toEqual(['/faq', '/imprint', '/privacy'])
+    expect(paths('sbf')).toEqual(['/faq', '/imprint', '/privacy', '/terms'])
   })
 })

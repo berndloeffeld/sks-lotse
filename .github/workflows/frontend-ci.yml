@@ -41,10 +41,10 @@ jobs:
       # must fail here, not in the deploy. It sits in this job rather than frontend-test, which the
       # tests already make the longer one, so the two run side by side.
       - run: npm run build
-      # SBF Lotse, the second site from this frontend (ADR-0067): its build, and that it carries no
-      # API client and none of SKS Lotse's data — with VITE_SBF "off" (what render.yaml deploys today)
-      # no Navigationsaufgaben either, with "on" all of them (ADR-0068). Steps here rather than jobs of
-      # their own, so the required checks stay as they are.
+      # SBF Lotse, the second site from this frontend (ADR-0067): its build, and that it carries none
+      # of SKS Lotse's pages and data — with VITE_SBF "off" no Navigationsaufgaben either, with "on"
+      # all of them (ADR-0068), with VITE_SBF_ACCOUNTS "on" also the login and profile (ADR-0070).
+      # Steps here rather than jobs of their own, so the required checks stay as they are.
       - run: npm run build && node scripts/check-sbf-build.mjs
         env:
           VITE_SITE: sbf
@@ -53,6 +53,13 @@ jobs:
         env:
           VITE_SITE: sbf
           VITE_SBF: 'on'
+          VITE_API_BASE_URL: https://api.sbf-lotse.de
+      - run: npm run build && node scripts/check-sbf-build.mjs
+        env:
+          VITE_SITE: sbf
+          VITE_SBF: 'on'
+          VITE_SBF_ACCOUNTS: 'on'
+          VITE_API_BASE_URL: https://api.sbf-lotse.de
 
   frontend-test:
     runs-on: ubuntu-latest

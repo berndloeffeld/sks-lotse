@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
-import { ApiError, apiClient } from '../api/client'
+import { ApiError, apiClient } from '../../shared/api/client'
 import type { AdminMfaEnrolment } from '../api/types'
-import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
 import { formStyles } from '../../shared/components/formStyles'
 import { ErrorMessage } from '../../shared/components/Messages'
 import { buttonClass } from '../../shared/components/buttonStyles'

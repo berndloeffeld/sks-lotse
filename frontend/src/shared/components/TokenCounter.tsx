@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { useAuthStore } from '../store/authStore'
-import { HelmIcon } from './icons/FeatureIcons'
+import { HelmIcon } from './icons'
 
 // Below this many tokens the counter turns red: only a handful of Lotsen-Checks are left.
 const LOW_TOKEN_THRESHOLD = 5

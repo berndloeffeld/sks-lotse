@@ -12,7 +12,7 @@ describe('SBF entry-server', () => {
   })
 
   it('hands the prerender the SBF pages, title and sitemap', () => {
-    expect(pages.map((page) => page.path)).toEqual(['/', '/faq', '/imprint', '/privacy'])
+    expect(pages.map((page) => page.path)).toEqual(['/', '/faq', '/imprint', '/privacy', '/terms'])
     expect(appTitle).toBe('SBF Lotse')
     expect(dataChunks).toEqual([])
     expect(sitemapXml(pages)).toContain('<loc>https://sbf-lotse.de/faq</loc>')

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { catalogSourceLine, currentSite, sbfNavigationOpen, siteIdentity } from './siteConfig'
+import { catalogSourceLine, currentSite, sbfAccountsOpen, sbfNavigationOpen, siteIdentity } from './siteConfig'
 
 describe('siteConfig', () => {
   it('is SKS Lotse unless the build says otherwise', () => {
@@ -22,6 +22,23 @@ describe('siteConfig', () => {
     expect(sbfNavigationOpen()).toBe(true)
     vi.stubEnv('VITE_SITE', 'sks')
     expect(sbfNavigationOpen()).toBe(false)
+  })
+
+  it('opens accounts only in an SBF build with VITE_SBF_ACCOUNTS=on', () => {
+    expect(sbfAccountsOpen()).toBe(false)
+    vi.stubEnv('VITE_SITE', 'sbf')
+    expect(sbfAccountsOpen()).toBe(false)
+    vi.stubEnv('VITE_SBF_ACCOUNTS', 'on')
+    expect(sbfAccountsOpen()).toBe(true)
+    vi.stubEnv('VITE_SITE', 'sks')
+    expect(sbfAccountsOpen()).toBe(false)
+  })
+
+  it('sends each site’s learner to its own start after the login', () => {
+    expect(siteIdentity().afterLogin).toBe('/learn')
+    vi.stubEnv('VITE_SITE', 'sbf')
+    expect(siteIdentity().afterLogin).toBe('/navigation')
+    expect(siteIdentity().checkPrices).toBe('2 Tokens je Teilaufgabe einer Navigationsaufgabe')
   })
 
   it('names the catalog as source once the site shows official content', () => {

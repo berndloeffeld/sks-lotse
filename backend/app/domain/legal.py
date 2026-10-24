@@ -1,9 +1,9 @@
 """Single source of truth for the AGB version currently in force.
 
-Keep in sync with frontend/src/sks/legal.ts's AGB_VERSION_LABEL (the "Stand:"
+Keep in sync with frontend/src/shared/agbVersion.ts's AGB_VERSION_LABEL (the "Stand:"
 date AgbPage.tsx shows). Bumping this makes every account whose stored
 agb_accepted_version differs see the AGB-Gate again on next login: the API
-reports it as UserRead.needs_agb_acceptance (frontend/src/sks/routes/AgbGate.tsx).
+reports it as UserRead.needs_agb_acceptance (frontend/src/shared/routes/AgbGate.tsx).
 """
 
-CURRENT_AGB_VERSION = "2026-10-11"
+CURRENT_AGB_VERSION = "2026-10-24"

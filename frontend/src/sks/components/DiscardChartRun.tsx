@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { apiClient } from '../api/client'
-import { useAsyncAction } from '../hooks/useAsyncAction'
+import { apiClient } from '../../shared/api/client'
+import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
 import { forgetTideForm } from '../hooks/useTideForm'
 import { ErrorMessage } from '../../shared/components/Messages'
 import { buttonClass } from '../../shared/components/buttonStyles'

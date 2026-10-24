@@ -2,9 +2,13 @@
 // scripts/generate_postman_collection.sh (ADR-0046) — never edit that file by hand. What the
 // schema can't say lives here: the fixed values the backend accepts and returns as plain strings
 // (backend/app/schemas/common.py::one_of explains why), narrowed to their literal types.
-import type { components } from './schema.gen'
+import type { components } from '../../shared/api/schema.gen'
 
 type Schemas = components['schemas']
+
+// The account and the token purchase are the same on both sites (ADR-0070); re-exported, so SKS
+// Lotse's modules keep one place to import the API's shapes from.
+export type { CheckoutRead, PublicPricing, PublicTokenPackage, User } from '../../shared/api/types'
 // `T` with the fields in `N` replaced by narrower types.
 type Narrow<T, N extends { [K in keyof N]: K extends keyof T ? unknown : never }> = Omit<T, keyof N> & N
 
@@ -16,7 +20,6 @@ export type GradingOutcome = 'richtig' | 'teilweise_richtig' | 'falsch'
 export type ExamStatus = 'in_progress' | 'grading' | 'completed'
 export type ExamResult = 'bestanden' | 'muendliche_nachpruefung' | 'nicht_bestanden'
 
-export type User = Schemas['UserRead']
 export type AiGrade = Narrow<Schemas['AiGradeRead'], { outcome: GradingOutcome }>
 export type TopicProgress = Schemas['TopicProgressRead']
 export type Question = Schemas['QuestionRead']
@@ -25,9 +28,6 @@ export type DerivationBlock = Schemas['DerivationBlock']
 export type Topic = Schemas['TopicRead']
 export type QuestionProgress = Schemas['QuestionProgressRead']
 export type RefreshSummary = Schemas['RefreshSummaryRead']
-export type PublicPricing = Schemas['PublicPricing']
-export type PublicTokenPackage = Schemas['PublicTokenPackage']
-export type CheckoutRead = Schemas['CheckoutRead']
 
 export type ExamSummary = Narrow<Schemas['ExamSummary'], { status: ExamStatus; result: ExamResult | null }>
 export type ExamQuestion = Narrow<Schemas['ExamQuestionRead'], { outcome: GradingOutcome | null }>

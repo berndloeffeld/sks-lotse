@@ -11,7 +11,7 @@ file_path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')
 
 case "$file_path" in
   */backend/app/api/v1/*.py | backend/app/api/v1/*.py | */backend/app/schemas/*.py | backend/app/schemas/*.py)
-    reason="You edited $file_path (API routes/schemas). Once the API changes are done, run ./scripts/generate_postman_collection.sh and commit the regenerated Postman collection + frontend/src/sks/api/schema.gen.ts — the required postman-collection CI check fails when either is stale (CLAUDE.md > Postman & integration tests)."
+    reason="You edited $file_path (API routes/schemas). Once the API changes are done, run ./scripts/generate_postman_collection.sh and commit the regenerated Postman collection + frontend/src/shared/api/schema.gen.ts — the required postman-collection CI check fails when either is stale (CLAUDE.md > Postman & integration tests)."
     printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}' "$(printf '%s' "$reason" | jq -Rs .)"
     ;;
 esac

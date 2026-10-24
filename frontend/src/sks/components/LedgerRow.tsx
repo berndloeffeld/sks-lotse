@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { percentOf } from '../format'
+import { percentOf } from '../../shared/format'
 import { buttonClass } from '../../shared/components/buttonStyles'
 
 interface LedgerRowProps {

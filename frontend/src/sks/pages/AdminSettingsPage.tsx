@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
 
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { AdminSettings, TokenPackageSettings } from '../api/types'
-import { useApiQuery } from '../hooks/useApiQuery'
-import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
+import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
 import { PACKAGE_LABELS, PACKAGE_PRODUCTS, type PackageProduct } from '../labels'
 import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
 import { buttonClass } from '../../shared/components/buttonStyles'

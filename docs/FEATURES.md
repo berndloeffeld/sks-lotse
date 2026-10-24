@@ -111,14 +111,15 @@ A second site, **SBF Lotse** on sbf-lotse.de, for the theory exam of the **Sport
   - A start page leading to the 15 official Navigationsaufgaben See, and saying what comes later: the SBF catalogs, accounts and the Lotsen-Check.
   - A link to SKS Lotse as the next step after the SBF See.
   - Its own FAQ.
-  - The Impressum and Datenschutzerklärung, which are shared with SKS Lotse.
+  - The Impressum, Datenschutzerklärung and AGB, which are shared with SKS Lotse: one AGB text for both sites since 2026-10-24, which every account confirms anew.
 - **The Navigationsaufgaben See** ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)):
   - All 15 official tasks with their 9 subtasks each, open without a login. The situation stays in view, the subtasks come in order: the learner writes an answer, then sees the official result and grades themselves with 0 or 1 point. A follow-on error counts as correct (SpFV). At the end comes the evaluation "X von 9 Punkten", passed from 7 (ELWIS Bewertungsschlüssel).
   - Beside each result, SKS Lotse's own tolerance (e.g. ±1° for courses), set apart and labelled "nicht amtlich, übliche Prüfungspraxis".
   - Beside the run, as with the SKS Kartenaufgaben: the official original of the current subtask (its result once answered) and the run so far. On a phone they sit behind a bar at the bottom. Keyboard as on SKS Lotse: Enter shows the result, Shift+Enter is a new line.
   - The hints name the paper chart needed (Übungskarte D49) and the aids allowed in the exam. The official wording is kept; 8 obvious typos are corrected, each marked on the page with the official text.
   - Nothing is saved.
-- **What it doesn't have yet**: no login, no saving, no Lotsen-Check, no AGB and no buying. The site says "bald", and it makes no request to the SKS Lotse server.
+- **Accounts, built but switched off** (`VITE_SBF_ACCOUNTS=off`, [ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)): the login by code or link, the profile (account settings, deleting the account) and buying tokens, with the same account, balance and AGB as on SKS Lotse; signed in once on each site. Login mails, Stripe's return and the purchase confirmation come in SBF Lotse's brand. No admin area there. They open together with the saved runs and the Lotsen-Check; until then the header says "Anmelden · bald".
+- **What it doesn't have yet**: no saving of runs and no Lotsen-Check.
 - **Status today**: sbf-lotse.de is live. The Navigationsaufgaben are open to everyone since 2026-10-24 (`VITE_SBF=on`), after ELWIS confirmed the usage rights, including the cuts of the PDF and the marked typo corrections. The two sites link each other in the footer, and SKS Lotse's "So läuft die SKS-Prüfung ab" sends whoever still lacks the SBF See to SBF Lotse.
 
 ## Privacy

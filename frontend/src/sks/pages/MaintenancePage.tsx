@@ -1,5 +1,5 @@
 import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { buttonClass } from '../../shared/components/buttonStyles'
 
 // Shown app-wide while the backend is in maintenance mode (app/core/maintenance.py),

@@ -7,7 +7,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'reports', '.stryker-tmp', 'src/sks/api/schema.gen.ts'] },
+  { ignores: ['dist', 'coverage', 'reports', '.stryker-tmp', 'src/shared/api/schema.gen.ts'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended, jsxA11y.flatConfigs.recommended],
     files: ['**/*.{ts,tsx}'],

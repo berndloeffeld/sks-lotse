@@ -3,11 +3,11 @@ import { act } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { TopicProgress } from '../api/types'
 import { useProgressSummary } from './useProgressSummary'
 
-vi.mock('../api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn(), delete: vi.fn() } }))
+vi.mock('../../shared/api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn(), delete: vi.fn() } }))
 vi.mock('../../shared/analytics', () => ({ trackEvent: vi.fn() }))
 
 const get = vi.mocked(apiClient.get)

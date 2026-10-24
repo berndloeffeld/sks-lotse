@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom'
 
-import { LoginForm } from '../components/LoginForm'
+import { LoginForm } from '../../shared/components/LoginForm'
 import { PageLayout } from '../components/PageLayout'
-import { safeReturnPath } from '../returnPath'
-import { useAuthStore } from '../store/authStore'
+import { safeReturnPath } from '../../shared/returnPath'
+import { useAuthStore } from '../../shared/store/authStore'
 
 export function LoginPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)

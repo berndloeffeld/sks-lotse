@@ -5,10 +5,11 @@ import { apiClient } from '../api/client'
 import type { User } from '../api/types'
 import { useAuthStore } from '../store/authStore'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { Modal } from '../../shared/components/Modal'
-import { HelmIcon } from '../components/icons/FeatureIcons'
+import { buttonClass } from '../components/buttonStyles'
+import { ErrorMessage } from '../components/Messages'
+import { Modal } from '../components/Modal'
+import { HelmIcon } from '../components/icons'
+import { siteIdentity } from '../siteConfig'
 
 // Wraps the logged-in routes and the pages open to guests too (/learn, ADR-0054); it only ever
 // asks a logged-in learner. The page always renders (via Outlet) so the app doesn't visually disappear;
@@ -58,8 +59,8 @@ export function AgbGate() {
                 {bonusTokens}
               </span>
               <p>
-                Zum Start schenken wir dir {bonusTokens} Tokens. Damit lässt du den Lotsen deine Antworten prüfen: 1
-                Token je Katalogfrage, 2 je Aufgabe einer Kartenaufgabe.
+                Zum Start schenken wir dir {bonusTokens} Tokens. Damit lässt du den Lotsen deine Antworten prüfen:{' '}
+                {siteIdentity().checkPrices}.
               </p>
             </>
           ) : null}
@@ -68,7 +69,7 @@ export function AgbGate() {
             <Link to="/terms" className="text-primary underline">
               AGB
             </Link>{' '}
-            akzeptierst, um SKS Lotse {isNewAccount ? 'zu nutzen' : 'weiter zu nutzen'}.
+            akzeptierst, um {siteIdentity().name} {isNewAccount ? 'zu nutzen' : 'weiter zu nutzen'}.
           </p>
           <ErrorMessage>{error}</ErrorMessage>
           <button

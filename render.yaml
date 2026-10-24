@@ -413,6 +413,15 @@ services:
       # The /navigation rewrites below go with it (backend/tests/test_sbf_navigation_export.py).
       - key: VITE_SBF
         value: "on"
+      # sbf-lotse.de calls the backend on its own API host, same-site, so the session cookie is
+      # first-party there (ADR-0070). Not a proxy: a rewrite of /api/* hid the caller's IP (ADR-0069).
+      - key: VITE_API_BASE_URL
+        value: https://api.sbf-lotse.de
+      # Accounts on SBF Lotse (login, profile, buying tokens, ADR-0070): "off" until the checks of
+      # docs/RUNBOOK.md → One-time setup SBF, part 2 have passed; quoted, like VITE_SBF. "on" needs
+      # VITE_SBF=on (vite.config.ts).
+      - key: VITE_SBF_ACCOUNTS
+        value: "off"
       # The same Umami website as SKS Lotse (ADR-0016, ADR-0067's update of 2026-10-23): Umami Cloud's
       # free plan has one, and its reports tell the two sites apart by hostname. Set in the Render
       # dashboard, to sks-lotse-frontend's value.
@@ -430,6 +439,10 @@ services:
       - type: rewrite
         source: /privacy
         destination: /privacy.html
+      # The AGB both sites share (ADR-0070).
+      - type: rewrite
+        source: /terms
+        destination: /terms.html
       # The Navigationsaufgaben (ADR-0068), prerendered while VITE_SBF is "on".
       - type: rewrite
         source: /navigation
@@ -490,7 +503,7 @@ services:
         value: public, max-age=31536000, immutable
       - path: /*
         name: Content-Security-Policy
-        value: "default-src 'self'; script-src 'self' https://cloud.umami.is; connect-src 'self' https://cloud.umami.is https://gateway.umami.is; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+        value: "default-src 'self'; script-src 'self' https://cloud.umami.is; connect-src 'self' https://api.sbf-lotse.de https://cloud.umami.is https://gateway.umami.is; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
       - path: /*
         name: X-Frame-Options
         value: DENY

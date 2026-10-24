@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { HeaderBar } from '../../shared/components/HeaderBar'
 import { HEADER_CTA } from '../../shared/components/headerLink'
-import { LoginLink } from './LoginLink'
+import { LoginLink } from '../../shared/components/LoginLink'
 import { MarketingLinks } from './MarketingLinks'
 
 interface HeaderProps {

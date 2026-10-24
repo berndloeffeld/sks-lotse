@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Regenerates postman/sks-lotse.postman_collection.json and the frontend's API
-# types (frontend/src/sks/api/schema.gen.ts, ADR-0046) from the FastAPI app's live
+# types (frontend/src/shared/api/schema.gen.ts, ADR-0046) from the FastAPI app's live
 # OpenAPI schema, so neither can drift from the actual API.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -41,5 +41,5 @@ echo "Wrote postman/sks-lotse.postman_collection.json"
 SCHEMAS_TMP=$(mktemp)
 trap 'rm -f "$OPENAPI_TMP" "$POSTMAN_TMP" "$SCHEMAS_TMP"' EXIT
 jq '.paths = {}' "$OPENAPI_TMP" > "$SCHEMAS_TMP"
-npx --yes openapi-typescript@7.13.0 "$SCHEMAS_TMP" -o frontend/src/sks/api/schema.gen.ts
-echo "Wrote frontend/src/sks/api/schema.gen.ts"
+npx --yes openapi-typescript@7.13.0 "$SCHEMAS_TMP" -o frontend/src/shared/api/schema.gen.ts
+echo "Wrote frontend/src/shared/api/schema.gen.ts"

@@ -49,7 +49,7 @@ def _invalid_code() -> HTTPException:
 # already-authenticated caller (unlike login's verify_otp), and the frontend's
 # apiClient treats any 401 response, from any endpoint, as "the session is
 # dead" and force-clears the logged-in user (see setUnauthorizedHandler in
-# frontend/src/sks/api/client.ts). Reusing 401 here would log the learner out of
+# frontend/src/shared/api/client.ts). Reusing 401 here would log the learner out of
 # their still-valid session just for mistyping a confirmation code.
 def _invalid_email_change_code() -> HTTPException:
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code")
@@ -238,7 +238,7 @@ def delete_current_user(
 def accept_agb(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # No version comes from the client — a caller can only ever confirm the
     # one version the server currently knows about, never claim to have
-    # accepted a stale one. See frontend/src/sks/routes/AgbGate.tsx.
+    # accepted a stale one. See frontend/src/shared/routes/AgbGate.tsx.
     current_user.agb_accepted_version = CURRENT_AGB_VERSION
     current_user.agb_accepted_at = datetime.now(UTC)
     db.commit()

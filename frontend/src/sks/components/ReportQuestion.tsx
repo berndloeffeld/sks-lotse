@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import { ReportIcon } from './icons/FeatureIcons'
 import { formStyles } from '../../shared/components/formStyles'
-import { useAsyncAction } from '../hooks/useAsyncAction'
+import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
 import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
 import { buttonClass } from '../../shared/components/buttonStyles'
 

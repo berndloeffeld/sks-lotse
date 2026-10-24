@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems, type NavIcon } from '../navigation'
-import { useAuthStore } from '../store/authStore'
-import { AccountMenu } from './AccountMenu'
+import { useAuthStore } from '../../shared/store/authStore'
+import { SksAccountMenu } from './SksAccountMenu'
 import { tabBarItemClass } from '../../shared/components/headerLink'
 import { CatalogIcon, ChartDividersIcon, ExamIcon } from './icons/FeatureIcons'
 
@@ -42,7 +42,7 @@ export function MobileTabBar() {
             </Link>
           )
         })}
-        <AccountMenu placement="tabbar" />
+        <SksAccountMenu placement="tabbar" />
       </nav>
     </>
   )

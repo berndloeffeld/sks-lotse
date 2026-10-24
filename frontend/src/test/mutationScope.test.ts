@@ -6,12 +6,13 @@ import { describe, expect, it } from 'vitest'
 import config from '../../stryker.config.json'
 
 // Non-test, non-declaration .ts files at the levels where logic lives (no components/pages).
-const SOURCES = import.meta.glob(['/src/{shared,sks,sbf}/*.ts', '/src/{shared,sks}/{api,store,hooks}/*.ts'])
+const SOURCES = import.meta.glob(['/src/{shared,sks,sbf}/*.ts', '/src/{shared,sks,sbf}/{api,store,hooks}/*.ts'])
 
 // Deliberately not mutated (CLAUDE.md → Mutation testing).
 const EXCLUDED = new Set([
   'src/sks/api/types.ts', // types only, no runtime code
-  'src/sks/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
+  'src/shared/api/types.ts', // types only, no runtime code
+  'src/shared/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
   'src/sks/publicPageTexts.ts', // SEO wording of the prerendered pages: a mutant changing a sentence is no bug
   'src/sks/faq.ts', // the FAQ's wording, the same; its link syntax is src/shared/faq.ts
   'src/sbf/texts.ts', // the same for the SBF site's pages

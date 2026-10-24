@@ -26,6 +26,11 @@ export interface SiteIdentity {
   catalogSource: string
   // The other site, linked from the footer: SBF See comes before the SKS (ADR-0067).
   sisterSite: { href: string; label: string }
+  // Where a learner lands after the login, unless they came from a page worth returning to.
+  afterLogin: string
+  // What a Lotsen-Check costs here, as the AGB welcome says it after "Damit lässt du den Lotsen
+  // deine Antworten prüfen:".
+  checkPrices: string
 }
 
 export const SITES: Record<Site, SiteIdentity> = {
@@ -42,6 +47,8 @@ export const SITES: Record<Site, SiteIdentity> = {
     ],
     catalogSource: 'Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS',
     sisterSite: { href: 'https://sbf-lotse.de', label: 'SBF Lotse' },
+    afterLogin: '/learn',
+    checkPrices: '1 Token je Katalogfrage, 2 je Aufgabe einer Kartenaufgabe',
   },
   sbf: {
     name: 'SBF Lotse',
@@ -50,8 +57,11 @@ export const SITES: Record<Site, SiteIdentity> = {
       { to: '/faq', label: 'FAQ' },
       { to: '/imprint', label: 'Impressum' },
       { to: '/privacy', label: 'Datenschutz' },
+      { to: '/terms', label: 'AGB' },
     ],
     catalogSource: 'Quelle der Navigationsaufgaben: amtlicher Fragenkatalog für den Sportbootführerschein See',
     sisterSite: { href: 'https://sks-lotse.de', label: 'SKS Lotse' },
+    afterLogin: '/navigation',
+    checkPrices: '2 Tokens je Teilaufgabe einer Navigationsaufgabe',
   },
 }

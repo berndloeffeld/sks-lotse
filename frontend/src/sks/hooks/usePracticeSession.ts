@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
 
 import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../api/client'
+import { apiClient } from '../../shared/api/client'
 import type { Question, QuestionProgress, TopicProgress } from '../api/types'
 import { SUBJECT_LABELS } from '../labels'
-import { useApiQuery } from './useApiQuery'
+import { useApiQuery } from '../../shared/hooks/useApiQuery'
 
 interface PracticeSession {
   questions: Question[]

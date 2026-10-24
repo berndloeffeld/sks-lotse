@@ -23,6 +23,10 @@ interface ImportMetaEnv {
   // The SBF Navigationsaufgaben for guests: off | on (src/shared/sbfFlag.ts), unset = off; only with
   // VITE_SITE=sbf, where "off" builds just the placeholder start page.
   readonly VITE_SBF?: string
+
+  // Accounts on SBF Lotse: off | on (src/shared/sbfFlag.ts), unset = off; only with VITE_SITE=sbf and
+  // VITE_SBF=on (ADR-0070).
+  readonly VITE_SBF_ACCOUNTS?: string
 }
 
 interface ImportMeta {

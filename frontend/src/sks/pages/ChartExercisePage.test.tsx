@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
 import { storageKey } from '../hooks/useTideForm'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { jsonResponse, makeChartAttempt, makeChartExport, makeChartOverview } from '../../test/fixtures'
 import { ChartExercisePage } from './ChartExercisePage'
 

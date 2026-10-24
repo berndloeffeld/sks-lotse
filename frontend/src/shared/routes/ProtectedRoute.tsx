@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 import { loginState } from '../returnPath'
 import { useAuthStore } from '../store/authStore'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { ErrorMessage } from '../components/Messages'
 
 export function ProtectedRoute() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)

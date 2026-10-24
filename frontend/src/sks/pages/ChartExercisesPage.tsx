@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 import type { ChartExerciseSummary } from '../api/types'
 import { guestOverview, upcomingChartSheets } from '../chartCatalog'
 import { ChartTile } from '../components/ChartTile'
-import { GuestCta } from '../components/LoginLink'
+import { GuestCta } from '../../shared/components/LoginLink'
 import { PageLayout } from '../components/PageLayout'
 import { useChartOverview } from '../hooks/useChartAttempt'
 import { useChartCatalog } from '../hooks/useChartCatalog'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../../shared/store/authStore'
 import { ErrorMessage } from '../../shared/components/Messages'
 
 function statusLabel(exercise: ChartExerciseSummary) {
