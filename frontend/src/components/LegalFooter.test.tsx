@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { LegalFooter } from './LegalFooter'
@@ -65,5 +65,23 @@ describe('LegalFooter', () => {
 
     expect(screen.getByText(/Wasserstraßen- und Schifffahrtsverwaltung des Bundes/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ELWIS' })).toHaveAttribute('href', 'https://www.elwis.de')
+  })
+
+  it('links the other site: SKS Lotse to SBF Lotse, and back', () => {
+    const { unmount } = render(
+      <MemoryRouter>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('link', { name: 'SBF Lotse' })).toHaveAttribute('href', 'https://sbf-lotse.de')
+    unmount()
+
+    vi.stubEnv('VITE_SITE', 'sbf')
+    render(
+      <MemoryRouter>
+        <LegalFooter />
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('link', { name: 'SKS Lotse' })).toHaveAttribute('href', 'https://sks-lotse.de')
   })
 })
