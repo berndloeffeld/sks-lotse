@@ -37,8 +37,8 @@ const LANDING_FAQ = FAQ.filter((entry) => LANDING_FAQ_IDS.has(entry.id))
 const SCREENSHOTS = [
   {
     src: '/screenshots/frage-beantworten.png',
-    width: 1056,
-    height: 654,
+    width: 1328,
+    height: 742,
     title: '1. Frage beantworten',
     text: 'Eine Frage aus dem Katalog, dazu ein optionales Notizfeld für deine Antwort – sie wird nicht gespeichert.',
     alt: 'Screenshot: Die Frage „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld und der Schaltfläche „Lösung anzeigen“.',
@@ -46,8 +46,8 @@ const SCREENSHOTS = [
   },
   {
     src: '/screenshots/selbst-bewerten.png',
-    width: 1056,
-    height: 502,
+    width: 1328,
+    height: 550,
     title: '2. Mit der amtlichen Antwort vergleichen',
     text: 'Neben deiner Antwort steht die amtliche Antwort – so siehst du direkt, was gefehlt hat.',
     alt: 'Screenshot: Deine Antwort zur Frage „Was bedeutet die Abkürzung GPS?“ neben der amtlichen Antwort „Global Positioning System“.',
@@ -55,20 +55,20 @@ const SCREENSHOTS = [
   },
   {
     src: '/screenshots/ki-bewertung.png',
-    width: 1056,
-    height: 388,
+    width: 1328,
+    height: 396,
     title: '3. Selbst bewerten – mit KI-Vorschlag',
     text: 'Du bewertest dich selbst: richtig, teilweise richtig oder falsch. Auf Wunsch schlägt dir der Lotsen-Check per KI eine Bewertung vor – die Entscheidung bleibt bei dir.',
-    alt: 'Screenshot: Auswahl Richtig, Teilweise richtig, Falsch und darunter die Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „Die KI schlägt dir eine Bewertung vor“ und einem KI-Band.',
+    alt: 'Screenshot: Auswahl Richtig, Teilweise richtig, Falsch und darunter die Schaltfläche „Antwort vom Lotsen bewerten lassen“ mit dem Hinweis „Die KI schlägt dir eine Bewertung vor · 1 Token“ und einem KI-Band.',
     wide: false,
   },
   {
     src: '/screenshots/lernstand.png',
-    width: 1456,
-    height: 586,
+    width: 1776,
+    height: 620,
     title: '4. Drei Lernmodi',
     text: 'Lerne nach Thema, im Fokus deiner Stern-Themen oder frische Fragen auf, die bald verblassen könnten – mit Überblick, wie viele noch frisch sind.',
-    alt: 'Screenshot: Die drei Reiter Nach Thema, Fokus und Auffrischen. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
+    alt: 'Screenshot: Die Reiter Nach Thema, Fokus, Auffrischen und Probeprüfung. Der Bereich Auffrischen zeigt die Schaltfläche „Auffrischen starten“, einen Balken und die Zahlen zu möglicherweise verblassten, bald verblassenden und noch frischen Fragen.',
     wide: false,
   },
 ]
@@ -76,8 +76,8 @@ const SCREENSHOTS = [
 const EXAM_SCREENSHOTS = [
   {
     src: '/screenshots/pruefung-starten.png',
-    width: 1056,
-    height: 834,
+    width: 1392,
+    height: 914,
     title: '1. Probeprüfung starten',
     text: 'Eine zufällige Probeprüfung wie im Fragebogen der echten Prüfung: 30 Fragen in maximal 90 Minuten, ohne Tipps. Frühere Prüfungen bleiben in der Übersicht.',
     alt: 'Screenshot: Die Probeprüfung mit den Regeln, der Schaltfläche „Probeprüfung starten“ und der Liste bisheriger Prüfungen mit Punkten und Ergebnis.',
@@ -85,8 +85,8 @@ const EXAM_SCREENSHOTS = [
   },
   {
     src: '/screenshots/pruefung-ablegen.png',
-    width: 1056,
-    height: 854,
+    width: 1328,
+    height: 908,
     title: '2. Fragebogen beantworten',
     text: 'Du beantwortest alle Fragen in eigenen Worten, mit Restzeit im Blick. Die Zeit wird serverseitig überwacht.',
     alt: 'Screenshot: Frage der Probeprüfung „Was bedeutet die Abkürzung GPS?“ mit ausgefülltem Antwortfeld, Fortschrittsanzeige „1 / 30“, verbleibender Zeit und den Schaltflächen Zurück, Übersicht und Weiter.',
@@ -94,8 +94,8 @@ const EXAM_SCREENSHOTS = [
   },
   {
     src: '/screenshots/pruefung-ergebnis.png',
-    width: 1056,
-    height: 918,
+    width: 1344,
+    height: 926,
     title: '3. Ergebnis und Auswertung',
     text: 'Danach schätzt du deine Antworten anhand der amtlichen Antworten selbst ein. Du siehst deine Punkte, das Ergebnis und die Auswertung nach Fach.',
     alt: 'Screenshot: Ergebnis der Probeprüfung mit 54 von 60 Punkten, „Bestanden“ und Balken je Fach für Navigation, Schifffahrtsrecht, Wetterkunde und Seemannschaft.',
