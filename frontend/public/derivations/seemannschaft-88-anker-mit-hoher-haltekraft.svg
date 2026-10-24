@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 290" width="780" height="290" font-family="Helvetica,Arial,sans-serif">
+<rect width="780" height="290" fill="#ffffff"/>
+<!-- Bruce -->
+<g fill="#4a6572" stroke="#2b3a42" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="12.0,50.4 17.6,45.5 175.2,91.9 182.0,93.7 180.8,103.0 165.9,137.6 156.7,164.5 85.6,158.6 82.5,154.6 107.2,145.3 99.5,106.7 118.0,131.4 136.6,125.2 144.3,143.8 159.7,109.8 162.8,99.9 16.0,57.9"/>
+<ellipse cx="20.7" cy="51.7" rx="6" ry="2.6" transform="rotate(16 20.7 51.7)" fill="#fff" stroke-width="1.2"/>
+</g>
+<text x="97" y="222" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">Bruce</text><text x="97" y="241" text-anchor="middle" font-size="13" fill="#666">Klaue</text>
+<!-- CQR -->
+<g fill="#4a6572" stroke="#2b3a42" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="377.0,125.5 341.1,128.0 341.1,132.1 358.6,131.3"/>
+<polyline points="372.0,129.3 354.5,150.0" fill="none" stroke="#2b3a42" stroke-width="5.0"/><polyline points="372.0,129.3 354.5,150.0" fill="none" stroke="#4a6572" stroke-width="2.0"/>
+<polygon points="341.9,124.6 286.8,127.6 308.5,138.0 341.9,158.0 352.0,162.2 356.1,153.0 341.9,131.3"/>
+<polygon points="341.9,106.3 322.7,109.6 325.2,116.3 331.1,121.3 331.6,131.6 337.8,133.3 343.6,124.6 344.6,112.9"/>
+<polygon points="336.9,91.2 316.9,94.6 320.2,111.3 340.3,109.6"/>
+<polyline points="211.7,47.8 311.9,82.9 326.1,96.2" fill="none" stroke="#2b3a42" stroke-width="8.7"/><polyline points="211.7,47.8 311.9,82.9 326.1,96.2" fill="none" stroke="#4a6572" stroke-width="5.7"/>
+<circle cx="327.7" cy="95.4" r="2.7" fill="#fff"/>
+<circle cx="211.3" cy="52.8" r="4.3" fill="none"/>
+</g>
+<text x="292" y="222" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">CQR</text><text x="292" y="241" text-anchor="middle" font-size="13" fill="#666">Pflugschar, Gelenk</text>
+<!-- Danforth -->
+<g fill="#4a6572" stroke="#2b3a42" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="472.6,146.0 546.0,120.6 560.9,122.7 571.4,138.8 559.4,137.0"/>
+<polyline points="528.9,97.5 572.0,140.0" fill="none" stroke="#2b3a42" stroke-width="6.0"/><polyline points="528.9,97.5 572.0,140.0" fill="none" stroke="#4a6572" stroke-width="3.0"/>
+<polygon points="405.3,65.8 412.8,64.0 540.0,108.6 540.0,116.7 408.3,74.2"/>
+<polygon points="538.5,98.7 559.4,92.7 568.4,99.9 566.6,110.1 547.5,120.6 538.5,117.6"/>
+<polygon points="466.6,132.5 513.0,109.5 539.1,109.5 539.1,119.1"/>
+<circle cx="407.4" cy="70.0" r="5.4" fill="none"/>
+</g>
+<text x="487" y="222" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">Danforth</text><text x="487" y="241" text-anchor="middle" font-size="13" fill="#666">zwei Flunken, Stock</text>
+<!-- D'Hone -->
+<g fill="#4a6572" stroke="#2b3a42" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<circle cx="682.0" cy="40.9" r="10.9" fill="none"/>
+<polygon points="677.0,51.9 687.0,51.9 687.0,151.2 677.0,151.2"/>
+<polygon points="675.0,88.6 627.4,154.2 635.3,158.1 677.0,102.5"/>
+<polygon points="689.0,88.6 736.6,154.2 728.7,158.1 687.0,102.5"/>
+<polygon points="617.4,180.0 627.4,152.2 736.6,152.2 746.6,180.0"/>
+</g>
+<text x="682" y="222" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">D'Hone</text><text x="682" y="241" text-anchor="middle" font-size="13" fill="#666">Platte mit Streben</text>
+<text x="20" y="278" font-size="12" fill="#888">Schematische Skizze nach Herstellerzeichnungen, Formen vereinfacht</text></svg>

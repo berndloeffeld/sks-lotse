@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 350" width="780" height="350" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker><marker id="a888" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#888888"/></marker></defs>
+<rect width="780" height="350" fill="#ffffff"/>
+<circle cx="390" cy="165" r="60" fill="none" stroke="#b8c4cc" stroke-dasharray="4 4"/>
+<circle cx="390" cy="165" r="110" fill="none" stroke="#b8c4cc" stroke-dasharray="4 4"/>
+<circle cx="390" cy="165" r="160" fill="none" stroke="#b8c4cc" stroke-dasharray="4 4"/>
+<line x1="390.0" y1="55.0" x2="452.0" y2="55.0" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="390.0" y1="55.0" x2="449.9" y2="39.0" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="485.3" y1="110.0" x2="516.3" y2="163.7" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="485.3" y1="110.0" x2="529.1" y2="153.8" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="485.3" y1="220.0" x2="454.3" y2="273.7" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="485.3" y1="220.0" x2="469.2" y2="279.9" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="390.0" y1="275.0" x2="328.0" y2="275.0" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="390.0" y1="275.0" x2="330.1" y2="291.0" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="294.7" y1="220.0" x2="263.7" y2="166.3" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="294.7" y1="220.0" x2="250.9" y2="176.2" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="294.7" y1="110.0" x2="325.7" y2="56.3" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/>
+<line x1="294.7" y1="110.0" x2="310.8" y2="50.1" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<text x="390" y="181" text-anchor="middle" font-size="44" font-weight="bold" fill="#c0392b">H</text>
+<text x="460" y="41" font-size="14" fill="#c0392b">etwa 10° bis 20°</text>
+<line x1="130" y1="330" x2="170" y2="330" stroke="#888" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a888)"/><text x="180" y="334" font-size="13" fill="#222">parallel zur Isobare (ohne Reibung)</text>
+<line x1="450" y1="330" x2="490" y2="330" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/><text x="500" y="334" font-size="13" fill="#222">Wind in Bodennähe (rückgedreht)</text>
+<text x="20" y="22" font-size="12" fill="#888">Nordhalbkugel · Isobaren gestrichelt · Winkel zur Verdeutlichung gezeichnet</text></svg>

@@ -3403,7 +3403,28 @@
    "answer_text": "Bruce-Anker, CQR-Anker, Danforth-Anker, D'Hone-Anker.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Die Haltekraft ist die Kraft, die ein Anker im Grund hält. Anker mit **hoher Haltekraft** halten im Verhältnis zu ihrem Gewicht besonders viel, weil sie sich beim Zug **in den Grund eingraben**. Der Germanische Lloyd erkennt vier Bauarten als solche an, und gefragt sind drei davon.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-88-anker-mit-hoher-haltekraft.svg",
+      "width": 780,
+      "height": 290,
+      "alt": "Skizze von vier Ankern nebeneinander. Der Bruce-Anker hat einen langen Schaft mit Auge, einen Knick und eine Klaue mit zwei Spitzen. Der CQR-Anker hat einen Schaft mit Gelenk und darunter eine Pflugschar. Der Danforth-Anker hat einen langen Schaft, am Ende einen Stock und zwei flache Flunken, die zum Auge zeigen. Der D'Hone-Anker hat eine breite flache Platte, zwei Streben und einen senkrechten Schaft mit Auge."
+     }
+    },
+    {
+     "text": "Zum Merken hilft die Form. **Bruce** hat eine Klaue, **CQR** eine Pflugschar mit Gelenk, **Danforth** zwei Flunken mit Stock und **D'Hone** eine Platte mit Streben.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -3483,7 +3504,43 @@
    "answer_text": "Der Steven bewegt sich in Richtung der Hartruderlage, das Heck schlägt relativ weit zur entgegengesetzten Richtung aus. Das Schiff verlässt mit seinem Heck erst nach mehreren Schiffslängen seine bisherige Kurslinie, bewegt sich also zunächst in der alten Kursrichtung fort. Diese Strecke kann bei 300 m langen Containerschiffen 1,5 bis 2,5 Schiffslängen, d. h. ca. 500 bis 600 m betragen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein großes Schiff hat eine riesige Masse, und bei 20 kn steckt darin viel Schwung in Fahrtrichtung. Das Ruder kann diesen Schwung nicht abbremsen, es kann das Schiff nur **langsam in eine andere Richtung zwingen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Ruder sitzt am Heck und drückt dieses zur Seite. Das Schiff dreht sich dadurch um einen Punkt im vorderen Drittel. Der **Steven bewegt sich in Richtung der Hartruderlage**, das **Heck schlägt zur Gegenseite aus**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Schiff dreht sich also zuerst nur um sich selbst, und der Rumpf schiebt dabei weiter in der alten Richtung voraus. Der Drehpunkt bleibt noch auf der alten Kurslinie.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-96-hartruder-ausweichen.svg",
+      "width": 780,
+      "height": 330,
+      "alt": "Draufsicht auf ein Schiff, das nach rechts fährt, zu vier Zeitpunkten. Das Ruder liegt hart Steuerbord. Das Schiff dreht sich zunehmend nach rechts, der Bug wandert nach unten, das Heck schlägt nach oben aus. Der Drehpunkt bleibt zuerst auf der gestrichelten alten Kurslinie. Eine Klammer markiert 1,5 bis 2,5 Schiffslängen, in denen das Schiff noch in der alten Richtung weiterläuft."
+     }
+    },
+    {
+     "text": "Erst nach **mehreren Schiffslängen** hat sich das Schiff so weit gedreht, dass es seitlich von der alten Kurslinie wegläuft. Bei einem 300 m langen Containerschiff sind das **1,5 bis 2,5 Schiffslängen**, also etwa 500 bis 600 m.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein Ausweichmanöver muss deshalb **früh** eingeleitet werden. Hartruder allein schafft auf kurze Distanz keinen Abstand.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -5069,7 +5126,33 @@
    "answer_text": "1. Der Wind weht nicht parallel zu den Isobaren, er ist rückgedreht und weht aus dem Hoch hinaus.\n2. Ein bis zwei Strich bzw. 10° bis 20°.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ohne Reibung weht der Wind parallel zu den Isobaren, um das Hoch herum im Uhrzeigersinn. In Bodennähe bremst die **Reibung** den Wind, auch über See. Gebremster Wind wird weniger nach rechts abgelenkt, und der Druckunterschied zieht ihn zum tiefen Druck hin.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Beim Hoch liegt der tiefe Druck außen. Der Wind kreuzt die Isobaren deshalb nach außen, er weht **aus dem Hoch heraus**. Gegenüber der Richtung der Isobaren ist er **rückgedreht**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-27-wind-um-das-hoch.svg",
+      "width": 780,
+      "height": 350,
+      "alt": "Draufsicht auf ein Hoch mit drei kreisförmigen Isobaren. An sechs Punkten der mittleren Isobare zeigt ein grauer gestrichelter Pfeil parallel zur Isobare im Uhrzeigersinn. Daneben zeigt ein roter Pfeil, der Wind in Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus."
+     }
+    },
+    {
+     "text": "Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose sind 11,25°.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
@@ -5341,7 +5424,28 @@
    "answer_text": "Besonders im Sommer können bei Schwachwindlagen Gewitter mit Böen auftreten, die Sturm- oder Orkanstärke erreichen können.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Normalerweise liegen Böen nur etwa 1 bis 2 Bft über dem vorhergesagten Mittelwind, auch Schauerböen meist nicht mehr als 2 Bft. Wer die Vorhersage liest, rechnet also mit **wenig mehr als dem Mittelwind**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Im Sommer heizt die Sonne Land und bodennahe Luft stark auf. Warme, feuchte Luft steigt rasch hoch, und es bilden sich Gewitterwolken – auch dann, wenn das Druckgefälle der Wetterlage nur **schwachen Wind** bringt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Aus der Gewitterwolke stürzt mit dem Niederschlag kalte Luft herab und breitet sich am Boden nach allen Seiten aus. Diese Böe hängt nicht von der Wetterlage ab, sondern vom Gewitter selbst, und kann **Sturm- oder Orkanstärke** erreichen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Aus dem schwachen Mittelwind der Vorhersage ist sie also nicht abzulesen. Deshalb werden Gewitterböen **zusätzlich angegeben**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
@@ -5361,7 +5465,33 @@
    "answer_text": "U. a. Land-/Seewind-Zirkulation, Düsen- und Kapeffekte.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Der Seewetterbericht gilt für ein großes Seegebiet. Er beruht auf dem **großräumigen Windfeld** der Wetterlage, also auf Druckverteilung und Fronten. Was sich nur auf wenigen Seemeilen an der Küste abspielt, steckt darin nicht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Tagsüber erwärmt sich das Land schneller als das Wasser. Die warme Luft steigt über Land auf, und von See strömt kühlere Luft nach – der **Seewind**. Nachts kühlt das Land schneller aus, und die Strömung kehrt sich um – der **Landwind**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwischen zwei Landmassen oder in einer Meerenge muss dieselbe Luftmenge durch einen engeren Querschnitt. Sie wird zusammengedrängt und strömt **schneller** – der **Düseneffekt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Eine vorspringende Landzunge, ein **Kap**, zwingt den Wind, um sie herumzuströmen. Auch dort rücken die Stromlinien zusammen, und der Wind weht stärker als in der Umgebung – der **Kapeffekt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Diese Effekte sind **kleinräumig** und hängen von Küstenform und Tageszeit ab. Ein Bericht für das ganze Seegebiet kann sie nur eingeschränkt berücksichtigen. Vor Ort muss man damit zusätzlich rechnen.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",

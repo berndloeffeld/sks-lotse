@@ -65,3 +65,90 @@
         hineinlaufen. Alle Pfeile kreuzen die kreisförmigen Isobaren schräg.
   - text: In Bodennähe bremst die Reibung den Wind. Er weht deshalb nicht genau um die Druckgebilde herum, sondern
       spiralförmig **heraus bzw. hinein**.
+- subject: wetterkunde
+  number: 54
+  answer_fingerprint: 34607d0d23cf
+  blocks:
+  - text: Normalerweise liegen Böen nur etwa 1 bis 2 Bft über dem vorhergesagten Mittelwind, auch Schauerböen
+      meist nicht mehr als 2 Bft. Wer die Vorhersage liest, rechnet also mit **wenig mehr als dem Mittelwind**.
+  - text: Im Sommer heizt die Sonne Land und bodennahe Luft stark auf. Warme, feuchte Luft steigt rasch hoch, und es
+      bilden sich Gewitterwolken – auch dann, wenn das Druckgefälle der Wetterlage nur **schwachen Wind** bringt.
+  - text: Aus der Gewitterwolke stürzt mit dem Niederschlag kalte Luft herab und breitet sich am Boden nach allen
+      Seiten aus. Diese Böe hängt nicht von der Wetterlage ab, sondern vom Gewitter selbst, und kann **Sturm- oder
+      Orkanstärke** erreichen.
+  - text: Aus dem schwachen Mittelwind der Vorhersage ist sie also nicht abzulesen. Deshalb werden Gewitterböen
+      **zusätzlich angegeben**.
+- subject: wetterkunde
+  number: 56
+  answer_fingerprint: 52663a320992
+  blocks:
+  - text: Der Seewetterbericht gilt für ein großes Seegebiet. Er beruht auf dem **großräumigen Windfeld** der Wetterlage,
+      also auf Druckverteilung und Fronten. Was sich nur auf wenigen Seemeilen an der Küste abspielt, steckt darin
+      nicht.
+  - text: Tagsüber erwärmt sich das Land schneller als das Wasser. Die warme Luft steigt über Land auf, und von See
+      strömt kühlere Luft nach – der **Seewind**. Nachts kühlt das Land schneller aus, und die Strömung kehrt sich um –
+      der **Landwind**.
+  - text: Zwischen zwei Landmassen oder in einer Meerenge muss dieselbe Luftmenge durch einen engeren Querschnitt. Sie
+      wird zusammengedrängt und strömt **schneller** – der **Düseneffekt**.
+  - text: Eine vorspringende Landzunge, ein **Kap**, zwingt den Wind, um sie herumzuströmen. Auch dort rücken die
+      Stromlinien zusammen, und der Wind weht stärker als in der Umgebung – der **Kapeffekt**.
+  - text: Diese Effekte sind **kleinräumig** und hängen von Küstenform und Tageszeit ab. Ein Bericht für das ganze
+      Seegebiet kann sie nur eingeschränkt berücksichtigen. Vor Ort muss man damit zusätzlich rechnen.
+- subject: seemannschaft_allgemein
+  number: 96
+  answer_fingerprint: 2bb75954c614
+  blocks:
+  - text: Ein großes Schiff hat eine riesige Masse, und bei 20 kn steckt darin viel Schwung in Fahrtrichtung. Das Ruder
+      kann diesen Schwung nicht abbremsen, es kann das Schiff nur **langsam in eine andere Richtung zwingen**.
+  - text: Das Ruder sitzt am Heck und drückt dieses zur Seite. Das Schiff dreht sich dadurch um einen Punkt im vorderen
+      Drittel. Der **Steven bewegt sich in Richtung der Hartruderlage**, das **Heck schlägt zur Gegenseite aus**.
+  - text: Das Schiff dreht sich also zuerst nur um sich selbst, und der Rumpf schiebt dabei weiter in der alten Richtung
+      voraus. Der Drehpunkt bleibt noch auf der alten Kurslinie.
+  - image:
+      src: seemannschaft-96-hartruder-ausweichen.svg
+      width: 780
+      height: 330
+      alt: Draufsicht auf ein Schiff, das nach rechts fährt, zu vier Zeitpunkten. Das Ruder liegt hart Steuerbord. Das
+        Schiff dreht sich zunehmend nach rechts, der Bug wandert nach unten, das Heck schlägt nach oben aus. Der
+        Drehpunkt bleibt zuerst auf der gestrichelten alten Kurslinie. Eine Klammer markiert 1,5 bis 2,5
+        Schiffslängen, in denen das Schiff noch in der alten Richtung weiterläuft.
+  - text: Erst nach **mehreren Schiffslängen** hat sich das Schiff so weit gedreht, dass es seitlich von der alten
+      Kurslinie wegläuft. Bei einem 300 m langen Containerschiff sind das **1,5 bis 2,5 Schiffslängen**, also etwa
+      500 bis 600 m.
+  - text: Ein Ausweichmanöver muss deshalb **früh** eingeleitet werden. Hartruder allein schafft auf kurze Distanz keinen
+      Abstand.
+- subject: seemannschaft_allgemein
+  number: 88
+  answer_fingerprint: e9a9721b52f6
+  blocks:
+  - text: Die Haltekraft ist die Kraft, die ein Anker im Grund hält. Anker mit **hoher Haltekraft** halten im
+      Verhältnis zu ihrem Gewicht besonders viel, weil sie sich beim Zug **in den Grund eingraben**. Der
+      Germanische Lloyd erkennt vier Bauarten als solche an, und gefragt sind drei davon.
+  - image:
+      src: seemannschaft-88-anker-mit-hoher-haltekraft.svg
+      width: 780
+      height: 290
+      alt: Skizze von vier Ankern nebeneinander. Der Bruce-Anker hat einen langen Schaft mit Auge, einen Knick und
+        eine Klaue mit zwei Spitzen. Der CQR-Anker hat einen Schaft mit Gelenk und darunter eine Pflugschar. Der
+        Danforth-Anker hat einen langen Schaft, am Ende einen Stock und zwei flache Flunken, die zum Auge zeigen.
+        Der D'Hone-Anker hat eine breite flache Platte, zwei Streben und einen senkrechten Schaft mit Auge.
+  - text: Zum Merken hilft die Form. **Bruce** hat eine Klaue, **CQR** eine Pflugschar mit Gelenk, **Danforth** zwei
+      Flunken mit Stock und **D'Hone** eine Platte mit Streben.
+- subject: wetterkunde
+  number: 27
+  answer_fingerprint: 0ae1f147e899
+  blocks:
+  - text: Ohne Reibung weht der Wind parallel zu den Isobaren, um das Hoch herum im Uhrzeigersinn. In Bodennähe bremst die
+      **Reibung** den Wind, auch über See. Gebremster Wind wird weniger nach rechts abgelenkt, und der Druckunterschied
+      zieht ihn zum tiefen Druck hin.
+  - text: Beim Hoch liegt der tiefe Druck außen. Der Wind kreuzt die Isobaren deshalb nach außen, er weht **aus dem Hoch
+      heraus**. Gegenüber der Richtung der Isobaren ist er **rückgedreht**.
+  - image:
+      src: wetterkunde-27-wind-um-das-hoch.svg
+      width: 780
+      height: 350
+      alt: Draufsicht auf ein Hoch mit drei kreisförmigen Isobaren. An sechs Punkten der mittleren Isobare zeigt ein
+        grauer gestrichelter Pfeil parallel zur Isobare im Uhrzeigersinn. Daneben zeigt ein roter Pfeil, der Wind in
+        Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus.
+  - text: Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose
+      sind 11,25°.
