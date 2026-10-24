@@ -25,6 +25,7 @@
     "src/hooks/useUserRefreshOnReturn.ts",
     "src/hooks/useAdminMfaStatus.ts",
     "src/hooks/useDocumentTitle.ts",
+    "src/hooks/useSectionSeen.ts",
     "src/contact.ts",
     "src/scroll.ts",
     "src/faq.ts",

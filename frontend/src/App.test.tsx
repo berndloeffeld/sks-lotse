@@ -18,7 +18,9 @@ describe('App', () => {
 
     render(<RouterProvider router={createMemoryRouter(appRoutes)} />)
 
-    expect(await screen.findByRole('heading', { name: 'Sicher durch die SKS-Theorie' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Lerne die SKS-Theorie, bis du sie wirklich kannst' }),
+    ).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/v1/auth/me'), expect.anything())
   })
 
@@ -35,7 +37,9 @@ describe('App', () => {
     )
 
     expect(await screen.findByRole('heading', { name: 'Wartungsarbeiten' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Sicher durch die SKS-Theorie' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Lerne die SKS-Theorie, bis du sie wirklich kannst' }),
+    ).not.toBeInTheDocument()
   })
 
   it('keeps the Impressum reachable even in maintenance mode', async () => {

@@ -1,11 +1,15 @@
 import json
 
+import pytest
+
 from app.services.catalog_seed import (
     EXPORT_PATH,
+    LANDING_SAMPLES_PATH,
     CatalogImage,
     CatalogQuestion,
     build_catalog,
     catalog_export,
+    landing_samples_export,
     load_topics,
     render_catalog_export,
 )
@@ -29,6 +33,61 @@ def test_the_committed_export_matches_the_catalog():
         "frontend/src/data/catalog.gen.json is stale: run "
         "`PYTHONPATH=. .venv/bin/python scripts/export_catalog.py` in backend/ and commit the result."
     )
+
+
+def test_the_committed_landing_samples_match_the_catalog():
+    # The landing page's hero shows these word for word; they come from the same export.
+    expected = render_catalog_export(landing_samples_export(catalog_export(build_catalog(), load_topics())))
+    assert LANDING_SAMPLES_PATH.read_text() == expected, (
+        "frontend/src/data/landing_samples.gen.json is stale: run "
+        "`PYTHONPATH=. .venv/bin/python scripts/export_catalog.py` in backend/ and commit the result."
+    )
+
+
+def _sample_export(**extra) -> dict:
+    question = {
+        "subject": "wetterkunde",
+        "number": 1,
+        "topic": "wind",
+        "question_text": "F1",
+        "answer_text": "A1",
+        "question_images": [],
+        "answer_images": [],
+        "derivation": [],
+    }
+    return {
+        "topics": [{"subject": "wetterkunde", "slug": "wind", "name": "Wind", "display_order": 1}],
+        "questions": [{**question, **extra}],
+    }
+
+
+def test_landing_samples_copy_the_question_with_its_topic_name():
+    assert landing_samples_export(_sample_export(), [("wetterkunde", 1)]) == {
+        "questions": [
+            {
+                "subject": "wetterkunde",
+                "number": 1,
+                "topic": "wind",
+                "topic_name": "Wind",
+                "question_text": "F1",
+                "answer_text": "A1",
+            }
+        ]
+    }
+
+
+@pytest.mark.parametrize(
+    ("extra", "samples", "message"),
+    [
+        ({}, [("wetterkunde", 2)], "is not in the catalog export"),
+        ({"question_images": [{"src": "a.png"}]}, [("wetterkunde", 1)], "has images or a derivation"),
+        ({"answer_images": [{"src": "a.png"}]}, [("wetterkunde", 1)], "has images or a derivation"),
+        ({"derivation": [{"text": "x"}]}, [("wetterkunde", 1)], "has images or a derivation"),
+    ],
+)
+def test_landing_samples_refuse_what_the_hero_cant_show(extra, samples, message):
+    with pytest.raises(ValueError, match=message):
+        landing_samples_export(_sample_export(**extra), samples)
 
 
 def test_orders_like_the_api_and_keeps_only_placed_content():
