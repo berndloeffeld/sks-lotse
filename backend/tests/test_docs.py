@@ -300,7 +300,8 @@ def test_agb_version_label_in_the_frontend_matches_the_backend_version():
 
     assert match.group(1) == expected, (
         f"AGB_VERSION_LABEL is '{match.group(1)}' but CURRENT_AGB_VERSION {CURRENT_AGB_VERSION} "
-        f"reads '{expected}': bump both together (backend/app/domain/legal.py, frontend/src/shared/agbVersion.ts)"
+        f"reads '{expected}': bump both together "
+        "(backend/app/domain/legal.py, frontend/src/shared/agbVersion.ts)"
     )
 
 
