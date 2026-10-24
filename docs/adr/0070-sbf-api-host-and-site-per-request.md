@@ -9,7 +9,7 @@ Increment 2 brings accounts to SBF Lotse. [ADR-0069](0069-frontend-split-and-sbf
 What still holds from ADR-0069's options:
 - **The session cookie** is `__Host-access_token`, httpOnly, `SameSite=Lax`, host-only on the API host ([ADR-0012](0012-httponly-cookie-for-frontend-session-token.md)). The browser sends it only from a page on the same site. sbf-lotse.de and api.sks-lotse.de are not the same site.
 - **A `SameSite=None` cookie** is a third-party cookie, blocked by default in Safari and Firefox.
-- **The fallback** ADR-0069 names: a second custom domain on the backend service, **api.sbf-lotse.de**. It is same-site with sbf-lotse.de. The project owner has added it to `sks-lotse-backend` on Render.
+- **The fallback** ADR-0069 names: a second custom domain on the backend service, **api.sbf-lotse.de**. It is same-site with sbf-lotse.de, since they share the registrable domain. Set up on 2026-10-24: a `CNAME api → sks-lotse-backend.onrender.com` at IONOS, verified on `sks-lotse-backend` on Render, with its certificate issued. The same service, database and accounts, no second backend.
 
 The backend also has to know which site a request is from. Until now:
 - Every link it built (the login link, the mail footers, Stripe's return URLs) used `cors_allowed_origins[0]`, always sks-lotse.de.
@@ -57,7 +57,7 @@ The report counts new accounts and purchases from SBF Lotse. Both columns are in
 
 Unchanged:
 - The admin area stays on sks-lotse.de; the SBF build gets no admin pages. Admin 2FA keeps the issuer "SKS Lotse".
-- The rate limit: api.sbf-lotse.de is a custom domain of the same service behind the same Cloudflare edge as api.sks-lotse.de. `CF-Connecting-IP` should therefore carry the learner's IP there too.
+- The rate limit: api.sbf-lotse.de is a custom domain of the same service behind the same Cloudflare edge as api.sks-lotse.de, so `CF-Connecting-IP` carries the learner's IP there too. A first measurement on 2026-10-24, before this ADR's code: once one network's default bucket was full directly on api.sks-lotse.de (the first 429 at request 301), api.sbf-lotse.de answered 429 too, from the same bucket. The update below measures the login's own bucket after the deploy.
 
 ## Consequences
 
@@ -68,6 +68,8 @@ Unchanged:
   - The same request on api.sbf-lotse.de must then get 429, not 401.
   - The result is added here as an update. Accounts on sbf-lotse.de stay switched off in its build until then (increment 2's next PR).
 - A second sender domain to keep verified at Resend, and a second custom domain on the backend service ([RUNBOOK](../RUNBOOK.md) → One-time setup SBF, part 2).
+- The backend service now has four custom domains: api.sks-lotse.de, api.sbf-lotse.de, sks-lotse.com and its www. Render's dashboard still read "2 / 2 included", so whether the extra one costs is a question of the plan. sks-lotse.com and www only redirect to sks-lotse.de and could move elsewhere, should the slots matter.
+- Each API host serves every route. api.sks-lotse.de is meant for sks-lotse.de and api.sbf-lotse.de for sbf-lotse.de, but nothing beyond CORS and the site resolution enforces that. That is fine: the guards don't depend on the host, and a session lives on one host only.
 - An `Origin` the backend doesn't know is not refused. It only falls back to the host. CORS keeps a foreign page from reading the answers, and the cookie's `SameSite=Lax` keeps it from riding along on a cross-site call, as before.
 - Rejected:
   - **The proxy (ADR-0069):** it hid the learner's IP from the rate limit.
