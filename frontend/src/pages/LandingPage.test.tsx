@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -16,6 +17,42 @@ function renderLandingPage() {
 describe('LandingPage', () => {
   afterEach(() => {
     useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    delete window.umami
+  })
+
+  it("counts which of its links a guest takes, the hero's sign-up as an invitation", async () => {
+    const track = vi.fn()
+    window.umami = { track }
+    renderLandingPage()
+
+    await userEvent.click(screen.getByRole('link', { name: 'Jetzt loslegen' }))
+    expect(track).toHaveBeenLastCalledWith('signup_cta_clicked', { place: 'landing_hero' })
+
+    for (const [name, target] of [
+      ['Oder gleich ohne Anmeldung die Fragen üben', 'hero_guest'],
+      ['Alle Fragen nach Themen, frei zum Üben', 'catalog_learn'],
+      ['Lernen wie mit Karteikarten: die Lernmethode', 'learning_method'],
+      ['Mehr zum Fragenkatalog in den häufigen Fragen', 'faq'],
+      ['So läuft die SKS-Prüfung ab', 'exam_process'],
+      ['Kann ich auch ohne Anmeldung lernen?', 'faq_entry'],
+      ['Alle Fragen ansehen →', 'faq_all'],
+    ]) {
+      await userEvent.click(screen.getByRole('link', { name }))
+      expect(track).toHaveBeenLastCalledWith('landing_link_clicked', { target })
+    }
+    // "Preise" in the pitch, not the header's.
+    await userEvent.click(within(screen.getByText(/Der Lotsen-Check läuft über Tokens/)).getByRole('link'))
+    expect(track).toHaveBeenLastCalledWith('landing_link_clicked', { target: 'pricing' })
+  })
+
+  it('counts nothing for a logged-in visitor', async () => {
+    const track = vi.fn()
+    window.umami = { track }
+    useAuthStore.setState({ user: null, isAuthenticated: true, isLoading: false })
+    renderLandingPage()
+
+    await userEvent.click(screen.getByRole('link', { name: 'Alle Fragen ansehen →' }))
+    expect(track).not.toHaveBeenCalled()
   })
 
   it('sends logged-in visitors into the app instead of showing the sign-up form', () => {
@@ -95,16 +132,18 @@ describe('LandingPage', () => {
     expect(container.querySelector('a[href^="/charts"]')).toBeNull()
   })
 
-  it('links the Kartenaufgaben once they are open to guests', () => {
+  it('links the Kartenaufgaben once they are open to guests', async () => {
     vi.stubEnv('VITE_CHART_EXERCISES', 'on')
     renderLandingPage()
 
     const preview = screen.getByRole('region', { name: 'Kartenaufgaben' })
     expect(within(preview).getByText('Neu')).toBeInTheDocument()
-    expect(within(preview).getByRole('link', { name: /Kartenaufgaben ausprobieren/ })).toHaveAttribute(
-      'href',
-      '/charts',
-    )
+    const link = within(preview).getByRole('link', { name: /Kartenaufgaben ausprobieren/ })
+    expect(link).toHaveAttribute('href', '/charts')
+    const track = vi.fn()
+    window.umami = { track }
+    await userEvent.click(link)
+    expect(track).toHaveBeenCalledExactlyOnceWith('landing_link_clicked', { target: 'charts' })
   })
 
   it('links to the exam process overview page', () => {

@@ -57,6 +57,7 @@ export function trackEvent(name: string, data?: Record<string, string | number>)
 // guests to the login. Fixed keys only (ADR-0030).
 export type SignupPlace =
   | 'header'
+  | 'landing_hero'
   | 'learn'
   | 'practice_grading'
   | 'practice_summary'
@@ -71,3 +72,23 @@ export type SignupPlace =
 export function trackSignupClick(place: SignupPlace) {
   trackEvent('signup_cta_clicked', { place })
 }
+
+// Where a guest goes from the landing page, sent with landing_link_clicked: which of its links is
+// taken at all. Signing up from its hero counts as signup_cta_clicked (place landing_hero) instead.
+export type LandingTarget =
+  | 'hero_guest'
+  | 'charts'
+  | 'catalog_learn'
+  | 'learning_method'
+  | 'faq'
+  | 'exam_process'
+  | 'pricing'
+  | 'faq_entry'
+  | 'faq_all'
+
+export function trackLandingClick(target: LandingTarget) {
+  trackEvent('landing_link_clicked', { target })
+}
+
+// The landing page's sections, in page order, sent with landing_section_seen: how far guests read.
+export type LandingSection = 'features' | 'app' | 'exam' | 'charts' | 'catalog' | 'pricing' | 'faq' | 'signup'

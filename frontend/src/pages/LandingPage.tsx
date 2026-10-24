@@ -1,4 +1,7 @@
+import type { ComponentProps } from 'react'
 import { Link } from 'react-router-dom'
+
+import { trackLandingClick, trackSignupClick, type LandingSection, type LandingTarget } from '../analytics'
 
 import { chartExercisesForGuests } from '../chartCatalog'
 import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
@@ -14,6 +17,7 @@ import { MobileTabBar } from '../components/MobileTabBar'
 import { ShareLinks } from '../components/ShareLinks'
 import { FAQ } from '../faq'
 import { HOME_TITLE, useDocumentTitle } from '../hooks/useDocumentTitle'
+import { useSectionSeen } from '../hooks/useSectionSeen'
 import { useAuthStore } from '../store/authStore'
 import { buttonClass } from '../components/buttonStyles'
 
@@ -126,6 +130,22 @@ function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; class
   )
 }
 
+// What guests do on the landing page (logged-in visitors would only blur it): which link they take
+// (landing_link_clicked) and how far they read (landing_section_seen, once per band). Fixed keys
+// only, ADR-0030.
+function landingClick(track: boolean, target: LandingTarget) {
+  return track ? () => trackLandingClick(target) : undefined
+}
+
+function TrackedSection({
+  name,
+  track,
+  ...props
+}: ComponentProps<'section'> & { name: LandingSection; track: boolean }) {
+  const ref = useSectionSeen<HTMLElement>('landing_section_seen', name, track)
+  return <section ref={ref} {...props} />
+}
+
 // What a Kartenaufgabe run is like (ADR-0052/0053): a screenshot of a run and what it offers. Ahead
 // of the release, without a link; once the build's flag is "on", with one, since guests can then try
 // them without a login (ADR-0056). (The WSV material's usage rights are cleared, so the screenshot
@@ -145,10 +165,15 @@ const CHART_FEATURES = [
   ],
 ]
 
-function ChartExercisesPreview() {
+function ChartExercisesPreview({ track }: { track: boolean }) {
   const open = chartExercisesForGuests()
   return (
-    <section aria-labelledby="kartenaufgaben" className="mt-20 rounded-tile border border-dashed border-primary p-6">
+    <TrackedSection
+      name="charts"
+      track={track}
+      aria-labelledby="kartenaufgaben"
+      className="mt-20 rounded-tile border border-dashed border-primary p-6"
+    >
       <div className="flex flex-wrap items-center gap-3">
         <ChartDividersIcon className="size-8 text-primary" />
         <h3 id="kartenaufgaben" className="font-serif text-2xl text-primary">
@@ -179,7 +204,11 @@ function ChartExercisesPreview() {
         ))}
       </Columns>
       {open ? (
-        <Link to="/charts" className="mt-8 inline-block text-primary underline hover:no-underline">
+        <Link
+          to="/charts"
+          onClick={landingClick(track, 'charts')}
+          className="mt-8 inline-block text-primary underline hover:no-underline"
+        >
           Kartenaufgaben ausprobieren – auch ohne Anmeldung
         </Link>
       ) : null}
@@ -187,7 +216,7 @@ function ChartExercisesPreview() {
         Rechnen und zeichnen tust du in deiner eigenen Seekarte: Übungskarte 49 (INT 1463), Karte 1/INT 1, Begleitheft
         und Navigationsbesteck gehören nicht zu SKS Lotse.
       </p>
-    </section>
+    </TrackedSection>
   )
 }
 
@@ -196,6 +225,8 @@ export function LandingPage() {
   // Logged-in visitors get the main nav (and the phone tab bar) and links into the app instead
   // of the sign-up form.
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const track = !isAuthenticated
+  const examRef = useSectionSeen<HTMLDivElement>('landing_section_seen', 'exam', track)
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip">
@@ -217,11 +248,15 @@ export function LandingPage() {
               </Link>
             ) : (
               <>
-                <a href="#anmelden" className={HERO_CTA}>
+                <a href="#anmelden" onClick={() => trackSignupClick('landing_hero')} className={HERO_CTA}>
                   Jetzt loslegen
                 </a>
                 <SignupBonusNote />
-                <Link to="/learn" className="mt-5 text-sm text-surface-alt underline hover:text-surface">
+                <Link
+                  to="/learn"
+                  onClick={landingClick(track, 'hero_guest')}
+                  className="mt-5 text-sm text-surface-alt underline hover:text-surface"
+                >
                   Oder gleich ohne Anmeldung die Fragen üben
                 </Link>
               </>
@@ -229,7 +264,7 @@ export function LandingPage() {
           </div>
         </HeroBand>
 
-        <section className={`${CONTENT} py-16`}>
+        <TrackedSection name="features" track={track} className={`${CONTENT} py-16`}>
           <h2 className="sr-only">So funktioniert&apos;s</h2>
           <Columns>
             {[
@@ -252,7 +287,7 @@ export function LandingPage() {
               </div>
             ))}
           </Columns>
-        </section>
+        </TrackedSection>
 
         <section className="bg-primary py-16 text-surface">
           <div className={CONTENT}>
@@ -278,24 +313,26 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className={`${CONTENT} py-16`}>
+        <TrackedSection name="app" track={track} className={`${CONTENT} py-16`}>
           <h2 className="font-serif text-3xl text-primary">Ein Blick in die App</h2>
           <p className="mt-3 max-w-xl text-sm text-ink-soft">
             So sieht das Lernen in SKS Lotse aus – Screenshots aus der App.
           </p>
           <ScreenshotList items={SCREENSHOTS} className="mt-10" />
 
-          <h3 className="mt-20 font-serif text-2xl text-primary">Probeprüfung</h3>
-          <p className="mt-3 max-w-xl text-sm text-ink-soft">
-            Der erste Teil der schriftlichen Prüfung unter realistischen Bedingungen: ein kompletter Fragebogen, danach
-            Auswertung und Statistik in deinem Profil.
-          </p>
-          <ScreenshotList items={EXAM_SCREENSHOTS} className="mt-10" />
+          <div ref={examRef}>
+            <h3 className="mt-20 font-serif text-2xl text-primary">Probeprüfung</h3>
+            <p className="mt-3 max-w-xl text-sm text-ink-soft">
+              Der erste Teil der schriftlichen Prüfung unter realistischen Bedingungen: ein kompletter Fragebogen,
+              danach Auswertung und Statistik in deinem Profil.
+            </p>
+            <ScreenshotList items={EXAM_SCREENSHOTS} className="mt-10" />
+          </div>
 
-          <ChartExercisesPreview />
-        </section>
+          <ChartExercisesPreview track={track} />
+        </TrackedSection>
 
-        <section className={`${CONTENT} py-16`}>
+        <TrackedSection name="catalog" track={track} className={`${CONTENT} py-16`}>
           <h2 className="font-serif text-3xl text-primary">Der amtliche SKS-Fragenkatalog</h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
             Die theoretische SKS-Prüfung deckt vier Fächer ab: Navigation, Schifffahrtsrecht, Wetterkunde und
@@ -306,34 +343,46 @@ export function LandingPage() {
             umformulierten oder gekürzten Versionen.
           </p>
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <Link to="/learn" className="text-primary underline hover:no-underline">
+            <Link
+              onClick={landingClick(track, 'catalog_learn')}
+              to="/learn"
+              className="text-primary underline hover:no-underline"
+            >
               Alle Fragen nach Themen, frei zum Üben
             </Link>
-            <Link to="/learning-method" className="text-primary underline hover:no-underline">
+            <Link
+              onClick={landingClick(track, 'learning_method')}
+              to="/learning-method"
+              className="text-primary underline hover:no-underline"
+            >
               Lernen wie mit Karteikarten: die Lernmethode
             </Link>
-            <Link to="/faq" className="text-primary underline hover:no-underline">
+            <Link onClick={landingClick(track, 'faq')} to="/faq" className="text-primary underline hover:no-underline">
               Mehr zum Fragenkatalog in den häufigen Fragen
             </Link>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
             Du willst wissen, wie du dich Schritt für Schritt auf die SKS-Theorieprüfung vorbereitest und wie es nach
             der Theorie weitergeht?{' '}
-            <Link to="/exam-process" className="text-primary underline hover:no-underline">
+            <Link
+              onClick={landingClick(track, 'exam_process')}
+              to="/exam-process"
+              className="text-primary underline hover:no-underline"
+            >
               So läuft die SKS-Prüfung ab
             </Link>
             .
           </p>
-        </section>
+        </TrackedSection>
 
-        <section className="bg-primary-dark py-14 text-surface">
+        <TrackedSection name="pricing" track={track} className="bg-primary-dark py-14 text-surface">
           <div className={`${CONTENT} grid gap-10 sm:grid-cols-2 sm:items-center`}>
             <div>
               <h2 className="font-serif text-3xl">Kostenlos starten</h2>
               <p className="mt-3 max-w-xl text-sm text-surface-alt">
                 Die Grundfunktion bleibt dauerhaft kostenlos. Der Lotsen-Check läuft über Tokens (eines pro
                 Katalogfrage, zwei je Aufgabe einer Kartenaufgabe, ohne Abo). Die aktuellen Preise stehen auf der Seite{' '}
-                <Link to="/pricing" className="underline hover:text-surface">
+                <Link to="/pricing" onClick={landingClick(track, 'pricing')} className="underline hover:text-surface">
                   Preise
                 </Link>
                 .
@@ -341,16 +390,16 @@ export function LandingPage() {
             </div>
             <ShareLinks />
           </div>
-        </section>
+        </TrackedSection>
 
-        <section className={`${CONTENT} py-16`}>
+        <TrackedSection name="faq" track={track} className={`${CONTENT} py-16`}>
           <h2 className="font-serif text-3xl text-primary">Häufige Fragen</h2>
           <p className="mt-3 max-w-xl text-sm text-ink-soft">Ein paar Antworten auf Fragen, die uns oft erreichen.</p>
           <div className="mt-10 flex flex-col gap-8">
             {LANDING_FAQ.map(({ id, question, answer }) => (
               <div key={id} className="flex flex-col gap-2">
                 <h3 className="font-serif text-xl text-primary">
-                  <Link to={`/faq#${id}`} className="hover:underline">
+                  <Link to={`/faq#${id}`} onClick={landingClick(track, 'faq_entry')} className="hover:underline">
                     {question}
                   </Link>
                 </h3>
@@ -362,13 +411,14 @@ export function LandingPage() {
           </div>
           <Link
             to="/faq"
+            onClick={landingClick(track, 'faq_all')}
             className="mt-8 inline-block font-mono text-sm tracking-wide text-primary uppercase hover:underline"
           >
             Alle Fragen ansehen →
           </Link>
-        </section>
+        </TrackedSection>
 
-        <section id="anmelden" className="scroll-mt-4 bg-primary py-16 text-surface">
+        <TrackedSection name="signup" track={track} id="anmelden" className="scroll-mt-4 bg-primary py-16 text-surface">
           <div className={`${CONTENT} grid gap-10 sm:grid-cols-2`}>
             <div className="flex flex-col gap-4">
               <h2 className="font-serif text-3xl">Jetzt loslegen</h2>
@@ -397,7 +447,7 @@ export function LandingPage() {
               <LoginForm tone="dark" />
             )}
           </div>
-        </section>
+        </TrackedSection>
       </main>
 
       <LegalFooter />
