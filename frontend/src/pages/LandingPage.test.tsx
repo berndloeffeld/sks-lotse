@@ -25,11 +25,11 @@ describe('LandingPage', () => {
     window.umami = { track }
     renderLandingPage()
 
-    await userEvent.click(screen.getByRole('link', { name: 'Jetzt loslegen' }))
+    await userEvent.click(screen.getByRole('link', { name: 'Kostenloses Konto anlegen' }))
     expect(track).toHaveBeenLastCalledWith('signup_cta_clicked', { place: 'landing_hero' })
 
     for (const [name, target] of [
-      ['Oder gleich ohne Anmeldung die Fragen üben', 'hero_guest'],
+      ['Oder gleich ohne Anmeldung alle Fragen üben', 'hero_guest'],
       ['Alle Fragen nach Themen, frei zum Üben', 'catalog_learn'],
       ['Lernen wie mit Karteikarten: die Lernmethode', 'learning_method'],
       ['Mehr zum Fragenkatalog in den häufigen Fragen', 'faq'],
@@ -71,12 +71,14 @@ describe('LandingPage', () => {
   it('renders the headline, the header brand link, and the sign-up entry points', () => {
     renderLandingPage()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Sicher durch die SKS-Theorie' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Lerne die SKS-Theorie, bis du sie wirklich kannst' }),
+    ).toBeInTheDocument()
     const banner = screen.getByRole('banner')
     expect(within(banner).getByRole('link', { name: 'SKS Lotse – Startseite' })).toHaveAttribute('href', '/')
     expect(within(banner).getByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/login')
 
-    expect(screen.getByRole('link', { name: 'Jetzt loslegen' })).toHaveAttribute('href', '#anmelden')
+    expect(screen.getByRole('link', { name: 'Kostenloses Konto anlegen' })).toHaveAttribute('href', '#anmelden')
     expect(screen.getByRole('heading', { name: 'Jetzt loslegen' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-Mail-Adresse')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Code anfordern' })).toBeInTheDocument()
@@ -102,7 +104,7 @@ describe('LandingPage', () => {
   it('leads guests to the topics open without a login', () => {
     renderLandingPage()
 
-    expect(screen.getByRole('link', { name: 'Oder gleich ohne Anmeldung die Fragen üben' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Oder gleich ohne Anmeldung alle Fragen üben' })).toHaveAttribute(
       'href',
       '/learn',
     )

@@ -1,0 +1,36 @@
+{
+ "questions": [
+  {
+   "subject": "schifffahrtsrecht",
+   "number": 35,
+   "topic": "kvr-ausweich-fahrregeln",
+   "topic_name": "KVR – Ausweich- und Fahrregeln",
+   "question_text": "Wie ist die Gefahr eines Zusammenstoßes sicher erkennbar?",
+   "answer_text": "Wenn die Kompasspeilung zu einem anderen Fahrzeug steht und sie sich einander nähern."
+  },
+  {
+   "subject": "wetterkunde",
+   "number": 1,
+   "topic": "allgemeine-begriffe",
+   "topic_name": "Allgemeine Begriffe & Messinstrumente",
+   "question_text": "Was ist Wind und wie entsteht er?",
+   "answer_text": "Wind ist bewegte Luft. Die Bewegung entsteht durch die Druckunterschiede zwischen Hoch- und Tiefdruckgebieten."
+  },
+  {
+   "subject": "navigation",
+   "number": 47,
+   "topic": "ortsbestimmung-navigieren",
+   "topic_name": "Ortsbestimmung, Navigieren",
+   "question_text": "Warum müssen Sie Ihre Position regelmäßig in die Seekarte eintragen?",
+   "answer_text": "Um Abweichungen von der Kurslinie frühzeitig und sicher zu erkennen und um ggf. den Kurs zu berichtigen."
+  },
+  {
+   "subject": "seemannschaft_allgemein",
+   "number": 78,
+   "topic": "ankern",
+   "topic_name": "Ankern & Manövrierverhalten",
+   "question_text": "Warum sollte beim Verwenden einer Ankertrosse ein Kettenvorlauf benutzt werden?",
+   "answer_text": "Damit der Zug auf den Anker nicht zu steil wird."
+  }
+ ]
+}

@@ -9,6 +9,7 @@ import { ChartDividersIcon } from '../components/icons/FeatureIcons'
 import { FaqAnswer } from '../components/FaqAnswer'
 import { Header } from '../components/Header'
 import { HeroBand } from '../components/HeroBand'
+import { HeroSampleQuestion } from '../components/HeroSampleQuestion'
 import { LegalFooter } from '../components/LegalFooter'
 import { LoginForm } from '../components/LoginForm'
 import { SignupBonusNote } from '../components/SignupBonusNote'
@@ -102,7 +103,7 @@ const EXAM_SCREENSHOTS = [
   },
 ]
 
-const HERO_CTA = `mt-10 ${buttonClass('secondary', { tone: 'dark' })}`
+const HERO_CTA = `lg:mt-10 ${buttonClass('secondary', { tone: 'dark' })}`
 
 function ScreenshotList({ items, className }: { items: typeof SCREENSHOTS; className: string }) {
   return (
@@ -233,34 +234,46 @@ export function LandingPage() {
       {isAuthenticated ? <Header homeTo="/learn" nav={<MainNav />} /> : <Header />}
 
       <main className="flex-1">
-        <HeroBand className="pt-20 pb-36 text-center sm:pb-44">
-          <div className={`flex flex-col items-center ${CONTENT} max-w-2xl`}>
-            <h1 className="font-serif text-4xl tracking-wide break-words uppercase sm:text-5xl">
-              Sicher durch die SKS-Theorie
-            </h1>
-            <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
-              Die SKS App, um online für die SKS-Theorieprüfung zu lernen – mit den Originalfragen des amtlichen
-              Katalogs
-            </p>
-            {isAuthenticated ? (
-              <Link to="/learn" className={HERO_CTA}>
-                Jetzt loslegen
-              </Link>
-            ) : (
-              <>
-                <a href="#anmelden" onClick={() => trackSignupClick('landing_hero')} className={HERO_CTA}>
+        <HeroBand className="pt-14 pb-36 sm:pt-20 sm:pb-44">
+          {/* What SKS Lotse promises beside one official question to try right away: the card is the
+              page's first invitation, sign-up the second (ADR-0054). On a phone the card comes right
+              after the promise, before the buttons, so it shows on the first screen. */}
+          <div
+            className={`${CONTENT} grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-[auto_auto] lg:gap-x-10 lg:gap-y-0`}
+          >
+            <div className="lg:self-end">
+              <h1 className="font-serif text-3xl leading-tight break-words sm:text-5xl">
+                Lerne die SKS-Theorie, bis du sie wirklich kannst
+              </h1>
+              <p className="mt-4 text-surface-alt sm:mt-6 sm:text-lg">
+                Alle Originalfragen des amtlichen SKS-Fragenkatalogs, in eigenen Worten beantwortet wie in der Prüfung.
+                Mit Konto merkt sich SKS Lotse, was du vergisst, und fragt es rechtzeitig wieder ab.
+              </p>
+            </div>
+            <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
+              <HeroSampleQuestion track={track} />
+            </div>
+            <div className="flex flex-col items-start lg:self-start">
+              {isAuthenticated ? (
+                <Link to="/learn" className={HERO_CTA}>
                   Jetzt loslegen
-                </a>
-                <SignupBonusNote />
-                <Link
-                  to="/learn"
-                  onClick={landingClick(track, 'hero_guest')}
-                  className="mt-5 text-sm text-surface-alt underline hover:text-surface"
-                >
-                  Oder gleich ohne Anmeldung die Fragen üben
                 </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <a href="#anmelden" onClick={() => trackSignupClick('landing_hero')} className={HERO_CTA}>
+                    Kostenloses Konto anlegen
+                  </a>
+                  <SignupBonusNote />
+                  <Link
+                    to="/learn"
+                    onClick={landingClick(track, 'hero_guest')}
+                    className="mt-5 text-sm text-surface-alt underline hover:text-surface"
+                  >
+                    Oder gleich ohne Anmeldung alle Fragen üben
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </HeroBand>
 

@@ -77,6 +77,7 @@ export function trackSignupClick(place: SignupPlace) {
 // taken at all. Signing up from its hero counts as signup_cta_clicked (place landing_hero) instead.
 export type LandingTarget =
   | 'hero_guest'
+  | 'sample_topic'
   | 'charts'
   | 'catalog_learn'
   | 'learning_method'

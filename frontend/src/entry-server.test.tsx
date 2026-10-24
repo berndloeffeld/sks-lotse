@@ -11,7 +11,7 @@ describe('entry-server render', () => {
   it('prerenders the logged-out landing page with its heading, copy and internal links', () => {
     const html = render('/')
 
-    expect(html).toContain('Sicher durch die SKS-Theorie')
+    expect(html).toContain('Lerne die SKS-Theorie, bis du sie wirklich kannst')
     expect(html).toContain('Originalfragen üben')
     expect(html).toContain('href="/imprint"')
     expect(html).toContain('href="/privacy"')
@@ -27,7 +27,7 @@ describe('entry-server render', () => {
     const html = render(path)
 
     expect(html).toContain(heading)
-    expect(html).not.toContain('Sicher durch die SKS-Theorie')
+    expect(html).not.toContain('Lerne die SKS-Theorie, bis du sie wirklich kannst')
   })
 
   it('prerenders /pricing logged out, with the prices still loading', () => {

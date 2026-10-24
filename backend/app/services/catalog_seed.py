@@ -59,6 +59,16 @@ IMAGES_PATH = DATA_DIR / "question_images.yaml"
 IMAGES_DIR = _BACKEND_DIR.parent / "frontend" / "public" / "catalog"
 # The catalog as the frontend reads it without a login (catalog_export below, ADR-0054).
 EXPORT_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "data" / "catalog.gen.json"
+# The landing page's sample questions (landing_samples_export below): a few lines, so the page
+# needn't load the whole catalog for its hero.
+LANDING_SAMPLES_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "data" / "landing_samples.gen.json"
+# Which ones, in the order the hero offers them: one per exam subject, short, without images.
+LANDING_SAMPLES = (
+    ("schifffahrtsrecht", 35),
+    ("wetterkunde", 1),
+    ("navigation", 47),
+    ("seemannschaft_allgemein", 78),
+)
 
 SUBJECTS = [
     ("navigation", "Navigation"),
@@ -467,6 +477,35 @@ def catalog_export(questions: Sequence[CatalogQuestion], topics: Mapping[str, li
             for q in placed
         ],
     }
+
+
+def landing_samples_export(export: dict, samples: Sequence[tuple[str, int]] = LANDING_SAMPLES) -> dict:
+    """The landing page's sample questions, taken from the guest export (catalog_export above).
+
+    Copied word for word with their topic's name, so the catalog's wording has one source. A
+    sample that isn't in the export, or that has images or a derivation, fails here: the hero shows
+    plain text only.
+    """
+    questions = {(q["subject"], q["number"]): q for q in export["questions"]}
+    topics = {(t["subject"], t["slug"]): t["name"] for t in export["topics"]}
+    picked = []
+    for key in samples:
+        q = questions.get(key)
+        if q is None:
+            raise ValueError(f"landing sample {key} is not in the catalog export")
+        if q["question_images"] or q["answer_images"] or q["derivation"]:
+            raise ValueError(f"landing sample {key} has images or a derivation")
+        picked.append(
+            {
+                "subject": q["subject"],
+                "number": q["number"],
+                "topic": q["topic"],
+                "topic_name": topics[(q["subject"], q["topic"])],
+                "question_text": q["question_text"],
+                "answer_text": q["answer_text"],
+            }
+        )
+    return {"questions": picked}
 
 
 def render_catalog_export(export: dict) -> str:
