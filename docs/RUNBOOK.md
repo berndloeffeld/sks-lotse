@@ -169,6 +169,10 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 
 `VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)). It's declared in `render.yaml` (currently `on`), so switching it is a PR together with `docs/FEATURES.md` and the rewrites of `/navigation` and `/navigation/1` … `/navigation/15` on `sbf-lotse-frontend` (`backend/tests/test_sbf_navigation_export.py` checks they match the flag). ELWIS confirmed the usage rights for the SBF catalog See and its Navigationsaufgaben on 2026-10-24, including the cuts of the PDF shown beside the run and the marked typo corrections; the flag has been `on` since. It is a build-time value, so a switch takes the SBF site's deploy.
 
+## SBF API proxy check
+
+`sbf-lotse-frontend` rewrites `/api/*` to `https://api.sks-lotse.de/api/*` (ADR-0069). Before SBF Lotse's accounts use it, run `scripts/check_sbf_proxy.sh` once after the deploy: it checks that the rewrite reaches the API, optionally a real login through it (`CHECK_EMAIL=… scripts/check_sbf_proxy.sh`, sends a code), and that the backend sees the learner's IP, not the CDN's. The last step fills the per-IP bucket of `/auth/otp/verify-link` for this network for up to an hour (login links fail, the code works). On `FAIL` in step 3, ADR-0069 is reopened (fallback: api.sbf-lotse.de).
+
 ## security.txt
 
 `frontend/public/.well-known/security.txt` (RFC 9116), and SBF Lotse's copy in `frontend/public-sbf/.well-known/`, name `kontakt@sks-lotse.de` and links `SECURITY.md`. Their `Expires` field (currently 2027-09-30 in both) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
