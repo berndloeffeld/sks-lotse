@@ -5394,44 +5394,14 @@
      "image": null
     },
     {
-     "text": null,
-     "table": null,
-     "image": {
-      "src": "wetterkunde-56-land-und-seewind.svg",
-      "width": 780,
-      "height": 330,
-      "alt": "Zwei Seitenansichten einer Küste. Links tagsüber, das Land ist warm. Die Luft steigt über Land auf, in der Höhe strömt sie zum Meer zurück und sinkt dort ab, am Boden weht der Seewind vom Meer zum Land. Rechts nachts, das Meer ist wärmer. Die Luft steigt über dem Meer auf, in der Höhe strömt sie zum Land und sinkt dort ab, am Boden weht der Landwind vom Land zum Meer."
-     }
-    },
-    {
      "text": "Zwischen zwei Landmassen oder in einer Meerenge muss dieselbe Luftmenge durch einen engeren Querschnitt. Sie wird zusammengedrängt und strömt **schneller** – der **Düseneffekt**.",
      "table": null,
      "image": null
     },
     {
-     "text": null,
-     "table": null,
-     "image": {
-      "src": "wetterkunde-56-duesen-effekt.svg",
-      "width": 780,
-      "height": 320,
-      "alt": "Draufsicht auf zwei Landmassen, die sich in der Mitte einander nähern. Links liegen die Stromlinien des Windes weit auseinander, in der engen Stelle dicht beieinander, danach wieder weit auseinander."
-     }
-    },
-    {
      "text": "Eine vorspringende Landzunge, ein **Kap**, zwingt den Wind, um sie herumzuströmen. Auch dort rücken die Stromlinien zusammen, und der Wind weht stärker als in der Umgebung – der **Kapeffekt**.",
      "table": null,
      "image": null
-    },
-    {
-     "text": null,
-     "table": null,
-     "image": {
-      "src": "wetterkunde-56-kap-effekt.svg",
-      "width": 780,
-      "height": 320,
-      "alt": "Draufsicht auf eine Küste mit einem Kap, das ins Wasser ragt. Der Wind strömt parallel zur Küste von links. Am Kap rücken die Stromlinien dicht zusammen, dahinter laufen sie wieder auseinander."
-     }
     },
     {
      "text": "Diese Effekte sind **kleinräumig** und hängen von Küstenform und Tageszeit ab. Ein Bericht für das ganze Seegebiet kann sie nur eingeschränkt berücksichtigen. Vor Ort muss man damit zusätzlich rechnen.",
