@@ -167,7 +167,7 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 
 ## SBF Navigationsaufgaben flag
 
-`VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)). It's declared in `render.yaml` (currently `off`), so switching it is a PR together with `docs/FEATURES.md` and the rewrites of `/navigation` and `/navigation/1` … `/navigation/15` on `sbf-lotse-frontend` (`backend/tests/test_sbf_navigation_export.py` checks they match the flag). It opens only once the usage rights for the SBF catalog See and the Übungskarte D49 are confirmed (asked at ELWIS, with the DSV in copy). It is a build-time value, so a switch takes the SBF site's deploy.
+`VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)). It's declared in `render.yaml` (currently `on`), so switching it is a PR together with `docs/FEATURES.md` and the rewrites of `/navigation` and `/navigation/1` … `/navigation/15` on `sbf-lotse-frontend` (`backend/tests/test_sbf_navigation_export.py` checks they match the flag). ELWIS confirmed the usage rights for the SBF catalog See and its Navigationsaufgaben on 2026-10-24, including the cuts of the PDF shown beside the run and the marked typo corrections; the flag has been `on` since. It is a build-time value, so a switch takes the SBF site's deploy.
 
 ## security.txt
 

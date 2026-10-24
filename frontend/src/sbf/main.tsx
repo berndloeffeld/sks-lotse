@@ -27,7 +27,9 @@ const app = (
 )
 
 const path = window.location.pathname.replace(/(.)\/$/, '$1')
-if (container.hasChildNodes() && container.dataset.prerendered === path) {
+// The prerender knows no query: /navigation/3?run=1 starts the run, which the prerendered task page
+// (/navigation/3) doesn't show, so such a page is rendered afresh rather than hydrated.
+if (container.hasChildNodes() && container.dataset.prerendered === path && !window.location.search) {
   // The /navigation pages were rendered from the export (ADR-0068); the first render needs it too, or
   // it wouldn't match. If it fails to load, render afresh rather than not at all.
   if (path.startsWith('/navigation')) {
