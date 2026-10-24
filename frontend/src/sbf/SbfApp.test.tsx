@@ -140,11 +140,44 @@ describe('SBF site', () => {
 
     it('shows the account settings under /profile/account', async () => {
       fetchMock.mockResolvedValue(jsonResponse(makeUser()))
-      renderAt('/profile')
+      renderAt('/profile/account')
 
       expect(await screen.findByRole('heading', { level: 1, name: 'Profil' })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'Konto' })).toHaveAttribute('href', '/profile/account')
       expect(screen.getByRole('button', { name: 'Konto löschen' })).toBeInTheDocument()
+    })
+
+    it('lists the saved runs under /profile, the open ones to resume first (ADR-0071)', async () => {
+      const summary = (number: number, extra = {}) => ({
+        number,
+        open_attempt_id: null,
+        open_answered: null,
+        completed_count: 0,
+        last_points: null,
+        last_completed_at: null,
+        ...extra,
+      })
+      fetchMock.mockImplementation(async (input: RequestInfo | URL) =>
+        String(input).endsWith('/sbf-navigation')
+          ? jsonResponse({
+              pass_points: 7,
+              tasks: [
+                summary(1),
+                summary(2, { completed_count: 2, last_points: 8, last_completed_at: '2026-10-24T10:00:00Z' }),
+                summary(5, { open_attempt_id: 11, open_answered: 4 }),
+              ],
+            })
+          : jsonResponse(makeUser()),
+      )
+      renderAt('/profile')
+
+      const items = await screen.findAllByRole('listitem')
+      expect(items.map((item) => item.textContent)).toEqual([
+        expect.stringContaining('Navigationsaufgabe 5 · Offen · 4/9 · fortsetzen'),
+        expect.stringContaining('Navigationsaufgabe 2 · Zuletzt 8/9 · bestanden'),
+      ])
+      expect(screen.getByRole('link', { name: 'Fortsetzen' })).toHaveAttribute('href', '/navigation/5?run=1')
+      expect(screen.getByText('2 Läufe')).toBeInTheDocument()
     })
 
     it('still has no admin area', async () => {

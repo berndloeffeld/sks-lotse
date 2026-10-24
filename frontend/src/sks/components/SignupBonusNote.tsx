@@ -1,4 +1,4 @@
-import { useCheckLimits } from '../hooks/useCheckLimits'
+import { useCheckLimits } from '../../shared/hooks/useCheckLimits'
 import { HelmIcon } from './icons/FeatureIcons'
 
 // Under the landing page's hero button: a new account starts with the signup bonus (ADR-0043).

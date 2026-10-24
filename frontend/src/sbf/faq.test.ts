@@ -25,4 +25,24 @@ describe('sbfFaq', () => {
     ])
     expect(faq.find((entry) => entry.id === 'toleranz')?.answer).toContain('nicht amtlich')
   })
+
+  it('says what an account and the Lotsen-Check bring once accounts are on (ADR-0071)', () => {
+    const faq = sbfFaq(true, true)
+    expect(faq.map((entry) => entry.id)).toEqual([
+      'was',
+      'navigationsaufgabe',
+      'quelle',
+      'toleranz',
+      'konto',
+      'kosten',
+      'sks',
+    ])
+    expect(faq.find((entry) => entry.id === 'konto')?.answer).toContain(
+      'Hast du ein Konto bei SKS Lotse, gilt es auch hier.',
+    )
+    const cost = faq.find((entry) => entry.id === 'kosten')!.answer
+    expect(cost).toContain('2 je Teilaufgabe')
+    expect(faqAnswerParts(cost)).toContainEqual({ text: 'Preise', to: '/pricing' })
+    expect(sbfFaq(true, false).find((entry) => entry.id === 'konto')?.answer).toContain('kommen später')
+  })
 })

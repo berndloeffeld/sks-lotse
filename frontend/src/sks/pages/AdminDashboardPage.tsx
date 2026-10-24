@@ -110,8 +110,8 @@ function Dashboard({ data }: { data: AdminDashboard }) {
       <Section title="Lotsen-Check und Umsatz">
         <Tiles>
           <Tile
-            label="Lotsen-Checks 24 h Katalog / Kartenaufgabe"
-            value={`${m.lotse_checks_catalog_24h} / ${m.lotse_checks_chart_24h}`}
+            label="Lotsen-Checks 24 h Katalog / Kartenaufgabe / SBF-Navigationsaufgabe"
+            value={`${m.lotse_checks_catalog_24h} / ${m.lotse_checks_chart_24h} / ${m.lotse_checks_sbf_navigation_24h}`}
           />
           <Tile label="Verbrauchte Tokens 24 h / 7 Tage" value={`${m.tokens_spent_24h} / ${m.tokens_spent_7d}`} />
           <Tile label="Käufe 24 h / 7 Tage" value={`${m.purchases_24h} / ${m.purchases_7d}`} />
@@ -126,6 +126,11 @@ function Dashboard({ data }: { data: AdminDashboard }) {
           series={[
             { name: 'Katalog', values: daily.map((row) => row.lotse_checks_catalog), fill: 'fill-primary' },
             { name: 'Kartenaufgabe', values: daily.map((row) => row.lotse_checks_chart), fill: 'fill-accent' },
+            {
+              name: 'SBF-Navigationsaufgabe',
+              values: daily.map((row) => row.lotse_checks_sbf_navigation),
+              fill: 'fill-success',
+            },
           ]}
         />
         <DailyBars

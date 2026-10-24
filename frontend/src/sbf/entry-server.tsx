@@ -4,7 +4,7 @@ import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 
 import navigationExport from './data/sbf_navigation.gen.json'
 import { applyMeta, sitemapXml as sitemapFor, type PublicPage } from '../shared/publicPages'
-import { sbfNavigationOpen } from '../shared/siteConfig'
+import { sbfAccountsOpen, sbfNavigationOpen } from '../shared/siteConfig'
 import { navigationSource, type NavigationExport } from './navigationCatalog'
 import { SBF_ORIGIN, sbfPublicPages } from './publicPages'
 import { sbfRoutes } from './routes'
@@ -15,7 +15,7 @@ import { sbfRoutes } from './routes'
 // them — only in a build with VITE_SBF=on (ADR-0068). This is the SSR build, deleted after the
 // prerender, so the static import puts nothing into what is served.
 const navigation = sbfNavigationOpen() ? navigationSource.prime(navigationExport as unknown as NavigationExport) : null
-export const pages = sbfPublicPages(navigation)
+export const pages = sbfPublicPages(navigation, sbfAccountsOpen())
 export { applyMeta }
 export const sitemapXml = (list: PublicPage[]) => sitemapFor(list, SBF_ORIGIN)
 export const appTitle = 'SBF Lotse'

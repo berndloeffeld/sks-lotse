@@ -632,6 +632,7 @@ def test_public_pricing_states_what_a_check_costs_and_how_long_an_answer_it_take
 
     assert body["catalog_check_tokens"] == token_wallet.TOKENS_PER_ANSWER_CHECK
     assert body["chart_check_tokens"] == token_wallet.TOKENS_PER_CHART_CHECK
+    assert body["sbf_navigation_check_tokens"] == token_wallet.TOKENS_PER_SBF_NAVIGATION_CHECK
     assert body["check_max_answer_chars"] == settings.grading_max_answer_chars
 
 

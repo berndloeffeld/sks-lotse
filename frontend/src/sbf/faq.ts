@@ -43,6 +43,16 @@ const COMMON: SbfFaqEntry[] = [
       'Aus dem amtlichen Fragenkatalog für den Sportbootführerschein See der Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV), bereitgestellt über ELWIS. Wir verändern den Wortlaut nicht.',
   },
   {
+    id: 'sks',
+    question: 'Wie geht es nach dem SBF See weiter?',
+    answer:
+      'Wer auch in Küstengewässern Yachten führen will, macht als Nächstes den Sportküstenschifferschein (SKS); der SBF See ist dafür Voraussetzung. Für die SKS-Theorie gibt es SKS Lotse auf sks-lotse.de, mit dem kompletten amtlichen SKS-Fragenkatalog.',
+  },
+]
+
+// Account and cost, as long as SBF Lotse has no accounts.
+const ACCOUNT_SOON: SbfFaqEntry[] = [
+  {
     id: 'konto',
     question: 'Brauche ich ein Konto?',
     answer:
@@ -53,15 +63,31 @@ const COMMON: SbfFaqEntry[] = [
     question: 'Was kostet SBF Lotse?',
     answer: 'Nichts. SBF Lotse ist kostenlos und ohne Werbung.',
   },
+]
+
+// With accounts (VITE_SBF_ACCOUNTS=on, ADR-0070, ADR-0071).
+const ACCOUNT_OPEN: SbfFaqEntry[] = [
   {
-    id: 'sks',
-    question: 'Wie geht es nach dem SBF See weiter?',
+    id: 'konto',
+    question: 'Brauche ich ein Konto?',
     answer:
-      'Wer auch in Küstengewässern Yachten führen will, macht als Nächstes den Sportküstenschifferschein (SKS); der SBF See ist dafür Voraussetzung. Für die SKS-Theorie gibt es SKS Lotse auf sks-lotse.de, mit dem kompletten amtlichen SKS-Fragenkatalog.',
+      'Zum Üben nicht. Mit einem kostenlosen Konto werden deine Läufe gespeichert, du setzt sie auf jedem Gerät fort, und der Lotsen-Check schlägt dir für eine Teilaufgabe eine Bewertung vor. Hast du ein Konto bei SKS Lotse, gilt es auch hier.',
+  },
+  {
+    id: 'kosten',
+    question: 'Was kostet SBF Lotse?',
+    answer:
+      'Üben und Speichern sind kostenlos und ohne Werbung. Nur der Lotsen-Check kostet Tokens: 2 je Teilaufgabe. Zum Start gibt es Tokens geschenkt, weitere gibt es in Paketen ohne Abo, siehe [Preise](/pricing).',
   },
 ]
 
-// The FAQ of the build: with the Navigationsaufgaben, the note on the own tolerances follows the source.
-export function sbfFaq(open: boolean): SbfFaqEntry[] {
-  return open ? [WHAT_OPEN, ...COMMON.slice(0, 2), TOLERANCE, ...COMMON.slice(2)] : [WHAT_SOON, ...COMMON]
+// The FAQ of the build: with the Navigationsaufgaben, the note on the own tolerances follows the source;
+// with accounts, what an account and the Lotsen-Check bring.
+export function sbfFaq(open: boolean, accounts = false): SbfFaqEntry[] {
+  const account = accounts ? ACCOUNT_OPEN : ACCOUNT_SOON
+  const [sks] = COMMON.slice(-1)
+  const general = COMMON.slice(0, -1)
+  return open
+    ? [WHAT_OPEN, ...general.slice(0, 2), TOLERANCE, ...general.slice(2), ...account, sks]
+    : [WHAT_SOON, ...general, ...account, sks]
 }

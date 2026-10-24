@@ -1009,6 +1009,8 @@ export interface components {
             catalog_check_tokens: number;
             /** Chart Check Tokens */
             chart_check_tokens: number;
+            /** Sbf Navigation Check Tokens */
+            sbf_navigation_check_tokens: number;
             /** Check Max Answer Chars */
             check_max_answer_chars: number;
         };

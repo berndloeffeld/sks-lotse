@@ -5,7 +5,9 @@ import { sectionHeading } from '../shared/components/headingStyles'
 import { useLazyExport } from '../shared/hooks/useLazyExport'
 import { navigationSource, navigationTask } from './navigationCatalog'
 import { NavigationHints } from './NavigationHints'
-import { NavigationTaskRun } from './NavigationTaskRun'
+import { sbfAccountsOpen } from '../shared/siteConfig'
+import { useAuthStore } from '../shared/store/authStore'
+import { NavigationTaskRun, SavedNavigationTaskRun } from './NavigationTaskRun'
 import { SbfNotFoundPage } from './SbfNotFoundPage'
 import { SbfPageLayout } from './SbfPageLayout'
 
@@ -17,7 +19,11 @@ export function NavigationTaskPage() {
   const { number = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const { data, failed, reload } = useLazyExport(navigationSource)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const sessionLoading = useAuthStore((state) => state.isLoading)
   const title = `Navigationsaufgabe ${number}`
+  // With accounts on SBF Lotse a learner's run is saved (ADR-0071); a guest's stays in the page.
+  const accounts = sbfAccountsOpen()
 
   if (!data) {
     return (
@@ -43,7 +49,15 @@ export function NavigationTaskPage() {
   if (params.has(RUN_PARAM)) {
     return (
       <SbfPageLayout title={title} subtitle="9 Teilaufgaben · 1 Punkt je Teilaufgabe" width="lg" compact>
-        <NavigationTaskRun key={task.number} data={data} task={task} />
+        {accounts && sessionLoading ? (
+          <p role="status" className="text-ink-soft">
+            Lädt …
+          </p>
+        ) : accounts && isAuthenticated ? (
+          <SavedNavigationTaskRun key={task.number} data={data} task={task} />
+        ) : (
+          <NavigationTaskRun key={task.number} data={data} task={task} />
+        )}
       </SbfPageLayout>
     )
   }

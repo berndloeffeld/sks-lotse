@@ -7,6 +7,7 @@ import { jsonResponse } from '../test/fixtures'
 const PRICING = {
   catalog_check_tokens: 3,
   chart_check_tokens: 5,
+  sbf_navigation_check_tokens: 2,
   check_max_answer_chars: 400,
   signup_bonus_tokens: 7,
 } as PublicPricing
@@ -18,6 +19,7 @@ describe('checkLimits', () => {
     expect(DEFAULT_CHECK_LIMITS).toEqual({
       catalogCheckTokens: 1,
       chartCheckTokens: 2,
+      sbfNavigationCheckTokens: 2,
       maxAnswerChars: 1000,
       signupBonusTokens: null,
     })
@@ -27,6 +29,7 @@ describe('checkLimits', () => {
     expect(toCheckLimits(PRICING)).toEqual({
       catalogCheckTokens: 3,
       chartCheckTokens: 5,
+      sbfNavigationCheckTokens: 2,
       maxAnswerChars: 400,
       signupBonusTokens: 7,
     })
