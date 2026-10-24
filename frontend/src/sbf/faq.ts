@@ -1,13 +1,35 @@
 // The SBF site's FAQ (/faq and the start page's excerpt), like src/faq.ts for SKS Lotse: ids give
 // each entry a stable /faq#<id> anchor, and an answer links with `[text](/path)` (FaqAnswer).
-// While VITE_SBF is "off" (ADR-0067) it describes the site as being built, not what it will offer.
-export const SBF_FAQ: { id: string; question: string; answer: string }[] = [
-  {
-    id: 'was',
-    question: 'Was ist SBF Lotse?',
-    answer:
-      'Eine Web-App für die Theorieprüfung zum Sportbootführerschein (SBF), aus derselben Werkstatt wie SKS Lotse. Sie ist im Aufbau. Als Erstes kommen die 15 amtlichen Navigationsaufgaben für den SBF See: Aufgabe für Aufgabe deine Antwort schreiben, mit dem amtlichen Ergebnis vergleichen und am Ende sehen, ob es nach dem Bewertungsschlüssel zum Bestehen gereicht hätte.',
-  },
+// Two entries depend on the build: while VITE_SBF is "off" (ADR-0067) they describe the site as being
+// built, with "on" what guests can do now (ADR-0068).
+export interface SbfFaqEntry {
+  id: string
+  question: string
+  answer: string
+}
+
+const WHAT_SOON: SbfFaqEntry = {
+  id: 'was',
+  question: 'Was ist SBF Lotse?',
+  answer:
+    'Eine Web-App für die Theorieprüfung zum Sportbootführerschein (SBF), aus derselben Werkstatt wie SKS Lotse. Sie ist im Aufbau. Als Erstes kommen die 15 amtlichen Navigationsaufgaben für den SBF See: Aufgabe für Aufgabe deine Antwort schreiben, mit dem amtlichen Ergebnis vergleichen und am Ende sehen, ob es nach dem Bewertungsschlüssel zum Bestehen gereicht hätte.',
+}
+
+const WHAT_OPEN: SbfFaqEntry = {
+  id: 'was',
+  question: 'Was ist SBF Lotse?',
+  answer:
+    'Eine Web-App für die Theorieprüfung zum Sportbootführerschein (SBF), aus derselben Werkstatt wie SKS Lotse. Die 15 amtlichen [Navigationsaufgaben](/navigation) für den SBF See kannst du schon üben: Teilaufgabe für Teilaufgabe deine Antwort schreiben, mit dem amtlichen Ergebnis vergleichen und am Ende sehen, ob es nach dem Bewertungsschlüssel zum Bestehen gereicht hätte. Weiteres ist im Aufbau.',
+}
+
+const TOLERANCE: SbfFaqEntry = {
+  id: 'toleranz',
+  question: 'Woher kommen die Toleranzen bei den Ergebnissen?',
+  answer:
+    'Der amtliche Katalog nennt nur das Ergebnis, keine Toleranzen. Die Toleranzen, die SBF Lotse dazu angibt, stammen von uns und folgen der üblichen Prüfungspraxis, etwa ±1° bei Kursen und Peilungen oder ±0,2′ bei Positionen. Sie sind nicht amtlich und deshalb auch so gekennzeichnet; maßgeblich ist, was die Prüfungskommission gelten lässt.',
+}
+
+const COMMON: SbfFaqEntry[] = [
   {
     id: 'navigationsaufgabe',
     question: 'Was ist die Navigationsaufgabe im SBF See?',
@@ -38,3 +60,8 @@ export const SBF_FAQ: { id: string; question: string; answer: string }[] = [
       'Wer auch in Küstengewässern Yachten führen will, macht als Nächstes den Sportküstenschifferschein (SKS); der SBF See ist dafür Voraussetzung. Für die SKS-Theorie gibt es SKS Lotse auf sks-lotse.de, mit dem kompletten amtlichen SKS-Fragenkatalog.',
   },
 ]
+
+// The FAQ of the build: with the Navigationsaufgaben, the note on the own tolerances follows the source.
+export function sbfFaq(open: boolean): SbfFaqEntry[] {
+  return open ? [WHAT_OPEN, ...COMMON.slice(0, 2), TOLERANCE, ...COMMON.slice(2)] : [WHAT_SOON, ...COMMON]
+}
