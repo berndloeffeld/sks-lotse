@@ -1,6 +1,6 @@
 # 0069. The frontend split into shared, SKS and SBF; SBF Lotse reaches the API through a proxy on sbf-lotse.de
 
-Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2)
+Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2); the proxy is withdrawn after its check failed (update 2026-10-24 below), so how SBF Lotse reaches the API is open again
 
 ## Context
 
@@ -49,3 +49,15 @@ Within each area the subfolders stay as they were (`components/`, `hooks/`, `pag
   - api.sbf-lotse.de (option 1): a second API host and CORS origin to run, for the same result. It stays the fallback, should the client IP not come through the proxy.
   - A `SameSite=None` cookie (option 2): blocked as a third-party cookie in Safari and Firefox.
   - Leaving `src/` flat and relying on `check-sbf-build.mjs`: it only sees what reaches the SBF bundle, after a full build, and says nothing about SKS code that only SBF should not depend on.
+
+## Update 2026-10-24: the proxy check failed, the rewrite is removed
+
+The rewrite was deployed ahead of increment 2 and checked from one network against production (`POST /api/v1/auth/otp/verify-link` with a dummy token, limit 30 an hour per IP):
+- **Reachability**: through sbf-lotse.de the backend answered (JSON, its `x-request-id`).
+- **Not the learner's IP**: with this network's bucket full directly on api.sks-lotse.de (429, over IPv4 and IPv6), the same request through sbf-lotse.de got 401. The backend saw another IP.
+- **No shared bucket either**: more than 40 requests through sbf-lotse.de within minutes, none got 429. The requests arrive from changing CDN addresses, so the rewrite **bypassed the per-IP rate limit** for anyone who used it, the OTP routes included.
+- **No spoofing**: a client-sent `CF-Connecting-IP` is refused by Cloudflare (403), and a client-sent `True-Client-IP` doesn't reach the limiter.
+
+So the rewrite came out of `render.yaml` again the same day, and `tests/test_render_blueprint.py` now fails on any `/api` rewrite. The per-email limits (code requests, attempts per code) held throughout; only the per-IP limits were open.
+
+The cross-site question is open again. The fallback named above is api.sbf-lotse.de, a custom domain on the backend service, which needs a free custom-domain slot on the Render plan. A new ADR records that decision when increment 2 starts. The directory split above stands.
