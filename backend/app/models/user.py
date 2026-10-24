@@ -55,6 +55,10 @@ class User(Base):
     # purely learning-based. Indexed for the future cleanup job's
     # `last_login_at < cutoff` scan.
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    # The site the account was created on, "sks" or "sbf" (app/core/site.py, ADR-0070) — for the daily
+    # report's new accounts per site only; the account itself is the same on both. NULL for accounts
+    # from before there were two sites.
+    signup_site: Mapped[str | None] = mapped_column(String(8), nullable=True)
     # Admin 2FA (ADR-0047). The TOTP secret, Fernet-encrypted (app/core/totp.py) — set when
     # enrolment starts; totp_enabled_at stays NULL until the first code confirms it, and only then
     # does the secret count. totp_last_counter is the last accepted 30-second step, so a code

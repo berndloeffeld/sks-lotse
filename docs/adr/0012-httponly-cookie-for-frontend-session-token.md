@@ -1,6 +1,6 @@
 # 0012. httpOnly cookie for the frontend's session token, not localStorage
 
-Status: Accepted; the addendum of 2026-10-01 names the cookie `__Host-access_token` when deployed; the addendum of 2026-10-14 puts the token in a login response's body only on request
+Status: Accepted; the addendum of 2026-10-01 names the cookie `__Host-access_token` when deployed; the addendum of 2026-10-14 puts the token in a login response's body only on request; amended by [ADR-0070](0070-sbf-api-host-and-site-per-request.md): one cookie per API host, api.sks-lotse.de and api.sbf-lotse.de, so a learner signs in on each site once
 
 ## Context
 

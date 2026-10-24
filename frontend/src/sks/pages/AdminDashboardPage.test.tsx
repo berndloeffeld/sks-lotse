@@ -30,6 +30,8 @@ function dashboard(days: number, daily: DailyKpis[]): AdminDashboard {
       new_24h: 5,
       new_previous_24h: 3,
       new_7d: 21,
+      new_sbf_24h: 1,
+      new_sbf_7d: 4,
       variant_motor: 40,
       variant_segeln_und_motor: 80,
       variant_unset: 8,
@@ -55,6 +57,8 @@ function dashboard(days: number, daily: DailyKpis[]): AdminDashboard {
       purchases_7d: 4,
       revenue_cents_24h: 499,
       revenue_cents_7d: 2096,
+      purchases_sbf_7d: 1,
+      revenue_cents_sbf_7d: 499,
     },
     daily,
   }

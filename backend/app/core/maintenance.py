@@ -10,6 +10,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from app.core.site import BRANDS, resolve_site
+
 MAINTENANCE_HEADER = "X-Maintenance-Mode"
 
 
@@ -24,7 +26,8 @@ class MaintenanceModeMiddleware(BaseHTTPMiddleware):
         if not self.enabled or not request.url.path.startswith("/api/v1"):
             return await call_next(request)
         return JSONResponse(
-            {"detail": "SKS Lotse befindet sich aktuell im Wartungsmodus."},
+            # The brand of the site the request came from (ADR-0070): one switch covers both.
+            {"detail": f"{BRANDS[resolve_site(request)].name} befindet sich aktuell im Wartungsmodus."},
             status_code=503,
             headers={MAINTENANCE_HEADER: "1"},
         )

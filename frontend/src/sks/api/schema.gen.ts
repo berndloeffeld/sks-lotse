@@ -218,6 +218,8 @@ export interface components {
             granted_by: string;
             /** Stripe Payment Intent Id */
             stripe_payment_intent_id: string | null;
+            /** Site */
+            site: string | null;
             /**
              * Created At
              * Format: date-time
@@ -413,6 +415,8 @@ export interface components {
             agb_accepted_at: string | null;
             /** Last Login At */
             last_login_at: string | null;
+            /** Signup Site */
+            signup_site: string | null;
             /** Totp Enabled At */
             totp_enabled_at: string | null;
             /** Question Progress Count */
@@ -871,6 +875,10 @@ export interface components {
             new_previous_24h: number;
             /** New 7D */
             new_7d: number;
+            /** New Sbf 24H */
+            new_sbf_24h: number;
+            /** New Sbf 7D */
+            new_sbf_7d: number;
             /** Variant Motor */
             variant_motor: number;
             /** Variant Segeln Und Motor */
@@ -903,6 +911,10 @@ export interface components {
             revenue_cents_24h: number;
             /** Revenue Cents 7D */
             revenue_cents_7d: number;
+            /** Purchases Sbf 7D */
+            purchases_sbf_7d: number;
+            /** Revenue Cents Sbf 7D */
+            revenue_cents_sbf_7d: number;
         };
         /** OtpLinkVerifyRequest */
         OtpLinkVerifyRequest: {

@@ -30,7 +30,7 @@ def _docs_kwargs() -> dict:
     return {}
 
 
-app = FastAPI(title="SKS Lotse API", **_docs_kwargs())
+app = FastAPI(title="SKS Lotse / SBF Lotse API", **_docs_kwargs())
 app.add_middleware(RedirectSecondaryDomainsMiddleware)
 app.add_middleware(
     RateLimitMiddleware,

@@ -51,3 +51,10 @@ def test_preflight_allows_the_method(client, path, method):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_sbf_lotse_origin_gets_cors_with_credentials(client):
+    # ADR-0070: sbf-lotse.de calls the API on api.sbf-lotse.de with its session cookie.
+    response = client.get("/health", headers={"Origin": "http://localhost:5174"})
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5174"
+    assert response.headers["access-control-allow-credentials"] == "true"

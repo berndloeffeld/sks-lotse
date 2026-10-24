@@ -48,6 +48,7 @@ only_mutate = [
     "app/core/totp.py",
     "app/core/checkout.py",
     "app/core/features.py",
+    "app/core/site.py",
     "app/services/ai_abuse_monitoring.py",
     "app/services/pricing.py",
     "app/services/token_wallet.py",

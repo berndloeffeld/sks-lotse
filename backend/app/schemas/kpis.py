@@ -9,6 +9,9 @@ class GrowthKpis(BaseModel):
     new_24h: int
     new_previous_24h: int
     new_7d: int
+    # Of those, created on sbf-lotse.de (users.signup_site, ADR-0070).
+    new_sbf_24h: int
+    new_sbf_7d: int
     variant_motor: int
     variant_segeln_und_motor: int
     variant_unset: int
@@ -64,6 +67,9 @@ class MonetizationKpis(BaseModel):
     purchases_7d: int
     revenue_cents_24h: int
     revenue_cents_7d: int
+    # Of those, bought on sbf-lotse.de (purchases.site, ADR-0070).
+    purchases_sbf_7d: int
+    revenue_cents_sbf_7d: int
 
 
 class ReportedQuestion(BaseModel):

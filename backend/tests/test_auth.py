@@ -17,7 +17,7 @@ from tests.helpers import TOKEN_IN_BODY, progress_state
 def _capture_otp(monkeypatch):
     sent = []
 
-    def fake_send(to_email, code, link_token=None):
+    def fake_send(to_email, code, link_token=None, *, site):
         sent.append((to_email, code))
 
     monkeypatch.setattr("app.services.email.send_otp_email", fake_send)
@@ -110,7 +110,7 @@ def test_request_otp_email_case_variants_share_one_cooldown(client, monkeypatch)
 
 
 def test_request_otp_email_send_failure_still_returns_202(client, monkeypatch, caplog):
-    def failing_send(to_email, code, link_token=None):
+    def failing_send(to_email, code, link_token=None, *, site):
         raise RuntimeError("resend down")
 
     monkeypatch.setattr("app.services.email.send_otp_email", failing_send)
@@ -919,7 +919,7 @@ def test_delete_me_clears_the_session_cookie(client, db_session, monkeypatch):
 def _capture_email_change_otp(monkeypatch):
     sent = []
 
-    def fake_send(to_email, code):
+    def fake_send(to_email, code, *, site):
         sent.append((to_email, code))
 
     monkeypatch.setattr("app.services.email.send_email_change_otp_email", fake_send)
@@ -1068,7 +1068,8 @@ def test_verify_email_change_notifies_the_old_address(client, monkeypatch, auth_
     code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
     notices = []
     monkeypatch.setattr(
-        "app.services.email.send_email_change_notice_email", lambda old, masked: notices.append((old, masked))
+        "app.services.email.send_email_change_notice_email",
+        lambda old, masked, *, site: notices.append((old, masked)),
     )
 
     client.post(
@@ -1083,7 +1084,7 @@ def test_verify_email_change_notifies_the_old_address(client, monkeypatch, auth_
 def test_a_failed_notice_mail_does_not_fail_the_email_change(client, monkeypatch, auth_headers):
     code = _request_email_change_and_get_code(client, monkeypatch, auth_headers)
 
-    def boom(old, masked):
+    def boom(old, masked, *, site):
         raise RuntimeError("resend down")
 
     monkeypatch.setattr("app.services.email.send_email_change_notice_email", boom)
@@ -1101,7 +1102,7 @@ def test_verify_email_change_wrong_code_sends_no_notice(client, monkeypatch, aut
     _request_email_change_and_get_code(client, monkeypatch, auth_headers)
     notices = []
     monkeypatch.setattr(
-        "app.services.email.send_email_change_notice_email", lambda old, masked: notices.append(old)
+        "app.services.email.send_email_change_notice_email", lambda old, masked, *, site: notices.append(old)
     )
 
     client.post(
@@ -1356,3 +1357,69 @@ def test_the_hourly_code_quota_is_per_address(client, monkeypatch):
 
     # The third request is silently dropped: first@ already used its one code this hour.
     assert [to for to, _ in sent] == ["first@example.com", "second@example.com"]
+
+
+# --- the site a request comes from (ADR-0070) -----------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("headers", "site"),
+    [
+        ({}, "sks"),
+        ({"Origin": "http://localhost:5173"}, "sks"),
+        ({"Origin": "http://localhost:5174"}, "sbf"),
+        ({"Host": "api.sbf-lotse.de"}, "sbf"),
+    ],
+)
+def test_the_login_mail_is_for_the_site_the_code_was_requested_on(client, monkeypatch, headers, site):
+    sites = []
+    monkeypatch.setattr(
+        "app.services.email.send_otp_email", lambda to, code, link=None, *, site: sites.append(site)
+    )
+
+    client.post("/api/v1/auth/otp/request", json={"email": "learner@example.com"}, headers=headers)
+
+    assert sites == [site]
+
+
+def test_a_new_account_records_the_site_it_was_created_on(client, db_session, monkeypatch):
+    sbf = {"Origin": "http://localhost:5174"}
+    sent = _capture_otp(monkeypatch)
+    client.post("/api/v1/auth/otp/request", json={"email": "sbf@example.com"}, headers=sbf)
+    response = client.post(
+        "/api/v1/auth/otp/verify", json={"email": "sbf@example.com", "code": sent[0][1]}, headers=sbf
+    )
+    assert response.status_code == 200
+    user = db_session.query(User).filter_by(email="sbf@example.com").one()
+    assert user.signup_site == "sbf"
+
+    # Signing in later on the other site doesn't change it: the account is the same on both.
+    db_session.query(OtpCode).delete()
+    db_session.commit()
+    sent.clear()
+    client.post("/api/v1/auth/otp/request", json={"email": "sbf@example.com"})
+    client.post("/api/v1/auth/otp/verify", json={"email": "sbf@example.com", "code": sent[0][1]})
+    db_session.refresh(user)
+    assert user.signup_site == "sbf"
+
+
+def test_the_email_change_mails_follow_the_site_of_the_request(client, monkeypatch, auth_headers):
+    sbf = {**auth_headers, "Origin": "http://localhost:5174"}
+    codes, notices = [], []
+    monkeypatch.setattr(
+        "app.services.email.send_email_change_otp_email",
+        lambda to, code, *, site: codes.append((code, site)),
+    )
+    monkeypatch.setattr(
+        "app.services.email.send_email_change_notice_email",
+        lambda old, masked, *, site: notices.append(site),
+    )
+    client.post("/api/v1/auth/me/email/request", json={"new_email": "new@example.com"}, headers=sbf)
+    [(code, site)] = codes
+    assert site == "sbf"
+
+    client.post(
+        "/api/v1/auth/me/email/verify", json={"new_email": "new@example.com", "code": code}, headers=sbf
+    )
+
+    assert notices == ["sbf"]

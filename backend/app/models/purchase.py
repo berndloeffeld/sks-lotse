@@ -42,4 +42,7 @@ class Purchase(Base):
     admin_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     # Set for granted_by="stripe" only (unique, see __table_args__).
     stripe_payment_intent_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # The site a Stripe purchase was made on, "sks" or "sbf" (ADR-0070), from the Checkout Session's
+    # metadata — for the daily report. NULL for every other kind of grant and for older purchases.
+    site: Mapped[str | None] = mapped_column(String(8), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

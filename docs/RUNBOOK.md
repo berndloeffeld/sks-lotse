@@ -84,7 +84,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | Secret | Set on | Rotating it means |
 |---|---|---|
 | `JWT_SECRET` | backend **and** cron | Every session and every pending OTP code becomes invalid; everyone logs in again. Admins' stored TOTP secrets become unreadable too: [reset every admin's 2FA](#reset-an-admins-2fa) afterwards and set it up again. Generate with `openssl rand -hex 32`, set it on both services in one go (the cron only needs it to pass config validation). |
-| `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives, then revoke the old key. |
+| `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives (on both sites, [ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)), then revoke the old key. |
 | `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the reserved token is refunded. |
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
@@ -204,7 +204,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 - **Render**: Custom Domains; env var *values*. A header or env var removed from `render.yaml` may linger on the service. In PR #150 the old `Content-Security-Policy-Report-Only` header had to be deleted by hand in the frontend service's settings. After such a change, check the live response headers.
 - **Render, `sks-lotse-backend`**: `STRIPE_CHECKOUT` = `on` (every learner can buy tokens). When it is switched, change this line and `docs/FEATURES.md` in the same PR; the flag stays `sync: false`, so no PR would otherwise remind anyone.
 - **Better Stack**: monitors, alert rules, the status page and the heartbeat.
-- **Resend / IONOS**: the sending-domain DNS records.
+- **Resend / IONOS**: the sending-domain DNS records, for `sks-lotse.de` and `sbf-lotse.de`.
 
 ## One-time setup (recreating the environment)
 
@@ -240,4 +240,19 @@ For sbf-lotse.de, the second static site ([ADR-0067](adr/0067-second-site-from-o
   - The browser's network tab shows no request to `api.sks-lotse.de`.
 - [ ] Optional: a Better Stack monitor on `https://sbf-lotse.de`.
 
-Part 2 (accounts on SBF Lotse) follows with increment 2. That needs its own decision about how sbf-lotse.de reaches the API ([ADR-0067](adr/0067-second-site-from-one-codebase.md), Consequences).
+## One-time setup SBF, part 2
+
+For accounts on sbf-lotse.de (increment 2). sbf-lotse.de reaches the backend on `api.sbf-lotse.de`, a second custom domain of `sks-lotse-backend` ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)). The backend changes ship first and change nothing visible. Accounts on sbf-lotse.de stay switched off in its build until the checks below pass. Steps for the project owner:
+
+- [ ] **Render:** on `sks-lotse-backend` → Settings → Custom Domains, `api.sbf-lotse.de` shows as verified, with a certificate (DNS at IONOS: the `CNAME api → sks-lotse-backend.onrender.com` Render lists). Done before increment 2; check it once more.
+- [ ] **Resend:** add and verify the sending domain `sbf-lotse.de` with the DNS records Resend lists (SPF, DKIM, optionally the return path; IONOS). Until it is verified, mails from `noreply@sbf-lotse.de` are refused, so learners signing in on sbf-lotse.de would get no code.
+- [ ] **Resend plan:** check that the plan covers the login mails of both sites ([NFR](NON-FUNCTIONAL-REQUIREMENTS.md), SBF Lotse).
+- [ ] **Render, optional:** set `EMAIL_FROM_ADDRESS_SBF` on `sks-lotse-backend` only to change the default `SBF Lotse <noreply@sbf-lotse.de>`.
+- [ ] **Stripe:** nothing to set. The same webhook endpoint on api.sks-lotse.de serves both sites; the Checkout Session's `metadata.site` tells them apart, and the return URLs come from the backend.
+- [ ] **Client IP on api.sbf-lotse.de** (after the backend deploy, before accounts open on sbf-lotse.de). Same method as [ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md)'s update:
+  1. Fill the per-IP bucket of `POST /api/v1/auth/otp/verify-link` (30 an hour) on `https://api.sks-lotse.de` with a dummy token.
+  2. Send one more request to `https://api.sbf-lotse.de`. It must get **429**, not 401: both hosts see the same learner IP.
+  3. Afterwards login links don't work from that network for up to an hour; the code does.
+  4. Record the result as an update in ADR-0070.
+- [ ] **Check:** `curl -s -o /dev/null -w '%{http_code}' https://api.sbf-lotse.de/api/v1/pricing` answers 200, and `curl -sI -H 'Origin: https://sbf-lotse.de' https://api.sbf-lotse.de/health` carries `access-control-allow-origin: https://sbf-lotse.de` and `access-control-allow-credentials: true`.
+- [ ] **Better Stack, optional:** a monitor on `https://api.sbf-lotse.de/health`.

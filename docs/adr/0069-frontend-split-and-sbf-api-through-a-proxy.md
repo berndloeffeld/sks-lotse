@@ -1,6 +1,6 @@
 # 0069. The frontend split into shared, SKS and SBF; SBF Lotse reaches the API through a proxy on sbf-lotse.de
 
-Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2); the proxy is withdrawn after its check failed (update 2026-10-24 below), so how SBF Lotse reaches the API is open again
+Status: Accepted — amends [ADR-0067](0067-second-site-from-one-codebase.md) (where each site's code lives; the cross-site question its Consequences left open for increment 2); the proxy is withdrawn after its check failed (update 2026-10-24 below), so how SBF Lotse reaches the API is open again; [ADR-0070](0070-sbf-api-host-and-site-per-request.md) settles it with the fallback, api.sbf-lotse.de
 
 ## Context
 

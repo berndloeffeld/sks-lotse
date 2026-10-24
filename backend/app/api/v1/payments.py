@@ -7,6 +7,7 @@ from app.core.checkout import checkout_enabled_for
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import require_current_agb
+from app.core.site import Site, resolve_site
 from app.models.user import User
 from app.schemas.payments import CheckoutRead, CheckoutRequest, WebhookRead
 from app.services import payments
@@ -21,6 +22,7 @@ def create_checkout(
     payload: CheckoutRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_agb),
+    site: Site = Depends(resolve_site),
 ) -> CheckoutRead:
     """Open a Stripe Checkout Session for a token package (ADR-0048), behind the STRIPE_CHECKOUT flag.
 
@@ -30,7 +32,7 @@ def create_checkout(
     if not checkout_enabled_for(current_user.email):
         raise HTTPException(status_code=403, detail="Checkout is not available")
     try:
-        url = payments.create_checkout_url(db, current_user, payload.product)
+        url = payments.create_checkout_url(db, current_user, payload.product, site)
     except payments.CheckoutUnavailable as exc:
         logger.warning("checkout unavailable for user %s: %s", current_user.id, exc)
         raise HTTPException(status_code=502, detail="Checkout is currently unavailable") from exc

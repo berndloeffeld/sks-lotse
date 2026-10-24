@@ -23,6 +23,7 @@ from app.core.otp import (
     hash_link_token,
     verify_code,
 )
+from app.core.site import Site
 from app.core.timeutil import as_utc
 from app.models import OtpCode
 from app.services import blocklist
@@ -66,29 +67,29 @@ def _mask_email(email: str) -> str:
     return f"{local[:1]}***@{domain}"
 
 
-def send_login_code(email: str, code: str, link_token: str | None) -> None:
+def send_login_code(email: str, code: str, link_token: str | None, *, site: Site) -> None:
     # Runs as a background task: keeps Resend's latency out of the response,
     # which also narrows the timing difference between a real send and the
     # silent no-op paths in request_otp (allowlist, cooldown, ...).
     try:
-        email_service.send_otp_email(email, code, link_token)
+        email_service.send_otp_email(email, code, link_token, site=site)
     except Exception:
         logger.exception("Failed to send OTP email to %s", _mask_email(email))
 
 
-def send_email_change_code(email: str, code: str, _link_token: str | None) -> None:
+def send_email_change_code(email: str, code: str, _link_token: str | None, *, site: Site) -> None:
     # Never gets a link (issue_code mints one for login codes only): confirming a new address
     # needs the logged-in session, which a link opened elsewhere wouldn't have.
     try:
-        email_service.send_email_change_otp_email(email, code)
+        email_service.send_email_change_otp_email(email, code, site=site)
     except Exception:
         logger.exception("Failed to send email-change confirmation to %s", _mask_email(email))
 
 
-def send_email_change_notice(old_email: str, new_email: str) -> None:
+def send_email_change_notice(old_email: str, new_email: str, *, site: Site) -> None:
     # Background task after a confirmed change; a failed send must not undo or fail the change.
     try:
-        email_service.send_email_change_notice_email(old_email, _mask_email(new_email))
+        email_service.send_email_change_notice_email(old_email, _mask_email(new_email), site=site)
     except Exception:
         logger.exception("Failed to send email-change notice to %s", _mask_email(old_email))
 

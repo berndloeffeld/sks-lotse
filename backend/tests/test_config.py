@@ -54,12 +54,24 @@ def test_exposes_dev_tooling_only_in_dev_and_test(environment, expected):
 
 def test_cors_allowed_origins_in_production():
     s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="production")
-    assert s.cors_allowed_origins == ["https://sks-lotse.de", "https://www.sks-lotse.de"]
+    # SKS Lotse's first: its canonical origin used to be cors_allowed_origins[0] (ADR-0070).
+    assert s.cors_allowed_origins == [
+        "https://sks-lotse.de",
+        "https://www.sks-lotse.de",
+        "https://sbf-lotse.de",
+        "https://www.sbf-lotse.de",
+    ]
+    assert s.site_origins["sks"][0] == "https://sks-lotse.de"
+    assert s.site_origins["sbf"][0] == "https://sbf-lotse.de"
 
 
 def test_cors_allowed_origins_outside_production():
     s = Settings(database_url="x", jwt_secret=_LONG_ENOUGH_SECRET, environment="development")
-    assert s.cors_allowed_origins == ["http://localhost:5173", "http://127.0.0.1:5173"]
+    assert s.site_origins["sks"] == ["http://localhost:5173", "http://127.0.0.1:5173"]
+    # The SBF dev and preview servers of .claude/launch.json.
+    assert s.site_origins["sbf"][0] == "http://localhost:5174"
+    assert {"http://localhost:5175", "http://localhost:4174"} <= set(s.site_origins["sbf"])
+    assert s.cors_allowed_origins == s.site_origins["sks"] + s.site_origins["sbf"]
 
 
 def test_env_example_lists_every_setting():

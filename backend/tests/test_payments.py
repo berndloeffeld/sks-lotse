@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 import stripe
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.core import checkout
@@ -137,10 +138,18 @@ def test_public_pricing_reports_checkout_only_when_on(client, monkeypatch):
 # --- opening a checkout ---------------------------------------------------------------------------
 
 
-def test_build_checkout_params_uses_the_checkout_studio_settings(db_session, auth_headers):
+@pytest.fixture
+def production_origins(monkeypatch):
+    # The canonical origins come from settings.site_origins, which differ in production.
+    monkeypatch.setattr(settings, "environment", "production")
+
+
+def test_build_checkout_params_uses_the_checkout_studio_settings(
+    db_session, auth_headers, production_origins
+):
     user = fixture_user(db_session)
     package = pricing_domain.TokenPackage("tokens_m", 50, 599)
-    params = payments.build_checkout_params(user, package, "prod_m", "https://sks-lotse.de")
+    params = payments.build_checkout_params(user, package, "prod_m", "sks")
     assert params == {
         "ui_mode": "hosted_page",
         "billing_address_collection": "auto",
@@ -161,6 +170,7 @@ def test_build_checkout_params_uses_the_checkout_studio_settings(db_session, aut
             "product": "tokens_m",
             "tokens": "50",
             "withdrawal_waiver": "accepted",
+            "site": "sks",
         },
         "success_url": "https://sks-lotse.de/pricing?checkout=success&product=tokens_m",
         "cancel_url": "https://sks-lotse.de/pricing?checkout=cancelled",
@@ -185,7 +195,26 @@ def test_checkout_returns_the_stripe_url_with_the_configured_price(
         "unit_amount": 349,
     }
     assert fake_stripe.params["metadata"]["tokens"] == "25"
-    assert fake_stripe.params["success_url"].startswith(settings.cors_allowed_origins[0])
+    assert (
+        fake_stripe.params["success_url"] == "http://localhost:5173/pricing?checkout=success&product=tokens_s"
+    )
+    assert fake_stripe.params["cancel_url"] == "http://localhost:5173/pricing?checkout=cancelled"
+    assert fake_stripe.params["metadata"]["site"] == "sks"
+
+
+def test_checkout_from_sbf_lotse_returns_there_and_records_the_site(
+    client, db_session, buyer_headers, stripe_configured, fake_stripe
+):
+    # ADR-0070: Stripe sends the learner back to the site they bought on.
+    response = client.post(
+        "/api/v1/payments/checkout",
+        json={"product": "tokens_s", "waive_withdrawal": True},
+        headers={**buyer_headers, "Origin": "http://localhost:5174"},
+    )
+    assert response.status_code == 200
+    assert fake_stripe.params["success_url"].startswith("http://localhost:5174/pricing?checkout=success")
+    assert fake_stripe.params["cancel_url"] == "http://localhost:5174/pricing?checkout=cancelled"
+    assert fake_stripe.params["metadata"]["site"] == "sbf"
 
 
 def test_checkout_is_refused_while_the_flag_is_off(
@@ -445,7 +474,7 @@ def test_webhook_sends_the_confirmation_mail_once(
     assert to == FIXTURE_EMAIL
     assert (mail["package"], mail["tokens"], mail["amount"]) == ("Paket M", 50, "5,99 €")
     assert mail["reference"] == "pi_1"
-    assert mail["base_url"] == settings.cors_allowed_origins[0]
+    assert mail["site"] == "sks"
     assert mail["paid_at"].endswith(" Uhr")
 
 
@@ -489,7 +518,7 @@ def test_confirmation_mail_names_the_payment_time_in_berlin_time(monkeypatch):
         payments.email_service, "send_purchase_confirmation_email", lambda to, **kw: sent.append((to, kw))
     )
 
-    payments.send_purchase_confirmation("a@b.de", "tokens_s", 20, 299, "pi_1")
+    payments.send_purchase_confirmation("a@b.de", "tokens_s", 20, 299, "pi_1", "sks")
 
     [(to, kw)] = sent
     assert to == "a@b.de"
@@ -504,10 +533,10 @@ def test_euro_formats_cents_the_german_way():
     assert payments._euro(None) == "-"
 
 
-def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
+def test_purchase_confirmation_mail_states_the_waiver(monkeypatch, production_origins):
     sent = []
     monkeypatch.setattr(
-        email_service, "_send", lambda to, subject, html, text: sent.append((to, subject, text, html))
+        email_service, "_send", lambda to, subject, html, text, sender: sent.append((to, subject, text, html))
     )
     email_service.send_purchase_confirmation_email(
         "a@b.de",
@@ -516,7 +545,7 @@ def test_purchase_confirmation_mail_states_the_waiver(monkeypatch):
         amount="2,99 €",
         paid_at="25.09.2026, 14:00 Uhr",
         reference="pi_9",
-        base_url="https://sks-lotse.de",
+        site="sks",
     )
     ((to, subject, text, html),) = sent
     assert to == "a@b.de"
@@ -549,12 +578,12 @@ WAIVER = (
 )
 
 
-def test_purchase_confirmation_mail_has_the_required_content_exactly(monkeypatch):
+def test_purchase_confirmation_mail_has_the_required_content_exactly(monkeypatch, production_origins):
     import re
 
     sent = []
     monkeypatch.setattr(
-        email_service, "_send", lambda to, subject, html, text: sent.append((subject, text, html))
+        email_service, "_send", lambda to, subject, html, text, sender: sent.append((subject, text, html))
     )
     email_service.send_purchase_confirmation_email(
         "a@b.de",
@@ -563,7 +592,7 @@ def test_purchase_confirmation_mail_has_the_required_content_exactly(monkeypatch
         amount="2,99 €",
         paid_at="25.09.2026, 14:00 Uhr",
         reference="pi_9",
-        base_url="https://sks-lotse.de",
+        site="sks",
     )
     ((subject, text, html),) = sent
     assert subject == "Deine Bestellung bei SKS Lotse: Paket S"
@@ -604,3 +633,48 @@ def test_public_pricing_states_what_a_check_costs_and_how_long_an_answer_it_take
     assert body["catalog_check_tokens"] == token_wallet.TOKENS_PER_ANSWER_CHECK
     assert body["chart_check_tokens"] == token_wallet.TOKENS_PER_CHART_CHECK
     assert body["check_max_answer_chars"] == settings.grading_max_answer_chars
+
+
+def test_a_session_from_sbf_lotse_is_recorded_and_confirmed_with_its_brand(
+    client, db_session, auth_headers, stripe_configured, sent_mails
+):
+    user = fixture_user(db_session)
+    session = _session(user.id)
+    session["metadata"]["site"] = "sbf"
+    _post_event(client, _event(session))
+    assert sent_mails[0][1]["site"] == "sbf"
+    assert db_session.scalars(select(Purchase.site).where(Purchase.granted_by == "stripe")).all() == ["sbf"]
+
+
+def test_an_unknown_site_in_the_metadata_falls_back_to_sks_lotse(
+    client, db_session, auth_headers, stripe_configured, sent_mails
+):
+    user = fixture_user(db_session)
+    session = _session(user.id)
+    session["metadata"]["site"] = "elsewhere"
+    _post_event(client, _event(session))
+    assert sent_mails[0][1]["site"] == "sks"
+
+
+def test_the_sbf_purchase_mail_carries_its_brand_and_links(monkeypatch, production_origins):
+    sent = []
+    monkeypatch.setattr(
+        email_service,
+        "_send",
+        lambda to, subject, html, text, sender: sent.append((subject, text, html, sender)),
+    )
+    email_service.send_purchase_confirmation_email(
+        "a@b.de",
+        package="Paket S",
+        tokens=20,
+        amount="2,99 €",
+        paid_at="25.09.2026, 14:00 Uhr",
+        reference="pi_9",
+        site="sbf",
+    )
+    ((subject, text, html, sender),) = sent
+    assert subject == "Deine Bestellung bei SBF Lotse: Paket S"
+    assert sender == settings.email_from_address_sbf
+    assert "Unsere AGB: https://sbf-lotse.de/terms" in text
+    assert "SBF Lotse · kontakt@sks-lotse.de" in text
+    assert "https://sbf-lotse.de/navigation" in html

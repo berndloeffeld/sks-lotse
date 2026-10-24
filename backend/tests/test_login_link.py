@@ -17,7 +17,7 @@ EMAIL = "learner@example.com"
 def sent(monkeypatch):
     calls = []
 
-    def fake_send(to_email, code, link_token=None):
+    def fake_send(to_email, code, link_token=None, *, site):
         calls.append((to_email, code, link_token))
 
     monkeypatch.setattr("app.services.email.send_otp_email", fake_send)
@@ -141,7 +141,9 @@ def test_a_link_requested_before_the_block_opens_no_session(client, db_session, 
 
 
 def test_an_email_change_code_carries_no_link(client, db_session, monkeypatch, auth_headers):
-    monkeypatch.setattr("app.services.email.send_email_change_otp_email", lambda to_email, code: None)
+    monkeypatch.setattr(
+        "app.services.email.send_email_change_otp_email", lambda to_email, code, *, site: None
+    )
 
     response = client.post(
         "/api/v1/auth/me/email/request", json={"new_email": "new@example.com"}, headers=auth_headers

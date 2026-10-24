@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from functools import partial
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
@@ -15,6 +16,7 @@ from app.core.otp import (
     is_disposable_email,
 )
 from app.core.rate_limit import enforce_limit
+from app.core.site import Site, resolve_site
 from app.domain.legal import CURRENT_AGB_VERSION
 from app.models import User
 from app.schemas.auth import (
@@ -90,6 +92,7 @@ def request_otp(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     session_factory: sessionmaker[Session] = Depends(get_session_factory),
+    site: Site = Depends(resolve_site),
 ):
     if _admission_error(request.app, db, payload.email) is not None:
         # The same generic 202 as a throttled or accepted request.
@@ -102,12 +105,15 @@ def request_otp(
         session_factory,
         payload.email,
         OTP_PURPOSE_LOGIN,
-        otp_codes.send_login_code,
+        # The mail's brand and link follow the site the code was requested on (ADR-0070).
+        partial(otp_codes.send_login_code, site=site),
     )
     return OtpRequestAccepted()
 
 
-def _sign_in(request: Request, response: Response, db: Session, email: str, token_in_body: bool) -> TokenRead:
+def _sign_in(
+    request: Request, response: Response, db: Session, email: str, token_in_body: bool, site: Site
+) -> TokenRead:
     """Open a session for `email`, whose code or link was just redeemed; create the account on first login."""
     if blocklist.is_email_blocked(request.app, db, email):
         # A code requested before the block (ADR-0045) must not still open a session. Same
@@ -116,7 +122,7 @@ def _sign_in(request: Request, response: Response, db: Session, email: str, toke
 
     user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if user is None:
-        user = User(email=email)
+        user = User(email=email, signup_site=site)
         db.add(user)
         try:
             db.commit()
@@ -152,10 +158,11 @@ def verify_otp(
     response: Response,
     db: Session = Depends(get_db),
     token_in_body: bool = Depends(wants_token_in_body),
+    site: Site = Depends(resolve_site),
 ):
     if not otp_codes.consume_code(db, payload.email, OTP_PURPOSE_LOGIN, payload.code):
         raise _invalid_code()
-    return _sign_in(request, response, db, payload.email, token_in_body)
+    return _sign_in(request, response, db, payload.email, token_in_body, site)
 
 
 @router.post("/otp/verify-link", response_model=TokenRead)
@@ -165,6 +172,7 @@ def verify_login_link(
     response: Response,
     db: Session = Depends(get_db),
     token_in_body: bool = Depends(wants_token_in_body),
+    site: Site = Depends(resolve_site),
 ):
     # The login link in the code email (ADR-0064). A POST the learner triggers with a click on
     # /login/link, never the link's own GET: mail scanners open links to check them, and would
@@ -172,7 +180,7 @@ def verify_login_link(
     email = otp_codes.consume_link_token(db, payload.token)
     if email is None:
         raise _invalid_code()
-    return _sign_in(request, response, db, email, token_in_body)
+    return _sign_in(request, response, db, email, token_in_body, site)
 
 
 @router.get("/otp/_dev-peek", response_model=OtpDevPeekRead, include_in_schema=False)
@@ -245,6 +253,7 @@ def request_email_change(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     session_factory: sessionmaker[Session] = Depends(get_session_factory),
+    site: Site = Depends(resolve_site),
 ):
     new_email = payload.new_email
     if new_email == current_user.email:
@@ -286,7 +295,7 @@ def request_email_change(
         session_factory,
         new_email,
         OTP_PURPOSE_EMAIL_CHANGE,
-        otp_codes.send_email_change_code,
+        partial(otp_codes.send_email_change_code, site=site),
         user_id=current_user.id,
     )
     return OtpRequestAccepted()
@@ -298,6 +307,7 @@ def verify_email_change(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    site: Site = Depends(resolve_site),
 ):
     if not otp_codes.consume_code(
         db, payload.new_email, OTP_PURPOSE_EMAIL_CHANGE, payload.code, user_id=current_user.id
@@ -318,7 +328,7 @@ def verify_email_change(
 
     # The old address hears about it too: a stolen session could otherwise take the account over
     # for good (change the address, log in by code later) without the owner ever noticing.
-    background_tasks.add_task(otp_codes.send_email_change_notice, old_email, payload.new_email)
+    background_tasks.add_task(otp_codes.send_email_change_notice, old_email, payload.new_email, site=site)
 
     # No token_version bump / re-login needed: the JWT doesn't embed the
     # email, so the existing session stays valid after this change.
