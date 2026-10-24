@@ -45,4 +45,5 @@ def test_render_yaml_rewrites_every_sbf_page_to_its_file():
     assert rewrites[-1] == ("/*", "/app.html")
     pages = dict(rewrites[:-1])
     assert all(destination == f"{source}.html" for source, destination in pages.items())
-    assert set(pages) == SBF_STATIC_PAGES
+    # The /navigation pages are tied to VITE_SBF in test_sbf_navigation_export.py.
+    assert {source for source in pages if not source.startswith("/navigation")} == SBF_STATIC_PAGES

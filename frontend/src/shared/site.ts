@@ -24,6 +24,8 @@ export interface SiteIdentity {
   footerLinks: readonly { to: string; label: string }[]
   // Where the official content comes from, for the footer's source line (ELWIS terms of use).
   catalogSource: string
+  // The other site, linked from the footer: SBF See comes before the SKS (ADR-0067).
+  sisterSite: { href: string; label: string }
 }
 
 export const SITES: Record<Site, SiteIdentity> = {
@@ -39,6 +41,7 @@ export const SITES: Record<Site, SiteIdentity> = {
       { to: '/terms', label: 'AGB' },
     ],
     catalogSource: 'Quelle der Prüfungsfragen und Musterantworten: amtlicher Fragenkatalog SKS',
+    sisterSite: { href: 'https://sbf-lotse.de', label: 'SBF Lotse' },
   },
   sbf: {
     name: 'SBF Lotse',
@@ -49,5 +52,6 @@ export const SITES: Record<Site, SiteIdentity> = {
       { to: '/privacy', label: 'Datenschutz' },
     ],
     catalogSource: 'Quelle der Navigationsaufgaben: amtlicher Fragenkatalog für den Sportbootführerschein See',
+    sisterSite: { href: 'https://sks-lotse.de', label: 'SKS Lotse' },
   },
 }

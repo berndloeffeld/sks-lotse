@@ -35,6 +35,13 @@ describe('ExamProcessPage', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Warum sich der SKS lohnt' })).toBeInTheDocument()
   })
 
+  it('sends whoever still lacks the SBF See to SBF Lotse', () => {
+    renderExamProcessPage()
+    // In the text, beside the footer's link to the other site.
+    const links = screen.getAllByRole('link', { name: 'SBF Lotse' }).map((link) => link.getAttribute('href'))
+    expect(links).toEqual(['https://sbf-lotse.de/navigation', 'https://sbf-lotse.de'])
+  })
+
   it('links the regional examination boards, opening a new tab', () => {
     renderExamProcessPage()
 

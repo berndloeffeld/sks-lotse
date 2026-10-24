@@ -13,13 +13,13 @@ function footerLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 // The content pages (Prüfungsablauf, Lernmethode, FAQ), the contact (also the way to send feedback) and the
-// legal links — each site its own (site.ts). Impressum must be
+// legal links — each site its own (site.ts) — and the other site, SBF Lotse and SKS Lotse linking each other. Impressum must be
 // reachable from every page (§5 DDG) — the landing page
 // renders this directly, every other page gets it via PageLayout. A
 // full-width primary-dark band with the brand centered on top, like the
 // template's footer.
 export function LegalFooter() {
-  const { name, footerLinks } = siteIdentity()
+  const { name, footerLinks, sisterSite } = siteIdentity()
   const source = catalogSourceLine()
   return (
     <footer className="bg-primary-dark">
@@ -30,6 +30,9 @@ export function LegalFooter() {
               {label}
             </NavLink>
           ))}
+          <a href={sisterSite.href} className={FOOTER_LINK}>
+            {sisterSite.label}
+          </a>
           <a href={feedbackMailto(name)} className={FOOTER_LINK}>
             Kontakt
           </a>

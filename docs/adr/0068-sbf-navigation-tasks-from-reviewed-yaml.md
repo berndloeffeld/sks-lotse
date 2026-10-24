@@ -64,3 +64,8 @@ SBF Lotse has no accounts yet, and its build makes no API call. The usage rights
   - Reusing the SKS Kartenaufgaben's run components. They would bring the API client into the SBF bundle, so we would have had to split them first, a refactor of SKS Lotse for no gain to it.
   - Tolerances as part of the result text. That would mix own and official text, the thing [ADR-0065](0065-own-derivations-for-catalog-questions.md) keeps apart.
   - Correcting typos silently. A difference from the original beside the run would then go unexplained.
+
+## Update 2026-10-24: turned on
+
+ELWIS confirmed the usage rights for the SBF catalog See and its Navigationsaufgaben. The confirmation covers the cuts of the PDF shown beside the run and the marked typo corrections (`TYPO_FIXES`). `render.yaml` sets `VITE_SBF: "on"` with the 16 `/navigation` rewrites. SKS Lotse now links SBF Lotse: in the footer, where both sites link each other, and on "So läuft die SKS-Prüfung ab", where the SBF See is the prerequisite.
+
