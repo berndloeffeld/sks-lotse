@@ -1,8 +1,8 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
-import { buttonClass } from '../components/buttonStyles'
-import { sectionHeading } from '../components/headingStyles'
-import { useLazyExport } from '../hooks/useLazyExport'
+import { buttonClass } from '../shared/components/buttonStyles'
+import { sectionHeading } from '../shared/components/headingStyles'
+import { useLazyExport } from '../shared/hooks/useLazyExport'
 import { navigationSource, navigationTask } from './navigationCatalog'
 import { NavigationHints } from './NavigationHints'
 import { NavigationTaskRun } from './NavigationTaskRun'

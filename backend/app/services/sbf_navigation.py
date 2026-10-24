@@ -15,7 +15,9 @@ from app.schemas.sbf_navigation import SbfNavigationCatalog, SbfNavigationTask
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sbf_navigation.yaml"
 # The committed copy the SBF build reads (ADR-0068).
-EXPORT_PATH = Path(__file__).resolve().parents[3] / "frontend" / "src" / "data" / "sbf_navigation.gen.json"
+EXPORT_PATH = (
+    Path(__file__).resolve().parents[3] / "frontend" / "src" / "sbf" / "data" / "sbf_navigation.gen.json"
+)
 
 
 @cache

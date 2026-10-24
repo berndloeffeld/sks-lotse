@@ -102,7 +102,7 @@ app.add_middleware(
     # cross-origin JS unless the server explicitly exposes them — the frontend
     # and API are on different origins even in production (ADR-0015), so
     # without this the maintenance-mode header (app/core/maintenance.py) would
-    # never reach frontend/src/api/client.ts.
+    # never reach frontend/src/sks/api/client.ts.
     expose_headers=[MAINTENANCE_HEADER],
     # The frontend's session cookie (ADR-0012) needs this to ride along on
     # cross-origin fetches (e.g. the Vite dev server on :5173 calling the

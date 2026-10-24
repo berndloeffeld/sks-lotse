@@ -1,0 +1,131 @@
+import { useState, type FormEvent } from 'react'
+
+import { apiClient } from '../api/client'
+import type { Question, Topic } from '../api/types'
+import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
+import { OfficialAnswerBox } from '../components/AnswerBox'
+import { QuestionImages } from '../components/QuestionImages'
+import { RichText } from '../components/RichText'
+import { SUBJECT_LABELS } from '../labels'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage } from '../../shared/components/Messages'
+
+interface Search {
+  q: string
+  subject: string
+  // A topic slug of `subject`; empty = all its topics.
+  topic: string
+}
+
+// Looks up question and official answer texts across the whole catalog (/admin/questions),
+// e.g. for a "Frage melden" note. Read-only: the catalog wording is never changed here.
+export function AdminQuestionsPage() {
+  const [input, setInput] = useState<Search>({ q: '', subject: '', topic: '' })
+  const [search, setSearch] = useState<Search>({ q: '', subject: '', topic: '' })
+  const hasSearch = search.q !== '' || search.subject !== ''
+  const query = useApiQuery(`admin-questions?q=${search.q}&subject=${search.subject}&topic=${search.topic}`, () => {
+    // Nothing asked yet: don't load (and render) the whole catalog with its images.
+    if (!hasSearch) return Promise.resolve(null)
+    const params = new URLSearchParams({ q: search.q })
+    if (search.subject) params.set('subject', search.subject)
+    if (search.topic) params.set('topic', search.topic)
+    return apiClient.get<Question[]>(`/admin/questions?${params}`)
+  })
+  // The chosen subject's topics for the Thema filter; none to load without a subject.
+  const topics = useApiQuery(`admin-topics?subject=${input.subject}`, () =>
+    input.subject ? apiClient.get<Topic[]>(`/topics?subject=${input.subject}`) : Promise.resolve([]),
+  )
+
+  function handleSearch(event: FormEvent) {
+    event.preventDefault()
+    setSearch({ ...input, q: input.q.trim() })
+  }
+
+  const results = query.data
+
+  return (
+    <div className="flex flex-col gap-6">
+      <form role="search" className="flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleSearch}>
+        <label className="flex flex-1 flex-col gap-1 text-sm text-ink-soft" htmlFor="question-search">
+          Text oder Nummer
+          <input
+            id="question-search"
+            type="search"
+            maxLength={200}
+            value={input.q}
+            onChange={(event) => setInput({ ...input, q: event.target.value })}
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="question-subject">
+          Fach
+          <select
+            id="question-subject"
+            value={input.subject}
+            onChange={(event) => setInput({ ...input, subject: event.target.value, topic: '' })}
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+          >
+            <option value="">Alle Fächer</option>
+            {Object.entries(SUBJECT_LABELS).map(([subject, label]) => (
+              <option key={subject} value={subject}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {topics.data && topics.data.length > 0 ? (
+          <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="question-topic">
+            Thema
+            <select
+              id="question-topic"
+              value={input.topic}
+              onChange={(event) => setInput({ ...input, topic: event.target.value })}
+              className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+            >
+              <option value="">Alle Themen</option>
+              {topics.data.map((topic) => (
+                <option key={topic.slug} value={topic.slug}>
+                  {topic.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        <button type="submit" className={buttonClass('primary', { tone: 'admin' })}>
+          Suchen
+        </button>
+      </form>
+
+      {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
+      <ErrorMessage onRetry={query.reload}>{query.failed ? 'Die Suche ist fehlgeschlagen.' : null}</ErrorMessage>
+      {results === null ? <p className="text-sm text-ink-soft">Suchbegriff eingeben oder ein Fach wählen.</p> : null}
+      {results ? (
+        <>
+          <p className="text-sm text-ink-soft">{results.length === 1 ? '1 Frage' : `${results.length} Fragen`}</p>
+          <ul className="flex flex-col gap-4">
+            {results.map((question) => (
+              <li key={question.id} className="flex flex-col gap-3 border border-border p-4">
+                <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
+                  {SUBJECT_LABELS[question.subject] ?? question.subject} · Nr. {question.number} · ID {question.id}
+                  {question.topic ? ` · ${question.topic}` : ''}
+                </p>
+                <p className="text-ink">
+                  <RichText text={question.question_text} />
+                </p>
+                <QuestionImages images={question.question_images} part="question" />
+                <OfficialAnswerBox
+                  text={question.answer_text}
+                  images={question.answer_images}
+                  derivation={question.derivation}
+                  headingLevel={2}
+                />
+                <AdminQuestionHistory questionId={question.id} />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+    </div>
+  )
+}

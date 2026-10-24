@@ -1,5 +1,5 @@
-import type { ChartAttempt, ChartAttemptTask, ChartExercisesOverview, Exam, ExamQuestion, User } from '../api/types'
-import type { ChartExport } from '../chartCatalog'
+import type { ChartAttempt, ChartAttemptTask, ChartExercisesOverview, Exam, ExamQuestion, User } from '../sks/api/types'
+import type { ChartExport } from '../sks/chartCatalog'
 
 export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })

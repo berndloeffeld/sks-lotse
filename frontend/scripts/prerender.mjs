@@ -1,12 +1,12 @@
 // Build-time prerender of the public pages (ADR-0025). Runs after the
-// client build (dist/) and the SSR build of src/entry-server.tsx (dist-ssr/):
+// client build (dist/) and the SSR build of src/sks/entry-server.tsx (dist-ssr/):
 //
 //   dist/app.html     — the SPA shell (empty #root): render.yaml's SPA
 //                       fallback rewrites every unknown path here, which
 //                       includes /login and every logged-in route.
 //   dist/index.html   — the same shell with "/" rendered into #root, so
 //                       crawlers see real text, headings and links.
-//   dist/<path>.html  — likewise for every page in src/publicPages.ts: /faq,
+//   dist/<path>.html  — likewise for every page in src/sks/publicPages.ts: /faq,
 //                       /imprint, /privacy, /terms, /exam-process, /learning-method,
 //                       /pricing, and the open /learn pages (ADR-0054), e.g.
 //                       dist/learn/navigation/seekarten.html; render.yaml
@@ -30,7 +30,7 @@ const ssrDir = fileURLToPath(new URL('../dist-ssr/', import.meta.url))
 const ROOT = '<div id="root"></div>'
 
 // The pages, their heads and the sitemap come from the build's site (ADR-0067), via the SSR build:
-// src/publicPages.ts for SKS Lotse, src/sbf/publicPages.ts for SBF Lotse.
+// src/sks/publicPages.ts for SKS Lotse, src/sbf/publicPages.ts for SBF Lotse.
 const { render, pages, applyMeta, sitemapXml, appTitle, dataChunks } = await import(
   new URL('../dist-ssr/entry-server.js', import.meta.url).href
 )

@@ -1,6 +1,6 @@
-import { FaqAnswer } from '../components/FaqAnswer'
-import { ProseSection } from '../components/ProseSection'
-import { sbfNavigationOpen } from '../siteConfig'
+import { FaqAnswer } from '../shared/components/FaqAnswer'
+import { ProseSection } from '../shared/components/ProseSection'
+import { sbfNavigationOpen } from '../shared/siteConfig'
 import { sbfFaq } from './faq'
 import { SbfPageLayout } from './SbfPageLayout'
 

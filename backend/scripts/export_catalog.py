@@ -4,8 +4,8 @@ Usage:
     PYTHONPATH=. .venv/bin/python scripts/export_catalog.py
 
 Builds the catalog from the committed sources (the PDF and the reviewed YAML files, no database)
-and writes frontend/src/data/catalog.gen.json, plus the landing page's few sample questions to
-frontend/src/data/landing_samples.gen.json. Re-run it after anything the catalog data
+and writes frontend/src/sks/data/catalog.gen.json, plus the landing page's few sample questions to
+frontend/src/sks/data/landing_samples.gen.json. Re-run it after anything the catalog data
 migrations sync changes; tests/test_catalog_export.py fails while the committed file is stale.
 """
 

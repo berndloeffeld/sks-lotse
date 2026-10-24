@@ -19,7 +19,7 @@ def test_disallowed_origin_gets_no_cors_header(client):
 def test_maintenance_header_is_exposed_cross_origin(client):
     # Browsers hide all but a handful of "simple" response headers from
     # cross-origin JS unless the server lists them in Access-Control-Expose-
-    # Headers — without it, frontend/src/api/client.ts would never see
+    # Headers — without it, frontend/src/sks/api/client.ts would never see
     # X-Maintenance-Mode (app/core/maintenance.py) even though curl/the
     # network tab shows it fine.
     response = client.get("/health", headers={"Origin": "http://localhost:5173"})

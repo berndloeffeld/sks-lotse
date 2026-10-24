@@ -1,6 +1,6 @@
 # 0067. A second site from the same codebase: the site's identity per build
 
-Status: Accepted — amends [ADR-0015](0015-frontend-deployment-topology.md) (a second static site, for sbf-lotse.de) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the prerender renders the build's site)
+Status: Accepted — amends [ADR-0015](0015-frontend-deployment-topology.md) (a second static site, for sbf-lotse.de) and [ADR-0025](0025-build-time-prerender-of-the-landing-page.md) (the prerender renders the build's site); amended by [ADR-0069](0069-frontend-split-and-sbf-api-through-a-proxy.md) (the code split into `src/shared/`, `src/sks/`, `src/sbf/`; the API reached through a proxy on sbf-lotse.de from increment 2)
 
 ## Context
 

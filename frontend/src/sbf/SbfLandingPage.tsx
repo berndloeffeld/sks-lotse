@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 
-import { BAND_CONTENT as CONTENT, Columns } from '../components/Bands'
-import { HeaderBar } from '../components/HeaderBar'
-import { HeroBand } from '../components/HeroBand'
-import { LegalFooter } from '../components/LegalFooter'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { sbfNavigationOpen } from '../siteConfig'
+import { BAND_CONTENT as CONTENT, Columns } from '../shared/components/Bands'
+import { HeaderBar } from '../shared/components/HeaderBar'
+import { HeroBand } from '../shared/components/HeroBand'
+import { LegalFooter } from '../shared/components/LegalFooter'
+import { useDocumentTitle } from '../shared/hooks/useDocumentTitle'
+import { sbfNavigationOpen } from '../shared/siteConfig'
 import { SbfHeaderNav } from './SbfHeaderNav'
 import { SBF_HOME_TITLE } from './texts'
 

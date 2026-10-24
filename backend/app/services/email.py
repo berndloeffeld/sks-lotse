@@ -83,12 +83,12 @@ def send_email_change_notice_email(old_email: str, masked_new_email: str) -> Non
     )
 
 
-# Brand colours of the web app (frontend/src/index.css), inlined: mail clients ignore stylesheets.
+# Brand colours of the web app (frontend/src/shared/index.css), inlined: mail clients ignore stylesheets.
 _BG, _INK, _INK_SOFT = "#e9f0f3", "#1e2a32", "#5b6670"
 _PRIMARY, _PRIMARY_DARK, _SUCCESS, _ACCENT = "#1f6f78", "#164f56", "#3d7a5c", "#b8763c"
 _SERIF = "Georgia, 'Times New Roman', serif"
 _SANS = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-# Same address as frontend/src/contact.ts.
+# Same address as frontend/src/shared/contact.ts.
 _CONTACT_EMAIL = "kontakt@sks-lotse.de"
 
 

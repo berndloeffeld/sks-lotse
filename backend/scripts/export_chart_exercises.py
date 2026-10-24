@@ -4,7 +4,7 @@ Usage:
     PYTHONPATH=. .venv/bin/python scripts/export_chart_exercises.py
 
 Copies the committed app/data/chart_exercises.yaml, solutions included, to
-frontend/src/data/chart_exercises.gen.json. Re-run it after the YAML changes;
+frontend/src/sks/data/chart_exercises.gen.json. Re-run it after the YAML changes;
 tests/test_chart_exercises_export.py fails while the committed file is stale.
 """
 

@@ -58,10 +58,10 @@ IMAGES_PATH = DATA_DIR / "question_images.yaml"
 # The static frontend serves these (ADR-0033); the API only hands out file names.
 IMAGES_DIR = _BACKEND_DIR.parent / "frontend" / "public" / "catalog"
 # The catalog as the frontend reads it without a login (catalog_export below, ADR-0054).
-EXPORT_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "data" / "catalog.gen.json"
+EXPORT_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "sks" / "data" / "catalog.gen.json"
 # The landing page's sample questions (landing_samples_export below): a few lines, so the page
 # needn't load the whole catalog for its hero.
-LANDING_SAMPLES_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "data" / "landing_samples.gen.json"
+LANDING_SAMPLES_PATH = _BACKEND_DIR.parent / "frontend" / "src" / "sks" / "data" / "landing_samples.gen.json"
 # Which ones, in the order the hero offers them: one per exam subject, short, without images.
 LANDING_SAMPLES = (
     ("schifffahrtsrecht", 35),

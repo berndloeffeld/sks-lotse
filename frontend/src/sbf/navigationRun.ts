@@ -1,4 +1,4 @@
-import { runVerdict, type RunVerdict } from '../runVerdict'
+import { runVerdict, type RunVerdict } from './runVerdict'
 import { taskMaxPoints, type NavigationTask } from './navigationCatalog'
 
 // A guest's run through a Navigationsaufgabe (ADR-0068), kept only in the page: the subtasks strictly

@@ -1,0 +1,319 @@
+import { useState, type FormEvent } from 'react'
+import { Link, useParams } from 'react-router-dom'
+
+import { ApiError, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
+import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
+import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
+import { useAuthStore } from '../store/authStore'
+import { formatDate, formatDateTime, getFullName } from '../format'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
+import { buttonClass } from '../../shared/components/buttonStyles'
+
+function downloadJson(data: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+// Export and deletion need a code from the last few minutes; the admin area then shows the code
+// field above this page, and this message says why nothing happened.
+function recentCheckError(fallback: string) {
+  return (err: unknown) =>
+    err instanceof ApiError && err.message === RECENT_MFA_REQUIRED
+      ? 'Bitte oben den aktuellen Code bestätigen und dann erneut versuchen.'
+      : fallback
+}
+
+const ADMIN_BUTTON = buttonClass('secondary', { tone: 'admin' })
+
+const BACK_LINK = 'font-mono text-xs tracking-wide text-ink-soft uppercase hover:text-ink'
+
+// One account in the admin area (/admin/users/:id): view, export or delete it
+// (Art. 15/17/20 DSGVO), credit AI-check tokens (ADR-0043) or take them back.
+export function AdminUserPage() {
+  const { id } = useParams()
+  // An unknown id is a normal answer here (null), not a failed load.
+  const query = useApiQuery(`admin-user-${id}`, () =>
+    apiClient.get<AdminUser>(`/admin/users/${id}`).catch((err: unknown) => {
+      if (err instanceof ApiError && err.status === 404) return null
+      throw err
+    }),
+  )
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Link to="/admin/users" className={BACK_LINK}>
+        ← Alle Benutzer
+      </Link>
+      {query.isLoading ? <p className="text-sm text-ink-soft">Lädt …</p> : null}
+      <ErrorMessage onRetry={query.reload}>
+        {query.failed ? 'Der Benutzer konnte nicht geladen werden.' : null}
+      </ErrorMessage>
+      <ErrorMessage>{query.data === null ? 'Benutzer nicht gefunden.' : null}</ErrorMessage>
+      {query.data ? <AdminUserDetail user={query.data} onChange={query.setData} /> : null}
+    </div>
+  )
+}
+
+function AdminUserDetail({ user, onChange }: { user: AdminUser; onChange: (user: AdminUser) => void }) {
+  const navigate = useNavigateWhileMounted()
+  const currentUser = useAuthStore((s) => s.user)
+  const setCurrentUser = useAuthStore((s) => s.setUser)
+
+  // An admin editing their own account (self-testing tokens) otherwise sees no effect
+  // outside /admin until the next full page load: the logged-in session's own User is a
+  // separate copy in authStore, not touched by this page's AdminUser state.
+  function syncIfSelf(updated: AdminUser) {
+    if (currentUser && currentUser.id === updated.id) {
+      setCurrentUser({ ...currentUser, token_balance: updated.token_balance })
+    }
+  }
+
+  const exportAction = useAsyncAction()
+  const blockAction = useAsyncAction()
+  const grantAction = useAsyncAction()
+  const debitAction = useAsyncAction()
+  const deleteAction = useAsyncAction()
+  // A grant and a debit both PATCH the account; neither starts while the other runs.
+  const isUpdating = grantAction.isPending || debitAction.isPending
+
+  const [grantTokensInput, setGrantTokensInput] = useState('')
+  const [grantAmountInput, setGrantAmountInput] = useState('')
+  const [debitTokensInput, setDebitTokensInput] = useState('')
+  const [debited, setDebited] = useState<number | null>(null)
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
+
+  function handleExport() {
+    return exportAction.run(async () => {
+      const data = await apiClient.get<AdminUserExport>(`/admin/users/${user.id}/export`)
+      downloadJson(data, `sks-lotse-export-${user.id}.json`)
+    }, recentCheckError('Der Export konnte nicht erstellt werden.'))
+  }
+
+  // Blocking ends the account's current session immediately (ADR-0045); unblocking just lets it
+  // log back in, so it doesn't need the same confirmation as the irreversible delete below.
+  function handleBlockToggle() {
+    return blockAction.run(async () => {
+      const updated = user.is_blocked
+        ? await apiClient.delete<AdminUser>(`/admin/users/${user.id}/block`)
+        : await apiClient.post<AdminUser>(`/admin/users/${user.id}/block`)
+      onChange(updated)
+    }, 'Die Sperre konnte nicht geändert werden.')
+  }
+
+  // Manual token credit (ADR-0043): a correction, a goodwill grant or a payment made outside the app.
+  // grantAmountInput is optional: it records what the account actually paid (in €), so the
+  // resulting purchases row is kept (anonymized) rather than deleted on account deletion.
+  async function handleGrantTokens(event: FormEvent) {
+    event.preventDefault()
+    grantAction.setError(null)
+    const tokens = Number(grantTokensInput)
+    if (grantTokensInput.trim() === '' || !Number.isInteger(tokens) || tokens < 1) {
+      grantAction.setError('Bitte eine ganze Zahl ab 1 eingeben.')
+      return
+    }
+    let amountEurCents: number | undefined
+    if (grantAmountInput.trim() !== '') {
+      const amount = Number(grantAmountInput)
+      if (!Number.isFinite(amount) || amount < 0) {
+        grantAction.setError('Bitte einen gültigen Betrag ab 0 eingeben.')
+        return
+      }
+      amountEurCents = Math.round(amount * 100)
+    }
+    await grantAction.run(async () => {
+      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, {
+        grant_tokens: tokens,
+        ...(amountEurCents === undefined ? {} : { grant_amount_eur_cents: amountEurCents }),
+      })
+      onChange(updated)
+      syncIfSelf(updated)
+      setGrantTokensInput('')
+      setGrantAmountInput('')
+    }, 'Die Tokens konnten nicht gutgeschrieben werden.')
+  }
+
+  // Taking tokens back after a refund or chargeback (RUNBOOK → Stripe checkout). The backend never
+  // goes below 0, so what was actually taken is the drop in the balance, which can be less than
+  // what was typed in.
+  async function handleDebitTokens(event: FormEvent) {
+    event.preventDefault()
+    debitAction.setError(null)
+    setDebited(null)
+    const tokens = Number(debitTokensInput)
+    if (debitTokensInput.trim() === '' || !Number.isInteger(tokens) || tokens < 1) {
+      debitAction.setError('Bitte eine ganze Zahl ab 1 eingeben.')
+      return
+    }
+    await debitAction.run(async () => {
+      const updated = await apiClient.patch<AdminUser>(`/admin/users/${user.id}`, { debit_tokens: tokens })
+      onChange(updated)
+      syncIfSelf(updated)
+      setDebited(user.token_balance - updated.token_balance)
+      setDebitTokensInput('')
+    }, 'Die Tokens konnten nicht abgebucht werden.')
+  }
+
+  const canConfirmDelete = deleteConfirmEmail.trim().toLowerCase() === user.email.toLowerCase()
+
+  function handleDelete(event: FormEvent) {
+    event.preventDefault()
+    if (!canConfirmDelete) return deleteAction.setError('Die E-Mail-Adresse stimmt nicht überein.')
+    return deleteAction.run(async () => {
+      await apiClient.delete(`/admin/users/${user.id}`)
+      navigate('/admin/users', { state: { deleted: user.email } })
+    }, recentCheckError('Das Konto konnte nicht gelöscht werden.'))
+  }
+
+  return (
+    <section className="flex flex-col gap-6 border border-border p-4">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+        <dt className="text-ink-soft">E-Mail</dt>
+        <dd className="font-mono break-all text-ink">{user.email}</dd>
+        <dt className="text-ink-soft">ID</dt>
+        <dd className="font-mono text-ink">{user.id}</dd>
+        <dt className="text-ink-soft">Name</dt>
+        <dd className="text-ink">{getFullName(user) || '—'}</dd>
+        <dt className="text-ink-soft">Geschlecht</dt>
+        <dd className="text-ink">{user.gender ? (GENDER_LABELS[user.gender] ?? user.gender) : '—'}</dd>
+        <dt className="text-ink-soft">Angemeldet seit</dt>
+        <dd className="text-ink">{formatDate(user.created_at)}</dd>
+        <dt className="text-ink-soft">Letzter Login</dt>
+        <dd className="text-ink">{user.last_login_at ? formatDateTime(user.last_login_at) : '—'}</dd>
+        <dt className="text-ink-soft">AGB akzeptiert</dt>
+        <dd className="text-ink">
+          {user.agb_accepted_version
+            ? `Version ${user.agb_accepted_version}${
+                user.agb_accepted_at ? ` (${formatDateTime(user.agb_accepted_at)})` : ''
+              }`
+            : 'Noch nicht'}
+        </dd>
+        <dt className="text-ink-soft">Prüfungsvariante</dt>
+        <dd className="text-ink">
+          {user.exam_variant ? (VARIANT_LABELS[user.exam_variant as ExamVariant] ?? user.exam_variant) : '—'}
+        </dd>
+        <dt className="text-ink-soft">Beantwortete Fragen</dt>
+        <dd className="text-ink">{user.question_progress_count}</dd>
+        <dt className="text-ink-soft">Tokens</dt>
+        <dd className="text-ink">{user.token_balance}</dd>
+        <dt className="text-ink-soft">Sanitizer-Flags</dt>
+        <dd className="text-ink">
+          {user.ai_flags_count}
+          {user.ai_flags_last_at ? ` (zuletzt ${formatDateTime(user.ai_flags_last_at)})` : ''}
+        </dd>
+        <dt className="text-ink-soft">Zugang</dt>
+        <dd className="text-ink">{user.is_blocked ? 'Gesperrt' : 'Aktiv'}</dd>
+      </dl>
+
+      <div className="flex flex-col gap-2">
+        <ErrorMessage>{blockAction.error}</ErrorMessage>
+        <button type="button" onClick={handleBlockToggle} disabled={blockAction.isPending} className={ADMIN_BUTTON}>
+          {user.is_blocked ? 'Sperre aufheben' : 'Nutzer sperren'}
+        </button>
+      </div>
+
+      <form className="flex flex-col gap-2" onSubmit={handleGrantTokens}>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="grant-tokens">
+          Tokens gutschreiben (aktuell: {user.token_balance})
+          <input
+            id="grant-tokens"
+            type="number"
+            min={1}
+            value={grantTokensInput}
+            onChange={(event) => setGrantTokensInput(event.target.value)}
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="grant-amount">
+          Erhaltener Betrag in € (optional, für die Kaufhistorie)
+          <input
+            id="grant-amount"
+            type="number"
+            min={0}
+            step="0.01"
+            value={grantAmountInput}
+            onChange={(event) => setGrantAmountInput(event.target.value)}
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+          />
+        </label>
+        <ErrorMessage>{grantAction.error}</ErrorMessage>
+        <button type="submit" disabled={isUpdating} className={ADMIN_BUTTON}>
+          Tokens gutschreiben
+        </button>
+      </form>
+
+      <form className="flex flex-col gap-2" onSubmit={handleDebitTokens}>
+        <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="debit-tokens">
+          Tokens abbuchen, z. B. nach Erstattung (höchstens bis 0)
+          <input
+            id="debit-tokens"
+            type="number"
+            min={1}
+            value={debitTokensInput}
+            onChange={(event) => setDebitTokensInput(event.target.value)}
+            className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+          />
+        </label>
+        <ErrorMessage>{debitAction.error}</ErrorMessage>
+        <StatusMessage>{debited !== null ? `${debited} Tokens abgebucht.` : null}</StatusMessage>
+        <button type="submit" disabled={isUpdating} className={ADMIN_BUTTON}>
+          Tokens abbuchen
+        </button>
+      </form>
+
+      <div className="flex flex-col gap-2">
+        <ErrorMessage>{exportAction.error}</ErrorMessage>
+        <button type="button" onClick={handleExport} disabled={exportAction.isPending} className={ADMIN_BUTTON}>
+          Daten exportieren
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-2 border-t border-border pt-4">
+        {!showDeleteConfirm ? (
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className={buttonClass('dangerOutline', { tone: 'admin' })}
+          >
+            Konto löschen
+          </button>
+        ) : (
+          <form className="flex flex-col gap-2" onSubmit={handleDelete}>
+            <label className="flex flex-col gap-1 text-sm text-ink-soft" htmlFor="delete-confirm-email">
+              Zur Bestätigung E-Mail-Adresse erneut eingeben: {user.email}
+              <input
+                id="delete-confirm-email"
+                type="email"
+                value={deleteConfirmEmail}
+                onChange={(event) => {
+                  setDeleteConfirmEmail(event.target.value)
+                  deleteAction.setError(null)
+                }}
+                className="border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm"
+              />
+            </label>
+            <ErrorMessage>{deleteAction.error}</ErrorMessage>
+            <button
+              type="submit"
+              disabled={deleteAction.isPending}
+              className={buttonClass('danger', { tone: 'admin' })}
+            >
+              Endgültig löschen
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  )
+}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { buttonClass } from '../components/buttonStyles'
+import { buttonClass } from '../shared/components/buttonStyles'
 import { SbfPageLayout } from './SbfPageLayout'
 
 export function SbfNotFoundPage() {

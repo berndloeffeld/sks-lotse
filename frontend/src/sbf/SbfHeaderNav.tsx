@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
-import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../components/headerLink'
-import { sbfNavigationOpen } from '../siteConfig'
+import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../shared/components/headerLink'
+import { sbfNavigationOpen } from '../shared/siteConfig'
 
 // The SBF site's header links (ADR-0067). No "Anmelden" yet: accounts come to SBF Lotse later, and
 // until then the SBF build makes no API call at all, so the place only says "bald".

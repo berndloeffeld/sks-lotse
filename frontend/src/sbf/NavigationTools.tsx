@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
 
-import { buttonClass } from '../components/buttonStyles'
-import { ImageLightbox } from '../components/ImageLightbox'
-import { Modal } from '../components/Modal'
-import { pointsLabel } from '../chartPoints'
+import { buttonClass } from '../shared/components/buttonStyles'
+import { ImageLightbox } from '../shared/components/ImageLightbox'
+import { Modal } from '../shared/components/Modal'
+import { pointsLabel } from '../shared/chartPoints'
 import { ORIGINALS_PATH, type NavigationExport, type NavigationImage, type NavigationTask } from './navigationCatalog'
 import { OfficialResult, OfficialText, OwnAnswer } from './NavigationParts'
 import { currentSubtask, type NavigationRunState } from './navigationRun'

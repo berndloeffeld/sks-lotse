@@ -10,7 +10,7 @@ def test_the_committed_export_matches_the_yaml():
     # The SBF build's guest runs read this file (ADR-0068); a YAML change without a re-export would show
     # outdated tasks.
     assert EXPORT_PATH.read_text(encoding="utf-8") == render_export(catalog()), (
-        "frontend/src/data/sbf_navigation.gen.json is stale: run "
+        "frontend/src/sbf/data/sbf_navigation.gen.json is stale: run "
         "`PYTHONPATH=. .venv/bin/python scripts/export_sbf_navigation.py` in backend/ and commit the result."
     )
 

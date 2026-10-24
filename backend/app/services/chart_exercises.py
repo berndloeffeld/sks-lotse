@@ -34,7 +34,9 @@ from app.services.chart_grader import ChartGradeResult, EarlierTask, is_ai_check
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "chart_exercises.yaml"
 # The committed copy the frontend's guest runs and their prerender read (ADR-0056).
-EXPORT_PATH = Path(__file__).resolve().parents[3] / "frontend" / "src" / "data" / "chart_exercises.gen.json"
+EXPORT_PATH = (
+    Path(__file__).resolve().parents[3] / "frontend" / "src" / "sks" / "data" / "chart_exercises.gen.json"
+)
 
 
 class ChartTaskConflict(Exception):

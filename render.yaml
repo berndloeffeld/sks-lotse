@@ -206,7 +206,7 @@ services:
       # own prerendered file. Listed explicitly because Render doesn't map
       # /faq to faq.html on its own, and answers /faq with an empty 200 when
       # the file is a directory index (faq/index.html, ADR-0055). Must match
-      # frontend/src/publicPages.ts (backend/tests/test_catalog_export.py
+      # frontend/src/sks/publicPages.ts (backend/tests/test_catalog_export.py
       # checks it). Routes go live on the Blueprint sync, before the build
       # that writes the file: a page the same PR adds answers empty until
       # that deploy is live (accepted, ADR-0057).
@@ -233,7 +233,7 @@ services:
         destination: /pricing.html
       # The open /learn pages (ADR-0054): the topic list and one page per catalog
       # topic, generated from the catalog export. Must match learnPages() in
-      # frontend/src/publicPages.ts (backend/tests/test_catalog_export.py checks it).
+      # frontend/src/sks/publicPages.ts (backend/tests/test_catalog_export.py checks it).
       - type: rewrite
         source: /learn
         destination: /learn.html
@@ -314,7 +314,7 @@ services:
         destination: /learn/wetterkunde/seegang.html
       # The open /charts pages (ADR-0056): the list and one page per transcribed
       # sheet, built only while VITE_CHART_EXERCISES is "on". Must match chartPages()
-      # in frontend/src/publicPages.ts (backend/tests/test_catalog_export.py checks it).
+      # in frontend/src/sks/publicPages.ts (backend/tests/test_catalog_export.py checks it).
       - type: rewrite
         source: /charts
         destination: /charts.html
@@ -479,6 +479,12 @@ services:
       - type: rewrite
         source: /navigation/15
         destination: /navigation/15.html
+      # The API under sbf-lotse.de (ADR-0069): a proxy, so the session cookie of increment 2 is
+      # first-party here. The SBF build doesn't call it yet; it is in place to verify the client IP
+      # and the cookie behind Render's rewrite first (scripts/check_sbf_proxy.sh, docs/RUNBOOK.md).
+      - type: rewrite
+        source: /api/*
+        destination: https://api.sks-lotse.de/api/*
       - type: rewrite
         source: /*
         destination: /app.html

@@ -1,0 +1,200 @@
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+
+import { AdminUsersPage } from './AdminUsersPage'
+import { jsonResponse } from '../../test/fixtures'
+
+function listItem(id: number, overrides: object = {}) {
+  return {
+    id,
+    email: `user${id}@example.com`,
+    first_name: null,
+    last_name: null,
+    created_at: '2026-01-01T00:00:00Z',
+    token_balance: 0,
+    is_blocked: false,
+    ...overrides,
+  }
+}
+
+function renderPage(state?: unknown) {
+  return render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin/users', state }]}>
+      <Routes>
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+function stubFetch(
+  respond: (params: URLSearchParams) => Response | Promise<Response>,
+  onBlock?: (id: string, init?: RequestInit) => Response,
+) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input), 'http://localhost')
+    const blockMatch = /\/admin\/users\/(\d+)\/block$/.exec(url.pathname)
+    if (blockMatch && onBlock) return onBlock(blockMatch[1], init)
+    if (url.pathname.endsWith('/admin/users')) return respond(url.searchParams)
+    throw new Error(`unexpected fetch to ${url}`)
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
+describe('AdminUsersPage', () => {
+  it('lists the accounts, each linking to its detail page', async () => {
+    const fetchMock = stubFetch(() =>
+      jsonResponse({
+        items: [listItem(2, { first_name: 'Anna', last_name: 'Schmidt', token_balance: 20 }), listItem(1)],
+        total: 2,
+      }),
+    )
+    renderPage()
+
+    expect(await screen.findByText('2 Benutzer')).toBeInTheDocument()
+    const first = screen.getByRole('link', { name: /user2@example\.com/ })
+    expect(first).toHaveAttribute('href', '/admin/users/2')
+    expect(within(first).getByText('Anna Schmidt')).toBeInTheDocument()
+    expect(within(first).getByText('20 Tokens')).toBeInTheDocument()
+    const second = screen.getByRole('link', { name: /user1@example\.com/ })
+    expect(within(second).getByText('—')).toBeInTheDocument()
+    expect(within(second).queryByText(/Token\(s\)/)).not.toBeInTheDocument()
+    // Everything fits one page: no "load more".
+    expect(screen.queryByRole('button', { name: 'Mehr laden' })).not.toBeInTheDocument()
+    const params = new URL(String(fetchMock.mock.calls[0][0]), 'http://localhost').searchParams
+    expect(Object.fromEntries(params)).toEqual({ q: '', offset: '0', limit: '50' })
+  })
+
+  it('searches with the trimmed term', async () => {
+    const user = userEvent.setup()
+    const fetchMock = stubFetch((params) =>
+      params.get('q') === 'anna'
+        ? jsonResponse({ items: [listItem(2)], total: 1 })
+        : jsonResponse({ items: [listItem(2), listItem(1)], total: 2 }),
+    )
+    renderPage()
+    await screen.findByText('2 Benutzer')
+
+    await user.type(screen.getByLabelText('E-Mail oder Name'), '  anna ')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+
+    expect(await screen.findByText('1 Benutzer für „anna“')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows nothing but the count when no account matches', async () => {
+    stubFetch(() => jsonResponse({ items: [], total: 0 }))
+    renderPage()
+
+    expect(await screen.findByText('0 Benutzer')).toBeInTheDocument()
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
+
+  it('loads the next page on demand and appends it', async () => {
+    const user = userEvent.setup()
+    stubFetch((params) =>
+      params.get('offset') === '0'
+        ? jsonResponse({ items: [listItem(3), listItem(2)], total: 3 })
+        : jsonResponse({ items: [listItem(1)], total: 3 }),
+    )
+    renderPage()
+    await screen.findByText('3 Benutzer')
+
+    await user.click(screen.getByRole('button', { name: 'Mehr laden' }))
+
+    expect(await screen.findByRole('link', { name: /user1@example\.com/ })).toBeInTheDocument()
+    expect(screen.getAllByRole('link')).toHaveLength(3)
+    expect(screen.queryByRole('button', { name: 'Mehr laden' })).not.toBeInTheDocument()
+  })
+
+  it('drops a late next page of an earlier search instead of appending it to the new one', async () => {
+    const user = userEvent.setup()
+    let releaseMore!: () => void
+    const moreHeld = new Promise<void>((resolve) => {
+      releaseMore = resolve
+    })
+    stubFetch(async (params) => {
+      if (params.get('q') === 'anna') return jsonResponse({ items: [listItem(9, { first_name: 'Anna' })], total: 1 })
+      if (params.get('offset') === '0') return jsonResponse({ items: [listItem(3), listItem(2)], total: 3 })
+      await moreHeld
+      return jsonResponse({ items: [listItem(1)], total: 3 })
+    })
+    renderPage()
+    await screen.findByText('3 Benutzer')
+    await user.click(screen.getByRole('button', { name: 'Mehr laden' }))
+
+    // Search while the next page of the old list is still on its way.
+    await user.type(screen.getByLabelText('E-Mail oder Name'), 'anna')
+    await user.click(screen.getByRole('button', { name: 'Suchen' }))
+    expect(await screen.findByText('1 Benutzer für „anna“')).toBeInTheDocument()
+    releaseMore()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.queryByRole('link', { name: /user1@example\.com/ })).not.toBeInTheDocument()
+  })
+
+  it('reports a failed next page and keeps the list', async () => {
+    const user = userEvent.setup()
+    stubFetch((params) =>
+      params.get('offset') === '0'
+        ? jsonResponse({ items: [listItem(2)], total: 2 })
+        : new Response(null, { status: 500 }),
+    )
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Mehr laden' }))
+
+    expect(await screen.findByText('Weitere Benutzer konnten nicht geladen werden.')).toBeInTheDocument()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('button', { name: 'Mehr laden' })).toBeEnabled()
+  })
+
+  it('shows an error when the list cannot be loaded', async () => {
+    stubFetch(() => new Response(null, { status: 500 }))
+    renderPage()
+
+    expect(await screen.findByText('Die Benutzerliste konnte nicht geladen werden.')).toBeInTheDocument()
+  })
+
+  it('blocks and unblocks an account inline, without navigating away', async () => {
+    const user = userEvent.setup()
+    stubFetch(
+      () => jsonResponse({ items: [listItem(1)], total: 1 }),
+      (id, init) => jsonResponse(listItem(Number(id), { is_blocked: init?.method === 'POST' })),
+    )
+    renderPage()
+    await screen.findByText('1 Benutzer')
+
+    await user.click(screen.getByRole('button', { name: 'Sperren' }))
+    expect(await screen.findByText('Gesperrt')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entsperren' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Entsperren' }))
+    expect(screen.queryByText('Gesperrt')).not.toBeInTheDocument()
+    // Still on the list, not navigated to the detail page.
+    expect(screen.getByRole('link', { name: /user1@example\.com/ })).toBeInTheDocument()
+  })
+
+  it('shows an error when blocking an account fails', async () => {
+    const user = userEvent.setup()
+    stubFetch(
+      () => jsonResponse({ items: [listItem(1)], total: 1 }),
+      () => new Response(null, { status: 500 }),
+    )
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Sperren' }))
+
+    expect(await screen.findByText('Die Sperre konnte nicht geändert werden.')).toBeInTheDocument()
+  })
+
+  it('confirms an account deleted on its detail page', async () => {
+    stubFetch(() => jsonResponse({ items: [], total: 0 }))
+    renderPage({ deleted: 'gone@example.com' })
+
+    expect(screen.getByText('Konto gone@example.com wurde gelöscht.')).toBeInTheDocument()
+    await screen.findByText('0 Benutzer')
+  })
+})

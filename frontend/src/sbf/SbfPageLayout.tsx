@@ -1,5 +1,5 @@
-import { HeaderBar } from '../components/HeaderBar'
-import { PageShell, type PageShellProps } from '../components/PageShell'
+import { HeaderBar } from '../shared/components/HeaderBar'
+import { PageShell, type PageShellProps } from '../shared/components/PageShell'
 import { SbfHeaderNav } from './SbfHeaderNav'
 
 // The SBF site's page (ADR-0067): the shared shell with the SBF links, and no session.
