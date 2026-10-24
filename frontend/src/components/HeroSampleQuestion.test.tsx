@@ -31,7 +31,9 @@ describe('HeroSampleQuestion', () => {
   it('starts with the first sample, word for word from the export', () => {
     renderSample()
 
-    expect(screen.getByRole('heading', { name: first.question_text })).toBeInTheDocument()
+    expect(screen.getByRole('article', { name: 'Beispielfrage' })).toHaveTextContent(first.question_text)
+    // Not a heading: it would lead the landing page's outline.
+    expect(screen.queryByRole('heading', { name: first.question_text })).not.toBeInTheDocument()
     expect(screen.getByText(/Probier’s aus · Schifffahrtsrecht · Nr/)).toHaveTextContent(`Nr. ${first.number}`)
     expect(screen.queryByText(first.answer_text)).not.toBeInTheDocument()
   })
@@ -79,14 +81,14 @@ describe('HeroSampleQuestion', () => {
     await answerAndGrade('irgendwas', 'Richtig')
     await userEvent.click(screen.getByRole('button', { name: 'Andere Beispielfrage' }))
 
-    expect(screen.getByRole('heading', { name: second.question_text })).toBeInTheDocument()
+    expect(screen.getByText(second.question_text)).toBeInTheDocument()
     expect(screen.getByLabelText('Deine Antwort')).toHaveValue('')
 
     for (let i = 1; i < samples.questions.length; i++) {
       await answerAndGrade('', 'Richtig')
       await userEvent.click(screen.getByRole('button', { name: 'Andere Beispielfrage' }))
     }
-    expect(screen.getByRole('heading', { name: first.question_text })).toBeInTheDocument()
+    expect(screen.getByText(first.question_text)).toBeInTheDocument()
   })
 
   it('counts nothing when told not to (a logged-in visitor)', async () => {

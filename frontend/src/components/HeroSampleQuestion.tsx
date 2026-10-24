@@ -51,17 +51,17 @@ export function HeroSampleQuestion({ track }: { track: boolean }) {
   }
 
   return (
+    // Named by aria-label, not by the question: as a heading it would lead the page's outline,
+    // ahead of what the page is about.
     <article
-      aria-labelledby="beispielfrage"
+      aria-label="Beispielfrage"
       className="flex flex-col gap-4 rounded-tile bg-surface p-5 text-left text-ink sm:p-6"
     >
       <p className="font-mono text-xs tracking-wide text-ink-soft uppercase">
         Probier’s aus · {SUBJECT_LABELS[sample.subject]} · Nr.{' '}
         {sample.number}
       </p>
-      <h2 id="beispielfrage" className="font-serif text-lg leading-snug text-ink">
-        {sample.question_text}
-      </h2>
+      <p className="font-serif text-lg leading-snug text-ink">{sample.question_text}</p>
 
       {phase === 'answer' ? (
         <>

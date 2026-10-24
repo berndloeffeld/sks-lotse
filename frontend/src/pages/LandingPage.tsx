@@ -246,8 +246,8 @@ export function LandingPage() {
                 Lerne die SKS-Theorie, bis du sie wirklich kannst
               </h1>
               <p className="mt-4 text-surface-alt sm:mt-6 sm:text-lg">
-                Alle Originalfragen des amtlichen SKS-Fragenkatalogs, in eigenen Worten beantwortet wie in der Prüfung.
-                Mit Konto merkt sich SKS Lotse, was du vergisst, und fragt es rechtzeitig wieder ab.
+                Die SKS App mit allen Originalfragen des amtlichen Fragenkatalogs, online in eigenen Worten beantwortet
+                wie in der Prüfung. Mit Konto merkt sich SKS Lotse, was du vergisst, und fragt es rechtzeitig wieder ab.
               </p>
             </div>
             <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
