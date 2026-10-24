@@ -93,16 +93,17 @@ export function PrivacyContent() {
 
       <ProseSection title="Lernfortschritt und Profil">
         <p>
-          Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben und die amtlichen
-          Kartenaufgaben bearbeiten. Dabei legen wir keinen Lernstand an und speichern keine Ihrer Eingaben: Was Sie als
-          Antwort eingeben, und Ihre Selbsteinschätzung bleiben in der geöffneten Seite und werden weder an uns
-          übertragen noch gespeichert; einen Lernstand gibt es nur mit Konto. Es gelten die Angaben zum Hosting und, da
-          die Webanalyse auch ohne Anmeldung auf allen Seiten außer dem Admin-Bereich läuft, zur Webanalyse. Eine
-          Ausnahme betrifft das Formblatt Gezeiten der Kartenaufgaben: Was Sie dort eintragen, und welche
-          Hilfsmittel-Bereiche Sie auf- oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem
-          Endgerät); es wird nicht an uns übertragen. Das Formblatt bleibt unter der Nummer des Aufgabenbogens erhalten,
-          bis Sie denselben Bogen neu starten oder sich später auf diesem Gerät an- und wieder abmelden; sonst lässt es
-          sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
+          Ohne Anmeldung können Sie unter „Lernen“ die Fragen des amtlichen Katalogs nach Themen üben, die amtlichen
+          Kartenaufgaben und auf SBF Lotse die amtlichen Navigationsaufgaben bearbeiten. Dabei legen wir keinen
+          Lernstand an und speichern keine Ihrer Eingaben: Was Sie als Antwort eingeben, und Ihre Selbsteinschätzung
+          bleiben in der geöffneten Seite und werden weder an uns übertragen noch gespeichert; einen Lernstand gibt es
+          nur mit Konto. Es gelten die Angaben zum Hosting und, da die Webanalyse auch ohne Anmeldung auf allen Seiten
+          außer dem Admin-Bereich läuft, zur Webanalyse. Eine Ausnahme betrifft das Formblatt Gezeiten der
+          Kartenaufgaben: Was Sie dort eintragen, und welche Hilfsmittel-Bereiche Sie auf- oder zugeklappt haben,
+          speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht an uns übertragen. Das
+          Formblatt bleibt unter der Nummer des Aufgabenbogens erhalten, bis Sie denselben Bogen neu starten oder sich
+          später auf diesem Gerät an- und wieder abmelden; sonst lässt es sich über „Formblatt leeren“ oder die
+          Browser-Einstellungen löschen.
         </p>
         <p>
           Mit Konto speichern wir Ihren Lernfortschritt je Frage (Ihre Selbsteinschätzung und der daraus abgeleitete
@@ -135,6 +136,14 @@ export function PrivacyContent() {
           oder zugeklappt haben, speichert nur Ihr Browser (lokaler Speicher auf Ihrem Endgerät); es wird nicht an uns
           übertragen. Das Formblatt eines Durchgangs wird mit dem Durchgang gelöscht, alle Formblätter beim Abmelden und
           beim Löschen des Kontos; sonst lässt es sich über „Formblatt leeren“ oder die Browser-Einstellungen löschen.
+        </p>
+        <p>
+          Wenn Sie auf SBF Lotse mit Konto eine Navigationsaufgabe bearbeiten, speichern wir zu jedem Durchgang die
+          Nummer der Aufgabe, Start- und Abschlusszeitpunkt sowie zu jeder bearbeiteten Teilaufgabe Ihren Antworttext,
+          den Zeitpunkt der Antwort und den Punkt, den Sie sich selbst gegeben haben, sowie gegebenenfalls den
+          Bewertungsvorschlag des Lotsen-Checks (siehe „KI-Prüfung Ihrer Antwort“). Rechtsgrundlage ist Art. 6 Abs. 1
+          lit. b DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht; mit dem Konto werden alle Durchgänge
+          gelöscht.
         </p>
       </ProseSection>
 
@@ -193,18 +202,20 @@ export function PrivacyContent() {
           nötigen Inhalte: die Frage oder Aufgabe, die amtliche Lösung bzw. Musterantwort samt Lösungsweg und Ihre
           Antwort darauf. Bei Fragen aus dem Fragenkatalog übermitteln wir zusätzlich die amtlichen Fragen und Antworten
           desselben Themas, damit Aussagen über die Musterantwort hinaus am Katalog geprüft werden können. Baut eine
-          Aufgabe auf vorangegangenen auf (etwa bei den Kartenaufgaben), übermitteln wir zusätzlich diese
-          vorangegangenen Aufgaben desselben Durchgangs mit Ihren Antworten darauf, damit Folgefehler erkannt werden
-          können. Anthropic erzeugt daraus einen Bewertungsvorschlag und eine kurze Rückmeldung, gegebenenfalls mit
-          einer Vermutung, wo ein Fehler liegt. Ihre E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt sowie Antworten aus
-          anderen Lernrunden, Prüfungen oder Durchgängen werden nicht übermittelt.
+          Aufgabe auf vorangegangenen auf (etwa bei den Kartenaufgaben und den Navigationsaufgaben), übermitteln wir
+          zusätzlich diese vorangegangenen Aufgaben desselben Durchgangs mit Ihren Antworten darauf, damit Folgefehler
+          erkannt werden können. Bei den Navigationsaufgaben übermitteln wir außerdem die Ausgangslage der Aufgabe und
+          die von uns ergänzte, als nicht amtlich gekennzeichnete Toleranz. Anthropic erzeugt daraus einen
+          Bewertungsvorschlag und eine kurze Rückmeldung, gegebenenfalls mit einer Vermutung, wo ein Fehler liegt. Ihre
+          E-Mail-Adresse, Ihr Name, Ihr Lernfortschritt sowie Antworten aus anderen Lernrunden, Prüfungen oder
+          Durchgängen werden nicht übermittelt.
         </p>
         <p>
           Ob wir den Vorschlag speichern, richtet sich danach, ob wir die Antwort selbst speichern: Zu Fragen aus dem
           Fragenkatalog speichern oder protokollieren wir weder Ihre Antwort noch den Vorschlag. Bei Aufgaben, deren
-          Antworten wir ohnehin zu Ihrem Durchgang speichern (Kartenaufgaben), speichern wir den Vorschlag (Punkte und
-          Rückmeldung) dort mit, damit Sie ihn später wieder sehen; er wird mit dem Durchgang bzw. Ihrem Konto gelöscht.
-          Die Bewertung übernehmen Sie in jedem Fall selbst.
+          Antworten wir ohnehin zu Ihrem Durchgang speichern (Kartenaufgaben, Navigationsaufgaben mit Konto), speichern
+          wir den Vorschlag (Punkte bzw. richtig oder falsch, und Rückmeldung) dort mit, damit Sie ihn später wieder
+          sehen; er wird mit dem Durchgang bzw. Ihrem Konto gelöscht. Die Bewertung übernehmen Sie in jedem Fall selbst.
         </p>
         <p>
           Zum Schutz vor Missbrauchsversuchen erkennt unser System auffällige Antworten automatisiert; löst dieser

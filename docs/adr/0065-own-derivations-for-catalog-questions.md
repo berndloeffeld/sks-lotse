@@ -1,6 +1,6 @@
 # 0065. Own derivations for catalog questions, from a reviewed YAML, marked as not official
 
-Status: Accepted
+Status: Accepted; amended by [ADR-0071](0071-sbf-navigation-runs-and-lotsen-check.md): the one exception, SKS Lotse's own tolerances go to the SBF Navigationsaufgaben's check, marked as not official
 
 ## Context
 
