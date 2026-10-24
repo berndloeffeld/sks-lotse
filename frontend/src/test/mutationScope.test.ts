@@ -14,7 +14,7 @@ const EXCLUDED = new Set([
   'src/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
   'src/publicPageTexts.ts', // SEO wording of the prerendered pages: a mutant changing a sentence is no bug
   'src/sbf/texts.ts', // the same for the SBF site's pages
-  'src/sbf/faq.ts', // the SBF site's FAQ wording, data only
+  'src/sbf/navigationFixture.ts', // test data for the Navigationsaufgaben's tests
 ])
 
 function mutateScope(): Set<string> {

@@ -12,6 +12,7 @@ import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import '../index.css'
 import { initAnalytics } from '../analytics'
+import { navigationSource } from './navigationCatalog'
 import { sbfRoutes } from './routes'
 
 // The SBF build's entry (index.sbf.html, ADR-0067). Like ../main.tsx, it hydrates a prerendered page
@@ -27,7 +28,19 @@ const app = (
 
 const path = window.location.pathname.replace(/(.)\/$/, '$1')
 if (container.hasChildNodes() && container.dataset.prerendered === path) {
-  hydrateRoot(container, app)
+  // The /navigation pages were rendered from the export (ADR-0068); the first render needs it too, or
+  // it wouldn't match. If it fails to load, render afresh rather than not at all.
+  if (path.startsWith('/navigation')) {
+    navigationSource.load().then(
+      () => hydrateRoot(container, app),
+      () => {
+        container.replaceChildren()
+        createRoot(container).render(app)
+      },
+    )
+  } else {
+    hydrateRoot(container, app)
+  }
 } else {
   container.replaceChildren()
   createRoot(container).render(app)

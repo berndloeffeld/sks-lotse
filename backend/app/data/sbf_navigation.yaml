@@ -1,0 +1,2159 @@
+source: 'Wasserstraßen- und Schifffahrtsverwaltung des Bundes (WSV), Fragenkatalog See, Stand: 01. August 2023,
+  www.elwis.de'
+chart_notice: Den Navigationsaufgaben liegt die Übungskarte D49 (Mündungen der Jade, Weser und Elbe) zugrunde.
+sections_notice: 'Die einzelnen Navigationsaufgaben sind in der Prüfung jeweils anhand folgender Kartenausschnitte
+  zu bearbeiten:'
+chart_sections:
+- number: 1
+  corners:
+  - N53°46,06', E007°43,12'
+  - N54°00,42', E008°00,00'
+- number: 2
+  corners:
+  - N53°50,48', E007°57,54'
+  - N54°05,24', E008°14,48'
+- number: 3
+  corners:
+  - N53°53,36', E007°51,12'
+  - N54°13,80', E008°15,00'
+- number: 4
+  corners:
+  - N53°46,00', E007°49,00'
+  - N54°06,00', E008°13,00'
+- number: 5
+  corners:
+  - N53°43,00', E007°24,00'
+  - N53°57,00', E007°55,00'
+- number: 6
+  corners:
+  - N53°48,20', E007°24,00'
+  - N54°08,54', E007°48,00'
+- number: 7
+  corners:
+  - N53°54,24', E008°15,24'
+  - N54°09,00', E008°32,12'
+- number: 8
+  corners:
+  - N53°50,00', E008°04,00'
+  - N54°01,00', E008°32,00'
+pool_notice: Aus den nachfolgenden 15 Fragen werden jeweils 9 Fragen für jede Navigationsaufgabe ausgewählt.
+pool:
+- number: 286
+  text: Wie lautet der rwK?
+- number: 287
+  text: Tragen Sie den Kurs in die Seekarte ein.
+- number: 288
+  text: Wie lautet der MgK?
+- number: 289
+  text: Wie lauten die Peilungen?
+- number: 290
+  text: Tragen Sie die Peilungen in die Seekarte ein.
+- number: 291
+  text: Entnehmen Sie der Seekarte die geographische Position.
+- number: 292
+  text: Tragen Sie die Position in die Seekarte ein.
+- number: 293
+  text: Wie groß ist die Distanz?
+- number: 294
+  text: Auf welcher Position befindet sich das Schiff nach Koppelort?
+- number: 295
+  text: Wie lautet die Besteckversetzung?
+- number: 296
+  text: In welcher Zeit erreichen Sie das Ziel?
+- number: 297
+  text: Wie groß ist die Geschwindigkeit?
+- number: 298
+  text: Welche Bedeutung hat das Schifffahrtszeichen?
+- number: 299
+  text: Beschreiben Sie das Schifffahrtszeichen (zum Beispiel Farbe, Kennung, Toppzeichen, Nenntragweite, Feuerhöhe,
+    Art des Feuers).
+- number: 300
+  text: Was bedeutet diese Eintragung in der Seekarte?
+aids:
+- Bei der Navigationsaufgabe sind als Hilfsmittel ein Navigationsdreieck, ein Anlegedreieck, ein Doppellineal, ein
+  Portland Plotter und ein Zirkel erlaubt. Andere Hilfsmittel, wie zum Beispiel Nachschlagewerke, auch elektronischer
+  Art, dürfen bei der Beantwortung der Fragen nicht benutzt werden. (Sportbootführerscheinverordnung, Anlage 3 Nr.
+  1.3)
+pass_points: 7
+scoring:
+- 1 Punkt je richtiger Antwort; Folgefehler gelten als richtig (SpFV Anlage 3 Nr. 1.1).
+- Bestanden ab 7 von 9 Punkten (ELWIS, Bewertungsschlüssel, Stand 31.10.2022).
+typo_fixes:
+- task: 1
+  subtask: 1
+  field: result
+  official: rwk = 079°
+  corrected: rwK = 079°
+- task: 1
+  subtask: 6
+  field: text
+  official: mit den Hand-Peilkompass
+  corrected: mit dem Hand-Peilkompass
+- task: 2
+  subtask: 8
+  field: text
+  official: mit den Hand-Peilkompass
+  corrected: mit dem Hand-Peilkompass
+- task: 4
+  subtask: 6
+  field: result
+  official: 53° 48,2'N
+  corrected: 53° 48,2' N
+- task: 4
+  subtask: 8
+  field: result
+  official: Tonne rwp = 035°
+  corrected: Tonne rwP = 035°
+- task: 7
+  subtask: 9
+  field: result
+  official: 273° -1,1 sm
+  corrected: 273° - 1,1 sm
+- task: 12
+  subtask: 8
+  field: result
+  official: 296° -0,7 sm
+  corrected: 296° - 0,7 sm
+- task: 15
+  subtask: 9
+  field: text
+  official: 008° 23,2 E
+  corrected: 008° 23,2' E
+tasks:
+- number: 1
+  situation:
+  - Ein Sportboot befindet sich am 05.05.2012 in der Deutschen Bucht auf der Reise von Borkum nach Cuxhaven. Die
+    Fahrt über Grund beträgt 8 kn.
+  - Um 10:00 Uhr wird die Leuchttonne "TG19/Weser 2" nahebei passiert. Von dieser Tonne wird der Kurs auf die Ansteuerungstonne
+    der alten Weser "ST" abgesetzt.
+  subtasks:
+  - number: 1
+    text: Wie lautet der rwK?
+    result: rwK = 079°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-01-1-aufgabe.png
+        width: 689
+        height: 87
+      result:
+        src: aufgabe-01-1-ergebnis.png
+        width: 269
+        height: 87
+  - number: 2
+    text: Die Ablenkung beträgt +4°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 074° *)
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-01-2-aufgabe.png
+        width: 689
+        height: 112
+      result:
+        src: aufgabe-01-2-ergebnis.png
+        width: 953
+        height: 293
+  - number: 3
+    text: Wie groß ist die Distanz zwischen der Tonne "TG19/Weser 2" und der Tonne "ST"?
+    result: 6,1 sm
+    own_tolerance: ±0,1 sm
+    original:
+      question:
+        src: aufgabe-01-3-aufgabe.png
+        width: 689
+        height: 107
+      result:
+        src: aufgabe-01-3-ergebnis.png
+        width: 269
+        height: 107
+  - number: 4
+    text: In welcher Zeit wird die Distanz zwischen der Tonne "TG19/Weser 2" und der Tonne "ST" zurückgelegt?
+    result: 45,75 min., also 46 min. oder "in einer 3/4 Stunde"
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-01-4-aufgabe.png
+        width: 689
+        height: 109
+      result:
+        src: aufgabe-01-4-ergebnis.png
+        width: 269
+        height: 109
+  - number: 5
+    text: Auf welcher Position befindet sich das Schiff nach Koppelort um 10:30 Uhr?
+    result: |-
+      53° 55,8' N
+      007° 51,3' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-01-5-aufgabe.png
+        width: 689
+        height: 112
+      result:
+        src: aufgabe-01-5-ergebnis.png
+        width: 269
+        height: 112
+  - number: 6
+    text: |-
+      Um 10:30 Uhr werden nachfolgende Schifffahrtszeichen mit dem Hand-Peilkompass gepeilt. Die Ablenkung beträgt dabei 0°, die Mw ist der Seekarte zu entnehmen.
+      Neue Weser, Leuchttonne "4a", MgP = 169°
+      Alte Weser, Leuchttonne "ST", MgP = 064°.
+      Wie lauten die rw-Peilungen?
+    result: |-
+      Leuchttonne "4a" rwP = 170°
+      Leuchttonne "ST" rwP = 065°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-01-6-aufgabe.png
+        width: 689
+        height: 258
+      result:
+        src: aufgabe-01-6-ergebnis.png
+        width: 269
+        height: 258
+  - number: 7
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-01-7-aufgabe.png
+        width: 689
+        height: 84
+      result:
+        src: aufgabe-01-7-ergebnis.png
+        width: 269
+        height: 84
+  - number: 8
+    text: Wie lautet die Besteckversetzung?
+    result: BV = 103° - 0,8 sm
+    own_tolerance: Richtung ±10°, Betrag ±0,2 sm
+    original:
+      question:
+        src: aufgabe-01-8-aufgabe.png
+        width: 689
+        height: 87
+      result:
+        src: aufgabe-01-8-ergebnis.png
+        width: 269
+        height: 87
+  - number: 9
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Leuchttonne "ST".
+    result: |-
+      Farbe: rot/weiß senkrecht gestreift
+      Kennung: weißes Gleichtaktfeuer mit 8 Sekunden Wiederkehr
+      Toppzeichen: roter Ball
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-01-9-aufgabe.png
+        width: 689
+        height: 178
+      result:
+        src: aufgabe-01-9-ergebnis.png
+        width: 269
+        height: 178
+  footnotes:
+  - '*) Auf Basis des gemäß Verkehrsblatt vom 15.01.2013 geänderten Ergebnisses zu Frage 1 (rwK = 079°) wird der
+    Magnetkompasskurs unter Berücksichtigung einer Ablenkung von +4° und der laut zugehörigem Kartenausschnitt des
+    Fragebogens Nummer 1 angegebenen Missweisung von +1° ermittelt.'
+  - 'Demnach lautet der MgK tatsächlich: 074°'
+- number: 2
+  situation:
+  - Ein Sportboot befindet sich am 10.06.2011 in der Deutschen Bucht auf der Reise von Helgoland nach Cuxhaven.
+    Die Fahrt über Grund beträgt 10 kn. Um 11:00 Uhr wird 1,2 sm südlich von Helgoland die Tonne "Helgoland-O" nahebei
+    passiert.
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Sportbootes um 11:00 Uhr.
+    result: |-
+      54° 09,0' N
+      007° 53,5' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-02-1-aufgabe.png
+        width: 733
+        height: 112
+      result:
+        src: aufgabe-02-1-ergebnis.png
+        width: 225
+        height: 112
+  - number: 2
+    text: Im Abstand von ca. 0,6 sm südwestlich der Tonne "Helgoland-O" befindet sich eine Eintragung. Was bedeutet
+      diese Eintragung in der Seekarte?
+    result: |-
+      Wrack,
+      Kartentiefe 53,6 m
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-02-2-aufgabe.png
+        width: 733
+        height: 112
+      result:
+        src: aufgabe-02-2-ergebnis.png
+        width: 225
+        height: 112
+  - number: 3
+    text: Von der Tonne "Helgoland-O" aus wird ein MgK von 116° gesteuert. Die Ablenkung beträgt +3°, die Mw ist
+      der Seekarte zu entnehmen. Wie lautet der rwK?
+    result: rwK = 120°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-02-3-aufgabe.png
+        width: 733
+        height: 112
+      result:
+        src: aufgabe-02-3-ergebnis.png
+        width: 225
+        height: 112
+  - number: 4
+    text: Tragen Sie den rechtweisenden Kurs in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-02-4-aufgabe.png
+        width: 733
+        height: 84
+      result:
+        src: aufgabe-02-4-ergebnis.png
+        width: 225
+        height: 84
+  - number: 5
+    text: Nach 11,1 sm Distanz wird die Tonne "Außenelbe-Reede 4" nahebei passiert. Beschreiben Sie Farbe, Kennung
+      und Toppzeichen des Schifffahrtszeichens.
+    result: |-
+      Farbe: gelb
+      Kennung: gelbes Blitzfeuer mit 4 Sekunden Wiederkehr
+      Toppzeichen: keines
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-02-5-aufgabe.png
+        width: 733
+        height: 157
+      result:
+        src: aufgabe-02-5-ergebnis.png
+        width: 225
+        height: 157
+  - number: 6
+    text: In welcher Zeit wird die in Frage 5 genannte Distanz zurückgelegt?
+    result: 67 min.
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-02-6-aufgabe.png
+        width: 733
+        height: 87
+      result:
+        src: aufgabe-02-6-ergebnis.png
+        width: 225
+        height: 87
+  - number: 7
+    text: Auf welcher Position befindet sich das Schiff nach Koppelort um 11:54 Uhr?
+    result: |-
+      54° 04,5' N
+      008° 06,7' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-02-7-aufgabe.png
+        width: 733
+        height: 109
+      result:
+        src: aufgabe-02-7-ergebnis.png
+        width: 225
+        height: 109
+  - number: 8
+    text: 'Um 11:54 Uhr wird die Leuchttonne "Außenelbe-Reede 4" mit dem Hand-Peilkompass gepeilt: MgP = 146°. Die
+      Ablenkung beträgt 0°, die Mw ist der Seekarte zu entnehmen. Wie lautet die rw-Peilung?'
+    result: rwP = 147°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-02-8-aufgabe.png
+        width: 733
+        height: 135
+      result:
+        src: aufgabe-02-8-ergebnis.png
+        width: 225
+        height: 135
+  - number: 9
+    text: Das Schiff befindet sich zeitgleich zur Peilung auf der 20-Meter-Linie. Wie lautet die Besteckversetzung?
+    result: BV = 007° - 1,6 sm
+    own_tolerance: Richtung ±10°, Betrag ±0,2 sm
+    original:
+      question:
+        src: aufgabe-02-9-aufgabe.png
+        width: 733
+        height: 105
+      result:
+        src: aufgabe-02-9-ergebnis.png
+        width: 225
+        height: 105
+  footnotes: []
+- number: 3
+  situation:
+  - Ein Sportboot befindet sich am 23.05.2011 in der Deutschen Bucht auf der Fahrt aus der Jade nach Langeoog. Um
+    13:30 Uhr wird die Tonne "1b/Jade 1" nahebei passiert. Die Fahrt über Grund wird mit 6 kn angenommen.
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Sportbootes um 13:30 Uhr.
+    result: |-
+      53° 52,4' N
+      007° 44,0' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-03-1-aufgabe.png
+        width: 679
+        height: 112
+      result:
+        src: aufgabe-03-1-ergebnis.png
+        width: 279
+        height: 112
+  - number: 2
+    text: Von dieser Tonne aus wird der Kurs auf die Tonne "Accumer Ee" abgesetzt. Tragen Sie den Kurs in die Seekarte
+      ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-03-2-aufgabe.png
+        width: 679
+        height: 107
+      result:
+        src: aufgabe-03-2-ergebnis.png
+        width: 279
+        height: 107
+  - number: 3
+    text: Wie lautet der rwK?
+    result: rwK = 240°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-03-3-aufgabe.png
+        width: 679
+        height: 87
+      result:
+        src: aufgabe-03-3-ergebnis.png
+        width: 279
+        height: 87
+  - number: 4
+    text: Die Ablenkung beträgt -2°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 242°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-03-4-aufgabe.png
+        width: 679
+        height: 112
+      result:
+        src: aufgabe-03-4-ergebnis.png
+        width: 279
+        height: 112
+  - number: 5
+    text: Wann wird die Tonne "Accumer Ee" voraussichtlich erreicht?
+    result: 15:12 Uhr
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-03-5-aufgabe.png
+        width: 679
+        height: 84
+      result:
+        src: aufgabe-03-5-ergebnis.png
+        width: 279
+        height: 84
+  - number: 6
+    text: Auf Position 53° 49,5' N 007° 36,8' E (ca. 1,9 sm nordwestlich der Ansteuerungstonne "Otzumer Balje")
+      finden Sie einen roten Eintrag mit einem "A". Was bedeutet diese Eintragung in die Seekarte?
+    result: Position der Gezeitenstromangabe, oder "Stromraute"
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-03-6-aufgabe.png
+        width: 679
+        height: 132
+      result:
+        src: aufgabe-03-6-ergebnis.png
+        width: 279
+        height: 132
+  - number: 7
+    text: |-
+      Um 14:30 Uhr wird mit dem Peilaufsatz des Magnetkompasses eine Kreuzpeilung durchgeführt. Die Ablenkung für den anliegenden Kurs beträgt -2°, die Mw ist der Seekarte zu entnehmen.
+      Tonne "TG15" MgP = 292°
+      Tonne "TG17/Weser1" MgP = 347°
+      Tonne "Accumer Ee" MgP = 234°
+      Wie lauten die rw-Peilungen?
+    result: |-
+      Tonne "TG15" rwP = 290°
+      Tonne "TG17/Weser1" rwP = 345°
+      Tonne "Accumer Ee" rwP = 232°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-03-7-aufgabe.png
+        width: 679
+        height: 283
+      result:
+        src: aufgabe-03-7-ergebnis.png
+        width: 279
+        height: 283
+  - number: 8
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-03-8-aufgabe.png
+        width: 679
+        height: 84
+      result:
+        src: aufgabe-03-8-ergebnis.png
+        width: 279
+        height: 84
+  - number: 9
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "Accumer Ee".
+    result: |-
+      Farbe: rot-weiß senkrecht gestreift
+      Kennung: weißes Gleichtaktfeuer mit 8 Sekunden Wiederkehr
+      Toppzeichen: roter Ball
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-03-9-aufgabe.png
+        width: 679
+        height: 155
+      result:
+        src: aufgabe-03-9-ergebnis.png
+        width: 279
+        height: 155
+  footnotes: []
+- number: 4
+  situation:
+  - Ein aus Langeoog auslaufendes Sportboot befindet sich am 18.04.2014 um 09:00 Uhr nahe bei der Tonne "Accumer
+    Ee".
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Bootes um 09:00 Uhr.
+    result: |-
+      53° 47,2' N
+      007° 29,1' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-04-1-aufgabe.png
+        width: 746
+        height: 112
+      result:
+        src: aufgabe-04-1-ergebnis.png
+        width: 212
+        height: 112
+  - number: 2
+    text: Von der Tonne "Accumer Ee" aus wird der Kurs auf die Tonne "Otzumer Balje" abgesetzt. Tragen Sie den Kurs
+      in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-04-2-aufgabe.png
+        width: 746
+        height: 107
+      result:
+        src: aufgabe-04-2-ergebnis.png
+        width: 212
+        height: 107
+  - number: 3
+    text: Wie lautet der rwK?
+    result: rwK = 081°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-04-3-aufgabe.png
+        width: 746
+        height: 87
+      result:
+        src: aufgabe-04-3-ergebnis.png
+        width: 212
+        height: 87
+  - number: 4
+    text: Die Ablenkung beträgt +7°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 074°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-04-4-aufgabe.png
+        width: 746
+        height: 112
+      result:
+        src: aufgabe-04-4-ergebnis.png
+        width: 212
+        height: 112
+  - number: 5
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "Otzumer Balje".
+    result: |-
+      Farbe: rot-weiß senkrecht gestreift
+      Kennung: weißes Gleichtaktfeuer mit 4 Sekunden Wiederkehr
+      Toppzeichen: roter Ball
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-04-5-aufgabe.png
+        width: 746
+        height: 202
+      result:
+        src: aufgabe-04-5-ergebnis.png
+        width: 212
+        height: 202
+  - number: 6
+    text: Es ist 10:00 Uhr. Die durchschnittliche Fahrt über Grund betrug in der letzten Stunde 6 kn. Auf welcher
+      Position befindet sich das Schiff nach Koppelort?
+    result: |-
+      53° 48,2' N
+      007° 39,2' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-04-6-aufgabe.png
+        width: 746
+        height: 109
+      result:
+        src: aufgabe-04-6-ergebnis.png
+        width: 212
+        height: 109
+  - number: 7
+    text: Sie beschließen über die Otzumer Balje und das Langeooger Wattfahrwasser hinter der Insel zurück zum Hafen
+      zu laufen. ca. 1,2 sm südwestlich der Tonne "Otzumer Balje" finden Sie zwei ähnliche Einträge. Was bedeuten
+      diese Eintragungen in der Seekarte?
+    result: Wracks mit 3,7 m bzw. 1,4 m Tiefe
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-04-7-aufgabe.png
+        width: 746
+        height: 154
+      result:
+        src: aufgabe-04-7-ergebnis.png
+        width: 212
+        height: 154
+  - number: 8
+    text: Um 10:15 Uhr peilen Sie mit dem Peilaufsatz am Magnetkompass die westlichste der drei Kirchen auf Spiekeroog
+      in MgP = 110° und die Tonne "Otzumer Balje" in MgP = 030°. Die Ablenkung für den anliegenden Kurs beträgt
+      +5°, die Mw ist der Karte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      Kirche rwP = 115°
+      Tonne rwP = 035°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-04-8-aufgabe.png
+        width: 746
+        height: 157
+      result:
+        src: aufgabe-04-8-ergebnis.png
+        width: 212
+        height: 157
+  - number: 9
+    text: Tragen Sie die rechtweisenden Peilungen in die Karte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-04-9-aufgabe.png
+        width: 746
+        height: 82
+      result:
+        src: aufgabe-04-9-ergebnis.png
+        width: 212
+        height: 82
+  footnotes: []
+- number: 5
+  situation:
+  - Ein Motorboot befindet sich am 29.07.2011 in der Küstenverkehrszone und möchte in die Jade einlaufen.
+  subtasks:
+  - number: 1
+    text: |-
+      Zur Standortbestimmung werden um 14:00 Uhr mit dem Peilaufsatz am Magnetkompass die folgenden Objekte gepeilt. Die Ablenkung für den anliegenden Kurs beträgt -4°, die Mw ist der Seekarte zu entnehmen.
+      Wasserturm Langeoog MgP = 225°
+      Tonne "Otzumer Balje" MgP = 131°
+      Wie lauten die rw-Peilungen?
+    result: |-
+      Wasserturm rwP = 221°
+      Tonne rwP = 127°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-05-1-aufgabe.png
+        width: 704
+        height: 258
+      result:
+        src: aufgabe-05-1-ergebnis.png
+        width: 253
+        height: 258
+  - number: 2
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-05-2-aufgabe.png
+        width: 704
+        height: 84
+      result:
+        src: aufgabe-05-2-ergebnis.png
+        width: 253
+        height: 84
+  - number: 3
+    text: Entnehmen Sie der Seekarte die geographische Position des ermittelten Standortes.
+    result: |-
+      53° 49,7' N
+      007° 35,8' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-05-3-aufgabe.png
+        width: 704
+        height: 112
+      result:
+        src: aufgabe-05-3-ergebnis.png
+        width: 253
+        height: 112
+  - number: 4
+    text: Von diesem Ort aus wird der Kurs auf die Tonne "1b/Jade1" abgesetzt. Tragen Sie den Kurs in die Seekarte
+      ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-05-4-aufgabe.png
+        width: 704
+        height: 107
+      result:
+        src: aufgabe-05-4-ergebnis.png
+        width: 253
+        height: 107
+  - number: 5
+    text: Wie lautet der rwK?
+    result: rwK = 061°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-05-5-aufgabe.png
+        width: 704
+        height: 87
+      result:
+        src: aufgabe-05-5-ergebnis.png
+        width: 253
+        height: 87
+  - number: 6
+    text: Die Ablenkung beträgt -2°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 063°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-05-6-aufgabe.png
+        width: 704
+        height: 109
+      result:
+        src: aufgabe-05-6-ergebnis.png
+        width: 253
+        height: 109
+  - number: 7
+    text: Das Motorboot macht 11 kn Fahrt über Grund. Zu welcher Uhrzeit wird die Tonne "1b/Jade1" voraussichtlich
+      erreicht?
+    result: 14:30 Uhr
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-05-7-aufgabe.png
+        width: 704
+        height: 109
+      result:
+        src: aufgabe-05-7-ergebnis.png
+        width: 253
+        height: 109
+  - number: 8
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "1b/Jade1".
+    result: |-
+      Farbe: grün
+      Kennung: grünes unterbrochenes Feuer mit 4 Sekunden Wiederkehr
+      Toppzeichen: keines
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-05-8-aufgabe.png
+        width: 704
+        height: 180
+      result:
+        src: aufgabe-05-8-ergebnis.png
+        width: 253
+        height: 180
+  - number: 9
+    text: Das Motorboot macht weiterhin 11 kn Fahrt über Grund, als um 14:06 Uhr ein Maschinenschaden eintritt.
+      Auf welcher Position befindet sich das Schiff zu diesem Zeitpunkt nach Koppelort?
+    result: |-
+      53° 50,2' N
+      007° 37,4' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-05-9-aufgabe.png
+        width: 704
+        height: 127
+      result:
+        src: aufgabe-05-9-ergebnis.png
+        width: 253
+        height: 127
+  footnotes: []
+- number: 6
+  situation:
+  - Ein aus der Alten Weser auslaufendes Motorboot befindet sich am 30.06.2012 auf dem Weg in die Elbe und steht
+    um 09:00 Uhr nahebei der Tonne "A2".
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Motorbootes.
+    result: |-
+      53° 55,3' N
+      007° 58,8' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-06-1-aufgabe.png
+        width: 696
+        height: 112
+      result:
+        src: aufgabe-06-1-ergebnis.png
+        width: 262
+        height: 112
+  - number: 2
+    text: Von der Tonne "A2" aus setzt das Boot seinen Kurs auf die Tonne "Westertill-N" ab. Tragen Sie den Kurs
+      in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-06-2-aufgabe.png
+        width: 696
+        height: 107
+      result:
+        src: aufgabe-06-2-ergebnis.png
+        width: 262
+        height: 107
+  - number: 3
+    text: Wie lautet der rwK?
+    result: rwK = 059°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-06-3-aufgabe.png
+        width: 696
+        height: 87
+      result:
+        src: aufgabe-06-3-ergebnis.png
+        width: 262
+        height: 87
+  - number: 4
+    text: Die Ablenkung beträgt -2°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 060°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-06-4-aufgabe.png
+        width: 696
+        height: 112
+      result:
+        src: aufgabe-06-4-ergebnis.png
+        width: 262
+        height: 112
+  - number: 5
+    text: |-
+      Nach einiger Zeit wird die Tonne "NGN" an Backbordseite passiert.
+      Beschreiben Sie Farbe, Kennung und Toppzeichen des Schifffahrtszeichens.
+    result: |-
+      Farbe: oben schwarz und unten gelb
+      Kennung: weißes schnelles Funkelfeuer
+      Toppzeichen: zwei Kegel - beide "Spitze oben" - senkrecht übereinander
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-06-5-aufgabe.png
+        width: 696
+        height: 225
+      result:
+        src: aufgabe-06-5-ergebnis.png
+        width: 262
+        height: 225
+  - number: 6
+    text: |-
+      Im weiteren Fahrtverlauf werden mit dem Peilaufsatz am Magnetkompass die folgenden Objekte gepeilt. Die Ablenkung für den anliegenden Kurs beträgt -2°, die Mw ist der Seekarte zu entnehmen.
+      Leuchtturm "Alte Weser" MgP = 160°
+      Tonne "Westertill-N" MgP = 056°
+      Wie lauten die rw-Peilungen?
+    result: |-
+      Leuchtturm rwP = 159°
+      Tonne rwP = 055°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-06-6-aufgabe.png
+        width: 696
+        height: 258
+      result:
+        src: aufgabe-06-6-ergebnis.png
+        width: 262
+        height: 258
+  - number: 7
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-06-7-aufgabe.png
+        width: 696
+        height: 84
+      result:
+        src: aufgabe-06-7-ergebnis.png
+        width: 262
+        height: 84
+  - number: 8
+    text: Um 09:54 Uhr wird die Tonne "Westertill-N" passiert. Wie groß ist die Geschwindigkeit seit 09:00 Uhr?
+    result: FüG = 6 kn
+    own_tolerance: ±0,2 kn
+    original:
+      question:
+        src: aufgabe-06-8-aufgabe.png
+        width: 696
+        height: 107
+      result:
+        src: aufgabe-06-8-ergebnis.png
+        width: 262
+        height: 107
+  - number: 9
+    text: Unmittelbar südlich der Tonne "Westertill-N" befindet sich eine Eintragung. Was bedeutet diese Eintragung
+      in der Seekarte?
+    result: Kartentiefe 24 m
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-06-9-aufgabe.png
+        width: 696
+        height: 105
+      result:
+        src: aufgabe-06-9-ergebnis.png
+        width: 262
+        height: 105
+  footnotes: []
+- number: 7
+  situation:
+  - Ein aus der Elbe auslaufendes Motorboot steht am 22.10.2010 um 11:00 Uhr nahebei der Tonne "Außenelbe-Reede
+    2". Die Fahrt über Grund beträgt 8 kn.
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Motorbootes um 11:00 Uhr.
+    result: |-
+      54° 03,5' N
+      008° 06,9' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-07-1-aufgabe.png
+        width: 650
+        height: 112
+      result:
+        src: aufgabe-07-1-ergebnis.png
+        width: 307
+        height: 112
+  - number: 2
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "Außenelbe-Reede 2".
+    result: |-
+      Farbe: gelb
+      Kennung: gelbes unterbrochenes Feuer mit 3 Gruppen und der Wiederkehr 12 Sekunden
+      Toppzeichen: keines
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-07-2-aufgabe.png
+        width: 650
+        height: 180
+      result:
+        src: aufgabe-07-2-ergebnis.png
+        width: 307
+        height: 180
+  - number: 3
+    text: Von der angegebenen Position aus wird am Magnetkompasskurs ein Kurs von 218° gesteuert. Die Ablenkung
+      beträgt -3°, die Mw ist der Seekarte zu entnehmen. Wie lautet der rwK?
+    result: rwK = 216°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-07-3-aufgabe.png
+        width: 650
+        height: 135
+      result:
+        src: aufgabe-07-3-ergebnis.png
+        width: 307
+        height: 135
+  - number: 4
+    text: Tragen Sie den rechtweisenden Kurs in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-07-4-aufgabe.png
+        width: 650
+        height: 84
+      result:
+        src: aufgabe-07-4-ergebnis.png
+        width: 307
+        height: 84
+  - number: 5
+    text: Wann erreichen Sie die Tonne "NGN"?
+    result: 11:57 Uhr
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-07-5-aufgabe.png
+        width: 650
+        height: 84
+      result:
+        src: aufgabe-07-5-ergebnis.png
+        width: 307
+        height: 84
+  - number: 6
+    text: Welche Bedeutung hat die Tonne "NGN"?
+    result: |-
+      Nord-Kardinal-Zeichen
+      Zeigt an, dass die Gefahrenstelle nördlich der Tonne sicher umfahren werden kann.
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-07-6-aufgabe.png
+        width: 650
+        height: 154
+      result:
+        src: aufgabe-07-6-ergebnis.png
+        width: 307
+        height: 154
+  - number: 7
+    text: |-
+      Um 12:00 Uhr werden mit dem Hand-Peilkompass folgende Tonnen gepeilt:
+      Tonne "ST" MgP = 240°
+      Tonne "A2" MgP = 150°
+      Die Ablenkung beträgt 0°, die Mw ist aus der Seekarte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      Tonne "ST" rwP = 241°
+      Tonne "A2" rwP = 151°
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-07-7-aufgabe.png
+        width: 650
+        height: 258
+      result:
+        src: aufgabe-07-7-ergebnis.png
+        width: 307
+        height: 258
+  - number: 8
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-07-8-aufgabe.png
+        width: 650
+        height: 84
+      result:
+        src: aufgabe-07-8-ergebnis.png
+        width: 307
+        height: 84
+  - number: 9
+    text: Wie lautet die Besteckversetzung?
+    result: BV = 273° - 1,1 sm
+    own_tolerance: Richtung ±10°, Betrag ±0,2 sm
+    original:
+      question:
+        src: aufgabe-07-9-aufgabe.png
+        width: 650
+        height: 85
+      result:
+        src: aufgabe-07-9-ergebnis.png
+        width: 307
+        height: 85
+  footnotes: []
+- number: 8
+  situation:
+  - Ein Motorboot steht am 28.05.2012 um 10:00 Uhr in der Deutschen Bucht. Die Fahrt über Grund wird mit 9 kn angenommen.
+  subtasks:
+  - number: 1
+    text: 'Durch Peilung und Abstandsmessung wird eine Standortbestimmung durchgeführt. Die Tonne "E2" wird gepeilt:
+      rwP = 084°, Distanz 1,6 sm. Tragen Sie die rw-Peilung in die Seekarte ein.'
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-08-1-aufgabe.png
+        width: 670
+        height: 135
+      result:
+        src: aufgabe-08-1-ergebnis.png
+        width: 287
+        height: 135
+  - number: 2
+    text: Entnehmen Sie der Seekarte die geographische Position.
+    result: |-
+      54° 07,0' N
+      007° 41,0' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-08-2-aufgabe.png
+        width: 670
+        height: 112
+      result:
+        src: aufgabe-08-2-ergebnis.png
+        width: 287
+        height: 112
+  - number: 3
+    text: An dem ermittelten Ort befindet sich ein Eintrag. Was bedeutet diese Eintragung in die Seekarte?
+    result: Kartentiefe 37 m
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-08-3-aufgabe.png
+        width: 670
+        height: 107
+      result:
+        src: aufgabe-08-3-ergebnis.png
+        width: 287
+        height: 107
+  - number: 4
+    text: Von dem ermittelten Ort wird das Verkehrstrennungsgebiet Jade Approach auf einem rechtweisenden Kurs von
+      232° angesteuert. Tragen Sie den Kurs in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-08-4-aufgabe.png
+        width: 670
+        height: 129
+      result:
+        src: aufgabe-08-4-ergebnis.png
+        width: 287
+        height: 129
+  - number: 5
+    text: Wie groß ist die Distanz zum Verkehrstrennungsgebiet?
+    result: 3,8 sm
+    own_tolerance: ±0,1 sm
+    original:
+      question:
+        src: aufgabe-08-5-aufgabe.png
+        width: 670
+        height: 84
+      result:
+        src: aufgabe-08-5-ergebnis.png
+        width: 287
+        height: 84
+  - number: 6
+    text: Die Ablenkung beträgt +2°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 229°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-08-6-aufgabe.png
+        width: 670
+        height: 112
+      result:
+        src: aufgabe-08-6-ergebnis.png
+        width: 287
+        height: 112
+  - number: 7
+    text: 'Bei Erreichen des Verkehrstrennungsgebietes Jade Approach wird der Kurs geändert, um das Verkehrstrennungsgebiet
+      rechtwinklig zu queren (Annahme: kein Versatz durch Strom und Wind). Wie lautet der rwK?'
+    result: rwK = 242°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-08-7-aufgabe.png
+        width: 670
+        height: 132
+      result:
+        src: aufgabe-08-7-ergebnis.png
+        width: 287
+        height: 132
+  - number: 8
+    text: Welcher Zeitraum wird für das Queren des Verkehrstrennungsgebietes Jade Approach voraussichtlich benötigt?
+    result: Zeitraum = 20 min.
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-08-8-aufgabe.png
+        width: 670
+        height: 107
+      result:
+        src: aufgabe-08-8-ergebnis.png
+        width: 287
+        height: 107
+  - number: 9
+    text: Nach einiger Zeit wird die Tonne "TG16/Reede" querab an Backbord passiert. Beschreiben Sie Farbe, Kennung
+      und Toppzeichen des Schifffahrtszeichens.
+    result: |-
+      Farbe: rot
+      Kennung: rotes unterbrochenes Feuer in 3er Gruppen und einer Wiederkehr von 12 Sekunden
+      Toppzeichen: keines
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-08-9-aufgabe.png
+        width: 670
+        height: 178
+      result:
+        src: aufgabe-08-9-ergebnis.png
+        width: 287
+        height: 178
+  footnotes: []
+- number: 9
+  situation:
+  - Ein Sportboot befährt am 23.06.2011 nördlich des roten Tonnenstrichs die Elbe seewärts. Gegen 12:00 Uhr wird
+    die Tonne "14" nahebei passiert. Die Fahrt über Grund beträgt 5,8 kn.
+  subtasks:
+  - number: 1
+    text: Wann erreicht das Boot voraussichtlich die Tonne "6"?
+    result: Gegen 13:00 Uhr
+    own_tolerance: ±2 min
+    original:
+      question:
+        src: aufgabe-09-1-aufgabe.png
+        width: 709
+        height: 84
+      result:
+        src: aufgabe-09-1-ergebnis.png
+        width: 249
+        height: 84
+  - number: 2
+    text: An der Tonne "6" wird das Fahrwasser zügig und ohne die Berufsschifffahrt zu behindern nach Süden gequert.
+      Gut südlich des grünen Tonnenstrichs geht es weiter elbabwärts auf der 5 m Linie, bis gegen 13:50 Uhr Tonne
+      "1" an Steuerbord querab ist. Nun wird der rwK 206° auf den Leuchtturm "Alte Weser" abgesetzt. Die Ablenkung
+      beträgt +4°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 202°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-09-2-aufgabe.png
+        width: 709
+        height: 208
+      result:
+        src: aufgabe-09-2-ergebnis.png
+        width: 249
+        height: 208
+  - number: 3
+    text: Beschreiben Sie das Feuer des Leuchtturms "Alte Weser" anhand der Eintragung in der Karte.
+    result: Festfeuer in Sektoren in den Farben weiß, rot und grün. Feuerhöhe 33 m, Tragweiten 23 sm bis 18 sm.
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-09-3-aufgabe.png
+        width: 709
+        height: 154
+      result:
+        src: aufgabe-09-3-ergebnis.png
+        width: 249
+        height: 154
+  - number: 4
+    text: Was bedeutet der Zusatz "Horn Mo(AL)60s"?
+    result: Nebelhorn in den Morsebuchstaben A und L alle 60 Sekunden.
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-09-4-aufgabe.png
+        width: 709
+        height: 129
+      result:
+        src: aufgabe-09-4-ergebnis.png
+        width: 249
+        height: 129
+  - number: 5
+    text: 'Um 14:20 Uhr zeigt das GPS folgende Position: 53° 56,0'' N 008° 11,0'' E. Tragen Sie diese in die Karte
+      ein.'
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-09-5-aufgabe.png
+        width: 709
+        height: 109
+      result:
+        src: aufgabe-09-5-ergebnis.png
+        width: 249
+        height: 109
+  - number: 6
+    text: Die GPS-Position soll anhand von Peilungen kontrolliert werden. Wie lauten von dieser GPS-Position aus
+      die rw-Peilungen auf Leuchtturm "Neuwerk" und Leuchtturm "Alte Weser"?
+    result: |-
+      rwP = 096° Neuwerk
+      rwP = 205° Alte Weser
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-09-6-aufgabe.png
+        width: 709
+        height: 132
+      result:
+        src: aufgabe-09-6-ergebnis.png
+        width: 249
+        height: 132
+  - number: 7
+    text: Tragen Sie die rw-Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-09-7-aufgabe.png
+        width: 709
+        height: 84
+      result:
+        src: aufgabe-09-7-ergebnis.png
+        width: 249
+        height: 84
+  - number: 8
+    text: Wie groß ist die Distanz zum Leuchtturm "Alte Weser"?
+    result: 4,6 sm
+    own_tolerance: ±0,1 sm
+    original:
+      question:
+        src: aufgabe-09-8-aufgabe.png
+        width: 709
+        height: 84
+      result:
+        src: aufgabe-09-8-ergebnis.png
+        width: 249
+        height: 84
+  - number: 9
+    text: Gegen 15:20 Uhr sind Sie am Leuchtturm "Alte Weser". Wie groß ist die Geschwindigkeit der letzten Stunde?
+    result: 4,6 kn
+    own_tolerance: ±0,2 kn
+    original:
+      question:
+        src: aufgabe-09-9-aufgabe.png
+        width: 709
+        height: 105
+      result:
+        src: aufgabe-09-9-ergebnis.png
+        width: 249
+        height: 105
+  footnotes: []
+- number: 10
+  situation:
+  - Ein am 14.07.2010 aus der "Alten Weser" auslaufendes Fahrzeug hat den Leuchtturm "Alte Weser" passiert und steht
+    um 12:00 Uhr nahebei der Tonne "A10".
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position dieser Tonne.
+    result: |-
+      53° 52,6' N
+      008° 06,4' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-10-1-aufgabe.png
+        width: 633
+        height: 112
+      result:
+        src: aufgabe-10-1-ergebnis.png
+        width: 325
+        height: 112
+  - number: 2
+    text: Beschreiben Sie das Feuer des Leuchtturms "Alte Weser".
+    result: Festfeuer mit weißen, roten und grünen Sektoren. Feuerhöhe 33 m, 23 sm bis 18 sm Nenntragweite.
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-10-2-aufgabe.png
+        width: 633
+        height: 132
+      result:
+        src: aufgabe-10-2-ergebnis.png
+        width: 325
+        height: 132
+  - number: 3
+    text: Vom angegebenen Standort aus wird der Kurs auf die Tonne "A2" abgesetzt. Tragen Sie den Kurs in die Seekarte
+      ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-10-3-aufgabe.png
+        width: 633
+        height: 107
+      result:
+        src: aufgabe-10-3-ergebnis.png
+        width: 325
+        height: 107
+  - number: 4
+    text: Wie lautet der rwK?
+    result: rwK = 301°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-10-4-aufgabe.png
+        width: 633
+        height: 87
+      result:
+        src: aufgabe-10-4-ergebnis.png
+        width: 325
+        height: 87
+  - number: 5
+    text: Die Ablenkung beträgt -4°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 304°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-10-5-aufgabe.png
+        width: 633
+        height: 112
+      result:
+        src: aufgabe-10-5-ergebnis.png
+        width: 325
+        height: 112
+  - number: 6
+    text: Um 12:26 Uhr wird die Tonne "A2" querab passiert. Wie groß ist die Geschwindigkeit über Grund seit Passage
+      der Tonne "A10"?
+    result: 12,0 kn
+    own_tolerance: ±0,2 kn
+    original:
+      question:
+        src: aufgabe-10-6-aufgabe.png
+        width: 633
+        height: 107
+      result:
+        src: aufgabe-10-6-ergebnis.png
+        width: 325
+        height: 107
+  - number: 7
+    text: Nach Passage der Tonne "A2" wird der Kurs nach Steuerbord geändert und auf die Tonne "E3" abgesetzt. Wenig
+      später wird die Tonne "ST" passiert. Welche Bedeutung hat dieses Schifffahrtszeichen?
+    result: Kennzeichnung der Zufahrt zu Fahrwassern und der Mitte von Schifffahrtswegen
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-10-7-aufgabe.png
+        width: 633
+        height: 129
+      result:
+        src: aufgabe-10-7-ergebnis.png
+        width: 325
+        height: 129
+  - number: 8
+    text: |-
+      Zur Standortbestimmung werden danach mit dem Peilaufsatz am Magnetkompass folgende Schifffahrtszeichen gepeilt:
+      Tonne "Nordergründe-N" MgP = 110°
+      Tonne "ST" MgP = 225°
+      Die Ablenkung für den anliegenden Kurs beträgt +1°, die Mw ist der Seekarte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      rwP = 112° Tonne "NGN"
+      rwP = 227° Tonne "ST"
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-10-8-aufgabe.png
+        width: 633
+        height: 258
+      result:
+        src: aufgabe-10-8-ergebnis.png
+        width: 325
+        height: 258
+  - number: 9
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-10-9-aufgabe.png
+        width: 633
+        height: 82
+      result:
+        src: aufgabe-10-9-ergebnis.png
+        width: 325
+        height: 82
+  footnotes: []
+- number: 11
+  situation:
+  - Ein Sportboot steht am 05.08.2013 um 09:00 Uhr in der Deutschen Bucht auf Position 53° 54,2' N und 007° 53,8'
+    E und möchte in die Neue Weser einlaufen.
+  subtasks:
+  - number: 1
+    text: Tragen Sie die Position in die Karte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-11-1-aufgabe.png
+        width: 575
+        height: 84
+      result:
+        src: aufgabe-11-1-ergebnis.png
+        width: 382
+        height: 84
+  - number: 2
+    text: Auf der o. g. Position befindet sich ein Eintrag. Was bedeutet diese Eintragung in die Seekarte?
+    result: Kartentiefe 18,5 m
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-11-2-aufgabe.png
+        width: 575
+        height: 109
+      result:
+        src: aufgabe-11-2-ergebnis.png
+        width: 382
+        height: 109
+  - number: 3
+    text: Von der o. g. Position wird der Kurs auf die Tonne "5" des Fahrwassers der Neuen Weser abgesetzt. Wie
+      lautet der rwK?
+    result: rwK = 148°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-11-3-aufgabe.png
+        width: 575
+        height: 109
+      result:
+        src: aufgabe-11-3-ergebnis.png
+        width: 382
+        height: 109
+  - number: 4
+    text: Tragen Sie den rechtweisenden Kurs in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-11-4-aufgabe.png
+        width: 575
+        height: 84
+      result:
+        src: aufgabe-11-4-ergebnis.png
+        width: 382
+        height: 84
+  - number: 5
+    text: Die Ablenkung beträgt -5°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 152°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-11-5-aufgabe.png
+        width: 575
+        height: 112
+      result:
+        src: aufgabe-11-5-ergebnis.png
+        width: 382
+        height: 112
+  - number: 6
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "5" der Neuen Weser.
+    result: |-
+      Farbe: grün
+      Kennung: grünes unterbrochenes Feuer in 2er Gruppen mit einer Wiederkehr von 9 Sekunden
+      Toppzeichen: keines
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-11-6-aufgabe.png
+        width: 575
+        height: 157
+      result:
+        src: aufgabe-11-6-ergebnis.png
+        width: 382
+        height: 157
+  - number: 7
+    text: Wann wird die Tonne "5" voraussichtlich passiert, wenn das Boot eine Fahrt über Grund von 6 kn macht?
+    result: Um 09:37 Uhr
+    own_tolerance: ±1 min
+    original:
+      question:
+        src: aufgabe-11-7-aufgabe.png
+        width: 575
+        height: 109
+      result:
+        src: aufgabe-11-7-ergebnis.png
+        width: 382
+        height: 109
+  - number: 8
+    text: |-
+      Im weiteren Verlauf der Reise werden mit dem Hand-Peilkompass folgende Leuchttürme gepeilt:
+      Leuchtturm "Alte Weser" MgP = 011°
+      Leuchtturm "Tegeler Plate" MgP = 102°
+      Die Ablenkung beträgt 0°, die Mw ist der Seekarte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      rwP = 012° LT "Alte Weser"
+      rwP = 103° LT "Tegeler Plate"
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-11-8-aufgabe.png
+        width: 575
+        height: 258
+      result:
+        src: aufgabe-11-8-ergebnis.png
+        width: 382
+        height: 258
+  - number: 9
+    text: Tragen Sie die rwP in die Karte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-11-9-aufgabe.png
+        width: 575
+        height: 82
+      result:
+        src: aufgabe-11-9-ergebnis.png
+        width: 382
+        height: 82
+  footnotes: []
+- number: 12
+  situation:
+  - Ein am 02.05.2012 aus der Jade auslaufendes Sportboot steht um 08:00 Uhr nahebei der Tonne "10" des Wangerooger
+    Fahrwassers und möchte in nördlicher Richtung ablaufen. Die Fahrt über Grund wird mit 8 kn angenommen.
+  subtasks:
+  - number: 1
+    text: Entnehmen Sie der Seekarte die geographische Position des Bootes.
+    result: |-
+      53° 50,0' N
+      007° 53,4' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-12-1-aufgabe.png
+        width: 631
+        height: 112
+      result:
+        src: aufgabe-12-1-ergebnis.png
+        width: 327
+        height: 112
+  - number: 2
+    text: Von der angegebenen Position wird der Kurs auf die Tonne "ST" abgesetzt. Tragen Sie den Kurs in die Seekarte
+      ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-12-2-aufgabe.png
+        width: 631
+        height: 107
+      result:
+        src: aufgabe-12-2-ergebnis.png
+        width: 327
+        height: 107
+  - number: 3
+    text: Wie lautet der rwK?
+    result: rwK = 007°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-12-3-aufgabe.png
+        width: 631
+        height: 87
+      result:
+        src: aufgabe-12-3-ergebnis.png
+        width: 327
+        height: 87
+  - number: 4
+    text: Die Ablenkung beträgt -3°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 009°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-12-4-aufgabe.png
+        width: 631
+        height: 112
+      result:
+        src: aufgabe-12-4-ergebnis.png
+        width: 327
+        height: 112
+  - number: 5
+    text: Die Tonne "4a" der "Neuen Weser" wird passiert. Beschreiben Sie Farbe, Kennung und Toppzeichen des Schifffahrtszeichens.
+    result: |-
+      Farbe: rot
+      Kennung: rotes unterbrochenes Funkelfeuer mit 13 Sekunden Wiederkehr
+      Toppzeichen: roter Zylinder
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-12-5-aufgabe.png
+        width: 631
+        height: 157
+      result:
+        src: aufgabe-12-5-ergebnis.png
+        width: 327
+        height: 157
+  - number: 6
+    text: Um 08:30 Uhr wird ein treibendes und leckendes Ölfass nahebei passiert und an die Verkehrszentrale gemeldet.
+      Auf welcher Position befindet sich das Schiff nach Koppelort zu diesem Zeitpunkt?
+    result: |-
+      53° 54,0' N
+      007° 54,3' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-12-6-aufgabe.png
+        width: 631
+        height: 129
+      result:
+        src: aufgabe-12-6-ergebnis.png
+        width: 327
+        height: 129
+  - number: 7
+    text: 'Um 09:00 Uhr wird die Tonne "ST" gepeilt: rwP = 168°. Als Distanz werden 2,0 sm ermittelt. Tragen Sie
+      die rw-Peilung in die Seekarte ein.'
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-12-7-aufgabe.png
+        width: 631
+        height: 112
+      result:
+        src: aufgabe-12-7-ergebnis.png
+        width: 327
+        height: 112
+  - number: 8
+    text: Wie lautet die Besteckversetzung?
+    result: BV = 296° - 0,7 sm
+    own_tolerance: Richtung ±10°, Betrag ±0,2 sm
+    original:
+      question:
+        src: aufgabe-12-8-aufgabe.png
+        width: 631
+        height: 87
+      result:
+        src: aufgabe-12-8-ergebnis.png
+        width: 327
+        height: 87
+  - number: 9
+    text: Welche Bedeutung hat die Tonne "ST"?
+    result: 'Kennzeichnung der Zufahrt zu Fahrwassern und der Mitte von Schifffahrtswegen (hier: "Alte Weser")'
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-12-9-aufgabe.png
+        width: 631
+        height: 127
+      result:
+        src: aufgabe-12-9-ergebnis.png
+        width: 327
+        height: 127
+  footnotes: []
+- number: 13
+  situation:
+  - Ein aus Helgoland ausgelaufenes Sportboot befindet sich am 02.07.2014 auf dem Weg nach Bremerhaven.
+  subtasks:
+  - number: 1
+    text: |-
+      Um 09:00 Uhr werden mit dem Hand-Peilkompass folgende Schifffahrtszeichen gepeilt:
+      Tonne "Helgoland-O" MgP = 284°
+      Tonne "Düne-S" MgP = 008°
+      Die Ablenkung beträgt 0°, die Mw ist der Seekarte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      rwP = 285° Tonne "Helgoland-O"
+      rwP = 009° Tonne "Düne-S"
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-13-1-aufgabe.png
+        width: 645
+        height: 261
+      result:
+        src: aufgabe-13-1-ergebnis.png
+        width: 313
+        height: 261
+  - number: 2
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-13-2-aufgabe.png
+        width: 645
+        height: 84
+      result:
+        src: aufgabe-13-2-ergebnis.png
+        width: 313
+        height: 84
+  - number: 3
+    text: Entnehmen Sie der Seekarte die geographische Position des durch Peilung ermittelten Standortes.
+    result: |-
+      54° 08,6' N
+      007° 55,7' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-13-3-aufgabe.png
+        width: 645
+        height: 112
+      result:
+        src: aufgabe-13-3-ergebnis.png
+        width: 313
+        height: 112
+  - number: 4
+    text: Welche Bedeutung hat die Tonne "Helgoland-O"?
+    result: |-
+      Ost-Kardinal-Zeichen
+      Zeigt an, dass die Gefahrenstelle im Osten sicher umfahren werden kann
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-13-4-aufgabe.png
+        width: 645
+        height: 132
+      result:
+        src: aufgabe-13-4-ergebnis.png
+        width: 313
+        height: 132
+  - number: 5
+    text: Von dem durch Peilung ermittelten Standort wird der Kurs auf die Tonne "ST" abgesetzt. Tragen Sie den
+      Kurs in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-13-5-aufgabe.png
+        width: 645
+        height: 107
+      result:
+        src: aufgabe-13-5-ergebnis.png
+        width: 313
+        height: 107
+  - number: 6
+    text: Wie lautet der rwK?
+    result: rwK = 182°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-13-6-aufgabe.png
+        width: 645
+        height: 87
+      result:
+        src: aufgabe-13-6-ergebnis.png
+        width: 313
+        height: 87
+  - number: 7
+    text: Die Ablenkung beträgt +4°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 177°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-13-7-aufgabe.png
+        width: 645
+        height: 109
+      result:
+        src: aufgabe-13-7-ergebnis.png
+        width: 313
+        height: 109
+  - number: 8
+    text: Um 09:40 Uhr wird die Tonne "E3" querab passiert. Wie groß ist die Geschwindigkeit des Bootes seit dem
+      durch Peilung bestimmten Standort?
+    result: FüG = 7,5 kn
+    own_tolerance: ±0,2 kn
+    original:
+      question:
+        src: aufgabe-13-8-aufgabe.png
+        width: 645
+        height: 129
+      result:
+        src: aufgabe-13-8-ergebnis.png
+        width: 313
+        height: 129
+  - number: 9
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "ST".
+    result: |-
+      Farbe: rot-weiß senkrecht gestreift
+      Kennung: weißes Gleichtaktfeuer mit 8 Sekunden Wiederkehr
+      Toppzeichen: roter Ball
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-13-9-aufgabe.png
+        width: 645
+        height: 155
+      result:
+        src: aufgabe-13-9-ergebnis.png
+        width: 313
+        height: 155
+  footnotes: []
+- number: 14
+  situation:
+  - Ein Sportboot verlässt am frühen Morgen des 31.08.2013 die Insel Neuwerk mit dem Ziel Husum. Die Fahrt über
+    Grund wird mit 6 kn angegeben.
+  subtasks:
+  - number: 1
+    text: Beschreiben Sie das Feuer des Leuchtturms Neuwerk.
+    result: Blink in 3er Gruppen, weiß-rot-grün. 20 Sekunden Wiederkehr. Feuerträger 38 m hoch. Nenntragweite 16
+      sm bis 11 sm.
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-14-1-aufgabe.png
+        width: 683
+        height: 157
+      result:
+        src: aufgabe-14-1-ergebnis.png
+        width: 274
+        height: 157
+  - number: 2
+    text: 'Erläutern Sie die Bedeutung folgender Hintergrundfarben in der Seekarte: weiß, hellblau, hellgrün und
+      hellgelb.'
+    result: |-
+      weiß: "tiefes Wasser"
+      hellblau: "flaches Wasser"
+      hellgrün: "Watt"
+      hellgelb: "Land"
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-14-2-aufgabe.png
+        width: 683
+        height: 160
+      result:
+        src: aufgabe-14-2-ergebnis.png
+        width: 274
+        height: 160
+  - number: 3
+    text: Gegen 07:00 Uhr wird die Tonne "13/Neuwerk-Reede1" nahebei passiert. Entnehmen Sie der Seekarte die geographische
+      Position dieser Tonne.
+    result: |-
+      53° 58,4' N
+      008° 28,2' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-14-3-aufgabe.png
+        width: 683
+        height: 112
+      result:
+        src: aufgabe-14-3-ergebnis.png
+        width: 274
+        height: 112
+  - number: 4
+    text: Von der Tonne "13/Neuwerk-Reede1" aus wird das Fahrwasser zunächst gequert. Dann fährt das Sportboot außerhalb
+      des roten Tonnenstriches elbabwärts zur Tonne "8", die es um 07:45 Uhr erreicht. Von der Tonne "8" wird der
+      Kurs auf die Tonne "Norderelbe" abgesetzt. Tragen Sie den Kurs ab Tonne "8" in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-14-4-aufgabe.png
+        width: 683
+        height: 174
+      result:
+        src: aufgabe-14-4-ergebnis.png
+        width: 274
+        height: 174
+  - number: 5
+    text: Wie lautet der rwK?
+    result: rwK = 038°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-14-5-aufgabe.png
+        width: 683
+        height: 87
+      result:
+        src: aufgabe-14-5-ergebnis.png
+        width: 274
+        height: 87
+  - number: 6
+    text: Die Ablenkung beträgt +4°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 033°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-14-6-aufgabe.png
+        width: 683
+        height: 112
+      result:
+        src: aufgabe-14-6-ergebnis.png
+        width: 274
+        height: 112
+  - number: 7
+    text: Wie groß ist die Distanz zwischen den Tonnen "8" und "Norderelbe"?
+    result: 3,6 sm
+    own_tolerance: ±0,1 sm
+    original:
+      question:
+        src: aufgabe-14-7-aufgabe.png
+        width: 683
+        height: 84
+      result:
+        src: aufgabe-14-7-ergebnis.png
+        width: 274
+        height: 84
+  - number: 8
+    text: Um 08:30 Uhr werden mit dem Peilaufsatz am Magnetkompass die Tonne "Süderpiep" in MgP = 020° und die Tonne
+      "Norderelbe" in MgP = 098° gepeilt. Die Ablenkung für den anliegenden Kurs beträgt +1°, die Mw ist der Seekarte
+      zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      rwP = 022° Süderpiep
+      rwP = 100° Norderelbe
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-14-8-aufgabe.png
+        width: 683
+        height: 157
+      result:
+        src: aufgabe-14-8-ergebnis.png
+        width: 274
+        height: 157
+  - number: 9
+    text: Tragen Sie die rechtweisenden Peilungen in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-14-9-aufgabe.png
+        width: 683
+        height: 82
+      result:
+        src: aufgabe-14-9-ergebnis.png
+        width: 274
+        height: 82
+  footnotes: []
+- number: 15
+  situation:
+  - Ein Sportboot läuft am 20.08.2011 von der Weser kommend in die Elbmündung.
+  subtasks:
+  - number: 1
+    text: |-
+      Um 09:00 Uhr werden folgende Peilungen ermittelt:
+      Leuchtturm "Alte Weser" MgP = 175°
+      Leuchtturm "Neuwerk" MgP = 085°
+      Die Ablenkung beträgt +5°, die Mw ist der Seekarte zu entnehmen. Wie lauten die rw-Peilungen?
+    result: |-
+      rwP = 180° Alte Weser
+      rwP = 090° Neuwerk
+    own_tolerance: ±1° je Peilung
+    original:
+      question:
+        src: aufgabe-15-1-aufgabe.png
+        width: 696
+        height: 238
+      result:
+        src: aufgabe-15-1-ergebnis.png
+        width: 262
+        height: 238
+  - number: 2
+    text: Tragen Sie die rwP in die Karte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-15-2-aufgabe.png
+        width: 696
+        height: 84
+      result:
+        src: aufgabe-15-2-ergebnis.png
+        width: 262
+        height: 84
+  - number: 3
+    text: Geben Sie die ermittelte Position nach geographischer Breite und Länge an.
+    result: |-
+      53° 54,9' N
+      008° 07,6' E
+    own_tolerance: ±0,2′ je Breite und Länge
+    original:
+      question:
+        src: aufgabe-15-3-aufgabe.png
+        width: 696
+        height: 112
+      result:
+        src: aufgabe-15-3-ergebnis.png
+        width: 262
+        height: 112
+  - number: 4
+    text: Von dieser Position aus setzen Sie Kurs auf die Tonne "1" des Elbe-Fahrwassers. Wie lautet der rwK?
+    result: rwK = 037°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-15-4-aufgabe.png
+        width: 696
+        height: 109
+      result:
+        src: aufgabe-15-4-ergebnis.png
+        width: 262
+        height: 109
+  - number: 5
+    text: Die Ablenkung beträgt -2°, die Mw ist der Seekarte zu entnehmen. Wie lautet der MgK?
+    result: MgK = 039°
+    own_tolerance: ±1°
+    original:
+      question:
+        src: aufgabe-15-5-aufgabe.png
+        width: 696
+        height: 109
+      result:
+        src: aufgabe-15-5-ergebnis.png
+        width: 262
+        height: 109
+  - number: 6
+    text: Wie groß ist die Distanz zur Tonne "1"?
+    result: 5,4 sm
+    own_tolerance: ±0,1 sm
+    original:
+      question:
+        src: aufgabe-15-6-aufgabe.png
+        width: 696
+        height: 87
+      result:
+        src: aufgabe-15-6-ergebnis.png
+        width: 262
+        height: 87
+  - number: 7
+    text: Nach 1,8 sm kreuzt Ihr Kurs eine Eintragung in der Seekarte, die mit "Obstn" beschriftet ist. Was bedeutet
+      diese Eintragung in der Seekarte?
+    result: Schifffahrtshindernis mit einer Kartentiefe von 9,7 m
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-15-7-aufgabe.png
+        width: 696
+        height: 109
+      result:
+        src: aufgabe-15-7-ergebnis.png
+        width: 262
+        height: 109
+  - number: 8
+    text: Beschreiben Sie Farbe, Kennung und Toppzeichen der Tonne "1" des Elbe-Fahrwassers.
+    result: |-
+      Farbe: grün
+      Kennung: grünes Funkelfeuer
+      Toppzeichen: grüner Kegel Spitze oben
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-15-8-aufgabe.png
+        width: 696
+        height: 157
+      result:
+        src: aufgabe-15-8-ergebnis.png
+        width: 262
+        height: 157
+  - number: 9
+    text: Die Revierzentrale "Cuxhaven Elbe Traffic" meldet drei über Bord gefallene Container in Position 53° 59,6'
+      N und 008° 23,2' E. Tragen Sie die Position in die Seekarte ein.
+    result: Siehe Karte
+    own_tolerance: null
+    original:
+      question:
+        src: aufgabe-15-9-aufgabe.png
+        width: 696
+        height: 127
+      result:
+        src: aufgabe-15-9-ergebnis.png
+        width: 262
+        height: 127
+  footnotes: []

@@ -1,26 +1,16 @@
-import { Link, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { ErrorPageBody, RenderErrorBoundary } from '../components/RenderErrorBoundary'
-import { buttonClass } from '../components/buttonStyles'
 import { useNavigationScroll } from '../hooks/useNavigationScroll'
 import { ImprintContent } from '../legal/ImprintContent'
 import { PrivacyContent } from '../legal/PrivacyContent'
+import { sbfNavigationOpen } from '../siteConfig'
+import { NavigationOverviewPage } from './NavigationOverviewPage'
+import { NavigationTaskPage } from './NavigationTaskPage'
 import { SbfFaqPage } from './SbfFaqPage'
 import { SbfLandingPage } from './SbfLandingPage'
+import { SbfNotFoundPage } from './SbfNotFoundPage'
 import { SbfPageLayout } from './SbfPageLayout'
-
-function SbfNotFoundPage() {
-  return (
-    <SbfPageLayout title="Seite nicht gefunden" compact>
-      <p className="text-ink">
-        Unter dieser Adresse gibt es keine Seite. Vielleicht ist der Link veraltet oder vertippt.
-      </p>
-      <Link to="/" className={`${buttonClass('primary')} self-start`}>
-        Zur Startseite
-      </Link>
-    </SbfPageLayout>
-  )
-}
 
 // The SBF site's routes (ADR-0067): public pages only. No session check, no AGB gate, no /admin and
 // no login: until accounts come to SBF Lotse, the SBF build makes no API call at all — and carries
@@ -38,6 +28,13 @@ export function SbfApp() {
       <Routes>
         <Route path="/" element={<SbfLandingPage />} />
         <Route path="/faq" element={<SbfFaqPage />} />
+        {/* The Navigationsaufgaben, open to guests, only in a build with VITE_SBF=on (ADR-0068). */}
+        {sbfNavigationOpen() ? (
+          <>
+            <Route path="/navigation" element={<NavigationOverviewPage />} />
+            <Route path="/navigation/:number" element={<NavigationTaskPage />} />
+          </>
+        ) : null}
         <Route
           path="/imprint"
           element={

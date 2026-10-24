@@ -5,13 +5,14 @@ import { HeaderBar } from '../components/HeaderBar'
 import { HeroBand } from '../components/HeroBand'
 import { LegalFooter } from '../components/LegalFooter'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { sbfNavigationOpen } from '../siteConfig'
 import { SbfHeaderNav } from './SbfHeaderNav'
 import { SBF_HOME_TITLE } from './texts'
 
 const SOON_BADGE = 'rounded-tile bg-accent-strong px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase'
 
 // What SBF Lotse is going to offer, first things first (ADR-0067). While VITE_SBF is "off" the
-// start page is all there is: no task content, no API call.
+// start page is all there is: no task content, no API call. With "on" the first item is there.
 const COMING = [
   [
     'Navigationsaufgaben See',
@@ -28,6 +29,7 @@ const COMING = [
 
 export function SbfLandingPage() {
   useDocumentTitle(SBF_HOME_TITLE)
+  const open = sbfNavigationOpen()
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <HeaderBar homeTo="/" nav={<SbfHeaderNav />} />
@@ -41,19 +43,37 @@ export function SbfLandingPage() {
             <p className="mt-8 text-lg tracking-wide text-surface-alt uppercase sm:text-xl">
               Die Lern-App für den Sportbootführerschein See – im Aufbau
             </p>
-            <p className="mt-6 text-sm text-surface-alt">
-              Bald hier: die amtlichen Navigationsaufgaben See, frei zum Üben.
-            </p>
+            {open ? (
+              <Link
+                to="/navigation"
+                className="mt-10 rounded-tile border-2 border-surface px-6 py-3 font-mono text-sm tracking-wide text-surface uppercase transition hover:bg-surface hover:text-primary"
+              >
+                Navigationsaufgaben üben
+              </Link>
+            ) : (
+              <p className="mt-6 text-sm text-surface-alt">
+                Bald hier: die amtlichen Navigationsaufgaben See, frei zum Üben.
+              </p>
+            )}
           </div>
         </HeroBand>
 
         <section className={`${CONTENT} py-16`}>
           <h2 className="font-serif text-3xl text-primary">Was kommt</h2>
           <Columns className="mt-10 sm:grid-cols-3">
-            {COMING.map(([title, text, when]) => (
+            {COMING.map(([title, text, when], index) => (
               <div key={title} className="flex flex-col items-start gap-4">
-                <span className={SOON_BADGE}>{when}</span>
-                <h3 className="font-serif text-2xl leading-snug text-primary">{title}</h3>
+                {/* The first item is the Navigationsaufgaben: there in a build with VITE_SBF=on. */}
+                <span className={SOON_BADGE}>{open && index === 0 ? 'Jetzt da' : when}</span>
+                <h3 className="font-serif text-2xl leading-snug text-primary">
+                  {open && index === 0 ? (
+                    <Link to="/navigation" className="underline-offset-4 hover:underline">
+                      {title}
+                    </Link>
+                  ) : (
+                    title
+                  )}
+                </h3>
                 <p className="text-sm leading-relaxed text-ink-soft">{text}</p>
               </div>
             ))}
