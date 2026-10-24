@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { ChartAttempt, ChartAttemptTask } from '../api/types'
+import type { ChartAttempt, ChartAttemptTask, ExamResult } from '../api/types'
 import { EMPTY_DRAFT, draftText } from '../answerTable'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useEnterShortcut } from '../hooks/useEnterShortcut'
+import { EXAM_RESULT_LABELS } from '../labels'
+import { CHART_ORAL_MIN_POINTS, CHART_PASS_MIN_POINTS, chartRunResult } from '../runVerdict'
 import { scrollBelowIntoView } from '../scroll'
 import { ChartAiCheck } from './ChartAiCheck'
 import { ChartOwnAnswer } from './AnswerBox'
@@ -297,12 +299,27 @@ function PointsForm({
   )
 }
 
+const RESULT_COLORS: Record<ExamResult, string> = {
+  bestanden: 'text-success',
+  muendliche_nachpruefung: 'text-accent-strong',
+  nicht_bestanden: 'text-danger',
+}
+
 function ChartRunResult({ attempt, guest }: { attempt: ChartAttempt; guest: boolean }) {
+  const result = chartRunResult(attempt.points)
   return (
     <section className="flex flex-col gap-4">
       <h2 className={sectionHeading}>Kartenaufgabe abgeschlossen</h2>
       <p className="text-ink">
         Du hast dir <strong>{attempt.points}</strong> von {attempt.max_points} Punkten gegeben.
+      </p>
+      <p className="text-lg text-ink">
+        In der Prüfung hieße das: <strong className={RESULT_COLORS[result]}>{EXAM_RESULT_LABELS[result]}</strong>
+      </p>
+      <p className="text-sm text-ink-soft">
+        Ab {CHART_PASS_MIN_POINTS} Punkten ist die Kartenaufgabe bestanden, bei {CHART_ORAL_MIN_POINTS}–
+        {CHART_PASS_MIN_POINTS - 1} Punkten folgt eine mündliche Nachprüfung, darunter ist sie nicht bestanden
+        (Durchführungsrichtlinien SKS). Die Punkte beruhen auf deiner Selbsteinschätzung.
       </p>
       {guest ? (
         <GuestCta place="chart_result">
