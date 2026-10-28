@@ -55,17 +55,17 @@ export function PageShell({
       {header}
       {notice}
       <main className="flex-1">
-        <HeroBand className={`${slim ? 'pt-3 pb-7' : compact ? 'pt-6 pb-12' : 'pt-12 pb-24'} text-center`}>
+        <HeroBand className={`${slim ? 'pt-3 pb-7' : compact ? 'pt-4 pb-9' : 'pt-6 pb-12'} text-center`}>
           <div className={column}>
             <h1
               className={`font-serif tracking-wide break-words uppercase ${
-                slim ? 'text-xl' : compact ? 'mt-2 text-2xl sm:text-3xl' : 'mt-4 text-3xl sm:text-4xl'
+                slim ? 'text-xl' : compact ? 'mt-1 text-2xl' : 'mt-2 text-2xl sm:text-3xl'
               }`}
             >
               {title}
             </h1>
             {subtitle && !slim ? (
-              <div className={`text-sm text-surface-alt ${compact ? 'mt-2' : 'mt-4'}`}>{subtitle}</div>
+              <div className={`text-sm text-surface-alt ${compact ? 'mt-1' : 'mt-2'}`}>{subtitle}</div>
             ) : null}
           </div>
         </HeroBand>
