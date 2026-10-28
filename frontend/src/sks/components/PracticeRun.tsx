@@ -105,6 +105,7 @@ export function PracticeRun({
   // Whether a question just became gelernt, while its celebration runs.
   const [celebrating, setCelebrating] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
   const revealRef = useRef<HTMLButtonElement>(null)
   const enterShortcut = useEnterShortcut(() => setPhase('assess'))
   const styles = formStyles('light')
@@ -114,8 +115,13 @@ export function PracticeRun({
   // A layout effect, so the question never shows up without the cursor in the field.
   // A guest arriving on the page (often from a search) isn't pulled into the field before they
   // chose to start; from the second question on, the loop is the same.
+  // Focusing must not scroll the field to the middle of the screen: the status row (count, boat)
+  // is scrolled back into view instead, so a new question always shows it.
   useLayoutEffect(() => {
-    if (phase === 'answer' && !(guest && index === 0)) noteRef.current?.focus()
+    if (phase === 'answer' && !(guest && index === 0)) {
+      noteRef.current?.focus({ preventScroll: true })
+      statusRef.current?.scrollIntoView?.({ block: 'nearest' })
+    }
   }, [phase, index, run, guest])
 
   const startRun = (includeLearned: boolean) => {
@@ -236,7 +242,7 @@ export function PracticeRun({
         {feedback}
       </p>
       {celebrating ? <LearnedCelebration /> : null}
-      <div className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
+      <div ref={statusRef} className="relative flex items-center justify-between gap-4 border-b border-border pb-3">
         {/* Where the learner is in this run (the boxed count) sits above the line; which question
             this is (topic and number) sits below it, on a line without the gauge and report button,
             so a long topic wraps cleanly instead of fighting them for space. */}
@@ -295,7 +301,7 @@ export function PracticeRun({
                 }
                 enterShortcut.onKeyDown(event)
               }}
-              rows={4}
+              rows={3}
               className={styles.input}
             />
             {enterShortcut.enabled ? (
