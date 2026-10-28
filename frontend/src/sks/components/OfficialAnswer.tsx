@@ -1,4 +1,5 @@
 import type { QuestionImage } from '../api/types'
+import { splitLabelledParts } from '../answerSections'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
 
@@ -12,7 +13,7 @@ export function OfficialAnswer({ text, images }: { text: string | null | undefin
     <>
       {text ? (
         <p className="whitespace-pre-line text-ink">
-          <RichText text={text} />
+          <RichText text={splitLabelledParts(text)} />
         </p>
       ) : images.length === 0 ? (
         <p className="text-ink-soft italic">
