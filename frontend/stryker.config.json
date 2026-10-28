@@ -35,6 +35,7 @@
     "src/shared/agbVersion.ts",
     "src/shared/chartPoints.ts",
     "src/sks/answerTable.ts",
+    "src/sks/answerSections.ts",
     "src/sks/navigation.ts",
     "src/sks/catalog.ts",
     "src/sks/publicPages.ts",
