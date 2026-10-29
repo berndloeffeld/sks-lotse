@@ -41,4 +41,20 @@ describe('QuestionImages', () => {
     expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort 1 von 2' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Abbildung zur amtlichen Antwort 2 von 2' })).toBeInTheDocument()
   })
+
+  it('captions several question images as Bild 1, Bild 2 but not a single one or answer images', () => {
+    const two = [
+      { src: 'a-1.png', width: 10, height: 10 },
+      { src: 'a-2.png', width: 10, height: 10 },
+    ]
+    const { rerender } = render(<QuestionImages images={two} part="question" />)
+    expect(screen.getByText('Bild 1')).toBeInTheDocument()
+    expect(screen.getByText('Bild 2')).toBeInTheDocument()
+
+    rerender(<QuestionImages images={two} part="answer" />)
+    expect(screen.queryByText('Bild 1')).not.toBeInTheDocument()
+
+    rerender(<QuestionImages images={two.slice(0, 1)} part="question" />)
+    expect(screen.queryByText('Bild 1')).not.toBeInTheDocument()
+  })
 })

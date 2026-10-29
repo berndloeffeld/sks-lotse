@@ -28,7 +28,7 @@ Only the proposing halves of stages 2 and 3 are run by hand, on a developer's ma
 
 1. **Parse**: `parse_catalog_pdf()` turns the PDF into raw questions (still `seemannschaft_1`/`seemannschaft_2` here).
    - `clean()` joins lines the PDF merely wrapped (the layout's line breaks aren't part of the text) and keeps only breaks before list items (`1.`, `a)`, `-`, `•`). The frontend renders the rest with `whitespace-pre-line`.
-   - Chart symbols the PDF flattens to plain digits are restored via `QUESTION_TEXT_FIXES` (Navigation 84: drying height, underlined digit + subscript digit) and drawn as markup by `frontend/src/sks/components/RichText.tsx`.
+   - Chart symbols the PDF flattens to plain digits are restored via `QUESTION_TEXT_FIXES` (Navigation 84: drying height, underlined digit + subscript digit) and drawn as markup by `frontend/src/sks/components/RichText.tsx`. Schifffahrtsrecht 23 ("von [Bild] in [Bild]", both diagrams inline in the PDF) is the one question whose sentence is completed by the operator's decision: `QUESTION_TEXT_FIXES` makes it "von Bild 1 in Bild 2", and `QuestionImages` captions a question's several images "Bild 1", "Bild 2".
    - `ANSWER_TEXT_FIXES` (Navigation 48: the PDF drops the subscripts of O_k/O_b and appends `k b` after the sentence) writes them as `O_k`/`O_b`, which `RichText` renders as `<sub>`.
    - The same table restores the "CO₂" subscripts in the fire extinguisher answers (Seemannschaft I 120/121, II 101/102), where the PDF doubles, detaches or displaces the "2".
    - The PDF's page footer ("Stand: 01. Juli 2006 © Wasserstraßen- und Schifffahrtsverwaltung des Bundes") trails the last answer on a page in the extracted text; `PAGE_FOOTER_RE` drops it, so it never shows up in an answer.
