@@ -206,3 +206,35 @@
   - text: Mit FdW kommen die Lichter eines **Maschinenfahrzeugs in Fahrt** dazu – **Topplicht(er)**, **Seitenlichter** und
       **Hecklicht**.
   - text: Vor Anker liegt es still. Statt der Fahrtlichter zeigt es **Ankerlicht(er)**.
+- subject: schifffahrtsrecht
+  number: 21
+  answer_fingerprint: eb81285db31b
+  blocks:
+  - text: '**Rot über weiß** senkrecht übereinander, beide rundum sichtbar, ist das Zeichen eines **Fischers**. Ein Fischer,
+      der **trawlt**, zeigt dagegen grün über weiß.'
+  - text: Hier ist es rot über weiß, also ein Fischer, der **nicht trawlt**. Mit Netzen, die treiben, ist das der
+      **Treibnetzfischer**.
+  - text: Das **zusätzliche weiße Licht** darunter, seitlich versetzt, zeigt in die Richtung, in der das Fanggerät liegt.
+      Es wird nur geführt, wenn das Gerät **waagerecht mehr als 150 m** ins Wasser reicht.
+  - text: In Fahrt kommen Seitenlichter und Hecklicht dazu. Deshalb kann das untere weiße Licht auch das **Hecklicht**
+      sein. Vor Anker mit ausgebrachtem Gerät zeigt der Fischer dasselbe Bild.
+  - text: Bei **unsichtigem Wetter** gibt ein Fischer ein Schallsignal, das **lang-kurz-kurz** heißt, **mindestens alle
+      2 Minuten**. Es ersetzt das Signal der Maschinenfahrzeuge. Vor Anker gibt der Fischer es ebenfalls, statt des
+      Ankersignals.
+- subject: schifffahrtsrecht
+  number: 38
+  answer_fingerprint: 496a5b14c380
+  blocks:
+  - text: Ein **rotes Licht** ist das **Seitenlicht an Backbord**. Man sieht es, wenn man dem anderen Fahrzeug auf seine
+      Backbordseite schaut. Ein einzelnes Seitenlicht hat ein Fahrzeug in Fahrt, das nur Seitenlichter und Hecklicht
+      zeigt, also hier ein **Segelfahrzeug in Fahrt**.
+  - text: Das andere Fahrzeug kommt **in stehender Peilung** näher. Es besteht **Kollisionsgefahr**, und es steht in **Luv**
+      von Ihnen.
+  - text: Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht
+      zu erkennen.** Beide Fälle führen aber zum selben Ergebnis.
+  - text: Hat es den Wind von **Backbord**, muss es als Fahrzeug mit Wind von Backbord **ausweichen**. Sie haben den Wind
+      von der anderen Seite.
+  - text: Hat es den Wind von **Steuerbord**, haben beide den Wind von derselben Seite. Dann weicht das **luvwärtige**
+      Fahrzeug aus, und das ist das andere.
+  - text: In beiden Fällen weicht also das **Segelfahrzeug in Luv** aus. Sie müssen kein Licht deuten, das Sie nicht
+      sicher erkennen können, und sind **Kurshalter**.

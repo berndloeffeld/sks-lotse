@@ -1743,7 +1743,33 @@
     }
    ],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "**Rot über weiß** senkrecht übereinander, beide rundum sichtbar, ist das Zeichen eines **Fischers**. Ein Fischer, der **trawlt**, zeigt dagegen grün über weiß.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hier ist es rot über weiß, also ein Fischer, der **nicht trawlt**. Mit Netzen, die treiben, ist das der **Treibnetzfischer**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das **zusätzliche weiße Licht** darunter, seitlich versetzt, zeigt in die Richtung, in der das Fanggerät liegt. Es wird nur geführt, wenn das Gerät **waagerecht mehr als 150 m** ins Wasser reicht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "In Fahrt kommen Seitenlichter und Hecklicht dazu. Deshalb kann das untere weiße Licht auch das **Hecklicht** sein. Vor Anker mit ausgebrachtem Gerät zeigt der Fischer dasselbe Bild.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Bei **unsichtigem Wetter** gibt ein Fischer ein Schallsignal, das **lang-kurz-kurz** heißt, **mindestens alle 2 Minuten**. Es ersetzt das Signal der Maschinenfahrzeuge. Vor Anker gibt der Fischer es ebenfalls, statt des Ankersignals.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -1800,7 +1826,38 @@
    "answer_text": "1. Das Licht ist das Backbordlicht eines Segelfahrzeugs in Fahrt.\n2. Das Segelfahrzeug in Luv muss ausweichen, entweder weil es den Wind von Backbord hat oder weil es - wenn mit Wind von Steuerbord segelnd - luvwärts steht.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **rotes Licht** ist das **Seitenlicht an Backbord**. Man sieht es, wenn man dem anderen Fahrzeug auf seine Backbordseite schaut. Ein einzelnes Seitenlicht hat ein Fahrzeug in Fahrt, das nur Seitenlichter und Hecklicht zeigt, also hier ein **Segelfahrzeug in Fahrt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das andere Fahrzeug kommt **in stehender Peilung** näher. Es besteht **Kollisionsgefahr**, und es steht in **Luv** von Ihnen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht zu erkennen.** Beide Fälle führen aber zum selben Ergebnis.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hat es den Wind von **Backbord**, muss es als Fahrzeug mit Wind von Backbord **ausweichen**. Sie haben den Wind von der anderen Seite.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hat es den Wind von **Steuerbord**, haben beide den Wind von derselben Seite. Dann weicht das **luvwärtige** Fahrzeug aus, und das ist das andere.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "In beiden Fällen weicht also das **Segelfahrzeug in Luv** aus. Sie müssen kein Licht deuten, das Sie nicht sicher erkennen können, und sind **Kurshalter**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
