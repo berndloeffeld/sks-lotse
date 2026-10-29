@@ -1773,7 +1773,33 @@
    "answer_text": "1. Man sieht ein manövrierbehindertes Fahrzeug mit FdW (Topplichter, Seitenlichter).\n2. Dieses Fahrzeug nähert sich im Hecklichtsektor und muss deshalb als Überholer ausweichen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Rot-weiß-rot senkrecht übereinander ist das Zeichen für ein **manövrierbehindertes Fahrzeug**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dazu zeigt es Topplichter und Seitenlichter. Die gibt es nur, wenn es **Fahrt durchs Wasser** macht (FdW). Ein manövrierbehindertes Fahrzeug ohne Fahrt zeigt sie nicht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein manövrierbehindertes Fahrzeug hat sonst Vorrang vor einem Segelfahrzeug. Das gilt aber nicht, wenn es **von hinten heranläuft**, denn dann gilt die Überholregel.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wer ein anderes Fahrzeug aus einer Richtung **mehr als 22,5° achterlicher als querab** einholt, ist Überholer. Das ist der **Hecklichtsektor**, der Bereich, in dem man nachts nur das weiße Hecklicht sehen würde.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Fahrzeug kommt nahezu achteraus näher, also aus diesem Sektor. Es ist **Überholer und muss ausweichen**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",

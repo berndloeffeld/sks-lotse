@@ -152,3 +152,15 @@
         Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus.
   - text: Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose
       sind 11,25°.
+- subject: schifffahrtsrecht
+  number: 41
+  answer_fingerprint: 55c5083dcde3
+  blocks:
+  - text: Rot-weiß-rot senkrecht übereinander ist das Zeichen für ein **manövrierbehindertes Fahrzeug**.
+  - text: Dazu zeigt es Topplichter und Seitenlichter. Die gibt es nur, wenn es **Fahrt durchs Wasser** macht (FdW). Ein
+      manövrierbehindertes Fahrzeug ohne Fahrt zeigt sie nicht.
+  - text: Ein manövrierbehindertes Fahrzeug hat sonst Vorrang vor einem Segelfahrzeug. Das gilt aber nicht, wenn es
+      **von hinten heranläuft**, denn dann gilt die Überholregel.
+  - text: Wer ein anderes Fahrzeug aus einer Richtung **mehr als 22,5° achterlicher als querab** einholt, ist Überholer.
+      Das ist der **Hecklichtsektor**, der Bereich, in dem man nachts nur das weiße Hecklicht sehen würde.
+  - text: Das Fahrzeug kommt nahezu achteraus näher, also aus diesem Sektor. Es ist **Überholer und muss ausweichen**.
