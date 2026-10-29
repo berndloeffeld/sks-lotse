@@ -2947,7 +2947,7 @@
                           "request": {
                             "name": "Refresh Session Questions",
                             "description": {
-                              "content": "The Auffrischen session (ADR-0049): a random sample of questions that were gelernt, at\nleast 70 % of them already lapsed, the rest due within the next two days.",
+                              "content": "The Auffrischen session (ADR-0049): a random sample of questions that were gelernt and\nalready lapsed; only if fewer than a session's worth have, filled up with those due within the\nnext two days.",
                               "type": "text/plain"
                             },
                             "url": {

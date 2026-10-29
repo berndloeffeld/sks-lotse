@@ -212,8 +212,9 @@ def refresh_session_questions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[QuestionRead]:
-    """The Auffrischen session (ADR-0049): a random sample of questions that were gelernt, at
-    least 70 % of them already lapsed, the rest due within the next two days."""
+    """The Auffrischen session (ADR-0049): a random sample of questions that were gelernt and
+    already lapsed; only if fewer than a session's worth have, filled up with those due within the
+    next two days."""
     now = datetime.now(UTC)
     lapsed = _random_refresh_ids(db, current_user, lapsed_clause(now))
     expiring = _random_refresh_ids(db, current_user, refresh_clause(now) & ~lapsed_clause(now))
