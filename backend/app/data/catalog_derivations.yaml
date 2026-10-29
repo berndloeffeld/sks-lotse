@@ -152,3 +152,18 @@
         Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus.
   - text: Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose
       sind 11,25°.
+- subject: schifffahrtsrecht
+  number: 39
+  answer_fingerprint: d8388a363069
+  blocks:
+  - text: Ein **grünes Licht** ist das Seitenlicht an Steuerbord. Man sieht es, wenn man dem anderen Fahrzeug auf seine
+      Steuerbordseite schaut. Ein Segelfahrzeug in Fahrt zeigt nur Seitenlichter und Hecklicht, also ist es das
+      **Steuerbordlicht eines Segelfahrzeugs in Fahrt**.
+  - text: Zwei Segler mit Wind von verschiedenen Seiten – das Fahrzeug mit Wind von **Backbord weicht aus**. Mit Wind von
+      derselben Seite weicht das **luvwärtige** aus.
+  - text: Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht
+      zu erkennen.**
+  - text: Hat es Wind von Steuerbord, müssen Sie als Backbordwind-Fahrzeug ausweichen. Hat es Wind von Backbord, wäre es als
+      Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.
+  - text: Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**,
+      von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.

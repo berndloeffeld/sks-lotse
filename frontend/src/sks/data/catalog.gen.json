@@ -1753,7 +1753,33 @@
    "answer_text": "1. Das Licht ist das Steuerbordlicht eines Segelfahrzeugs in Fahrt.\n2. Ihr Fahrzeug muss als leewärtiges Fahrzeug ausweichen, weil Sie (mit Wind von Backbord segelnd) nicht erkennen können, von welcher Seite das andere Fahrzeug den Wind hat.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **grünes Licht** ist das Seitenlicht an Steuerbord. Man sieht es, wenn man dem anderen Fahrzeug auf seine Steuerbordseite schaut. Ein Segelfahrzeug in Fahrt zeigt nur Seitenlichter und Hecklicht, also ist es das **Steuerbordlicht eines Segelfahrzeugs in Fahrt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwei Segler mit Wind von verschiedenen Seiten – das Fahrzeug mit Wind von **Backbord weicht aus**. Mit Wind von derselben Seite weicht das **luvwärtige** aus.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht zu erkennen.**",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hat es Wind von Steuerbord, müssen Sie als Backbordwind-Fahrzeug ausweichen. Hat es Wind von Backbord, wäre es als Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**, von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
