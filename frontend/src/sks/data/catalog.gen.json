@@ -1610,7 +1610,28 @@
    "answer_text": "1. Ohne FdW: rot-weiß-rot senkrecht übereinander.\n2. Mit FdW: rot-weiß-rot senkrecht übereinander und Lichter eines Maschinenfahrzeugs (Topplicht[er]), Seitenlichter, Hecklicht.\n3. Vor Anker: rot-weiß-rot senkrecht übereinander und Ankerlicht(er).",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Das Zeichen für ein manövrierbehindertes Fahrzeug ist **rot-weiß-rot senkrecht übereinander**. Es steht in **allen drei Fällen**, denn es sagt nur, dass das Fahrzeug nicht ausweichen kann.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die übrigen Lichter zeigen, **was das Fahrzeug gerade tut**. Ohne Fahrt durchs Wasser (FdW) ist es das Zeichen allein, denn ein Fahrzeug, das sich nicht bewegt, zeigt keine Fahrtlichter.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Mit FdW kommen die Lichter eines **Maschinenfahrzeugs in Fahrt** dazu – **Topplicht(er)**, **Seitenlichter** und **Hecklicht**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Vor Anker liegt es still. Statt der Fahrtlichter zeigt es **Ankerlicht(er)**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",

@@ -195,3 +195,14 @@
       ist. Mit weniger als 200 m wären es zwei. Dazu kommen **Seitenlichter** und das **Hecklicht**.
   - text: Über dem Hecklicht zeigt der Schlepper das **gelbe Schlepplicht**. Es sagt, dass er etwas hinter sich herzieht.
   - text: Der Anhang führt nur **Seitenlichter und Hecklicht**. Er hat weder Topplichter noch ein Schlepplicht.
+- subject: schifffahrtsrecht
+  number: 14
+  answer_fingerprint: 6d7f5a22e719
+  blocks:
+  - text: Das Zeichen für ein manövrierbehindertes Fahrzeug ist **rot-weiß-rot senkrecht übereinander**. Es steht in
+      **allen drei Fällen**, denn es sagt nur, dass das Fahrzeug nicht ausweichen kann.
+  - text: Die übrigen Lichter zeigen, **was das Fahrzeug gerade tut**. Ohne Fahrt durchs Wasser (FdW) ist es das Zeichen
+      allein, denn ein Fahrzeug, das sich nicht bewegt, zeigt keine Fahrtlichter.
+  - text: Mit FdW kommen die Lichter eines **Maschinenfahrzeugs in Fahrt** dazu – **Topplicht(er)**, **Seitenlichter** und
+      **Hecklicht**.
+  - text: Vor Anker liegt es still. Statt der Fahrtlichter zeigt es **Ankerlicht(er)**.
