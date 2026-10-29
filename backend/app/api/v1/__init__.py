@@ -11,6 +11,7 @@ from app.api.v1.pricing import router as pricing_router
 from app.api.v1.progress import router as progress_router
 from app.api.v1.questions import router as questions_router
 from app.api.v1.questions import topics_router
+from app.api.v1.sbf_navigation import router as sbf_navigation_router
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(auth_router)
@@ -20,6 +21,7 @@ router.include_router(topics_router)
 router.include_router(progress_router)
 router.include_router(exams_router)
 router.include_router(chart_exercises_router)
+router.include_router(sbf_navigation_router)
 router.include_router(admin_mfa_router)
 router.include_router(admin_router)
 router.include_router(pricing_router)

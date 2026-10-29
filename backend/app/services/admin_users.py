@@ -18,6 +18,7 @@ from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
+from app.models.sbf_navigation_attempt import SbfNavigationAttempt
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
@@ -34,6 +35,8 @@ from app.schemas.admin import (
     AdminQuestionHistoryUser,
     AdminQuestionProgressExport,
     AdminQuestionReportExport,
+    AdminSbfNavigationAttemptExport,
+    AdminSbfNavigationSubtaskExport,
     AdminUserExport,
     AdminUserRead,
 )
@@ -135,6 +138,23 @@ def _chart_attempts(db: Session, user: User) -> list[AdminChartAttemptExport]:
     ]
 
 
+def _sbf_navigation_attempts(db: Session, user: User) -> list[AdminSbfNavigationAttemptExport]:
+    attempts = db.execute(
+        select(SbfNavigationAttempt)
+        .where(SbfNavigationAttempt.user_id == user.id)
+        .order_by(SbfNavigationAttempt.started_at)
+    ).scalars()
+    return [
+        _from_row(
+            AdminSbfNavigationAttemptExport,
+            attempt,
+            attempt_id=attempt.id,
+            subtasks=[_from_row(AdminSbfNavigationSubtaskExport, row) for row in attempt.subtasks],
+        )
+        for attempt in attempts
+    ]
+
+
 def build_user_export(app, db: Session, user: User) -> AdminUserExport:
     progress_rows = db.execute(
         select(QuestionProgress, Question.subject, Question.number)
@@ -167,6 +187,7 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
         user=admin_user_read(app, db, user),
         exam_attempts=_exam_attempts(db, user),
         chart_attempts=_chart_attempts(db, user),
+        sbf_navigation_attempts=_sbf_navigation_attempts(db, user),
         focus_topics=[
             _from_row(
                 AdminFocusTopicExport,

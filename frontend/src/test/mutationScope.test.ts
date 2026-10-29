@@ -12,6 +12,7 @@ const SOURCES = import.meta.glob(['/src/{shared,sks,sbf}/*.ts', '/src/{shared,sk
 const EXCLUDED = new Set([
   'src/sks/api/types.ts', // types only, no runtime code
   'src/shared/api/types.ts', // types only, no runtime code
+  'src/sbf/api/types.ts', // the same for SBF Lotse's saved runs
   'src/shared/api/schema.gen.ts', // generated from the backend's OpenAPI schema, types only
   'src/sks/publicPageTexts.ts', // SEO wording of the prerendered pages: a mutant changing a sentence is no bug
   'src/sks/faq.ts', // the FAQ's wording, the same; its link syntax is src/shared/faq.ts

@@ -137,12 +137,13 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('has every package and the checkout flag', function () {",
                   "    var body = pm.response.json();",
-                  "    pm.expect(body).to.have.all.keys('signup_bonus_tokens', 'packages', 'checkout_enabled', 'catalog_check_tokens', 'chart_check_tokens', 'check_max_answer_chars');",
+                  "    pm.expect(body).to.have.all.keys('signup_bonus_tokens', 'packages', 'checkout_enabled', 'catalog_check_tokens', 'chart_check_tokens', 'sbf_navigation_check_tokens', 'check_max_answer_chars');",
                   "    pm.expect(body.packages).to.have.lengthOf(4);",
                   "    // This server runs with STRIPE_CHECKOUT off (the default).",
                   "    pm.expect(body.checkout_enabled).to.eql(false);",
                   "    pm.expect(body.catalog_check_tokens).to.eql(1);",
                   "    pm.expect(body.chart_check_tokens).to.eql(2);",
+                  "    pm.expect(body.sbf_navigation_check_tokens).to.eql(2);",
                   "    pm.expect(body.check_max_answer_chars).to.eql(1000);",
                   "    pm.expect(body.packages.map(function (p) { return p.product; })).to.eql(['tokens_s', 'tokens_m', 'tokens_l', 'tokens_xl']);",
                   "});"
@@ -5293,6 +5294,704 @@
       ]
     },
     {
+      "name": "SBF Navigationsaufgaben (saved runs)",
+      "description": "Saved runs and the Lotsen-Check of SBF Lotse's Navigationsaufgaben (ADR-0071). Every request carries SBF Lotse's dev Origin, http://localhost:5174, which the backend resolves to SBF Lotse (ADR-0070).",
+      "item": [
+        {
+          "name": "SBF runs - without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - from outside SBF Lotse (no Origin, SKS API host) is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('says why', function () { pm.expect(pm.response.json().detail).to.eql('Only on SBF Lotse'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation"
+              ]
+            }
+          },
+          "description": "The saved runs belong to SBF Lotse (ADR-0071): the site comes from the Origin, else the API host (ADR-0070).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - from a foreign origin is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "https://evil.example"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/1/attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "1",
+                "attempts"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - overview from SBF Lotse lists the 15 tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('15 tasks and the pass mark', function () {",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.pass_points).to.eql(7);",
+                  "    pm.expect(body.tasks.length).to.eql(15);",
+                  "    pm.expect(body.tasks[0]).to.have.all.keys('number', 'open_attempt_id', 'open_answered', 'completed_count', 'last_points', 'last_completed_at');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - start task 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('a fresh run of 9 subtasks', function () {",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.task_number).to.eql(1);",
+                  "    pm.expect(body.subtask_count).to.eql(9);",
+                  "    pm.expect(body.current_subtask).to.eql(1);",
+                  "    pm.expect(body.subtasks).to.eql([]);",
+                  "    pm.collectionVariables.set('sbfAttemptId', body.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/1/attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "1",
+                "attempts"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - a second open run of the same task is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/1/attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "1",
+                "attempts"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - answering out of order is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}/subtasks/2/answer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}",
+                "subtasks",
+                "2",
+                "answer"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"answer_text\": \"MgK 074°\"}"
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - answer subtask 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('the answer is stored, not yet assessed', function () {",
+                  "    var sub = pm.response.json().subtasks[0];",
+                  "    pm.expect(sub.number).to.eql(1);",
+                  "    pm.expect(sub.answer_text).to.eql('rwK = 079°');",
+                  "    pm.expect(sub.point).to.eql(null);",
+                  "    pm.expect(sub.ai_checkable).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}/subtasks/1/answer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}",
+                "subtasks",
+                "1",
+                "answer"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"answer_text\": \"rwK = 079°\"}"
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - a point other than 0 or 1 is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}/subtasks/1/point",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}",
+                "subtasks",
+                "1",
+                "point"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"point\": 2}"
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - Lotsen-Check without an Anthropic key answers 503 and costs nothing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 503', function () { pm.response.to.have.status(503); });",
+                  "pm.test('says the check is unavailable', function () { pm.expect(pm.response.json().detail).to.eql('AI answer check is currently unavailable'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}/subtasks/1/ai-check",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}",
+                "subtasks",
+                "1",
+                "ai-check"
+              ]
+            }
+          },
+          "description": "The integration server runs without ANTHROPIC_GRADING_API_KEY, so the check fails and the reserved tokens go back (ADR-0071, as ADR-0058).",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - give subtask 1 its point",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('on to subtask 2', function () {",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.points).to.eql(1);",
+                  "    pm.expect(body.current_subtask).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}/subtasks/1/point",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}",
+                "subtasks",
+                "1",
+                "point"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"point\": 1}"
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - resume the run",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('where it was left', function () { pm.expect(pm.response.json().current_subtask).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - delete the run",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "SBF runs - a deleted run is gone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:5174"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sbf-navigation/attempts/{{sbfAttemptId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sbf-navigation",
+                "attempts",
+                "{{sbfAttemptId}}"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        }
+      ]
+    },
+    {
       "name": "Logout",
       "item": [
         {
@@ -7710,7 +8409,7 @@
                   "    pm.expect(board.days).to.eql(7);",
                   "    pm.expect(board.daily).to.have.lengthOf(7);",
                   "    pm.expect(board.daily[6].day).to.eql(new Date().toISOString().slice(0, 10));",
-                  "    pm.expect(board.daily[0]).to.have.all.keys('day', 'new_users', 'active_users', 'ratings', 'lotse_checks_catalog', 'lotse_checks_chart', 'tokens_spent', 'purchases', 'revenue_cents');",
+                  "    pm.expect(board.daily[0]).to.have.all.keys('day', 'new_users', 'active_users', 'ratings', 'lotse_checks_catalog', 'lotse_checks_chart', 'lotse_checks_sbf_navigation', 'tokens_spent', 'purchases', 'revenue_cents');",
                   "    pm.expect(board.growth.users_total).to.be.at.least(1);",
                   "    pm.expect(JSON.stringify(board)).to.not.include('@');",
                   "});"
@@ -8438,7 +9137,7 @@
                   "pm.test('status 200', function () { pm.response.to.have.status(200); });",
                   "var e = pm.response.json();",
                   "pm.test('user, progress rows and export timestamp', function () {",
-                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'question_gradings', 'focus_topics', 'question_reports', 'exam_attempts', 'chart_attempts', 'purchases', 'blocklist_entries', 'exported_at');",
+                  "    pm.expect(e).to.have.all.keys('user', 'question_progress', 'question_gradings', 'focus_topics', 'question_reports', 'exam_attempts', 'chart_attempts', 'sbf_navigation_attempts', 'purchases', 'blocklist_entries', 'exported_at');",
                   "    pm.expect(e.user.email).to.eql(pm.collectionVariables.get('testEmail'));",
                   "    pm.expect(e.question_progress).to.be.an('array');",
                   "    pm.expect(e.question_progress.length).to.eql(e.user.question_progress_count);",
@@ -11392,6 +12091,10 @@
     },
     {
       "key": "examQuestionIds",
+      "value": ""
+    },
+    {
+      "key": "sbfAttemptId",
       "value": ""
     }
   ]

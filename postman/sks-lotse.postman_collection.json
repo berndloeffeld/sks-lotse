@@ -5978,6 +5978,1354 @@
               ]
             },
             {
+              "name": "sbf-navigation",
+              "description": "",
+              "item": [
+                {
+                  "name": "List Sbf Navigation",
+                  "request": {
+                    "name": "List Sbf Navigation",
+                    "description": {},
+                    "url": {
+                      "path": [
+                        "api",
+                        "v1",
+                        "sbf-navigation"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {},
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "sbf-navigation"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": {
+                              "content": "Added as a part of security scheme: bearer",
+                              "type": "text/plain"
+                            },
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {}
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "body": "{\n  \"pass_points\": \"<integer>\",\n  \"tasks\": [\n    {\n      \"number\": \"<integer>\",\n      \"open_attempt_id\": \"<integer>\",\n      \"open_answered\": \"<integer>\",\n      \"completed_count\": \"<integer>\",\n      \"last_points\": \"<integer>\",\n      \"last_completed_at\": \"<dateTime>\"\n    },\n    {\n      \"number\": \"<integer>\",\n      \"open_attempt_id\": \"<integer>\",\n      \"open_answered\": \"<integer>\",\n      \"completed_count\": \"<integer>\",\n      \"last_points\": \"<integer>\",\n      \"last_completed_at\": \"<dateTime>\"\n    }\n  ]\n}",
+                      "cookie": [],
+                      "_postman_previewlanguage": "json"
+                    }
+                  ],
+                  "event": [],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  }
+                },
+                {
+                  "name": "{number}",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "attempts",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Start Sbf Navigation Attempt",
+                          "request": {
+                            "name": "Start Sbf Navigation Attempt",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "sbf-navigation",
+                                ":number",
+                                "attempts"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<integer>",
+                                  "key": "number",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "POST",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    ":number",
+                                    "attempts"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "number"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {}
+                              },
+                              "status": "Created",
+                              "code": 201,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"task_number\": \"<integer>\",\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"subtask_count\": \"<integer>\",\n  \"points\": \"<integer>\",\n  \"current_subtask\": \"<integer>\",\n  \"subtasks\": [\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    },\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    ":number",
+                                    "attempts"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "number"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "POST",
+                                "body": {}
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "attempts",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "{attempt_id}",
+                      "description": "",
+                      "item": [
+                        {
+                          "name": "Get Sbf Navigation Attempt",
+                          "request": {
+                            "name": "Get Sbf Navigation Attempt",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "sbf-navigation",
+                                "attempts",
+                                ":attempt_id"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<integer>",
+                                  "key": "attempt_id",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    "attempts",
+                                    ":attempt_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "attempt_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"id\": \"<integer>\",\n  \"task_number\": \"<integer>\",\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"subtask_count\": \"<integer>\",\n  \"points\": \"<integer>\",\n  \"current_subtask\": \"<integer>\",\n  \"subtasks\": [\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    },\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    "attempts",
+                                    ":attempt_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "attempt_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "GET",
+                                "body": {}
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        },
+                        {
+                          "name": "Delete Sbf Navigation Attempt",
+                          "request": {
+                            "name": "Delete Sbf Navigation Attempt",
+                            "description": {},
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "sbf-navigation",
+                                "attempts",
+                                ":attempt_id"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "type": "any",
+                                  "value": "<integer>",
+                                  "key": "attempt_id",
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  }
+                                }
+                              ]
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "method": "DELETE",
+                            "body": {},
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    "attempts",
+                                    ":attempt_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "attempt_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "DELETE",
+                                "body": {}
+                              },
+                              "status": "No Content",
+                              "code": 204,
+                              "header": [],
+                              "cookie": [],
+                              "_postman_previewlanguage": "text"
+                            },
+                            {
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "url": {
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "sbf-navigation",
+                                    "attempts",
+                                    ":attempt_id"
+                                  ],
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "query": [],
+                                  "variable": [
+                                    {
+                                      "disabled": false,
+                                      "description": {
+                                        "content": "(Required) ",
+                                        "type": "text/plain"
+                                      },
+                                      "type": "any",
+                                      "value": "<integer>",
+                                      "key": "attempt_id"
+                                    }
+                                  ]
+                                },
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": {
+                                      "content": "Added as a part of security scheme: bearer",
+                                      "type": "text/plain"
+                                    },
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "method": "DELETE",
+                                "body": {}
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "cookie": [],
+                              "_postman_previewlanguage": "json"
+                            }
+                          ],
+                          "event": [],
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          }
+                        },
+                        {
+                          "name": "subtasks",
+                          "description": "",
+                          "item": [
+                            {
+                              "name": "{number}",
+                              "description": "",
+                              "item": [
+                                {
+                                  "name": "answer",
+                                  "description": "",
+                                  "item": [
+                                    {
+                                      "name": "Answer Sbf Navigation Subtask",
+                                      "request": {
+                                        "name": "Answer Sbf Navigation Subtask",
+                                        "description": {},
+                                        "url": {
+                                          "path": [
+                                            "api",
+                                            "v1",
+                                            "sbf-navigation",
+                                            "attempts",
+                                            ":attempt_id",
+                                            "subtasks",
+                                            ":number",
+                                            "answer"
+                                          ],
+                                          "host": [
+                                            "{{baseUrl}}"
+                                          ],
+                                          "query": [],
+                                          "variable": [
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "attempt_id",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            },
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "number",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "header": [
+                                          {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                          },
+                                          {
+                                            "key": "Accept",
+                                            "value": "application/json"
+                                          }
+                                        ],
+                                        "method": "PUT",
+                                        "body": {
+                                          "mode": "raw",
+                                          "raw": "{\n  \"answer_text\": \"<string>\"\n}",
+                                          "options": {
+                                            "raw": {
+                                              "headerFamily": "json",
+                                              "language": "json"
+                                            }
+                                          }
+                                        },
+                                        "auth": {
+                                          "type": "bearer",
+                                          "bearer": [
+                                            {
+                                              "key": "token",
+                                              "value": "{{bearerToken}}"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "response": [
+                                        {
+                                          "name": "Successful Response",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "answer"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "PUT",
+                                            "body": {
+                                              "mode": "raw",
+                                              "raw": "{\n  \"answer_text\": \"<string>\"\n}",
+                                              "options": {
+                                                "raw": {
+                                                  "headerFamily": "json",
+                                                  "language": "json"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "status": "OK",
+                                          "code": 200,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"id\": \"<integer>\",\n  \"task_number\": \"<integer>\",\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"subtask_count\": \"<integer>\",\n  \"points\": \"<integer>\",\n  \"current_subtask\": \"<integer>\",\n  \"subtasks\": [\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    },\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    }\n  ]\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        },
+                                        {
+                                          "name": "Validation Error",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "answer"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "PUT",
+                                            "body": {
+                                              "mode": "raw",
+                                              "raw": "{\n  \"answer_text\": \"<string>\"\n}",
+                                              "options": {
+                                                "raw": {
+                                                  "headerFamily": "json",
+                                                  "language": "json"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                          "code": 422,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        }
+                                      ],
+                                      "event": [],
+                                      "protocolProfileBehavior": {
+                                        "disableBodyPruning": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "point",
+                                  "description": "",
+                                  "item": [
+                                    {
+                                      "name": "Award Sbf Navigation Point",
+                                      "request": {
+                                        "name": "Award Sbf Navigation Point",
+                                        "description": {},
+                                        "url": {
+                                          "path": [
+                                            "api",
+                                            "v1",
+                                            "sbf-navigation",
+                                            "attempts",
+                                            ":attempt_id",
+                                            "subtasks",
+                                            ":number",
+                                            "point"
+                                          ],
+                                          "host": [
+                                            "{{baseUrl}}"
+                                          ],
+                                          "query": [],
+                                          "variable": [
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "attempt_id",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            },
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "number",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "header": [
+                                          {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                          },
+                                          {
+                                            "key": "Accept",
+                                            "value": "application/json"
+                                          }
+                                        ],
+                                        "method": "PUT",
+                                        "body": {
+                                          "mode": "raw",
+                                          "raw": "{\n  \"point\": \"<integer>\"\n}",
+                                          "options": {
+                                            "raw": {
+                                              "headerFamily": "json",
+                                              "language": "json"
+                                            }
+                                          }
+                                        },
+                                        "auth": {
+                                          "type": "bearer",
+                                          "bearer": [
+                                            {
+                                              "key": "token",
+                                              "value": "{{bearerToken}}"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "response": [
+                                        {
+                                          "name": "Successful Response",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "point"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "PUT",
+                                            "body": {
+                                              "mode": "raw",
+                                              "raw": "{\n  \"point\": \"<integer>\"\n}",
+                                              "options": {
+                                                "raw": {
+                                                  "headerFamily": "json",
+                                                  "language": "json"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "status": "OK",
+                                          "code": 200,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"id\": \"<integer>\",\n  \"task_number\": \"<integer>\",\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"subtask_count\": \"<integer>\",\n  \"points\": \"<integer>\",\n  \"current_subtask\": \"<integer>\",\n  \"subtasks\": [\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    },\n    {\n      \"number\": \"<integer>\",\n      \"answer_text\": \"<string>\",\n      \"point\": \"<integer>\",\n      \"ai_checkable\": \"<boolean>\",\n      \"ai_suggestion\": {\n        \"correct\": \"<boolean>\",\n        \"feedback\": \"<string>\",\n        \"suspected_error\": \"<string>\"\n      }\n    }\n  ]\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        },
+                                        {
+                                          "name": "Validation Error",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "point"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "PUT",
+                                            "body": {
+                                              "mode": "raw",
+                                              "raw": "{\n  \"point\": \"<integer>\"\n}",
+                                              "options": {
+                                                "raw": {
+                                                  "headerFamily": "json",
+                                                  "language": "json"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                          "code": 422,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        }
+                                      ],
+                                      "event": [],
+                                      "protocolProfileBehavior": {
+                                        "disableBodyPruning": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "ai-check",
+                                  "description": "",
+                                  "item": [
+                                    {
+                                      "name": "Ai Check Sbf Navigation Subtask",
+                                      "request": {
+                                        "name": "Ai Check Sbf Navigation Subtask",
+                                        "description": {
+                                          "content": "The Lotsen-Check's suggestion for the stored answer to the current subtask (ADR-0071), stored.",
+                                          "type": "text/plain"
+                                        },
+                                        "url": {
+                                          "path": [
+                                            "api",
+                                            "v1",
+                                            "sbf-navigation",
+                                            "attempts",
+                                            ":attempt_id",
+                                            "subtasks",
+                                            ":number",
+                                            "ai-check"
+                                          ],
+                                          "host": [
+                                            "{{baseUrl}}"
+                                          ],
+                                          "query": [],
+                                          "variable": [
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "attempt_id",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            },
+                                            {
+                                              "type": "any",
+                                              "value": "<integer>",
+                                              "key": "number",
+                                              "disabled": false,
+                                              "description": {
+                                                "content": "(Required) ",
+                                                "type": "text/plain"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "header": [
+                                          {
+                                            "key": "Accept",
+                                            "value": "application/json"
+                                          }
+                                        ],
+                                        "method": "POST",
+                                        "body": {},
+                                        "auth": {
+                                          "type": "bearer",
+                                          "bearer": [
+                                            {
+                                              "key": "token",
+                                              "value": "{{bearerToken}}"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "response": [
+                                        {
+                                          "name": "Successful Response",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "ai-check"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "POST",
+                                            "body": {}
+                                          },
+                                          "status": "OK",
+                                          "code": 200,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"attempt\": {\n    \"id\": \"<integer>\",\n    \"task_number\": \"<integer>\",\n    \"started_at\": \"<dateTime>\",\n    \"completed_at\": \"<dateTime>\",\n    \"subtask_count\": \"<integer>\",\n    \"points\": \"<integer>\",\n    \"current_subtask\": \"<integer>\",\n    \"subtasks\": [\n      {\n        \"number\": \"<integer>\",\n        \"answer_text\": \"<string>\",\n        \"point\": \"<integer>\",\n        \"ai_checkable\": \"<boolean>\",\n        \"ai_suggestion\": {\n          \"correct\": \"<boolean>\",\n          \"feedback\": \"<string>\",\n          \"suspected_error\": \"<string>\"\n        }\n      },\n      {\n        \"number\": \"<integer>\",\n        \"answer_text\": \"<string>\",\n        \"point\": \"<integer>\",\n        \"ai_checkable\": \"<boolean>\",\n        \"ai_suggestion\": {\n          \"correct\": \"<boolean>\",\n          \"feedback\": \"<string>\",\n          \"suspected_error\": \"<string>\"\n        }\n      }\n    ]\n  },\n  \"tokens_remaining\": \"<integer>\"\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        },
+                                        {
+                                          "name": "Validation Error",
+                                          "originalRequest": {
+                                            "url": {
+                                              "path": [
+                                                "api",
+                                                "v1",
+                                                "sbf-navigation",
+                                                "attempts",
+                                                ":attempt_id",
+                                                "subtasks",
+                                                ":number",
+                                                "ai-check"
+                                              ],
+                                              "host": [
+                                                "{{baseUrl}}"
+                                              ],
+                                              "query": [],
+                                              "variable": [
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "attempt_id"
+                                                },
+                                                {
+                                                  "disabled": false,
+                                                  "description": {
+                                                    "content": "(Required) ",
+                                                    "type": "text/plain"
+                                                  },
+                                                  "type": "any",
+                                                  "value": "<integer>",
+                                                  "key": "number"
+                                                }
+                                              ]
+                                            },
+                                            "header": [
+                                              {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                              },
+                                              {
+                                                "description": {
+                                                  "content": "Added as a part of security scheme: bearer",
+                                                  "type": "text/plain"
+                                                },
+                                                "key": "Authorization",
+                                                "value": "Bearer <token>"
+                                              }
+                                            ],
+                                            "method": "POST",
+                                            "body": {}
+                                          },
+                                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                          "code": 422,
+                                          "header": [
+                                            {
+                                              "key": "Content-Type",
+                                              "value": "application/json"
+                                            }
+                                          ],
+                                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": \"\",\n      \"ctx\": {}\n    }\n  ]\n}",
+                                          "cookie": [],
+                                          "_postman_previewlanguage": "json"
+                                        }
+                                      ],
+                                      "event": [],
+                                      "protocolProfileBehavior": {
+                                        "disableBodyPruning": true
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
               "name": "admin",
               "description": "",
               "item": [
@@ -7268,7 +8616,7 @@
                                       "value": "application/json"
                                     }
                                   ],
-                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"exam_counts_for_progress\": \"<boolean>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"signup_site\": \"<string>\",\n    \"totp_enabled_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_gradings\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"outcome\": \"<string>\",\n      \"graded_at\": \"<dateTime>\",\n      \"half_life_days\": \"<number>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"outcome\": \"<string>\",\n      \"graded_at\": \"<dateTime>\",\n      \"half_life_days\": \"<number>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"counts_for_progress\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"counts_for_progress\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"chart_attempts\": [\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"tasks\": [\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"tasks\": [\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"site\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"site\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"blocklist_entries\": [\n    {\n      \"kind\": \"<string>\",\n      \"value\": \"<string>\",\n      \"reason\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"expires_at\": \"<dateTime>\"\n    },\n    {\n      \"kind\": \"<string>\",\n      \"value\": \"<string>\",\n      \"reason\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"expires_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
+                                  "body": "{\n  \"user\": {\n    \"id\": \"<integer>\",\n    \"email\": \"<string>\",\n    \"first_name\": \"<string>\",\n    \"last_name\": \"<string>\",\n    \"created_at\": \"<dateTime>\",\n    \"token_balance\": \"<integer>\",\n    \"exam_variant\": \"<string>\",\n    \"gender\": \"<string>\",\n    \"exam_counts_for_progress\": \"<boolean>\",\n    \"ai_flags_count\": \"<integer>\",\n    \"ai_flags_last_at\": \"<dateTime>\",\n    \"agb_accepted_version\": \"<string>\",\n    \"agb_accepted_at\": \"<dateTime>\",\n    \"last_login_at\": \"<dateTime>\",\n    \"signup_site\": \"<string>\",\n    \"totp_enabled_at\": \"<dateTime>\",\n    \"question_progress_count\": \"<integer>\",\n    \"is_blocked\": false\n  },\n  \"question_progress\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"half_life_days\": \"<number>\",\n      \"last_graded_at\": \"<dateTime>\",\n      \"last_correct_at\": \"<dateTime>\",\n      \"streak_start_at\": \"<dateTime>\",\n      \"review_due_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_gradings\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"outcome\": \"<string>\",\n      \"graded_at\": \"<dateTime>\",\n      \"half_life_days\": \"<number>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"outcome\": \"<string>\",\n      \"graded_at\": \"<dateTime>\",\n      \"half_life_days\": \"<number>\"\n    }\n  ],\n  \"focus_topics\": [\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"subject\": \"<string>\",\n      \"topic_slug\": \"<string>\",\n      \"topic_name\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"question_reports\": [\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"question_id\": \"<integer>\",\n      \"subject\": \"<string>\",\n      \"question_number\": \"<integer>\",\n      \"category\": \"<string>\",\n      \"comment\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"exam_attempts\": [\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"counts_for_progress\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"exam_id\": \"<integer>\",\n      \"exam_variant\": \"<string>\",\n      \"started_at\": \"<dateTime>\",\n      \"deadline_at\": \"<dateTime>\",\n      \"submitted_at\": \"<dateTime>\",\n      \"graded_at\": \"<dateTime>\",\n      \"timed_out\": \"<boolean>\",\n      \"counts_for_progress\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\",\n      \"questions\": [\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        },\n        {\n          \"position\": \"<integer>\",\n          \"subject_group\": \"<string>\",\n          \"subject\": \"<string>\",\n          \"question_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"outcome\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"chart_attempts\": [\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"tasks\": [\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"tasks\": [\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"task_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"points_awarded\": \"<integer>\",\n          \"ai_points\": \"<integer>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"sbf_navigation_attempts\": [\n    {\n      \"attempt_id\": \"<integer>\",\n      \"task_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"subtasks\": [\n        {\n          \"subtask_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"point\": \"<integer>\",\n          \"ai_correct\": \"<boolean>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"subtask_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"point\": \"<integer>\",\n          \"ai_correct\": \"<boolean>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    },\n    {\n      \"attempt_id\": \"<integer>\",\n      \"task_number\": \"<integer>\",\n      \"started_at\": \"<dateTime>\",\n      \"completed_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"subtasks\": [\n        {\n          \"subtask_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"point\": \"<integer>\",\n          \"ai_correct\": \"<boolean>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        },\n        {\n          \"subtask_number\": \"<integer>\",\n          \"answer_text\": \"<string>\",\n          \"answered_at\": \"<dateTime>\",\n          \"point\": \"<integer>\",\n          \"ai_correct\": \"<boolean>\",\n          \"ai_feedback\": \"<string>\",\n          \"ai_suspected_error\": \"<string>\"\n        }\n      ]\n    }\n  ],\n  \"purchases\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"site\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens_granted\": \"<integer>\",\n      \"amount_eur_cents\": \"<integer>\",\n      \"granted_by\": \"<string>\",\n      \"stripe_payment_intent_id\": \"<string>\",\n      \"site\": \"<string>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"blocklist_entries\": [\n    {\n      \"kind\": \"<string>\",\n      \"value\": \"<string>\",\n      \"reason\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"expires_at\": \"<dateTime>\"\n    },\n    {\n      \"kind\": \"<string>\",\n      \"value\": \"<string>\",\n      \"reason\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"expires_at\": \"<dateTime>\"\n    }\n  ],\n  \"exported_at\": \"<dateTime>\"\n}",
                                   "cookie": [],
                                   "_postman_previewlanguage": "json"
                                 },
@@ -7800,7 +9148,7 @@
                               "value": "application/json"
                             }
                           ],
-                          "body": "{\n  \"generated_at\": \"<dateTime>\",\n  \"days\": \"<integer>\",\n  \"growth\": {\n    \"users_total\": \"<integer>\",\n    \"new_24h\": \"<integer>\",\n    \"new_previous_24h\": \"<integer>\",\n    \"new_7d\": \"<integer>\",\n    \"new_sbf_24h\": \"<integer>\",\n    \"new_sbf_7d\": \"<integer>\",\n    \"variant_motor\": \"<integer>\",\n    \"variant_segeln_und_motor\": \"<integer>\",\n    \"variant_unset\": \"<integer>\",\n    \"activation_rate_7d\": \"<number>\"\n  },\n  \"engagement\": {\n    \"dau\": \"<integer>\",\n    \"dau_previous\": \"<integer>\",\n    \"wau\": \"<integer>\",\n    \"mau\": \"<integer>\",\n    \"stickiness\": \"<number>\",\n    \"retention_cohort_size\": \"<integer>\",\n    \"retention_rate\": \"<number>\",\n    \"ratings_24h\": \"<integer>\",\n    \"ratings_per_active_user_24h\": \"<number>\"\n  },\n  \"monetization\": {\n    \"lotse_checks_catalog_24h\": \"<integer>\",\n    \"lotse_checks_chart_24h\": \"<integer>\",\n    \"tokens_spent_24h\": \"<integer>\",\n    \"tokens_spent_7d\": \"<integer>\",\n    \"purchases_24h\": \"<integer>\",\n    \"purchases_7d\": \"<integer>\",\n    \"revenue_cents_24h\": \"<integer>\",\n    \"revenue_cents_7d\": \"<integer>\",\n    \"purchases_sbf_7d\": \"<integer>\",\n    \"revenue_cents_sbf_7d\": \"<integer>\"\n  },\n  \"daily\": [\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    },\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    }\n  ]\n}",
+                          "body": "{\n  \"generated_at\": \"<dateTime>\",\n  \"days\": \"<integer>\",\n  \"growth\": {\n    \"users_total\": \"<integer>\",\n    \"new_24h\": \"<integer>\",\n    \"new_previous_24h\": \"<integer>\",\n    \"new_7d\": \"<integer>\",\n    \"new_sbf_24h\": \"<integer>\",\n    \"new_sbf_7d\": \"<integer>\",\n    \"variant_motor\": \"<integer>\",\n    \"variant_segeln_und_motor\": \"<integer>\",\n    \"variant_unset\": \"<integer>\",\n    \"activation_rate_7d\": \"<number>\"\n  },\n  \"engagement\": {\n    \"dau\": \"<integer>\",\n    \"dau_previous\": \"<integer>\",\n    \"wau\": \"<integer>\",\n    \"mau\": \"<integer>\",\n    \"stickiness\": \"<number>\",\n    \"retention_cohort_size\": \"<integer>\",\n    \"retention_rate\": \"<number>\",\n    \"ratings_24h\": \"<integer>\",\n    \"ratings_per_active_user_24h\": \"<number>\"\n  },\n  \"monetization\": {\n    \"lotse_checks_catalog_24h\": \"<integer>\",\n    \"lotse_checks_chart_24h\": \"<integer>\",\n    \"lotse_checks_sbf_navigation_24h\": \"<integer>\",\n    \"tokens_spent_24h\": \"<integer>\",\n    \"tokens_spent_7d\": \"<integer>\",\n    \"purchases_24h\": \"<integer>\",\n    \"purchases_7d\": \"<integer>\",\n    \"revenue_cents_24h\": \"<integer>\",\n    \"revenue_cents_7d\": \"<integer>\",\n    \"purchases_sbf_7d\": \"<integer>\",\n    \"revenue_cents_sbf_7d\": \"<integer>\"\n  },\n  \"daily\": [\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"lotse_checks_sbf_navigation\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    },\n    {\n      \"day\": \"<date>\",\n      \"new_users\": \"<integer>\",\n      \"active_users\": \"<integer>\",\n      \"ratings\": \"<integer>\",\n      \"lotse_checks_catalog\": \"<integer>\",\n      \"lotse_checks_chart\": \"<integer>\",\n      \"lotse_checks_sbf_navigation\": \"<integer>\",\n      \"tokens_spent\": \"<integer>\",\n      \"purchases\": \"<integer>\",\n      \"revenue_cents\": \"<integer>\"\n    }\n  ]\n}",
                           "cookie": [],
                           "_postman_previewlanguage": "json"
                         },
@@ -9052,7 +10400,7 @@
                           "value": "application/json"
                         }
                       ],
-                      "body": "{\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ],\n  \"checkout_enabled\": \"<boolean>\",\n  \"catalog_check_tokens\": \"<integer>\",\n  \"chart_check_tokens\": \"<integer>\",\n  \"check_max_answer_chars\": \"<integer>\"\n}",
+                      "body": "{\n  \"signup_bonus_tokens\": \"<integer>\",\n  \"packages\": [\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    },\n    {\n      \"product\": \"<string>\",\n      \"tokens\": \"<integer>\",\n      \"price_cents\": \"<integer>\"\n    }\n  ],\n  \"checkout_enabled\": \"<boolean>\",\n  \"catalog_check_tokens\": \"<integer>\",\n  \"chart_check_tokens\": \"<integer>\",\n  \"sbf_navigation_check_tokens\": \"<integer>\",\n  \"check_max_answer_chars\": \"<integer>\"\n}",
                       "cookie": [],
                       "_postman_previewlanguage": "json"
                     }

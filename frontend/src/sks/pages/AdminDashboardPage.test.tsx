@@ -14,6 +14,7 @@ function day(iso: string, overrides: Partial<DailyKpis> = {}): DailyKpis {
     ratings: 0,
     lotse_checks_catalog: 0,
     lotse_checks_chart: 0,
+    lotse_checks_sbf_navigation: 0,
     tokens_spent: 0,
     purchases: 0,
     revenue_cents: 0,
@@ -51,6 +52,7 @@ function dashboard(days: number, daily: DailyKpis[]): AdminDashboard {
     monetization: {
       lotse_checks_catalog_24h: 7,
       lotse_checks_chart_24h: 2,
+      lotse_checks_sbf_navigation_24h: 1,
       tokens_spent_24h: 11,
       tokens_spent_7d: 60,
       purchases_24h: 1,
@@ -116,7 +118,7 @@ describe('AdminDashboardPage', () => {
     expect(screen.getByRole('button', { name: '7 Tage' })).toHaveAttribute('aria-pressed', 'true')
     const checks = screen.getByRole('img', { name: /^Lotsen-Checks je Tag/ })
     expect(checks).toHaveAccessibleName('Lotsen-Checks je Tag: zusammen 8, höchster Tag 12.10. mit 5')
-    expect(within(checks).getByText('07.10.: Katalog 2, Kartenaufgabe 1')).toBeInTheDocument()
+    expect(within(checks).getByText('07.10.: Katalog 2, Kartenaufgabe 1, SBF-Navigationsaufgabe 0')).toBeInTheDocument()
     expect(
       screen.getByRole('img', { name: /^Umsatz je Tag \(brutto, Stripe\): zusammen 15,97\s€/ }),
     ).toBeInTheDocument()

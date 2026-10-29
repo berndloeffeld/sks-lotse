@@ -2,12 +2,13 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 
-import { checkLimitsSource } from '../sks/checkLimits'
+import { checkLimitsSource } from '../shared/checkLimits'
 import type { PublicPricing } from '../sks/api/types'
 
 const PRICING = {
   catalog_check_tokens: 1,
   chart_check_tokens: 2,
+  sbf_navigation_check_tokens: 2,
   check_max_answer_chars: 1000,
   signup_bonus_tokens: 10,
 } as PublicPricing

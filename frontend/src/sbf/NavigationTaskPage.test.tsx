@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useAuthStore } from '../shared/store/authStore'
+import { jsonResponse, makeUser } from '../test/fixtures'
 import { navigationSource } from './navigationCatalog'
 import { navigationExportFixture } from './navigationFixture'
 import { sbfRoutes } from './routes'
@@ -144,5 +146,182 @@ describe('Navigationsaufgaben for guests', () => {
     vi.stubEnv('VITE_SBF', 'off')
     renderAt('/navigation')
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
+  })
+})
+
+describe('Navigationsaufgaben with an account (ADR-0071)', () => {
+  type Row = {
+    number: number
+    answer_text: string
+    point: number | null
+    ai_checkable: boolean
+    ai_suggestion: { correct: boolean; feedback: string; suspected_error: string } | null
+  }
+  let rows: Row[]
+  let calls: string[]
+
+  function attempt() {
+    const assessed = rows.filter((row) => row.point !== null).length
+    return {
+      id: 4,
+      task_number: 1,
+      started_at: '2026-10-24T10:00:00Z',
+      completed_at: assessed === 3 ? '2026-10-24T11:00:00Z' : null,
+      subtask_count: 3,
+      points: rows.reduce((sum, row) => sum + (row.point ?? 0), 0),
+      current_subtask: assessed === 3 ? null : assessed + 1,
+      subtasks: rows,
+    }
+  }
+
+  // The backend of a run of three subtasks, the third a chart entry.
+  async function backend(input: RequestInfo | URL, init?: RequestInit) {
+    const path = new URL(String(input), 'http://x').pathname.replace('/api/v1', '')
+    const method = init?.method ?? 'GET'
+    calls.push(`${method} ${path}`)
+    const body = init?.body ? JSON.parse(String(init.body)) : {}
+    if (path === '/auth/me') return jsonResponse(makeUser({ token_balance: 6 }))
+    if (path === '/pricing') return jsonResponse({ ...PRICING })
+    if (path === '/sbf-navigation') {
+      return jsonResponse({
+        pass_points: 2,
+        tasks: [
+          {
+            number: 1,
+            open_attempt_id: 4,
+            open_answered: rows.length,
+            completed_count: 0,
+            last_points: null,
+            last_completed_at: null,
+          },
+        ],
+      })
+    }
+    if (path === '/sbf-navigation/attempts/4') return jsonResponse(attempt())
+    const answer = path.match(/subtasks\/(\d)\/answer$/)
+    if (answer) {
+      rows = [
+        ...rows,
+        {
+          number: Number(answer[1]),
+          answer_text: body.answer_text,
+          point: null,
+          ai_checkable: answer[1] !== '3',
+          ai_suggestion: null,
+        },
+      ]
+      return jsonResponse(attempt())
+    }
+    const point = path.match(/subtasks\/(\d)\/point$/)
+    if (point) {
+      rows = rows.map((row) => (row.number === Number(point[1]) ? { ...row, point: body.point } : row))
+      return jsonResponse(attempt())
+    }
+    const check = path.match(/subtasks\/(\d)\/ai-check$/)
+    if (check) {
+      rows = rows.map((row) =>
+        row.number === Number(check[1])
+          ? {
+              ...row,
+              ai_suggestion: {
+                correct: true,
+                feedback: 'Dein MgK 073° liegt innerhalb der üblichen Toleranz von ±1°.',
+                suspected_error: '',
+              },
+            }
+          : row,
+      )
+      return jsonResponse({ attempt: attempt(), tokens_remaining: 4 })
+    }
+    return jsonResponse({ detail: 'not found' }, 404)
+  }
+
+  const PRICING = {
+    signup_bonus_tokens: 6,
+    packages: [],
+    checkout_enabled: true,
+    catalog_check_tokens: 1,
+    chart_check_tokens: 2,
+    sbf_navigation_check_tokens: 2,
+    check_max_answer_chars: 1000,
+  }
+
+  beforeEach(() => {
+    vi.stubEnv('VITE_SITE', 'sbf')
+    vi.stubEnv('VITE_SBF', 'on')
+    vi.stubEnv('VITE_SBF_ACCOUNTS', 'on')
+    rows = [{ number: 1, answer_text: 'rwK 078°', point: 1, ai_checkable: true, ai_suggestion: null }]
+    calls = []
+    vi.stubGlobal('fetch', vi.fn(backend))
+    navigationSource.prime(navigationExportFixture())
+  })
+
+  afterEach(() => {
+    navigationSource.reset()
+    useAuthStore.setState(useAuthStore.getInitialState())
+  })
+
+  it('resumes the saved run, checks a subtask and preselects the suggested point', async () => {
+    const user = userEvent.setup()
+    renderAt('/navigation/1?run=1')
+
+    // Resumed at subtask 2: the first is answered and graded on the server.
+    expect(await screen.findByText('Teilaufgabe 2 von 3')).toBeInTheDocument()
+    await user.type(screen.getByLabelText('Deine Antwort'), 'MgK 073°')
+    await user.click(screen.getByRole('button', { name: 'Ergebnis anzeigen' }))
+
+    const check = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(screen.getByText(/2 Tokens · du hast 6/)).toBeInTheDocument()
+    await user.click(check)
+
+    const suggestion = await screen.findByRole('status', { name: '' })
+    expect(within(suggestion).getByText('Lotsen-Vorschlag: richtig – 1 Punkt')).toBeInTheDocument()
+    expect(within(suggestion).getByText(/innerhalb der üblichen Toleranz/)).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '1' })).toBeChecked()
+    expect(calls).toContain('POST /sbf-navigation/attempts/4/subtasks/2/ai-check')
+
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+    expect(await screen.findByText('Teilaufgabe 3 von 3')).toBeInTheDocument()
+    expect(calls).toContain('PUT /sbf-navigation/attempts/4/subtasks/2/point')
+  })
+
+  it('offers no check for a chart entry and ends with the saved evaluation', async () => {
+    rows = [
+      { number: 1, answer_text: 'rwK 079°', point: 1, ai_checkable: true, ai_suggestion: null },
+      { number: 2, answer_text: 'MgK 074°', point: 1, ai_checkable: true, ai_suggestion: null },
+    ]
+    const user = userEvent.setup()
+    renderAt('/navigation/1?run=1')
+
+    expect(await screen.findByText('Teilaufgabe 3 von 3')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Ergebnis anzeigen' }))
+    await screen.findByRole('radio', { name: '1' })
+    expect(screen.queryByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('radio', { name: '1' }))
+    await user.click(screen.getByRole('button', { name: 'Weiter' }))
+
+    expect(await screen.findByText(/3 von 3 Punkten/)).toBeInTheDocument()
+    expect(screen.getByText(/Dein Lauf ist in deinem Konto gespeichert./)).toBeInTheDocument()
+  })
+
+  it('shows a guest the check as a teaser, the run kept in the page', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) =>
+        String(input).endsWith('/auth/me')
+          ? jsonResponse({ detail: 'Not authenticated' }, 401)
+          : jsonResponse({ ...PRICING }),
+      ),
+    )
+    const user = userEvent.setup()
+    renderAt('/navigation/1?run=1')
+
+    await user.type(await screen.findByLabelText('Deine Antwort'), 'rwK 079°')
+    await user.click(screen.getByRole('button', { name: 'Ergebnis anzeigen' }))
+
+    const check = await screen.findByRole('button', { name: /Antwort vom Lotsen bewerten lassen/ })
+    expect(check).toBeDisabled()
+    expect(screen.getByText(/Mit Anmeldung, Start-Tokens geschenkt/)).toBeInTheDocument()
   })
 })

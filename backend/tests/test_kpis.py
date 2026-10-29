@@ -453,6 +453,7 @@ def test_lotsen_checks_tokens_and_stripe_purchases_are_counted_in_their_windows(
 
 def test_the_report_text_has_the_new_sections(db_session):
     db_session.add(LotseCheckLog(kind="chart", tokens=2, checked_at=NOW - timedelta(hours=1)))
+    db_session.add(LotseCheckLog(kind="sbf_navigation", tokens=2, checked_at=NOW - timedelta(hours=2)))
     db_session.add(
         Purchase(
             user_id=None,
@@ -468,8 +469,9 @@ def test_the_report_text_has_the_new_sections(db_session):
     text = format_report(compute_kpis(db_session, NOW))
 
     assert "Kartenaufgaben-Läufe 24 h gestartet / abgeschlossen: 0 / 0" in text
-    assert "Lotsen-Checks 24 h Katalog / Kartenaufgabe: 0 / 1" in text
-    assert "Verbrauchte Tokens 24 h / 7 Tage: 2 / 2" in text
+    assert "SBF-Navigationsaufgaben-Läufe 24 h gestartet / abgeschlossen: 0 / 0" in text
+    assert "Lotsen-Checks 24 h Katalog / Kartenaufgabe / SBF-Navigationsaufgabe: 0 / 1 / 1" in text
+    assert "Verbrauchte Tokens 24 h / 7 Tage: 4 / 4" in text
     assert "Käufe 24 h / 7 Tage: 1 / 1" in text
     assert "Umsatz 24 h / 7 Tage: 12,50 EUR / 12,50 EUR" in text
 
@@ -634,3 +636,29 @@ def test_new_accounts_and_purchases_are_counted_per_site(db_session):
     assert "Davon auf SBF Lotse angelegt (24 h / 7 Tage): 1 / 2" in text
     assert "Davon auf SBF Lotse (7 Tage): 1 Käufe, 5,99 EUR" in text
     assert text.startswith("SKS Lotse & SBF Lotse - Tagesreport")
+
+
+def test_a_saved_sbf_run_counts_as_activity_and_as_a_run(db_session):
+    # ADR-0071: an answered subtask of a saved SBF run is learning, like an answered Kartenaufgabe task.
+    from app.models.sbf_navigation_attempt import SbfNavigationAttempt, SbfNavigationAttemptSubtask
+
+    learner = User(email="sbf-learner@example.com", created_at=_ago(days=3), signup_site="sbf")
+    db_session.add(learner)
+    db_session.flush()
+    attempt = SbfNavigationAttempt(
+        user_id=learner.id, task_number=1, started_at=_ago(hours=3), completed_at=_ago(hours=1)
+    )
+    db_session.add(attempt)
+    db_session.flush()
+    db_session.add(
+        SbfNavigationAttemptSubtask(
+            attempt_id=attempt.id, subtask_number=1, answer_text="079", answered_at=_ago(hours=2)
+        )
+    )
+    db_session.commit()
+
+    report = compute_kpis(db_session, NOW)
+
+    assert report.engagement.dau == 1
+    learn = report.learning
+    assert (learn.sbf_navigation_attempts_started_24h, learn.sbf_navigation_attempts_completed_24h) == (1, 1)

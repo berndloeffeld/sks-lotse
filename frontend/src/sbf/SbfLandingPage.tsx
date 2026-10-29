@@ -5,14 +5,15 @@ import { HeaderBar } from '../shared/components/HeaderBar'
 import { HeroBand } from '../shared/components/HeroBand'
 import { LegalFooter } from '../shared/components/LegalFooter'
 import { useDocumentTitle } from '../shared/hooks/useDocumentTitle'
-import { sbfNavigationOpen } from '../shared/siteConfig'
+import { sbfAccountsOpen, sbfNavigationOpen } from '../shared/siteConfig'
 import { SbfHeaderNav } from './SbfHeaderNav'
 import { SBF_HOME_TITLE } from './texts'
 
 const SOON_BADGE = 'rounded-tile bg-accent-strong px-2 py-0.5 font-mono text-xs tracking-wide text-surface uppercase'
 
 // What SBF Lotse is going to offer, first things first (ADR-0067). While VITE_SBF is "off" the
-// start page is all there is: no task content, no API call. With "on" the first item is there.
+// start page is all there is: no task content, no API call. With "on" the first item is there, with
+// VITE_SBF_ACCOUNTS "on" the third too (ADR-0071).
 const COMING = [
   [
     'Navigationsaufgaben See',
@@ -30,6 +31,9 @@ const COMING = [
 export function SbfLandingPage() {
   useDocumentTitle(SBF_HOME_TITLE)
   const open = sbfNavigationOpen()
+  const accounts = sbfAccountsOpen()
+  // Which of COMING is there in this build.
+  const there = (index: number) => (open && index === 0) || (accounts && index === 2)
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <HeaderBar homeTo="/" nav={<SbfHeaderNav />} />
@@ -63,8 +67,7 @@ export function SbfLandingPage() {
           <Columns className="mt-10 sm:grid-cols-3">
             {COMING.map(([title, text, when], index) => (
               <div key={title} className="flex flex-col items-start gap-4">
-                {/* The first item is the Navigationsaufgaben: there in a build with VITE_SBF=on. */}
-                <span className={SOON_BADGE}>{open && index === 0 ? 'Jetzt da' : when}</span>
+                <span className={SOON_BADGE}>{there(index) ? 'Jetzt da' : when}</span>
                 <h3 className="font-serif text-2xl leading-snug text-primary">
                   {open && index === 0 ? (
                     <Link to="/navigation" className="underline-offset-4 hover:underline">

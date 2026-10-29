@@ -10,6 +10,7 @@ from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
 from app.models.question_report import QuestionReport
+from app.models.sbf_navigation_attempt import SbfNavigationAttempt, SbfNavigationAttemptSubtask
 from app.models.topic import Topic
 from app.models.user import User
 
@@ -27,6 +28,8 @@ __all__ = [
     "QuestionGradingLog",
     "QuestionProgress",
     "QuestionReport",
+    "SbfNavigationAttempt",
+    "SbfNavigationAttemptSubtask",
     "Topic",
     "User",
 ]

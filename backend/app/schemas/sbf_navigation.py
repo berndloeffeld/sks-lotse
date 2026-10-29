@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -71,3 +72,72 @@ class SbfNavigationCatalog(BaseModel):
     scoring: list[str]
     typo_fixes: list[SbfTypoFix]
     tasks: list[SbfNavigationTask]
+
+
+# A run with an account (ADR-0071). The tasks themselves — situation, subtasks, results — come to the
+# page from the export (frontend/src/sbf/data/sbf_navigation.gen.json), so the run carries only the
+# learner's own state.
+
+ANSWER_MAX_LENGTH = 5000
+
+
+class SbfNavigationAiSuggestion(BaseModel):
+    """The Lotsen-Check's suggestion for one answered subtask — the learner still gives the point."""
+
+    correct: bool
+    feedback: str
+    # Where the learner probably went wrong; empty when nothing is.
+    suspected_error: str
+
+
+class SbfNavigationSubtaskRead(BaseModel):
+    number: int
+    answer_text: str
+    # 0 or 1; None while answered but not yet assessed.
+    point: int | None
+    # Whether the Lotsen-Check can look at it: not when the result is an entry in the chart.
+    ai_checkable: bool
+    ai_suggestion: SbfNavigationAiSuggestion | None
+
+
+class SbfNavigationAttemptRead(BaseModel):
+    id: int
+    task_number: int
+    started_at: datetime
+    completed_at: datetime | None
+    subtask_count: int
+    points: int
+    # The subtask to work on next; None once the run is complete.
+    current_subtask: int | None
+    # The answered subtasks, in order.
+    subtasks: list[SbfNavigationSubtaskRead]
+
+
+class SbfNavigationTaskSummary(BaseModel):
+    number: int
+    # The learner's run still in progress for this task, if any, and how far it got.
+    open_attempt_id: int | None
+    open_answered: int | None
+    completed_count: int
+    # Points and date of the most recently completed run.
+    last_points: int | None
+    last_completed_at: datetime | None
+
+
+class SbfNavigationOverview(BaseModel):
+    pass_points: int
+    tasks: list[SbfNavigationTaskSummary]
+
+
+class SbfNavigationAiCheckRead(BaseModel):
+    attempt: SbfNavigationAttemptRead
+    tokens_remaining: int
+
+
+class SbfNavigationAnswerUpdate(BaseModel):
+    # Empty is allowed: "don't know" is an answer too, the result still follows.
+    answer_text: str = Field(max_length=ANSWER_MAX_LENGTH)
+
+
+class SbfNavigationPointUpdate(BaseModel):
+    point: int = Field(ge=0, le=1)

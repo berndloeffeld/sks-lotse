@@ -191,6 +191,26 @@ class AdminChartAttemptExport(BaseModel):
     tasks: list[AdminChartTaskExport]
 
 
+class AdminSbfNavigationSubtaskExport(BaseModel):
+    subtask_number: int
+    answer_text: str
+    answered_at: datetime
+    point: int | None
+    # The Lotsen-Check's suggestion, if the learner asked for one (ADR-0071).
+    ai_correct: bool | None
+    ai_feedback: str | None
+    ai_suspected_error: str | None
+
+
+class AdminSbfNavigationAttemptExport(BaseModel):
+    attempt_id: int
+    task_number: int
+    started_at: datetime
+    completed_at: datetime | None
+    created_at: datetime
+    subtasks: list[AdminSbfNavigationSubtaskExport]
+
+
 class AdminPurchaseExport(BaseModel):
     # Never NULL here: a row this account's own export can see still has its user_id set — an
     # anonymized row (services/user.py) only exists after that same account is already gone.
@@ -225,6 +245,8 @@ class AdminUserExport(BaseModel):
     question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
     chart_attempts: list[AdminChartAttemptExport]
+    # SBF Lotse's saved runs (ADR-0071); the account is the same on both sites.
+    sbf_navigation_attempts: list[AdminSbfNavigationAttemptExport]
     purchases: list[AdminPurchaseExport]
     blocklist_entries: list[AdminBlocklistEntryExport]
     exported_at: datetime

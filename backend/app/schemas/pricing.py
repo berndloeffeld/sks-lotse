@@ -20,4 +20,6 @@ class PublicPricing(BaseModel):
     # numbers the backend enforces (services/token_wallet.py, GRADING_MAX_ANSWER_CHARS).
     catalog_check_tokens: int
     chart_check_tokens: int
+    # A subtask of an SBF Navigationsaufgabe (ADR-0071).
+    sbf_navigation_check_tokens: int
     check_max_answer_chars: int

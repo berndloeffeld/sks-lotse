@@ -31,10 +31,11 @@ function page(
 }
 
 // `navigation` only in a build with VITE_SBF=on; otherwise its pages aren't built (ADR-0068).
-export function sbfPublicPages(navigation: NavigationExport | null = null): PublicPage[] {
+// `accounts` with VITE_SBF_ACCOUNTS=on: the FAQ then says what an account brings (ADR-0071).
+export function sbfPublicPages(navigation: NavigationExport | null = null, accounts = false): PublicPage[] {
   return [
     { path: '/', file: 'index.html' },
-    page('/faq', SBF_FAQ_TEXT, { jsonLd: [faqJsonLd(sbfFaq(navigation !== null))] }),
+    page('/faq', SBF_FAQ_TEXT, { jsonLd: [faqJsonLd(sbfFaq(navigation !== null, accounts))] }),
     page('/imprint', SBF_IMPRINT_TEXT, { noindex: true }),
     page('/privacy', SBF_PRIVACY_TEXT, { noindex: true }),
     page('/terms', SBF_TERMS_TEXT, { noindex: true }),

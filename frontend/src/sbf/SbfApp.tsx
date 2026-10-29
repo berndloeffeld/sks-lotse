@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { ErrorPageBody, RenderErrorBoundary } from '../shared/components/RenderErrorBoundary'
 import { useNavigationScroll } from '../shared/hooks/useNavigationScroll'
@@ -22,6 +22,7 @@ import { SbfNotFoundPage } from './SbfNotFoundPage'
 import { SbfPageLayout } from './SbfPageLayout'
 import { SbfPricingPage } from './SbfPricingPage'
 import { SbfProfileLayout } from './SbfProfileLayout'
+import { SbfRunsPage } from './SbfRunsPage'
 
 // The session's routes, with accounts on SBF Lotse (VITE_SBF_ACCOUNTS=on, ADR-0070): the login, the
 // profile and the token purchase, the parts both sites share in SBF Lotse's page. No /admin: that
@@ -34,9 +35,9 @@ function accountRoutes() {
       <Route path="/pricing" element={<SbfPricingPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<SbfProfileLayout />}>
+          <Route path="/profile" element={<SbfRunsPage />} />
           <Route path="/profile/account" element={<ProfileAccountPage />} />
         </Route>
-        <Route path="/profile" element={<Navigate to="/profile/account" replace />} />
       </Route>
     </>
   )
