@@ -115,6 +115,11 @@ def test_parse_restores_the_drying_height_symbol_in_navigation_84():
     assert "2 3" not in question
 
 
+def test_parse_names_the_two_light_diagrams_of_schifffahrtsrecht_23():
+    question = _parsed("schifffahrtsrecht", 23).question_text
+    assert "ändert sich plötzlich von Bild 1 in Bild 2. Was schließen Sie daraus?" in question
+
+
 def test_parse_restores_the_subscripts_in_the_navigation_48_answer():
     answer = _parsed("navigation", 48).answer_text
     assert "Koppelort (O_k) zum beobachteten Ort (O_b)" in answer

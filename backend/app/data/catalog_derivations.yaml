@@ -152,3 +152,46 @@
         Bodennähe, etwa 10 bis 20 Grad nach außen aus dem Hoch heraus.
   - text: Als Faustwert gelten über See **10° bis 20°**. Das sind **ein bis zwei Strich**, denn ein Strich der Kompassrose
       sind 11,25°.
+- subject: schifffahrtsrecht
+  number: 41
+  answer_fingerprint: 55c5083dcde3
+  blocks:
+  - text: Rot-weiß-rot senkrecht übereinander ist das Zeichen für ein **manövrierbehindertes Fahrzeug**.
+  - text: Dazu zeigt es Topplichter und Seitenlichter. Die gibt es nur, wenn es **Fahrt durchs Wasser** macht (FdW). Ein
+      manövrierbehindertes Fahrzeug ohne Fahrt zeigt sie nicht.
+  - text: Ein manövrierbehindertes Fahrzeug hat sonst Vorrang vor einem Segelfahrzeug. Das gilt aber nicht, wenn es
+      **von hinten heranläuft**, denn dann gilt die Überholregel.
+  - text: Wer ein anderes Fahrzeug aus einer Richtung **mehr als 22,5° achterlicher als querab** einholt, ist Überholer.
+      Das ist der **Hecklichtsektor**, der Bereich, in dem man nachts nur das weiße Hecklicht sehen würde.
+  - text: Das Fahrzeug kommt nahezu achteraus näher, also aus diesem Sektor. Es ist **Überholer und muss ausweichen**.
+- subject: schifffahrtsrecht
+  number: 39
+  answer_fingerprint: d8388a363069
+  blocks:
+  - text: Ein **grünes Licht** ist das Seitenlicht an Steuerbord. Man sieht es, wenn man dem anderen Fahrzeug auf seine
+      Steuerbordseite schaut. Ein Segelfahrzeug in Fahrt zeigt nur Seitenlichter und Hecklicht, also ist es das
+      **Steuerbordlicht eines Segelfahrzeugs in Fahrt**.
+  - text: Zwei Segler mit Wind von verschiedenen Seiten – das Fahrzeug mit Wind von **Backbord weicht aus**. Mit Wind von
+      derselben Seite weicht das **luvwärtige** aus.
+  - text: Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht
+      zu erkennen.**
+  - text: Hat es Wind von Steuerbord, müssen Sie als Backbordwind-Fahrzeug ausweichen. Hat es Wind von Backbord, wäre es als
+      Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.
+  - text: Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**,
+      von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.
+- subject: schifffahrtsrecht
+  number: 18
+  answer_fingerprint: edf15926ef43
+  blocks:
+  - text: Zwei Fahrzeuge, die in **gleichbleibendem Abstand** hintereinander fahren, hängen zusammen. Das ist ein
+      **Schleppverband** aus Schlepper und Anhang.
+  - text: Am Tage zeigt ein Schleppverband einen **schwarzen Rhombus**, wenn er **länger als 200 m** ist. Er steht auf
+      dem Schlepper und auf dem Anhang. Gemessen wird vom Heck des Schleppers bis zum Heck des Anhangs.
+  - text: Dass die einzelnen Fahrzeuge kürzer als 50 m aussehen, spielt keine Rolle. Die Länge des **ganzen Verbands**
+      zählt.
+  - text: Ein Verband bis 200 m zeigt am Tage **kein besonderes Sichtzeichen**. Der Rhombus ist also gerade das Zeichen
+      für **länger als 200 m**.
+  - text: Der Schlepper führt nachts **drei weiße Topplichter** senkrecht übereinander, weil der Verband länger als 200 m
+      ist. Mit weniger als 200 m wären es zwei. Dazu kommen **Seitenlichter** und das **Hecklicht**.
+  - text: Über dem Hecklicht zeigt der Schlepper das **gelbe Schlepplicht**. Es sagt, dass er etwas hinter sich herzieht.
+  - text: Der Anhang führt nur **Seitenlichter und Hecklicht**. Er hat weder Topplichter noch ein Schlepplicht.

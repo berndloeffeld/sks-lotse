@@ -1650,7 +1650,43 @@
    "answer_text": "1. Es handelt sich um einen Schleppverband länger als 200 m (Heck des Schleppers - Heck des Anhangs).\n2. Der Schlepper führt nachts drei weiße Topplichter senkrecht übereinander, Seitenlichter, Hecklicht und das gelbe Schlepplicht über dem Hecklicht. Der Anhang führt Seitenlichter und Hecklicht.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Zwei Fahrzeuge, die in **gleichbleibendem Abstand** hintereinander fahren, hängen zusammen. Das ist ein **Schleppverband** aus Schlepper und Anhang.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Am Tage zeigt ein Schleppverband einen **schwarzen Rhombus**, wenn er **länger als 200 m** ist. Er steht auf dem Schlepper und auf dem Anhang. Gemessen wird vom Heck des Schleppers bis zum Heck des Anhangs.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dass die einzelnen Fahrzeuge kürzer als 50 m aussehen, spielt keine Rolle. Die Länge des **ganzen Verbands** zählt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein Verband bis 200 m zeigt am Tage **kein besonderes Sichtzeichen**. Der Rhombus ist also gerade das Zeichen für **länger als 200 m**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Schlepper führt nachts **drei weiße Topplichter** senkrecht übereinander, weil der Verband länger als 200 m ist. Mit weniger als 200 m wären es zwei. Dazu kommen **Seitenlichter** und das **Hecklicht**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Über dem Hecklicht zeigt der Schlepper das **gelbe Schlepplicht**. Es sagt, dass er etwas hinter sich herzieht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Anhang führt nur **Seitenlichter und Hecklicht**. Er hat weder Topplichter noch ein Schlepplicht.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -1708,7 +1744,7 @@
    "subject": "schifffahrtsrecht",
    "number": 23,
    "topic": "kvr-lichter-signale",
-   "question_text": "Die Lichteranordnung eines Fahrzeugs ändert sich plötzlich von in Was schließen Sie daraus?",
+   "question_text": "Die Lichteranordnung eines Fahrzeugs ändert sich plötzlich von Bild 1 in Bild 2. Was schließen Sie daraus?",
    "answer_text": "Ein manövrierunfähiges Fahrzeug in Fahrt ohne Fahrt durchs Wasser (FdW) hat FdW aufgenommen, da man jetzt auch das Backbord-Seitenlicht sieht.",
    "question_images": [
     {
@@ -1753,7 +1789,33 @@
    "answer_text": "1. Das Licht ist das Steuerbordlicht eines Segelfahrzeugs in Fahrt.\n2. Ihr Fahrzeug muss als leewärtiges Fahrzeug ausweichen, weil Sie (mit Wind von Backbord segelnd) nicht erkennen können, von welcher Seite das andere Fahrzeug den Wind hat.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **grünes Licht** ist das Seitenlicht an Steuerbord. Man sieht es, wenn man dem anderen Fahrzeug auf seine Steuerbordseite schaut. Ein Segelfahrzeug in Fahrt zeigt nur Seitenlichter und Hecklicht, also ist es das **Steuerbordlicht eines Segelfahrzeugs in Fahrt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwei Segler mit Wind von verschiedenen Seiten – das Fahrzeug mit Wind von **Backbord weicht aus**. Mit Wind von derselben Seite weicht das **luvwärtige** aus.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht zu erkennen.**",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hat es Wind von Steuerbord, müssen Sie als Backbordwind-Fahrzeug ausweichen. Hat es Wind von Backbord, wäre es als Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**, von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -1773,7 +1835,33 @@
    "answer_text": "1. Man sieht ein manövrierbehindertes Fahrzeug mit FdW (Topplichter, Seitenlichter).\n2. Dieses Fahrzeug nähert sich im Hecklichtsektor und muss deshalb als Überholer ausweichen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Rot-weiß-rot senkrecht übereinander ist das Zeichen für ein **manövrierbehindertes Fahrzeug**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dazu zeigt es Topplichter und Seitenlichter. Die gibt es nur, wenn es **Fahrt durchs Wasser** macht (FdW). Ein manövrierbehindertes Fahrzeug ohne Fahrt zeigt sie nicht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein manövrierbehindertes Fahrzeug hat sonst Vorrang vor einem Segelfahrzeug. Das gilt aber nicht, wenn es **von hinten heranläuft**, denn dann gilt die Überholregel.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wer ein anderes Fahrzeug aus einer Richtung **mehr als 22,5° achterlicher als querab** einholt, ist Überholer. Das ist der **Hecklichtsektor**, der Bereich, in dem man nachts nur das weiße Hecklicht sehen würde.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Fahrzeug kommt nahezu achteraus näher, also aus diesem Sektor. Es ist **Überholer und muss ausweichen**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",

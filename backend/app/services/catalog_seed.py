@@ -102,7 +102,13 @@ ANSWER_START = "\x1e"
 # on a Seekarte), which the PDF text yields as "2 3" — unrecognisable. The
 # symbol is restored in Unicode (digit + combining low line, subscript digit);
 # the wording is otherwise untouched.
-QUESTION_TEXT_FIXES = {("navigation", 84): (("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083."),)}
+# Schifffahrtsrecht 23 reads "von [Bild] in [Bild]": the two light diagrams stood inline in the PDF
+# and are missing from its text ("von in Was"). They are shown below the question (ADR-0033), numbered
+# "Bild 1"/"Bild 2" by QuestionImages, and the sentence names them, by the operator's decision.
+QUESTION_TEXT_FIXES = {
+    ("navigation", 84): (("Tiefenangabe 2 3.", "Tiefenangabe 2\u0332\u2083."),),
+    ("schifffahrtsrecht", 23): (("von in Was schlie\u00dfen", "von Bild 1 in Bild 2. Was schlie\u00dfen"),),
+}
 # Same for answers: Navigation 48 names the Koppelort O_k and the beobachteten
 # Ort O_b, but the PDF text drops the subscripts and appends them after the
 # sentence ("(O ) ... (O ), ... Zeitpunkt. k b"). Unicode has no subscript b,

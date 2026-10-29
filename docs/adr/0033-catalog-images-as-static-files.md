@@ -23,3 +23,5 @@ Options for where the files live: object storage (Cloudflare R2, the earlier "TB
 - The alt texts are generic ("Abbildung zur Frage"); the diagrams have no textual description a screen reader could use.
 - The AI answer check still only sees text ([ADR-0031](0031-ai-answer-check-with-claude-haiku.md)), so for image questions it can't judge what the learner would have to read off the picture.
 - A changed source PDF needs `extract_catalog_images.py --force` and a new review.
+
+Update 2026-10-29: Schifffahrtsrecht 23 now reads "von Bild 1 in Bild 2" (`QUESTION_TEXT_FIXES`, the operator's decision), and a question's several images carry the captions "Bild 1", "Bild 2" so the sentence can name them.
