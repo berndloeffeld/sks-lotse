@@ -1753,7 +1753,33 @@
    "answer_text": "1. Das Licht ist das Steuerbordlicht eines Segelfahrzeugs in Fahrt.\n2. Ihr Fahrzeug muss als leewärtiges Fahrzeug ausweichen, weil Sie (mit Wind von Backbord segelnd) nicht erkennen können, von welcher Seite das andere Fahrzeug den Wind hat.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **grünes Licht** ist das Seitenlicht an Steuerbord. Man sieht es, wenn man dem anderen Fahrzeug auf seine Steuerbordseite schaut. Ein Segelfahrzeug in Fahrt zeigt nur Seitenlichter und Hecklicht, also ist es das **Steuerbordlicht eines Segelfahrzeugs in Fahrt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwei Segler mit Wind von verschiedenen Seiten – das Fahrzeug mit Wind von **Backbord weicht aus**. Mit Wind von derselben Seite weicht das **luvwärtige** aus.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Nachts sieht man nur das Seitenlicht, nicht das Segel. **Von welcher Seite das andere den Wind hat, ist nicht zu erkennen.**",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hat es Wind von Steuerbord, müssen Sie als Backbordwind-Fahrzeug ausweichen. Hat es Wind von Backbord, wäre es als Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**, von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -1773,33 +1799,7 @@
    "answer_text": "1. Man sieht ein manövrierbehindertes Fahrzeug mit FdW (Topplichter, Seitenlichter).\n2. Dieses Fahrzeug nähert sich im Hecklichtsektor und muss deshalb als Überholer ausweichen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": [
-    {
-     "text": "Rot-weiß-rot senkrecht übereinander ist das Zeichen für ein **manövrierbehindertes Fahrzeug**.",
-     "table": null,
-     "image": null
-    },
-    {
-     "text": "Dazu zeigt es Topplichter und Seitenlichter. Die gibt es nur, wenn es **Fahrt durchs Wasser** macht (FdW). Ein manövrierbehindertes Fahrzeug ohne Fahrt zeigt sie nicht.",
-     "table": null,
-     "image": null
-    },
-    {
-     "text": "Ein manövrierbehindertes Fahrzeug hat sonst Vorrang vor einem Segelfahrzeug. Das gilt aber nicht, wenn es **von hinten heranläuft**, denn dann gilt die Überholregel.",
-     "table": null,
-     "image": null
-    },
-    {
-     "text": "Wer ein anderes Fahrzeug aus einer Richtung **mehr als 22,5° achterlicher als querab** einholt, ist Überholer. Das ist der **Hecklichtsektor**, der Bereich, in dem man nachts nur das weiße Hecklicht sehen würde.",
-     "table": null,
-     "image": null
-    },
-    {
-     "text": "Das Fahrzeug kommt nahezu achteraus näher, also aus diesem Sektor. Es ist **Überholer und muss ausweichen**.",
-     "table": null,
-     "image": null
-    }
-   ]
+   "derivation": []
   },
   {
    "subject": "schifffahrtsrecht",
