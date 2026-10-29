@@ -24,6 +24,7 @@ export function PageLayout({ nav = 'account', immersive = false, ...shell }: Pag
   return (
     <PageShell
       {...shell}
+      slim={immersive || shell.slim}
       header={
         <Header
           homeTo={showAccountNav ? '/learn' : '/'}

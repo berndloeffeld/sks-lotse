@@ -56,8 +56,13 @@ export function ExamWriting({ exam, onChange }: ExamWritingProps) {
 
   // The cursor belongs in the answer field whenever a question comes up — in the same commit
   // that shows the question (a layout effect), so it is never on screen without the cursor.
+  // Focusing must not scroll the field into view: the page jumps to the top instead, so the new
+  // question starts at its beginning rather than below the previous one's long answer field.
   useLayoutEffect(() => {
-    if (view === 'question') answerRef.current?.focus()
+    if (view === 'question') {
+      answerRef.current?.focus({ preventScroll: true })
+      window.scrollTo?.(0, 0)
+    }
   }, [view, index])
 
   // One save run at a time: the timer, moving to another question, the retry and submit can all
