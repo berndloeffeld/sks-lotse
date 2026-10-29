@@ -1650,7 +1650,38 @@
    "answer_text": "1. Es handelt sich um einen Schleppverband länger als 200 m (Heck des Schleppers - Heck des Anhangs).\n2. Der Schlepper führt nachts drei weiße Topplichter senkrecht übereinander, Seitenlichter, Hecklicht und das gelbe Schlepplicht über dem Hecklicht. Der Anhang führt Seitenlichter und Hecklicht.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Zwei Fahrzeuge, die in **gleichbleibendem Abstand** hintereinander fahren, hängen zusammen. Das ist ein **Schleppverband** aus Schlepper und Anhang.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Am Tage zeigt ein Schleppverband einen **schwarzen Rhombus**, wenn er **länger als 200 m** ist. Er steht auf dem Schlepper und auf dem Anhang. Gemessen wird vom Heck des Schleppers bis zum Heck des Anhangs.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dass die einzelnen Fahrzeuge kürzer als 50 m aussehen, spielt keine Rolle. Die Länge des **ganzen Verbands** zählt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Schlepper führt nachts **drei weiße Topplichter** senkrecht übereinander, weil der Verband länger als 200 m ist. Mit weniger als 200 m wären es zwei. Dazu kommen **Seitenlichter** und das **Hecklicht**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Über dem Hecklicht zeigt der Schlepper das **gelbe Schlepplicht**. Es sagt, dass er etwas hinter sich herzieht.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Anhang führt nur **Seitenlichter und Hecklicht**. Er hat weder Topplichter noch ein Schlepplicht.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",

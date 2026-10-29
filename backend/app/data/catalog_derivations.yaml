@@ -179,3 +179,17 @@
       Luvfahrzeug ausweichpflichtig. Sie können die beiden Fälle nicht unterscheiden.
   - text: Für diesen Zweifel gilt – wer Wind von Backbord hat, ein Fahrzeug in Luv sieht und **nicht erkennen kann**,
       von welcher Seite es den Wind hat, **weicht aus**. Sie gelten dann als leewärtiges Fahrzeug.
+- subject: schifffahrtsrecht
+  number: 18
+  answer_fingerprint: edf15926ef43
+  blocks:
+  - text: Zwei Fahrzeuge, die in **gleichbleibendem Abstand** hintereinander fahren, hängen zusammen. Das ist ein
+      **Schleppverband** aus Schlepper und Anhang.
+  - text: Am Tage zeigt ein Schleppverband einen **schwarzen Rhombus**, wenn er **länger als 200 m** ist. Er steht auf
+      dem Schlepper und auf dem Anhang. Gemessen wird vom Heck des Schleppers bis zum Heck des Anhangs.
+  - text: Dass die einzelnen Fahrzeuge kürzer als 50 m aussehen, spielt keine Rolle. Die Länge des **ganzen Verbands**
+      zählt.
+  - text: Der Schlepper führt nachts **drei weiße Topplichter** senkrecht übereinander, weil der Verband länger als 200 m
+      ist. Mit weniger als 200 m wären es zwei. Dazu kommen **Seitenlichter** und das **Hecklicht**.
+  - text: Über dem Hecklicht zeigt der Schlepper das **gelbe Schlepplicht**. Es sagt, dass er etwas hinter sich herzieht.
+  - text: Der Anhang führt nur **Seitenlichter und Hecklicht**. Er hat weder Topplichter noch ein Schlepplicht.
