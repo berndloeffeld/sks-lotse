@@ -37,6 +37,10 @@ const VIDEOS: Record<number, { id: string; starts: (number | null)[] }> = {
     id: '__qMs5IH-t4',
     starts: [32, 71, 100, 133, 197, 217, 364, 432, 569, 659, 954, 1054, 1426, 1464, 1574, 1602, 1620, 1666],
   },
+  8: {
+    id: 'RMi2Hwe1HMg',
+    starts: [43, 155, 285, 647, 814, 849, 1012, 1077, 1222, 1268, 1409, 1437, 1471, 1547, 1653, 1678, 1923, 1980],
+  },
 }
 
 const LINK = 'text-primary underline hover:no-underline'
