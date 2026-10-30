@@ -11608,6 +11608,1584 @@
      ]
     }
    ]
+  },
+  {
+   "number": 9,
+   "title": "Wurster Watt → Neuwerk",
+   "summary": "Von der Neuen Weser zur Elbmündung, mit Kartenberichtigung, Stromdreieck, Kreuzpeilung und Tidenfall.",
+   "tasks": [
+    {
+     "number": 1,
+     "points": 2,
+     "text": "Auf dem Weg vom „Wurster Watt“ nach „Neuwerk“ befindet sich eine Yacht am 08.06.2013 um 10:30 BZ (= gesetzliche Zeit) im Fahrwasser „Neue Weser“ bei Tonne „28“. Die Fahrt durchs Wasser (FdW) beträgt 6 kn. Wind: W-lich 3/4 Bft. Man hat für diese Reise am Tage zuvor eine neue Seekarte 49 (INT 1463) gekauft.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Woran erkennen Sie, ob Ihre Seekarte aktuell ist bzw. wie lange sie berichtigt ist?"
+      },
+      {
+       "points": 1,
+       "text": "Was ist von Ihnen dennoch zu beachten?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-01-aufgabe-1.png",
+       "width": 1040,
+       "height": 223
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-01-loesung-1.png",
+       "width": 1040,
+       "height": 185
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Am Berichtigungsstempel auf der Seekarte „Berichtigt nach den „Nachrichten für Seefahrer (NfS)“ des BSH bis Ausgabe Nr. xx/2013)“",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Noch gültige P (Preliminary) und T-Berichtigungen (Temporary) müssen vom Nutzer entsprechend den Angaben in den NfS selbst berichtigt werden.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Eine gedruckte Seekarte ist nur so aktuell wie ihre letzte Berichtigung. Auf der Karte steht ein Berichtigungsstempel: Er nennt die Ausgabe der „Nachrichten für Seefahrer“ (NfS) des BSH, bis zu der die Karte berichtigt ist. Daran sieht man, wie lange sie berichtigt ist.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Auch eine neu gekaufte Karte ist damit nicht ganz aktuell, denn Änderungen seit diesem Stand fehlen. P-Berichtigungen (Preliminary, vorläufig) und T-Berichtigungen (Temporary, zeitweilig) stehen nur in den NfS und werden nicht in die Karte eingedruckt. Das muss man selbst nachtragen, sonst fährt man mit veralteten Angaben.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 2,
+     "points": 2,
+     "text": "Beim Passieren der Tonne „28“ am rechten Fahrwasserrand sehen Sie an Stb.-Seite voraus den Leuchtturm „Tegeler Plate“.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Beschreiben Sie den Leuchtturm/das Leuchtfeuer vollständig nach Seekarte und Leuchtfeuerverzeichnis:\n– bei Tage (Aussehen, Höhe des Feuerträgers über dem Erdboden, Sichtweite),\n– bei Nacht (Kennung und Wiederkehr, Nenntragweite, Höhe des Feuers über dem Wasser)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-02-aufgabe-1.png",
+       "width": 1040,
+       "height": 217
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-02-loesung-1.png",
+       "width": 1040,
+       "height": 377
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Bei Tage, Aussehen: roter runder Turm mit weißer Laterne mit rotem Dach, oben ausragendes Geschoss",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Tage, Höhe Feuerträger: 24 m",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Tage, Sichtweite: Sichtweitenmessgerät (SMG, Fog detector light)",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Nacht, Kennung: Unterbrochenes Feuer bzw. Group Occulting mit Gruppen von 3 Unterbrechungen mit Sektoren weiß, rot und grün",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Nacht, Wiederkehr: 12 s",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Nacht, Nenntragweite: weiß 21 sm, rot 17 sm, grün 16 sm",
+         "tolerance": null
+        },
+        {
+         "text": "Bei Nacht, Feuerhöhe über mittlerem Hochwasser: 21 m",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Das Aussehen und die Höhe des Feuerträgers über dem Erdboden (24 m) stehen im Leuchtfeuerverzeichnis. Dort steht bei der Sichtweite kein Zahlenwert, sondern ein Sichtweitenmessgerät (SMG, Fog detector light).",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Angaben für die Nacht stehen in der Seekarte an dem Leuchtturm und im Leuchtfeuerverzeichnis. Unterbrochenes Feuer mit Gruppen (Group Occulting) heißt: Das Licht wird in Gruppen unterbrochen, hier 3 Unterbrechungen pro Wiederkehr von 12 s. Weiß, rot und grün sind die Sektoren, in denen man je nach Standort eine andere Farbe sieht, jeweils mit eigener Nenntragweite.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Feuerhöhe (21 m) wird über mittlerem Hochwasser angegeben, die Höhe des Feuerträgers (24 m) dagegen über dem Erdboden. Beide Werte sind verschieden und gehören zu verschiedenen Fragen.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 3,
+     "points": 1,
+     "text": "Von Tonne „28“ wird am rechten Fahrwasserrand seewärts gesteuert bis zur Tonne „16/A 15“ und von dort der Kurs auf den ersten Wegpunkt (WPT 1) genau 1,0 sm westlich vom alten Leuchtturm „Roter Sand“ abgesetzt, von dem aus der Leuchtturm rwP = 090° peilt.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Distanz (d) von Tonne „28“ bis zum WPT 1."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-03-aufgabe-1.png",
+       "width": 1040,
+       "height": 175
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-03-loesung-1.png",
+       "width": 1040,
+       "height": 95
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "d = 7,6 sm + 2,4 sm = 10,0 sm",
+         "tolerance": "± 0,2 sm"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Der WPT 1 liegt 1,0 sm westlich vom Leuchtturm „Roter Sand“. Vom WPT aus peilt der Leuchtturm rwP = 090°, also nach Osten. Man trägt in der Karte vom Leuchtturm aus 1,0 sm nach Westen ab: WPT 1: φ = 53°51,2‘N, λ = 008°03,2‘E.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Der Weg hat zwei Teile: von der Tonne „28“ am rechten Fahrwasserrand bis zur Tonne „16/A 15“ (7,6 sm) und von dort zum WPT 1 (2,4 sm). Beide Strecken misst man am Breitenmaßstab der Karte und zählt sie zusammen: 7,6 sm + 2,4 sm = 10,0 sm.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 4,
+     "points": 2,
+     "text": "",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Welche navigatorische Bedeutung hat die Tonne „16/A 15“ bzw. was kennzeichnet sie?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-04-aufgabe-1.png",
+       "width": 1040,
+       "height": 103
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-04-loesung-1.png",
+       "width": 1040,
+       "height": 209
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Die Tonne „16/A 15“ ist die Bb.-Tonne 16 des Fahrwassers „Neue Weser“ und die Stb.-Tonne 15 des abzweigenden/einmündenden Fahrwassers „Alte Weser“.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Diese Betonnung kennzeichnet das Fahrwasser „Alte Weser“ als abzweigendes bzw. einmündendes Fahrwasser (auch: Nebenfahrwasser) gegenüber dem Fahrwasser „Neue Weser“ (auch: Hauptfahrwasser).",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Seitenzeichen begrenzen ein Fahrwasser links und rechts. Maßgebend ist die Einlaufrichtung, von See zum Hafen: Backbord liegen Tonnen mit geraden Nummern, Steuerbord solche mit ungeraden Nummern.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Tonne trägt zwei Bezeichnungen: „16“ und „A 15“. Sie gehört also zu zwei Fahrwassern gleichzeitig. Für die „Neue Weser“ ist sie die Bb.-Tonne 16 (gerade Zahl), für die „Alte Weser“ die Stb.-Tonne 15 (ungerade Zahl). Eine Tonne mit zwei Bezeichnungen steht dort, wo ein Fahrwasser in ein anderes mündet bzw. von ihm abzweigt. Das größere ist das Hauptfahrwasser („Neue Weser“), das kleinere das Nebenfahrwasser („Alte Weser“).",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 5,
+     "points": 2,
+     "text": "Man will die Stromverhältnisse W-lich vom WPT 1 ermitteln.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Bestimmen Sie anhand des Gezeitenstromatlasses die Stromrichtung (StR) und Stromgeschwindigkeit (StG) W-lich vom WPT 1 auf ca. 53° 52’ N, 007°52’ E für 12:15 Uhr BZ (der Strom ist ggf. zu mittlen)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-05-aufgabe-1.png",
+       "width": 1040,
+       "height": 169
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-05-loesung-1.png",
+       "width": 1040,
+       "height": 287
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "gemittelt für 12:15 BZ: StR = 103°",
+         "tolerance": "± 5°"
+        },
+        {
+         "text": "StG = 0,6 kn",
+         "tolerance": "± 0,2 kn"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "HWZ Helgoland 08.06.2013: 11:45 MEZ **= 12:45 MESZ/BZ**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Alter der Gezeit: **Springzeit (SpZ)**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "12:15 BZ liegt 0,5 h vor HWZ Helgoland, also genau zwischen zwei Atlaskarten: der Karte „1 Stunde vor HW“ (11:45 BZ) und der Karte „HW Helgoland“ (12:45 BZ). Man liest an der Position beide Karten ab und mittelt:",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "11:45 BZ, 1 h vor HWZ Helgoland",
+          "105° [± 5°]",
+          "0,7 kn [keine Toleranz]"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "12:45 BZ, HWZ Helgoland",
+          "101° [± 5°]",
+          "0,4 kn [keine Toleranz]"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**12:15 BZ (Mittel)**",
+          "**103°**",
+          "**≈ 0,6 kn**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "text": "Rechnung: (105° + 101°) : 2 = 103°. (0,7 kn + 0,4 kn) : 2 = 0,55 kn ≈ 0,6 kn.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 6,
+     "points": 1,
+     "text": "Nach dem Passieren der Tonne „16/A 15“ nahe an Stb. steuert man MgK = 315°. Der mäßige W-Wind wird mit |BW| = 4° einbezogen, Strom wird nicht berücksichtigt. Als Mw wird die Mw-Angabe im Fahrwasser „Neue Weser“ verwendet.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den Kartenkurs (KaK)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-06-aufgabe-1.png",
+       "width": 1040,
+       "height": 175
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-06-loesung-1.png",
+       "width": 1040,
+       "height": 287
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "KaK = 309°",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Gerechnet wird von oben nach unten: Der MgK = 315° ist gegeben, über Abl, Mw, BW und BS ergibt sich der KaK, also der Kurs über Grund, den man in die Karte einträgt.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Ablenkung wird in der Steuertafel für MgK = 315° abgelesen (−11°). Mw = +1° steht in der Kompassrose im Fahrwasser „Neue Weser“. BS = 0°, weil Strom nicht berücksichtigt wird.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "BW ist positiv, weil der Wind aus W (ca. 270°) bei einem Kurs von etwa 309° von Backbord einfällt: Die Yacht wird nach Steuerbord versetzt. Bei einem Versatz nach Steuerbord durch Wind ist der Wert immer positiv zu rechnen.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "MgK",
+          "=",
+          "315°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "−11°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwK",
+          "=",
+          "304°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "rwK",
+          "=",
+          "305°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BW",
+          "=",
+          "+4°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KdW",
+          "=",
+          "309°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BS",
+          "=",
+          "0°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**KaK**",
+          "=",
+          "**309°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 7,
+     "points": 3,
+     "text": "Um 12:16 BZ hat man den WPT 1 fast erreicht. Das GPS zeigt folgende Position an: φ = 53°50,8‘N, λ = 008°03,8‘E. Von hier wird als neuer Kurs abgesetzt: KaK = 018°. Man erhöht etwas die Fahrt und koppelt mit FdW = 8 kn. Man rechnet nunmehr mit einem Strom: StR = 109°, StG = 0,8 kn. Der mäßige W-Wind wird jetzt mit |BW| = 5° berücksichtigt. Mw wie Aufgabe 6.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Zeichnen Sie ein Stromdreieck (Maßstab: 1 cm entspricht 1 sm) und beschriften Sie es vollständig mit Bezeichnung der Vektoren, mit deren Werten und Maßeinheiten."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den Magnetkompasskurs (MgK)."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Fahrt über Grund (FüG)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-07-aufgabe-1.png",
+       "width": 1040,
+       "height": 271
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-07-loesung-1.png",
+       "width": 1040,
+       "height": 660
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Stromdreieck",
+         "tolerance": null
+        }
+       ],
+       "image": {
+        "src": "bogen-09/aufgabe-07-stromdreieck.png",
+        "width": 641,
+        "height": 785
+       }
+      },
+      {
+       "results": [
+        {
+         "text": "MgK = 008°",
+         "tolerance": "± 1°"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "FüG = 7,9 kn",
+         "tolerance": "± 0,1 kn"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "So entsteht das Stromdreieck: Vom Startpunkt den Stromvektor zeichnen (109°, 0,8 cm). Um seine Spitze einen Kreis mit dem Radius FdW = 8,0 cm schlagen. Wo der Kreis die KüG-Linie (018°) schneidet, endet der KdW-Vektor. Abgelesen werden KdW = 012° und FüG = 7,9 kn.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Gerechnet wird von unten nach oben: Der KaK = 018° ist der KüG, über BS, BW, Mw und Abl ergibt sich der MgK.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "BS kommt aus dem Stromdreieck: BS = KüG − KdW = 018° − 012° = +6° [± 1°, zeichnerische Toleranz].",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "BW ist positiv, weil der Wind aus W (ca. 270°) bei einem Kurs von etwa 012° von Backbord einfällt: Die Yacht wird nach Steuerbord versetzt. Bei einem Versatz nach Steuerbord durch Wind ist der Wert immer positiv zu rechnen. Mw = +1° wie in Aufgabe 6.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Ablenkung gilt für den MgK. Sie wird deshalb in der Steuertafel für MgK ≈ 008° abgelesen (−2°).",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "**MgK**",
+          "=",
+          "**008°**"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "−2°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwK",
+          "=",
+          "006°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "rwK",
+          "=",
+          "007°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BW",
+          "=",
+          "+5°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KdW",
+          "=",
+          "012°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BS",
+          "=",
+          "+6°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KüG",
+          "=",
+          "018°"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 8,
+     "points": 2,
+     "text": "Unabhängig vom Ergebnis in Aufgabe 7 koppelt man mit KaK = 018° und FüG = 8 kn und ermittelt die voraussichtliche Position für 13:00 BZ.",
+     "questions": [
+      {
+       "points": 2,
+       "text": "Bestimmen Sie den Koppelort (O_k) für 13:00 BZ."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-08-aufgabe-1.png",
+       "width": 1040,
+       "height": 151
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-08-loesung-1.png",
+       "width": 1040,
+       "height": 167
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "O_k 13:00: φ = 53°56,4‘N, λ = 008°06,9‘E",
+         "tolerance": "± 0,2'"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Aufgabe ist unabhängig von Aufgabe 7: Gekoppelt wird mit den hier vorgegebenen Werten KaK = 018° und FüG = 8 kn, nicht mit dem FüG aus dem Stromdreieck. Ausgangspunkt ist die GPS-Position von 12:16 BZ aus Aufgabe 7 (φ = 53°50,8‘N, λ = 008°03,8‘E).",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "12:16 BZ bis 13:00 BZ = 44 min",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "**d = v × t / 60 = 8 × 44 / 60 = 5,9 sm**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "In der Karte trägt man von der GPS-Position aus den Kurs 018° ab und misst darauf 5,9 sm. Der Endpunkt ist der Koppelort. Dort liest man Breite und Länge ab.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 9,
+     "points": 3,
+     "text": "Um 13:00 BZ werden zeitgleich der Leuchtturm „Alte Weser“ mit dem Steuerkompass in der Magnetkompasspeilung Peilung MgP = 182°, anl. MgK = 013° und die Tonne „NGN“ mit dem Radargerät in der relativen Darstellungsart „Head Up“ in Radar-Seitenpeilung RaSP = 254° gepeilt, anl. MgK = 019°.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die rechtweisenden Peilungen (rwP)."
+      },
+      {
+       "points": 2,
+       "text": "Bestimmen Sie den beobachteten Ort (O_b)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-09-aufgabe-1.png",
+       "width": 1040,
+       "height": 199
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-09-loesung-1.png",
+       "width": 1040,
+       "height": 383
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Leuchtturm „Alte Weser“: rwP = 183°",
+         "tolerance": "Keine Toleranz, ggf. Mw 0° berücksichtigen"
+        },
+        {
+         "text": "Tonne „NGN“: rwP = 276°",
+         "tolerance": "Keine Toleranz, ggf. Mw 0° berücksichtigen"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "O_b 13:00: φ = 53°56,6‘N, λ = 008°08,0‘E",
+         "tolerance": "± 0,2'"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Der Leuchtturm „Alte Weser“ wurde mit dem Steuerkompass gepeilt: Die Magnetkompasspeilung (MgP) ist direkt gegeben. Die Ablenkung gilt für den MgK beim Peilen (013°) und beträgt 0°.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Tonne „NGN“ wurde mit dem Radar in der Darstellung „Head Up“ gepeilt: Die Radar-Seitenpeilung zählt vom Bug aus. Man addiert den anliegenden Kurs (MgK = 019°): 254° + 019° = 273° = MgP. Die Ablenkung gilt wieder für den MgK beim Peilen (019°) und beträgt +2°.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "**Leuchtturm „Alte Weser“**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "MgP",
+          "=",
+          "182°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl [MgK = 013°]",
+          "=",
+          "0°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwP",
+          "=",
+          "182°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**rwP**",
+          "=",
+          "**183°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "text": "**Tonne „NGN“**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "RaSP",
+          "=",
+          "254°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "MgK",
+          "=",
+          "+019°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "MgP",
+          "=",
+          "273°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl [MgK = 019°]",
+          "=",
+          "+2°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwP",
+          "=",
+          "275°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw [auch 0° ist zu akzeptieren]",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**rwP**",
+          "=",
+          "**276°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "text": "Mw = +1° wird hier angesetzt. Rechnet man stattdessen mit Mw = 0°, ergeben sich 182° und 275°. Auch das wird akzeptiert.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Für den beobachteten Ort braucht man die Gegenpeilungen (183° − 180° = 003° vom Leuchtturm, 276° − 180° = 096° von der Tonne). Man trägt beide Linien von ihrem Seezeichen aus in die Karte ein. Wo sie sich kreuzen, liegt O_b. Dort liest man Breite und Länge ab.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 10,
+     "points": 1,
+     "text": "",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Besteckversetzung (BV)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-10-aufgabe-1.png",
+       "width": 1040,
+       "height": 103
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-10-loesung-1.png",
+       "width": 1040,
+       "height": 95
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "BV = 073° / 0,7 sm",
+         "tolerance": "± 20° / ± 0,2 sm"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Besteckversetzung ist die Strecke vom Koppelort zum beobachteten Ort, jeweils für die gleiche Zeit: vom O_k 13:00 BZ (Aufgabe 8) zum O_b 13:00 BZ (Aufgabe 9). Man misst in der Karte die Richtung von O_k nach O_b und den Abstand der beiden Orte.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Rechenprobe aus den Koordinaten der Lösungen: Breite 53°56,4‘N → 53°56,6‘N, das sind 0,2 sm nach N. Länge 008°06,9‘E → 008°08,0‘E, das sind 1,1‘ nach E, also 1,1 × cos 54° ≈ 0,65 sm. Daraus ergeben sich ein Abstand von √(0,2² + 0,65²) ≈ 0,7 sm und eine Richtung von etwa 073° (ENE).",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 11,
+     "points": 1,
+     "text": "Am beobachteten Ort um 13:00 BZ sollen die Stromverhältnisse nach Seekarte ermittelt werden.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Welchen Strom nach Richtung (StR) und Stärke (StG) entnehmen Sie der Seekarte am O_b um 13:00 BZ?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-11-aufgabe-1.png",
+       "width": 1040,
+       "height": 145
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-11-loesung-1.png",
+       "width": 1040,
+       "height": 233
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "StR = 137°",
+         "tolerance": "Keine Toleranz"
+        },
+        {
+         "text": "StG = 0,5 kn",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "HWZ Helgoland 08.06.2013: 11:45 MEZ **= 12:45 MESZ/BZ**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Alter der Gezeit: **Springzeit (SpZ)**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "**13:00 BZ = 15 min nach HWZ Helgoland ≈ HWZ Helgoland**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Hier gilt die Stromangabe in der Seekarte, nicht der Gezeitenstromatlas. Maßgebend ist der Strommesspunkt „J“ nahe dem O_b. Dort liest man in der Tabelle der Karte die Zeile „HW Helgoland“ ab: Richtung und Stärke des Stroms.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 12,
+     "points": 3,
+     "text": "Der weitere Kurs soll an der Tonne „Scharhörnriff-W“ vorbeiführen.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Beschreiben Sie dieses Schifffahrtszeichen vollständig (Kennung und Wiederkehr, Aussehen am Tage)."
+      },
+      {
+       "points": 1,
+       "text": "Welche navigatorische Bedeutung hat dieses Schifffahrtszeichen, auch in Verbindung mit der magentafarben gestrichelten Linie, die durch die Position dieses Seezeichens verläuft?"
+      },
+      {
+       "points": 1,
+       "text": "Wie kann man dieses Schifffahrtszeichen mit einer Yacht mit 2 m Tiefgang passieren?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-12-aufgabe-1.png",
+       "width": 1040,
+       "height": 223
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-12-loesung-1.png",
+       "width": 1040,
+       "height": 329
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Kennung: weißes Funkelfeuer mit Gruppen von 9 Funkeln bzw. Group Quick",
+         "tolerance": null
+        },
+        {
+         "text": "Wiederkehr: 15 s",
+         "tolerance": null
+        },
+        {
+         "text": "Form: Bakentonne",
+         "tolerance": null
+        },
+        {
+         "text": "Farbe: gelb mit einem breiten waagerechten schwarzen Band",
+         "tolerance": null
+        },
+        {
+         "text": "Toppzeichen: zwei schwarze Kegel übereinander, Spitzen zueinander",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Bedeutung: West-Kardinal-Zeichen, steht westlich der Gefahrenstelle Scharhörnriff (Flachwasserstelle!)",
+         "tolerance": null
+        },
+        {
+         "text": "Außerdem: südliche Begrenzungstonne des VTG „Elbe Approach“ (gestrichelte magentafarbene Linie)",
+         "tolerance": "beides muss genannt sein"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Passieren: Tonne kann mit einer 2 m tiefgehenden Yacht an allen Seiten gefahrlos passiert werden.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Alle Angaben stehen in der Seekarte an der Tonne: Funkelfeuer „Q(9) 15s“ und die Form der Tonne. Q (Quick) heißt: Funkelfeuer, sehr schnelle Blitze. (9) heißt: Gruppen von 9 Funkeln. Das Ganze wiederholt sich alle 15 s.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Gelb mit schwarzem Band und zwei schwarzen Kegeln, Spitzen gegeneinander, ist das West-Kardinalzeichen. Ein Kardinalzeichen steht in der Himmelsrichtung, von der aus man die Gefahrenstelle sicher passiert, hier westlich der Flachwasserstelle Scharhörnriff. Die Zahl der Funkel (9) zeigt die Richtung West an.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die gestrichelte magentafarbene Linie begrenzt das Verkehrstrennungsgebiet „Elbe Approach“ (vgl. Aufgabe 11 in Bogen 8). Die Tonne „Scharhörnriff-W“ liegt auf dieser Linie als südliche Begrenzungstonne. Beides muss in der Antwort stehen.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Ein Kardinalzeichen sollte man eigentlich auf der Seite passieren, die sein Name nennt. Die Kartenangaben um die Tonne zeigen aber auch auf den anderen Seiten genug Wassertiefe für 2 m Tiefgang. Deshalb kann die Yacht die Tonne hier an allen Seiten passieren.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 13,
+     "points": 2,
+     "text": "Die Häfen von Neuwerk können am 08.06.2013 nur von Schiffen mit geringem Tiefgang angelaufen werden. Deshalb wird das Abendniedrigwasser für Scharhörn, „Bake C“ ermittelt.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Niedrigwasserzeit (NWZ)."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den Tidenfall (TF)."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-13-aufgabe-1.png",
+       "width": 1040,
+       "height": 175
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-13-loesung-1.png",
+       "width": 1040,
+       "height": 335
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "2. NW Scharhörn, „Bake C“ 08.06.13: 19:52 MESZ/BZ",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "TF zum 2. NW Scharhörn, „Bake C“ 08.06.13 = 3,3 m",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Alter der Gezeit am 08.06.2013: **Springzeit (SpZ)**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Bezugsort ist Cuxhaven, Anschlussort ist Scharhörn, „Bake C“. Zuerst das Abendniedrigwasser (2. NW) und das Hochwasser davor (2. HW) in Cuxhaven, dann die Unterschiede (ZUG = Zeitunterschied der Gezeiten, HUG = Höhenunterschied der Gezeiten) für Scharhörn, „Bake C“, wie im Formblatt Gezeiten:",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "2. NW Cuxhaven 08.06.13",
+          "19:53 MEZ",
+          "0,4 m"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "ZUG / HUG",
+          "−01:01",
+          "+0,0 m"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**2. NW Scharhörn, „Bake C“**",
+          "**18:52 MEZ = 19:52 MESZ/BZ**",
+          "**0,4 m**"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "2. HW Cuxhaven 08.06.13",
+          "–",
+          "3,6 m"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "HUG",
+          "–",
+          "+0,1 m"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "2. HW Scharhörn, „Bake C“",
+          "–",
+          "3,7 m"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "text": "Die Zeit steht in MEZ, die Bordzeit ist MESZ: 18:52 MEZ + 1 h = 19:52 BZ.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Der Tidenfall (TF) ist der Unterschied zwischen dem Hochwasser davor und diesem Niedrigwasser, gerechnet für den Anschlussort: TF zum 2. NW Scharhörn, „Bake C“ = 3,7 m − 0,4 m = **3,3 m**.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 14,
+     "points": 1,
+     "text": "Man passiert gegen 13:29 BZ die Tonne „Scharhörnriff-N“ und um 13:40 in die Elbmündung am Südtonnenstrich einlaufend die Tonne „1“. Man koppelt mit 6,5 kn Fahrt über Grund und möchte für 14:40 BZ die Stromverhältnisse nach Seekarte bestimmen.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Wie setzt der Strom nach Richtung (StR) und Stärke (StG) nach Seekarte für 14:40 BZ und was sagt Ihnen der festgestellte Wert mit Blick auf eine Stunde zurück und eine Stunde voraus?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-14-aufgabe-1.png",
+       "width": 1040,
+       "height": 193
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-14-loesung-1.png",
+       "width": 1040,
+       "height": 224
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "StR = 305°",
+         "tolerance": "Keine Toleranz"
+        },
+        {
+         "text": "StG = 0,4 kn",
+         "tolerance": "Keine Toleranz"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "Der Strom lief mit, kentert jetzt ca. 2 h nach HWZ Helgoland und wird danach gegenan laufen.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "HWZ Helgoland 08.06.2013: 11:45 MEZ **= 12:45 MESZ/BZ**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Alter der Gezeit: **Springzeit (SpZ)**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "**Position um 14:40 BZ nahe Strommesspunkt „K“**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "**14:40 BZ = 1 h 55 min nach HWZ Helgoland ≈ 2 h nach HWZ Helgoland**",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Hier gilt die Stromangabe in der Seekarte, nicht der Gezeitenstromatlas. Am Strommesspunkt „K“ liest man in der Tabelle der Karte die Zeile „2 h nach HW Helgoland“ ab: Richtung und Stärke des Stroms.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Mit 0,4 kn ist der Strom schwach: Er kentert. Eine Stunde zurück (1 h nach HW) lief er noch mit, eine Stunde voraus (3 h nach HW) läuft er gegenan. Zum Vergleich: In Aufgabe 16 steht für den Messpunkt „K“ bei 3 h nach HW „gegenan, 1,6 kn“.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 15,
+     "points": 3,
+     "text": "Wegen der Unsicherheit, ob ein sicheres Einlaufen möglich ist, entscheidet man sich um 14:10 BZ an der Tonne „5“, nach Büsum weiterzulaufen. Man setzt den Kurs auf die Ansteuerungstonne „Süderpiep“ ab und koppelt mit 5,5 kn. Der Wind weht weiterhin aus westlicher Richtung, |BW| = 4°; für den in NW-licher Richtung laufenden Strom berücksichtigt man |BS| = 2°.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den Kartenkurs (KaK) zur Tonne „Süderpiep“."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie den zugehörigen Magnetkompasskurs (MgK)."
+      },
+      {
+       "points": 1,
+       "text": "Bestimmen Sie die Ankunftszeit, die Estimated Time of Arrival (ETA) an dieser Tonne."
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-15-aufgabe-1.png",
+       "width": 1040,
+       "height": 247
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-15-loesung-1.png",
+       "width": 1040,
+       "height": 401
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "KaK = 032°",
+         "tolerance": "± 1°"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "MgK = 025°",
+         "tolerance": "± 1°"
+        }
+       ],
+       "image": null
+      },
+      {
+       "results": [
+        {
+         "text": "ETA Ansteuerungstonne „Süderpiep“ 15:34 BZ",
+         "tolerance": "± 3 min"
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Den KaK und die Strecke misst man in der Karte: Man zieht von der Tonne „5“ eine Gerade zur Ansteuerungstonne „Süderpiep“ und liest den Kurs mit dem Kursdreieck ab (KaK = 032°) und die Länge am Breitenmaßstab (d = 7,7 sm [± 0,2 sm]).",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Gerechnet wird von unten nach oben: Der KaK ist der Kurs über Grund, daraus ergibt sich über BS, BW, Mw und Abl der MgK. Dabei werden die Beschickungen mit umgekehrtem Vorzeichen angebracht.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "BS ist negativ, weil der Strom nach NW läuft und die Yacht bei Kurs etwa 032° dadurch nach Backbord versetzt. Bei einem Versatz nach Backbord durch Strom ist der Wert immer negativ zu rechnen: BS = −2°. BW ist positiv, weil der Wind aus W bei diesem Kurs von Backbord einfällt und die Yacht nach Steuerbord versetzt: BW = +4°. Mw = +1°.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die Ablenkung gilt für den MgK. Sie wird deshalb in der Steuertafel für MgK ≈ 025° abgelesen (+4°).",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": null,
+       "table": [
+        {
+         "cells": [
+          "**MgK**",
+          "=",
+          "**025°**"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Abl",
+          "=",
+          "+4°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "mwK",
+          "=",
+          "029°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "Mw",
+          "=",
+          "+1°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "rwK",
+          "=",
+          "030°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BW",
+          "=",
+          "+4°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "KdW",
+          "=",
+          "034°"
+         ],
+         "sum": true,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "BS",
+          "=",
+          "−2°"
+         ],
+         "sum": false,
+         "sum_until": null
+        },
+        {
+         "cells": [
+          "**KaK**",
+          "=",
+          "**032°**"
+         ],
+         "sum": true,
+         "sum_until": null
+        }
+       ],
+       "image": null
+      },
+      {
+       "text": "Zeit = Strecke : Geschwindigkeit: d = 7,7 sm [± 0,2 sm], 7,7 sm : 5,5 kn × 60 = 84 min = 1 h 24 min [± 3 min]. Abfahrt war 14:10 BZ an der Tonne „5“: 14:10 + 1 h 24 min = **15:34 BZ**.",
+       "table": null,
+       "image": null
+      }
+     ]
+    },
+    {
+     "number": 16,
+     "points": 1,
+     "text": "Beim Queren der Elbe überfährt man vor dem Passieren des roten Tonnenstrichs eine breite grüne Linie mit der Kennzeichnung „PSSA“.",
+     "questions": [
+      {
+       "points": 1,
+       "text": "Was besagt diese Linie?"
+      }
+     ],
+     "task_images": [
+      {
+       "src": "bogen-09/aufgabe-16-aufgabe-1.png",
+       "width": 1040,
+       "height": 151
+      }
+     ],
+     "solution_images": [
+      {
+       "src": "bogen-09/aufgabe-16-loesung-1.png",
+       "width": 1040,
+       "height": 89
+      }
+     ],
+     "solution": [
+      {
+       "results": [
+        {
+         "text": "Gebiet mit Schifffahrtsbeschränkungen, Begrenzung eines sensiblen Meeresgebiets, hier Nationalpark Schleswig-Holsteinisches Wattenmeer.",
+         "tolerance": null
+        }
+       ],
+       "image": null
+      }
+     ],
+     "derivation": [
+      {
+       "text": "Die Abkürzung steht in der Karte an der Linie. „PSSA“ heißt Particularly Sensitive Sea Area, auf Deutsch: besonders empfindliches Meeresgebiet. Das ist ein von der IMO ausgewiesenes Gebiet, das wegen seiner Natur besonders geschützt werden soll. Für Schiffe können dort Beschränkungen gelten.",
+       "table": null,
+       "image": null
+      },
+      {
+       "text": "Die breite grüne Linie ist die Begrenzung dieses Gebiets. Beim Queren der Elbe in Richtung Büsum überfährt man die Grenze zum Nationalpark Schleswig-Holsteinisches Wattenmeer.",
+       "table": null,
+       "image": null
+      }
+     ]
+    }
+   ]
   }
  ]
 }
