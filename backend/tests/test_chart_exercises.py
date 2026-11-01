@@ -6,6 +6,7 @@ import pytest
 from app.api.v1 import chart_exercises as chart_api
 from app.core.config import settings
 from app.core.features import chart_exercises_enabled_for
+from app.domain.exam import chart_result_for
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.lotse_check_log import LotseCheckLog
 from app.models.user import User
@@ -153,6 +154,7 @@ def test_routes_answer_404_when_the_flag_is_off(client, auth_headers, monkeypatc
     monkeypatch.setattr(settings, "chart_exercises", "off")
     _refused(client.get(BASE, headers=auth_headers), 404, "Not found")
     assert client.post(f"{BASE}/1/attempts", headers=auth_headers).status_code == 404
+    _refused(client.get(f"{BASE}/stats", headers=auth_headers), 404, "Not found")
 
 
 def test_admins_mode_opens_the_routes_to_admins_only(client, auth_headers, monkeypatch):
@@ -326,6 +328,127 @@ def test_last_points_come_from_the_latest_completed_run(db_session):
     run(later, later, 3)
     db_session.commit()
     assert service.overview(db_session, user).exercises[1].last_points == 7
+
+
+# --- statistics for the learning status ------------------------------------------------------
+
+
+def _completed_run(db_session, user, number, completed, points, started=None):
+    started = started or completed - timedelta(hours=1)
+    attempt = ChartAttempt(
+        user_id=user.id, exercise_number=number, started_at=started, completed_at=completed
+    )
+    attempt.tasks.append(
+        ChartAttemptTask(task_number=1, answer_text="", answered_at=started, points_awarded=points)
+    )
+    db_session.add(attempt)
+    return attempt
+
+
+def test_chart_verdict_follows_the_richtlinien():
+    assert [chart_result_for(p) for p in (16, 17, 19, 20)] == [
+        "nicht_bestanden",
+        "muendliche_nachpruefung",
+        "muendliche_nachpruefung",
+        "bestanden",
+    ]
+
+
+def test_stats_without_completed_runs_list_every_sheet_empty(client, auth_headers):
+    _start(client, auth_headers)  # an open run doesn't count
+    body = client.get(f"{BASE}/stats", headers=auth_headers).json()
+    assert body["completed_count"] == 0
+    assert body["passed_count"] == 0
+    assert body["average_points"] is None
+    assert body["best_points"] is None
+    assert body["max_points"] == 30
+    assert body["runs"] == []
+    numbers = [sheet.number for sheet in service.catalog().sheets]
+    assert [sheet["number"] for sheet in body["sheets"]] == numbers
+    assert body["sheets"][0] == {
+        "number": 1,
+        "title": service.exercise(1).title,
+        "max_points": 30,
+        "completed_count": 0,
+        "last_points": None,
+        "best_points": None,
+        "last_result": None,
+    }
+
+
+def test_stats_report_a_run_completed_through_the_api(client, auth_headers):
+    attempt = _complete(client, auth_headers, _start(client, auth_headers, number=2))
+    body = client.get(f"{BASE}/stats", headers=auth_headers).json()
+    assert body["runs"] == [
+        {
+            "attempt_id": attempt["id"],
+            "exercise_number": 2,
+            "completed_at": attempt["completed_at"],
+            "points": 30,
+            "result": "bestanden",
+        }
+    ]
+    assert body["sheets"][1]["completed_count"] == 1
+
+
+def test_stats_order_runs_by_completion_also_within_one_day(db_session):
+    user = User(email="someone@example.com")
+    db_session.add(user)
+    db_session.flush()
+    day = datetime(2026, 10, 30, 10, tzinfo=UTC)
+    # Started first but finished last on the same day: it comes last.
+    late = _completed_run(db_session, user, 3, day + timedelta(hours=5), 18, started=day - timedelta(days=1))
+    early = _completed_run(db_session, user, 1, day, 14)
+    tie = _completed_run(db_session, user, 1, day + timedelta(hours=5), 22)
+    db_session.commit()
+
+    stats = service.stats(db_session, user)
+    assert [run.attempt_id for run in stats.runs] == [early.id, late.id, tie.id]
+    assert [run.result for run in stats.runs] == ["nicht_bestanden", "muendliche_nachpruefung", "bestanden"]
+    figures = (stats.completed_count, stats.passed_count, stats.average_points, stats.best_points)
+    assert figures == (3, 1, 18.0, 22)
+    first = stats.sheets[0]
+    assert (first.completed_count, first.last_points, first.best_points, first.last_result) == (
+        2,
+        22,
+        22,
+        "bestanden",
+    )
+
+
+def test_stats_keep_the_best_and_last_run_of_a_sheet_apart(db_session):
+    user = User(email="someone@example.com")
+    db_session.add(user)
+    db_session.flush()
+    day = datetime(2026, 10, 1, tzinfo=UTC)
+    _completed_run(db_session, user, 2, day, 25)
+    _completed_run(db_session, user, 2, day + timedelta(days=3), 19)
+    db_session.commit()
+    second = service.stats(db_session, user).sheets[1]
+    assert (second.last_points, second.best_points, second.last_result) == (19, 25, "muendliche_nachpruefung")
+
+
+def test_stats_keep_only_the_most_recent_runs(db_session, monkeypatch):
+    monkeypatch.setattr(service, "STATS_MAX_RUNS", 2)
+    user = User(email="someone@example.com")
+    db_session.add(user)
+    db_session.flush()
+    day = datetime(2026, 10, 1, tzinfo=UTC)
+    runs = [_completed_run(db_session, user, 1, day + timedelta(days=n), 10 + n) for n in range(3)]
+    db_session.commit()
+    stats = service.stats(db_session, user)
+    assert [run.attempt_id for run in stats.runs] == [runs[1].id, runs[2].id]
+    # The figures still count every run.
+    assert (stats.completed_count, stats.sheets[0].completed_count) == (3, 3)
+
+
+def test_stats_leave_out_other_learners_runs(client, db_session, auth_headers):
+    other = User(email="other@example.com")
+    db_session.add(other)
+    db_session.flush()
+    _completed_run(db_session, other, 1, datetime(2026, 10, 1, tzinfo=UTC), 25)
+    db_session.commit()
+    assert client.get(f"{BASE}/stats", headers=auth_headers).json()["completed_count"] == 0
 
 
 def test_get_returns_the_run_and_hides_other_learners_runs(client, db_session, auth_headers):

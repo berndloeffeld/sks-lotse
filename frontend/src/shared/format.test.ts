@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   formatDate,
   formatDateTime,
+  formatDayMonth,
   formatEurCents,
   getDisplayName,
   getFullName,
@@ -52,6 +53,12 @@ describe('getDisplayName', () => {
 describe('formatDate', () => {
   it('formats as a German medium date', () => {
     expect(formatDate('2026-09-19T12:05:00Z')).toMatch(/^\d{2}\.\d{2}\.\d{4}$/)
+  })
+})
+
+describe('formatDayMonth', () => {
+  it('formats as day and month only', () => {
+    expect(formatDayMonth('2026-09-19T12:00:00Z')).toBe('19.09.')
   })
 })
 

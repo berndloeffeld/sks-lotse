@@ -30,6 +30,11 @@ OUTCOME_POINTS: dict[str, int] = {"richtig": 2, "teilweise_richtig": 1, "falsch"
 PASS_MIN_POINTS = 39
 ORAL_MIN_POINTS = 33
 
+# The Kartenaufgaben, 30 points per sheet (Nr. 6.2): 16 or fewer failed, 17 to 19 an oral
+# re-examination, 20 or more passed. frontend/src/sks/chartVerdict.ts mirrors this for guests.
+CHART_PASS_MIN_POINTS = 20
+CHART_ORAL_MIN_POINTS = 17
+
 ExamStatus = Literal["in_progress", "grading", "completed"]
 ExamResult = Literal["bestanden", "muendliche_nachpruefung", "nicht_bestanden"]
 
@@ -60,5 +65,13 @@ def result_for(points: int) -> ExamResult:
     if points >= PASS_MIN_POINTS:
         return "bestanden"
     if points >= ORAL_MIN_POINTS:
+        return "muendliche_nachpruefung"
+    return "nicht_bestanden"
+
+
+def chart_result_for(points: int) -> ExamResult:
+    if points >= CHART_PASS_MIN_POINTS:
+        return "bestanden"
+    if points >= CHART_ORAL_MIN_POINTS:
         return "muendliche_nachpruefung"
     return "nicht_bestanden"

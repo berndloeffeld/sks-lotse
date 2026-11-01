@@ -4720,6 +4720,100 @@
                   }
                 },
                 {
+                  "name": "stats",
+                  "description": "",
+                  "item": [
+                    {
+                      "name": "Chart Exercise Stats",
+                      "request": {
+                        "name": "Chart Exercise Stats",
+                        "description": {},
+                        "url": {
+                          "path": [
+                            "api",
+                            "v1",
+                            "chart-exercises",
+                            "stats"
+                          ],
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "query": [],
+                          "variable": []
+                        },
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "GET",
+                        "body": {},
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "url": {
+                              "path": [
+                                "api",
+                                "v1",
+                                "chart-exercises",
+                                "stats"
+                              ],
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "query": [],
+                              "variable": []
+                            },
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": {
+                                  "content": "Added as a part of security scheme: bearer",
+                                  "type": "text/plain"
+                                },
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "method": "GET",
+                            "body": {}
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": "{\n  \"completed_count\": \"<integer>\",\n  \"passed_count\": \"<integer>\",\n  \"average_points\": \"<number>\",\n  \"best_points\": \"<integer>\",\n  \"max_points\": \"<integer>\",\n  \"runs\": [\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"completed_at\": \"<dateTime>\",\n      \"points\": \"<integer>\",\n      \"result\": \"bestanden\"\n    },\n    {\n      \"attempt_id\": \"<integer>\",\n      \"exercise_number\": \"<integer>\",\n      \"completed_at\": \"<dateTime>\",\n      \"points\": \"<integer>\",\n      \"result\": \"muendliche_nachpruefung\"\n    }\n  ],\n  \"sheets\": [\n    {\n      \"number\": \"<integer>\",\n      \"title\": \"<string>\",\n      \"max_points\": \"<integer>\",\n      \"completed_count\": \"<integer>\",\n      \"last_points\": \"<integer>\",\n      \"best_points\": \"<integer>\",\n      \"last_result\": \"muendliche_nachpruefung\"\n    },\n    {\n      \"number\": \"<integer>\",\n      \"title\": \"<string>\",\n      \"max_points\": \"<integer>\",\n      \"completed_count\": \"<integer>\",\n      \"last_points\": \"<integer>\",\n      \"best_points\": \"<integer>\",\n      \"last_result\": \"bestanden\"\n    }\n  ]\n}",
+                          "cookie": [],
+                          "_postman_previewlanguage": "json"
+                        }
+                      ],
+                      "event": [],
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      }
+                    }
+                  ]
+                },
+                {
                   "name": "{number}",
                   "description": "",
                   "item": [
