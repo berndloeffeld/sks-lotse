@@ -8,6 +8,7 @@
   "mutate": [
     "src/shared/format.ts",
     "src/sks/dailyBars.ts",
+    "src/sks/chartTimeline.ts",
     "src/shared/analytics.ts",
     "src/sks/labels.ts",
     "src/shared/labels.ts",

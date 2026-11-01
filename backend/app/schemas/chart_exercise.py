@@ -89,6 +89,43 @@ class ChartExercisesOverview(BaseModel):
     exercises: list[ChartExerciseSummary]
 
 
+class ChartStatsRun(BaseModel):
+    """One completed run, for the learning status's timeline."""
+
+    attempt_id: int
+    exercise_number: int
+    completed_at: datetime
+    points: int
+    # An ExamResult (app/domain/exam.py); a plain str so the generated collection stays stable.
+    result: str
+
+
+class ChartSheetStats(BaseModel):
+    number: int
+    title: str
+    max_points: int
+    completed_count: int
+    # None while the sheet has no completed run.
+    last_points: int | None
+    best_points: int | None
+    last_result: str | None
+
+
+class ChartStats(BaseModel):
+    """The learner's completed Kartenaufgaben runs, for the learning status."""
+
+    completed_count: int
+    passed_count: int
+    average_points: float | None
+    best_points: int | None
+    # Every sheet is worth the same; 30 per the Durchführungsrichtlinien.
+    max_points: int
+    # Oldest first; the most recent STATS_MAX_RUNS at most.
+    runs: list[ChartStatsRun]
+    # Every sheet, also those not yet worked on.
+    sheets: list[ChartSheetStats]
+
+
 class ChartAiSuggestion(BaseModel):
     """The Lotsen-Check's suggestion for one answered task (ADR-0058) — the learner still gives the points."""
 

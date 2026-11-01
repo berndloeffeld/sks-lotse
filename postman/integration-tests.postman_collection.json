@@ -5167,6 +5167,41 @@
           }
         },
         {
+          "name": "Chart exercises - statistics without a token are rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Chart exercises - a learner outside the admins-only flag gets a 404",
           "event": [
             {
@@ -5200,6 +5235,46 @@
             }
           },
           "description": "The server runs with CHART_EXERCISES=admins (see the runner script's header), so the feature doesn't exist for this learner (ADR-0052). The admin walks through it in the Admin folder.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - statistics outside the admins-only flag are a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -10951,6 +11026,49 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - statistics leave out the open run",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('every sheet is listed, numbered from 1, at 30 points', function () { pm.expect(body.sheets.length).to.be.above(0); pm.expect(body.sheets.map(function (s) { return s.number; })).to.eql(body.sheets.map(function (s, i) { return i + 1; })); pm.expect(body.max_points).to.eql(30); });",
+                  "pm.test('the open run is not in the timeline', function () { pm.expect(body.runs.map(function (r) { return String(r.attempt_id); })).to.not.include(pm.collectionVariables.get('chartAttemptId')); pm.expect(body.completed_count).to.be.at.least(body.runs.length); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "The learning status's Kartenaufgaben statistics: only completed runs count.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true

@@ -36,6 +36,19 @@ describe('ProfileLearnStatusPage', () => {
     expect(screen.queryByText('Lernstand wird geladen…')).not.toBeInTheDocument()
   })
 
+  it('shows the Kartenaufgaben statistics only to learners the feature is open to', async () => {
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
+    const { unmount } = renderPage()
+    await screen.findByRole('link', { name: /Alle Themen ansehen/ })
+    expect(screen.queryByRole('heading', { name: 'Statistik der Kartenaufgaben' })).not.toBeInTheDocument()
+    unmount()
+
+    useAuthStore.setState({ user: makeUser({ can_use_chart_exercises: true }) })
+    renderPage()
+    expect(screen.getByRole('heading', { name: 'Statistik der Kartenaufgaben' })).toBeInTheDocument()
+  })
+
   it('shows an error when the Lernstand fails to load', async () => {
     useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'boom' }, 500)))

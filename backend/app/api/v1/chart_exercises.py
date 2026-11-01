@@ -15,6 +15,7 @@ from app.schemas.chart_exercise import (
     ChartExercise,
     ChartExercisesOverview,
     ChartPointsUpdate,
+    ChartStats,
 )
 from app.services import chart_exercises as service
 from app.services import lotse_check, token_wallet
@@ -92,6 +93,13 @@ def list_chart_exercises(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> ChartExercisesOverview:
     return service.overview(db, current_user)
+
+
+@router.get("/stats", response_model=ChartStats)
+def chart_exercise_stats(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+) -> ChartStats:
+    return service.stats(db, current_user)
 
 
 @router.post("/{number}/attempts", response_model=ChartAttemptRead, status_code=201)

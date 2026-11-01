@@ -582,6 +582,23 @@ export interface components {
             /** Tolerance */
             tolerance?: string | null;
         };
+        /** ChartSheetStats */
+        ChartSheetStats: {
+            /** Number */
+            number: number;
+            /** Title */
+            title: string;
+            /** Max Points */
+            max_points: number;
+            /** Completed Count */
+            completed_count: number;
+            /** Last Points */
+            last_points: number | null;
+            /** Best Points */
+            best_points: number | null;
+            /** Last Result */
+            last_result: string | null;
+        };
         /**
          * ChartSolutionPart
          * @description What one point bullet of the official solution covers.
@@ -590,6 +607,45 @@ export interface components {
             /** Results */
             results: components["schemas"]["ChartResult"][];
             image?: components["schemas"]["ChartImage"] | null;
+        };
+        /**
+         * ChartStats
+         * @description The learner's completed Kartenaufgaben runs, for the learning status.
+         */
+        ChartStats: {
+            /** Completed Count */
+            completed_count: number;
+            /** Passed Count */
+            passed_count: number;
+            /** Average Points */
+            average_points: number | null;
+            /** Best Points */
+            best_points: number | null;
+            /** Max Points */
+            max_points: number;
+            /** Runs */
+            runs: components["schemas"]["ChartStatsRun"][];
+            /** Sheets */
+            sheets: components["schemas"]["ChartSheetStats"][];
+        };
+        /**
+         * ChartStatsRun
+         * @description One completed run, for the learning status's timeline.
+         */
+        ChartStatsRun: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Exercise Number */
+            exercise_number: number;
+            /**
+             * Completed At
+             * Format: date-time
+             */
+            completed_at: string;
+            /** Points */
+            points: number;
+            /** Result */
+            result: string;
         };
         /**
          * CheckoutRead

@@ -23,6 +23,11 @@ export function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('de-DE', { dateStyle: 'medium' })
 }
 
+// "19.09." — the learner's local day, for a compact axis label.
+export function formatDayMonth(iso: string): string {
+  return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+}
+
 // "19.09.2026, 14:05" — the learner's local time.
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })

@@ -49,6 +49,13 @@ export type ChartAttemptTask = Schemas['ChartAttemptTaskRead']
 export type ChartAttempt = Schemas['ChartAttemptRead']
 export type ChartAiSuggestion = Schemas['ChartAiSuggestion']
 export type ChartAiCheck = Schemas['ChartAiCheckRead']
+export type ChartStats = Narrow<
+  Schemas['ChartStats'],
+  {
+    runs: Narrow<Schemas['ChartStatsRun'], { result: ExamResult }>[]
+    sheets: Narrow<Schemas['ChartSheetStats'], { last_result: ExamResult | null }>[]
+  }
+>
 
 export type AdminUser = Schemas['AdminUserRead']
 export type AdminUserListItem = Schemas['AdminUserListItem']

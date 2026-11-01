@@ -1,7 +1,8 @@
 import type { ExamResult } from './api/types'
 
 // SKS Lotse's Kartenaufgaben, 30 points each, per the Durchführungsrichtlinien SKS Nr. 6.2:
-// 16 or fewer failed, 17 to 19 an oral re-examination, 20 or more passed.
+// 16 or fewer failed, 17 to 19 an oral re-examination, 20 or more passed. Mirrors
+// chart_result_for in backend/app/domain/exam.py, which the learning status's statistics use.
 export const CHART_PASS_MIN_POINTS = 20
 export const CHART_ORAL_MIN_POINTS = 17
 
