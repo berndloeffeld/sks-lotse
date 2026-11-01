@@ -2,7 +2,6 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.domain.exam import ExamResult
 from app.schemas.derivation import DerivationBlock
 
 # Generous for a chart-task answer (a few values and a sentence), but bounds what one request stores.
@@ -97,7 +96,8 @@ class ChartStatsRun(BaseModel):
     exercise_number: int
     completed_at: datetime
     points: int
-    result: ExamResult
+    # An ExamResult (app/domain/exam.py); a plain str so the generated collection stays stable.
+    result: str
 
 
 class ChartSheetStats(BaseModel):
@@ -108,7 +108,7 @@ class ChartSheetStats(BaseModel):
     # None while the sheet has no completed run.
     last_points: int | None
     best_points: int | None
-    last_result: ExamResult | None
+    last_result: str | None
 
 
 class ChartStats(BaseModel):

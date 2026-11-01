@@ -597,7 +597,7 @@ export interface components {
             /** Best Points */
             best_points: number | null;
             /** Last Result */
-            last_result: ("bestanden" | "muendliche_nachpruefung" | "nicht_bestanden") | null;
+            last_result: string | null;
         };
         /**
          * ChartSolutionPart
@@ -644,11 +644,8 @@ export interface components {
             completed_at: string;
             /** Points */
             points: number;
-            /**
-             * Result
-             * @enum {string}
-             */
-            result: "bestanden" | "muendliche_nachpruefung" | "nicht_bestanden";
+            /** Result */
+            result: string;
         };
         /**
          * CheckoutRead
