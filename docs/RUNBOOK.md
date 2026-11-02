@@ -32,11 +32,11 @@ How to operate SKS Lotse in production: where to look, what to do when something
 
 ## Deploys and rollback
 
-- A push to `main` deploys all services once its GitHub checks have passed (`autoDeployTrigger: checksPass`). The static site and the backend deploy independently, so an API change must stay backward compatible for one deploy (frontend and backend can briefly run different versions).
+- A push to `main` deploys all services once its GitHub checks have passed (`autoDeployTrigger: checksPass`). The static site and the backend deploy independently, so they can briefly run different versions (the compatibility rule: `CLAUDE.md` → Deployment (Render)).
 - **`render.yaml` itself takes effect on the Blueprint sync, right after the push, not with the deploy.** Routes and headers go live while the build still waits for the checks. A route may therefore never point at a file the same change creates: a rewrite to a missing file answers `200` with an empty body (and the CDN caches it). A new prerendered page therefore answers empty for a few minutes after its merge. Pages that already exist aren't affected (ADR-0057).
 - **A route removed from `render.yaml` stays on the service.** The sync adds and changes routes but did not delete one: the `/api/*` rewrite on `sbf-lotse-frontend` was still in the dashboard after its removal was merged and deployed (2026-10-24, ADR-0069). After such a merge, delete the rule under the service's Redirects/Rewrites, **Save Changes**, and check that the path answers as expected; the change reaches every host within a minute or two, without a deploy.
 - The backend migrates in `preDeployCommand` (`alembic upgrade head`). **A failed migration aborts the deploy, and the previous instance keeps serving.** Read the deploy log, fix forward with a new PR, and don't retry blindly.
-- The backend starts with exactly one uvicorn worker. Never scale it out or add workers without first moving the in-process rate limiter and cache to a shared store (ADR-0007, ADR-0009).
+- The backend starts with exactly one uvicorn worker, so don't scale it out in the dashboard (why: `CLAUDE.md` → Deployment (Render)).
 - **Rollback**: prefer reverting the PR on `main` (a new squash commit), which goes through CI like everything else. Render's "Rollback" to an earlier deploy is the emergency lever, but it doesn't undo migrations: only use it when the bad deploy didn't change the schema, or the old code still works with the new schema.
 
 ## Maintenance mode
@@ -125,7 +125,7 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 
 ## Kartenaufgaben flag
 
-`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner, and guests without a login ([ADR-0056](adr/0056-chart-exercises-open-to-guests.md)). Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `on`), so switching it is a PR — together with `docs/FEATURES.md`, and together with the static site's `VITE_CHART_EXERCISES`, which must have the same value (a backend test checks it; the frontend's build bakes it in, so the switch for guests takes the frontend's deploy). The usage rights of the WSV's Navigationsaufgaben PDF were confirmed on 2026-10-01 (the ELWIS confirmation covers the question catalog only), and the flag has been `on` since 2026-10-02.
+`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner, and guests without a login ([ADR-0056](adr/0056-chart-exercises-open-to-guests.md)). Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `on`), so switching it is a PR (what goes with it: `CLAUDE.md` → Environment variables); the static site's `VITE_CHART_EXERCISES` must have the same value (a backend test checks it; the frontend's build bakes it in, so the switch for guests takes the frontend's deploy). The usage rights of the WSV's Navigationsaufgaben PDF were confirmed on 2026-10-01 (the ELWIS confirmation covers the question catalog only), and the flag has been `on` since 2026-10-02.
 
 ## Data-subject requests (DSGVO)
 
