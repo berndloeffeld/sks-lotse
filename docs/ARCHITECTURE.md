@@ -66,7 +66,7 @@ graph LR
 
 The dotted line is planned and not built yet (see [Not yet built](#not-yet-built)). Hosting and database run in Frankfurt (EU), the static site is delivered through Render's global CDN; Stripe (Irish entity, US parent) and the Anthropic API (US, see ADR-0031) involve a third country, as stated in the Datenschutzerklärung. The cron job is a separate Render service running the backend's code against the same database. Render sits behind Cloudflare, which matters for client-IP detection ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
 
-Dev-time only, not part of the runtime: GitHub Actions (CI), Aikido (security scanning of the repo, rescans about every three days; alerts are handled right away, no merge gate) and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
+Dev-time only, not part of the runtime: GitHub Actions (CI, see [Quality gates](#quality-gates)), repository security scanning and a separate Anthropic API key for the offline topic classification of the catalog (see [Question catalog](#question-catalog)).
 
 ## Components
 
@@ -239,14 +239,7 @@ Everything is declared in `render.yaml`:
 `sks-lotse.global` and `sks-lotse.store` are registered but unused. How to operate all of this (logs, rollback, backups, secrets, DSGVO requests) is in the [runbook](RUNBOOK.md).
 
 ### Quality gates
-GitHub Actions runs on every PR and every push to `main`:
-
-- **Backend** (`backend-ci.yml`): `backend-lint` (ruff, mypy, `pip-audit` of the locked dependencies), `backend-test` (unit tests with a line/branch coverage gate, threshold in `backend/pyproject.toml`), `migrations` against a real Postgres, `integration-tests` (black-box, against a running server) and `postman-collection` (freshness of the generated collection and API types). Each job restores the installed packages from a cache keyed on its lock file instead of installing them again.
-- **Frontend** (`frontend-ci.yml`): `frontend-lint` (ESLint, Prettier, `npm audit --omit=dev --audit-level=high`, and the production build including the prerender), `frontend-test` (type check, tests with a lines/branches coverage gate, thresholds in `frontend/vite.config.ts`).
-- **Mutation testing**: daily, not per PR, with a minimum score per side ([docs/mutation-testing.md](mutation-testing.md)).
-- **Security**: known-vulnerable dependencies fail the lint jobs above; CodeQL (GitHub's Default Setup, configured in the repo settings: Python, JavaScript/TypeScript, Actions) scans every PR and `main` for code-level issues, not a required check; Aikido additionally rescans the repo about every three days — no CI job and no merge gate; an alert is triaged the same day ([docs/RUNBOOK.md](RUNBOOK.md) → Security alerts).
-
-Required status checks on `main` are exactly the seven backend and frontend jobs named above, `integration-tests` included; CodeQL reports on PRs but is not required, and mutation testing and Aikido don't run per PR at all. A PR must be up to date with `main` before it can merge. See `CLAUDE.md` → Branch Strategy for the exact rules and Development Conventions for how each check works.
+GitHub Actions runs `backend-ci.yml` and `frontend-ci.yml` on every PR and every push to `main`: lint, type checks and dependency audits, tests with line/branch coverage gates, the migrations against a real Postgres, the freshness of the generated Postman collection and API types, the black-box integration tests and the production build; which jobs are required and the rules around them are in `CLAUDE.md` → Branch Strategy. Mutation testing runs daily ([docs/mutation-testing.md](mutation-testing.md)), CodeQL reports on PRs without being required, and Aikido rescans the repo about every three days, no merge gate ([RUNBOOK → Security alerts](RUNBOOK.md#security-alerts-aikido)).
 
 ## Threat model
 
@@ -261,14 +254,14 @@ A short overview of what is protected against whom; the mechanisms are described
 | Forged payment events | Credit tokens without paying, or twice | Webhook accepted only with a valid `Stripe-Signature`; one credit per Payment Intent (unique index); the success redirect credits nothing ([Payments](#payments)) |
 | Script in the learner's browser (XSS, a compromised third-party script) | Use the session against the API | httpOnly `__Host-` cookie; enforced CSP with a script/connect allowlist; no third-party script but Umami, and that not on `/admin` ([ADR-0012](adr/0012-httponly-cookie-for-frontend-session-token.md), [ADR-0060](adr/0060-no-advertising.md)) |
 | Someone with a stolen admin session or the admin's mailbox | Export or delete accounts | `ADMIN_EMAILS` allowlist plus a TOTP step-up, a fresh one for export/delete; admin actions audit-logged ([ADR-0047](adr/0047-totp-step-up-for-admin-area.md)) |
-| A compromised or vulnerable dependency | Code execution in the build or the app | Hash-locked backend dependencies; `pip-audit`/`npm audit` as merge gates; CodeQL, Aikido, Dependabot ([Quality gates](#quality-gates)) |
+| A compromised or vulnerable dependency | Code execution in the build or the app | Hash-locked backend dependencies; `pip-audit`/`npm audit` as merge gates; CodeQL, repository scanning, Dependabot ([Quality gates](#quality-gates)) |
 
 **Accepted residual risks**:
 
 - **The mailbox is the account.** Whoever reads a learner's email can log in (by the code or the link); learners have no second factor (admins do). A changed address is announced to the old one (a short mail with the new address masked), so a stolen session that swaps the address does not go unnoticed; the old mailbox can then only warn the owner, who reaches the operator by mail.
 - **A stolen session token stays valid until it expires** (there is no refresh token) or until the learner logs out, which invalidates all their tokens ([ADR-0008](adr/0008-token-version-based-logout.md)).
 - **Rate limits and caps live in process memory**: a deploy or restart resets them, and they hold only while there is a single instance ([ADR-0007](adr/0007-in-memory-per-ip-rate-limiting.md)).
-- **The Lotsen-Check sends text to the US** (question, official answer, the learner's answer; for a catalog question also the official questions and answers of its topic; for a Kartenaufgabe also the derivation and the run's earlier answers; no identity), under a data processing agreement ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0058](adr/0058-lotsen-check-for-chart-exercises.md), [ADR-0066](adr/0066-lotsen-check-with-topic-context-on-haiku-5-5.md)).
+- **The Lotsen-Check sends text to the US** (no identity; what exactly: [FEATURES → Lotsen-Check](FEATURES.md#lotsen-check-ai-assessment)), under a data processing agreement ([ADR-0031](adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0058](adr/0058-lotsen-check-for-chart-exercises.md), [ADR-0066](adr/0066-lotsen-check-with-topic-context-on-haiku-5-5.md)).
 - **No protection against volumetric DoS** beyond what Render and Cloudflare provide in front of the app.
 - **The admin audit trail exists only in the logs** and expires with them ([SECURITY.md](../SECURITY.md)).
 

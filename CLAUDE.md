@@ -8,10 +8,10 @@ This file holds the **rules for working on the code**. Everything descriptive li
 |---|---|
 | What the product does, the components, data, auth, deployment as it is now, what's not built yet | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | Why a decision was made (and what superseded it) | [docs/adr/](docs/adr/README.md): index with status per ADR |
-| Operating production: logs, deploys/rollback, backups, secrets, DSGVO requests, one-time setup, domains | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
+| Operating production: logs, deploys/rollback, backups, secrets, DSGVO requests, security alerts, one-time setup, domains | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 | Question catalog: subjects, the Seemannschaft merge, images, the import pipeline | [docs/catalog-pipeline.md](docs/catalog-pipeline.md) |
 | Expected load (Mengengerüst), non-functional requirements met | [docs/NON-FUNCTIONAL-REQUIREMENTS.md](docs/NON-FUNCTIONAL-REQUIREMENTS.md) |
-| Local setup, quality-gate commands, dependency locks | [README.md](README.md) |
+| Local setup incl. pre-commit, quality-gate commands, dependency locks | [README.md](README.md) |
 | Mutation testing, Postman/integration tests | [docs/mutation-testing.md](docs/mutation-testing.md), [docs/postman-and-integration-tests.md](docs/postman-and-integration-tests.md) |
 | What the product can do today, for product, sales and sailing instructors | [docs/FEATURES.md](docs/FEATURES.md) |
 
@@ -27,7 +27,7 @@ backend/    FastAPI app (app/api/v1 routes, app/services shared logic, app/domai
 frontend/   React + Vite + TypeScript SPA: src/sks (pages, components, hooks, api, store, routes, legal, data), src/test
 docs/       ARCHITECTURE.md, RUNBOOK.md, catalog-pipeline.md, adr/, the catalog PDF
 postman/    generated API-reference collection + hand-written integration tests
-scripts/    repo tooling (Postman generation, integration/mutation tests, dependency locks, Aikido check)
+scripts/    repo tooling (Postman generation, integration/mutation tests, dependency locks, security-alert check)
 render.yaml Render Blueprint (deployment as code) · docker-compose.yml local Postgres
 ```
 
@@ -53,27 +53,21 @@ Trunk-based development:
 
 **Branch protection on `main`** (enforced by GitHub, admins included — this is the actual merge gate):
 - PR required; no approving review required; force-push and branch deletion blocked.
-- **Required status checks**, matched by job name: `backend-lint`, `backend-test`, `migrations`, `postman-collection`, `integration-tests` (`backend-ci.yml`) and `frontend-lint`, `frontend-test` (`frontend-ci.yml`). Job names are unique across workflows on purpose: a required check is matched by name only, so a name two workflows share is satisfied by whichever reports first. A renamed job has to be renamed in the branch protection in the same go, or every PR waits for a check that never comes. Mutation testing isn't a PR check at all, it runs daily (see Mutation testing below). There is no Aikido check in CI, and none is required before merging (see Security Scanning below). CodeQL (GitHub's Default Setup for Python, JavaScript/TypeScript and Actions, configured in the repo settings rather than as a workflow file) also reports on PRs but isn't a required check either.
+- **Required status checks**, matched by job name: `backend-lint`, `backend-test`, `migrations`, `postman-collection`, `integration-tests` (`backend-ci.yml`) and `frontend-lint`, `frontend-test` (`frontend-ci.yml`). Job names are unique across workflows on purpose: a required check is matched by name only, so a name two workflows share is satisfied by whichever reports first. A renamed job has to be renamed in the branch protection in the same go, or every PR waits for a check that never comes. Mutation testing isn't a PR check (it runs daily); CodeQL (Default Setup, in the repo settings) reports on PRs but isn't required.
 - **Conversation resolution required**: every review conversation on the PR must be resolved before it can merge.
 - **Branch must be up to date with `main`** (strict mode): once another PR lands, the next one shows as `BEHIND` and can't merge until updated (`gh pr update-branch <N>`), which re-runs CI.
 - GitHub's auto-merge is disabled in the repo settings, so `gh pr merge --auto` fails — wait for the checks, then merge.
-- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs. A newer push to a PR branch cancels its still-running CI (`concurrency`); every job has a 15-minute timeout. The `frontend-lint` job also runs `npm run build` (incl. prerender), the same build Render deploys — there rather than in `frontend-test`, so it runs beside the tests instead of after them.
+- Neither workflow has path filters, so the required checks run (and must pass) even on docs-only PRs.
 
 ---
 
 ## Development Conventions
 
 ### Working Directory
-All file edits must be made in the canonical project root:
-
-```
-/Users/berndloffeld/Projects/sks-lotse
-```
-
-Never write to a git worktree path (e.g. `.claude/worktrees/...`) — if Claude Code is invoked from a worktree, edits must still target the real project root above. A `PreToolUse` hook (`.claude/hooks/block-worktree-edits.sh`, wired in `.claude/settings.json`) blocks this mechanically; this section is the fallback if hooks are ever off.
+All file edits go to the canonical project root `/Users/berndloffeld/Projects/sks-lotse`, never to a git worktree path (`.claude/worktrees/...`), even when Claude Code is invoked from one. The `PreToolUse` hook `.claude/hooks/block-worktree-edits.sh` enforces this; this section is the fallback if hooks are ever off.
 
 ### Avoid pipeline overkill for rare tasks
-For infrequent/one-off operations (e.g. importing the SKS question catalog from PDF, which runs once or a few times total), do not build infrastructure — use a plain script instead. No pipelines, queues, task runners, or extra abstraction layers are needed for tasks that run rarely. This aligns with the general principle of avoiding premature abstraction: match the infrastructure to the actual problem, not hypothetical future complexity.
+For infrequent/one-off operations (e.g. importing the SKS question catalog from PDF, which runs once or a few times total), do not build infrastructure — use a plain script instead. Match the infrastructure to the actual problem, not hypothetical future complexity.
 
 ### Naming: English in code and URLs, German in the UI
 Route paths, file and component names and code identifiers are English (`/pricing`, `/terms`, `/learn/focus`, `PricingPage`); only what the learner reads is German (labels, copy, page titles). A path that has to change keeps working: add it to `RETIRED_PATHS` in `frontend/src/sks/App.tsx`, and a public one also gets a `type: redirect` in `render.yaml`. Domain terms from the catalog or the law stay as they are: subject keys like `navigation`, the exam variants, and AGB (`AgbPage`, `AgbGate`, `agb_accepted_*`).
@@ -81,16 +75,16 @@ Route paths, file and component names and code identifiers are English (`/pricin
 ### Long-running tests
 The `PreToolUse` hook `.claude/hooks/ask-before-long-tests.sh` denies a Bash command that starts a mutation run, `scripts/run_integration_tests.sh`, a bare `pytest` (the full coverage gate) or `vitest run --coverage`: ask the user via `AskUserQuestion` first (offering to start backend and frontend), then repeat the command prefixed with `CLAUDE_LOCAL_TEST_CONFIRMED=1`; merely reading those scripts (`sed`, `grep`) isn't affected.
 
-### Security Scanning (Aikido)
-Aikido rescans the repo about every three days, on its own schedule — **not a merge gate** (no CI job, no required check; removed 2026-09-19 when Aikido's free plan stopped allowing API access from CI, so the job failed every PR). An alert is still handled right away: it takes priority over feature work in flight, triaged the same day it arrives. Steps, `scripts/check_aikido.sh` usage and the API credentials it needs: [docs/RUNBOOK.md](docs/RUNBOOK.md) → Security alerts (Aikido).
+### Security Scanning
+An Aikido alert is no merge gate, but it takes priority over feature work in flight and is triaged the same day it arrives — steps: [docs/RUNBOOK.md](docs/RUNBOOK.md#security-alerts-aikido).
 
-The dependency audit that *is* a merge gate: `pip-audit` over `backend/requirements-dev.txt` in `backend-lint`, and `npm audit --omit=dev --audit-level=high` (what ships to the browser, high/critical only) in `frontend-lint`. A finding there blocks every PR until the dependency is bumped (re-lock via `scripts/lock_backend_requirements.sh`); if no fixed version exists yet, `pip-audit --ignore-vuln <ID>` in the workflow with the reason in a comment, removed again once a fix ships.
+The dependency audit *is* a merge gate (`pip-audit` in `backend-lint`, `npm audit --omit=dev --audit-level=high` in `frontend-lint`): a finding blocks every PR until the dependency is bumped (re-lock via `scripts/lock_backend_requirements.sh`); if no fixed version exists yet, `pip-audit --ignore-vuln <ID>` in the workflow with the reason in a comment, removed again once a fix ships.
 
 ### Test Coverage
 Both sides enforce a line + branch coverage minimum: backend in `backend/pyproject.toml` (`--cov-fail-under`, via `pytest-cov`), frontend in `frontend/vite.config.ts` (`test.coverage.thresholds`). Those files hold the numbers; the gates run in the required `backend-test`/`frontend-test` jobs. The rules:
 
 - **The minimum is a ratchet**, set a few points under the actual value: raise it when the actual value settles higher; never lower it to get a PR through — test the code.
-- API endpoint tests use an in-memory SQLite DB (`backend/tests/conftest.py`, `get_db` override), so the suite never runs the Alembic migrations. `conftest.py` turns `PRAGMA foreign_keys` on for every SQLite connection, so `ondelete` CASCADE/SET NULL behave as in Postgres. The `migrations` CI job does, against the production Postgres major version (`alembic upgrade head`, `alembic check`, `downgrade base`, `upgrade head`): a model change without a migration fails there.
+- The suite runs on in-memory SQLite (`backend/tests/conftest.py`) and never runs the migrations; the `migrations` job runs them against Postgres, so a model change without a migration fails there.
 
 ### Mutation testing
 Runs daily, not per PR (`.github/workflows/mutation-testing.yml`); how it works, the commands, the current scores and how to read survivors: [docs/mutation-testing.md](docs/mutation-testing.md). The rules:
@@ -101,19 +95,12 @@ Runs daily, not per PR (`.github/workflows/mutation-testing.yml`); how it works,
 - Vitest stays on 4.x until Stryker's runner supports 5 ([ADR-0035](docs/adr/0035-vitest-pinned-to-4x-for-stryker.md)).
 
 ### Linting & Formatting
-Backend uses `ruff` (`backend/pyproject.toml`, `[tool.ruff]`) for both linting and formatting.
+Backend: ruff and mypy, configured in `backend/pyproject.toml` (rule set, complexity caps, per-file ignores and why `B008` is off are there). Frontend: ESLint (`frontend/eslint.config.js`) and Prettier per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md), `tsc -b` with `"strict": true`. All of it runs in the required lint/test jobs. The rules:
 
-- `ruff check .` and `ruff format --check .` run as part of `.github/workflows/backend-ci.yml`'s `backend-lint` job on every push to `main` and on every PR — a required check.
-- Before committing backend changes: `ruff check --fix .` then `ruff format .` — or let pre-commit do it: `.pre-commit-config.yaml` runs the venv's ruff (a `local` hook, so its version is the one `requirements-dev.txt` locks) on staged backend files and refuses commits on `main` (catches it locally, before the push that branch protection would reject). One-time setup per clone: `pre-commit install --install-hooks -t pre-commit -t pre-push` (the package is in `requirements-dev.txt`); the pre-push stage adds `mypy app` and `tsc -b`.
-
-- `mypy app` (`[tool.mypy]` in `backend/pyproject.toml`) runs in the same `backend-lint` job; a `# type: ignore` carries its reason after a second `#`. The frontend compiles with `"strict": true` (`tsc -b` in the `frontend-test` job).
-- Complexity is capped via `C901`/`PLR0912` (`max-complexity`/`max-branches` = 10) — split a function rather than raising the ceiling. `PLR0913` (argument count) is deliberately off: FastAPI routes take their dependencies as arguments.
-- The rule set is `E, F, I, UP, B, S, SIM, C4, RUF, C901, PLR0912` (`backend/pyproject.toml`). `B008` (flake8-bugbear: no function calls in argument defaults) is deliberately ignored — it flags FastAPI's `Depends(...)` default-argument pattern, which is correct FastAPI usage, not a bug. Tests are exempt from the bandit `S101`/`S105` and `RUF001` (asserts, dummy tokens, full-width test digits). A `# noqa` in app code carries its reason after a dash.
-
-Frontend uses ESLint (`frontend/eslint.config.js` — `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier` to defer style to Prettier) for linting and Prettier (`frontend/.prettierrc.json`) for formatting, per [ADR-0013](docs/adr/0013-frontend-architecture-and-tooling.md). `eslint-plugin-jsx-a11y`'s recommended rules are the only accessibility bar — no separate WCAG target is defined.
-
-- `npm run lint` (`eslint .`) and `npm run format:check` (`prettier --check .`) run as part of `.github/workflows/frontend-ci.yml`'s `frontend-lint` job — a required check, like `backend-lint`.
-- Before committing frontend changes: `npm run lint -- --fix` then `npm run format` — or let pre-commit do it: the `frontend-eslint`/`frontend-prettier` local hooks in `.pre-commit-config.yaml` run against staged `frontend/` files. One-time setup per clone: `cd frontend && npm install` (in addition to the `pre-commit install` above).
+- Before committing: `ruff check --fix .` then `ruff format .` in `backend/`, `npm run lint -- --fix` then `npm run format` in `frontend/` — or let pre-commit do it (setup: [README](README.md#testing--quality-gates)).
+- Over the complexity cap (`C901`/`PLR0912`, 10): split the function rather than raising the ceiling. `PLR0913` (argument count) stays off: FastAPI routes take their dependencies as arguments.
+- A `# noqa` in app code carries its reason after a dash, a `# type: ignore` after a second `#`.
+- `eslint-plugin-jsx-a11y`'s recommended rules are the only accessibility bar — no separate WCAG target is defined.
 
 ### Python version
 `.python-version` (repo root) is the single source for local dev and CI (`actions/setup-python` → `python-version-file`). `render.yaml` still pins `PYTHON_VERSION` explicitly (see the comment there) — bump both together.
@@ -154,12 +141,12 @@ How it works is described in `docs/ARCHITECTURE.md` → Auth (and ADR-0007/0008/
 - **The session token lives in an httpOnly cookie, not `localStorage`** ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)) — set/cleared by `verify_otp`/`logout` in `backend/app/api/v1/auth.py`, read by `get_current_user` in `backend/app/core/jwt.py` (cookie first, falling back to `Authorization: Bearer` for Postman/the integration-test suite). The frontend never reads or stores it directly; a new frontend auth call just needs `credentials: "include"` (already the default in `frontend/src/sks/api/client.ts`).
 
 ### Data Layer Conventions
-Apply these four checks whenever adding or changing a database table — going forward, not just at initial design time:
+Apply these four checks whenever adding or changing a database table (worked example: `otp_codes`, [ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)):
 
-- **Temporary/transient data needs cleanup.** If a table accumulates rows that are only useful for a bounded time (codes, tokens, sessions, request logs), decide how they get deleted before shipping the feature, not after the table grows unbounded. Doesn't have to be a scheduled job — piggybacking cleanup on an existing write path (delete-on-insert) is a legitimate, infrastructure-free answer for an MVP at this scale; run it as a background task (`BackgroundTasks.add_task`) rather than inline if the delete would otherwise add latency to that request — the task opens its own session via `get_session_factory` (`backend/app/core/database.py`), never the request's `get_db` one — and see the throttling rule below so its frequency doesn't scale with request volume. Example: `otp_codes` cleanup in `issue_code` (`backend/app/services/otp_codes.py`, [docs/adr/0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)).
-- **Index for the read pattern, not just uniqueness.** When a table will see meaningful read volume, check which column(s) each distinct query filters on and index accordingly — a composite index covers a shared filter prefix, but a query with an unrelated filter still needs its own index, and a composite makes a redundant single-column index worth dropping. Example: `otp_codes` ended up with `(email, created_at)` for the two email-scoped lookups, plus a separate `expires_at` index for the cleanup sweep, which filters on neither column those share.
-- **Gate opportunistic/periodic maintenance work that piggybacks on request traffic**, so its cost is bounded regardless of how often the triggering endpoint gets called — under heavy load, "once per request" for something that only needs to run every few minutes is wasted work, not free just because it avoided a scheduled job. Use `cache.throttle(app, key, min_interval_seconds)` (`backend/app/core/cache.py`) to cap it to a cadence, the same practical effect as a cron job without standing up a scheduler. A real scheduler exists now — the `sks-lotse-daily-report` Render Cron Job (ADR-0032) — so work that needs a fixed schedule rather than "at most every N minutes" can become another cron job; still don't add one for something throttled piggybacking already covers. Example: `otp_codes` cleanup throttled to once per `OTP_CLEANUP_MIN_INTERVAL_SECONDS` ([docs/adr/0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)).
-- **Consider caching for read-heavy, rarely-written data**, local (in-process) first — no new infrastructure until there's a concrete reason for it (multiple instances, restarts frequent enough to matter) — but behind an interface that could swap to a shared store like Redis later without callers changing. `backend/app/core/cache.py` is that interface; see [docs/adr/0009](docs/adr/0009-in-process-cache-for-question-catalog.md) and [docs/adr/0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md) (the rate limiter established the same local-first-but-swappable pattern for a different kind of state).
+- **Transient data needs cleanup**, decided before the feature ships. Delete-on-insert on an existing write path is fine; if it would add latency, run it as a background task (`BackgroundTasks.add_task`) that opens its own session via `get_session_factory` (`backend/app/core/database.py`), never the request's `get_db` one.
+- **Index for each read pattern, not just uniqueness**: a composite covers a shared filter prefix, a query with an unrelated filter needs its own index, and a composite makes a redundant single-column index worth dropping.
+- **Throttle maintenance that piggybacks on request traffic** with `cache.throttle(app, key, min_interval_seconds)` (`backend/app/core/cache.py`), so its cost doesn't scale with requests. Work that needs a fixed schedule may become another Render Cron Job (like `sks-lotse-daily-report`, ADR-0032); don't add one for what throttling covers.
+- **Cache read-heavy, rarely-written data in-process first**, behind `backend/app/core/cache.py`, so it can move to a shared store later without callers changing ([ADR-0009](docs/adr/0009-in-process-cache-for-question-catalog.md), [ADR-0007](docs/adr/0007-in-memory-per-ip-rate-limiting.md)).
 
 ---
 
