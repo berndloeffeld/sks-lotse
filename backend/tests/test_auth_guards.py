@@ -11,12 +11,15 @@ import pytest
 
 from app.main import app
 
-# The only routes open without a session (CLAUDE.md → Auth & rate limiting). /health is outside
-# /api/v1 and the dev-only OTP peek isn't in the schema (include_in_schema=False).
+# The only routes open without a session, and the only list of them (CLAUDE.md → Auth & rate
+# limiting points here): a new public route is added with its reason. /health is outside /api/v1
+# and the dev-only OTP peek isn't in the schema (include_in_schema=False).
 PUBLIC = {
+    # Login: how a caller gets a token. verify-link redeems the code from the email's link (ADR-0064).
     ("POST", "/api/v1/auth/otp/request"),
     ("POST", "/api/v1/auth/otp/verify"),
     ("POST", "/api/v1/auth/otp/verify-link"),
+    # The unauthenticated landing page shows the current prices (ADR-0043).
     ("GET", "/api/v1/pricing"),
     # Stripe's event callback — authenticated by its Stripe-Signature header instead (ADR-0048).
     ("POST", "/api/v1/payments/webhook"),
