@@ -20,7 +20,7 @@ email-validator==2.3.0
 # Releases every time its upstream domain list changes (very often) — bump
 # periodically, this pin will go stale fast.
 disposable-email-domains==0.0.287
-anthropic==1.17.0
+anthropic==2.3.0
 # Token-package checkout (ADR-0048): Checkout Sessions and webhook signature verification.
 stripe==16.0.1
 # Europe/Berlin time in the purchase confirmation mail (app/services/payments.py); slim images have no system tz database.
