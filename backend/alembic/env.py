@@ -19,18 +19,6 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Columns still in the database that the models no longer map: SBF Lotse's site columns (ADR-0071).
-# The running code must stop reading them one deploy before a migration drops them, so `alembic
-# check` leaves them alone until then; the migration that drops them removes this set too.
-_UNMAPPED_COLUMNS = {("users", "signup_site"), ("purchases", "site")}
-
-
-def _include_object(obj, name, type_, reflected, compare_to):
-    if type_ == "column" and reflected and compare_to is None:
-        return (obj.table.name, name) not in _UNMAPPED_COLUMNS
-    return True
-
-
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -53,7 +41,6 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
-        include_object=_include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -76,9 +63,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata, include_object=_include_object
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

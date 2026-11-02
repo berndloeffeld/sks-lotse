@@ -229,4 +229,3 @@ SBF Lotse is removed from the code ([ADR-0071](adr/0071-sbf-lotse-removed.md)). 
 - [ ] **Better Stack, Google Search Console:** delete a monitor or a property of `sbf-lotse.de`, if there is one.
 - [ ] **Umami:** nothing to do; SBF Lotse reported to SKS Lotse's website, and its old page views stay there under their hostname.
 - [ ] **Check:** `https://sbf-lotse.de` and `https://api.sbf-lotse.de/health` no longer answer.
-- [ ] **Follow-up PR:** a migration drops `users.signup_site` and `purchases.site` and removes `_UNMAPPED_COLUMNS` from `backend/alembic/env.py`, once this change is deployed.
