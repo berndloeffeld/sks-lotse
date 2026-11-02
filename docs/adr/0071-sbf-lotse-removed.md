@@ -18,7 +18,7 @@ Carrying two sites costs on every change: a second build in CI, the site switch 
 
 **The two site columns go in two steps**, since a migration runs while the previous version still serves ([docs/RUNBOOK.md](../RUNBOOK.md)):
 1. This change stops mapping `users.signup_site` and `purchases.site`. They stay in the database, and `alembic/env.py` keeps `alembic check` from reporting them.
-2. A follow-up migration drops them and removes that exception.
+2. A follow-up migration drops them and removes that exception (`d5a8f3c1e927`, 2026-11-02).
 
 **Outside the repo**, by hand: delete the Render service `sbf-lotse-frontend` and the custom domain api.sbf-lotse.de of `sks-lotse-backend`, the DNS records at IONOS, and the sending domain sbf-lotse.de at Resend (docs/RUNBOOK.md → Decommissioning SBF Lotse).
 
