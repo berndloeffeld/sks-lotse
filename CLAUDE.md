@@ -6,14 +6,14 @@ This file holds the **rules for working on the code**. Everything descriptive li
 
 | Topic | Owner |
 |---|---|
-| What the product does, the components, data, auth, deployment as it is now, what's not built yet | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| How it is built, as it is now: per feature its route, ADR, code/data location and flag; the components, data, auth, deployment; what's not built yet. No UI operation | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | Why a decision was made (and what superseded it) | [docs/adr/](docs/adr/README.md): index with status per ADR |
 | Operating production: logs, deploys/rollback, backups, secrets, DSGVO requests, security alerts, one-time setup, domains | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 | Question catalog: subjects, the Seemannschaft merge, images, the import pipeline | [docs/catalog-pipeline.md](docs/catalog-pipeline.md) |
 | Expected load (Mengengerüst), non-functional requirements met | [docs/NON-FUNCTIONAL-REQUIREMENTS.md](docs/NON-FUNCTIONAL-REQUIREMENTS.md) |
 | Local setup incl. pre-commit, quality-gate commands, dependency locks | [README.md](README.md) |
 | Mutation testing, Postman/integration tests | [docs/mutation-testing.md](docs/mutation-testing.md), [docs/postman-and-integration-tests.md](docs/postman-and-integration-tests.md) |
-| What the product can do today, for product, sales and sailing instructors | [docs/FEATURES.md](docs/FEATURES.md) |
+| What learners and operators get today, in their terms: prices, limits, what is live and open to guests. No click paths or implementation detail | [docs/FEATURES.md](docs/FEATURES.md) |
 
 When a change makes one of these wrong, fix it in the same PR — in its owner, not by adding a copy here.
 
