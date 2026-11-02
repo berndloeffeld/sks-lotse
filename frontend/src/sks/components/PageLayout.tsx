@@ -1,9 +1,9 @@
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { Header } from './Header'
 import { MainNav } from './MainNav'
 import { MobileTabBar } from './MobileTabBar'
-import { PageShell, type PageShellProps } from '../../shared/components/PageShell'
-import { SessionExpiredNotice } from '../../shared/components/SessionExpiredNotice'
+import { PageShell, type PageShellProps } from './PageShell'
+import { SessionExpiredNotice } from './SessionExpiredNotice'
 
 interface PageLayoutProps extends PageShellProps {
   // Logged-in pages get the main nav (and the tab bar on phones) and a brand link to /learn;

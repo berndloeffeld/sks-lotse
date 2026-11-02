@@ -2,7 +2,7 @@ import type { Question } from '../api/types'
 import { OfficialAnswerBox } from './AnswerBox'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { sectionHeading } from './headingStyles'
 
 // Every question of a topic with its official answer, each folded shut, below the practice run
 // (ADR-0054): to look one up, and so the page's HTML carries the whole topic for search engines,

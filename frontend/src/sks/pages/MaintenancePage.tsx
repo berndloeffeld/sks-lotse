@@ -1,6 +1,6 @@
 import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../../shared/store/authStore'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 // Shown app-wide while the backend is in maintenance mode (app/core/maintenance.py),
 // except on the three legal routes App.tsx keeps exempt. No plain reload button,

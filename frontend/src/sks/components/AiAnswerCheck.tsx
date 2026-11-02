@@ -1,15 +1,15 @@
 import { useState, type KeyboardEvent, type Ref } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../../shared/api/client'
+import { trackEvent } from '../analytics'
+import { apiClient } from '../api/client'
 import type { AiGrade, GradingOutcome } from '../api/types'
 import { OUTCOME_LABELS } from '../labels'
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useCheckLimits } from '../hooks/useCheckLimits'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { ErrorMessage } from './Messages'
 
 interface AiAnswerCheckProps {
   questionId: number

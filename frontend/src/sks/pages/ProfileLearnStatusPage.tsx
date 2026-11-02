@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 
-import { Band } from '../../shared/components/Bands'
+import { Band } from '../components/Bands'
 import { ChartStatsPanel } from '../components/ChartStatsPanel'
 import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useProgressSummary } from '../hooks/useProgressSummary'
-import { useAuthStore } from '../../shared/store/authStore'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { useAuthStore } from '../store/authStore'
+import { ErrorMessage } from '../components/Messages'
 
 // /profile's "Lernstand" tab (the default): the same Lernstand overview as
 // /learn (progress, subjects, exam variant), plus the exam and Kartenaufgaben statistics.

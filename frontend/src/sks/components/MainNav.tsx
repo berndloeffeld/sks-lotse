@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems } from '../navigation'
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { SksAccountMenu } from './SksAccountMenu'
-import { TokenCounter } from '../../shared/components/TokenCounter'
-import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../../shared/components/headerLink'
+import { TokenCounter } from './TokenCounter'
+import { HEADER_LINK, HEADER_LINK_ACTIVE } from './headerLink'
 
 // Header nav for logged-in pages: the areas (navigation.ts), the token balance and the Konto menu.
 // On phones only the token balance stays up here; the areas and the menu move to the tab bar

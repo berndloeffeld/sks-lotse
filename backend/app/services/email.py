@@ -2,52 +2,50 @@ from html import escape
 
 import resend
 
-from app.core import site as sites
 from app.core.config import settings
-from app.core.site import Site
 
 # The SDK's default client waits 30 s. OTP mails go out in a background task, where a hanging
 # send would still hold a worker thread — 10 s is plenty for one API call.
 resend.default_http_client = resend.http_client_requests.RequestsClient(timeout=10)
 
 
-def _send(to_email: str, subject: str, html: str, text: str, *, sender: str) -> None:
+def _send(to_email: str, subject: str, html: str, text: str) -> None:
     resend.api_key = settings.resend_api_key
-    resend.Emails.send({"from": sender, "to": to_email, "subject": subject, "html": html, "text": text})
+    resend.Emails.send(
+        {"from": settings.email_from_address, "to": to_email, "subject": subject, "html": html, "text": text}
+    )
 
 
 def _send_code_email(
-    site: Site, to_email: str, subject: str, heading: str, intro: str, code: str, link_url: str | None = None
+    to_email: str, subject: str, heading: str, intro: str, code: str, link_url: str | None = None
 ) -> None:
     # German copy, like the rest of the app. A plain-text part alongside the
     # HTML one: some clients prefer it, and HTML-only mail scores worse with
     # spam filters.
     validity = f"Der Code ist {settings.otp_ttl_minutes} Minuten gültig."
     outro = "Falls du das nicht angefordert hast, kannst du diese E-Mail ignorieren."
+    base_url = settings.cors_allowed_origins[0]
     text = f"{intro} {code}\n\n"
     if link_url is not None:
         text += f"{link_url}\n{_LINK_NOTE}\n\n"
     _send(
         to_email,
         subject,
-        html=_code_email_html(site, heading, intro, code, validity, outro, link_url),
+        html=_code_email_html(heading, intro, code, validity, outro, base_url, link_url),
         text=f"{text}{validity}\n\n{outro}\n",
-        sender=sites.from_address(site),
     )
 
 
 _LINK_NOTE = "Der Link meldet dich in dem Browser an, in dem du ihn öffnest, und gilt nur einmal."
 
 
-def send_otp_email(to_email: str, code: str, link_token: str | None = None, *, site: Site) -> None:
+def send_otp_email(to_email: str, code: str, link_token: str | None = None) -> None:
     # The token goes into the fragment (ADR-0064): a browser never sends that part to a server, so
-    # it stays out of access logs, Referer headers and analytics. The link leads back to the site
-    # the code was requested on (ADR-0070): the session cookie is set for that site's API host only.
-    link_url = None if link_token is None else f"{sites.base_url(site)}/login/link#t={link_token}"
+    # it stays out of access logs, Referer headers and analytics.
+    link_url = None if link_token is None else f"{settings.cors_allowed_origins[0]}/login/link#t={link_token}"
     _send_code_email(
-        site,
         to_email,
-        f"Dein Anmeldecode für {sites.BRANDS[site].name}",
+        "Dein Anmeldecode für SKS Lotse",
         "Dein Anmeldecode",
         "Dein Anmeldecode lautet:",
         code,
@@ -55,54 +53,47 @@ def send_otp_email(to_email: str, code: str, link_token: str | None = None, *, s
     )
 
 
-def send_email_change_otp_email(to_email: str, code: str, *, site: Site) -> None:
+def send_email_change_otp_email(to_email: str, code: str) -> None:
     # Distinct copy from send_otp_email: this recipient isn't logging in,
     # they're confirming a new address for an existing account, and "your
     # login code" would be misleading.
     _send_code_email(
-        site,
         to_email,
-        f"Bestätige deine neue E-Mail-Adresse für {sites.BRANDS[site].name}",
+        "Bestätige deine neue E-Mail-Adresse für SKS Lotse",
         "Neue E-Mail-Adresse bestätigen",
         "Dein Bestätigungscode lautet:",
         code,
     )
 
 
-def send_email_change_notice_email(old_email: str, masked_new_email: str, *, site: Site) -> None:
+def send_email_change_notice_email(old_email: str, masked_new_email: str) -> None:
     # To the address the account has just left: a stolen session could change the address, and this
     # is the only way the real owner finds out (the new address is masked, not written out in full).
     heading = "Deine E-Mail-Adresse wurde geändert"
-    name = sites.BRANDS[site].name
-    intro = (
-        f"Die E-Mail-Adresse deines {name.replace(' ', '-')}-Kontos wurde auf {masked_new_email} geändert."
-    )
+    intro = f"Die E-Mail-Adresse deines SKS-Lotse-Kontos wurde auf {masked_new_email} geändert."
     outro = (
         f"Warst du das nicht? Dann schreib uns bitte sofort an {_CONTACT_EMAIL}, "
         "damit wir dein Konto sichern können."
     )
     _send(
         old_email,
-        f"Deine E-Mail-Adresse bei {name} wurde geändert",
-        html=_notice_email_html(site, heading, intro, outro),
+        "Deine E-Mail-Adresse bei SKS Lotse wurde geändert",
+        html=_notice_email_html(heading, intro, outro, settings.cors_allowed_origins[0]),
         text=f"{intro}\n\n{outro}\n",
-        sender=sites.from_address(site),
     )
 
 
-# Brand colours of the web app (frontend/src/shared/index.css), inlined: mail clients ignore stylesheets.
+# Brand colours of the web app (frontend/src/sks/index.css), inlined: mail clients ignore stylesheets.
 _BG, _INK, _INK_SOFT = "#e9f0f3", "#1e2a32", "#5b6670"
 _PRIMARY, _PRIMARY_DARK, _SUCCESS, _ACCENT = "#1f6f78", "#164f56", "#3d7a5c", "#b8763c"
 _SERIF = "Georgia, 'Times New Roman', serif"
 _SANS = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-# Same address as frontend/src/shared/contact.ts.
+# Same address as frontend/src/sks/contact.ts.
 _CONTACT_EMAIL = "kontakt@sks-lotse.de"
 
 
-def _branded_layout(inner: str, site: Site) -> str:
+def _branded_layout(inner: str, base_url: str) -> str:
     """The shared mail frame: brand header band, `inner` rows, footer with the legal links."""
-    base_url = sites.base_url(site)
-    brand = sites.BRANDS[site]
 
     def link(path: str, label: str) -> str:
         style = "color:#ffffff;text-decoration:underline"
@@ -116,12 +107,12 @@ def _branded_layout(inner: str, site: Site) -> str:
         f'<img src="{escape(base_url)}/icon-192.png" width="32" height="32" alt="" '
         f'style="vertical-align:middle;border:0;margin-right:10px">'
         f'<span style="font-family:{_SERIF};font-size:22px;color:#ffffff;'
-        f'vertical-align:middle">{brand.name}</span>'
+        f'vertical-align:middle">SKS Lotse</span>'
         f"</td></tr>"
         f"{inner}"
         f'<tr><td style="background:{_PRIMARY_DARK};padding:16px 24px;font-size:12px;'
         f'line-height:1.6;color:#d8e4e9">'
-        f"{brand.name} · {brand.tagline}<br>"
+        f"SKS Lotse · Lernen für die SKS-Theorieprüfung<br>"
         f'<span style="color:#d8e4e9">{link("/terms", "AGB")} · {link("/privacy", "Datenschutz")} · '
         f"{link('/imprint', 'Impressum')} · "
         f'<a href="mailto:{_CONTACT_EMAIL}" style="color:#ffffff;text-decoration:underline">'
@@ -136,7 +127,7 @@ def _heading(text: str) -> str:
     )
 
 
-def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, site: Site) -> str:
+def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, base_url: str) -> str:
     table_rows = "".join(
         f'<tr><td style="padding:6px 0;color:{_INK_SOFT};font-size:13px;vertical-align:top;width:38%">'
         f'{escape(label)}</td><td style="padding:6px 0;color:{_INK};font-size:14px">{escape(value)}</td></tr>'
@@ -153,23 +144,22 @@ def _purchase_confirmation_html(rows: list[tuple[str, str]], waiver: str, site: 
         f"line-height:1.5;"
         f'color:{_INK};border-left:4px solid {_ACCENT};background:#fbf5ee">{escape(waiver)}</p></td></tr>'
         f'<tr><td align="center" style="padding:20px 24px 28px">'
-        f'<a href="{escape(sites.base_url(site))}{sites.BRANDS[site].learn_path}" '
-        f'style="display:inline-block;padding:12px 26px;'
+        f'<a href="{escape(base_url)}/learn" style="display:inline-block;padding:12px 26px;'
         f"background:{_PRIMARY};"
         f'color:#ffffff;text-decoration:none;font-size:14px;letter-spacing:.04em;text-transform:uppercase">'
         f"Weiterlernen</a></td></tr>"
     )
-    return _branded_layout(inner, site)
+    return _branded_layout(inner, base_url)
 
 
-def _notice_email_html(site: Site, heading: str, intro: str, outro: str) -> str:
+def _notice_email_html(heading: str, intro: str, outro: str, base_url: str) -> str:
     inner = (
         f'<tr><td style="padding:28px 24px 24px">{_heading(heading)}'
         f'<p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:{_INK}">{escape(intro)}</p>'
         f'<p style="margin:0;padding:10px 14px;font-size:14px;line-height:1.5;color:{_INK};'
         f'border-left:4px solid {_ACCENT};background:#fbf5ee">{escape(outro)}</p></td></tr>'
     )
-    return _branded_layout(inner, site)
+    return _branded_layout(inner, base_url)
 
 
 def _login_link_html(link_url: str) -> str:
@@ -183,7 +173,7 @@ def _login_link_html(link_url: str) -> str:
 
 
 def _code_email_html(
-    site: Site, heading: str, intro: str, code: str, validity: str, outro: str, link_url: str | None = None
+    heading: str, intro: str, code: str, validity: str, outro: str, base_url: str, link_url: str | None = None
 ) -> str:
     inner = (
         f'<tr><td style="padding:28px 24px 8px">{_heading(heading)}'
@@ -197,17 +187,16 @@ def _code_email_html(
         f'{escape(validity)}</p><p style="margin:0;font-size:13px;color:{_INK_SOFT}">{escape(outro)}</p>'
         f"</td></tr>"
     )
-    return _branded_layout(inner, site)
+    return _branded_layout(inner, base_url)
 
 
 def send_purchase_confirmation_email(
-    to_email: str, *, package: str, tokens: int, amount: str, paid_at: str, reference: str, site: Site
+    to_email: str, *, package: str, tokens: int, amount: str, paid_at: str, reference: str, base_url: str
 ) -> None:
     # The confirmation on a durable medium that § 312f Abs. 3 / § 356 Abs. 5 Nr. 2 BGB require after
     # the learner waived the right of withdrawal at checkout (ADR-0048): the contract content, the
-    # waiver, and where the AGB are. `site` is the one the purchase was made on (ADR-0070).
-    name = sites.BRANDS[site].name
-    subject = f"Deine Bestellung bei {name}: {package}"
+    # waiver, and where the AGB are. `base_url` is the canonical frontend origin.
+    subject = f"Deine Bestellung bei SKS Lotse: {package}"
     rows = [
         ("Bestellung", f"{package}: {tokens} Tokens für den Lotsen-Check"),
         ("Preis", f"{amount} (Endpreis; gemäß § 19 UStG keine Umsatzsteuer ausgewiesen)"),
@@ -221,24 +210,18 @@ def send_purchase_confirmation_email(
     )
     text = "\n\n".join(
         [
-            f"Danke für deinen Kauf bei {name}! Die Tokens wurden deinem Konto gutgeschrieben.",
+            "Danke für deinen Kauf bei SKS Lotse! Die Tokens wurden deinem Konto gutgeschrieben.",
             "\n".join(f"{label}: {value}" for label, value in rows),
             waiver,
-            f"Unsere AGB: {sites.base_url(site)}/terms",
-            f"{name} · {_CONTACT_EMAIL}",
+            f"Unsere AGB: {base_url}/terms",
+            f"SKS Lotse · {_CONTACT_EMAIL}",
         ]
     )
-    _send(
-        to_email,
-        subject,
-        html=_purchase_confirmation_html(rows, waiver, site),
-        text=text + "\n",
-        sender=sites.from_address(site),
-    )
+    _send(to_email, subject, html=_purchase_confirmation_html(rows, waiver, base_url), text=text + "\n")
 
 
 def send_kpi_report_email(to_email: str, subject: str, body: str) -> None:
     # Operator-facing (ADMIN_EMAILS), aggregates only. Monospace <pre> keeps
     # the plain-text layout of the report in the HTML part.
     html = f'<pre style="font-family:monospace;font-size:14px">{escape(body)}</pre>'
-    _send(to_email, subject, html=html, text=body, sender=settings.email_from_address)
+    _send(to_email, subject, html=html, text=body)

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-import { apiClient } from '../../shared/api/client'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { apiClient } from '../api/client'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { forgetTideForm } from '../hooks/useTideForm'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 // Deletes a run (its answers and points) after a confirmation — the way to start the same
 // Kartenaufgabe over, since only one run per exercise can be open. Offered where the run is seen as

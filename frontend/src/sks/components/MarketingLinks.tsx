@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 import { chartExercisesForGuests } from '../chartCatalog'
-import { HEADER_LINK, HEADER_LINK_ACTIVE } from '../../shared/components/headerLink'
+import { HEADER_LINK, HEADER_LINK_ACTIVE } from './headerLink'
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return isActive ? HEADER_LINK_ACTIVE : HEADER_LINK

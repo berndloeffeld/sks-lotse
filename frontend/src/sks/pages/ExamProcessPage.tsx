@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { trackSignupClick } from '../../shared/analytics'
+import { trackSignupClick } from '../analytics'
 import { chartExercisesForGuests } from '../chartCatalog'
 import { EXAM_PROCESS_FAQ } from '../faq'
 import { PageLayout } from '../components/PageLayout'
 import { BoatIcon, CatalogIcon, CertificateIcon, ChartDividersIcon } from '../components/icons/FeatureIcons'
-import { useAuthStore } from '../../shared/store/authStore'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { sectionHeading, subsectionHeading } from '../../shared/components/headingStyles'
+import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
+import { sectionHeading, subsectionHeading } from '../components/headingStyles'
 
 interface SectionProps {
   icon?: ReactNode
@@ -48,11 +48,7 @@ export function ExamProcessPage() {
       <Section icon={<CertificateIcon className="h-8 w-8" />} title="Was du vor der SKS-Prüfung schon mitbringen musst">
         <p>
           Ohne den Sportbootführerschein See (SBF See) geht es nicht – er ist Voraussetzung für die Zulassung zur SKS.
-          Fehlt er dir noch: Die amtlichen Navigationsaufgaben des SBF See übst du auf unserer Schwester-Site{' '}
-          <a href="https://sbf-lotse.de/navigation" className="text-primary underline hover:no-underline">
-            SBF Lotse
-          </a>
-          . Außerdem verlangt die Prüfungsordnung 300 Seemeilen Erfahrung auf Yachten in Küstengewässern, bevor du zur
+          Außerdem verlangt die Prüfungsordnung 300 Seemeilen Erfahrung auf Yachten in Küstengewässern, bevor du zur
           praktischen SKS-Prüfung antreten kannst. Diese Meilen sammelst du typischerweise auf Törns oder bei einer
           Segelschule, während du parallel für die Theorie lernst.
         </p>

@@ -1,12 +1,12 @@
 import type { KeyboardEvent, Ref } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
+import { trackEvent } from '../analytics'
 import type { ChartAiSuggestion, ChartAttemptTask } from '../api/types'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { useCheckLimits } from '../hooks/useCheckLimits'
 import { lotseErrorMessage } from '../lotseErrorMessage'
 import { LotseCheckButton } from './LotseCheckButton'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { ErrorMessage } from './Messages'
 
 /** The Lotsen-Check's suggestion for a task: points, what's right or wrong, and the probable mistake. */
 export function ChartAiSuggestionView({

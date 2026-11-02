@@ -2,13 +2,14 @@
 // scripts/generate_postman_collection.sh (ADR-0046) — never edit that file by hand. What the
 // schema can't say lives here: the fixed values the backend accepts and returns as plain strings
 // (backend/app/schemas/common.py::one_of explains why), narrowed to their literal types.
-import type { components } from '../../shared/api/schema.gen'
+import type { components } from './schema.gen'
 
 type Schemas = components['schemas']
 
-// The account and the token purchase are the same on both sites (ADR-0070); re-exported, so SKS
-// Lotse's modules keep one place to import the API's shapes from.
-export type { CheckoutRead, PublicPricing, PublicTokenPackage, User } from '../../shared/api/types'
+export type User = Schemas['UserRead']
+export type PublicPricing = Schemas['PublicPricing']
+export type PublicTokenPackage = Schemas['PublicTokenPackage']
+export type CheckoutRead = Schemas['CheckoutRead']
 // `T` with the fields in `N` replaced by narrower types.
 type Narrow<T, N extends { [K in keyof N]: K extends keyof T ? unknown : never }> = Omit<T, keyof N> & N
 

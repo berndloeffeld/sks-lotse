@@ -2,11 +2,11 @@ import type { KeyboardEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { RefreshSummary } from '../api/types'
-import { percentOf } from '../../shared/format'
+import { percentOf } from '../format'
 import { learnModes, type LearnMode } from '../navigation'
-import { Band } from '../../shared/components/Bands'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { Band } from './Bands'
+import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 const LEARN_MODES: { id: LearnMode; label: string }[] = [
   { id: 'topic', label: 'Nach Thema' },

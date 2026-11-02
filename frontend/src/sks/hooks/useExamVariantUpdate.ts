@@ -1,6 +1,6 @@
 import type { ExamVariant } from '../api/types'
-import { useAuthStore } from '../../shared/store/authStore'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useAuthStore } from '../store/authStore'
+import { useAsyncAction } from './useAsyncAction'
 
 // Saving the exam variant (PATCH /auth/me) from the dropdown on /learn and
 // /profile — same request, same busy/error state on both pages.

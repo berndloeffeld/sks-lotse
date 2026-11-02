@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 
-import { apiClient } from '../../shared/api/client'
+import { apiClient } from '../api/client'
 import type { ChartStats, ExamResult } from '../api/types'
-import { formatDateTime, formatDayMonth, formatDecimal, formatPercentOf, percentOf } from '../../shared/format'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
+import { formatDateTime, formatDayMonth, formatDecimal, formatPercentOf, percentOf } from '../format'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { dayFromNumber, timeAxis } from '../chartTimeline'
 import { CHART_ORAL_MIN_POINTS, CHART_PASS_MIN_POINTS } from '../chartVerdict'
 import { EXAM_RESULT_LABELS } from '../labels'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { ErrorMessage } from './Messages'
+import { sectionHeading } from './headingStyles'
 
 const RESULT_BARS: Record<ExamResult, string> = {
   bestanden: 'bg-success',

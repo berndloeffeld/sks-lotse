@@ -1,5 +1,5 @@
-// The two both sites' account UI uses live in src/shared/components/icons.tsx.
-export { AccountIcon, HelmIcon } from '../../../shared/components/icons'
+// The two the account UI uses live in components/accountIcons.tsx.
+export { AccountIcon, HelmIcon } from '../accountIcons'
 
 interface IconProps {
   className?: string

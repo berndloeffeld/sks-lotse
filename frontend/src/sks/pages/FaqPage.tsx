@@ -1,7 +1,7 @@
 import { FAQ } from '../faq'
-import { FaqAnswer } from '../../shared/components/FaqAnswer'
+import { FaqAnswer } from '../components/FaqAnswer'
 import { PageLayout } from '../components/PageLayout'
-import { ProseSection } from '../../shared/components/ProseSection'
+import { ProseSection } from '../components/ProseSection'
 
 export function FaqPage() {
   return (

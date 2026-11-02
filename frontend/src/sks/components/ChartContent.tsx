@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 import type { ChartAttemptTask, ChartImage, ChartSolutionPart } from '../api/types'
-import { pointsLabel } from '../../shared/chartPoints'
+import { pointsLabel } from '../chartPoints'
 import { AnswerBox } from './AnswerBox'
 import { DerivationDetails } from './Derivation'
-import { ImageLightbox } from '../../shared/components/ImageLightbox'
+import { ImageLightbox } from './ImageLightbox'
 import { RichText } from './RichText'
 
 // The pieces of a Kartenaufgabe shown in more than one place (the run, the Verlauf, the result).

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { faqAnswerParts } from '../shared/faq'
+import { faqAnswerParts } from './faqLinks'
 import { FAQ } from './faq'
 
 describe('FAQ', () => {
