@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
-import { ApiError, apiClient } from '../../shared/api/client'
+import { trackEvent } from '../analytics'
+import { ApiError, apiClient } from '../api/client'
 import type { Exam } from '../api/types'
-import { useEnterShortcut } from '../../shared/hooks/useEnterShortcut'
+import { useEnterShortcut } from '../hooks/useEnterShortcut'
 import { useExamCountdown } from '../hooks/useExamCountdown'
-import { formatCountdown } from '../../shared/format'
+import { formatCountdown } from '../format'
 import { SUBJECT_GROUP_LABELS } from '../labels'
-import { formStyles } from '../../shared/components/formStyles'
+import { formStyles } from './formStyles'
 import { QuestionImages } from './QuestionImages'
 import { RichText } from './RichText'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const AUTOSAVE_DELAY_MS = 800
 const styles = formStyles('light')

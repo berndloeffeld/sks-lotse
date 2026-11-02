@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { apiClient } from '../../shared/api/client'
+import { apiClient } from '../api/client'
 import type { AdminUserListItem, AdminUserListPage } from '../api/types'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { formatDate, getFullName, pluralize } from '../../shared/format'
-import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { formatDate, getFullName, pluralize } from '../format'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 const PAGE_SIZE = 50
 

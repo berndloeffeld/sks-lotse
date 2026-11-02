@@ -1,5 +1,5 @@
 import { PageLayout } from '../components/PageLayout'
-import { ImprintContent } from '../../shared/legal/ImprintContent'
+import { ImprintContent } from '../legal/ImprintContent'
 
 export function ImprintPage() {
   return (

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
+import { trackEvent } from '../analytics'
 import { guestOverview, type ChartExport, type ChartSheet } from '../chartCatalog'
 import { answerTask, awardPoints, guestAttempt, isRunInProgress, startGuestRun } from '../chartGuestRun'
-import { useLeaveConfirmation } from '../../shared/hooks/useLeaveConfirmation'
+import { useLeaveConfirmation } from '../hooks/useLeaveConfirmation'
 import { guestTideFormId, useTideForm } from '../hooks/useTideForm'
 import { ChartTaskRun } from './ChartTaskRun'
 import { ChartSidePanel, ChartToolBar } from './ChartTools'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { Modal } from '../../shared/components/Modal'
+import { buttonClass } from './buttonStyles'
+import { Modal } from './Modal'
 
 // A guest's run through a Kartenaufgabe (ADR-0056): laid out like a learner's (ChartAttemptPage),
 // but held in the page only — nothing is sent or saved, and it is gone with the page. The Formblatt

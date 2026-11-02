@@ -5,7 +5,7 @@ import { ExamResultView } from '../components/ExamResultView'
 import { ExamWriting } from '../components/ExamWriting'
 import { PageLayout } from '../components/PageLayout'
 import { useExam } from '../hooks/useExam'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { ErrorMessage } from '../components/Messages'
 
 // One exam, shown according to its status: answering, self-assessment, or the
 // finished result (which is also how an old exam is opened from the history).

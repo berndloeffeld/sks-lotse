@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react'
 
-import { apiClient } from '../../shared/api/client'
+import { apiClient } from '../api/client'
 import type { AdminBlockedEmail } from '../api/types'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
+import { ErrorMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 const INPUT = 'border border-ink-soft bg-surface px-3 py-2 text-base text-ink sm:text-sm'
 const LABEL = 'flex flex-col gap-1 text-sm text-ink-soft'

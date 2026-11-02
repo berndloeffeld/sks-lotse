@@ -6,7 +6,7 @@ How to operate SKS Lotse in production: where to look, what to do when something
 
 | What | Where |
 |---|---|
-| Services, env vars, deploys, database | Render dashboard: `sks-lotse-backend`, `sks-lotse-frontend`, `sbf-lotse-frontend` (SBF Lotse, [ADR-0067](adr/0067-second-site-from-one-codebase.md)), `sks-lotse-daily-report` (cron), `sks-lotse-db` — all declared in `render.yaml` |
+| Services, env vars, deploys, database | Render dashboard: `sks-lotse-backend`, `sks-lotse-frontend`, `sks-lotse-daily-report` (cron), `sks-lotse-db` — all declared in `render.yaml` |
 | Uptime monitors, status page, logs, heartbeat | Better Stack. Public status page: [sks-lotse.betteruptime.com](https://sks-lotse.betteruptime.com) |
 | CI, branch protection, Dependabot | GitHub (`.github/`) |
 | Security findings | Aikido dashboard and alert mails (rescans about every three days; see [Security alerts](#security-alerts-aikido)) |
@@ -85,7 +85,7 @@ All secrets are `sync: false` in `render.yaml` and set in the Render dashboard. 
 | Secret | Set on | Rotating it means |
 |---|---|---|
 | `JWT_SECRET` | backend **and** cron | Every session and every pending OTP code becomes invalid; everyone logs in again. Admins' stored TOTP secrets become unreadable too: [reset every admin's 2FA](#reset-an-admins-2fa) afterwards and set it up again. Generate with `openssl rand -hex 32`, set it on both services in one go (the cron only needs it to pass config validation). |
-| `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives (on both sites, [ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)), then revoke the old key. |
+| `RESEND_API_KEY` | backend **and** cron | Create the new key at Resend, set it on both services, check that a login code arrives, then revoke the old key. |
 | `ANTHROPIC_GRADING_API_KEY` | backend | New key in the grading workspace of the Anthropic Console, set it, try one AI check, revoke the old one. While it's empty or invalid the check answers 503 and the reserved token is refunded. |
 | `ADMIN_EMAILS`, `ALLOWED_EMAILS` | backend (`ADMIN_EMAILS` also on the cron) | Not secret, but kept out of the repo. `ADMIN_EMAILS` empty = no admins, and the cron has no recipients. |
 | `BETTERSTACK_HEARTBEAT_URL` | cron | A new heartbeat in Better Stack; the old one then alerts until deleted. |
@@ -166,15 +166,9 @@ For a lost or replaced phone, or after rotating `JWT_SECRET`:
 2. Without GitHub: Render dashboard → `sks-lotse-backend` → Shell → `python -m scripts.reset_admin_totp --email …`.
 3. The script also ends every session of that account. Log in again, open `/admin`, set 2FA up afresh.
 
-## SBF Navigationsaufgaben flag
-
-(Accounts on SBF Lotse have their own build flag, `VITE_SBF_ACCOUNTS`, switched as described in [One-time setup SBF, part 2](#one-time-setup-sbf-part-2).)
-
-`VITE_SBF` on `sbf-lotse-frontend` ([ADR-0067](adr/0067-second-site-from-one-codebase.md)): `off` builds sbf-lotse.de as a placeholder (start page, FAQ, legal pages), `on` with the Navigationsaufgaben See for guests ([ADR-0068](adr/0068-sbf-navigation-tasks-from-reviewed-yaml.md)). It's declared in `render.yaml` (currently `on`), so switching it is a PR together with `docs/FEATURES.md` and the rewrites of `/navigation` and `/navigation/1` … `/navigation/15` on `sbf-lotse-frontend` (`backend/tests/test_sbf_navigation_export.py` checks they match the flag). ELWIS confirmed the usage rights for the SBF catalog See and its Navigationsaufgaben on 2026-10-24, including the cuts of the PDF shown beside the run and the marked typo corrections; the flag has been `on` since. It is a build-time value, so a switch takes the SBF site's deploy.
-
 ## security.txt
 
-`frontend/public/.well-known/security.txt` (RFC 9116), and SBF Lotse's copy in `frontend/public-sbf/.well-known/`, name `kontakt@sks-lotse.de` and links `SECURITY.md`. Their `Expires` field (currently 2027-09-30 in both) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
+`frontend/public/.well-known/security.txt` (RFC 9116) names `kontakt@sks-lotse.de` and links `SECURITY.md`. Its `Expires` field (currently 2027-09-30) must stay in the future and at most a year ahead: move it forward in a PR before it runs out. `backend/tests/test_docs.py` turns red 60 days before the date, so a forgotten renewal shows up as a failing CI instead of an expired file.
 
 ## Security alerts (Aikido)
 
@@ -207,7 +201,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 - **Render**: Custom Domains; env var *values*. A header or env var removed from `render.yaml` may linger on the service. In PR #150 the old `Content-Security-Policy-Report-Only` header had to be deleted by hand in the frontend service's settings. After such a change, check the live response headers.
 - **Render, `sks-lotse-backend`**: `STRIPE_CHECKOUT` = `on` (every learner can buy tokens). When it is switched, change this line and `docs/FEATURES.md` in the same PR; the flag stays `sync: false`, so no PR would otherwise remind anyone.
 - **Better Stack**: monitors, alert rules, the status page and the heartbeat.
-- **Resend / IONOS**: the sending-domain DNS records, for `sks-lotse.de` and `sbf-lotse.de`.
+- **Resend / IONOS**: the sending-domain DNS records, for `sks-lotse.de`.
 
 ## One-time setup (recreating the environment)
 
@@ -225,40 +219,14 @@ Account-level steps, done by the project owner:
 5. Resend: verify the sending domain via the DNS records Resend lists (IONOS).
 6. The GitHub Actions that call Render's API — [Maintenance mode](#maintenance-mode) (optional, the Render dashboard path needs none of this) and [Reset admin 2FA](#reset-an-admins-2fa): create a Render API key (Account Settings → API Keys) and add it as the GitHub Actions secret `RENDER_API_KEY`, and add the backend service's id (`srv-...`, from its Render dashboard URL) as the secret `RENDER_BACKEND_SERVICE_ID` (repo → Settings → Secrets and variables → Actions → "Repository secrets" — not sensitive, but simplest to set alongside the API key on the same page).
 
-## One-time setup SBF, part 1
+## Decommissioning SBF Lotse
 
-For sbf-lotse.de, the second static site ([ADR-0067](adr/0067-second-site-from-one-codebase.md)). The merge of the PR that adds `sbf-lotse-frontend` to `render.yaml` creates the service through the Blueprint sync. It then deploys the placeholder (`VITE_SBF=off`) at `sbf-lotse-frontend.onrender.com`. Steps for the project owner:
-
-- [ ] **Render:** check under Blueprints that the sync ran and `sbf-lotse-frontend` exists (on a Blueprint set to manual sync, trigger it). Its first build must pass.
-- [ ] **Render:** on `sbf-lotse-frontend` → Settings → Custom Domains, add `sbf-lotse.de` and `www.sbf-lotse.de`. A domain can only be attached to one service.
-- [ ] **DNS (IONOS):** for each domain, the records Render shows there:
-  - for `www`, a `CNAME www → sbf-lotse-frontend.onrender.com`;
-  - for the apex, the `A` record Render lists, since IONOS has no `ALIAS`.
-  - Then wait until Render shows both domains as verified, with a certificate.
-- [ ] **Umami:** set `VITE_UMAMI_WEBSITE_ID` on `sbf-lotse-frontend` (Render → Environment) to the same value as on `sks-lotse-frontend`, then redeploy, since the id is baked in at build time. Both sites report to one Umami website (Umami Cloud's free plan has one); filter the reports by hostname `sbf-lotse.de`. A website of its own needs the Pro plan and a change of the Datenschutzerklärung, which says the two are evaluated together.
-- [ ] **Google Search Console:** add a domain property `sbf-lotse.de`, verified by the TXT record it shows (IONOS). Then submit the sitemap `https://sbf-lotse.de/sitemap.xml`.
-- [ ] **Check:**
-  - `https://sbf-lotse.de` and `https://www.sbf-lotse.de` show SBF Lotse.
-  - The response headers carry the CSP without `api.sks-lotse.de`.
-  - The browser's network tab shows no request to `api.sks-lotse.de`.
-- [ ] Optional: a Better Stack monitor on `https://sbf-lotse.de`.
-
-## One-time setup SBF, part 2
-
-For accounts on sbf-lotse.de (increment 2). sbf-lotse.de reaches the backend on `api.sbf-lotse.de`, a second custom domain of `sks-lotse-backend` ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md)). The backend changes ship first and change nothing visible. Accounts on sbf-lotse.de stay switched off in its build until the checks below pass. Steps for the project owner:
-
-- [ ] **Render:** on `sks-lotse-backend` → Settings → Custom Domains, `api.sbf-lotse.de` shows as verified, with a certificate (DNS at IONOS: the `CNAME api → sks-lotse-backend.onrender.com` Render lists). Done before increment 2; check it once more.
-- [ ] **Resend:** add and verify the sending domain `sbf-lotse.de` with the DNS records Resend lists (SPF, DKIM, optionally the return path; IONOS). Until it is verified, mails from `noreply@sbf-lotse.de` are refused, so learners signing in on sbf-lotse.de would get no code.
-- [ ] **Resend plan:** check that the plan covers the login mails of both sites ([NFR](NON-FUNCTIONAL-REQUIREMENTS.md), SBF Lotse).
-- [ ] **Render, optional:** set `EMAIL_FROM_ADDRESS_SBF` on `sks-lotse-backend` only to change the default `SBF Lotse <noreply@sbf-lotse.de>`.
-- [ ] **Stripe:** nothing to set. The same webhook endpoint on api.sks-lotse.de serves both sites; the Checkout Session's `metadata.site` tells them apart, and the return URLs come from the backend.
-- [ ] **Client IP on api.sbf-lotse.de** (after the backend deploy, before accounts open on sbf-lotse.de). Same method as [ADR-0069](adr/0069-frontend-split-and-sbf-api-through-a-proxy.md)'s update:
-  1. Fill the per-IP bucket of `POST /api/v1/auth/otp/verify-link` (30 an hour) on `https://api.sks-lotse.de` with a dummy token.
-  2. Send one more request to `https://api.sbf-lotse.de`. It must get **429**, not 401: both hosts see the same learner IP.
-  3. Afterwards login links don't work from that network for up to an hour; the code does.
-  4. Record the result as an update in ADR-0070.
-- [ ] **Check:** `curl -s -o /dev/null -w '%{http_code}' https://api.sbf-lotse.de/api/v1/pricing` answers 200, and `curl -sI -H 'Origin: https://sbf-lotse.de' https://api.sbf-lotse.de/health` carries `access-control-allow-origin: https://sbf-lotse.de` and `access-control-allow-credentials: true`.
-- [ ] **Better Stack, optional:** a monitor on `https://api.sbf-lotse.de/health`.
-- [ ] **Stripe:** the products of the four token packages carry name, description and image (docs/stripe/README.md), in live and test mode. They say "SKS Lotse" and "1 Token je Katalogfrage, 2 je Kartenaufgabe", which a buyer on sbf-lotse.de sees on Stripe's page too: rename them for both sites (e.g. "Lotse – 20 Tokens", "für den Lotsen-Check auf SKS Lotse und SBF Lotse"). In the sandbox, check that package S's product is S's (it showed package M's).
-- [x] **Client IP measured** on 2026-10-24: 429 on api.sbf-lotse.de after the bucket was full on api.sks-lotse.de, over IPv4 and IPv6 ([ADR-0070](adr/0070-sbf-api-host-and-site-per-request.md), update).
-- [ ] **Accounts on sbf-lotse.de:** once Resend is verified and the saved runs with the Lotsen-Check are merged, a PR sets `VITE_SBF_ACCOUNTS: "on"` on `sbf-lotse-frontend` in `render.yaml`, together with `docs/FEATURES.md`. A build-time value: it takes the SBF site's deploy. Then sign in on sbf-lotse.de once: the code mail comes from `noreply@sbf-lotse.de`, the link leads to sbf-lotse.de, and the cookie is set for `api.sbf-lotse.de`.
+SBF Lotse is removed from the code ([ADR-0071](adr/0071-sbf-lotse-removed.md)). Removing `sbf-lotse-frontend` from `render.yaml` doesn't delete the service, and the domains live outside the repo. Steps for the project owner, after the merge:
+- [ ] **Render:** delete the service `sbf-lotse-frontend` (Settings → Delete Web Service). With it go its Custom Domains `sbf-lotse.de` and `www.sbf-lotse.de`.
+- [ ] **Render:** on `sks-lotse-backend` → Settings → Custom Domains, delete `api.sbf-lotse.de`.
+- [ ] **IONOS:** delete the DNS records of `sbf-lotse.de` that point at Render (`A`/`ALIAS` for the apex, `CNAME www`, `CNAME api`) and Resend's (SPF, DKIM, return path), if any were set. Then let the domain run out or cancel it.
+- [ ] **Resend:** delete the sending domain `sbf-lotse.de`, if it was added.
+- [ ] **Better Stack, Google Search Console:** delete a monitor or a property of `sbf-lotse.de`, if there is one.
+- [ ] **Umami:** nothing to do; SBF Lotse reported to SKS Lotse's website, and its old page views stay there under their hostname.
+- [ ] **Check:** `https://sbf-lotse.de` and `https://api.sbf-lotse.de/health` no longer answer.
+- [ ] **Follow-up PR:** a migration drops `users.signup_site` and `purchases.site` and removes `_UNMAPPED_COLUMNS` from `backend/alembic/env.py`, once this change is deployed.

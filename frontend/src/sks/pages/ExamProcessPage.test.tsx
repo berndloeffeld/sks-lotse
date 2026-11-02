@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
 import { EXAM_PROCESS_FAQ } from '../faq'
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { ExamProcessPage } from './ExamProcessPage'
 
 function renderExamProcessPage() {
@@ -33,13 +33,6 @@ describe('ExamProcessPage', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Die Karten- und Gezeitenaufgabe' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'So läuft die SKS-Praxisprüfung ab' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Warum sich der SKS lohnt' })).toBeInTheDocument()
-  })
-
-  it('sends whoever still lacks the SBF See to SBF Lotse', () => {
-    renderExamProcessPage()
-    // In the text, beside the footer's link to the other site.
-    const links = screen.getAllByRole('link', { name: 'SBF Lotse' }).map((link) => link.getAttribute('href'))
-    expect(links).toEqual(['https://sbf-lotse.de/navigation', 'https://sbf-lotse.de'])
   })
 
   it('links the regional examination boards, opening a new tab', () => {

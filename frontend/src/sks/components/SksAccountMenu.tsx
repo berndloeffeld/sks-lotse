@@ -1,6 +1,6 @@
-import { analyticsLoaded } from '../../shared/analytics'
-import { AccountMenu, type AccountMenuPlacement } from '../../shared/components/AccountMenu'
-import { useAuthStore } from '../../shared/store/authStore'
+import { analyticsLoaded } from '../analytics'
+import { AccountMenu, type AccountMenuPlacement } from './AccountMenu'
+import { useAuthStore } from '../store/authStore'
 
 // SKS Lotse's Konto menu: Lernstand, account settings, buying tokens, and Admin for admins.
 export function SksAccountMenu({ placement }: { placement?: AccountMenuPlacement }) {

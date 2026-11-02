@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { trackEvent, trackLandingClick } from '../../shared/analytics'
+import { trackEvent, trackLandingClick } from '../analytics'
 import type { GradingOutcome } from '../api/types'
 import samples from '../data/landing_samples.gen.json'
 import { SUBJECT_LABELS } from '../labels'
 import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { formStyles } from '../../shared/components/formStyles'
+import { buttonClass } from './buttonStyles'
+import { formStyles } from './formStyles'
 import { SelfAssessment } from './SelfAssessment'
 
 // A few official questions, copied word for word by backend/scripts/export_catalog.py, so the

@@ -87,7 +87,7 @@ cd frontend && npm ci                                   # once
 ```
 
 - **Scope**: exactly `mutate` in [`frontend/stryker.config.json`](../frontend/stryker.config.json), the logic modules
-  (the `.ts` files directly in `src/shared/`, `src/sks/` and `src/sbf/`, and in their `api/`, `store/`, `hooks/`); the ones left out are the `EXCLUDED` set in
+  (the `.ts` files directly in `src/sks/` and in its `api/`, `store/`, `hooks/`); the ones left out are the `EXCLUDED` set in
   `src/test/mutationScope.test.ts`. Components and pages are deliberately out for now: their mutants are
   mostly markup and class names, and only page-level tests cover them, which makes runs slow and survivors noisy.
   That test keeps the list current (same idea as the backend's `test_mutation_scope.py`).

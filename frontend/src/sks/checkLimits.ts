@@ -1,6 +1,6 @@
-import { apiClient } from '../shared/api/client'
+import { apiClient } from './api/client'
 import type { PublicPricing } from './api/types'
-import { createLazyExport } from '../shared/lazyExport'
+import { createLazyExport } from './lazyExport'
 
 // What a Lotsen-Check costs, how long an answer it takes, and how many tokens a new account is
 // given. The backend decides and says so in GET /pricing; these are what the screens show until

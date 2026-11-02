@@ -1,6 +1,6 @@
 # 0070. SBF Lotse reaches the API on api.sbf-lotse.de; the backend tells the site per request
 
-Status: Accepted — amends [ADR-0012](0012-httponly-cookie-for-frontend-session-token.md) (one session cookie per API host, so a learner signs in on each site once), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (the site goes into the Checkout Session's metadata) and [ADR-0069](0069-frontend-split-and-sbf-api-through-a-proxy.md) (its fallback, api.sbf-lotse.de, replaces the withdrawn proxy), and [ADR-0067](0067-second-site-from-one-codebase.md) ("SBF Lotse makes no API call" ends with accounts in its build, update 2026-10-24 below)
+Status: Superseded by [ADR-0071](0071-sbf-lotse-removed.md) (SBF Lotse removed, 2026-11-02); until then amends [ADR-0012](0012-httponly-cookie-for-frontend-session-token.md) (one session cookie per API host, so a learner signs in on each site once), [ADR-0048](0048-stripe-hosted-checkout-with-webhook-fulfilment.md) (the site goes into the Checkout Session's metadata) and [ADR-0069](0069-frontend-split-and-sbf-api-through-a-proxy.md) (its fallback, api.sbf-lotse.de, replaces the withdrawn proxy), and [ADR-0067](0067-second-site-from-one-codebase.md) ("SBF Lotse makes no API call" ends with accounts in its build, update 2026-10-24 below)
 
 ## Context
 

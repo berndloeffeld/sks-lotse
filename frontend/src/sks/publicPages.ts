@@ -22,14 +22,14 @@ import {
   sheetText,
   topicText,
 } from './publicPageTexts'
-import { faqJsonLd, type PageText, type PublicPage } from '../shared/publicPages'
-import { SITES } from '../shared/site'
+import { faqJsonLd, type PageText, type PublicPage } from './pageMeta'
+import { SITE_ORIGIN } from './site'
 
 // The prerendered pages (ADR-0025): scripts/prerender.mjs renders each into dist/<file>, the
 // sitemap lists them, and render.yaml rewrites each path to its file (for the /learn pages,
 // backend/tests/test_catalog_export.py checks that every one is there). The open /learn pages come from the catalog export (ADR-0054).
 
-export const SITE = SITES.sks.origin
+export const SITE = SITE_ORIGIN
 
 function page(path: string, { title, description }: PageText, jsonLd?: Record<string, unknown>[]): PublicPage {
   return {

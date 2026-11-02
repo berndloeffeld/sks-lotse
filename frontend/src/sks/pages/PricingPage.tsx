@@ -1,9 +1,9 @@
 import { PageLayout } from '../components/PageLayout'
-import { CheckoutReturnNotice, TokenPackages, TokensSoonBadge } from '../../shared/components/TokenPurchase'
-import { usePricing } from '../../shared/hooks/usePricing'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { CheckoutReturnNotice, TokenPackages, TokensSoonBadge } from '../components/TokenPurchase'
+import { usePricing } from '../hooks/usePricing'
+import { sectionHeading } from '../components/headingStyles'
 
-export { BALANCE_RECHECK_MS } from '../../shared/hooks/usePricing'
+export { BALANCE_RECHECK_MS } from '../hooks/usePricing'
 
 // A standalone page for the token prices (ADR-0043), linked from the header nav. The
 // token packages can be bought here once the STRIPE_CHECKOUT flag lets this account

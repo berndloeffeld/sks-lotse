@@ -1,8 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
-import { formatDate, getDisplayName } from '../../shared/format'
-import { useAuthStore } from '../../shared/store/authStore'
-import { Band } from '../../shared/components/Bands'
+import { formatDate, getDisplayName } from '../format'
+import { useAuthStore } from '../store/authStore'
+import { Band } from './Bands'
 import { PageLayout } from './PageLayout'
 
 // /profile's two sections. A new one is an entry here plus its route in App.tsx.

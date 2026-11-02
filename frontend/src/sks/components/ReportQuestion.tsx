@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../../shared/api/client'
+import { trackEvent } from '../analytics'
+import { apiClient } from '../api/client'
 import { ReportIcon } from './icons/FeatureIcons'
-import { formStyles } from '../../shared/components/formStyles'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
-import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { formStyles } from './formStyles'
+import { useAsyncAction } from '../hooks/useAsyncAction'
+import { ErrorMessage, StatusMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 // Mirrors REPORT_CATEGORIES in backend/app/schemas/question_report.py.
 const CATEGORIES = {

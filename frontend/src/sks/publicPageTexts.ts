@@ -1,4 +1,4 @@
-import type { PageText } from '../shared/publicPages'
+import type { PageText } from './pageMeta'
 import type { ChartSheet } from './chartCatalog'
 
 // The wording of the prerendered pages' titles, descriptions and breadcrumb names (SEO copy, see

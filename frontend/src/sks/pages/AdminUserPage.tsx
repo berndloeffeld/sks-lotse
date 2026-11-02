@@ -1,16 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { ApiError, RECENT_MFA_REQUIRED, apiClient } from '../../shared/api/client'
+import { ApiError, RECENT_MFA_REQUIRED, apiClient } from '../api/client'
 import type { AdminUser, AdminUserExport, ExamVariant } from '../api/types'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { GENDER_LABELS, VARIANT_LABELS } from '../labels'
-import { useAuthStore } from '../../shared/store/authStore'
-import { formatDate, formatDateTime, getFullName } from '../../shared/format'
-import { useNavigateWhileMounted } from '../../shared/hooks/useNavigateWhileMounted'
-import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { useAuthStore } from '../store/authStore'
+import { formatDate, formatDateTime, getFullName } from '../format'
+import { useNavigateWhileMounted } from '../hooks/useNavigateWhileMounted'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 function downloadJson(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })

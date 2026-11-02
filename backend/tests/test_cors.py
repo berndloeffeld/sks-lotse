@@ -19,7 +19,7 @@ def test_disallowed_origin_gets_no_cors_header(client):
 def test_maintenance_header_is_exposed_cross_origin(client):
     # Browsers hide all but a handful of "simple" response headers from
     # cross-origin JS unless the server lists them in Access-Control-Expose-
-    # Headers — without it, frontend/src/shared/api/client.ts would never see
+    # Headers — without it, frontend/src/sks/api/client.ts would never see
     # X-Maintenance-Mode (app/core/maintenance.py) even though curl/the
     # network tab shows it fine.
     response = client.get("/health", headers={"Origin": "http://localhost:5173"})
@@ -51,10 +51,3 @@ def test_preflight_allows_the_method(client, path, method):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
-
-
-def test_sbf_lotse_origin_gets_cors_with_credentials(client):
-    # ADR-0070: sbf-lotse.de calls the API on api.sbf-lotse.de with its session cookie.
-    response = client.get("/health", headers={"Origin": "http://localhost:5174"})
-    assert response.headers["access-control-allow-origin"] == "http://localhost:5174"
-    assert response.headers["access-control-allow-credentials"] == "true"

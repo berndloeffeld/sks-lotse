@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
 
-import { apiClient } from '../../shared/api/client'
+import { apiClient } from '../api/client'
 import type { AdminSettings, TokenPackageSettings } from '../api/types'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { useAsyncAction } from '../../shared/hooks/useAsyncAction'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { useAsyncAction } from '../hooks/useAsyncAction'
 import { PACKAGE_LABELS, PACKAGE_PRODUCTS, type PackageProduct } from '../labels'
-import { ErrorMessage, StatusMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage, StatusMessage } from '../components/Messages'
+import { buttonClass } from '../components/buttonStyles'
 
 // Euro-and-cent input as a plain string, e.g. "2.99" — kept as text (not a number) so a half-typed
 // value ("2.") doesn't get silently mangled while the operator is still typing.

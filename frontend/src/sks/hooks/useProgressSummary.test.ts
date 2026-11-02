@@ -2,13 +2,13 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../../shared/api/client'
+import { trackEvent } from '../analytics'
+import { apiClient } from '../api/client'
 import type { TopicProgress } from '../api/types'
 import { useProgressSummary } from './useProgressSummary'
 
-vi.mock('../../shared/api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn(), delete: vi.fn() } }))
-vi.mock('../../shared/analytics', () => ({ trackEvent: vi.fn() }))
+vi.mock('../api/client', () => ({ apiClient: { get: vi.fn(), put: vi.fn(), delete: vi.fn() } }))
+vi.mock('../analytics', () => ({ trackEvent: vi.fn() }))
 
 const get = vi.mocked(apiClient.get)
 const put = vi.mocked(apiClient.put)

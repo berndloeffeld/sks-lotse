@@ -4,8 +4,8 @@ import { MemoryRouter, RouterProvider, createMemoryRouter } from 'react-router-d
 
 import { AppRoutes } from './App'
 import { appRoutes } from './appRoutes'
-import { useMaintenanceStore } from '../shared/store/maintenanceStore'
-import { forgetBrowserData } from '../shared/store/authStore'
+import { useMaintenanceStore } from './store/maintenanceStore'
+import { forgetBrowserData } from './store/authStore'
 import { jsonResponse, makeUser } from '../test/fixtures'
 
 describe('App', () => {

@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 
 import type { TopicProgress } from '../api/types'
-import { percentOf } from '../../shared/format'
+import { percentOf } from '../format'
 import { SUBJECT_LABELS } from '../labels'
-import { Band } from '../../shared/components/Bands'
+import { Band } from './Bands'
 import { LedgerRow } from './LedgerRow'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
+import { sectionHeading } from './headingStyles'
 
 interface FocusBandProps {
   topics: TopicProgress[]

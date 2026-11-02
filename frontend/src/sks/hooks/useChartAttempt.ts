@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
-import { apiClient } from '../../shared/api/client'
+import { trackEvent } from '../analytics'
+import { apiClient } from '../api/client'
 import type { ChartAiCheck, ChartAttempt, ChartExercisesOverview } from '../api/types'
-import { useAuthStore } from '../../shared/store/authStore'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
+import { useAuthStore } from '../store/authStore'
+import { useApiQuery } from './useApiQuery'
 
 // The ten Kartenaufgaben with the learner's runs, plus what every sheet shares (hints, tide form).
 export function useChartOverview() {

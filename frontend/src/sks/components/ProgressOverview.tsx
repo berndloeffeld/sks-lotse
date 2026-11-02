@@ -1,11 +1,11 @@
-import { formatPercentOf, percentOf } from '../../shared/format'
+import { formatPercentOf, percentOf } from '../format'
 import { useExamVariantUpdate } from '../hooks/useExamVariantUpdate'
-import { useAuthStore } from '../../shared/store/authStore'
-import { Columns } from '../../shared/components/Bands'
+import { useAuthStore } from '../store/authStore'
+import { Columns } from './Bands'
 import { ExamVariantDropdown } from './ExamVariantDropdown'
 import { ProgressPie, type ProgressSlice } from './ProgressPie'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { ErrorMessage } from './Messages'
+import { sectionHeading } from './headingStyles'
 
 interface ProgressOverviewProps {
   totals: { learned: number; learning: number; total: number }
