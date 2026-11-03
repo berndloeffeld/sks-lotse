@@ -34,7 +34,6 @@ How to operate SKS Lotse in production: where to look, what to do when something
 
 - A push to `main` deploys all services once its GitHub checks have passed (`autoDeployTrigger: checksPass`). The static site and the backend deploy independently, so they can briefly run different versions (the compatibility rule: `CLAUDE.md` → Deployment (Render)).
 - **`render.yaml` itself takes effect on the Blueprint sync, right after the push, not with the deploy.** Routes and headers go live while the build still waits for the checks. A route may therefore never point at a file the same change creates: a rewrite to a missing file answers `200` with an empty body (and the CDN caches it). A new prerendered page therefore answers empty for a few minutes after its merge. Pages that already exist aren't affected (ADR-0057).
-- **A route removed from `render.yaml` stays on the service.** The sync adds and changes routes but did not delete one: the `/api/*` rewrite on `sbf-lotse-frontend` was still in the dashboard after its removal was merged and deployed (2026-10-24, ADR-0069). After such a merge, delete the rule under the service's Redirects/Rewrites, **Save Changes**, and check that the path answers as expected; the change reaches every host within a minute or two, without a deploy.
 - The backend migrates in `preDeployCommand` (`alembic upgrade head`). **A failed migration aborts the deploy, and the previous instance keeps serving.** Read the deploy log, fix forward with a new PR, and don't retry blindly.
 - The backend starts with exactly one uvicorn worker, so don't scale it out in the dashboard (why: `CLAUDE.md` → Deployment (Render)).
 - **Rollback**: prefer reverting the PR on `main` (a new squash commit), which goes through CI like everything else. Render's "Rollback" to an earlier deploy is the emergency lever, but it doesn't undo migrations: only use it when the bad deploy didn't change the schema, or the old code still works with the new schema.
@@ -52,8 +51,6 @@ A manual kill switch for an ongoing malfunction, deliberately not wired through 
 **Fast path — Render dashboard**: `sks-lotse-backend` → Environment → set `MAINTENANCE_MODE` to `true` (or `false` to turn it back off) → Save. Redeploys automatically.
 
 **Alternate path — GitHub Action**: Actions tab → "Maintenance mode toggle" → Run workflow → choose `on`/`off`. Useful when Render dashboard access isn't at hand. Needs the one-time setup below done once.
-
-**Test log**: Maintenance-mode trial run: done; an environment-variable-only deploy runs `preDeployCommand`.
 
 ## Database
 
@@ -107,7 +104,6 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 
 - **Webhook endpoint (once per Stripe mode)**: Stripe dashboard → Developers → Webhooks → add `https://<backend-domain>/api/v1/payments/webhook`, events `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET`. Failed deliveries show there and are retried by Stripe; "Resend" re-delivers safely (idempotent).
 - **Flag `STRIPE_CHECKOUT`**: `off` = nobody can buy; `admins` = only `ADMIN_EMAILS`; `on` = every learner. Changing it redeploys the backend. Without the secret key or a package's product id, that package can't be bought whatever the flag says. The webhook keeps crediting with the flag `off`.
-- **Before `on`**: the legal texts (Datenschutz with Stripe as recipient and third country, AGB for purchase in the app, FAQ) and `CURRENT_AGB_VERSION` were updated for this (2026-09-25, [ADR-0043](adr/0043-token-based-ai-grading-monetization.md)); merge and deploy that change first. `admins` works without it, only admins can buy.
 - **Refund** (the learner asks for their money back, or we owe it):
   1. Find the payment: `/admin/users` → the account → "Daten exportieren" shows the purchase with its `stripe_payment_intent_id`; search that `pi_…` in the Stripe dashboard.
   2. Stripe dashboard → the payment → Refund (full, or partial for a partly used package if that was agreed). The money side is recorded there; our ledger keeps the original purchase row unchanged.
@@ -125,7 +121,7 @@ Learners buy token packages via Stripe Hosted Checkout ([ADR-0048](adr/0048-stri
 
 ## Kartenaufgaben flag
 
-`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner, and guests without a login ([ADR-0056](adr/0056-chart-exercises-open-to-guests.md)). Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml` (currently `on`), so switching it is a PR (what goes with it: `CLAUDE.md` → Environment variables); the static site's `VITE_CHART_EXERCISES` must have the same value (a backend test checks it; the frontend's build bakes it in, so the switch for guests takes the frontend's deploy). The usage rights of the WSV's Navigationsaufgaben PDF were confirmed on 2026-10-01 (the ELWIS confirmation covers the question catalog only), and the flag has been `on` since 2026-10-02.
+`CHART_EXERCISES` ([ADR-0052](adr/0052-chart-exercises-from-reviewed-yaml.md)): `off` = nobody sees the Kartenaufgaben (their routes answer 404); `admins` = only `ADMIN_EMAILS`; `on` = every learner, and guests without a login ([ADR-0056](adr/0056-chart-exercises-open-to-guests.md)). Unlike `STRIPE_CHECKOUT` it's declared in `render.yaml`, so switching it is a PR (what goes with it: `CLAUDE.md` → Environment variables); the static site's `VITE_CHART_EXERCISES` must have the same value (a backend test checks it; the frontend's build bakes it in, so the switch for guests takes the frontend's deploy).
 
 ## Data-subject requests (DSGVO)
 
@@ -188,7 +184,7 @@ Aikido rescans the repo about every three days and mails when it finds something
 ## Daily KPI report
 
 - The `sks-lotse-daily-report` cron runs daily at 06:00 UTC ([ADR-0032](adr/0032-daily-kpi-report.md)) and mails aggregates to `ADMIN_EMAILS`.
-- The report also lists Kartenaufgaben runs, Lotsen-Checks (by kind) with the tokens they cost, and Stripe purchases with revenue. Checks come from `lotse_check_log`, which the job trims to 30 days after computing the report; before 2026-10-05 nothing was counted, so those figures start at zero.
+- The report also lists Kartenaufgaben runs, Lotsen-Checks (by kind) with the tokens they cost, and Stripe purchases with revenue. Checks come from `lotse_check_log`, which the job trims to 30 days after computing the report.
 - The same growth, activity and Lotsen-Check/revenue figures, plus a chart per day, are on `/admin` → Übersicht at any time; days there are UTC days, and Lotsen-Checks reach back 30 days.
 - Locally: `cd backend && python -m scripts.send_daily_report` (needs a `.env` with a database and `RESEND_API_KEY`).
 - It lists the most-reported questions of the last 7 days ("Frage melden"). There is no admin page for the reports themselves (ADR-0030 addendum 2026-09-24); read their comments in a Render Shell (see Database → External access), e.g. `db.query(QuestionReport).order_by(QuestionReport.created_at.desc()).limit(20).all()` with `from app.models.question_report import QuestionReport`.
@@ -196,9 +192,9 @@ Aikido rescans the repo about every three days and mails when it finds something
 
 ## Settings that live only in dashboards
 
-`render.yaml` doesn't cover everything, and a Blueprint Sync doesn't always remove what the file no longer declares:
+`render.yaml` doesn't cover everything. **A Blueprint Sync adds and changes, but doesn't delete: a route, header or env var removed from `render.yaml` stays on the service.** After such a merge, delete it in the service's settings (Redirects/Rewrites, Headers or Environment) and **Save Changes**, then check that the live response behaves as expected; the change reaches every host within a minute or two, without a deploy. What the file doesn't hold at all:
 
-- **Render**: Custom Domains; env var *values*. A header or env var removed from `render.yaml` may linger on the service. In PR #150 the old `Content-Security-Policy-Report-Only` header had to be deleted by hand in the frontend service's settings. After such a change, check the live response headers.
+- **Render**: Custom Domains; env var *values*.
 - **Render, `sks-lotse-backend`**: `STRIPE_CHECKOUT` = `on` (every learner can buy tokens). When it is switched, change this line and `docs/FEATURES.md` in the same PR; the flag stays `sync: false`, so no PR would otherwise remind anyone.
 - **Better Stack**: monitors, alert rules, the status page and the heartbeat.
 - **Resend / IONOS**: the sending-domain DNS records, for `sks-lotse.de`.
@@ -213,7 +209,7 @@ Account-level steps, done by the project owner:
    - `sks-lotse.de` and `www.sks-lotse.de` → Custom Domains on `sks-lotse-frontend`. A domain can only be attached to one service.
    - `api.sks-lotse.de` → Custom Domain on the backend, plus `CNAME api → sks-lotse-backend.onrender.com` at IONOS. The frontend's `VITE_API_BASE_URL` points here.
    - `sks-lotse.com` and `www.sks-lotse.com` → Custom Domains on the backend, which 301-redirects them to `sks-lotse.de` (`backend/app/core/canonical_domain.py`, `SECONDARY_HOSTS`). This deliberately avoids IONOS's paid forwarding (~8 EUR/month just for SSL on the redirect).
-   - All four domains were registered at IONOS on 2026-09-16. No formal trademark search (DPMA/EUIPO) for "SKS Lotse" has been done yet; worth doing before investing further in the brand.
+   - All four domains were registered at IONOS on 2026-09-16.
    - `sks-lotse.global` and `sks-lotse.store` are registered but unused: no DNS, no Custom Domain, not in `SECONDARY_HOSTS`. Add them the same way as `.com` if ever needed.
 4. Better Stack: monitors on `https://sks-lotse.de` and `https://api.sks-lotse.de/health`, a log source for Render's log stream, the error alert, and the daily-report heartbeat.
 5. Resend: verify the sending domain via the DNS records Resend lists (IONOS).
