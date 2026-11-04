@@ -255,3 +255,22 @@
   - text: Wellen und Schwell reißen das Boot immer wieder ruckartig ein Stück weg. Eine starre Leine gibt jeden
       Ruck voll an Klampen, Beschläge und Anker weiter. Eine Leine, die sich etwas dehnt, federt ihn ab – sie
       muss also **elastisch** sein.
+- subject: seemannschaft_allgemein
+  number: 32
+  answer_fingerprint: 3ca0b36ab772
+  blocks:
+  - text: Bei solchem Tauwerk sind innen und außen zwei getrennte Teile – innen die Seele, die die Last trägt, außen
+      der geflochtene Mantel, der sie schützt. Sie sind nicht miteinander verbunden. Unter Last dehnen sie sich
+      verschieden stark, verschieben sich gegeneinander, und am Ende **rutscht die Seele in den Mantel**.
+  - text: Damit das nicht passiert, müssen Seele und Mantel am Ende **fest miteinander verbunden** werden.
+  - text: Ein **Takling** ist eine enge Umwicklung des Tauwerkendes mit dünnem Garn (Takelgarn). Er hält das Ende
+      zusammen, damit es nicht aufgeht oder ausfranst. Einfach gewickelt drückt er aber nur von außen auf den Mantel.
+  - text: Beim **genähten Takling** wird das Garn zusätzlich mit einer Nadel quer durch das Tauwerk gestochen. Die
+      Stiche gehen durch Mantel und Seele und halten **beide fest zusammen**.
+  - image:
+      src: seemannschaft-32-genaehter-takling.svg
+      width: 780
+      height: 380
+      alt: Skizze zweier Tauwerkenden mit Mantel und Seele. Links ohne Takling, die Seele ist ein Stück in den Mantel
+        zurückgerutscht, das Ende des Mantels ist leer. Rechts mit genähtem Takling, das Ende ist mit Garn umwickelt
+        und vernäht; ein Querschnitt zeigt, dass der Stich durch Mantel und Seele geht.
