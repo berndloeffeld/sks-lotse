@@ -2861,7 +2861,18 @@
    "answer_text": "Es muss bruchfest und elastisch sein.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "An Festmacherleine, Ankertrosse und Schlepptrosse hängt das ganze Gewicht des Bootes, gezogen von Wind, Strom und Seegang. Die Leine darf unter dieser Last nicht reißen, sie muss also **bruchfest** sein.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wellen und Schwell reißen das Boot immer wieder ruckartig ein Stück weg. Eine starre Leine gibt jeden Ruck voll an Klampen, Beschläge und Anker weiter. Eine Leine, die sich etwas dehnt, federt ihn ab – sie muss also **elastisch** sein.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
