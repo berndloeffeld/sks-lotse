@@ -238,3 +238,11 @@
       Fahrzeug aus, und das ist das andere.
   - text: In beiden Fällen weicht also das **Segelfahrzeug in Luv** aus. Sie müssen kein Licht deuten, das Sie nicht
       sicher erkennen können, und sind **Kurshalter**.
+- subject: seemannschaft_allgemein
+  number: 28
+  answer_fingerprint: fc397053e0b5
+  blocks:
+  - text: "Leistung ist Spannung mal Strom (Watt = Volt × Ampere). Umgekehrt ist der Strom die Leistung geteilt durch
+      die Spannung. Ein Verbraucher mit 24 W an 12 V zieht also 24 : 12 = **2 A**."
+  - text: Zwei solche Verbraucher ziehen zusammen 2 × 2 A = **4 A**.
+  - text: Die Strommenge in Amperestunden ist Strom mal Zeit. In 10 Stunden sind das 4 A × 10 h = **40 Ah**.

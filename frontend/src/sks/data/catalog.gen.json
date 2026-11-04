@@ -2835,7 +2835,23 @@
    "answer_text": "Benötigte Strommenge je Verbraucher: 24 : 12 = 2 Ampere mal Anzahl der Verbraucher mal Stunden ergibt: 2 x 2 A x 10 h = 40 Ah.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Leistung ist Spannung mal Strom (Watt = Volt × Ampere). Umgekehrt ist der Strom die Leistung geteilt durch die Spannung. Ein Verbraucher mit 24 W an 12 V zieht also 24 : 12 = **2 A**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwei solche Verbraucher ziehen zusammen 2 × 2 A = **4 A**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die Strommenge in Amperestunden ist Strom mal Zeit. In 10 Stunden sind das 4 A × 10 h = **40 Ah**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
