@@ -1,5 +1,5 @@
 import { catalogSource, type GuestCatalog } from '../catalog'
-import { useLazyExport } from '../../shared/hooks/useLazyExport'
+import { useLazyExport } from './useLazyExport'
 
 // The guest catalog (catalog.ts): there at once on a prerendered page, loaded on first use otherwise.
 export function useCatalog(): {

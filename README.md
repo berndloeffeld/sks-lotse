@@ -26,7 +26,7 @@ git log --format='%(trailers:key=Co-Authored-By,valueonly)' | sort | uniq -c | s
 
 ## Status
 
-Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (sheets 1 to 7 so far), open to guests too, with their own Lotsen-Check. Not built yet: SSO, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Live: email+OTP login, learning by topic with self-assessment against the official answers, Fokus and Auffrischen, the exam simulation (Fragebogen) with history and statistics, the Lotsen-Check (an LLM that suggests a grade, paid with tokens) with token packages bought through Stripe, and the admin tools. Also live: the Kartenaufgaben (all ten sheets), open to guests too, with their own Lotsen-Check. Not built yet: SSO, speech-to-text. What learners and operators can do today, incl. prices: [docs/FEATURES.md](docs/FEATURES.md); the technical current state and the full "not yet built" list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Tech stack
 
@@ -46,17 +46,12 @@ Live: email+OTP login, learning by topic with self-assessment against the offici
 
 ## Privacy & security
 
-Everything that remembers needs an account (only the topic learning and the Kartenaufgaben run in the browser without one), so handling personal data properly is part of the design, not an afterthought. The user-facing statement is the in-app [Datenschutzerklärung](frontend/src/sks/pages/PrivacyPage.tsx) (`/privacy`); this is the technical side.
+Everything that remembers needs an account (only the topic learning and the Kartenaufgaben run in the browser without one). The user-facing statement, including every processor, is the in-app [Datenschutzerklärung](frontend/src/sks/pages/PrivacyPage.tsx) (`/privacy`).
 
-- **Passwordless login without magic links:** email + one-time code. Codes are stored only as keyed hashes, short-lived, single-purpose (a login code can't confirm an email change) and cleaned up automatically ([ADR-0010](docs/adr/0010-opportunistic-otp-code-cleanup.md)). Disposable-email domains are blocked, and email addresses are canonicalized so one inbox can't become many accounts.
-- **Session:** JWT in an httpOnly cookie, never readable by JavaScript or kept in `localStorage` ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)). Every `/api/v1` route requires it except the login (`POST /auth/otp/request` and `/auth/otp/verify`), `GET /pricing` and the Stripe webhook; per-IP rate limiting applies throughout, with tighter limits on login and email change.
-- **Data residency:** app and database run on Render in Frankfurt (EU); the static frontend is served through Render's global CDN. Fonts are self-hosted. Transport is HTTPS-only; disk encryption at rest is provided by the hosting platform, not by the app.
-- **Data minimisation:** name and gender are optional. Analytics is Umami Cloud, cookieless, no persistent identifier, no answer content ([ADR-0016](docs/adr/0016-umami-cloud-analytics-without-consent-banner.md)). No advertising and no consent banner: the only third-party script is Umami ([ADR-0060](docs/adr/0060-no-advertising.md)).
-- **AI check is on request:** only the question, the official answer and the learner's answer go to Anthropic (US), only when the learner clicks the button; no email or name is sent. For a catalog question the official questions and answers of its topic go along, and nothing is stored ([ADR-0031](docs/adr/0031-ai-answer-check-with-claude-haiku.md), [ADR-0066](docs/adr/0066-lotsen-check-with-topic-context-on-haiku-5-5.md)); for a Kartenaufgabe the official derivation and the learner's answers to the earlier tasks of the same run are sent too, and the suggestion is stored with the run ([ADR-0058](docs/adr/0058-lotsen-check-for-chart-exercises.md)).
-- **Data-subject rights:** learners can delete their account, including progress and its grading log, exams, Kartenaufgaben runs, focus marks and reports, themselves under `/profile`. Access, rectification and export requests go to the operator by email and are fulfilled with the admin tools ([ADR-0019](docs/adr/0019-admin-allowlist-and-manual-gdpr-fulfillment.md)).
-- **Payments:** card and other payment details are entered on Stripe's own checkout page only; the app stores the purchase (product, amount, Stripe's payment id), never payment details ([ADR-0048](docs/adr/0048-stripe-hosted-checkout-with-webhook-fulfilment.md)).
-- **Processors and recipients:** Render (hosting), Resend (login and purchase emails), Better Stack (logs, uptime), Umami (analytics), Anthropic (AI check), Stripe (payments), all listed in the Datenschutzerklärung.
-- **Vulnerabilities:** report privately, see [SECURITY.md](SECURITY.md).
+- **Passwordless login:** email + one-time code, or the link in the same email ([ADR-0064](docs/adr/0064-login-link-in-the-code-email.md)).
+- **Session:** JWT in an httpOnly cookie, never readable by JavaScript ([ADR-0012](docs/adr/0012-httponly-cookie-for-frontend-session-token.md)).
+- **EU hosting** on Render in Frankfurt; the Lotsen-Check sends text to Anthropic (US) only on the learner's click and never their identity — what exactly: [FEATURES → Lotsen-Check](docs/FEATURES.md#lotsen-check-ai-assessment).
+- **Details:** the threat model and its measures in [ARCHITECTURE → Threat model](docs/ARCHITECTURE.md#threat-model); vulnerabilities are reported privately, see [SECURITY.md](SECURITY.md).
 
 ## Architecture & decisions
 
@@ -125,18 +120,15 @@ npx vitest run --coverage   # tests + line/branch coverage gate (thresholds in v
 npm run lint                # ESLint
 npm run format:check        # Prettier
 npm run build               # production build incl. prerender (what Render runs)
-VITE_SITE=sbf VITE_SBF=off npm run build && node scripts/check-sbf-build.mjs   # SBF Lotse's build (ADR-0067), checked for API calls
 ```
 
-`npm run dev` and `npm run build` build SKS Lotse; with `VITE_SITE=sbf` they build SBF Lotse (sbf-lotse.de) from the same code instead ([ADR-0067](docs/adr/0067-second-site-from-one-codebase.md)). Its own page, routes and public files are `frontend/index.sbf.html`, `frontend/src/sbf/` and `frontend/public-sbf/`.
+These run in CI on every PR and every push to `main`, together with the migration check against Postgres, the freshness of the generated Postman collection and API types, and the integration tests below; which jobs are required: [CLAUDE.md → Branch Strategy](CLAUDE.md#branch-strategy).
 
-These run in CI on every push to `main` and every PR (`.github/workflows/backend-ci.yml`, `.github/workflows/frontend-ci.yml`). Backend CI additionally checks the Alembic migrations against a real Postgres, checks that the committed Postman collection and frontend API types are still in sync with the API (`scripts/generate_postman_collection.sh`), and runs the integration tests below.
-
-Optional but recommended: `pre-commit install -t pre-commit -t pre-push` (from the venv). On commit it runs ruff, ESLint, Prettier and a few hygiene checks (merge markers, YAML/JSON syntax, private keys, large files) on staged files, and blocks commits directly on `main`. On push it also runs `mypy app` and `tsc -b`.
+Optional but recommended, once per clone (from the venv, after `npm install` in `frontend/`): `pre-commit install --install-hooks -t pre-commit -t pre-push`. On commit it runs ruff, ESLint, Prettier and hygiene checks on staged files, and blocks commits directly on `main`. On push it also runs `mypy app` and `tsc -b`.
 
 A separate, hand-written Postman collection black-box tests every endpoint of a running local server (auth flow, profile/email change/account deletion, admin tools, CORS, security headers, rate limiting) without needing Python: start the API as above with `ADMIN_EMAILS=integration-admin@example.com` and `CHART_EXERCISES=admins` on a freshly started server, then run `./scripts/run_integration_tests.sh` from the repo root. The script's header lists the full server requirements.
 
-The repo is also connected to [Aikido Security](https://www.aikido.dev/) for dependency/SAST scanning — `scripts/check_aikido.sh` queries open findings directly (needs a local `.env.aikido` and a plan with API access — on the free plan it fails, check the dashboard by hand; see [docs/RUNBOOK.md](docs/RUNBOOK.md#security-alerts-aikido)). Aikido rescans about every three days, so it is no merge gate and there is no Aikido job in CI; an alert it raises is handled right away (`docs/RUNBOOK.md` → Security alerts).
+Security alerts from [Aikido](https://www.aikido.dev/), which rescans the repo about every three days and is no merge gate, are handled as in [RUNBOOK → Security alerts](docs/RUNBOOK.md#security-alerts-aikido).
 
 ## Dependencies
 
@@ -150,4 +142,4 @@ Dependabot regenerates the locks itself for its bump PRs. A package some depende
 
 ## Development conventions
 
-Trunk-based: `main` is the single source of truth, every change, however small, goes on a `feature/*` branch merged back via PR — see `CLAUDE.md` for the full set of conventions (branch strategy, working directory, security scanning, coverage, linting, ADRs).
+Trunk-based: `main` is the single source of truth, every change, however small, goes on a `feature/*` branch merged back via PR — see `CLAUDE.md` for the full set of conventions (branch strategy, coverage, linting, security scanning, ADRs).

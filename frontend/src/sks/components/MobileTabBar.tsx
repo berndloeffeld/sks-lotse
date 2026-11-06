@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 
 import { isActive, mainNavItems, type NavIcon } from '../navigation'
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { SksAccountMenu } from './SksAccountMenu'
-import { tabBarItemClass } from '../../shared/components/headerLink'
+import { tabBarItemClass } from './headerLink'
 import { CatalogIcon, ChartDividersIcon, ExamIcon } from './icons/FeatureIcons'
 
 const ICONS: Record<NavIcon, typeof CatalogIcon> = {

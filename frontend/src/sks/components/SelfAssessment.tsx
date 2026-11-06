@@ -3,10 +3,10 @@ import { flushSync } from 'react-dom'
 
 import type { GradingOutcome } from '../api/types'
 import { GRADING_OUTCOMES as OUTCOMES, OUTCOME_LABELS } from '../labels'
-import { scrollBelowIntoView } from '../../shared/scroll'
+import { scrollBelowIntoView } from '../scroll'
 import { AiAnswerCheck } from './AiAnswerCheck'
-import { ErrorMessage } from '../../shared/components/Messages'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { ErrorMessage } from './Messages'
+import { buttonClass } from './buttonStyles'
 
 const NO_GRADE = 'Wähle zuerst, wie gut deine Antwort war.'
 

@@ -1,7 +1,7 @@
 import { PageLayout } from '../components/PageLayout'
 import { PracticeRun, type RunExit } from '../components/PracticeRun'
 import { usePracticeSession } from '../hooks/usePracticeSession'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { ErrorMessage } from '../components/Messages'
 
 const EXIT: RunExit = { to: '/learn?modus=refresh', label: 'Zum Auffrischen' }
 

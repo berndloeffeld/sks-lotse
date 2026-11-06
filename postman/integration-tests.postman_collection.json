@@ -169,46 +169,6 @@
           "response": []
         },
         {
-          "name": "Get current prices from SBF Lotse's origin - CORS allows it (ADR-0070)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('the SBF dev origin may read it, with credentials', function () {",
-                  "    pm.expect(pm.response.headers.get('Access-Control-Allow-Origin')).to.eql('http://localhost:5174');",
-                  "    pm.expect(pm.response.headers.get('Access-Control-Allow-Credentials')).to.eql('true');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Origin",
-                "value": "http://localhost:5174"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/pricing",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "pricing"
-              ]
-            }
-          },
-          "description": "Deliberately unauthenticated (ADR-0043) - the landing page reads this before login.",
-          "response": []
-        },
-        {
           "name": "Get current prices from a foreign origin - no CORS header",
           "event": [
             {
@@ -5167,6 +5127,41 @@
           }
         },
         {
+          "name": "Chart exercises - statistics without a token are rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
           "name": "Chart exercises - a learner outside the admins-only flag gets a 404",
           "event": [
             {
@@ -5200,6 +5195,46 @@
             }
           },
           "description": "The server runs with CHART_EXERCISES=admins (see the runner script's header), so the feature doesn't exist for this learner (ADR-0052). The admin walks through it in the Admin folder.",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - statistics outside the admins-only flag are a 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true
@@ -7998,10 +8033,8 @@
                   "pm.test('is the main test account with the documented shape', function () {",
                   "    var u = pm.response.json();",
                   "    pm.expect(u.email).to.eql(pm.collectionVariables.get('testEmail'));",
-                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'exam_counts_for_progress', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'signup_site', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
+                  "    pm.expect(u).to.have.all.keys('id', 'email', 'created_at', 'exam_variant', 'first_name', 'last_name', 'gender', 'exam_counts_for_progress', 'token_balance', 'ai_flags_count', 'ai_flags_last_at', 'agb_accepted_version', 'agb_accepted_at', 'last_login_at', 'totp_enabled_at', 'question_progress_count', 'is_blocked');",
                   "    pm.expect(u.question_progress_count).to.be.a('number');",
-                  "    // Signed up through Postman: no Origin, not the SBF API host, so SKS Lotse (ADR-0070).",
-                  "    pm.expect(u.signup_site).to.eql('sks');",
                   "});"
                 ]
               }
@@ -10951,6 +10984,49 @@
             }
           },
           "description": "",
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          }
+        },
+        {
+          "name": "Chart exercises - statistics leave out the open run",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('every sheet is listed, numbered from 1, at 30 points', function () { pm.expect(body.sheets.length).to.be.above(0); pm.expect(body.sheets.map(function (s) { return s.number; })).to.eql(body.sheets.map(function (s, i) { return i + 1; })); pm.expect(body.max_points).to.eql(30); });",
+                  "pm.test('the open run is not in the timeline', function () { pm.expect(body.runs.map(function (r) { return String(r.attempt_id); })).to.not.include(pm.collectionVariables.get('chartAttemptId')); pm.expect(body.completed_count).to.be.at.least(body.runs.length); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/chart-exercises/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "chart-exercises",
+                "stats"
+              ]
+            }
+          },
+          "description": "The learning status's Kartenaufgaben statistics: only completed runs count.",
           "response": [],
           "protocolProfileBehavior": {
             "disableCookies": true

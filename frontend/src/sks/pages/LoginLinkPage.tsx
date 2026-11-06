@@ -1,4 +1,4 @@
-import { LoginLinkPanel } from '../../shared/components/LoginLinkPanel'
+import { LoginLinkPanel } from '../components/LoginLinkPanel'
 import { PageLayout } from '../components/PageLayout'
 
 // Where the login link in the code email lands (ADR-0064).

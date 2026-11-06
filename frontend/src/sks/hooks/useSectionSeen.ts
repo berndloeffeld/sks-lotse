@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { trackEvent } from '../../shared/analytics'
+import { trackEvent } from '../analytics'
 
 // How far down a page visitors read: sends `event` with the section's fixed key once per page view,
 // as soon as the section reaches the middle of the screen. Off while `enabled` is false (the landing page

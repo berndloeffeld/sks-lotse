@@ -1,15 +1,15 @@
 import { useState, type FormEvent } from 'react'
 
-import { apiClient } from '../../shared/api/client'
+import { apiClient } from '../api/client'
 import type { Question, Topic } from '../api/types'
 import { AdminQuestionHistory } from '../components/AdminQuestionHistory'
 import { OfficialAnswerBox } from '../components/AnswerBox'
 import { QuestionImages } from '../components/QuestionImages'
 import { RichText } from '../components/RichText'
 import { SUBJECT_LABELS } from '../labels'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { buttonClass } from '../components/buttonStyles'
+import { ErrorMessage } from '../components/Messages'
 
 interface Search {
   q: string

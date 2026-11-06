@@ -18,16 +18,16 @@ import { LoginPage } from './pages/LoginPage'
 import { LoginLinkPage } from './pages/LoginLinkPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
-import { AgbGate } from '../shared/routes/AgbGate'
+import { AgbGate } from './routes/AgbGate'
 import { ChartExercisesGate } from './routes/ChartExercisesGate'
-import { ProtectedRoute } from '../shared/routes/ProtectedRoute'
+import { ProtectedRoute } from './routes/ProtectedRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useAdminWithoutAnalytics } from './hooks/useAdminWithoutAnalytics'
-import { useUserRefreshOnReturn } from '../shared/hooks/useUserRefreshOnReturn'
-import { useNavigationScroll } from '../shared/hooks/useNavigationScroll'
-import { registerBrowserDataCleanup, useAuthStore } from '../shared/store/authStore'
+import { useUserRefreshOnReturn } from './hooks/useUserRefreshOnReturn'
+import { useNavigationScroll } from './hooks/useNavigationScroll'
+import { registerBrowserDataCleanup, useAuthStore } from './store/authStore'
 import { forgetAllTideForms } from './hooks/useTideForm'
-import { useMaintenanceStore } from '../shared/store/maintenanceStore'
+import { useMaintenanceStore } from './store/maintenanceStore'
 
 // SKS Lotse keeps the Kartenaufgaben's Formblatt in the browser; forgotten on logout and deletion.
 registerBrowserDataCleanup(forgetAllTideForms)
@@ -52,7 +52,7 @@ const ExamPage = lazyNamed(() => import('./pages/ExamPage'), 'ExamPage')
 const ExamRunPage = lazyNamed(() => import('./pages/ExamRunPage'), 'ExamRunPage')
 const FocusPracticePage = lazyNamed(() => import('./pages/FocusPracticePage'), 'FocusPracticePage')
 const RefreshPracticePage = lazyNamed(() => import('./pages/RefreshPracticePage'), 'RefreshPracticePage')
-const ProfileAccountPage = lazyNamed(() => import('../shared/pages/ProfileAccountPage'), 'ProfileAccountPage')
+const ProfileAccountPage = lazyNamed(() => import('./pages/ProfileAccountPage'), 'ProfileAccountPage')
 const ProfileLearnStatusPage = lazyNamed(() => import('./pages/ProfileLearnStatusPage'), 'ProfileLearnStatusPage')
 const ProfileLayout = lazyNamed(() => import('./components/ProfileLayout'), 'ProfileLayout')
 

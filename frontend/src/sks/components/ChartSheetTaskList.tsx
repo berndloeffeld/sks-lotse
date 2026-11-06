@@ -1,8 +1,8 @@
 import type { ChartSheet } from '../chartCatalog'
 import { taskView } from '../chartGuestRun'
-import { pointsLabel } from '../../shared/chartPoints'
+import { pointsLabel } from '../chartPoints'
 import { ChartTaskText, OfficialSolution } from './ChartContent'
-import { sectionHeading } from '../../shared/components/headingStyles'
+import { sectionHeading } from './headingStyles'
 
 // Every task of a sheet with its official solution, each folded shut, below the sheet's page
 // (ADR-0056, like TopicQuestionList for a topic): to look one up, and so the page's HTML carries the

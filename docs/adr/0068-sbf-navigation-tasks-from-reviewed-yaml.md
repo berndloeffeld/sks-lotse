@@ -1,6 +1,6 @@
 # 0068. SBF Navigationsaufgaben from a reviewed YAML, open to guests, own tolerances marked as not official
 
-Status: Accepted
+Status: Superseded by [ADR-0071](0071-sbf-lotse-removed.md) (SBF Lotse removed, 2026-11-02)
 
 ## Context
 

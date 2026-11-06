@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { primeChartCatalog, resetChartCatalog } from '../chartCatalog'
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { jsonResponse, makeChartExport, makeChartOverview } from '../../test/fixtures'
 import { ChartExercisesPage } from './ChartExercisesPage'
 
@@ -28,7 +28,7 @@ describe('ChartExercisesPage', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { level: 1, name: 'SKS-Kartenaufgaben' })).toBeInTheDocument()
-    const first = await screen.findByRole('link', { name: /Kartenaufgabe 1/ })
+    const first = await screen.findByRole('link', { name: /Kartenaufgabe 1(?!\d)/ })
     expect(first).toHaveAttribute('href', '/charts/1')
     expect(within(first).getByRole('heading', { name: 'Cuxhaven → Büsum' })).toBeInTheDocument()
     expect(within(first).getByText('Elbabwärts durch die Norderrinne.')).toBeInTheDocument()
@@ -106,6 +106,6 @@ describe('ChartExercisesPage for a guest', () => {
     renderPage()
 
     expect(screen.getByText('Wird geladen…')).toBeInTheDocument()
-    expect(await screen.findByRole('link', { name: /Kartenaufgabe 1/ })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /Kartenaufgabe 1(?!\d)/ })).toBeInTheDocument()
   })
 })

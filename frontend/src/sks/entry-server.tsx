@@ -7,7 +7,7 @@ import { primeCatalog, type CatalogExport } from './catalog'
 import { chartExercisesForGuests, primeChartCatalog, type ChartExport } from './chartCatalog'
 import catalogExport from './data/catalog.gen.json'
 import chartExport from './data/chart_exercises.gen.json'
-import { applyMeta, sitemapXml as sitemapFor, type PublicPage } from '../shared/publicPages'
+import { applyMeta, sitemapXml as sitemapFor, type PublicPage } from './pageMeta'
 import { SITE, publicPages } from './publicPages'
 
 // The open /learn pages render from the catalog export (ADR-0054), here as on the client before it

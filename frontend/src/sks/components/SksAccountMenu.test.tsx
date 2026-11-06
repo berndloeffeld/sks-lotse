@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { SksAccountMenu } from './SksAccountMenu'
 import { makeUser } from '../../test/fixtures'
 

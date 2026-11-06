@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 640" width="780" height="640" font-family="Helvetica,Arial,sans-serif">
+<defs>
+<marker id="a555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker>
+<marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker>
+</defs>
+<rect width="780" height="640" fill="#ffffff"/>
+<g transform="translate(78,0)">
+
+<!-- pedestal -->
+<rect x="303" y="118" width="54" height="172" fill="#e8eef1" stroke="#8a9aa3" stroke-width="1.5"/>
+<rect x="285" y="288" width="90" height="10" rx="2" fill="#c5d0d6" stroke="#8a9aa3" stroke-width="1.5"/>
+<text x="190" y="260" text-anchor="end" font-size="13" fill="#555">Steuersäule</text>
+<line x1="195" y1="256" x2="303" y2="256" stroke="#999" stroke-width="1"/>
+
+<!-- sprocket and chain -->
+<circle cx="330" cy="118" r="14" fill="#a86f10"/>
+<circle cx="330" cy="118" r="16" fill="none" stroke="#a86f10" stroke-width="4" stroke-dasharray="4 3"/>
+<path d="M313,235 L313,118 A17,17 0 0 1 347,118 L347,235" fill="none" stroke="#333333" stroke-width="4" stroke-dasharray="5 3"/>
+<line x1="294" y1="272" x2="294" y2="238" stroke="#555555" stroke-width="2" marker-end="url(#a555555)"/>
+<line x1="366" y1="238" x2="366" y2="272" stroke="#555555" stroke-width="2" marker-end="url(#a555555)"/>
+
+<!-- wheel -->
+<g stroke="#6b4a08" stroke-width="4">
+<line x1="330" y1="118" x2="330" y2="28"/>
+<line x1="330" y1="118" x2="252" y2="163"/>
+<line x1="330" y1="118" x2="408" y2="163"/>
+</g>
+<circle cx="330" cy="118" r="90" fill="none" stroke="#6b4a08" stroke-width="7"/>
+<circle cx="330" cy="118" r="6" fill="#6b4a08"/>
+<path d="M259.3,47.3 A100,100 0 0 1 400.7,47.3" fill="none" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<text x="470" y="60" font-size="13" fill="#555">Steuerrad</text>
+<line x1="465" y1="56" x2="404" y2="68" stroke="#999" stroke-width="1"/>
+<text x="470" y="125" font-size="13" fill="#555">Zahnrad</text>
+<line x1="465" y1="121" x2="347" y2="120" stroke="#999" stroke-width="1"/>
+<text x="470" y="205" font-size="13" fill="#555">Kette</text>
+<line x1="465" y1="201" x2="349" y2="195" stroke="#999" stroke-width="1"/>
+
+<!-- rudder stock and blade, below the quadrant -->
+<path d="M312,530 L352,530 L352,612 L290,612 L285,575 Z" fill="#d6e6ee" stroke="#1f6f8b" stroke-width="2"/>
+<rect x="319" y="445" width="22" height="88" fill="#e8eef1" stroke="#8a9aa3" stroke-width="1.5"/>
+<text x="410" y="525" font-size="13" fill="#555">Ruderschaft</text>
+<line x1="405" y1="521" x2="341" y2="521" stroke="#999" stroke-width="1"/>
+<text x="410" y="590" font-size="13" fill="#555">Ruderblatt</text>
+<line x1="405" y1="586" x2="350" y2="586" stroke="#999" stroke-width="1"/>
+
+<!-- quadrant -->
+<path d="M330,448 L269,474 A80,40 0 0 0 391,474 Z" fill="#c9a860" stroke="#a86f10" stroke-width="1.5"/>
+<path d="M330,440 L269,466 A80,40 0 0 0 391,466 Z" fill="#f2d9a0" stroke="#a86f10" stroke-width="2"/>
+<ellipse cx="330" cy="440" rx="11" ry="5" fill="#333333"/>
+<path d="M372,459 A60,30 0 0 1 288,459" fill="none" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<text x="240" y="512" text-anchor="end" font-size="13" fill="#555">Ruderquadrant</text>
+<line x1="244" y1="507" x2="283" y2="478" stroke="#999" stroke-width="1"/>
+
+<!-- cables -->
+<path d="M313,235 L313,320 A10,10 0 0 1 308.4,328.4 L118,447.3 A24,10 0 0 0 130,466 L269,466" fill="none" stroke="#1f6f8b" stroke-width="2.5"/>
+<path d="M347,235 L347,320 A10,10 0 0 0 351.6,328.4 L542,447.3 A24,10 0 0 1 530,466 L391,466" fill="none" stroke="#1f6f8b" stroke-width="2.5"/>
+<circle cx="313" cy="235" r="4" fill="#14505f"/>
+<circle cx="347" cy="235" r="4" fill="#14505f"/>
+<circle cx="269" cy="466" r="3.5" fill="#14505f"/>
+<circle cx="391" cy="466" r="3.5" fill="#14505f"/>
+<text x="470" y="350" font-size="13" fill="#555">Steuerseile</text>
+<line x1="475" y1="355" x2="442" y2="382" stroke="#999" stroke-width="1"/>
+<line x1="235" y1="452" x2="185" y2="452" stroke="#555555" stroke-width="2" marker-end="url(#a555555)"/>
+<line x1="480" y1="452" x2="430" y2="452" stroke="#555555" stroke-width="2" marker-end="url(#a555555)"/>
+
+<!-- turning blocks -->
+<circle cx="303" cy="320" r="9" fill="#ffffff" stroke="#333333" stroke-width="2"/>
+<circle cx="303" cy="320" r="2.5" fill="#333333"/>
+<circle cx="357" cy="320" r="9" fill="#ffffff" stroke="#333333" stroke-width="2"/>
+<circle cx="357" cy="320" r="2.5" fill="#333333"/>
+<ellipse cx="130" cy="456" rx="22" ry="8" fill="#ffffff" stroke="#333333" stroke-width="2"/>
+<ellipse cx="130" cy="456" rx="5" ry="2" fill="#333333"/>
+<ellipse cx="530" cy="456" rx="22" ry="8" fill="#ffffff" stroke="#333333" stroke-width="2"/>
+<ellipse cx="530" cy="456" rx="5" ry="2" fill="#333333"/>
+<text x="70" y="375" font-size="13" fill="#555">Umlenkrollen</text>
+<line x1="160" y1="367" x2="293" y2="322" stroke="#999" stroke-width="1"/>
+<line x1="125" y1="381" x2="130" y2="447" stroke="#999" stroke-width="1"/>
+
+<text x="70" y="630" font-size="12" fill="#666">Schema, nicht maßstäblich</text>
+</g>
+</svg>

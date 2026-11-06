@@ -1,4 +1,4 @@
-import { AgbContent } from '../../shared/legal/AgbContent'
+import { AgbContent } from '../legal/AgbContent'
 import { PageLayout } from '../components/PageLayout'
 
 export function AgbPage() {

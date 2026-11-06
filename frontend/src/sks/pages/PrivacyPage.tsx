@@ -1,5 +1,5 @@
 import { PageLayout } from '../components/PageLayout'
-import { PrivacyContent } from '../../shared/legal/PrivacyContent'
+import { PrivacyContent } from '../legal/PrivacyContent'
 
 export function PrivacyPage() {
   return (

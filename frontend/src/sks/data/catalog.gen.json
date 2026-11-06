@@ -2711,7 +2711,43 @@
    "answer_text": "Große Steifheit, Verwindungsfestigkeit, geringes Gewicht, gute Isolierung.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Bei der Massivbauweise ist die Rumpfwand durchgehend aus GFK. Bei der Sandwichbauweise liegen außen und innen je eine dünne GFK-Schicht, dazwischen ein leichter Kern, etwa aus Schaumstoff oder Balsaholz.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Biegt man eine Wand, wird die eine Seite gestaucht und die andere gedehnt, die Mitte trägt kaum etwas bei. Der Kern hält die beiden GFK-Schichten auf Abstand, sie sitzen also genau dort, wo die Last am größten ist. Das ergibt **große Steifheit**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-3-sandwichbauweise.svg",
+      "width": 780,
+      "height": 340,
+      "alt": "Skizze zweier belasteter Rumpfwände im Querschnitt, oben jeweils gestaucht, unten gedehnt. Links massiv, durchgehend aus GFK, die Wand biegt sich stärker. Rechts Sandwich, zwei dünne GFK-Schichten mit einem leichten Kern dazwischen, die Wand biegt sich weniger."
+     }
+    },
+    {
+     "text": "Dasselbe gilt, wenn der Rumpf verdreht wird, auch das nehmen die weit außen liegenden Schichten auf. Das ist die **Verwindungsfestigkeit**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Kern wiegt viel weniger als das GFK, das er ersetzt. Für dieselbe Steifheit bleibt das **Gewicht gering**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Schaumstoff und Balsaholz leiten Wärme schlecht, anders als massives GFK. Das ergibt eine **gute Isolierung**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2731,7 +2767,43 @@
    "answer_text": "Das Rad dreht ein Zahnrad, über das eine Kette in der Steuersäule nach unten verläuft. Die Kette ist mit den Steuerseilen verbunden, welche über Umlenkrollen zum Ruderquadranten führen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Das Ruder sitzt weit achtern, das Steuerrad meist weiter vorn auf der Steuersäule. Die Drehung des Rades muss also **bis zum Ruder** gelangen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Rad dreht auf seiner Achse ein **Zahnrad**. Darüber läuft eine **Kette**, deren beide Enden in der Steuersäule nach unten hängen. Dreht man das Rad, geht die eine Seite hoch und die andere herunter.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Eine Kette taugt nicht für den langen Weg durch das Boot. Unten sind ihre Enden deshalb mit den **Steuerseilen** verbunden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die Seile müssen von der Säule nach achtern und dafür um die Ecke. Das erledigen die **Umlenkrollen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Achtern enden sie am **Ruderquadranten**, einem Kreisbogen auf dem Ruderschaft. Zieht das eine Seil, gibt das andere nach, der Quadrant dreht sich und mit ihm das Ruder.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-8-radsteuerung.svg",
+      "width": 780,
+      "height": 640,
+      "alt": "Schema einer Radsteuerung. Das Steuerrad dreht ein Zahnrad, über das eine Kette in der Steuersäule nach unten läuft. An den Kettenenden hängen zwei Steuerseile. Sie laufen am Fuß der Säule über je eine Umlenkrolle schräg zu beiden Seiten, über je eine weitere Umlenkrolle zurück und enden am Ruderquadranten auf dem Ruderschaft. Pfeile zeigen, wie die Drehung des Rades den Quadranten mitdreht."
+     }
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2791,7 +2863,28 @@
    "answer_text": "1. Zum Ein- und Auskuppeln des Propellers,\n2. zum Umsteuern des Propellers auf Rückwärtsfahrt,\n3. zur Drehzahluntersetzung.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Der Motor dreht immer in dieselbe Richtung und läuft auch, wenn das Boot stillliegen soll. Der Propeller soll dagegen mal stehen, mal vorwärts und mal rückwärts drehen. Das Wendegetriebe sitzt dazwischen und gleicht das aus.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Damit das Boot bei laufendem Motor nicht fährt, trennt das Getriebe den Propeller vom Motor und verbindet ihn bei Bedarf wieder. Es dient also zum **Ein- und Auskuppeln des Propellers**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Für die Rückwärtsfahrt muss der Propeller andersherum drehen, der Motor kann das nicht. Das Getriebe kehrt die Drehrichtung um, also **zum Umsteuern auf Rückwärtsfahrt**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Motor dreht außerdem schneller, als der Propeller wirksam arbeiten kann. Das Getriebe setzt die Drehzahl herab, das ist die **Drehzahluntersetzung**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2841,7 +2934,28 @@
    "answer_text": "1. Es handelt sich um 2 Batterien (Akkus) mit jeweils 60 Amperestunden, insgesamt also 120 Ah Nennkapazität.\n2. Dem entspricht eine Nettokapazität von etwa 72 Ah, da ein Akku kaum über 80 % seiner Nennkapazität geladen werden kann.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "\"2 x 60 Ah\" heißt zwei Batterien mit je 60 Ah. Zusammen sind das 2 × 60 Ah = **120 Ah Nennkapazität**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Geladen wird ein Akku kaum über 80 % seiner Nennkapazität. Mehr als 120 Ah × 0,8 = **96 Ah** sind also nicht drin.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ganz leeren darf man ihn aber auch nicht, denn Tiefentladung schadet ihm. Rund 20 % sollten drinbleiben, das sind 120 Ah × 0,2 = **24 Ah**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Nutzbar ist nur, was dazwischen liegt. 96 Ah − 24 Ah = **etwa 72 Ah** Nettokapazität.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2851,7 +2965,23 @@
    "answer_text": "Benötigte Strommenge je Verbraucher: 24 : 12 = 2 Ampere mal Anzahl der Verbraucher mal Stunden ergibt: 2 x 2 A x 10 h = 40 Ah.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Leistung ist Spannung mal Strom (Watt = Volt × Ampere). Umgekehrt ist der Strom die Leistung geteilt durch die Spannung. Ein Verbraucher mit 24 W an 12 V zieht also 24 : 12 = **2 A**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Zwei solche Verbraucher ziehen zusammen 2 × 2 A = **4 A**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die Strommenge in Amperestunden ist Strom mal Zeit. In 10 Stunden sind das 4 A × 10 h = **40 Ah**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2861,7 +2991,18 @@
    "answer_text": "Es muss bruchfest und elastisch sein.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "An Festmacherleine, Ankertrosse und Schlepptrosse hängt das ganze Gewicht des Bootes, gezogen von Wind, Strom und Seegang. Die Leine darf unter dieser Last nicht reißen, sie muss also **bruchfest** sein.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wellen und Schwell reißen das Boot immer wieder ruckartig ein Stück weg. Eine starre Leine gibt jeden Ruck voll an Klampen, Beschläge und Anker weiter. Eine Leine, die sich etwas dehnt, federt ihn ab – sie muss also **elastisch** sein.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2891,7 +3032,38 @@
    "answer_text": "Durch einen genähten Takling.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Bei solchem Tauwerk sind innen und außen zwei getrennte Teile – innen die Seele, die die Last trägt, außen der geflochtene Mantel, der sie schützt. Sie sind nicht miteinander verbunden. Unter Last dehnen sie sich verschieden stark, verschieben sich gegeneinander, und am Ende **rutscht die Seele in den Mantel**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Damit das nicht passiert, müssen Seele und Mantel am Ende **fest miteinander verbunden** werden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein **Takling** ist eine enge Umwicklung des Tauwerkendes mit dünnem Garn (Takelgarn). Er hält das Ende zusammen, damit es nicht aufgeht oder ausfranst. Einfach gewickelt drückt er aber nur von außen auf den Mantel.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Beim **genähten Takling** wird das Garn zusätzlich mit einer Nadel quer durch das Tauwerk gestochen. Die Stiche gehen durch Mantel und Seele und halten **beide fest zusammen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-32-genaehter-takling.svg",
+      "width": 780,
+      "height": 380,
+      "alt": "Skizze zweier Tauwerkenden mit Mantel und Seele. Links ohne Takling, die Seele ist ein Stück in den Mantel zurückgerutscht, das Ende des Mantels ist leer. Rechts mit genähtem Takling, das Ende ist mit Garn umwickelt und vernäht; ein Querschnitt zeigt, dass der Stich durch Mantel und Seele geht."
+     }
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",

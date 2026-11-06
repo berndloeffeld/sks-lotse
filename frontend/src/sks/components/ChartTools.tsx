@@ -1,15 +1,15 @@
 import { useRef, useState } from 'react'
 
 import type { ChartAttempt, ChartExercisesOverview } from '../api/types'
-import { pointsLabel } from '../../shared/chartPoints'
+import { pointsLabel } from '../chartPoints'
 import type { useTideForm } from '../hooks/useTideForm'
 import { ChartAiSuggestionView } from './ChartAiCheck'
 import { ChartOwnAnswer } from './AnswerBox'
 import { ChartImages, ChartTaskText, OfficialSolution } from './ChartContent'
 import { ChartTaskVideo } from './ChartSheetVideo'
 import { TideFormFields } from './TideFormFields'
-import { buttonClass } from '../../shared/components/buttonStyles'
-import { Modal } from '../../shared/components/Modal'
+import { buttonClass } from './buttonStyles'
+import { Modal } from './Modal'
 
 // What stays at hand during a Kartenaufgabe: the Formblatt Gezeiten to fill in, the current task as
 // the PDF prints it, the tasks done so far with the learner's answers and the solutions. (The sheet's rules are read before the start, on

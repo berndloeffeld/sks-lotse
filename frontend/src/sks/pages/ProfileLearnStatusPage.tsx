@@ -1,16 +1,18 @@
 import { Link } from 'react-router-dom'
 
-import { Band } from '../../shared/components/Bands'
+import { Band } from '../components/Bands'
+import { ChartStatsPanel } from '../components/ChartStatsPanel'
 import { ExamStatsPanel } from '../components/ExamStatsPanel'
 import { ProgressOverview } from '../components/ProgressOverview'
 import { useProgressSummary } from '../hooks/useProgressSummary'
-import { useAuthStore } from '../../shared/store/authStore'
-import { ErrorMessage } from '../../shared/components/Messages'
+import { useAuthStore } from '../store/authStore'
+import { ErrorMessage } from '../components/Messages'
 
 // /profile's "Lernstand" tab (the default): the same Lernstand overview as
-// /learn (progress, subjects, exam variant), plus the exam statistics.
+// /learn (progress, subjects, exam variant), plus the exam and Kartenaufgaben statistics.
 export function ProfileLearnStatusPage() {
   const examVariant = useAuthStore((state) => state.user?.exam_variant)
+  const chartExercises = useAuthStore((state) => state.user?.can_use_chart_exercises ?? false)
 
   return (
     <>
@@ -22,6 +24,12 @@ export function ProfileLearnStatusPage() {
       <Band className="pt-0 pb-16">
         <ExamStatsPanel />
       </Band>
+
+      {chartExercises ? (
+        <Band className="pt-0 pb-16">
+          <ChartStatsPanel />
+        </Band>
+      ) : null}
     </>
   )
 }

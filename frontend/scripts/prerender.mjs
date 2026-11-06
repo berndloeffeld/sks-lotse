@@ -29,8 +29,7 @@ const dist = fileURLToPath(new URL('../dist/', import.meta.url))
 const ssrDir = fileURLToPath(new URL('../dist-ssr/', import.meta.url))
 const ROOT = '<div id="root"></div>'
 
-// The pages, their heads and the sitemap come from the build's site (ADR-0067), via the SSR build:
-// src/sks/publicPages.ts for SKS Lotse, src/sbf/publicPages.ts for SBF Lotse.
+// The pages, their heads and the sitemap come from src/sks/publicPages.ts, via the SSR build.
 const { render, pages, applyMeta, sitemapXml, appTitle, dataChunks } = await import(
   new URL('../dist-ssr/entry-server.js', import.meta.url).href
 )

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 
 import { PageLayout } from '../components/PageLayout'
-import { useAuthStore } from '../../shared/store/authStore'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { useAuthStore } from '../store/authStore'
+import { buttonClass } from '../components/buttonStyles'
 
 interface NotFoundPageProps {
   // What isn't there, in one sentence.

@@ -16,8 +16,9 @@ from pathlib import Path
 
 import yaml
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
+from app.domain.exam import chart_result_for
 from app.models.chart_attempt import ChartAttempt, ChartAttemptTask
 from app.models.user import User
 from app.schemas.chart_exercise import (
@@ -28,6 +29,9 @@ from app.schemas.chart_exercise import (
     ChartExerciseCatalog,
     ChartExercisesOverview,
     ChartExerciseSummary,
+    ChartSheetStats,
+    ChartStats,
+    ChartStatsRun,
     ChartTask,
 )
 from app.services.chart_grader import ChartGradeResult, EarlierTask, is_ai_checkable
@@ -37,6 +41,10 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "chart_exercises.y
 EXPORT_PATH = (
     Path(__file__).resolve().parents[3] / "frontend" / "src" / "sks" / "data" / "chart_exercises.gen.json"
 )
+
+
+# A bound on what the timeline returns: far above the 10 to 20 runs a learner does before the exam.
+STATS_MAX_RUNS = 50
 
 
 class ChartTaskConflict(Exception):
@@ -220,4 +228,50 @@ def overview(db: Session, user: User) -> ChartExercisesOverview:
         )
     return ChartExercisesOverview(
         source=data.source, hints=data.hints, tide_form=data.tide_form, exercises=summaries
+    )
+
+
+def _sheet_stats(sheet: ChartExercise, runs: list[ChartStatsRun]) -> ChartSheetStats:
+    own = [run for run in runs if run.exercise_number == sheet.number]
+    last = own[-1] if own else None
+    return ChartSheetStats(
+        number=sheet.number,
+        title=sheet.title,
+        max_points=max_points(sheet),
+        completed_count=len(own),
+        last_points=last.points if last else None,
+        best_points=max((run.points for run in own), default=None),
+        last_result=last.result if last else None,
+    )
+
+
+def stats(db: Session, user: User) -> ChartStats:
+    """The learner's completed runs over time, overall and per sheet."""
+    attempts = db.execute(
+        select(ChartAttempt)
+        .options(selectinload(ChartAttempt.tasks))
+        .where(ChartAttempt.user_id == user.id, ChartAttempt.completed_at.is_not(None))
+        .order_by(ChartAttempt.completed_at, ChartAttempt.id)
+    ).scalars()
+    runs = [
+        ChartStatsRun(
+            attempt_id=attempt.id,
+            exercise_number=attempt.exercise_number,
+            completed_at=attempt.completed_at,
+            points=points(attempt),
+            result=chart_result_for(points(attempt)),
+        )
+        for attempt in attempts
+        if attempt.completed_at is not None
+    ]
+    totals = [run.points for run in runs]
+    sheets = catalog().sheets
+    return ChartStats(
+        completed_count=len(runs),
+        passed_count=sum(1 for run in runs if run.result == "bestanden"),
+        average_points=round(sum(totals) / len(totals), 1) if totals else None,
+        best_points=max(totals, default=None),
+        max_points=max((max_points(sheet) for sheet in sheets), default=0),
+        runs=runs[-STATS_MAX_RUNS:],
+        sheets=[_sheet_stats(sheet, runs) for sheet in sheets],
     )

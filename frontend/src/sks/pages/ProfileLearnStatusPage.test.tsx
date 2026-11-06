@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-import { useAuthStore } from '../../shared/store/authStore'
+import { useAuthStore } from '../store/authStore'
 import { ProfileLearnStatusPage } from './ProfileLearnStatusPage'
 import { jsonResponse, makeUser } from '../../test/fixtures'
 
@@ -34,6 +34,19 @@ describe('ProfileLearnStatusPage', () => {
     expect(screen.getByRole('heading', { name: 'Gesamtfortschritt' })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /Alle Themen ansehen/ })).toHaveAttribute('href', '/learn')
     expect(screen.queryByText('Lernstand wird geladen…')).not.toBeInTheDocument()
+  })
+
+  it('shows the Kartenaufgaben statistics only to learners the feature is open to', async () => {
+    useAuthStore.setState({ user: makeUser(), isAuthenticated: true, isLoading: false })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(emptyProgress)))
+    const { unmount } = renderPage()
+    await screen.findByRole('link', { name: /Alle Themen ansehen/ })
+    expect(screen.queryByRole('heading', { name: 'Statistik der Kartenaufgaben' })).not.toBeInTheDocument()
+    unmount()
+
+    useAuthStore.setState({ user: makeUser({ can_use_chart_exercises: true }) })
+    renderPage()
+    expect(screen.getByRole('heading', { name: 'Statistik der Kartenaufgaben' })).toBeInTheDocument()
   })
 
   it('shows an error when the Lernstand fails to load', async () => {

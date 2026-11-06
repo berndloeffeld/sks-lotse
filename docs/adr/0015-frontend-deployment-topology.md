@@ -1,6 +1,6 @@
 # 0015. Frontend deployment topology: subdomain split on Render
 
-Status: Accepted — supersedes the "no frontend service yet" part of [ADR-0005](0005-render-deployment-topology.md); amended by [ADR-0067](0067-second-site-from-one-codebase.md) (a second static site, sbf-lotse-frontend, for sbf-lotse.de)
+Status: Accepted — supersedes the "no frontend service yet" part of [ADR-0005](0005-render-deployment-topology.md); amended by [ADR-0067](0067-second-site-from-one-codebase.md) (a second static site, sbf-lotse-frontend, for sbf-lotse.de); that amendment is withdrawn by [ADR-0071](0071-sbf-lotse-removed.md): one static site again
 
 ## Context
 

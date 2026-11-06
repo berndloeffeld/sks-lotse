@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { TideAge, TideCell, TideEvent, TideForm, TideKind } from '../hooks/useTideForm'
 import { EVENT_ORDINALS } from '../hooks/useTideForm'
-import { buttonClass } from '../../shared/components/buttonStyles'
+import { buttonClass } from './buttonStyles'
 
 // The "Formblatt Gezeiten" as fields, laid out like the printed form: head (ports, date, time zone,
 // board time), then two halves each with the age of the tide and a table of four high/low waters
