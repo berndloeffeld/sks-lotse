@@ -315,3 +315,25 @@
         läuft. An den Kettenenden hängen zwei Steuerseile. Sie laufen am Fuß der Säule über je eine Umlenkrolle schräg
         zu beiden Seiten, über je eine weitere Umlenkrolle zurück und enden am Ruderquadranten auf dem Ruderschaft.
         Pfeile zeigen, wie die Drehung des Rades den Quadranten mitdreht.
+- subject: seemannschaft_allgemein
+  number: 22
+  answer_fingerprint: 0a72cd87b332
+  blocks:
+  - text: Der Motor dreht immer in dieselbe Richtung und läuft auch, wenn das Boot stillliegen soll. Der Propeller soll
+      dagegen mal stehen, mal vorwärts und mal rückwärts drehen. Das Wendegetriebe sitzt dazwischen und gleicht das aus.
+  - text: Damit das Boot bei laufendem Motor nicht fährt, trennt das Getriebe den Propeller vom Motor und verbindet ihn
+      bei Bedarf wieder. Es dient also zum **Ein- und Auskuppeln des Propellers**.
+  - text: Für die Rückwärtsfahrt muss der Propeller andersherum drehen, der Motor kann das nicht. Das Getriebe kehrt die
+      Drehrichtung um, also **zum Umsteuern auf Rückwärtsfahrt**.
+  - text: Der Motor dreht außerdem schneller, als der Propeller wirksam arbeiten kann. Das Getriebe setzt die Drehzahl
+      herab, das ist die **Drehzahluntersetzung**.
+- subject: seemannschaft_allgemein
+  number: 27
+  answer_fingerprint: ecc52ae18c9e
+  blocks:
+  - text: "\"2 x 60 Ah\" heißt zwei Batterien mit je 60 Ah. Zusammen sind das 2 × 60 Ah = **120 Ah Nennkapazität**."
+  - text: Geladen wird ein Akku kaum über 80 % seiner Nennkapazität. Mehr als 120 Ah × 0,8 = **96 Ah** sind also nicht
+      drin.
+  - text: Ganz leeren darf man ihn aber auch nicht, denn Tiefentladung schadet ihm. Rund 20 % sollten drinbleiben, das
+      sind 120 Ah × 0,2 = **24 Ah**.
+  - text: Nutzbar ist nur, was dazwischen liegt. 96 Ah − 24 Ah = **etwa 72 Ah** Nettokapazität.
