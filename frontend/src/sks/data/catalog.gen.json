@@ -2099,7 +2099,23 @@
    "answer_text": "1. In engen Fahrwassern,\n2. auf dem Einbahnweg eines Verkehrstrennungsgebietes (VTG) gegenüber Maschinenfahrzeugen im VTG.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **Behinderungsverbot** trifft die kleinen und wendigen Fahrzeuge. Gemeint sind Fahrzeuge **unter 20 m** und **Segelfahrzeuge**. Sie dürfen größere Fahrzeuge nicht behindern, die wenig Raum zum Ausweichen haben.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das gilt zum einen in **engen Fahrwassern**, gegenüber Fahrzeugen, die nur dort sicher fahren können. Das hatten Sie genannt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Es gilt zum anderen auf dem **Einbahnweg eines Verkehrstrennungsgebiets (VTG)**. Dort darf ein Fahrzeug unter 20 m oder ein Segelfahrzeug die sichere Durchfahrt der **Maschinenfahrzeuge** nicht behindern, die dem Einbahnweg folgen.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
