@@ -359,3 +359,18 @@
   - text: Es gilt zum anderen auf dem **Einbahnweg eines Verkehrstrennungsgebiets (VTG)**. Dort darf ein Fahrzeug unter
       20 m oder ein Segelfahrzeug die sichere Durchfahrt der **Maschinenfahrzeuge** nicht behindern, die dem Einbahnweg
       folgen.
+- subject: seemannschaft_segeln
+  number: 25
+  answer_fingerprint: ca65ed748e83
+  blocks:
+  - text: Fallen, Schoten und Festmacher sind **im Alltag gefahrenes Tauwerk**. Gefragt ist, was darüber hinaus **für den
+      Notfall** an Bord sein sollte. Jede der vier Leinen hat dafür einen eigenen Zweck.
+  - text: Das **Reservetauwerk** ersetzt, was bricht, scheuert oder über Bord geht, etwa eine Schot oder einen Festmacher.
+      Ohne Ersatz ist das Boot dann nicht mehr voll zu bedienen.
+  - text: Die **Wurfleine** ist eine dünne, leichte Leine, oft mit einem Gewicht am Ende. Man wirft sie weit, um **eine
+      Verbindung herzustellen**, zum Beispiel zu einem Menschen im Wasser, zu einem anderen Boot oder zum Steg. Daran
+      zieht man dann eine dickere Leine hinüber.
+  - text: Die **Schlepptrosse** ist **lang und stark**. Mit ihr nimmt man ein anderes Fahrzeug in Schlepp oder wird selbst
+      geschleppt. Sie hält die Last, die eine gewöhnliche Leine nicht tragen würde.
+  - text: Die **Ankerleine** hält das Boot am Anker. Sie ist lang genug für die Wassertiefe und reißt nicht. Damit lässt
+      sich auch ein Boot festmachen, wenn kein Steg da ist. In der Not ist der Anker die Bremse.
