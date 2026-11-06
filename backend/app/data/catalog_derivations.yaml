@@ -337,3 +337,14 @@
   - text: Ganz leeren darf man ihn aber auch nicht, denn Tiefentladung schadet ihm. Rund 20 % sollten drinbleiben, das
       sind 120 Ah × 0,2 = **24 Ah**.
   - text: Nutzbar ist nur, was dazwischen liegt. 96 Ah − 24 Ah = **etwa 72 Ah** Nettokapazität.
+- subject: schifffahrtsrecht
+  number: 46
+  answer_fingerprint: 73275e0371bb
+  blocks:
+  - text: Ein **Behinderungsverbot** trifft die kleinen und wendigen Fahrzeuge. Gemeint sind Fahrzeuge **unter 20 m** und
+      **Segelfahrzeuge**. Sie dürfen größere Fahrzeuge nicht behindern, die wenig Raum zum Ausweichen haben.
+  - text: Das gilt zum einen in **engen Fahrwassern**, gegenüber Fahrzeugen, die nur dort sicher fahren können. Das hatten
+      Sie genannt.
+  - text: Es gilt zum anderen auf dem **Einbahnweg eines Verkehrstrennungsgebiets (VTG)**. Dort darf ein Fahrzeug unter
+      20 m oder ein Segelfahrzeug die sichere Durchfahrt der **Maschinenfahrzeuge** nicht behindern, die dem Einbahnweg
+      folgen.
