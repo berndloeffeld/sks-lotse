@@ -389,3 +389,15 @@
       geschleppt. Sie hält die Last, die eine gewöhnliche Leine nicht tragen würde.
   - text: Die **Ankerleine** hält das Boot am Anker. Sie ist lang genug für die Wassertiefe und reißt nicht. Damit lässt
       sich auch ein Boot festmachen, wenn kein Steg da ist. In der Not ist der Anker die Bremse.
+- subject: wetterkunde
+  number: 66
+  answer_fingerprint: cffb375bbb2f
+  blocks:
+  - text: Wind entsteht aus Druckunterschieden. Fällt der Druck an einem Ort **schnell**, nähert sich ein **kräftiges Tief**,
+      und die Isobaren davor liegen **dicht beieinander**. Je dichter sie liegen, desto stärker der Wind.
+  - text: '**10 hPa in 3 Stunden** ist ein sehr steiler Fall. Er kündigt nicht nur Wind an, sondern einen **schweren Sturm**.'
+  - text: Ein starker Druckfall an Bord heißt, dass das Tief **nah** ist. Es bleibt kaum Zeit, und man kann ihm nicht mehr
+      beliebig aus dem Weg gehen.
+  - text: Wichtig ist deshalb, wo das Tief **in Bezug auf das Schiff** liegt und wohin es zieht. Daran hängt, auf welcher Seite
+      der Wind am stärksten wird und wie er dreht. Mit dem **Kurs** und der **Fahrt** entscheidet man, ob man sich dem
+      Tief nähert oder sich von ihm entfernt.
