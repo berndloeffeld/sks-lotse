@@ -2695,7 +2695,43 @@
    "answer_text": "Große Steifheit, Verwindungsfestigkeit, geringes Gewicht, gute Isolierung.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Bei der Massivbauweise ist die Rumpfwand durchgehend aus GFK. Bei der Sandwichbauweise liegen außen und innen je eine dünne GFK-Schicht, dazwischen ein leichter Kern, etwa aus Schaumstoff oder Balsaholz.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Biegt man eine Wand, wird die eine Seite gestaucht und die andere gedehnt, die Mitte trägt kaum etwas bei. Der Kern hält die beiden GFK-Schichten auf Abstand, sie sitzen also genau dort, wo die Last am größten ist. Das ergibt **große Steifheit**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-3-sandwichbauweise.svg",
+      "width": 780,
+      "height": 340,
+      "alt": "Skizze zweier belasteter Rumpfwände im Querschnitt, oben jeweils gestaucht, unten gedehnt. Links massiv, durchgehend aus GFK, die Wand biegt sich stärker. Rechts Sandwich, zwei dünne GFK-Schichten mit einem leichten Kern dazwischen, die Wand biegt sich weniger."
+     }
+    },
+    {
+     "text": "Dasselbe gilt, wenn der Rumpf verdreht wird, auch das nehmen die weit außen liegenden Schichten auf. Das ist die **Verwindungsfestigkeit**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Kern wiegt viel weniger als das GFK, das er ersetzt. Für dieselbe Steifheit bleibt das **Gewicht gering**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Schaumstoff und Balsaholz leiten Wärme schlecht, anders als massives GFK. Das ergibt eine **gute Isolierung**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
@@ -2715,7 +2751,43 @@
    "answer_text": "Das Rad dreht ein Zahnrad, über das eine Kette in der Steuersäule nach unten verläuft. Die Kette ist mit den Steuerseilen verbunden, welche über Umlenkrollen zum Ruderquadranten führen.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Das Ruder sitzt weit achtern, das Steuerrad meist weiter vorn auf der Steuersäule. Die Drehung des Rades muss also **bis zum Ruder** gelangen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das Rad dreht auf seiner Achse ein **Zahnrad**. Darüber läuft eine **Kette**, deren beide Enden in der Steuersäule nach unten hängen. Dreht man das Rad, geht die eine Seite hoch und die andere herunter.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Eine Kette taugt nicht für den langen Weg durch das Boot. Unten sind ihre Enden deshalb mit den **Steuerseilen** verbunden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die Seile müssen von der Säule nach achtern und dafür um die Ecke. Das erledigen die **Umlenkrollen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Achtern enden sie am **Ruderquadranten**, einem Kreisbogen auf dem Ruderschaft. Zieht das eine Seil, gibt das andere nach, der Quadrant dreht sich und mit ihm das Ruder.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "seemannschaft-8-radsteuerung.svg",
+      "width": 780,
+      "height": 640,
+      "alt": "Schema einer Radsteuerung. Das Steuerrad dreht ein Zahnrad, über das eine Kette in der Steuersäule nach unten läuft. An den Kettenenden hängen zwei Steuerseile. Sie laufen am Fuß der Säule über je eine Umlenkrolle schräg zu beiden Seiten, über je eine weitere Umlenkrolle zurück und enden am Ruderquadranten auf dem Ruderschaft. Pfeile zeigen, wie die Drehung des Rades den Quadranten mitdreht."
+     }
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
