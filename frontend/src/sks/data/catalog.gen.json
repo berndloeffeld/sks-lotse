@@ -2073,7 +2073,23 @@
    "answer_text": "Die Ausweichregeln der KVR beachten.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein betonnter Schifffahrtsweg ist **kein Verkehrstrennungsgebiet**. Für ihn gibt es keine eigene Querungsregel und **keine pauschale Vorfahrt** für die Schiffe, die ihm folgen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wer ihn quert, begegnet den Schiffen darauf wie jedem anderen Fahrzeug. Es gelten die **allgemeinen Ausweichregeln der KVR**. Bei kreuzenden Maschinenfahrzeugen weicht aus, wer das andere an **Steuerbord** hat. Dazu kommt die **Rangfolge** der Fahrzeuge, etwa Maschinenfahrzeug vor Segelfahrzeug.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Dazu gehört, dass Sie in einem **engen Fahrwasser** ein Fahrzeug nicht behindern, das nur dort sicher fahren kann. Und wer ausweichen muss, tut es **frühzeitig und deutlich**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -2083,7 +2099,23 @@
    "answer_text": "1. In engen Fahrwassern,\n2. auf dem Einbahnweg eines Verkehrstrennungsgebietes (VTG) gegenüber Maschinenfahrzeugen im VTG.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein **Behinderungsverbot** trifft die kleinen und wendigen Fahrzeuge. Gemeint sind Fahrzeuge **unter 20 m** und **Segelfahrzeuge**. Sie dürfen größere Fahrzeuge nicht behindern, die wenig Raum zum Ausweichen haben.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das gilt zum einen in **engen Fahrwassern**, gegenüber Fahrzeugen, die nur dort sicher fahren können. Das hatten Sie genannt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Es gilt zum anderen auf dem **Einbahnweg eines Verkehrstrennungsgebiets (VTG)**. Dort darf ein Fahrzeug unter 20 m oder ein Segelfahrzeug die sichere Durchfahrt der **Maschinenfahrzeuge** nicht behindern, die dem Einbahnweg folgen.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -4234,7 +4266,33 @@
    "answer_text": "Reservetauwerk, Wurfleine, Schlepptrosse und Ankerleine.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Fallen, Schoten und Festmacher sind **im Alltag gefahrenes Tauwerk**. Gefragt ist, was darüber hinaus **für den Notfall** an Bord sein sollte. Jede der vier Leinen hat dafür einen eigenen Zweck.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das **Reservetauwerk** ersetzt, was bricht, scheuert oder über Bord geht, etwa eine Schot oder einen Festmacher. Ohne Ersatz ist das Boot dann nicht mehr voll zu bedienen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Wurfleine** ist eine dünne, leichte Leine, oft mit einem Gewicht am Ende. Man wirft sie weit, um **eine Verbindung herzustellen**, zum Beispiel zu einem Menschen im Wasser, zu einem anderen Boot oder zum Steg. Daran zieht man dann eine dickere Leine hinüber.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Schlepptrosse** ist **lang und stark**. Mit ihr nimmt man ein anderes Fahrzeug in Schlepp oder wird selbst geschleppt. Sie hält die Last, die eine gewöhnliche Leine nicht tragen würde.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Ankerleine** hält das Boot am Anker. Sie ist lang genug für die Wassertiefe und reißt nicht. Damit lässt sich auch ein Boot festmachen, wenn kein Steg da ist. In der Not ist der Anker die Bremse.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_motor",
@@ -4685,7 +4743,33 @@
    "answer_text": "Reservetauwerk, Wurfleine, Schlepptrosse und Ankerleine.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Fallen, Schoten und Festmacher sind **im Alltag gefahrenes Tauwerk**. Gefragt ist, was darüber hinaus **für den Notfall** an Bord sein sollte. Jede der vier Leinen hat dafür einen eigenen Zweck.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das **Reservetauwerk** ersetzt, was bricht, scheuert oder über Bord geht, etwa eine Schot oder einen Festmacher. Ohne Ersatz ist das Boot dann nicht mehr voll zu bedienen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Wurfleine** ist eine dünne, leichte Leine, oft mit einem Gewicht am Ende. Man wirft sie weit, um **eine Verbindung herzustellen**, zum Beispiel zu einem Menschen im Wasser, zu einem anderen Boot oder zum Steg. Daran zieht man dann eine dickere Leine hinüber.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Schlepptrosse** ist **lang und stark**. Mit ihr nimmt man ein anderes Fahrzeug in Schlepp oder wird selbst geschleppt. Sie hält die Last, die eine gewöhnliche Leine nicht tragen würde.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Ankerleine** hält das Boot am Anker. Sie ist lang genug für die Wassertiefe und reißt nicht. Damit lässt sich auch ein Boot festmachen, wenn kein Steg da ist. In der Not ist der Anker die Bremse.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_segeln",
@@ -5899,7 +5983,38 @@
    "answer_text": "1. Schwerer Sturm.\n2. Der Kurs und die Fahrt des Schiffes in Bezug auf das Tiefdruckgebiet.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Wind entsteht aus Druckunterschieden. Fällt der Druck an einem Ort **schnell**, nähert sich ein **kräftiges Tief**, und die Isobaren davor liegen **dicht beieinander**. Je dichter sie liegen, desto stärker der Wind.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "**10 hPa in 3 Stunden** ist ein sehr steiler Fall. Er kündigt nicht nur Wind an, sondern einen **schweren Sturm**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "An Bord misst das Barometer aber **auf einem fahrenden Schiff**. Der abgelesene Druckfall hat zwei Ursachen, das Tief bewegt sich und das Schiff auch.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Fährt das Schiff **auf das Tief zu**, kommt es schneller in tieferen Druck. Das Barometer fällt **stärker**, als es das Tief allein bewirkt. Fährt es **vom Tief weg**, fällt es **schwächer**, und die Lage wirkt harmloser, als sie ist. Je höher die **Fahrt**, desto größer der Unterschied.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Einordnen lässt sich der Wert also nur, wenn man weiß, wo das Tief liegt. Auf der Nordhalbkugel gilt, mit dem **Rücken zum Wind** liegt das Tief **links**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Daraus folgt auch die Wahl des Kurses. Rechts der Zugbahn weht der Wind in dieselbe Richtung, in die das Tief zieht, dort ist er am **stärksten**. Man hält deshalb **Abstand zum Zentrum** und meidet nach Möglichkeit diese Seite.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
@@ -5979,7 +6094,28 @@
    "answer_text": "1. Meist deutliche Wetterverschlechterung mit erneut auffrischendem Wind bis Sturmstärke.\n2. Troglage.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Nach einer Kaltfront **dreht der Wind normalerweise nach rechts**, und der Luftdruck **steigt**. Das Wetter bessert sich.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hier geschieht das **Gegenteil**. Der Wind dreht zurück, und der Druck fällt wieder. Beides sagt, dass sich erneut **tiefer Druck** nähert, obwohl die Front schon durch ist.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das ist ein **Trog**, eine lang gestreckte Zone tiefen Drucks, die der Kaltfront in der kalten Luft folgt. Die Wetterlage heißt deshalb **Troglage**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Trog bringt ähnliches Wetter wie eine weitere Front. Das Wetter wird **deutlich schlechter**, und der Wind **frischt erneut auf**, bis zur **Sturmstärke**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
