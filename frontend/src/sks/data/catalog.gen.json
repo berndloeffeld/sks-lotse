@@ -4266,7 +4266,33 @@
    "answer_text": "Reservetauwerk, Wurfleine, Schlepptrosse und Ankerleine.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Fallen, Schoten und Festmacher sind **im Alltag gefahrenes Tauwerk**. Gefragt ist, was darüber hinaus **für den Notfall** an Bord sein sollte. Jede der vier Leinen hat dafür einen eigenen Zweck.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das **Reservetauwerk** ersetzt, was bricht, scheuert oder über Bord geht, etwa eine Schot oder einen Festmacher. Ohne Ersatz ist das Boot dann nicht mehr voll zu bedienen.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Wurfleine** ist eine dünne, leichte Leine, oft mit einem Gewicht am Ende. Man wirft sie weit, um **eine Verbindung herzustellen**, zum Beispiel zu einem Menschen im Wasser, zu einem anderen Boot oder zum Steg. Daran zieht man dann eine dickere Leine hinüber.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Schlepptrosse** ist **lang und stark**. Mit ihr nimmt man ein anderes Fahrzeug in Schlepp oder wird selbst geschleppt. Sie hält die Last, die eine gewöhnliche Leine nicht tragen würde.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die **Ankerleine** hält das Boot am Anker. Sie ist lang genug für die Wassertiefe und reißt nicht. Damit lässt sich auch ein Boot festmachen, wenn kein Steg da ist. In der Not ist der Anker die Bremse.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_motor",
