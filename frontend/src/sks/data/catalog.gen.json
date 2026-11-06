@@ -5995,12 +5995,22 @@
      "image": null
     },
     {
-     "text": "Ein starker Druckfall an Bord heißt, dass das Tief **nah** ist. Es bleibt kaum Zeit, und man kann ihm nicht mehr beliebig aus dem Weg gehen.",
+     "text": "An Bord misst das Barometer aber **auf einem fahrenden Schiff**. Der abgelesene Druckfall hat zwei Ursachen, das Tief bewegt sich und das Schiff auch.",
      "table": null,
      "image": null
     },
     {
-     "text": "Wichtig ist deshalb, wo das Tief **in Bezug auf das Schiff** liegt und wohin es zieht. Daran hängt, auf welcher Seite der Wind am stärksten wird und wie er dreht. Mit dem **Kurs** und der **Fahrt** entscheidet man, ob man sich dem Tief nähert oder sich von ihm entfernt.",
+     "text": "Fährt das Schiff **auf das Tief zu**, kommt es schneller in tieferen Druck. Das Barometer fällt **stärker**, als es das Tief allein bewirkt. Fährt es **vom Tief weg**, fällt es **schwächer**, und die Lage wirkt harmloser, als sie ist. Je höher die **Fahrt**, desto größer der Unterschied.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Einordnen lässt sich der Wert also nur, wenn man weiß, wo das Tief liegt. Auf der Nordhalbkugel gilt, mit dem **Rücken zum Wind** liegt das Tief **links**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Daraus folgt auch die Wahl des Kurses. Rechts der Zugbahn wehen Wind und Zugrichtung des Tiefs in dieselbe Richtung, dort ist der Wind am **stärksten**. Man hält deshalb **Abstand zum Zentrum** und meidet nach Möglichkeit diese Seite.",
      "table": null,
      "image": null
     }
