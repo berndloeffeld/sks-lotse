@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 440" width="780" height="440" font-family="Helvetica,Arial,sans-serif">
+<defs>
+<marker id="a555555" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker>
+<marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker>
+<marker id="a1f6f8b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f6f8b"/></marker>
+</defs>
+<rect width="780" height="440" fill="#ffffff"/>
+
+<!-- the zone the question asks about -->
+<rect x="240" y="76" width="140" height="344" fill="#fbeeec"/>
+
+<!-- low and direction of travel -->
+<text x="380" y="44" text-anchor="middle" font-size="26" font-weight="bold" fill="#222">T</text>
+<text x="40" y="36" font-size="13" fill="#555">Norden ist oben</text>
+<text x="660" y="26" text-anchor="middle" font-size="13" fill="#555">Das Ganze zieht nach Osten</text>
+<line x1="600" y1="40" x2="720" y2="40" stroke="#555555" stroke-width="2" marker-end="url(#a555555)"/>
+
+<!-- isobars, kinked towards the south at trough and front -->
+<polyline points="40,80 240,170 380,120 520,170 740,80" fill="none" stroke="#999999" stroke-width="1.5"/>
+<polyline points="40,130 240,220 380,170 520,220 740,130" fill="none" stroke="#999999" stroke-width="1.5"/>
+<polyline points="40,180 240,270 380,220 520,270 740,180" fill="none" stroke="#999999" stroke-width="1.5"/>
+
+<!-- trough -->
+<text x="240" y="68" text-anchor="middle" font-size="15" font-weight="bold" fill="#c0392b">Trog</text>
+<line x1="240" y1="76" x2="240" y2="290" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="8 6"/>
+
+<!-- cold front, triangles point the way it travels -->
+<text x="520" y="68" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f6f8b">Kaltfront</text>
+<line x1="520" y1="76" x2="520" y2="290" stroke="#1f6f8b" stroke-width="2.5"/>
+<path d="M520,96 L536,106 L520,116 Z" fill="#1f6f8b"/>
+<path d="M520,146 L536,156 L520,166 Z" fill="#1f6f8b"/>
+<path d="M520,196 L536,206 L520,216 Z" fill="#1f6f8b"/>
+<path d="M520,246 L536,256 L520,266 Z" fill="#1f6f8b"/>
+
+<!-- wind, along the isobars with the low on its left -->
+<line x1="110" y1="141.5" x2="170" y2="168.5" stroke="#555555" stroke-width="3" marker-end="url(#a555555)"/>
+<line x1="280" y1="205.7" x2="340" y2="184.3" stroke="#c0392b" stroke-width="3" marker-end="url(#ac0392b)"/>
+<line x1="420" y1="184.3" x2="480" y2="205.7" stroke="#555555" stroke-width="3" marker-end="url(#a555555)"/>
+<line x1="600" y1="168.5" x2="660" y2="141.5" stroke="#555555" stroke-width="3" marker-end="url(#a555555)"/>
+
+<!-- what a boat notices, in the order the zones reach it -->
+<text x="630" y="318" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">1 vor der Front</text>
+<text x="630" y="340" text-anchor="middle" font-size="13" fill="#555">Wind aus SW</text>
+<text x="630" y="360" text-anchor="middle" font-size="13" fill="#555">Druck fällt</text>
+
+<text x="450" y="318" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">2 nach der Front</text>
+<text x="450" y="340" text-anchor="middle" font-size="13" fill="#555">Wind dreht rechts</text>
+<text x="450" y="360" text-anchor="middle" font-size="13" fill="#555">auf NW</text>
+<text x="450" y="380" text-anchor="middle" font-size="13" fill="#555">Druck steigt</text>
+
+<text x="310" y="318" text-anchor="middle" font-size="14" font-weight="bold" fill="#c0392b">3 vor dem Trog</text>
+<text x="310" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#c0392b">Wind dreht zurück</text>
+<text x="310" y="360" text-anchor="middle" font-size="13" font-weight="bold" fill="#c0392b">auf SW</text>
+<text x="310" y="380" text-anchor="middle" font-size="13" font-weight="bold" fill="#c0392b">Druck fällt</text>
+<text x="310" y="404" text-anchor="middle" font-size="13" font-weight="bold" fill="#c0392b">Hier fragt die Aufgabe</text>
+
+<text x="140" y="318" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">4 nach dem Trog</text>
+<text x="140" y="340" text-anchor="middle" font-size="13" fill="#555">Wind dreht rechts</text>
+<text x="140" y="360" text-anchor="middle" font-size="13" fill="#555">auf NW</text>
+<text x="140" y="380" text-anchor="middle" font-size="13" fill="#555">Druck steigt</text>
+</svg>

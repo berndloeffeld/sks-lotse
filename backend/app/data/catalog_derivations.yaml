@@ -415,5 +415,13 @@
       erneut **tiefer Druck** nähert, obwohl die Front schon durch ist.
   - text: Das ist ein **Trog**, eine lang gestreckte Zone tiefen Drucks, die der Kaltfront in der kalten Luft folgt. Die
       Wetterlage heißt deshalb **Troglage**.
+  - image:
+      src: wetterkunde-74-troglage.svg
+      width: 780
+      height: 440
+      alt: Schema einer Troglage auf der Nordhalbkugel, das nach Osten zieht. Die Isobaren knicken an Kaltfront und Trog nach
+        Süden ab. Rechts liegt die Kaltfront, links dahinter der Trog. Vor der Front weht der Wind aus Südwest und der Druck
+        fällt. Nach der Front dreht der Wind rechts auf Nordwest und der Druck steigt. Vor dem Trog dreht der Wind zurück auf
+        Südwest und der Druck fällt, danach dreht er wieder rechts auf Nordwest und der Druck steigt.
   - text: Der Trog bringt ähnliches Wetter wie eine weitere Front. Das Wetter wird **deutlich schlechter**, und der Wind
       **frischt erneut auf**, bis zur **Sturmstärke**.
