@@ -238,3 +238,14 @@
       Fahrzeug aus, und das ist das andere.
   - text: In beiden Fällen weicht also das **Segelfahrzeug in Luv** aus. Sie müssen kein Licht deuten, das Sie nicht
       sicher erkennen können, und sind **Kurshalter**.
+- subject: schifffahrtsrecht
+  number: 34
+  answer_fingerprint: bca27bbb8875
+  blocks:
+  - text: Ein betonnter Schifffahrtsweg ist **kein Verkehrstrennungsgebiet**. Für ihn gibt es keine eigene Querungsregel
+      und **keine pauschale Vorfahrt** für die Schiffe, die ihm folgen.
+  - text: Wer ihn quert, begegnet den Schiffen darauf wie jedem anderen Fahrzeug. Es gelten die **allgemeinen
+      Ausweichregeln der KVR**. Bei kreuzenden Maschinenfahrzeugen weicht aus, wer das andere an **Steuerbord** hat.
+      Dazu kommt die **Rangfolge** der Fahrzeuge, etwa Maschinenfahrzeug vor Segelfahrzeug.
+  - text: Dazu gehört, dass Sie in einem **engen Fahrwasser** ein Fahrzeug nicht behindern, das nur dort sicher fahren
+      kann. Und wer ausweichen muss, tut es **frühzeitig und deutlich**.
