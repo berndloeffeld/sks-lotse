@@ -6094,7 +6094,28 @@
    "answer_text": "1. Meist deutliche Wetterverschlechterung mit erneut auffrischendem Wind bis Sturmstärke.\n2. Troglage.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Nach einer Kaltfront **dreht der Wind normalerweise nach rechts**, und der Luftdruck **steigt**. Das Wetter bessert sich.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hier geschieht das **Gegenteil**. Der Wind dreht zurück, und der Druck fällt wieder. Beides sagt, dass sich erneut **tiefer Druck** nähert, obwohl die Front schon durch ist.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Das ist ein **Trog**, eine lang gestreckte Zone tiefen Drucks, die der Kaltfront in der kalten Luft folgt. Die Wetterlage heißt deshalb **Troglage**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der Trog bringt ähnliches Wetter wie eine weitere Front. Das Wetter wird **deutlich schlechter**, und der Wind **frischt erneut auf**, bis zur **Sturmstärke**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
