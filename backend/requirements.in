@@ -3,9 +3,9 @@
 # (README → Dependencies).
 fastapi==0.162.0
 uvicorn[standard]==0.54.0
-sqlalchemy==2.1.6
+sqlalchemy==2.1.8
 alembic==1.20.1
-psycopg[binary]==3.3.6
+psycopg[binary]==3.3.8
 pydantic-settings==2.16.2
 pypdf==6.21.4
 pyyaml==6.0.3
@@ -15,14 +15,14 @@ pyjwt==2.15.1
 pyotp==2.10.0
 segno==1.6.6
 cryptography==50.0.2
-resend==2.50.0
+resend==2.51.0
 email-validator==2.3.0
 # Releases every time its upstream domain list changes (very often) — bump
 # periodically, this pin will go stale fast.
-disposable-email-domains==0.0.287
-anthropic==2.3.0
+disposable-email-domains==0.0.291
+anthropic==2.4.0
 # Token-package checkout (ADR-0048): Checkout Sessions and webhook signature verification.
-stripe==16.0.1
+stripe==16.1.0
 # Europe/Berlin time in the purchase confirmation mail (app/services/payments.py); slim images have no system tz database.
 tzdata==2026.6
 # SQLAlchemy needs greenlet only on some platforms (Linux x86_64 yes — Render and CI —, macOS arm64
