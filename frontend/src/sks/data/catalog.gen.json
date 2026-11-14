@@ -6125,7 +6125,38 @@
    "answer_text": "Der Wind dreht recht, meist über 60 bis 90°. Winde bis Orkanstärke besonders auf der Rückseite eines Troges.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein Trog ist eine lang gestreckte Zone tiefen Drucks, die von einem Tief aus nach Süden ragt. Die Isobaren knicken an der **Trogachse** V-förmig ab.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Um tiefen Druck weht der Wind auf der Nordhalbkugel gegen den Uhrzeigersinn, grob entlang der Isobaren. Auf der **Vorderseite**, östlich der Achse, kommt er deshalb aus **Südwest**, auf der **Rückseite** aus **Nordwest**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": null,
+     "table": null,
+     "image": {
+      "src": "wetterkunde-75-wind-am-trog.svg",
+      "width": 780,
+      "height": 375,
+      "alt": "Draufsicht auf einen Trog, Norden oben. Ein Tief liegt oben in der Mitte, drei gestrichelte Isobaren knicken darunter V-förmig an einer senkrechten Trogachse ab. Östlich der Achse, auf der Vorderseite, zeigen rote Pfeile nach Nordosten, der Wind kommt aus Südwest. Westlich, auf der Rückseite, zeigen dickere rote Pfeile nach Südosten, der Wind kommt aus Nordwest und ist am stärksten. Ein schwarzer Pfeil zeigt den Zug des Troges nach Osten."
+     }
+    },
+    {
+     "text": "Der Trog zieht mit der Westströmung nach Osten. Zieht er über Sie hinweg, kommen Sie von seiner Vorder- auf seine Rückseite, und der Wind springt von Südwest auf Nordwest. Er **dreht rechts, meist um 60 bis 90°**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Hinter der Achse strömt kalte Luft nach, und der Druck steigt rasch. Die Isobaren liegen eng, und die labile Kaltluft holt kräftigen Wind aus der Höhe in Böen herunter. Deshalb weht es **auf der Rückseite am stärksten, bis Orkanstärke**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
