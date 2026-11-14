@@ -5973,7 +5973,28 @@
    "answer_text": "Wolkenaufzug, meist Cirrostratus. Ggf. Niederschlag und Wetterverschlechterung.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Ein Halo ist ein großer Lichtring um die Sonne. Er entsteht, wenn das Licht in **Eiskristallen** gebrochen wird. Die gibt es nur in hohen Wolken, und einen gleichmäßigen Ring gibt meist ein dünner, durchgehender Schleier – der **Cirrostratus**. Auch ein Hof um den Mond zeigt einen dünnen Wolkenschleier vor dem Mond.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Ein solcher Schleier zieht typischerweise **vor einer Warmfront** auf. Dort gleitet warme Luft auf die kalte auf, und die Wolken bilden sich zuerst ganz oben, weit vor der Front am Boden.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Kommt die Front näher, wird die Bewölkung dichter und tiefer – das ist der **Wolkenaufzug**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Erreicht die Front Sie, folgen oft lang anhaltender Regen und schlechteres Wetter. Nicht jeder Schleier bringt eine Front, deshalb nur **gegebenenfalls Niederschlag und Wetterverschlechterung**.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
