@@ -417,3 +417,14 @@
       Wetterlage heißt deshalb **Troglage**.
   - text: Der Trog bringt ähnliches Wetter wie eine weitere Front. Das Wetter wird **deutlich schlechter**, und der Wind
       **frischt erneut auf**, bis zur **Sturmstärke**.
+- subject: wetterkunde
+  number: 78
+  answer_fingerprint: f7d33afa74f1
+  blocks:
+  - text: Streicht Luft über eine kältere Fläche, kühlt sie ab. Sinkt sie dabei **unter ihren Taupunkt**, kondensiert
+      der Wasserdampf zu Nebel.
+  - text: Über dem Meer braucht es dafür **Luft, die wärmer und feuchter ist als das Wasser darunter**. Der Wind trägt
+      sie heran, etwa warme, feuchte Luft aus südlichen Breiten über die Nordsee. Ziehen muss das kalte Wasser sie
+      nicht – es ist der Wind, der sie über das Meer schiebt.
+  - text: Wasser erwärmt sich viel langsamer als Land und Luft. Im **Frühjahr** ist die Luft schon mild, die See aber
+      noch winterkalt. Dann ist der Unterschied am größten, und Kaltwassernebel tritt **überwiegend im Frühjahr** auf.

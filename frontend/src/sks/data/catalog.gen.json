@@ -6155,7 +6155,23 @@
    "answer_text": "1. Warme und feuchte Luftmassen werden durch den kalten Untergrund (Meer) unter den Taupunkt abgekühlt.\n2. Überwiegend im Frühjahr .",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Streicht Luft über eine kältere Fläche, kühlt sie ab. Sinkt sie dabei **unter ihren Taupunkt**, kondensiert der Wasserdampf zu Nebel.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Über dem Meer braucht es dafür **Luft, die wärmer und feuchter ist als das Wasser darunter**. Der Wind trägt sie heran, etwa warme, feuchte Luft aus südlichen Breiten über die Nordsee. Ziehen muss das kalte Wasser sie nicht – es ist der Wind, der sie über das Meer schiebt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wasser erwärmt sich viel langsamer als Land und Luft. Im **Frühjahr** ist die Luft schon mild, die See aber noch winterkalt. Dann ist der Unterschied am größten, und Kaltwassernebel tritt **überwiegend im Frühjahr** auf.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
