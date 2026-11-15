@@ -6253,7 +6253,28 @@
    "answer_text": "1. Nach Sonnenuntergang kann sich bei klarem Himmel die bodennahe Luftschicht über Land unter den Taupunkt abkühlen.\n2. Besonders auf Flüssen und engen Durchfahrten, außerdem durch seewärtige Windverdriftung in Küstennähe.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Der Name kommt von der **Ausstrahlung**. Jede Oberfläche gibt ständig Wärme als unsichtbare Strahlung ab. Tagsüber gleicht die Sonne das aus, **nach Sonnenuntergang** nicht mehr – der Boden kühlt aus.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Wolken werfen einen Teil dieser Strahlung zurück. Bei **klarem Himmel** geht sie ungehindert in den Weltraum, und der Boden wird besonders kalt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Der kalte Boden kühlt die Luft direkt darüber. Sinkt diese **bodennahe Luftschicht unter ihren Taupunkt**, kondensiert der Wasserdampf zu Nebel. Das geht nur **über Land** – das Wasser kühlt über Nacht kaum ab.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Die kalte, schwere Luft fließt in Niederungen und sammelt sich in Tälern. Deshalb trifft man den Nebel **auf Flüssen und in engen Durchfahrten**. Weht der Wind vom Land auf See, trägt er ihn **in Küstennähe** hinaus.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "wetterkunde",
