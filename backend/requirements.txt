@@ -16,15 +16,16 @@ annotated-types==0.8.0 \
     --hash=sha256:13b2beaad985e05e2d6407ee4c4f35590b11f8d693a258a561055cac8f64cab7 \
     --hash=sha256:f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0
     # via pydantic
-anthropic==2.4.0 \
-    --hash=sha256:c59cab76049cf581e90e2ee3a20472291029b7a6a1ee2ef32bff2b2a7010fd47 \
-    --hash=sha256:db2e691364ae2e04083ed9b8deb49f1a6967e9f184f8cbb5afcb3bcda8ab0532
+anthropic==2.8.0 \
+    --hash=sha256:76ad332e2d500fc54d0112cf100544ad1a7605e71e092b98d9eb664d2b66e283 \
+    --hash=sha256:d34e389ba0544cd64e033eb7475f46cc1ac6f2a388cdcd472b33ad4ac29ef40c
     # via -r requirements.in
 anyio==4.15.1 \
     --hash=sha256:6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101 \
     --hash=sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94
     # via
     #   anthropic
+    #   fastapi
     #   httpx2
     #   starlette
     #   watchfiles
@@ -373,9 +374,9 @@ cryptography==50.0.2 \
     --hash=sha256:fa8f5efb344d6908a1ce62f4a24e2e5780f825d6f53f5f50ec5ffacac72936cb \
     --hash=sha256:fdd28f912fccfec1846a94e2e1e8f9b0012f557f0c46fe4f3eb0d7a87afcf90b
     # via -r requirements.in
-disposable-email-domains==0.0.291 \
-    --hash=sha256:6b5cf834540ddad402cbcd098353f92244ec75097a82aa7f670e607e63984c57 \
-    --hash=sha256:a28f2ab1199fbc727f64f69d3f1a78039bc30f5518c35dc0711fda183435da46
+disposable-email-domains==0.0.293 \
+    --hash=sha256:b03e29f3a810a012c200b944ce9ef52ce975da2ea63bcf50d08767bf9e225f8e \
+    --hash=sha256:f44110d73aa5eafafc97119ad229f19e069ba14c0e50bf4d4c738f13b11687f0
     # via -r requirements.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -389,9 +390,9 @@ email-validator==2.3.0 \
     --hash=sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4 \
     --hash=sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426
     # via -r requirements.in
-fastapi==0.162.0 \
-    --hash=sha256:3785963de305dd09912426cb81f2d230fce98ab3521cdfe97265c8d14983128c \
-    --hash=sha256:6a22c1e2e6e32e0633ee7e170f00009a29b8228b16feb219ee42f32fd8d88a8f
+fastapi==0.162.4 \
+    --hash=sha256:4abdb1ef367090678d8bc664631df432ae7a1bfe7709c37547d3606e667650e3 \
+    --hash=sha256:f093bc306d3958278d30ffd14f3834ca3d9b144fbb898ab5c9b652cf6e75f869
     # via -r requirements.in
 greenlet==3.5.6 \
     --hash=sha256:0616b8f878098c5681fd8f0dc92d887551717402342a70f0abcbfea5f5ad8a44 \
@@ -1080,9 +1081,9 @@ requests==2.34.2 \
     # via
     #   resend
     #   stripe
-resend==2.51.0 \
-    --hash=sha256:16d99d2ae96e7e405dde35779eab2c1e22e94d542c8aecd95442cdc295e98116 \
-    --hash=sha256:36b8ff3d533cdd5e0ad83b847e05a24f39c471c2f0ed701797e807daae5ecfba
+resend==2.53.2 \
+    --hash=sha256:4904f79fe129344edb612beb5653b5755dfe63c73ea5d0c96842d2869da36e28 \
+    --hash=sha256:e0416b6559b972a5b877acf21e3bbd4b59098f19093a72ecc26e40407d19f452
     # via -r requirements.in
 segno==1.6.6 \
     --hash=sha256:28c7d081ed0cf935e0411293a465efd4d500704072cdb039778a2ab8736190c7 \
