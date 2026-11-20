@@ -15,6 +15,8 @@ interface ProgressOverviewProps {
 // The Lernstand at a glance, as three band columns: overall progress, the
 // per-category pie, and the exam-variant picker. Shared by /learn and
 // /profile; the caller owns the /progress/summary fetch (useProgressSummary).
+// Between sm and lg three columns are too narrow for the headings and the pie's
+// legend, so the first two sit side by side and the picker goes below them.
 export function ProgressOverview({ totals, categories }: ProgressOverviewProps) {
   const user = useAuthStore((state) => state.user)
   const { changeVariant, isSaving, error } = useExamVariantUpdate()
@@ -22,7 +24,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
   const learningPercent = percentOf(totals.learning, totals.total)
 
   return (
-    <Columns>
+    <Columns className="sm:grid-cols-2 lg:grid-cols-3">
       <div className="flex flex-col gap-4">
         <h2 className={sectionHeading}>Gesamtfortschritt</h2>
         <p className="font-serif text-5xl text-ink">{formatPercentOf(totals.learned, totals.total)}</p>
@@ -39,7 +41,7 @@ export function ProgressOverview({ totals, categories }: ProgressOverviewProps) 
         <h2 className={sectionHeading}>Fächer</h2>
         {categories.length > 0 ? <ProgressPie slices={categories} /> : null}
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
         <h2 className={sectionHeading}>Prüfungsvariante</h2>
         <p className="text-sm leading-relaxed text-ink-soft">Bestimmt, welche Seemannschaft-Fragen du übst.</p>
         <ExamVariantDropdown value={user?.exam_variant ?? null} onChange={changeVariant} disabled={isSaving} />

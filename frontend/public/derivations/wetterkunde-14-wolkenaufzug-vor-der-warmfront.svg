@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 380" width="780" height="380" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker><marker id="a222" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222222"/></marker></defs>
+<rect width="780" height="380" fill="#ffffff"/>
+<path d="M170,320 L740,100" fill="none" stroke="#c0392b" stroke-width="2"/>
+<path d="M170,320 L320,262 L320,140 L250,122 L185,148 L165,210 Z" fill="#9aa5ad"/>
+<path d="M330,258 L520,185 L520,150 L330,222 Z" fill="#c3ccd2"/>
+<path d="M540,177 L740,100 L740,86 L540,163 Z" fill="#e3e8ec" stroke="#b8c4cc"/>
+<g stroke="#5b7c99" stroke-width="1.5">
+<line x1="215" y1="306" x2="211" y2="318"/><line x1="235" y1="298" x2="231" y2="318"/><line x1="255" y1="291" x2="251" y2="318"/><line x1="275" y1="283" x2="271" y2="318"/><line x1="295" y1="275" x2="291" y2="318"/><line x1="312" y1="268" x2="308" y2="318"/>
+</g>
+<line x1="20" y1="320" x2="760" y2="320" stroke="#222" stroke-width="1.5"/>
+<path d="M40,300 Q120,300 150,282" fill="none" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<text x="40" y="240" font-size="14" font-weight="bold" fill="#222">Warmluft</text>
+<text x="40" y="258" font-size="13" fill="#222">gleitet auf</text>
+<text x="420" y="300" font-size="14" font-weight="bold" fill="#222">Kaltluft</text>
+<text x="185" y="110" font-size="13" fill="#222">Nimbostratus</text>
+<text x="380" y="196" font-size="13" fill="#222" transform="rotate(-21.1 380 196)">Altostratus</text>
+<text x="585" y="138" font-size="13" fill="#222" transform="rotate(-21.1 585 138)">Cirrostratus: Halo</text>
+<line x1="650" y1="305" x2="690" y2="50" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="690" cy="44" r="8" fill="#e8b400"/>
+<circle cx="690" cy="44" r="22" fill="none" stroke="#e8b400" stroke-width="2"/>
+<path d="M636,318 L664,318 L660,312 L640,312 Z M650,311 L650,290 L661,309 Z" fill="#222"/>
+<text x="170" y="338" text-anchor="middle" font-size="12" fill="#222">Front am Boden</text>
+<text x="262" y="338" font-size="12" fill="#5b7c99">Regen</text>
+<text x="620" y="338" font-size="12" fill="#222">Zug der Front</text>
+<line x1="705" y1="334" x2="755" y2="334" stroke="#222" stroke-width="2" marker-end="url(#a222)"/>
+<text x="390" y="368" text-anchor="middle" font-size="13" fill="#222">Erst ein hoher Schleier, dann dichter und tiefer, zuletzt Regen – während die Front näher zieht.</text>
+<text x="20" y="22" font-size="12" fill="#888">Schnitt durch eine Warmfront · nicht maßstäblich</text></svg>

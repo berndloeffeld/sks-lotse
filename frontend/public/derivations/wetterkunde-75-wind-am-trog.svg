@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 375" width="780" height="375" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="ac0392b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker><marker id="a222" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222222"/></marker><marker id="ac0392bw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker></defs>
+<rect width="780" height="375" fill="#ffffff"/>
+<g transform="translate(0,30)">
+<path d="M280,60 L380,160 Q390,170 400,160 L500,60" fill="none" stroke="#b8c4cc" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M225,60 L380,215 Q390,225 400,215 L555,60" fill="none" stroke="#b8c4cc" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M170,60 L380,270 Q390,280 400,270 L610,60" fill="none" stroke="#b8c4cc" stroke-width="1.5" stroke-dasharray="4 4"/>
+<line x1="390" y1="58" x2="390" y2="300" stroke="#222" stroke-width="1.5" stroke-dasharray="10 4 2 4"/>
+<text x="398" y="300" font-size="13" fill="#222">Trogachse</text>
+<text x="390" y="48" text-anchor="middle" font-size="36" font-weight="bold" fill="#c0392b">T</text>
+<line x1="472" y1="143" x2="522" y2="93" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<line x1="538" y1="183" x2="588" y2="133" stroke="#c0392b" stroke-width="2.5" marker-end="url(#ac0392b)"/>
+<text x="560" y="210" font-size="14" font-weight="bold" fill="#222">Vorderseite</text>
+<text x="560" y="228" font-size="13" fill="#222">Wind aus Südwest</text>
+<line x1="258" y1="93" x2="308" y2="143" stroke="#c0392b" stroke-width="4" marker-end="url(#ac0392bw)"/>
+<line x1="192" y1="133" x2="242" y2="183" stroke="#c0392b" stroke-width="4" marker-end="url(#ac0392bw)"/>
+<text x="60" y="210" font-size="14" font-weight="bold" fill="#222">Rückseite</text>
+<text x="60" y="228" font-size="13" fill="#222">Wind aus Nordwest,</text>
+<text x="60" y="245" font-size="13" fill="#222">stärkster Wind, Böen</text>
+<line x1="560" y1="290" x2="640" y2="290" stroke="#222" stroke-width="2" marker-end="url(#a222)"/>
+<text x="560" y="280" font-size="13" fill="#222">Zug nach Osten</text>
+<line x1="740" y1="70" x2="740" y2="30" stroke="#222" stroke-width="1.5" marker-end="url(#a222)"/>
+<text x="740" y="86" text-anchor="middle" font-size="13" fill="#222">N</text>
+</g>
+<text x="390" y="362" text-anchor="middle" font-size="13" fill="#222">Zieht der Trog über Sie hinweg, dreht der Wind von Südwest auf Nordwest: rechtsdrehend um etwa 90°.</text>
+<text x="20" y="22" font-size="12" fill="#888">Nordhalbkugel · Isobaren gestrichelt · Wind vereinfacht parallel zu den Isobaren</text></svg>

@@ -417,3 +417,56 @@
       Wetterlage heißt deshalb **Troglage**.
   - text: Der Trog bringt ähnliches Wetter wie eine weitere Front. Das Wetter wird **deutlich schlechter**, und der Wind
       **frischt erneut auf**, bis zur **Sturmstärke**.
+- subject: wetterkunde
+  number: 78
+  answer_fingerprint: f7d33afa74f1
+  blocks:
+  - text: Streicht Luft über eine kältere Fläche, kühlt sie ab. Sinkt sie dabei **unter ihren Taupunkt**, kondensiert
+      der Wasserdampf zu Nebel.
+  - text: Über dem Meer braucht es dafür **Luft, die wärmer und feuchter ist als das Wasser darunter**. Der Wind trägt
+      sie heran, etwa warme, feuchte Luft aus südlichen Breiten über die Nordsee. Ziehen muss das kalte Wasser sie
+      nicht – es ist der Wind, der sie über das Meer schiebt.
+  - text: Wasser erwärmt sich viel langsamer als Land und Luft. Im **Frühjahr** ist die Luft schon mild, die See aber
+      noch winterkalt. Dann ist der Unterschied am größten, und Kaltwassernebel tritt **überwiegend im Frühjahr** auf.
+- subject: wetterkunde
+  number: 75
+  answer_fingerprint: bf02a3528a04
+  blocks:
+  - text: Ein Trog ist eine lang gestreckte Zone tiefen Drucks, die von einem Tief aus nach Süden ragt. Die Isobaren
+      knicken an der **Trogachse** V-förmig ab.
+  - text: Um tiefen Druck weht der Wind auf der Nordhalbkugel gegen den Uhrzeigersinn, grob entlang der Isobaren. Auf
+      der **Vorderseite**, östlich der Achse, kommt er deshalb aus **Südwest**, auf der **Rückseite** aus **Nordwest**.
+  - image:
+      src: wetterkunde-75-wind-am-trog.svg
+      width: 780
+      height: 375
+      alt: Draufsicht auf einen Trog, Norden oben. Ein Tief liegt oben in der Mitte, drei gestrichelte Isobaren knicken
+        darunter V-förmig an einer senkrechten Trogachse ab. Östlich der Achse, auf der Vorderseite, zeigen rote Pfeile
+        nach Nordosten, der Wind kommt aus Südwest. Westlich, auf der Rückseite, zeigen dickere rote Pfeile nach
+        Südosten, der Wind kommt aus Nordwest und ist am stärksten. Ein schwarzer Pfeil zeigt den Zug des Troges nach
+        Osten.
+  - text: Der Trog zieht mit der Westströmung nach Osten. Zieht er über Sie hinweg, kommen Sie von seiner Vorder- auf
+      seine Rückseite, und der Wind springt von Südwest auf Nordwest. Er **dreht rechts, meist um 60 bis 90°**.
+  - text: Hinter der Achse strömt kalte Luft nach, und der Druck steigt rasch. Die Isobaren liegen eng, und die labile
+      Kaltluft holt kräftigen Wind aus der Höhe in Böen herunter. Deshalb weht es **auf der Rückseite am stärksten, bis
+      Orkanstärke**.
+- subject: wetterkunde
+  number: 14
+  answer_fingerprint: a26e04264701
+  blocks:
+  - text: Ein Halo ist ein großer Lichtring um die Sonne. Er entsteht, wenn das Licht in **Eiskristallen** gebrochen wird.
+      Die gibt es nur in hohen Wolken, und einen gleichmäßigen Ring gibt meist ein dünner, durchgehender Schleier –
+      der **Cirrostratus**. Auch ein Hof um den Mond zeigt einen dünnen Wolkenschleier vor dem Mond.
+  - text: Ein solcher Schleier zieht typischerweise **vor einer Warmfront** auf. Dort gleitet warme Luft auf die kalte
+      auf, und die Wolken bilden sich zuerst ganz oben, weit vor der Front am Boden.
+  - image:
+      src: wetterkunde-14-wolkenaufzug-vor-der-warmfront.svg
+      width: 780
+      height: 380
+      alt: Schnitt durch eine Warmfront, die nach rechts zieht. Von links gleitet Warmluft auf einer schräg nach rechts
+        ansteigenden Frontfläche über die Kaltluft auf. Entlang der Fläche liegen von links nach rechts dichter
+        Nimbostratus mit Regen nahe der Front am Boden, darüber Altostratus und ganz rechts oben ein dünner
+        Cirrostratus-Schleier. Ein Boot weit vor der Front sieht die Sonne durch diesen Schleier mit einem Halo.
+  - text: Kommt die Front näher, wird die Bewölkung dichter und tiefer – das ist der **Wolkenaufzug**.
+  - text: Erreicht die Front Sie, folgen oft lang anhaltender Regen und schlechteres Wetter. Nicht jeder Schleier bringt
+      eine Front, deshalb nur **gegebenenfalls Niederschlag und Wetterverschlechterung**.
