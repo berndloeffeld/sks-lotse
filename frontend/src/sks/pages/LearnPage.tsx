@@ -83,7 +83,7 @@ function LearnContent() {
         ) : (
           <Band className="py-10">
             <ErrorMessage className="mb-6">{focusError}</ErrorMessage>
-            <Columns className="sm:grid-cols-2">
+            <Columns className="lg:grid-cols-2">
               {Array.from(bySubject.entries()).map(([subject, topics]) => (
                 <div key={subject} className="flex flex-col gap-2">
                   <h2 className={sectionHeading}>{SUBJECT_LABELS[subject] ?? subject}</h2>
@@ -141,7 +141,7 @@ function GuestLearnContent() {
 
 function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
   return (
-    <Columns className="sm:grid-cols-2">
+    <Columns className="lg:grid-cols-2">
       {Array.from(topicsBySubject(catalog.topics).entries()).map(([subject, topics]) => (
         <div key={subject} className="flex flex-col gap-2">
           <h2 className={sectionHeading}>{SUBJECT_LABELS[subject] ?? subject}</h2>
@@ -151,13 +151,16 @@ function GuestTopics({ catalog }: { catalog: GuestCatalog }) {
                 key={topic.slug}
                 className="flex items-center justify-between gap-4 border-b border-border px-2 py-3 last:border-b-0"
               >
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="text-ink">{topic.name}</p>
                   <p className="mt-1 font-mono text-xs text-ink-soft">
                     {topicQuestions(catalog, subject, topic.slug).length} Fragen
                   </p>
                 </div>
-                <Link to={`/learn/${subject}/${topic.slug}`} className={buttonClass('secondary', { size: 'compact' })}>
+                <Link
+                  to={`/learn/${subject}/${topic.slug}`}
+                  className={`${buttonClass('secondary', { size: 'compact' })} shrink-0 whitespace-nowrap`}
+                >
                   Lernen starten
                   <TopicName title={topic.name} />
                 </Link>
