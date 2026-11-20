@@ -31,7 +31,8 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
   const percent = percentOf(learned, total)
   const learningPercent = percentOf(learning, total)
   const done = total > 0 && learned >= total
-  const action = buttonClass('secondary', { size: 'compact' })
+  // Kept on one line and at full width, so a long topic name wraps instead of the button.
+  const action = `${buttonClass('secondary', { size: 'compact' })} shrink-0 whitespace-nowrap`
 
   return (
     <div
@@ -51,7 +52,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
           <span aria-hidden="true">{isFocus ? '★' : '☆'}</span>
         </button>
       ) : null}
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <p className={`text-ink ${done ? 'font-medium' : ''}`}>
           {done ? (
             <span aria-hidden="true" className="mr-1.5 text-success">
@@ -61,7 +62,7 @@ export function LedgerRow({ title, learned, total, to, learning = 0, isFocus = f
           {title}
         </p>
         <div className="mt-1.5 flex items-center gap-2">
-          <div className="flex h-1 w-20 bg-surface-alt">
+          <div className="flex h-1 w-20 shrink-0 bg-surface-alt">
             <div className="h-full bg-success" style={{ width: `${percent}%` }} />
             <div className="h-full bg-success opacity-40" style={{ width: `${learningPercent}%` }} />
           </div>
