@@ -470,3 +470,15 @@
   - text: Kommt die Front näher, wird die Bewölkung dichter und tiefer – das ist der **Wolkenaufzug**.
   - text: Erreicht die Front Sie, folgen oft lang anhaltender Regen und schlechteres Wetter. Nicht jeder Schleier bringt
       eine Front, deshalb nur **gegebenenfalls Niederschlag und Wetterverschlechterung**.
+- subject: seemannschaft_allgemein
+  number: 44
+  answer_fingerprint: 21207952cc05
+  blocks:
+  - text: Auflandiger Wind treibt die See auf die Küste zu. Vor der Hafeneinfahrt wird das Wasser flacher. Dort bremst
+      der Grund die Wellen, sie werden steil und brechen – das sind **Grundseen**.
+  - text: An Molenköpfen und Wellenbrechern wird die anlaufende See zurückgeworfen. Zurückgeworfene und anlaufende
+      Wellen treffen aus verschiedenen Richtungen aufeinander – das sind **Kreuzseen**. Die Yacht ist darin schwer
+      auf Kurs zu halten.
+  - text: Vor einer Einfahrt setzt oft ein Strom quer zum Kurs, etwa ein Gezeiten- oder Küstenstrom. Bei auflandigem
+      Starkwind fließt zusätzlich das Wasser, das der Wind gegen die Küste drückt, an ihr entlang ab. Dieser
+      **Querstrom** versetzt die Yacht genau dort, wo wenig Platz ist – gegen die Mole oder auf flaches Wasser.
