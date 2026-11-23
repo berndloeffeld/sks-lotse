@@ -16,6 +16,12 @@ updates:
     groups:
       python-minor-and-patch:
         update-types: [minor, patch]
+    # pypdf extracts the official catalog wording from the PDF (catalog_seed.py), and every migration
+    # re-parses it. 7.1 changed the word-spacing heuristics (e.g. "d es", "Karte nnullebene"), which
+    # breaks ANSWER_TEXT_FIXES and would alter the wording. Bump it by hand, diffing the extracted
+    # text of both PDFs between the versions first.
+    ignore:
+      - dependency-name: pypdf
 
   - package-ecosystem: npm
     directory: /frontend
