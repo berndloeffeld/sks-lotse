@@ -482,3 +482,14 @@
   - text: Vor einer Einfahrt setzt oft ein Strom quer zum Kurs, etwa ein Gezeiten- oder Küstenstrom. Bei auflandigem
       Starkwind fließt zusätzlich das Wasser, das der Wind gegen die Küste drückt, an ihr entlang ab. Dieser
       **Querstrom** versetzt die Yacht genau dort, wo wenig Platz ist – gegen die Mole oder auf flaches Wasser.
+- subject: schifffahrtsrecht
+  number: 19
+  answer_fingerprint: 369fac22cbe6
+  blocks:
+  - text: '**Lang-kurz-kurz** geben bei verminderter Sicht mehrere Fahrzeuge in Fahrt, die nicht ohne Weiteres
+      ausweichen können: Segelfahrzeuge, Fischer, manövrierunfähige und manövrierbehinderte – und ein **schleppendes
+      Fahrzeug**. Allein verrät dieses Signal noch nicht, wer es gibt.'
+  - text: '**Lang-kurz-kurz-kurz** gibt nur ein einziges Fahrzeug: der **geschleppte Anhang**, wenn er besetzt ist. Er
+      gibt es möglichst unmittelbar nach dem Signal des Schleppers. Merkhilfe: Der Anhang hängt einen kurzen Ton an.'
+  - text: Folgen beide direkt aufeinander, ist es ein **Schleppverband in Fahrt** – zuerst der Schlepper mit
+      lang-kurz-kurz, dann der Anhang mit lang-kurz-kurz-kurz.

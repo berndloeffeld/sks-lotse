@@ -1717,7 +1717,23 @@
    "answer_text": "Es ist das Schallsignal eines Schleppverbandes in Fahrt (schleppendes Fahrzeug lang-kurz-kurz; Anhang lang-kurz-kurz-kurz).",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "**Lang-kurz-kurz** geben bei verminderter Sicht mehrere Fahrzeuge in Fahrt, die nicht ohne Weiteres ausweichen können: Segelfahrzeuge, Fischer, manövrierunfähige und manövrierbehinderte – und ein **schleppendes Fahrzeug**. Allein verrät dieses Signal noch nicht, wer es gibt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "**Lang-kurz-kurz-kurz** gibt nur ein einziges Fahrzeug: der **geschleppte Anhang**, wenn er besetzt ist. Er gibt es möglichst unmittelbar nach dem Signal des Schleppers. Merkhilfe: Der Anhang hängt einen kurzen Ton an.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Folgen beide direkt aufeinander, ist es ein **Schleppverband in Fahrt** – zuerst der Schlepper mit lang-kurz-kurz, dann der Anhang mit lang-kurz-kurz-kurz.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
