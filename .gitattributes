@@ -7,3 +7,9 @@
 *.pdf binary
 *.ico binary
 *.woff2 binary
+
+# Generated files: GitHub collapses them in PR diffs, so a review shows the hand-written source
+# (catalog_derivations.yaml, the API) first. They are never edited by hand (CLAUDE.md).
+*.gen.json linguist-generated=true
+*.gen.ts linguist-generated=true
+postman/sks-lotse.postman_collection.json linguist-generated=true
