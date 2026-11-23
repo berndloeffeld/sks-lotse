@@ -27,9 +27,9 @@ def test_a_secret_encrypted_under_another_jwt_secret_is_unreadable(monkeypatch):
 
 
 def test_provisioning_uri_names_the_issuer_and_account():
-    uri = totp.provisioning_uri("JBSWY3DPEHPK3PXP", "admin@example.com")
+    uri = totp.provisioning_uri("JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP", "admin@example.com")
     assert uri.startswith("otpauth://totp/SKS%20Lotse:admin%40example.com?")
-    assert "secret=JBSWY3DPEHPK3PXP" in uri
+    assert "secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP" in uri
     assert "issuer=SKS%20Lotse" in uri
 
 
