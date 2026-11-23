@@ -1717,7 +1717,23 @@
    "answer_text": "Es ist das Schallsignal eines Schleppverbandes in Fahrt (schleppendes Fahrzeug lang-kurz-kurz; Anhang lang-kurz-kurz-kurz).",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "**Lang-kurz-kurz** geben bei verminderter Sicht mehrere Fahrzeuge in Fahrt, die nicht ohne Weiteres ausweichen können: Segelfahrzeuge, Fischer, manövrierunfähige und manövrierbehinderte – und ein **schleppendes Fahrzeug**. Allein verrät dieses Signal noch nicht, wer es gibt.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "**Lang-kurz-kurz-kurz** gibt nur ein einziges Fahrzeug: der **geschleppte Anhang**, wenn er besetzt ist. Er gibt es möglichst unmittelbar nach dem Signal des Schleppers. Merkhilfe: Der Anhang hängt einen kurzen Ton an.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Folgen beide direkt aufeinander, ist es ein **Schleppverband in Fahrt** – zuerst der Schlepper mit lang-kurz-kurz, dann der Anhang mit lang-kurz-kurz-kurz.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "schifffahrtsrecht",
@@ -3223,7 +3239,23 @@
    "answer_text": "Gefahr durch Grundseen bzw. Kreuzseen. Möglichkeit von Querstrom.",
    "question_images": [],
    "answer_images": [],
-   "derivation": []
+   "derivation": [
+    {
+     "text": "Auflandiger Wind treibt die See auf die Küste zu. Vor der Hafeneinfahrt wird das Wasser flacher. Dort bremst der Grund die Wellen, sie werden steil und brechen – das sind **Grundseen**.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "An Molenköpfen und Wellenbrechern wird die anlaufende See zurückgeworfen. Zurückgeworfene und anlaufende Wellen treffen aus verschiedenen Richtungen aufeinander – das sind **Kreuzseen**. Die Yacht ist darin schwer auf Kurs zu halten.",
+     "table": null,
+     "image": null
+    },
+    {
+     "text": "Vor einer Einfahrt setzt oft ein Strom quer zum Kurs, etwa ein Gezeiten- oder Küstenstrom. Bei auflandigem Starkwind fließt zusätzlich das Wasser, das der Wind gegen die Küste drückt, an ihr entlang ab. Dieser **Querstrom** versetzt die Yacht genau dort, wo wenig Platz ist – gegen die Mole oder auf flaches Wasser.",
+     "table": null,
+     "image": null
+    }
+   ]
   },
   {
    "subject": "seemannschaft_allgemein",
