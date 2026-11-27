@@ -1,18 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
 from app.core.database import get_db
 from app.core.jwt import get_current_user
-from app.core.rate_limit import enforce_limit
 from app.domain.exam_variant import restrict_to_variant, subjects_for_variant
-from app.models.question import Question
-from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.question import QuestionRead, TopicRead
-from app.schemas.question_report import QuestionReportCreate, QuestionReportRead
 from app.services.catalog import catalog
 
 router = APIRouter(prefix="/questions", tags=["questions"], dependencies=[Depends(get_current_user)])
@@ -45,38 +40,6 @@ def list_questions(
     current_user: User = Depends(get_current_user),
 ):
     return _filtered_catalog(request, db, current_user, subject, topic)
-
-
-@router.post("/{question_id}/report", response_model=QuestionReportRead, status_code=status.HTTP_201_CREATED)
-def report_question(
-    request: Request,
-    question_id: int,
-    payload: QuestionReportCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Flag a question as faulty ("Frage melden", ADR-0030)."""
-    # A second, per-user cap on top of the blanket per-IP one (app/main.py): the free text
-    # ends up in front of the operator, so one account must not be able to flood it.
-    enforce_limit(
-        request.app,
-        "question_report:user",
-        str(current_user.id),
-        settings.question_report_max_per_window,
-        settings.question_report_window_seconds,
-        "Too many reports",
-    )
-    if db.get(Question, question_id) is None:
-        raise HTTPException(status_code=404, detail="Question not found")
-    report = QuestionReport(
-        user_id=current_user.id,
-        question_id=question_id,
-        category=payload.category,
-        comment=payload.comment,
-    )
-    db.add(report)
-    db.commit()
-    return report
 
 
 topics_router = APIRouter(prefix="/topics", tags=["questions"], dependencies=[Depends(get_current_user)])

@@ -11,7 +11,6 @@ from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
-from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.services import email as email_service
@@ -81,7 +80,6 @@ def _populate(db) -> None:
                 half_life_days=1,
             ),
             FocusTopic(user_id=active.id, topic_id=topic.id),
-            QuestionReport(user_id=active.id, question_id=nav.id, category="wrong", created_at=_ago(hours=1)),
         ]
     )
     attempt = ExamAttempt(
@@ -115,7 +113,6 @@ def test_kpis_on_an_empty_database(db_session):
     assert report.engagement.stickiness is None
     assert report.engagement.retention_rate is None
     assert report.learning.learned_per_learner is None
-    assert report.quality.top_reported_7d == []
     assert (report.quality.ai_flags_24h, report.quality.ai_flags_total) == (0, 0)
     text = format_report(report)
     assert "Konten gesamt: 0" in text
@@ -151,8 +148,6 @@ def test_kpis_count_each_group(db_session):
     assert (learning.exams_graded_7d, learning.exams_passed_7d) == (1, 1)
 
     quality = report.quality
-    assert (quality.reports_24h, quality.reports_total) == (1, 1)
-    assert [(r.subject, r.number, r.reports) for r in quality.top_reported_7d] == [("navigation", 1, 1)]
     # active was flagged within the last 24h; idle was flagged 40 days ago and doesn't count there.
     assert (quality.ai_flags_24h, quality.ai_flags_total) == (1, 3)
 
@@ -175,7 +170,7 @@ def test_format_report_lists_the_numbers(db_session):
     assert "Tagesreport 20.09.2026" in text
     assert "Neu (24 h / Vortag / 7 Tage): 1 / 1 / 2" in text
     assert "Gelernt je Fach: navigation 1" in text
-    assert "  - navigation Nr. 1: 1x" in text
+    assert "Fragenmeldungen" not in text
     assert "KI-Prüfung Sanitizer-Flags (24 h neu / gesamt): 1 / 3" in text
 
 

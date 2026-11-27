@@ -28,7 +28,6 @@ from app.models import (
     Question,
     QuestionGradingLog,
     QuestionProgress,
-    QuestionReport,
     Topic,
     User,
 )
@@ -42,7 +41,6 @@ from app.schemas.admin import (
     AdminPurchaseExport,
     AdminQuestionGradingExport,
     AdminQuestionProgressExport,
-    AdminQuestionReportExport,
     AdminUserListItem,
     AdminUserRead,
 )
@@ -59,7 +57,6 @@ EXPORT_SCHEMAS: dict[str, tuple[type[BaseModel], ...]] = {
     "question_progress": (AdminQuestionProgressExport,),
     "question_grading_log": (AdminQuestionGradingExport,),
     "focus_topics": (AdminFocusTopicExport,),
-    "question_reports": (AdminQuestionReportExport,),
     "exam_attempts": (AdminExamAttemptExport,),
     "exam_attempt_questions": (AdminExamQuestionExport,),
     "chart_attempts": (AdminChartAttemptExport,),
@@ -94,7 +91,6 @@ EXCLUDED: dict[str, dict[str, str]] = {
         "user_id": _OWNER,
         "topic_id": "exported as subject, topic_slug and name",
     },
-    "question_reports": {"id": _ROW_ID, "user_id": _OWNER},
     "exam_attempts": {"user_id": _OWNER},
     "exam_attempt_questions": {
         "id": _ROW_ID,
@@ -222,7 +218,6 @@ def _rows_for(db: Session, user: User, question: Question, topic: Topic) -> None
             QuestionGradingLog(
                 user_id=user.id, question_id=question.id, outcome="richtig", half_life_days=2.5
             ),
-            QuestionReport(user_id=user.id, question_id=question.id, category="wrong_answer"),
             FocusTopic(user_id=user.id, topic_id=topic.id),
             _paid(user.id),
             _paid(user.id, cents=None),

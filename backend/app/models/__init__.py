@@ -9,7 +9,6 @@ from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
-from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 
@@ -26,7 +25,6 @@ __all__ = [
     "Question",
     "QuestionGradingLog",
     "QuestionProgress",
-    "QuestionReport",
     "Topic",
     "User",
 ]

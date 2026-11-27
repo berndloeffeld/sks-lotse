@@ -293,24 +293,6 @@ export interface components {
              */
             updated_at: string;
         };
-        /** AdminQuestionReportExport */
-        AdminQuestionReportExport: {
-            /** Question Id */
-            question_id: number;
-            /** Subject */
-            subject: string;
-            /** Question Number */
-            question_number: number;
-            /** Category */
-            category: string;
-            /** Comment */
-            comment: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-        };
         /** AdminSettings */
         AdminSettings: {
             /** Signup Bonus Tokens */
@@ -329,8 +311,6 @@ export interface components {
             question_gradings: components["schemas"]["AdminQuestionGradingExport"][];
             /** Focus Topics */
             focus_topics: components["schemas"]["AdminFocusTopicExport"][];
-            /** Question Reports */
-            question_reports: components["schemas"]["AdminQuestionReportExport"][];
             /** Exam Attempts */
             exam_attempts: components["schemas"]["AdminExamAttemptExport"][];
             /** Chart Attempts */
@@ -1064,29 +1044,6 @@ export interface components {
              * @default []
              */
             derivation: components["schemas"]["DerivationBlock"][];
-        };
-        /** QuestionReportCreate */
-        QuestionReportCreate: {
-            /** Category */
-            category: string;
-            /** Comment */
-            comment?: string | null;
-        };
-        /** QuestionReportRead */
-        QuestionReportRead: {
-            /** Id */
-            id: number;
-            /** Question Id */
-            question_id: number;
-            /** Category */
-            category: string;
-            /** Comment */
-            comment: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
         };
         /**
          * RefreshSummaryRead

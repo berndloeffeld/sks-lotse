@@ -137,15 +137,6 @@ class AdminFocusTopicExport(BaseModel):
     created_at: datetime
 
 
-class AdminQuestionReportExport(BaseModel):
-    question_id: int
-    subject: str
-    question_number: int
-    category: str
-    comment: str | None
-    created_at: datetime
-
-
 class AdminExamQuestionExport(BaseModel):
     position: int
     subject_group: str
@@ -218,7 +209,6 @@ class AdminUserExport(BaseModel):
     question_progress: list[AdminQuestionProgressExport]
     question_gradings: list[AdminQuestionGradingExport]
     focus_topics: list[AdminFocusTopicExport]
-    question_reports: list[AdminQuestionReportExport]
     exam_attempts: list[AdminExamAttemptExport]
     chart_attempts: list[AdminChartAttemptExport]
     purchases: list[AdminPurchaseExport]

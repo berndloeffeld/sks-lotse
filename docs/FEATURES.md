@@ -87,7 +87,6 @@ Status today: buying tokens is open to all learners (the live state of the flag 
 
 ## Feedback and quality
 
-- **Report a question:** under every question a fault can be reported (question text, answer text, typo, missing image, other). The operator sees the most reported questions in the daily report.
 - **Feedback** via the email link "Kontakt" in the footer.
 
 ## Navigation

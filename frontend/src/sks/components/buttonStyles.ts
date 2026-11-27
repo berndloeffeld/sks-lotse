@@ -1,7 +1,7 @@
 // The button looks of the whole app, for <button>, <Link> and <a> alike — one role, one look:
 // - primary: the one action a screen leads to (Weiter, Probeprüfung starten, Speichern);
 // - secondary: an alternative beside it (Alle Fragen wiederholen, Zur Startseite);
-// - tertiary: a quiet text button (Abbrechen, Erneut laden, Frage melden);
+// - tertiary: a quiet text button (Abbrechen, Erneut laden);
 // - dangerOutline: opens a deletion's confirmation; danger: confirms it (Endgültig löschen).
 // `tone` follows the ground: `light` on the page, `dark` on a primary band, `admin` for the plainer
 // admin area. `compact` is the size for buttons inside list rows.

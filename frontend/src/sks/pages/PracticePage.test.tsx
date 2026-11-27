@@ -426,7 +426,6 @@ describe('PracticePage', () => {
 
     expect(await screen.findByText(/Frage 2 von 2/)).toBeInTheDocument()
     expect(screen.getAllByTestId('course-boat')).toHaveLength(1)
-    expect(screen.getAllByRole('button', { name: 'Fehler in dieser Frage melden' })).toHaveLength(1)
   })
 
   it('runs the whole loop from the keyboard', async () => {
@@ -553,7 +552,6 @@ describe('PracticePage without a login', () => {
     expect(screen.getByRole('heading', { name: 'Frage 7?' })).toBeInTheDocument()
     // Not pulled into the answer field on arrival.
     expect(screen.getByLabelText(/Deine Antwort/)).not.toHaveFocus()
-    expect(screen.queryByRole('button', { name: /Frage melden/ })).not.toBeInTheDocument()
     expect(screen.getByText('Liste: 7,8')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
