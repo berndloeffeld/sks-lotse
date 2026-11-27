@@ -19,6 +19,19 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+# Tables still in the database that no model maps any more: the question reports ("Frage melden",
+# ADR-0030, removed 2026-11-27). The running code must stop using a table one deploy before a
+# migration drops it, so `alembic check` leaves it alone until then; the migration that drops it
+# removes this set too.
+_UNMAPPED_TABLES = {"question_reports"}
+
+
+def _include_object(obj, name, type_, reflected, compare_to):
+    if type_ == "table" and reflected and compare_to is None:
+        return name not in _UNMAPPED_TABLES
+    return True
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -41,6 +54,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        include_object=_include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -63,7 +77,9 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata, include_object=_include_object
+        )
 
         with context.begin_transaction():
             context.run_migrations()

@@ -13,7 +13,6 @@ from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
-from app.models.question_report import QuestionReport
 from app.models.user import User
 from app.schemas.kpis import (
     AdminDashboard,
@@ -24,12 +23,9 @@ from app.schemas.kpis import (
     LearningKpis,
     MonetizationKpis,
     QualityKpis,
-    ReportedQuestion,
     SubjectLearned,
 )
 from app.services import exam as exam_service
-
-TOP_REPORTED_LIMIT = 5
 
 
 def _ratio(numerator: int, denominator: int) -> float | None:
@@ -169,22 +165,7 @@ def _learning(db: Session, now: datetime) -> LearningKpis:
 
 
 def _quality(db: Session, now: datetime) -> QualityKpis:
-    top = db.execute(
-        select(Question.subject, Question.number, func.count().label("reports"))
-        .join(QuestionReport, QuestionReport.question_id == Question.id)
-        .where(QuestionReport.created_at >= now - timedelta(days=7))
-        .group_by(Question.subject, Question.number)
-        .order_by(func.count().desc(), Question.subject, Question.number)
-        .limit(TOP_REPORTED_LIMIT)
-    ).all()
     return QualityKpis(
-        reports_24h=db.execute(
-            select(func.count())
-            .select_from(QuestionReport)
-            .where(QuestionReport.created_at >= now - timedelta(days=1))
-        ).scalar_one(),
-        reports_total=db.execute(select(func.count()).select_from(QuestionReport)).scalar_one(),
-        top_reported_7d=[ReportedQuestion(subject=s, number=n, reports=r) for s, n, r in top],
         ai_flags_24h=db.execute(
             select(func.count())
             .select_from(User)
@@ -325,7 +306,6 @@ def format_report(report: KpiReport) -> str:
         report.monetization,
     )
     subjects = ", ".join(f"{item.subject} {item.learned_questions}" for item in learn.learned_by_subject)
-    top = [f"  - {r.subject} Nr. {r.number}: {r.reports}x" for r in q.top_reported_7d]
     lines = [
         f"SKS Lotse - Tagesreport {report.generated_at:%d.%m.%Y}",
         "",
@@ -362,9 +342,6 @@ def format_report(report: KpiReport) -> str:
         f"Umsatz 24 h / 7 Tage: {_eur(m.revenue_cents_24h)} / {_eur(m.revenue_cents_7d)}",
         "",
         "QUALITÄT",
-        f"Fragenmeldungen 24 h / gesamt: {q.reports_24h} / {q.reports_total}",
         f"KI-Prüfung Sanitizer-Flags (24 h neu / gesamt): {q.ai_flags_24h} / {q.ai_flags_total}",
-        "Meistgemeldet (7 Tage):",
-        *(top or ["  -"]),
     ]
     return "\n".join(lines) + "\n"

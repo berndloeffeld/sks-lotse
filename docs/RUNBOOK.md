@@ -187,7 +187,6 @@ Aikido rescans the repo about every three days and mails when it finds something
 - The report also lists Kartenaufgaben runs, Lotsen-Checks (by kind) with the tokens they cost, and Stripe purchases with revenue. Checks come from `lotse_check_log`, which the job trims to 30 days after computing the report.
 - The same growth, activity and Lotsen-Check/revenue figures, plus a chart per day, are on `/admin` → Übersicht at any time; days there are UTC days, and Lotsen-Checks reach back 30 days.
 - Locally: `cd backend && python -m scripts.send_daily_report` (needs a `.env` with a database and `RESEND_API_KEY`).
-- It lists the most-reported questions of the last 7 days ("Frage melden"). There is no admin page for the reports themselves (ADR-0030 addendum 2026-09-24); read their comments in a Render Shell (see Database → External access), e.g. `db.query(QuestionReport).order_by(QuestionReport.created_at.desc()).limit(20).all()` with `from app.models.question_report import QuestionReport`.
 - A failing recipient doesn't stop the others. The run exits 1 on any failure (visible in Render) and then skips the heartbeat, so Better Stack alerts too.
 
 ## Settings that live only in dashboards

@@ -4,7 +4,6 @@ import type { Exam, GradingOutcome } from '../api/types'
 import { SUBJECT_GROUP_LABELS } from '../labels'
 import { OfficialAnswerBox, OwnAnswer } from './AnswerBox'
 import { QuestionImages } from './QuestionImages'
-import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
 import { SelfAssessment } from './SelfAssessment'
 
@@ -34,9 +33,6 @@ export function ExamGrading({ exam, onChange }: { exam: Exam; onChange: (exam: E
           {exam.timed_out ? 'Die Zeit ist abgelaufen. ' : ''}Selbsteinschätzung: {graded} von {exam.question_count}{' '}
           bewertet · Frage {question.position} · {SUBJECT_GROUP_LABELS[question.subject_group]}
         </p>
-        {question.question_id !== null ? (
-          <ReportQuestion key={question.question_id} questionId={question.question_id} />
-        ) : null}
       </div>
       <p className="font-serif text-base leading-snug whitespace-pre-line text-ink">
         {question.question_text ? <RichText text={question.question_text} /> : 'Diese Frage ist nicht mehr im Katalog.'}

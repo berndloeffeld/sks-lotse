@@ -12,7 +12,6 @@ import { formStyles } from './formStyles'
 import { CELEBRATION_MS, LearnedCelebration } from './LearnedCelebration'
 import { GuestCta, LoginLink } from './LoginLink'
 import { QuestionImages } from './QuestionImages'
-import { ReportQuestion } from './ReportQuestion'
 import { RichText } from './RichText'
 import { SelfAssessment } from './SelfAssessment'
 import { buttonClass } from './buttonStyles'
@@ -254,15 +253,9 @@ export function PracticeRun({
             {index + 1} / {run.length}
           </span>
         </p>
-        {/* Keyed per question (one key on the wrapper — duplicate sibling keys make React leave the
-            previous question's gauge standing): a new question starts where it stands, only a
-            grading of this one makes the boat sail, and the report popover starts closed. */}
-        {guest ? null : (
-          <div key={question.id} className="flex items-center gap-3">
-            <CourseGauge progress={standings.get(question.id)?.progress ?? 0} />
-            <ReportQuestion questionId={question.id} />
-          </div>
-        )}
+        {/* Keyed per question: a new question starts where it stands, and only a grading of this
+            one makes the boat sail. */}
+        {guest ? null : <CourseGauge key={question.id} progress={standings.get(question.id)?.progress ?? 0} />}
       </div>
 
       <div className="-mb-2 flex items-baseline justify-between gap-3 font-mono text-xs tracking-wide text-ink-soft uppercase">

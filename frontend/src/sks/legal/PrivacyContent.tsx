@@ -97,9 +97,9 @@ export function PrivacyContent() {
           können Sie in Ihrem Profil Vor- und Nachname sowie eine Anrede angeben; diese Angaben sind freiwillig.
           Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Lernangebots), für freiwillige Angaben Art.
           6 Abs. 1 lit. a DSGVO. Die Daten werden gespeichert, solange Ihr Konto besteht. Sie können Ihr Konto jederzeit
-          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt, Fokus-Markierungen und Fragenmeldungen
-          vollständig gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art.
-          22 DSGVO statt.
+          selbst unter „Profil“ löschen; dabei werden Konto, Lernfortschritt und Fokus-Markierungen vollständig
+          gelöscht. Es findet keine automatisierte Entscheidungsfindung oder Profilbildung im Sinne von Art. 22 DSGVO
+          statt.
         </p>
         <p>
           Wenn Sie die Probeprüfung nutzen, speichern wir zu jeder Prüfung die zufällig zusammengestellten Fragen, die
@@ -159,13 +159,8 @@ export function PrivacyContent() {
         </p>
       </ProseSection>
 
-      <ProseSection title="Fragen melden und Feedback">
+      <ProseSection title="Feedback">
         <p>
-          Wenn Sie über „Fehler in dieser Frage melden“ eine Frage melden, speichern wir die Frage, die gewählte
-          Kategorie, Ihre optionale Anmerkung, den Zeitpunkt sowie die Verknüpfung mit Ihrem Konto, damit wir bei
-          Rückfragen antworten können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
-          Korrektur und Qualitätssicherung des Fragenkatalogs). Die Meldungen werden gespeichert, solange Ihr Konto
-          besteht, und mit dem Konto gelöscht. Bitte geben Sie in der Anmerkung keine personenbezogenen Daten ein.
           Feedback per E-Mail über den Link „Kontakt“ am Seitenende geht direkt an die oben genannte Adresse und wird
           nur zur Beantwortung und Verbesserung des Angebots verwendet.
         </p>
@@ -246,7 +241,7 @@ export function PrivacyContent() {
         </p>
       </ProseSection>
 
-      <p className="text-xs text-ink-soft">Stand: 24. Oktober 2026</p>
+      <p className="text-xs text-ink-soft">Stand: 27. November 2026</p>
     </>
   )
 }

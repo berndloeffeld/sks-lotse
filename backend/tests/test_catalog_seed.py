@@ -11,7 +11,6 @@ from app.models.exam_attempt import ExamAttempt, ExamAttemptQuestion
 from app.models.focus_topic import FocusTopic
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
-from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.services import catalog_seed
 from app.services.catalog_seed import (
@@ -310,7 +309,6 @@ def _learner_data_on(db_session, user: User, question: Question) -> None:
             QuestionGradingLog(
                 user_id=user.id, question_id=question.id, outcome="richtig", half_life_days=2.5
             ),
-            QuestionReport(user_id=user.id, question_id=question.id, category="wrong_answer"),
             attempt,
         ]
     )
@@ -352,7 +350,7 @@ def test_sync_removing_a_question_cascades_its_learner_rows_and_nulls_the_exam_r
 
     assert db_session.query(Question).count() == 1
     # CASCADE: the vanished question's rows are gone, the kept question's untouched.
-    for model in (QuestionProgress, QuestionGradingLog, QuestionReport):
+    for model in (QuestionProgress, QuestionGradingLog):
         assert [row.question_id for row in db_session.query(model)] == [kept.id], model.__name__
     # SET NULL: the exam keeps its answer when the question is gone.
     exam_questions = db_session.query(ExamAttemptQuestion).order_by(ExamAttemptQuestion.id).all()

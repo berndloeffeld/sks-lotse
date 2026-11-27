@@ -17,7 +17,6 @@ from app.models.purchase import Purchase
 from app.models.question import Question
 from app.models.question_grading_log import QuestionGradingLog
 from app.models.question_progress import QuestionProgress
-from app.models.question_report import QuestionReport
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.admin import (
@@ -33,7 +32,6 @@ from app.schemas.admin import (
     AdminQuestionHistory,
     AdminQuestionHistoryUser,
     AdminQuestionProgressExport,
-    AdminQuestionReportExport,
     AdminUserExport,
     AdminUserRead,
 )
@@ -147,12 +145,6 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
         .where(FocusTopic.user_id == user.id)
         .order_by(Topic.subject, Topic.display_order)
     ).all()
-    report_rows = db.execute(
-        select(QuestionReport, Question.subject, Question.number)
-        .join(Question, Question.id == QuestionReport.question_id)
-        .where(QuestionReport.user_id == user.id)
-        .order_by(QuestionReport.created_at)
-    ).all()
     grading_rows = db.execute(
         select(QuestionGradingLog, Question.subject, Question.number)
         .join(Question, Question.id == QuestionGradingLog.question_id)
@@ -176,10 +168,6 @@ def build_user_export(app, db: Session, user: User) -> AdminUserExport:
                 topic_name=topic.name,
             )
             for focus, topic in focus_rows
-        ],
-        question_reports=[
-            _from_row(AdminQuestionReportExport, report, subject=subject, question_number=number)
-            for report, subject, number in report_rows
         ],
         question_progress=[
             _from_row(AdminQuestionProgressExport, progress, subject=subject, question_number=number)

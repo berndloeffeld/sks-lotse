@@ -1,6 +1,6 @@
 # 0030. Question reports and lightweight feedback channels
 
-Status: Accepted; amended by the addendum of 2026-09-24 (no `GET /admin/question-reports` any more).
+Status: Accepted; amended by the addendum of 2026-09-24 (no `GET /admin/question-reports` any more) and the addendum of 2026-11-27 ("Frage melden" removed).
 
 ## Context
 
@@ -24,3 +24,9 @@ Three channels, ordered by effort:
 ## Addendum 2026-09-24: no admin endpoint for the reports
 
 `GET /api/v1/admin/question-reports` is removed. No admin page ever called it, so it was an API surface without a user. The operator learns about reports from the daily KPI report (ADR-0032), which lists the most-reported questions of the last 7 days, and reads the comments in a Render Shell ([runbook](../RUNBOOK.md#daily-kpi-report)). Every report stays part of its author's DSGVO export and is deleted with the account, as before.
+
+## Addendum 2026-11-27: "Frage melden" removed
+
+The second channel is gone: the form under the official answer, `POST /api/v1/questions/{id}/report`, its per-user cap (`QUESTION_REPORT_*`), the report's part of the DSGVO export, the `question_reported` event and the reports section of the daily KPI report. The operator no longer needs per-question feedback in the app; a learner who finds a fault writes via the mail link, which stays, as do the Umami funnel events.
+
+The `question_reports` table goes in two steps, since a migration runs while the previous version still serves: this change stops mapping it (`alembic/env.py` keeps `alembic check` from reporting it), and a follow-up migration drops it together with its rows and removes that exception. Until then, deleting an account still removes its reports through the `ON DELETE CASCADE` on `user_id`.

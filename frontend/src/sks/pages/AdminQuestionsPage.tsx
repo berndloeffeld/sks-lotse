@@ -19,7 +19,7 @@ interface Search {
 }
 
 // Looks up question and official answer texts across the whole catalog (/admin/questions),
-// e.g. for a "Frage melden" note. Read-only: the catalog wording is never changed here.
+// e.g. for a learner's note sent by email. Read-only: the catalog wording is never changed here.
 export function AdminQuestionsPage() {
   const [input, setInput] = useState<Search>({ q: '', subject: '', topic: '' })
   const [search, setSearch] = useState<Search>({ q: '', subject: '', topic: '' })

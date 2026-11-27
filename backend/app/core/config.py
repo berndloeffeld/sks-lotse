@@ -129,11 +129,6 @@ class Settings(BaseSettings):
     admin_mfa_max_attempts_per_window: int = 5
     admin_mfa_window_seconds: int = 900  # 15 minutes
 
-    # Per-authenticated-user cap on POST /questions/{id}/report: bounds how much
-    # free text one account can push into the operator's inbox.
-    question_report_max_per_window: int = 20
-    question_report_window_seconds: int = 3600  # 1 hour
-
     # AI answer check: the learner's answer is capped (tokens = cost) and each account
     # gets a per-hour budget on top of the blanket per-IP rule (app/main.py).
     grading_max_answer_chars: int = 1000
